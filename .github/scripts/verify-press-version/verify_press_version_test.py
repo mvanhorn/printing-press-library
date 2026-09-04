@@ -86,7 +86,7 @@ class PressVersionVerifierTest(unittest.TestCase):
     def test_new_cli_with_old_press_version_fails(self) -> None:
         base = self.commit_base()
         self.git("switch", "-c", "feature")
-        self.write_manifest("library/cloud/new", "4.9.9")
+        self.write_manifest("library/cloud/new", "4.31.6")
         self.write("library/cloud/new/README.md", "# New\n")
         self.git("add", ".")
         self.git("commit", "-m", "add stale cli")
@@ -96,7 +96,7 @@ class PressVersionVerifierTest(unittest.TestCase):
     def test_new_cli_with_current_press_version_passes(self) -> None:
         base = self.commit_base()
         self.git("switch", "-c", "feature")
-        self.write_manifest("library/cloud/new", "4.10.0")
+        self.write_manifest("library/cloud/new", "4.31.7")
         self.write("library/cloud/new/README.md", "# New\n")
         self.git("add", ".")
         self.git("commit", "-m", "add current cli")
@@ -106,7 +106,7 @@ class PressVersionVerifierTest(unittest.TestCase):
     def test_v_prefixed_newer_version_passes(self) -> None:
         base = self.commit_base()
         self.git("switch", "-c", "feature")
-        self.write_manifest("library/cloud/newer", "v4.11.0")
+        self.write_manifest("library/cloud/newer", "v4.32.0")
         self.write("library/cloud/newer/README.md", "# Newer\n")
         self.git("add", ".")
         self.git("commit", "-m", "add newer cli")

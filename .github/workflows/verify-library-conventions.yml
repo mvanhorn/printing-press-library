@@ -40,10 +40,11 @@ name: Verify library conventions
 #    then published from that workflow.
 #
 # 6. Newly added library CLIs must have been printed by cli-printing-press
-#    v4.10.0 or newer. That release renamed the generator binary from
-#    `printing-press` to `cli-printing-press`; stale local generator
-#    checkouts and skill installs should fail with direct upgrade
-#    instructions instead of publishing ambiguous old artifacts. Existing
+#    v4.31.7 or newer so they ship with the current generator (including
+#    recent operator fixes: MCP clientHooks, sync default-filter/history,
+#    non-JSON default sync, binary `--deliver`, etc.). Stale local
+#    generator checkouts and skill installs should fail with direct
+#    upgrade instructions instead of publishing old artifacts. Existing
 #    published CLIs can still receive narrow bugfixes even when their
 #    historical manifest records an older Printing Press version.
 #

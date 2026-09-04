@@ -12,7 +12,7 @@ from pathlib import Path, PurePosixPath
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-MIN_PRESS_VERSION = "4.10.0"
+MIN_PRESS_VERSION = "4.31.7"
 MIN_VERSION_PARTS = tuple(int(part) for part in MIN_PRESS_VERSION.split("."))
 
 
