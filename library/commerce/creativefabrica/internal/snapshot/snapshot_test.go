@@ -3,6 +3,7 @@ package snapshot
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -56,18 +57,25 @@ func TestPutLeavesNoTempFiles(t *testing.T) {
 	dir := t.TempDir()
 	s := Open(dir)
 	if err := s.Put("k", []string{"a"}); err != nil {
-		t.Fatal(err)
+		t.Fatalf("Put: %v", err)
 	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, e := range entries {
-		if filepath.Ext(e.Name()) == ".tmp" {
+		if filepath.Ext(e.Name()) == ".tmp" || (strings.HasPrefix(e.Name(), ".snap-") && strings.HasSuffix(e.Name(), ".tmp")) {
 			t.Fatalf("temp file left behind: %s", e.Name())
 		}
 	}
 	if _, ok := s.Get("k"); !ok {
 		t.Fatal("final snapshot missing")
+	}
+	if err := s.Put("k", []string{"a", "b"}); err != nil {
+		t.Fatalf("second Put: %v", err)
+	}
+	snap, ok := s.Get("k")
+	if !ok || len(snap.ObjectIDs) != 2 {
+		t.Fatalf("second put ids = %v", snap.ObjectIDs)
 	}
 }

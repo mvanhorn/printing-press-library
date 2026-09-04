@@ -67,6 +67,21 @@ func ResolveCreds(ctx context.Context, httpClient *http.Client) (Creds, error) {
 			"or run 'creativefabrica-pp-cli auth set-key <key>'", envAPIKey)
 }
 
+// AuthQuery returns the query parameters Algolia requires on every catalog
+// request. The generated HTTP client must send these; Origin/Referer alone
+// are not enough.
+func AuthQuery(creds Creds) map[string]string {
+	appID := creds.AppID
+	if appID == "" {
+		appID = DefaultAppID
+	}
+	return map[string]string{
+		"x-algolia-application-id": appID,
+		"x-algolia-api-key":        creds.APIKey,
+		"x-algolia-agent":          "creativefabrica-pp-cli",
+	}
+}
+
 // SaveCreds writes credentials to the local cache, e.g. from `auth set-key`.
 func SaveCreds(appID, apiKey string) error {
 	if appID == "" {

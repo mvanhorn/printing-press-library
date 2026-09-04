@@ -12,20 +12,21 @@ import (
 )
 
 type designerProfile struct {
-	Designer    string       `json:"designer"`
-	DesignerID  int          `json:"designer_id"`
-	Total       int          `json:"total_products"`
-	Scanned     int          `json:"scanned"`
-	Sampled     bool         `json:"sampled"`
-	FreeCount   int          `json:"free_count"`
-	PodCount    int          `json:"pod_count"`
-	OnSaleCount int          `json:"on_sale_count"`
-	MinPrice    float64      `json:"min_price"`
-	MaxPrice    float64      `json:"max_price"`
-	MedianPrice float64      `json:"median_price"`
-	TypeMix     []facetCount `json:"type_mix"`
-	NewestName  string       `json:"newest_product,omitempty"`
-	NewestDate  int64        `json:"newest_date,omitempty"`
+	Designer         string       `json:"designer"`
+	DesignerID       int          `json:"designer_id"`
+	Total            int          `json:"total_products"`
+	Scanned          int          `json:"scanned"`
+	Sampled          bool         `json:"sampled"`
+	CountsFromFacets bool         `json:"counts_from_facets"`
+	FreeCount        int          `json:"free_count"`
+	PodCount         int          `json:"pod_count"`
+	OnSaleCount      int          `json:"on_sale_count"`
+	MinPrice         float64      `json:"min_price"`
+	MaxPrice         float64      `json:"max_price"`
+	MedianPrice      float64      `json:"median_price"`
+	TypeMix          []facetCount `json:"type_mix"`
+	NewestName       string       `json:"newest_product,omitempty"`
+	NewestDate       int64        `json:"newest_date,omitempty"`
 }
 
 // profileDesigner fetches and aggregates a designer's catalog.
@@ -38,7 +39,7 @@ func profileDesigner(cmd *cobra.Command, flags *rootFlags, designer string, maxS
 	ctx, cancel := boundCtx(cmd.Context(), flags)
 	defer cancel()
 	c := newAlgoliaClient(flags)
-	hits, nbHits, err := fetchAllForDesigner(ctx, c, designer, maxScanPages)
+	hits, nbHits, facets, err := fetchAllForDesigner(ctx, c, designer, maxScanPages)
 	if err != nil {
 		return designerProfile{}, apiErr(err)
 	}
@@ -46,19 +47,22 @@ func profileDesigner(cmd *cobra.Command, flags *rootFlags, designer string, maxS
 	if len(hits) == 0 {
 		return p, nil
 	}
+	fromFacets := applyDesignerFacets(&p, facets)
 	typeCounts := map[string]int{}
 	var prices []float64
 	p.MinPrice = -1
 	for _, h := range hits {
-		typeCounts[h.Type]++
-		if h.IsFree {
-			p.FreeCount++
-		}
-		if h.HasPod {
-			p.PodCount++
-		}
-		if h.HasPromotions {
-			p.OnSaleCount++
+		if !fromFacets {
+			typeCounts[h.Type]++
+			if h.IsFree {
+				p.FreeCount++
+			}
+			if h.HasPod {
+				p.PodCount++
+			}
+			if h.HasPromotions {
+				p.OnSaleCount++
+			}
 		}
 		if h.Designer.DesignerID != 0 {
 			p.DesignerID = h.Designer.DesignerID
@@ -85,11 +89,47 @@ func profileDesigner(cmd *cobra.Command, flags *rootFlags, designer string, maxS
 		p.MinPrice = 0
 	}
 	p.MedianPrice = median(prices)
-	for t, n := range typeCounts {
+	if !fromFacets {
+		for t, n := range typeCounts {
+			p.TypeMix = append(p.TypeMix, facetCount{Value: t, Count: n})
+		}
+		sort.Slice(p.TypeMix, func(i, j int) bool { return p.TypeMix[i].Count > p.TypeMix[j].Count })
+	}
+	return p, nil
+}
+
+func applyDesignerFacets(p *designerProfile, facets map[string]map[string]int) bool {
+	if p == nil || len(facets) == 0 {
+		return false
+	}
+	free, okFree := facetTrueCount(facets, "isFree")
+	pod, okPod := facetTrueCount(facets, "hasPod")
+	sale, okSale := facetTrueCount(facets, "hasPromotions")
+	types, okType := facets["type"]
+	if !okFree || !okPod || !okSale || !okType {
+		return false
+	}
+	p.FreeCount = free
+	p.PodCount = pod
+	p.OnSaleCount = sale
+	p.TypeMix = p.TypeMix[:0]
+	for t, n := range types {
 		p.TypeMix = append(p.TypeMix, facetCount{Value: t, Count: n})
 	}
 	sort.Slice(p.TypeMix, func(i, j int) bool { return p.TypeMix[i].Count > p.TypeMix[j].Count })
-	return p, nil
+	p.CountsFromFacets = true
+	return true
+}
+
+func facetTrueCount(facets map[string]map[string]int, attr string) (int, bool) {
+	vals, ok := facets[attr]
+	if !ok {
+		return 0, false
+	}
+	if n, ok := vals["true"]; ok {
+		return n, true
+	}
+	return 0, true
 }
 
 func median(v []float64) float64 {
@@ -112,9 +152,9 @@ func newNovelDesignerStatsCmd(flags *rootFlags) *cobra.Command {
 		Short: "Profile a designer's catalog: type mix, price band, free/POD counts, newest drop",
 		Long: `Aggregate a single designer's catalog into a one-shot profile.
 
-Counts other than total_products come from the scanned sample
-(--max-scan-pages, 100 hits/page). When scanned < total_products, JSON
-sets sampled=true. Use --max-scan-pages to widen the sample.
+Free/POD/on-sale counts and type mix use Algolia facets (catalog-wide) when
+the index exposes them. Price band and newest product are computed from
+scanned hits; when scanned < total, JSON sets sampled=true for those fields.
 
 For the raw product list use 'designer'; to compare two designers use
 'designer-compare'.`,
@@ -141,11 +181,18 @@ For the raw product list use 'designer'; to compare two designers use
 			out := cmd.OutOrStdout()
 			fmt.Fprintf(out, "Designer: %s (id %d)\n", p.Designer, p.DesignerID)
 			fmt.Fprintf(out, "Catalog:  %d total, %d scanned\n", p.Total, p.Scanned)
-			if p.Sampled {
-				fmt.Fprintf(out, "Note:     free/POD/sale/price/type mix are from the scanned sample, not the full catalog\n")
+			if p.CountsFromFacets {
+				fmt.Fprintf(out, "Free:     %d   POD: %d   On sale: %d  (catalog-wide)\n", p.FreeCount, p.PodCount, p.OnSaleCount)
+			} else if p.Sampled {
+				fmt.Fprintf(out, "Free:     %d   POD: %d   On sale: %d  (from %d scanned of %d)\n", p.FreeCount, p.PodCount, p.OnSaleCount, p.Scanned, p.Total)
+			} else {
+				fmt.Fprintf(out, "Free:     %d   POD: %d   On sale: %d\n", p.FreeCount, p.PodCount, p.OnSaleCount)
 			}
-			fmt.Fprintf(out, "Free:     %d   POD: %d   On sale: %d\n", p.FreeCount, p.PodCount, p.OnSaleCount)
-			fmt.Fprintf(out, "Price:    $%.2f–$%.2f (median $%.2f)\n", p.MinPrice, p.MaxPrice, p.MedianPrice)
+			if p.Sampled {
+				fmt.Fprintf(out, "Price:    $%.2f–$%.2f (median $%.2f; from %d scanned)\n", p.MinPrice, p.MaxPrice, p.MedianPrice, p.Scanned)
+			} else {
+				fmt.Fprintf(out, "Price:    $%.2f–$%.2f (median $%.2f)\n", p.MinPrice, p.MaxPrice, p.MedianPrice)
+			}
 			var mix []string
 			for _, t := range p.TypeMix {
 				mix = append(mix, fmt.Sprintf("%s %d", t.Value, t.Count))
@@ -157,6 +204,6 @@ For the raw product list use 'designer'; to compare two designers use
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 5, "Max catalog pages to scan (100/page)")
+	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 10, "Max catalog pages to scan for price/newest (100/page; counts use facets when available)")
 	return cmd
 }

@@ -16,8 +16,9 @@ func newNovelDesignerCompareCmd(flags *rootFlags) *cobra.Command {
 		Short: "Compare two designers head-to-head (size, type mix, price band, free/POD share)",
 		Long: `Profile two designers and render them side by side.
 
-Free/POD/sale/price/type mix are from the scanned sample
-(--max-scan-pages). JSON on each profile includes scanned and sampled.
+Free/POD/on-sale counts and type mix use Algolia facets (catalog-wide)
+when available. Price band is from scanned hits; JSON includes scanned,
+sampled, and counts_from_facets.
 
 For a single designer profile use 'designer-stats'.`,
 		Example:     strings.Trim("\n  creativefabrica-pp-cli designer-compare \"DigiArt\" \"CraftLab\" --agent\n  creativefabrica-pp-cli designer-compare 2880714 123456", "\n"),
@@ -48,17 +49,34 @@ For a single designer profile use 'designer-stats'.`,
 			rows := [][]string{
 				{"Total products", fmt.Sprintf("%d", a.Total), fmt.Sprintf("%d", b.Total)},
 				{"Scanned", fmt.Sprintf("%d", a.Scanned), fmt.Sprintf("%d", b.Scanned)},
-				{"Free (scanned)", fmt.Sprintf("%d", a.FreeCount), fmt.Sprintf("%d", b.FreeCount)},
-				{"POD (scanned)", fmt.Sprintf("%d", a.PodCount), fmt.Sprintf("%d", b.PodCount)},
-				{"On sale (scanned)", fmt.Sprintf("%d", a.OnSaleCount), fmt.Sprintf("%d", b.OnSaleCount)},
-				{"Median price", fmt.Sprintf("$%.2f", a.MedianPrice), fmt.Sprintf("$%.2f", b.MedianPrice)},
+				{countLabel(a, b, "Free"), fmt.Sprintf("%d", a.FreeCount), fmt.Sprintf("%d", b.FreeCount)},
+				{countLabel(a, b, "POD"), fmt.Sprintf("%d", a.PodCount), fmt.Sprintf("%d", b.PodCount)},
+				{countLabel(a, b, "On sale"), fmt.Sprintf("%d", a.OnSaleCount), fmt.Sprintf("%d", b.OnSaleCount)},
+				{priceLabel(a, b, "Median price"), fmt.Sprintf("$%.2f", a.MedianPrice), fmt.Sprintf("$%.2f", b.MedianPrice)},
 				{"Top type", topType(a), topType(b)},
 			}
 			return flags.printTable(cmd, []string{"METRIC", truncate(a.Designer, 22), truncate(b.Designer, 22)}, rows)
 		},
 	}
-	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 5, "Max catalog pages to scan per designer")
+	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 10, "Max catalog pages to scan per designer for price/newest (100/page; counts use facets when available)")
 	return cmd
+}
+
+func countLabel(a, b designerProfile, name string) string {
+	if a.CountsFromFacets && b.CountsFromFacets {
+		return name + " (catalog-wide)"
+	}
+	if a.Sampled || b.Sampled {
+		return name + " (scanned)"
+	}
+	return name
+}
+
+func priceLabel(a, b designerProfile, name string) string {
+	if a.Sampled || b.Sampled {
+		return name + " (scanned)"
+	}
+	return name
 }
 
 func topType(p designerProfile) string {

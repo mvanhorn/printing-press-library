@@ -79,7 +79,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   creativefabrica-pp-cli deals "font bundle" --agent
   ```
-- **`designer-stats`** — Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release. Mix metrics come from a scanned sample (`--max-scan-pages`); JSON sets `sampled=true` when scanned < total.
+- **`designer-stats`** — Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release. Counts use Algolia facets (catalog-wide) when available; price/newest are labeled as a sample when the catalog is larger than the scanned window.
 
   _Pick this when you need a one-shot read on a creator instead of scrolling their page._
 

@@ -66,6 +66,23 @@ func TestHitDecodesMixedTypes(t *testing.T) {
 	}
 }
 
+func TestAuthQuery(t *testing.T) {
+	got := AuthQuery(Creds{AppID: "ABC123", APIKey: "secret"})
+	if got["x-algolia-application-id"] != "ABC123" {
+		t.Errorf("app id = %q", got["x-algolia-application-id"])
+	}
+	if got["x-algolia-api-key"] != "secret" {
+		t.Errorf("api key = %q", got["x-algolia-api-key"])
+	}
+	if got["x-algolia-agent"] != "creativefabrica-pp-cli" {
+		t.Errorf("agent = %q", got["x-algolia-agent"])
+	}
+	got = AuthQuery(Creds{APIKey: "k"})
+	if got["x-algolia-application-id"] != DefaultAppID {
+		t.Errorf("empty app id should default, got %q", got["x-algolia-application-id"])
+	}
+}
+
 func TestClientHostDefault(t *testing.T) {
 	c := New(0)
 	c.Creds = Creds{AppID: "ABC123"}

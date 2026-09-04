@@ -15,7 +15,7 @@ Creative Fabrica has **no official API**. Its site search is powered by a public
 - **File-format filtering.** Creative Fabrica has no "SVG only" facet. `find --format svg,dxf` matches the format in tags and titles, so Cricut/Silhouette crafters stop wading through subscription-locked previews of the wrong format.
 - **Commercial-license sourcing.** Print-on-demand sellers can filter to `--pod` (commercial use) and `--no-subscription` (usable without an active plan) and export candidates to CSV.
 - **Real discount depth.** `deals` ranks by the actual regular→sale percentage, cutting through discount theater.
-- **Designer intelligence.** `designer-stats` and `designer-compare` profile a scanned sample of a creator's catalog (`--max-scan-pages`); `new-since` reports only what's new since your last run.
+- **Designer intelligence.** `designer-stats` and `designer-compare` use catalog-wide Algolia facets for free/POD/sale/type counts when available, and label price/newest as a sample when `--max-scan-pages` does not cover the catalog; `new-since` reports only what's new since your last run.
 
 **Who it's for:** Cricut/Silhouette crafters hunting cut files, print-on-demand sellers sourcing license-safe assets, designers and budget crafters chasing genuine free/discounted items, and AI agents that need structured catalog data without parsing a heavy web page.
 
@@ -303,7 +303,7 @@ Run `creativefabrica-pp-cli --help` for the full command reference and flag list
 
 ### Insight (only possible with the local store)
 - **`deals [query]`** — On-sale items ranked by true regular→sale discount depth.
-- **`designer-stats <id|name>`** — Aggregate a designer's catalog: type mix, price band, free/POD counts, newest.
+- **`designer-stats <id|name>`** — Aggregate a designer's catalog: type mix, price band, free/POD counts, newest. Free/POD/type counts use catalog-wide facets when available; price/newest are labeled as a sample when scanned < total.
 - **`designer-compare <A> <B>`** — Two designers side-by-side.
 - **`new-since [query|--designer <id>]`** — Only what the catalog added since your last run.
 - **`tags <query>`** — Top tags/categories co-occurring with a query, to refine it.

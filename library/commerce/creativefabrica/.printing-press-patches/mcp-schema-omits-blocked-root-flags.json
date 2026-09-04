@@ -4,8 +4,8 @@
   "applied_at": "2026-09-04",
   "base_run_id": "20260615-140715-4672841b",
   "base_printing_press_version": "4.24.0",
-  "summary": "Cobra-tree MCP tool schemas must omit blocked root flags (config, deliver, profile, token, base-url, client, args) even though execution already drops them.",
-  "reason": "Advertising those flags in the tool schema invites agents to set them. The blocklist already refuses them at exec time; the schema must match so the advertised surface is the real surface.",
+  "summary": "Cobra-tree MCP tool schemas must omit blocked root flags (config, deliver, profile, token, base-url, client, args) unless the command declares a local flag of the same name.",
+  "reason": "Advertising those flags in the tool schema invites agents to set them. Shell-out already drops inherited blocked flags at exec time; the schema must match so the advertised surface is the real surface.",
   "files": [
     "internal/mcp/cobratree/typemap.go"
   ]

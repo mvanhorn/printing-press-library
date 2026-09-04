@@ -108,7 +108,7 @@ func (q catalogQuery) request() algolia.SearchRequest {
 		IndexName:   q.index(),
 		Query:       q.query,
 		Page:        q.page,
-		HitsPerPage: limit,
+		HitsPerPage: clampInt(limit, 1, 100),
 		Filters:     q.serverFilters(),
 	}
 }
@@ -354,29 +354,41 @@ func runCatalogSearch(cmd *cobra.Command, flags *rootFlags, q catalogQuery) erro
 }
 
 // fetchAllForDesigner pages a designer's catalog (server-filtered) up to
-// maxScanPages, returning every hit. Used by designer-stats/compare.
-func fetchAllForDesigner(ctx context.Context, c *algolia.Client, designer string, maxScanPages int) ([]algolia.Hit, int, error) {
+// maxScanPages, returning every hit plus Algolia facets from the first page.
+// Used by designer-stats/compare.
+func fetchAllForDesigner(ctx context.Context, c *algolia.Client, designer string, maxScanPages int) ([]algolia.Hit, int, map[string]map[string]int, error) {
 	q := catalogQuery{designer: designer, sortBy: "newest", limit: 100}
 	var all []algolia.Hit
 	nbHits := 0
+	var facets map[string]map[string]int
+	if maxScanPages <= 0 {
+		maxScanPages = 100
+	}
 	for page := 0; page < maxScanPages; page++ {
 		req := q.request()
 		req.Page = page
 		req.HitsPerPage = 100
+		if page == 0 {
+			req.Facets = []string{"type", "isFree", "hasPod", "hasPromotions"}
+			req.MaxValuesPerFacet = 100
+		}
 		results, err := c.Search(ctx, req)
 		if err != nil {
-			return all, nbHits, err
+			return all, nbHits, facets, err
 		}
 		if len(results) == 0 {
 			break
 		}
 		nbHits = results[0].NbHits
+		if page == 0 {
+			facets = results[0].Facets
+		}
 		all = append(all, results[0].Hits...)
 		if len(results[0].Hits) == 0 || page+1 >= results[0].NbPages {
 			break
 		}
 	}
-	return all, nbHits, nil
+	return all, nbHits, facets, nil
 }
 
 // sortHitsByDate sorts hits newest-first in place.

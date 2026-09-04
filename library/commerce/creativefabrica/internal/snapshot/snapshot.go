@@ -58,7 +58,9 @@ func (s *Store) Get(key string) (Snapshot, bool) {
 	return snap, true
 }
 
-// Put writes the snapshot for key with the given object ids.
+// Put writes the snapshot for key with the given object ids. The write is
+// tmp+rename in the store directory so an interrupted or concurrent Put cannot
+// leave truncated JSON at the final path.
 func (s *Store) Put(key string, ids []string) error {
 	if err := os.MkdirAll(s.dir, 0o700); err != nil {
 		return err
@@ -69,6 +71,7 @@ func (s *Store) Put(key string, ids []string) error {
 	if err != nil {
 		return err
 	}
+	dest := s.path(key)
 	tmp, err := os.CreateTemp(s.dir, ".snap-*.tmp")
 	if err != nil {
 		return err
@@ -84,10 +87,18 @@ func (s *Store) Put(key string, ids []string) error {
 		_ = tmp.Close()
 		return err
 	}
+	if err := tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Chmod(0o600); err != nil {
+		_ = tmp.Close()
+		return err
+	}
 	if err := tmp.Close(); err != nil {
 		return err
 	}
-	if err := os.Rename(tmpName, s.path(key)); err != nil {
+	if err := os.Rename(tmpName, dest); err != nil {
 		return err
 	}
 	ok = true

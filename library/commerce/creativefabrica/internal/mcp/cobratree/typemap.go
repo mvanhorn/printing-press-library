@@ -16,23 +16,38 @@ var positionalPattern = regexp.MustCompile(`(?:^|\s)(?:<[^>]+>|\[[^\]]+\])`)
 
 func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {
 	var opts []mcplib.ToolOption
+	visitToolFlags(cmd, func(flag *pflag.Flag) {
+		opts = append(opts, toolOptionForFlag(flag))
+	})
+	return opts
+}
+
+func visitToolFlags(cmd *cobra.Command, fn func(*pflag.Flag)) {
+	if cmd == nil {
+		return
+	}
 	seen := map[string]bool{}
+	localFlags := map[string]bool{}
+	cmd.NonInheritedFlags().VisitAll(func(flag *pflag.Flag) {
+		if flag != nil {
+			localFlags[flag.Name] = true
+		}
+	})
 	addFlag := func(flag *pflag.Flag) {
 		if flag == nil || flag.Hidden || flag.Deprecated != "" {
 			return
 		}
-		if blockedRootFlags[flag.Name] {
+		if blockedRootFlags[flag.Name] && !localFlags[flag.Name] {
 			return
 		}
 		if seen[flag.Name] {
 			return
 		}
 		seen[flag.Name] = true
-		opts = append(opts, toolOptionForFlag(flag))
+		fn(flag)
 	}
 	cmd.InheritedFlags().VisitAll(addFlag)
 	cmd.NonInheritedFlags().VisitAll(addFlag)
-	return opts
 }
 
 func toolOptionForFlag(flag *pflag.Flag) mcplib.ToolOption {

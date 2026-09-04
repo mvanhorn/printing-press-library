@@ -4,10 +4,11 @@
   "applied_at": "2026-09-04",
   "base_run_id": "20260615-140715-4672841b",
   "base_printing_press_version": "4.24.0",
-  "summary": "designer-stats and designer-compare must treat free/POD/sale/price/type mix as metrics from a bounded scanned sample (--max-scan-pages), label sampled=true when scanned < total_products, and must not walk the full catalog.",
-  "reason": "A designer's catalog can exceed Algolia's 1000-hit window. Exhaustive paging burns the shared public search key and still cannot cover the whole catalog; the durable contract is an explicit sample with total_products from nbHits.",
+  "summary": "designer-stats and designer-compare must take free/POD/sale/type counts from Algolia facets (catalog-wide) when the index returns them; price and newest remain hit-derived and must set sampled=true when scanned < total_products.",
+  "reason": "A designer's catalog can exceed Algolia's 1000-hit window. Facets give accurate catalog-wide counts without walking every product; presenting a bounded newest sample as those counts understates large designers. Remaining hit-derived stats must not be implied to be complete.",
   "files": [
     "internal/cli/designer_stats.go",
+    "internal/cli/cf_catalog.go",
     "internal/cli/designer_compare.go"
   ]
 }
