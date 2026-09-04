@@ -14,18 +14,26 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/platform"
+	"html"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
+	"unicode"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
+const HTMLResponseHeader = "X-Printing-Press-HTML-Response"
+const maxErrorBodyBytes = 4096
 
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
@@ -33,10 +41,115 @@ type Client struct {
 	BaseURL    string
 	Config     *config.Config
 	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	// When unset, binary/stream bodies skip the whole-call client Timeout
+	// so a large download is not killed by the default JSON budget.
+	timeoutExplicit   bool
+	DryRun            bool
+	NoCache           bool
+	cacheDir          string
+	limiter           *cliutil.AdaptiveLimiter
+	platformSession   *platform.Session
+	platformLimiterMu sync.Mutex
+	platformLimiters  map[string]*platform.EndpointLimiter
+	platformBudgets   map[string]platform.EndpointBudget
+}
+
+func (c *Client) IsDryRun() bool {
+	return c != nil && c.DryRun
+}
+
+// BindPlatformSession installs the result of the live fail-closed tenant gate.
+// Cache and state paths are switched only after the gate has verified both the
+// credential and the immutable provider identity.
+func (c *Client) BindPlatformSession(session *platform.Session) error {
+	if c == nil {
+		return errors.New("bind platform session: nil client")
+	}
+	if session == nil || session.GateOutcome != platform.GateVerified {
+		return errors.New("bind platform session: verified tenant gate required")
+	}
+	if strings.TrimSpace(session.Paths.CacheDir) == "" {
+		return errors.New("bind platform session: isolated response cache path is empty")
+	}
+	c.platformSession = session
+	c.cacheDir = session.Paths.CacheDir
+	c.platformLimiters = map[string]*platform.EndpointLimiter{}
+	c.platformBudgets = map[string]platform.EndpointBudget{}
+	return nil
+}
+
+// SetPlatformEndpointBudget installs a provider-declared budget for one safe
+// endpoint class. It may be called by the provider binding hook after the live
+// tenant gate succeeds.
+func (c *Client) SetPlatformEndpointBudget(budget platform.EndpointBudget) error {
+	if c == nil || c.platformSession == nil {
+		return errors.New("configure platform endpoint budget: verified session required")
+	}
+	if err := budget.Validate(); err != nil {
+		return err
+	}
+	c.platformLimiterMu.Lock()
+	defer c.platformLimiterMu.Unlock()
+	c.platformBudgets[budget.Class] = budget
+	delete(c.platformLimiters, budget.Class)
+	return nil
+}
+
+func (c *Client) waitForPlatformBudget(ctx context.Context, endpointClass string) error {
+	if c == nil || c.platformSession == nil {
+		return nil
+	}
+	c.platformLimiterMu.Lock()
+	limiter := c.platformLimiters[endpointClass]
+	if limiter == nil {
+		budget, err := c.platformBudgetLocked(endpointClass)
+		if err != nil {
+			c.platformLimiterMu.Unlock()
+			return err
+		}
+		limiter, err = platform.NewEndpointLimiter(c.platformSession, budget)
+		if err != nil {
+			c.platformLimiterMu.Unlock()
+			return err
+		}
+		c.platformLimiters[endpointClass] = limiter
+	}
+	c.platformLimiterMu.Unlock()
+	started := time.Now()
+	err := limiter.Wait(ctx)
+	c.platformSession.RecordRateLimitWait(time.Since(started))
+	return err
+}
+
+func (c *Client) platformBudgetLocked(endpointClass string) (platform.EndpointBudget, error) {
+	if budget, ok := c.platformBudgets[endpointClass]; ok {
+		return budget, nil
+	}
+	if budget, ok := c.platformBudgets["*"]; ok {
+		budget.Class = endpointClass
+		return budget, nil
+	}
+	return platform.EndpointBudget{}, &platform.MissingEndpointBudgetError{EndpointClass: endpointClass}
+}
+
+func (c *Client) platformRetryPolicy(endpointClass string) (platform.EndpointBudget, error) {
+	if c == nil || c.platformSession == nil {
+		// Legacy/non-data calls do not have a verified tenant session and
+		// therefore do not consume a shared endpoint budget. Preserve their
+		// bounded retry contract; fail-closed budget lookup begins only after
+		// a live tenant gate binds the platform session.
+		return platform.EndpointBudget{Class: endpointClass, MaxAttempts: clientMaxRetries() + 1, RetryBudget: time.Minute}, nil
+	}
+	c.platformLimiterMu.Lock()
+	defer c.platformLimiterMu.Unlock()
+	return c.platformBudgetLocked(endpointClass)
+}
+
+// RequestBaseURL returns the base URL used for requests.
+// Novel commands that build request URLs by hand should use this instead of
+// concatenating c.BaseURL directly.
+func (c *Client) RequestBaseURL() string {
+	return c.BaseURL
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -48,23 +161,159 @@ type APIError struct {
 }
 
 func (e *APIError) Error() string {
-	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
+	msg := fmt.Sprintf("%s %s returned HTTP %d", e.Method, e.Path, e.StatusCode)
+	if strings.TrimSpace(e.Body) != "" {
+		msg += ": " + e.Body
+	}
+	return msg
 }
 
+func rejectUnresolvedPathParams(path string, allowedTemplateVars map[string]string) error {
+	for {
+		start := strings.IndexByte(path, '{')
+		if start < 0 {
+			return nil
+		}
+		rest := path[start+1:]
+		end := strings.IndexByte(rest, '}')
+		if end < 0 {
+			return nil
+		}
+		name := rest[:end]
+		if _, ok := allowedTemplateVars[name]; ok {
+			path = rest[end+1:]
+			continue
+		}
+		if isPathPlaceholderName(name) {
+			return fmt.Errorf("unresolved path parameter {%s}", name)
+		}
+		path = rest[end+1:]
+	}
+}
+
+func isPathPlaceholderName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for i, r := range name {
+		if r == '_' || r >= 'A' && r <= 'Z' || r >= 'a' && r <= 'z' || i > 0 && r >= '0' && r <= '9' {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
+// maxIdleConnsPerHost sizes the keep-alive pool so concurrent sync workers
+// reuse warm connections instead of re-paying the TLS handshake (~0.5s) per
+// request. The rate limiter caps throughput, so simultaneous in-flight
+// connections stay ≈ budget×latency (a handful) regardless of --concurrency;
+// 32 covers any sane worker count with margin.
+const maxIdleConnsPerHost = 32
+
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
-	return &http.Client{Timeout: timeout, Jar: jar}
+	// Clone (do NOT build a bare &http.Transport{}) so Proxy=ProxyFromEnvironment,
+	// IdleConnTimeout, and dialer keep-alive survive — a bare struct would break
+	// corporate-proxy users (a public-build regression).
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr.MaxIdleConnsPerHost = maxIdleConnsPerHost
+	if tr.MaxIdleConns < maxIdleConnsPerHost {
+		tr.MaxIdleConns = maxIdleConnsPerHost
+	}
+	return &http.Client{Timeout: timeout, Jar: jar, Transport: tr}
+}
+
+func (c *Client) SetTimeoutExplicit(explicit bool) {
+	if c == nil {
+		return
+	}
+	c.timeoutExplicit = explicit
+}
+
+// Drops the whole-call Timeout so large bodies can finish. Header stalls
+// still use headerTimeout.
+func StreamingHTTPClient(base *http.Client, headerTimeout time.Duration) *http.Client {
+	if headerTimeout <= 0 {
+		if base != nil && base.Timeout > 0 {
+			headerTimeout = base.Timeout
+		} else {
+			headerTimeout = 60 * time.Second
+		}
+	}
+	if base == nil {
+		tr := http.DefaultTransport.(*http.Transport).Clone()
+		tr.ResponseHeaderTimeout = headerTimeout
+		return &http.Client{Transport: tr}
+	}
+	clone := *base
+	clone.Timeout = 0
+	if t, ok := base.Transport.(*http.Transport); ok {
+		tr := t.Clone()
+		tr.ResponseHeaderTimeout = headerTimeout
+		clone.Transport = tr
+	}
+	return &clone
+}
+
+// RateLimitAuto is the default --rate-limit value: a negative sentinel meaning
+// "auto" — pace by the server's advertised budget (X-Ratelimit-* headers), with
+// an adaptive 429-probe fallback for header-less servers, and NO manual ceiling.
+// A positive value imposes that value as an explicit politeness ceiling; 0
+// disables pacing entirely.
+const RateLimitAuto = -1.0
+
+// defaultAutoStartRate is the conservative pace an auto-mode limiter uses until
+// the first response's rate-limit headers arrive (after which the server's
+// advertised budget governs). Modest so the very first request to an unknown
+// server is polite; headers raise it within one round-trip.
+const defaultAutoStartRate = 2.0
+
+// newRateLimiter maps the user-facing --rate-limit value to a limiter:
+//
+//	< 0 (RateLimitAuto): headers/adaptive govern, no ceiling (the default)
+//	== 0:                pacing disabled (nil limiter)
+//	> 0:                 explicit hard ceiling at that rate
+func newRateLimiter(rateLimit float64) *cliutil.AdaptiveLimiter {
+	if rateLimit < 0 {
+		return cliutil.NewAdaptiveLimiterAuto(defaultAutoStartRate)
+	}
+	return cliutil.NewAdaptiveLimiter(rateLimit) // 0 -> nil (disabled); >0 -> explicit ceiling
+}
+
+// redirectLeavesOrigin reports whether a redirect hop should drop custom
+// credentials. Host is compared against the original request so a foreign
+// hop (A -> B -> B) cannot re-stamp A's credential onto B. Same-host
+// http -> https keeps the credential. Once any hop in the chain was
+// https, later plaintext hops must not re-stamp; comparing only the
+// original URL and the immediate predecessor misses
+// http -> https -> http -> http.
+func redirectLeavesOrigin(next *url.URL, via []*http.Request) bool {
+	if next.Host != via[0].URL.Host {
+		return true
+	}
+	if next.Scheme == "https" {
+		return false
+	}
+	for _, hop := range via {
+		if hop.URL.Scheme == "https" {
+			return true
+		}
+	}
+	return false
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
-	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "splitwise-pp-cli", "http")
+	cacheDir := ""
+	if dir, err := cliutil.CacheDir(); err == nil {
+		cacheDir = filepath.Join(dir, "http")
+	}
 	httpClient := newHTTPClient(timeout, nil)
 	c := &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
-		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
+		limiter:    newRateLimiter(rateLimit),
 	}
 	// CheckRedirect re-derives auth on each hop. Go's default replays the
 	// original Authorization header verbatim, which breaks nonce-bound
@@ -82,19 +331,20 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
+		// Never carry credential material across a host change or protocol
+		// downgrade. Go strips Authorization and Cookie in common cases, but
+		// custom headers and URL query values need explicit removal here.
+		// Block protocol downgrade.
+		if redirectLeavesOrigin(req.URL, via) {
+			req.Header.Del("Authorization")
+		}
+		// Re-stamp only when the hop stays on the origin. Custom headers
+		// are never in the set Go removes automatically, so this gate
+		// has to do the work itself. Block protocol downgrade.
+		if !redirectLeavesOrigin(req.URL, via) {
 			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("Authorization", h)
 			}
-		} else {
-			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
-			req.Header.Del("Authorization")
 		}
 		return nil
 	}
@@ -118,14 +368,30 @@ func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[str
 	cacheEnabled := c.responseCacheEnabled(binaryResponse)
 	// Check cache for GET requests
 	if cacheEnabled {
-		if cached, ok := c.readCache(path, params); ok {
+		if cached, ok := c.readCacheWithHeaders(path, params, headers); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
 	if err == nil && cacheEnabled {
-		c.writeCache(path, params, result)
+		c.writeCacheWithHeaders(path, params, headers, result)
 	}
+	return result, err
+}
+
+func (c *Client) GetWithHeadersValues(ctx context.Context, path string, params url.Values, headers map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeaders(ctx, pathWithQueryValues(path, params), nil, headers)
+}
+
+// GetMutating issues a GET whose endpoint is explicitly classified as a
+// state-changing action. It deliberately bypasses the response cache and
+// carries mutation intent into the verify-mode transport gate.
+func (c *Client) GetMutating(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	return c.GetMutatingWithHeaders(ctx, path, params, nil)
+}
+
+func (c *Client) GetMutatingWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	result, _, err := c.doMutation(ctx, "GET", path, params, nil, headers)
 	return result, err
 }
 
@@ -149,9 +415,13 @@ func (c *Client) GetWithHeadersNoCache(ctx context.Context, path string, params 
 	binaryResponse := c.wantsBinaryResponse(headers)
 	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
 	if err == nil && c.responseCacheEnabled(binaryResponse) {
-		c.writeCache(path, params, result)
+		c.writeCacheWithHeaders(path, params, headers, result)
 	}
 	return result, err
+}
+
+func (c *Client) GetWithHeadersNoCacheValues(ctx context.Context, path string, params url.Values, headers map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeadersNoCache(ctx, pathWithQueryValues(path, params), nil, headers)
 }
 
 func (c *Client) responseCacheEnabled(binaryResponse bool) bool {
@@ -202,9 +472,22 @@ func (c *Client) ProbeGet(ctx context.Context, path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
+	return c.cacheKeyFor(http.MethodGet, path, params, nil, nil)
+}
+
+func (c *Client) cacheKeyFor(method, path string, params map[string]string, headers map[string]string, body []byte) string {
 	key := path
 	key += "|base_url=" + c.BaseURL
-	if c.Config != nil {
+	if c.platformSession != nil {
+		key = "cache_schema=2|cli=" + c.platformSession.CLI +
+			"|source=" + c.platformSession.Source +
+			"|profile=" + c.platformSession.ProfileName +
+			"|expected=" + canonicalStringMap(c.platformSession.ExpectedIdentity) +
+			"|observed=" + canonicalStringMap(c.platformSession.ObservedIdentity) +
+			"|credential_fingerprint=" + c.platformSession.CredentialFingerprint +
+			"|method=" + strings.ToUpper(method) + "|endpoint=" + path +
+			"|base_url=" + c.BaseURL
+	} else if c.Config != nil {
 		key += "|auth_source=" + c.Config.AuthSource
 		if authHeader := c.Config.AuthHeader(); authHeader != "" {
 			authHash := sha256.Sum256([]byte(authHeader))
@@ -214,45 +497,302 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 			key += "|config_path=" + c.Config.Path
 		}
 	}
-	paramKeys := make([]string, 0, len(params))
-	for k := range params {
-		paramKeys = append(paramKeys, k)
+	if len(params) > 0 {
+		query := url.Values{}
+		for k, v := range params {
+			query.Set(k, v)
+		}
+		key += "|query=" + query.Encode()
 	}
-	sort.Strings(paramKeys)
-	for _, k := range paramKeys {
-		key += k + "=" + params[k]
+	if len(body) > 0 {
+		bodyHash := sha256.Sum256(body)
+		key += "|body_sha256=" + hex.EncodeToString(bodyHash[:])
 	}
+	key += "|representation=" + canonicalRepresentationHeaders(c.Config, headers)
+	// Tenant-selecting headers choose which resource comes back (MSP org,
+	// workspace). Fold them into the cache identity so two invocations that
+	// differ only by that header never share a row. Representation headers
+	// stay in canonicalRepresentationHeaders and are not treated as tenancy.
+	key += "|tenant=" + canonicalTenantSelectingHeaders(c.Config, headers)
 	h := sha256.Sum256([]byte(key))
+	if c.platformSession != nil {
+		return hex.EncodeToString(h[:])
+	}
 	return hex.EncodeToString(h[:8])
 }
 
+func canonicalStringMap(values map[string]string) string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, key := range keys {
+		parts = append(parts, url.QueryEscape(key)+"="+url.QueryEscape(values[key]))
+	}
+	return strings.Join(parts, "&")
+}
+
+func canonicalRepresentationHeaders(cfg *config.Config, overrides map[string]string) string {
+	values := map[string]string{}
+	add := func(headers map[string]string) {
+		for name, value := range headers {
+			normalized := strings.ToLower(strings.TrimSpace(name))
+			if normalized == "accept" || normalized == "content-type" || normalized == "revision" ||
+				normalized == "version" || strings.Contains(normalized, "api-version") {
+				values[normalized] = strings.TrimSpace(value)
+			}
+		}
+	}
+	if cfg != nil {
+		add(cfg.Headers)
+	}
+	add(overrides)
+	return canonicalStringMap(values)
+}
+
+func canonicalTenantSelectingHeaders(cfg *config.Config, overrides map[string]string) string {
+	values := map[string]string{}
+	add := func(headers map[string]string) {
+		for name, value := range headers {
+			if !isTenantSelectingHeader(name) {
+				continue
+			}
+			values[strings.ToLower(strings.TrimSpace(name))] = strings.TrimSpace(value)
+		}
+	}
+	if cfg != nil {
+		add(cfg.Headers)
+	}
+	add(overrides)
+	return canonicalStringMap(values)
+}
+
+func foldHeaderName(name string) string {
+	normalized := strings.ToLower(strings.TrimSpace(name))
+	if normalized == "" {
+		return ""
+	}
+	var b strings.Builder
+	b.Grow(len(normalized))
+	for _, r := range normalized {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+func isRepresentationHeaderName(folded string) bool {
+	return folded == "accept" || folded == "contenttype" || folded == "revision" ||
+		folded == "version" || strings.Contains(folded, "apiversion")
+}
+
+func isNonTenantHeaderName(folded string) bool {
+	switch folded {
+	case "useragent", "authorization", "cookie", "host", "connection",
+		"acceptencoding", "contentlength", "transferencoding", "cachecontrol",
+		"pragma", "te", "upgrade", "via", "forwarded", "xforwardedfor",
+		"xforwardedproto", "xforwardedhost", "xrealip", "traceparent", "tracestate":
+		return true
+	}
+	for _, stem := range []string{
+		"requestid", "correlationid", "traceid", "spanid", "idempotencykey",
+	} {
+		if folded == stem || strings.HasSuffix(folded, stem) {
+			return true
+		}
+	}
+	return false
+}
+
+func isTenantSelectingHeader(name string) bool {
+	folded := foldHeaderName(name)
+	if folded == "" || isRepresentationHeaderName(folded) || isNonTenantHeaderName(folded) {
+		return false
+	}
+	switch folded {
+	case "tenant", "workspace", "organization", "organisation", "org", "region", "account":
+		return true
+	}
+	return strings.HasSuffix(folded, "id") || strings.HasSuffix(folded, "filter")
+}
+
+func requestIdempotencyKey(cfg *config.Config, overrides map[string]string) string {
+	value := ""
+	read := func(headers map[string]string) {
+		for name, candidate := range headers {
+			if strings.EqualFold(name, "Idempotency-Key") || strings.EqualFold(name, "X-Idempotency-Key") {
+				value = strings.TrimSpace(candidate)
+			}
+		}
+	}
+	if cfg != nil {
+		read(cfg.Headers)
+	}
+	read(overrides)
+	return value
+}
+
+func pathWithQueryValues(path string, params url.Values) string {
+	if len(params) == 0 {
+		return path
+	}
+	encoded := params.Encode()
+	if encoded == "" {
+		return path
+	}
+	separator := "?"
+	if strings.Contains(path, "?") {
+		separator = "&"
+	}
+	return path + separator + encoded
+}
+
 func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
+	return c.readCacheWithHeaders(path, params, nil)
+}
+
+func (c *Client) readCacheWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, bool) {
+	resourceDir := c.cacheResourceDir(path)
+	cacheFile := filepath.Join(resourceDir, c.cacheKeyFor(http.MethodGet, path, params, headers, nil)+".json")
 	info, err := os.Stat(cacheFile)
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
 		return nil, false
 	}
-	data, err := os.ReadFile(cacheFile)
+	if c.platformSession != nil && !c.platformCacheMetadataMatches(cacheFile) {
+		return nil, false
+	}
+	data, err := os.ReadFile(filepath.Clean(cacheFile)) // #nosec G304 -- app-derived cache path from sha256 cache key.
 	if err != nil {
 		return nil, false
 	}
+	// A leftover 0644 file can still be inside the TTL after upgrade; tighten before returning.
+	ensureCachePerms(resourceDir, cacheFile)
 	return json.RawMessage(data), true
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
-	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	c.writeCacheWithHeaders(path, params, nil, data)
 }
 
-// invalidateCache wholesale-removes the cache directory so the next read
-// after a mutation cannot return a stale snapshot. Selective per-resource
-// invalidation rejected: cache keys are opaque sha256 hashes.
-func (c *Client) invalidateCache() {
+func (c *Client) writeCacheWithHeaders(path string, params map[string]string, headers map[string]string, data json.RawMessage) {
+	resourceDir := c.cacheResourceDir(path)
+	_ = os.MkdirAll(resourceDir, 0o700)
+	cacheFile := filepath.Join(resourceDir, c.cacheKeyFor(http.MethodGet, path, params, headers, nil)+".json")
+	ensureCachePerms(resourceDir, cacheFile)
+	// Drop the leftover inode so an already-open 0644 FD keeps the old body.
+	_ = os.Remove(cacheFile)
+	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
+	ensureCachePerms(resourceDir, cacheFile)
+	if c.platformSession != nil {
+		c.writePlatformCacheMetadata(cacheFile)
+	}
+}
+
+func ensureCachePerms(resourceDir, cacheFile string) {
+	_ = os.Chmod(resourceDir, 0o700)
+	_ = os.Chmod(cacheFile, 0o600)
+}
+
+type platformCacheMetadata struct {
+	FetchedAt             time.Time         `json:"fetched_at"`
+	ExpiresAt             time.Time         `json:"expires_at"`
+	Profile               string            `json:"client_profile"`
+	Source                string            `json:"source"`
+	ExpectedIdentity      map[string]string `json:"expected_identity"`
+	ObservedIdentity      map[string]string `json:"observed_identity"`
+	CredentialFingerprint string            `json:"credential_fingerprint"`
+}
+
+func (c *Client) platformCacheMetadataMatches(cacheFile string) bool {
+	data, err := os.ReadFile(filepath.Clean(cacheFile + ".platform.json")) // #nosec G304 -- cache path is derived from a SHA-256 key.
+	if err != nil {
+		return false
+	}
+	var metadata platformCacheMetadata
+	if err := json.Unmarshal(data, &metadata); err != nil || time.Now().After(metadata.ExpiresAt) {
+		return false
+	}
+	session := c.platformSession
+	return session != nil && metadata.Profile == session.ProfileName && metadata.Source == session.Source &&
+		metadata.CredentialFingerprint == session.CredentialFingerprint &&
+		canonicalStringMap(metadata.ExpectedIdentity) == canonicalStringMap(session.ExpectedIdentity) &&
+		canonicalStringMap(metadata.ObservedIdentity) == canonicalStringMap(session.ObservedIdentity)
+}
+
+func (c *Client) writePlatformCacheMetadata(cacheFile string) {
+	now := time.Now().UTC()
+	metadata := platformCacheMetadata{
+		FetchedAt: now, ExpiresAt: now.Add(5 * time.Minute),
+		Profile: c.platformSession.ProfileName, Source: c.platformSession.Source,
+		ExpectedIdentity:      c.platformSession.ExpectedIdentity,
+		ObservedIdentity:      c.platformSession.ObservedIdentity,
+		CredentialFingerprint: c.platformSession.CredentialFingerprint,
+	}
+	data, err := json.Marshal(metadata)
+	if err == nil {
+		_ = os.WriteFile(cacheFile+".platform.json", data, 0o600)
+	}
+}
+
+func cacheResourceTag(path string) string {
+	path = strings.SplitN(path, "?", 2)[0]
+	for _, raw := range strings.Split(strings.Trim(path, "/"), "/") {
+		segment := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(raw), ".json"))
+		if segment == "" || segment == "api" || segment == "admin" || numericVersionSegment(segment) {
+			continue
+		}
+		var safe strings.Builder
+		for _, r := range segment {
+			if r >= 'a' && r <= 'z' || r >= '0' && r <= '9' || r == '-' || r == '_' {
+				safe.WriteRune(r)
+			}
+		}
+		if safe.Len() > 0 {
+			return safe.String()
+		}
+	}
+	return "root"
+}
+
+func numericVersionSegment(segment string) bool {
+	segment = strings.TrimPrefix(segment, "v")
+	if segment == "" {
+		return false
+	}
+	for _, r := range segment {
+		if (r < '0' || r > '9') && r != '-' && r != '.' {
+			return false
+		}
+	}
+	return true
+}
+
+func (c *Client) cacheResourceDir(path string) string {
+	return filepath.Join(c.cacheDir, "resources", cacheResourceTag(path))
+}
+
+// invalidateCacheResource removes only the resource namespace affected by a
+// successful mutation. Other cached resources for the verified profile remain
+// available, while an operator-level cache clear may still remove cacheDir.
+func (c *Client) invalidateCacheResource(path string) {
 	if c.cacheDir == "" {
 		return
 	}
-	_ = os.RemoveAll(c.cacheDir)
+	_ = os.RemoveAll(c.cacheResourceDir(path))
+}
+
+// invalidateCacheAfterMutation evicts every HTTP response projection because
+// the generator has no complete dependency graph for cross-resource views.
+// cacheDir is already scoped to the current API or verified profile/source, so
+// other tenants, local databases, and sibling state remain untouched.
+func (c *Client) invalidateCacheAfterMutation(path string) {
+	if c.cacheDir == "" {
+		return
+	}
+	_ = os.RemoveAll(filepath.Join(c.cacheDir, "resources"))
 }
 
 func (c *Client) Post(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
@@ -334,6 +874,14 @@ func (c *Client) PutWithParamsAndHeaders(ctx context.Context, path string, param
 	return c.do(ctx, "PUT", path, params, body, headers)
 }
 
+func (c *Client) PutQueryWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PUT", path, params, body, nil)
+}
+
+func (c *Client) PutQueryWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PUT", path, params, body, headers)
+}
+
 func (c *Client) Patch(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
 	return c.do(ctx, "PATCH", path, nil, body, nil)
 }
@@ -348,6 +896,14 @@ func (c *Client) PatchWithHeaders(ctx context.Context, path string, body any, he
 
 func (c *Client) PatchWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
 	return c.do(ctx, "PATCH", path, params, body, headers)
+}
+
+func (c *Client) PatchQueryWithParams(ctx context.Context, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PATCH", path, params, body, nil)
+}
+
+func (c *Client) PatchQueryWithParamsAndHeaders(ctx context.Context, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.doRead(ctx, "PATCH", path, params, body, headers)
 }
 
 // isMutatingVerb reports whether the HTTP method writes server state.
@@ -393,10 +949,43 @@ func sleepContext(ctx context.Context, wait time.Duration) error {
 	}
 }
 
+// Exhausted 429 retries are a pacing signal, not a command failure. Sleep
+// the last Retry-After so the attempt can continue while the operation
+// deadline still has time; a non-positive wait falls back to one second
+// so Retry-After: 0 cannot tight-loop.
+func (c *Client) waitForRateLimitRefill(ctx context.Context, wait time.Duration) error {
+	if wait <= 0 {
+		wait = time.Second
+	}
+	fmt.Fprintf(os.Stderr, "rate-limit budget empty, waiting %s for refill\n", wait)
+	if err := sleepContext(ctx, wait); err != nil {
+		return fmt.Errorf("timed out waiting %s for rate-limit budget to refill: %w", wait, err)
+	}
+	return nil
+}
+
+// One --timeout (or the caller's deadline) covers refill waits, limiter
+// pacing, and retry sleeps. A fresh timeout per wait would let a
+// persistently 429ing endpoint run indefinitely. The HTTP request keeps
+// the caller's ctx so unmarked binary streams can outlive the default
+// whole-call budget.
+func (c *Client) bindOperationDeadline(ctx context.Context) (context.Context, context.CancelFunc) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if _, ok := ctx.Deadline(); ok {
+		return ctx, func() {}
+	}
+	if timeout := c.ConfiguredTimeout(); timeout > 0 {
+		return context.WithTimeout(ctx, timeout)
+	}
+	return ctx, func() {}
+}
+
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	return c.doInternal(ctx, method, path, params, body, headerOverrides, false)
+	return c.doInternal(ctx, method, path, params, body, headerOverrides, false, false)
 }
 
 // doRead is do() minus the verify-mode mutating-verb gate. Used by the
@@ -406,17 +995,25 @@ func (c *Client) do(ctx context.Context, method, path string, params map[string]
 // but the verify-mode short-circuit does not fire because the operation
 // does not mutate remote state.
 func (c *Client) doRead(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	return c.doInternal(ctx, method, path, params, body, headerOverrides, true)
+	return c.doInternal(ctx, method, path, params, body, headerOverrides, true, false)
 }
 
-// doInternal is the shared implementation behind do() and doRead(). The
+func (c *Client) doMutation(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	return c.doInternal(ctx, method, path, params, body, headerOverrides, false, true)
+}
+
+// doInternal is the shared implementation behind do(), doRead(), and
+// doMutation().
 // readOnlyIntent flag is set by doRead() callers (read-only POST/PUT/PATCH
 // operations like GraphQL queries) to skip the mutating-verb verify-mode
 // gate. Plain do() callers leave it false and get the usual short-circuit.
-func (c *Client) doInternal(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string, readOnlyIntent bool) (json.RawMessage, int, error) {
+// mutationIntent extends that gate to GET action endpoints whose wire method
+// is not itself a mutating verb.
+func (c *Client) doInternal(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string, readOnlyIntent bool, mutationIntent bool) (json.RawMessage, int, error) {
 	// Verify-mode transport-layer gate. When the verifier (or any consumer
-	// that sets PRINTING_PRESS_VERIFY=1) drives a mutating verb without
-	// the LIVE_HTTP=1 opt-in, return a synthetic envelope without dialing,
+	// that sets PRINTING_PRESS_VERIFY=1) drives a mutating verb or explicit
+	// mutation intent without the LIVE_HTTP=1 opt-in, return a synthetic
+	// envelope without dialing,
 	// minting auth, or touching the cache. The verify pipeline itself
 	// sets both env vars in mock mode so its httptest server still sees
 	// real requests; every other consumer gets a safe no-op.
@@ -430,9 +1027,17 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// minting, and the success-branch invalidateCache() call below — so
 	// no cache invalidation runs (no remote state changed) and no
 	// client_credentials mint happens unnecessarily.
-	if !readOnlyIntent && isMutatingVerb(method) && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
+	if !readOnlyIntent && (mutationIntent || isMutatingVerb(method)) && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
 		return verifyShortCircuitEnvelope(method, path), http.StatusOK, nil
 	}
+	if err := rejectUnresolvedPathParams(path, nil); err != nil {
+		return nil, 0, err
+	}
+	// Bound waits and retries once. Do not attach this deadline to the
+	// HTTP request: unmarked binary transfers drop the whole-call
+	// Timeout and must keep streaming after --timeout's default budget.
+	opCtx, cancel := c.bindOperationDeadline(ctx)
+	defer cancel()
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -458,12 +1063,37 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
-	const maxRetries = 3
+	maxRetries := clientMaxRetries()
+	// Retry only operations that are safe to replay after an ambiguous
+	// transport failure or server error; a write may already have committed
+	// remotely even when its wire method is GET.
+	canRetryAmbiguousFailure := readOnlyIntent || (!mutationIntent && platform.CanRetryRequest(method, requestIdempotencyKey(c.Config, headerOverrides)))
+	endpointClass := safeEndpointClass(method, path)
+	retryPolicy, err := c.platformRetryPolicy(endpointClass)
+	if err != nil {
+		return nil, 0, err
+	}
+	if retryPolicy.MaxAttempts > 0 && maxRetries > retryPolicy.MaxAttempts-1 {
+		maxRetries = retryPolicy.MaxAttempts - 1
+	}
+	retryStarted := time.Now()
+	retryWithinBudget := func(wait time.Duration) bool {
+		return retryPolicy.RetryBudget > 0 && time.Since(retryStarted)+wait <= retryPolicy.RetryBudget
+	}
 	var lastErr error
 
-	for attempt := 0; attempt <= maxRetries; attempt++ {
+	for attempt := 0; ; attempt++ {
+		if err := c.waitForPlatformBudget(opCtx, endpointClass); err != nil {
+			return nil, 0, err
+		}
 		// Proactive rate limiting — wait before sending
-		c.limiter.Wait()
+		adaptiveStarted := time.Now()
+		if err := c.limiter.Wait(opCtx); err != nil {
+			return nil, 0, err
+		}
+		if c.platformSession != nil {
+			c.platformSession.RecordRateLimitWait(time.Since(adaptiveStarted))
+		}
 		var bodyReader io.Reader
 		if bodyBytes != nil {
 			bodyReader = strings.NewReader(string(bodyBytes))
@@ -480,7 +1110,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if params != nil {
 			q := req.URL.Query()
 			for k, v := range params {
-				if v != "" {
+				if v != "" || method != "GET" {
 					q.Set(k, v)
 				}
 			}
@@ -503,8 +1133,16 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if binaryResponse {
 			req.Header.Del(BinaryResponseHeader)
 		}
+		htmlResponse := strings.EqualFold(req.Header.Get(HTMLResponseHeader), "true")
+		if htmlResponse {
+			req.Header.Del(HTMLResponseHeader)
+		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "splitwise-pp-cli/3.0.0")
+			if ua := os.Getenv("SPLITWISE_USER_AGENT"); ua != "" {
+				req.Header.Set("User-Agent", ua)
+			} else {
+				req.Header.Set("User-Agent", "splitwise-pp-cli/3.0.0")
+			}
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,
@@ -525,26 +1163,56 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			}
 		}
 
-		resp, err := c.HTTPClient.Do(req)
+		if c.platformSession != nil {
+			c.platformSession.RecordRateLimitRequest()
+		}
+		httpClient := c.HTTPClient
+		if binaryResponse && !c.timeoutExplicit {
+			httpClient = StreamingHTTPClient(c.HTTPClient, c.ConfiguredTimeout())
+		}
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			if ctxErr := ctx.Err(); ctxErr != nil {
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
-			continue
+			// Transient network failure (connection reset, DNS blip, request
+			// timeout). Back off before retrying — same exponential schedule as
+			// the 5xx path below — so a brief outage does not burn every attempt
+			// in a tight loop. ctx cancellation breaks out of the wait at once.
+			if attempt < maxRetries && canRetryAmbiguousFailure && !isPermanentDNSError(err) {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				if !retryWithinBudget(wait) {
+					return nil, 0, lastErr
+				}
+				fmt.Fprintf(os.Stderr, "network error (%v), retrying in %s (attempt %d/%d)\n", c.maskError(err, authHeader), wait, attempt+1, maxRetries)
+				if serr := sleepContext(opCtx, wait); serr != nil {
+					return nil, 0, serr
+				}
+				continue
+			}
+			return nil, 0, lastErr
 		}
 
 		respBody, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if err != nil {
 			return nil, 0, fmt.Errorf("reading response: %w", err)
+		}
+
+		// Pace to the server-advertised budget when it ships rate-limit
+		// headers (every response, success or 429). This takes priority over
+		// the blind adaptive ramp/halve, which only governs header-less
+		// servers and the very first request of a session.
+		if remaining, resetAt, ok := cliutil.ParseRateLimitHeaders(resp.Header); ok {
+			c.limiter.ObserveHeaders(remaining, resetAt)
 		}
 
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
-			if method != http.MethodGet && !c.DryRun {
-				c.invalidateCache()
+			if !readOnlyIntent && (mutationIntent || method != http.MethodGet) && !c.DryRun {
+				c.invalidateCacheAfterMutation(path)
 			}
 			// Non-textual bodies (PDF, zip, image, octet-stream) must not be
 			// run through the JSON sanitizer or returned as raw json.RawMessage
@@ -556,6 +1224,11 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 					return nil, 0, encErr
 				}
 				return env, resp.StatusCode, nil
+			}
+			if !htmlResponse {
+				if summary, ok := summarizeHTMLDocument(respBody); ok {
+					return nil, resp.StatusCode, fmt.Errorf("%s %s: expected JSON, API returned HTML instead of JSON: %s", method, c.displayURL(path, authHeader), summary)
+				}
 			}
 			return json.RawMessage(sanitizeJSONResponse(respBody)), resp.StatusCode, nil
 		}
@@ -571,23 +1244,63 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		// Rate limited: classify before provider decoding. The server-driven
+		// 429 / Retry-After retry policy is unchanged (maxRetries, RetryBudget,
+		// RetryAfterDelay). Unsafe-to-replay writes still return the shared
+		// typed error. After that policy is exhausted, wait for the local
+		// politeness budget to refill — bounded by ctx / --timeout — instead
+		// of failing the command while time remains.
+		if resp.StatusCode == http.StatusTooManyRequests {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			if err := sleepContext(ctx, wait); err != nil {
-				return nil, 0, err
+			wait := platform.RetryAfterDelay(resp.Header.Get("Retry-After"), attempt, time.Now().UTC(), nil)
+			if attempt < maxRetries && canRetryAmbiguousFailure && retryWithinBudget(wait) {
+				if c.platformSession != nil {
+					c.platformSession.RecordRateLimitRetry(wait)
+				}
+				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				if err := sleepContext(opCtx, wait); err != nil {
+					return nil, 0, err
+				}
+				lastErr = apiErr
+				continue
 			}
-			lastErr = apiErr
-			continue
+			if canRetryAmbiguousFailure && maxRetries > 0 && attempt >= maxRetries {
+				if c.platformSession != nil {
+					c.platformSession.RecordRateLimitWait(wait)
+				}
+				if err := c.waitForRateLimitRefill(opCtx, wait); err != nil {
+					return nil, 0, err
+				}
+				lastErr = apiErr
+				continue
+			}
+			requestID := resp.Header.Get("X-Request-ID")
+			if requestID == "" {
+				requestID = resp.Header.Get("Request-ID")
+			}
+			if c.platformSession != nil {
+				c.platformSession.RecordRateLimitExhausted()
+			}
+			return nil, resp.StatusCode, &platform.RateLimitedError{
+				EndpointClass: endpointClass, Attempts: attempt + 1,
+				RetryAfter: wait, RequestID: requestID,
+				Cause: &cliutil.RateLimitError{
+					URL:        apiErr.Path,
+					RetryAfter: wait,
+					Body:       apiErr.Body,
+					Cause:      apiErr,
+				},
+			}
 		}
 
 		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		if resp.StatusCode >= 500 && attempt < maxRetries && canRetryAmbiguousFailure {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+			if !retryWithinBudget(wait) {
+				return nil, resp.StatusCode, apiErr
+			}
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			if err := sleepContext(ctx, wait); err != nil {
+			if err := sleepContext(opCtx, wait); err != nil {
 				return nil, 0, err
 			}
 			lastErr = apiErr
@@ -597,8 +1310,24 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Client error or retries exhausted - return the error
 		return nil, resp.StatusCode, apiErr
 	}
+}
 
-	return nil, 0, lastErr
+func safeEndpointClass(method, path string) string {
+	path = strings.TrimSpace(path)
+	if parsed, err := url.Parse(path); err == nil && parsed.IsAbs() {
+		path = parsed.EscapedPath()
+	}
+	segments := strings.Split(strings.Trim(path, "/"), "/")
+	for index, segment := range segments {
+		if index >= 2 {
+			segments = segments[:2]
+			break
+		}
+		if _, err := strconv.ParseInt(segment, 10, 64); err == nil || len(segment) > 48 {
+			segments[index] = ":id"
+		}
+	}
+	return strings.ToUpper(method) + " /" + strings.Join(segments, "/")
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,
@@ -610,7 +1339,7 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	if params != nil {
 		keys := make([]string, 0, len(params))
 		for k := range params {
-			if params[k] != "" {
+			if params[k] != "" || method != "GET" {
 				keys = append(keys, k)
 			}
 		}
@@ -653,6 +1382,9 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 		return "", nil
 	}
 	authHeader := c.Config.AuthHeader()
+	if authHeader == "" && c.Config.HasCredentialRefusals() {
+		return "", c.Config.CredentialRefusalError()
+	}
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
 		return "", authPlaceholderCredentialError(c.Config)
 	}
@@ -705,7 +1437,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export SPLITWISE_API_KEY=<your-token> or splitwise-pp-cli auth set-token <token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export SPLITWISE_API_KEY=<your-token-here> or echo \"$TOKEN\" | splitwise-pp-cli auth set-token")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {
@@ -773,6 +1505,21 @@ func wrapBinaryResponse(ct string, body []byte) (json.RawMessage, error) {
 	return json.RawMessage(out), nil
 }
 
+// UnwrapBinaryResponse recovers original bytes from wrapBinaryResponse's JSON
+// envelope. Ordinary JSON is left intact so file delivery of API objects is
+// not treated as media.
+func UnwrapBinaryResponse(body []byte) (raw []byte, contentType string, ok bool) {
+	var env binaryResponseEnvelope
+	if err := json.Unmarshal(body, &env); err != nil || !env.PPBinary || env.Encoding != "base64" {
+		return nil, "", false
+	}
+	raw, err := base64.StdEncoding.DecodeString(env.Data)
+	if err != nil {
+		return nil, "", false
+	}
+	return raw, env.ContentType, true
+}
+
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
 // response bodies so that downstream JSON parsing succeeds. For clean JSON
 // responses these checks are no-ops.
@@ -798,15 +1545,12 @@ func sanitizeJSONResponse(body []byte) []byte {
 	return body
 }
 
-// maskToken redacts all but the last 4 characters of a token for safe display.
+// maskToken returns a fixed placeholder for a non-empty token.
 func maskToken(token string) string {
 	if token == "" {
 		return ""
 	}
-	if len(token) <= 4 {
-		return "****"
-	}
-	return "****" + token[len(token)-4:]
+	return "****"
 }
 
 type maskedError struct {
@@ -896,9 +1640,225 @@ func (c *Client) maskCredentialText(text string, extraCredentials ...string) str
 }
 
 func truncateBody(b []byte) string {
-	const maxBytes = 4096
-	if len(b) <= maxBytes {
+	if summary, ok := collapseHTMLErrorBody(b); ok {
+		return summary
+	}
+	if len(b) <= maxErrorBodyBytes {
 		return string(b)
 	}
-	return strings.ToValidUTF8(string(b[:maxBytes]), "") + "..."
+	return strings.ToValidUTF8(string(b[:maxErrorBodyBytes]), "") + "..."
+}
+
+func collapseHTMLErrorBody(b []byte) (string, bool) {
+	return summarizeHTMLBody(b, "HTML error page")
+}
+
+func summarizeHTMLDocument(b []byte) (string, bool) {
+	return summarizeHTMLBody(b, "HTML document")
+}
+
+func summarizeHTMLBody(b []byte, kind string) (string, bool) {
+	scanBytes := b
+	if len(scanBytes) > maxErrorBodyBytes {
+		scanBytes = scanBytes[:maxErrorBodyBytes]
+	}
+	body := strings.ToValidUTF8(string(scanBytes), "")
+	trimmed := strings.TrimSpace(body)
+	if trimmed == "" || !looksLikeHTMLBody(trimmed) {
+		return "", false
+	}
+
+	summary := fmt.Sprintf("%s (%d bytes)", kind, len(b))
+	if title := extractHTMLTitle(trimmed); title != "" {
+		summary += ": " + truncateRunes(title, 160)
+	}
+	return summary, true
+}
+
+func looksLikeHTMLBody(body string) bool {
+	lower := strings.ToLower(body)
+	if strings.HasPrefix(lower, "<!doctype html") || strings.HasPrefix(lower, "<html") {
+		return true
+	}
+	sample := lower
+	if len(sample) > 2048 {
+		sample = sample[:2048]
+	}
+	return strings.HasPrefix(sample, "<") && (strings.Contains(sample, "<body") || strings.Contains(sample, "<head") || strings.Contains(sample, "<title") || strings.Contains(sample, "<script"))
+}
+
+func extractHTMLTitle(body string) string {
+	pos := 0
+	ignoredBlock := ""
+	for pos < len(body) {
+		tagStartRel := strings.IndexByte(body[pos:], '<')
+		if tagStartRel < 0 {
+			return ""
+		}
+		tagStart := pos + tagStartRel
+		tagEnd := htmlTagEnd(body, tagStart)
+		if tagEnd < 0 {
+			return ""
+		}
+		tagName, closing := htmlTagName(body[tagStart+1 : tagEnd])
+		pos = tagEnd + 1
+		if tagName == "" {
+			continue
+		}
+		if ignoredBlock != "" {
+			if closing && tagName == ignoredBlock {
+				ignoredBlock = ""
+			}
+			continue
+		}
+		if closing {
+			continue
+		}
+		if tagName == "script" || tagName == "style" {
+			ignoredBlock = tagName
+			continue
+		}
+		if tagName != "title" {
+			continue
+		}
+		titleEnd := findHTMLCloseTag(body, pos, "title")
+		if titleEnd < 0 {
+			return ""
+		}
+		title := stripHTMLTags(body[pos:titleEnd])
+		return strings.Join(strings.Fields(stripControlCharacters(html.UnescapeString(title))), " ")
+	}
+	return ""
+}
+
+func findHTMLCloseTag(body string, from int, tag string) int {
+	pos := from
+	for pos < len(body) {
+		tagStartRel := strings.IndexByte(body[pos:], '<')
+		if tagStartRel < 0 {
+			return -1
+		}
+		tagStart := pos + tagStartRel
+		tagEnd := htmlTagEnd(body, tagStart)
+		if tagEnd < 0 {
+			return -1
+		}
+		tagName, closing := htmlTagName(body[tagStart+1 : tagEnd])
+		if closing && tagName == tag {
+			return tagStart
+		}
+		pos = tagEnd + 1
+	}
+	return -1
+}
+
+func htmlTagEnd(body string, start int) int {
+	end := strings.IndexByte(body[start:], '>')
+	if end < 0 {
+		return -1
+	}
+	return start + end
+}
+
+func htmlTagName(raw string) (string, bool) {
+	raw = strings.TrimLeftFunc(raw, isHTMLSpace)
+	closing := false
+	if strings.HasPrefix(raw, "/") {
+		closing = true
+		raw = strings.TrimLeftFunc(raw[1:], isHTMLSpace)
+	}
+	if raw == "" || strings.HasPrefix(raw, "!") || strings.HasPrefix(raw, "?") {
+		return "", closing
+	}
+	end := 0
+	for end < len(raw) && isHTMLTagNameByte(raw[end]) {
+		end++
+	}
+	if end == 0 {
+		return "", closing
+	}
+	return strings.ToLower(raw[:end]), closing
+}
+
+func isHTMLTagNameByte(b byte) bool {
+	return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9') || b == '-' || b == ':'
+}
+
+func isHTMLSpace(r rune) bool {
+	return r == ' ' || r == '\t' || r == '\n' || r == '\r' || r == '\f'
+}
+
+func stripHTMLTags(body string) string {
+	var out strings.Builder
+	inTag := false
+	for _, r := range body {
+		switch r {
+		case '<':
+			inTag = true
+			out.WriteByte(' ')
+		case '>':
+			inTag = false
+		default:
+			if !inTag {
+				out.WriteRune(r)
+			}
+		}
+	}
+	return out.String()
+}
+
+func stripControlCharacters(text string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\t' || r == '\n' || r == '\r' {
+			return ' '
+		}
+		if unicode.Is(unicode.Zl, r) || unicode.Is(unicode.Zp, r) {
+			return ' '
+		}
+		if unicode.Is(unicode.Cf, r) {
+			return -1
+		}
+		if unicode.IsControl(r) {
+			return -1
+		}
+		return r
+	}, text)
+}
+
+func truncateRunes(text string, maxRunes int) string {
+	if maxRunes <= 0 {
+		return text
+	}
+	runes := []rune(text)
+	if len(runes) <= maxRunes {
+		return text
+	}
+	return string(runes[:maxRunes]) + "..."
+}
+
+func clientMaxRetries() int {
+	if cliutil.IsVerifyEnv() || cliutil.IsDogfoodEnv() {
+		return 0
+	}
+	return 3
+}
+
+// isPermanentDNSError identifies known resolver failures that cannot succeed
+// by replaying the request. Timeouts, explicitly temporary failures, and
+// otherwise unclassified DNS errors remain retryable.
+func isPermanentDNSError(err error) bool {
+	var dnsErr *net.DNSError
+	if !errors.As(err, &dnsErr) {
+		return false
+	}
+	if dnsErr.IsNotFound {
+		return true
+	}
+	if dnsErr.IsTimeout || dnsErr.IsTemporary {
+		return false
+	}
+	reason := strings.ToLower(strings.TrimSpace(dnsErr.Err))
+	// The generic "server misbehaving" text is also used for transient
+	// SERVFAIL responses, so only explicit refusal text is terminal here.
+	return strings.Contains(reason, "refused")
 }

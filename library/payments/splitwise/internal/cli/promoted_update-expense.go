@@ -12,17 +12,17 @@ import (
 )
 
 func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
-	var bodyCategoryId string
+	var bodyCategoryId int
 	var bodyCost string
 	var bodyCurrencyCode string
 	var bodyDate string
 	var bodyDescription string
 	var bodyDetails string
-	var bodyGroupId string
+	var bodyGroupId int
 	var bodyRepeatInterval string
 	var bodyUsers0OwedShare string
 	var bodyUsers0PaidShare string
-	var bodyUsers0UserId string
+	var bodyUsers0UserId int
 	var bodyUsers1Email string
 	var bodyUsers1FirstName string
 	var bodyUsers1LastName string
@@ -33,23 +33,34 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "update-expense <id>",
 		Short:       "Updates an expense.",
 		Long:        "Updates an expense.",
-		Example:     "  splitwise-pp-cli update-expense 550e8400-e29b-41d4-a716-446655440000 --cost example-value",
-		Annotations: map[string]string{"pp:endpoint": "update-expense.create", "pp:method": "POST", "pp:path": "/update_expense/{id}"},
+		Example:     "  splitwise-pp-cli update-expense 550e8400-e29b-41d4-a716-446655440000 --cost 25",
+		Annotations: map[string]string{"pp:endpoint": "update-expense.create", "pp:method": "POST", "pp:path": "/update_expense/{id}", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only reads fall through so a bare call still executes; positional
 			// commands keep their existing usageErr (exit 2 + JSON envelope).
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("cost") && !flags.dryRun {
+			if !cmd.Flags().Changed("cost") && bodyCost == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "cost")
 			}
-			if !cmd.Flags().Changed("description") && !flags.dryRun {
+			if !cmd.Flags().Changed("description") && bodyDescription == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "description")
 			}
-			if !cmd.Flags().Changed("group-id") && !flags.dryRun {
+			if !cmd.Flags().Changed("group-id") && bodyGroupId == 0 && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "group-id")
 			}
 			c, err := flags.newClient()
@@ -58,7 +69,7 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/update_expense/{id}"
-			if len(args) < 1 {
+			if len(args) < 1 || args[0] == "" {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
@@ -77,68 +88,70 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyCategoryId != "" {
-				body["category_id"] = bodyCategoryId
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("category-id") || bodyCategoryId != 0 {
+				bodyMap["category_id"] = bodyCategoryId
 			}
-			if bodyCost != "" {
-				body["cost"] = bodyCost
+			if cmd.Flags().Changed("cost") || bodyCost != "" {
+				bodyMap["cost"] = bodyCost
 			}
-			if bodyCurrencyCode != "" {
-				body["currency_code"] = bodyCurrencyCode
+			if cmd.Flags().Changed("currency-code") || bodyCurrencyCode != "" {
+				bodyMap["currency_code"] = bodyCurrencyCode
 			}
-			if bodyDate != "" {
-				body["date"] = bodyDate
+			if cmd.Flags().Changed("date") || bodyDate != "" {
+				bodyMap["date"] = bodyDate
 			}
-			if bodyDescription != "" {
-				body["description"] = bodyDescription
+			if cmd.Flags().Changed("description") || bodyDescription != "" {
+				bodyMap["description"] = bodyDescription
 			}
-			if bodyDetails != "" {
-				body["details"] = bodyDetails
+			if cmd.Flags().Changed("details") || bodyDetails != "" {
+				bodyMap["details"] = bodyDetails
 			}
-			if bodyGroupId != "" {
-				body["group_id"] = bodyGroupId
+			if cmd.Flags().Changed("group-id") || bodyGroupId != 0 {
+				bodyMap["group_id"] = bodyGroupId
 			}
-			if bodyRepeatInterval != "" {
-				body["repeat_interval"] = bodyRepeatInterval
+			if cmd.Flags().Changed("repeat-interval") || bodyRepeatInterval != "" {
+				bodyMap["repeat_interval"] = bodyRepeatInterval
 			}
-			if bodyUsers0OwedShare != "" {
-				body["users__0__owed_share"] = bodyUsers0OwedShare
+			if cmd.Flags().Changed("users-0-owed-share") || bodyUsers0OwedShare != "" {
+				bodyMap["users__0__owed_share"] = bodyUsers0OwedShare
 			}
-			if bodyUsers0PaidShare != "" {
-				body["users__0__paid_share"] = bodyUsers0PaidShare
+			if cmd.Flags().Changed("users-0-paid-share") || bodyUsers0PaidShare != "" {
+				bodyMap["users__0__paid_share"] = bodyUsers0PaidShare
 			}
-			if bodyUsers0UserId != "" {
-				body["users__0__user_id"] = bodyUsers0UserId
+			if cmd.Flags().Changed("users-0-user-id") || bodyUsers0UserId != 0 {
+				bodyMap["users__0__user_id"] = bodyUsers0UserId
 			}
-			if bodyUsers1Email != "" {
-				body["users__1__email"] = bodyUsers1Email
+			if cmd.Flags().Changed("users-1-email") || bodyUsers1Email != "" {
+				bodyMap["users__1__email"] = bodyUsers1Email
 			}
-			if bodyUsers1FirstName != "" {
-				body["users__1__first_name"] = bodyUsers1FirstName
+			if cmd.Flags().Changed("users-1-first-name") || bodyUsers1FirstName != "" {
+				bodyMap["users__1__first_name"] = bodyUsers1FirstName
 			}
-			if bodyUsers1LastName != "" {
-				body["users__1__last_name"] = bodyUsers1LastName
+			if cmd.Flags().Changed("users-1-last-name") || bodyUsers1LastName != "" {
+				bodyMap["users__1__last_name"] = bodyUsers1LastName
 			}
-			if bodyUsers1OwedShare != "" {
-				body["users__1__owed_share"] = bodyUsers1OwedShare
+			if cmd.Flags().Changed("users-1-owed-share") || bodyUsers1OwedShare != "" {
+				bodyMap["users__1__owed_share"] = bodyUsers1OwedShare
 			}
-			if bodyUsers1PaidShare != "" {
-				body["users__1__paid_share"] = bodyUsers1PaidShare
+			if cmd.Flags().Changed("users-1-paid-share") || bodyUsers1PaidShare != "" {
+				bodyMap["users__1__paid_share"] = bodyUsers1PaidShare
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "update-expense", data, "")
+				writeMutationResponseToStore(cmd.Context(), "update-expense", data, "expenses")
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -146,9 +159,9 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -162,9 +175,13 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -172,7 +189,7 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -182,20 +199,24 @@ func newUpdateExpensePromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
 		},
 	}
-	cmd.Flags().StringVar(&bodyCategoryId, "category-id", "", "A category id from `get_categories`")
+	cmd.Flags().IntVar(&bodyCategoryId, "category-id", 0, "A category id from `get_categories`")
 	cmd.Flags().StringVar(&bodyCost, "cost", "", "A string representation of a decimal value, limited to 2 decimal places")
 	cmd.Flags().StringVar(&bodyCurrencyCode, "currency-code", "", "A currency code. Must be in the list from `get_currencies`")
 	cmd.Flags().StringVar(&bodyDate, "date", "", "The date and time the expense took place. May differ from `created_at`")
 	cmd.Flags().StringVar(&bodyDescription, "description", "", "A short description of the expense")
 	cmd.Flags().StringVar(&bodyDetails, "details", "", "Also known as 'notes.'")
-	cmd.Flags().StringVar(&bodyGroupId, "group-id", "", "The group to put this expense in, or `0` to create an expense outside of a group.")
+	cmd.Flags().IntVar(&bodyGroupId, "group-id", 0, "The group to put this expense in, or `0` to create an expense outside of a group.")
 	cmd.Flags().StringVar(&bodyRepeatInterval, "repeat-interval", "", "Repeat interval")
 	cmd.Flags().StringVar(&bodyUsers0OwedShare, "users-0-owed-share", "", "Decimal amount as a string with 2 decimal places. The amount this user owes for the expense")
 	cmd.Flags().StringVar(&bodyUsers0PaidShare, "users-0-paid-share", "", "Decimal amount as a string with 2 decimal places. The amount this user paid for the expense")
-	cmd.Flags().StringVar(&bodyUsers0UserId, "users-0-user-id", "", "Users 0 user id")
+	cmd.Flags().IntVar(&bodyUsers0UserId, "users-0-user-id", 0, "Users 0 user id")
 	cmd.Flags().StringVar(&bodyUsers1Email, "users-1-email", "", "Users 1 email")
 	cmd.Flags().StringVar(&bodyUsers1FirstName, "users-1-first-name", "", "Users 1 first name")
 	cmd.Flags().StringVar(&bodyUsers1LastName, "users-1-last-name", "", "Users 1 last name")

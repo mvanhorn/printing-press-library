@@ -3,7 +3,7 @@
 schema_version = 2
 name = "splitwise-pp-cli"
 display_name = "Splitwise"
-description = "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has."
+description = "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has."
 project_kind = "cli"
 
 [secrets.file]

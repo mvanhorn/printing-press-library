@@ -11,16 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
-	Command      string   `json:"command"`
-	Description  string   `json:"description"`
-	Group        string   `json:"group,omitempty"`
-	WhyItMatters string   `json:"why_it_matters,omitempty"`
-	Keywords     []string `json:"keywords,omitempty"`
+	Command      string `json:"command"`
+	Description  string `json:"description"`
+	Group        string `json:"group,omitempty"`
+	WhyItMatters string `json:"why_it_matters,omitempty"`
 }
 
 // whichIndex is the curated list of capabilities this CLI advertises as
@@ -28,13 +27,24 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "balances", Description: "See everything you owe and are owed across every friend and group in one net-position view.", Group: "Balances at a glance", WhyItMatters: "Reach for this instead of N get_groups + get_friends calls when an agent needs the user's overall money position.", Keywords: []string{"what do i owe", "what i owe", "net position", "money position", "overall balance"}},
-	{Command: "debts", Description: "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.", Group: "Balances at a glance", WhyItMatters: "Use when the task is 'who never pays me back' or chasing stale IOUs.", Keywords: []string{"who owes me", "who owes me money", "owes me", "who never pays", "stale iou", "unsettled balances"}},
-	{Command: "ledger", Description: "Every expense in a group, in date order, with a cumulative running balance per member.", Group: "Balances at a glance", WhyItMatters: "Use to audit how a group's balances got to where they are, not just the snapshot.", Keywords: []string{"running balance", "audit balances"}},
-	{Command: "spend", Description: "Total shared spend broken down by category, group, or month from your synced history.", Group: "Offline spend intelligence", WhyItMatters: "Use for any 'how much did we spend on X' question instead of paging the whole expense list.", Keywords: []string{"how much did we spend", "spending", "spend on"}},
-	{Command: "search", Description: "Full-text search across your entire expense history, comments, and group/friend names — offline.", Group: "Offline spend intelligence", WhyItMatters: "Use to find a specific past expense by keyword without paging the API.", Keywords: []string{"find an expense", "search expenses"}},
-	{Command: "settle-up", Description: "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.", Group: "Reconcile and settle", WhyItMatters: "Use when a group wants the fewest Venmo transfers to get everyone to zero.", Keywords: []string{"settle up", "pay everyone back", "venmo", "zero out balances"}},
-	{Command: "activity", Description: "Show what changed since your last sync — new, edited, and deleted expenses to review.", Group: "Reconcile and settle", WhyItMatters: "Use to reconcile recent account activity before settling or reporting.", Keywords: []string{"what changed", "recent activity"}},
+	{Command: "balances", Description: "See everything you owe and are owed across every friend and group in one net-position view.", Group: "Money state that compounds locally", WhyItMatters: "Reach for this instead of separate get-groups + get-friends calls when an agent needs the user's overall money position."},
+	{Command: "settle-up", Description: "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments (print-only by default; --record writes real payment expenses to your Splitwise account).", Group: "Settle and record safely", WhyItMatters: "Use when a group wants the fewest transfers to get everyone to zero, previewed before anything is recorded."},
+	{Command: "audit", Description: "Catch duplicate settlement rows and abnormal expense amounts before you trust a settle-up plan.", Group: "Settle and record safely", WhyItMatters: "Run this before settle-up or report so a duplicate settlement or an outlier expense doesn't get baked into a transfer plan."},
+	{Command: "debts", Description: "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.", Group: "Money state that compounds locally", WhyItMatters: "Use when the task is 'who never pays me back' or chasing stale IOUs, not just the current balance."},
+	{Command: "spend", Description: "Total shared spend broken down by category, group, or month from your synced history.", Group: "Analytics no endpoint offers", WhyItMatters: "Use for any 'how much did we spend on X' question instead of paging the whole expense list."},
+	{Command: "fairness", Description: "See who's carrying more than their share of cost, and how likely a stale balance is to actually get paid.", Group: "Analytics no endpoint offers", WhyItMatters: "Use when the question is who's owed the most relative to what they've paid, not just the raw balance."},
+	{Command: "net", Description: "Collapse a person's balance across every group and non-group expense into the minimum set of real-world transfers.", Group: "Money state that compounds locally", WhyItMatters: "Use when one person's balance is scattered across multiple groups and one-off expenses and you want the fewest real transfers, not a per-group snapshot."},
+	{Command: "report", Description: "Turn synced trip or period spend into a shareable summary plus per-person and per-category export.", Group: "Analytics no endpoint offers", WhyItMatters: "Use for an end-of-trip or end-of-month writeup, or as a generic JSON/CSV sink into an external workflow tool."},
+	{Command: "ledger", Description: "Every expense in a group, in date order, with a cumulative running balance per member.", Group: "Money state that compounds locally", WhyItMatters: "Use to audit how a group's balances got to where they are, not just the snapshot. Add --friend to replay one person across every group instead of one group's members."},
+	{Command: "split", Description: "Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it.", Group: "Settle and record safely", WhyItMatters: "Reach for this to turn 'I paid $84, split equally with the trip' into a ready-to-record expense without hand-building the share arrays. Add --record to submit it."},
+	{Command: "recurring", Description: "Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a cycle missing an expected entry.", Group: "Analytics no endpoint offers", WhyItMatters: "Use to catch a shared monthly bill nobody remembered to log this cycle."},
+	{Command: "fairness nudge", Description: "Post a payment reminder as a comment on the actual open expense thread, previewed before it sends (print-only by default; --send posts a real comment your friend will see).", Group: "Settle and record safely", WhyItMatters: "Use to nudge one person about a specific unpaid expense instead of a generic message outside Splitwise."},
+	{Command: "balances", Description: "See one row per group per currency for every non-zero balance, without the noise of settled groups.", Group: "Money state that compounds locally", WhyItMatters: "Use when the question is scoped to 'which groups do I still owe in', not the single net number."},
+	{Command: "brief", Description: "Get one compact digest of net position, the stalest debts, and what changed since last sync in a single call.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this first at the start of a session instead of three separate calls; use balances, debts --aged, or activity directly when you need the full detail behind one of these numbers."},
+	{Command: "reconcile", Description: "Verify the local store actually matches Splitwise before you trust a settle-up or report (calls the live Splitwise API; needs SPLITWISE_API_KEY and network).", Group: "Settle and record safely", WhyItMatters: "Run this before a settle-up or report when a number looks wrong, or as a routine pre-settle check."},
+	{Command: "activity", Description: "Show what changed since your last sync — new, edited, and deleted expenses to review.", Group: "Agent-native plumbing", WhyItMatters: "Use to reconcile recent account activity before settling or reporting."},
+	{Command: "forecast", Description: "See what shared bills are expected next, projected from your recurring-expense history.", Group: "Analytics no endpoint offers", WhyItMatters: "Use for 'what's coming up' instead of recurring, which only detects the pattern of bills already logged."},
+	{Command: "normalize", Description: "Express multi-currency spend in one base currency, using rates you supply, with anything unconverted called out honestly.", Group: "Analytics no endpoint offers", WhyItMatters: "Use when spend spans more than one currency and you want one honest number, not a silently-dropped or auto-converted total."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -52,8 +62,9 @@ type whichMatch struct {
 //
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
-//	+2  substring match on the description
-//	+1  group tag contains the query as a word
+//	+2  substring match on description or why_it_matters
+//	+1  per-token match on description or why_it_matters (capped at 3)
+//	+1  group tag contains the query as a whole token
 //
 // Ties break on declaration order in the index. An empty query returns
 // every entry at score 0 in declaration order - this is the "list all"
@@ -70,7 +81,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -80,7 +93,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -99,14 +119,21 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
 	desc := strings.ToLower(e.Description)
+	descTokens := whichSubTokens(desc)
+	why := strings.ToLower(e.WhyItMatters)
+	whyTokens := whichSubTokens(why)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
@@ -116,45 +143,185 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(cmd, query) {
 		score += 2
 	}
-	// Substring match on the description.
-	if strings.Contains(desc, query) {
+	// Description and rationale are correlated prose fields. Share the existing
+	// per-token cap so repeating the same query in both fields cannot outweigh
+	// an exact command match. A rationale-only match needs two tokens or an
+	// exact multi-token phrase to avoid promoting incidental prose words.
+	descPhrase := strings.Contains(desc, query)
+	descCredit := whichFieldCredit(qTokens, descTokens)
+	whyCredit := whichFieldCredit(qTokens, whyTokens)
+	whyPhrase := len(qTokens) > 1 && strings.Contains(why, query)
+	if score == 0 && whyCredit < 2 && !whyPhrase {
+		whyCredit = 0
+	}
+	if descPhrase || whyPhrase {
 		score += 2
 	}
-	// Group tag match.
-	if group != "" {
-		for _, qt := range qTokens {
-			if strings.Contains(group, qt) {
+	if whyCredit > descCredit {
+		score += whyCredit
+	} else {
+		score += descCredit
+	}
+	// Group tag match requires a whole token, not an arbitrary substring.
+	groupTokens := whichSubTokens(group)
+	groupMatched := false
+	for _, qt := range qTokens {
+		for _, gt := range groupTokens {
+			if whichTokenMatch(qt, gt) {
 				score += 1
+				groupMatched = true
+				break
+			}
+		}
+		if groupMatched {
+			break
+		}
+	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
 				break
 			}
 		}
 	}
-	if len(e.Keywords) > 0 {
-		matchedPhrase := false
-		for _, kw := range e.Keywords {
-			lowerKW := strings.ToLower(kw)
-			if query == lowerKW || strings.Contains(lowerKW, query) {
-				score += 3
-				matchedPhrase = true
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] {
+				queryWrite = true
 				break
 			}
 		}
-		if !matchedPhrase {
-			for _, qt := range qTokens {
-				tokenMatched := false
-				for _, kw := range e.Keywords {
-					if strings.Contains(strings.ToLower(kw), qt) {
-						tokenMatched = true
-						break
-					}
-				}
-				if tokenMatched {
-					score += 1
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
 				}
 			}
 		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path.
+	if score > 0 && len(qTokens) > 1 {
+		unmatched := 0
+		commandParts := strings.Fields(cmd)
+		leafTokens := whichSubTokens(commandParts[len(commandParts)-1])
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		score -= unmatched
 	}
 	return score
+}
+
+func whichFieldCredit(qTokens, fieldTokens []string) int {
+	credit := 0
+	matched := make(map[string]struct{})
+	for _, qt := range qTokens {
+		for _, ft := range fieldTokens {
+			if whichTokenMatch(qt, ft) {
+				key := whichTokenKey(ft)
+				if _, ok := matched[key]; ok {
+					break
+				}
+				matched[key] = struct{}{}
+				credit++
+				break
+			}
+		}
+		if credit == 3 {
+			break
+		}
+	}
+	return credit
+}
+
+func whichTokenKey(token string) string {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if alias := whichTokenAliases[token]; alias != "" {
+		return alias
+	}
+	return whichSingular(token)
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		return strings.TrimSuffix(s, "es")
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -163,13 +330,15 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
   0  at least one match found
-  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one`,
+  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {"matches":[]} (or the equivalent empty table) to stdout.`,
+		SilenceUsage: true,
 		Example: `  splitwise-pp-cli which "stale tickets"
   splitwise-pp-cli which "bottleneck"
   splitwise-pp-cli which --limit 1 "send message"
@@ -187,14 +356,22 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
-				// Under --json, return an empty matches envelope at exit 0
-				// so agents can branch on `matches.length == 0` instead of
-				// parsing a usage error message. Non-JSON keeps the typed
-				// exit-2 path so terminal users see the help hint.
-				if flags.asJSON {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				// Machine output still uses the typed exit-2 no-match path.
+				// --json (and piped auto-JSON) emit {"matches":[]} on stdout
+				// so agents can branch on the envelope without treating exit 0
+				// as success. Human terminals keep the usage error only.
+				asJSON := flags.asJSON
+				if !asJSON && !isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain {
+					asJSON = true
+				}
+				if asJSON || flags.csv || flags.plain || flags.quiet {
+					outputFlags := *flags
+					outputFlags.asJSON = asJSON || flags.asJSON
+					if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"matches": []whichMatch{},
-					}, flags)
+					}, &outputFlags); err != nil {
+						return err
+					}
 				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}

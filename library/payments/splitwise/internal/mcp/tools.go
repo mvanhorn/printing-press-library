@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -20,71 +21,23 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
 )
 
-// mcpListMaxBytes is the per-page byte budget for paginated GET list responses.
-// Overridable via PP_MCP_MAX_BYTES for tuning.
-func mcpListMaxBytes() int {
-	if v := os.Getenv("PP_MCP_MAX_BYTES"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 {
-			return n
-		}
-	}
-	return 24000
-}
-
-// mcpIntArg reads an integer-valued MCP argument (JSON numbers arrive as float64);
-// returns 0 when absent or not a number.
-func mcpIntArg(args map[string]any, key string) int {
-	if f, ok := args[key].(float64); ok {
-		return int(f)
-	}
-	return 0
-}
-
-// bindingHasName reports whether the tool already declares a query/path binding of
-// this name, so the client-side pager must not also consume it.
-func bindingHasName(bindings []mcpParamBinding, name string) bool {
-	for _, b := range bindings {
-		if b.PublicName == name {
-			return true
-		}
-	}
-	return false
-}
-
-// paginatesNatively reports whether a GET tool already pages server-side, i.e.
-// it declares a native offset or limit query binding (e.g. get_expenses,
-// get_notifications). For those tools the byte-budget client pager is disabled
-// entirely: their response is already paginated by the API, so re-wrapping it in
-// the {total,...,items} envelope would change the schema and report a `total`
-// covering only the server's returned page. For tools that do NOT page natively,
-// offset/limit are purely client-side cursors owned by the pager — consumed
-// locally and never forwarded upstream.
-func paginatesNatively(bindings []mcpParamBinding) bool {
-	return bindingHasName(bindings, "offset") || bindingHasName(bindings, "limit")
-}
-
-// sqlQueryParamDesc documents the real local schema for the sql tool: a single
-// `resources` table keyed by resource_type with the raw record in a JSON `data`
-// column (there are no per-resource tables). Agents that assume table-per-resource
-// hit "no such table"; this points them at resource_type + json_extract instead.
-const sqlQueryParamDesc = "SQL query (SELECT or WITH...SELECT). All synced records live in ONE table: resources(resource_type, id, data, synced_at, updated_at), where data is the raw JSON record. Filter by resource_type (e.g. 'get-groups', 'get-friends', 'get-expenses') and read fields with json_extract(data,'$.field'); expand nested arrays with json_each. Example: SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='get-groups'."
-
-// contextToolDesc / searchToolDesc / sqlToolDesc front-load the "Splitwise" app
-// name so a deferred-tool host (e.g. Claude Cowork) that searches the tool surface
-// by app name surfaces these entry-point tools instead of concluding no connector
-// is installed.
 const (
-	contextToolDesc = "Splitwise: API domain context — resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first when working with Splitwise."
-	searchToolDesc  = "Splitwise: full-text search across all synced Splitwise data. Faster than paginating list endpoints. Requires sync first."
-	sqlToolDesc     = "Splitwise: read-only SQL against the local Splitwise database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	installFreshTenantGate(s)
 	s.AddTool(
 		mcplib.NewTool("add-user-to-group_create",
 			mcplib.WithDescription("**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Returns the new AddUserToGroupCreateResponse."),
@@ -92,7 +45,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/add_user_to_group", false, false, nil, []mcpParamBinding{{PublicName: "body_json", WireName: "body_json", Location: "body_json"}}, []string{}),
+		makeAPIHandler("POST", "/add_user_to_group", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "body_json", WireName: "body_json", Location: "body_json"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("create-comment_create",
@@ -102,16 +55,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/create_comment", false, false, nil, []mcpParamBinding{{PublicName: "content", WireName: "content", Location: "body"}, {PublicName: "expense_id", WireName: "expense_id", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/create_comment", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "content", WireName: "content", Location: "body"}, {PublicName: "expense_id", WireName: "expense_id", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("create-expense_create",
-			mcplib.WithDescription("Creates an expense. You may either split an expense equally (only with `group_id` provided), or supply a list of shares. When splitting equally, the authenticated user is assumed to be the payer. When providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by one of the following: - `email`, `first_name`, and `last_name` - `user_id` **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Returns the new CreateExpenseCreateResponse."),
+			mcplib.WithDescription("Creates an expense. You may either split an expense equally (only with `group_id` provided), or supply a list of shares. When splitting equally, the authenticated user is assumed to be the payer. When providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by one of the following: - `email`, `first_name`, and `last_name` - `user_id` **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Returns array of Expense."),
 			mcplib.WithString("body_json", mcplib.Required(), mcplib.Description("Request body as a JSON object string (this endpoint accepts a polymorphic schema: oneOf/anyOf)")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/create_expense", false, false, nil, []mcpParamBinding{{PublicName: "body_json", WireName: "body_json", Location: "body_json"}}, []string{}),
+		makeAPIHandler("POST", "/create_expense", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "body_json", WireName: "body_json", Location: "body_json"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("create-friend_create",
@@ -122,15 +75,15 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/create_friend", false, false, nil, []mcpParamBinding{{PublicName: "user_email", WireName: "user_email", Location: "body"}, {PublicName: "user_first_name", WireName: "user_first_name", Location: "body"}, {PublicName: "user_last_name", WireName: "user_last_name", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/create_friend", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "user_email", WireName: "user_email", Location: "body"}, {PublicName: "user_first_name", WireName: "user_first_name", Location: "body"}, {PublicName: "user_last_name", WireName: "user_last_name", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("create-friends_create",
-			mcplib.WithDescription("Add multiple friends at once. For each user, if the other user does not exist, you must supply `users__{index}__first_name`. **Note**: user parameters must be flattened into the format `users__{index}__{property}`, where `property` is `first_name`, `last_name`, or `email`. Returns the new CreateFriendsCreateResponse."),
+			mcplib.WithDescription("Add multiple friends at once. For each user, if the other user does not exist, you must supply `users__{index}__first_name`. **Note**: user parameters must be flattened into the format `users__{index}__{property}`, where `property` is `first_name`, `last_name`, or `email`. Returns array of CreateFriendsCreateItem."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/create_friends", false, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/create_friends", false, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("create-group_create",
@@ -141,7 +94,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/create_group", false, false, nil, []mcpParamBinding{{PublicName: "group_type", WireName: "group_type", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "simplify_by_default", WireName: "simplify_by_default", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/create_group", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "group_type", WireName: "group_type", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "simplify_by_default", WireName: "simplify_by_default", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("delete-comment_create",
@@ -150,7 +103,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/delete_comment/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/delete_comment/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("delete-expense_create",
@@ -159,7 +112,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/delete_expense/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/delete_expense/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("delete-friend_create",
@@ -168,7 +121,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/delete_friend/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/delete_friend/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("delete-group_create",
@@ -177,41 +130,35 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/delete_group/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/delete_group/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-categories_list",
-			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("Returns a list of all categories Splitwise allows for expenses. There are parent categories that represent groups of categories with subcategories for more specific categorization. When creating expenses, you must use a subcategory, not a parent category. If you intend for an expense to be represented by the parent category and nothing more specific, please use the 'Other' subcategory. (public)"),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_categories", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_categories", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-comments_list",
-			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
-			mcplib.WithDescription("Get expense comments. Required: expense_id. Returns the GetCommentsListResponse."),
+			mcplib.WithDescription("Get expense comments. Required: expense_id. Returns array of Comment."),
 			mcplib.WithNumber("expense_id", mcplib.Required(), mcplib.Description("Expense id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_comments", true, false, nil, []mcpParamBinding{{PublicName: "expense_id", WireName: "expense_id", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/get_comments", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "expense_id", WireName: "expense_id", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-currencies_list",
-			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("Returns a list of all currencies allowed by the system. These are mostly ISO 4217 codes, but we do sometimes use pending codes or unofficial, colloquial codes (like BTC instead of XBT for Bitcoin). (public)"),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_currencies", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_currencies", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-current-user_list",
@@ -220,7 +167,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_current_user", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_current_user", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-expense_get",
@@ -230,11 +177,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_expense/{id}", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/get_expense/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-expenses_list",
-			mcplib.WithDescription("List the current user's expenses. Optional: group_id, friend_id, dated_after (plus 5 more). Returns the GetExpensesListResponse."),
+			mcplib.WithDescription("List the current user's expenses. Optional: group_id, friend_id, dated_after (plus 5 more). Returns array of Expense."),
 			mcplib.WithNumber("group_id", mcplib.Description("If provided, only expenses in that group will be returned, and `friend_id` will be ignored.")),
 			mcplib.WithNumber("friend_id", mcplib.Description("ID of another user. If provided, only expenses between the current and provided user will be returned.")),
 			mcplib.WithString("dated_after", mcplib.Description("Dated after")),
@@ -242,12 +189,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("updated_after", mcplib.Description("Updated after")),
 			mcplib.WithString("updated_before", mcplib.Description("Updated before")),
 			mcplib.WithNumber("limit", mcplib.Description("Limit")),
-			mcplib.WithNumber("offset", mcplib.Description("Offset")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_expenses", true, false, nil, []mcpParamBinding{{PublicName: "group_id", WireName: "group_id", Location: "query"}, {PublicName: "friend_id", WireName: "friend_id", Location: "query"}, {PublicName: "dated_after", WireName: "dated_after", Location: "query"}, {PublicName: "dated_before", WireName: "dated_before", Location: "query"}, {PublicName: "updated_after", WireName: "updated_after", Location: "query"}, {PublicName: "updated_before", WireName: "updated_before", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "offset", WireName: "offset", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/get_expenses", true, false, nil, mcpPageConfig{CursorParam: "offset", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "group_id", WireName: "group_id", Location: "query"}, {PublicName: "friend_id", WireName: "friend_id", Location: "query"}, {PublicName: "dated_after", WireName: "dated_after", Location: "query"}, {PublicName: "dated_before", WireName: "dated_before", Location: "query"}, {PublicName: "updated_after", WireName: "updated_after", Location: "query"}, {PublicName: "updated_before", WireName: "updated_before", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "20"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-friend_get",
@@ -257,18 +204,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_friend/{id}", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/get_friend/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-friends_list",
-			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
-			mcplib.WithDescription("**Note**: `group` objects only include group balances with that friend. Returns the GetFriendsListResponse."),
+			mcplib.WithDescription("**Note**: `group` objects only include group balances with that friend. Returns array of GetFriendsListItem."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_friends", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_friends", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-group_get",
@@ -278,29 +223,27 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_group/{id}", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/get_group/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-groups_list",
-			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
-			mcplib.WithDescription("**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns the GetGroupsListResponse."),
+			mcplib.WithDescription("**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns array of Group."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_groups", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_groups", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-notifications_list",
-			mcplib.WithDescription("Return a list of recent activity on the users account with the most recent items first. `content` will be suitable for display in HTML and uses only the ` `, `<strike>`, ` `, ` ` and `<font color='#FFEE44'>` tags. The `type` value indicates what the notification is about. Notification types may be added in the future without warning. Below is an incomplete list of notification types. | Type | Meaning | | ---- | ------- | | 0 | Expense added | | 1 | Expense updated | | 2\t | Expense deleted | | 3\t | Comment added | | 4\t | Added to group | | 5\t | Removed from group | | 6\t | Group deleted | | 7\t | Group settings changed | | 8\t | Added as friend | | 9\t | Removed as friend | | 10\t | News (a URL should be included) | | 11\t | Debt simplification | | 12\t | Group undeleted | | 13\t | Expense undeleted | | 14\t | Group currency conversion | | 15\t | Friend currency conversion | **Note**: While all parameters are optional, the server sets arbitrary (but large) limits on the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a user with many notifications. Optional: updated_after, limit (default: 0). Returns the GetNotificationsListResponse."),
+			mcplib.WithDescription("Return a list of recent activity on the users account with the most recent items first. `content` will be suitable for display in HTML and uses only the ` `, `<strike>`, ` `, ` ` and `<font color='#FFEE44'>` tags. The `type` value indicates what the notification is about. Notification types may be added in the future without warning. Below is an incomplete list of notification types. | Type | Meaning | | ---- | ------- | | 0 | Expense added | | 1 | Expense updated | | 2\t | Expense deleted | | 3\t | Comment added | | 4\t | Added to group | | 5\t | Removed from group | | 6\t | Group deleted | | 7\t | Group settings changed | | 8\t | Added as friend | | 9\t | Removed as friend | | 10\t | News (a URL should be included) | | 11\t | Debt simplification | | 12\t | Group undeleted | | 13\t | Expense undeleted | | 14\t | Group currency conversion | | 15\t | Friend currency conversion | **Note**: While all parameters are optional, the server sets arbitrary (but large) limits on the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a user with many notifications. Optional: updated_after, limit (default: 0). Returns array of Notification."),
 			mcplib.WithString("updated_after", mcplib.Description("If provided, returns only notifications after this time.")),
 			mcplib.WithNumber("limit", mcplib.Description("Omit (or provide `0`) to get the maximum number of notifications.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_notifications", true, false, nil, []mcpParamBinding{{PublicName: "updated_after", WireName: "updated_after", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/get_notifications", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "updated_after", WireName: "updated_after", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "0"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-user_get",
@@ -310,7 +253,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_user/{id}", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/get_user/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("remove-user-from-group_create",
@@ -320,7 +263,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/remove_user_from_group", false, false, nil, []mcpParamBinding{{PublicName: "group_id", WireName: "group_id", Location: "body"}, {PublicName: "user_id", WireName: "user_id", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/remove_user_from_group", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "group_id", WireName: "group_id", Location: "body"}, {PublicName: "user_id", WireName: "user_id", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("undelete-expense_create",
@@ -329,20 +272,20 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/undelete_expense/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/undelete_expense/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("undelete-group_create",
-			mcplib.WithDescription("Restores a deleted group. **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Required: id. Returns the new UndeleteGroupCreateResponse."),
+			mcplib.WithDescription("Restores a deleted group. **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Required: id. Returns array of string."),
 			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/undelete_group/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/undelete_group/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("update-expense_create",
-			mcplib.WithDescription("Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters that are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_ shares for the expense will be overwritten with the provided values. **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Required: id, cost, description, group_id. Optional: category_id, currency_code, date (plus 10 more). Returns the new UpdateExpenseCreateResponse."),
+			mcplib.WithDescription("Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters that are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_ shares for the expense will be overwritten with the provided values. **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Required: id, cost, description, group_id. Optional: category_id, currency_code, date (plus 10 more). Returns array of Expense."),
 			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("ID of the expense to update")),
 			mcplib.WithNumber("category_id", mcplib.Description("A category id from `get_categories`")),
 			mcplib.WithString("cost", mcplib.Required(), mcplib.Description("A string representation of a decimal value, limited to 2 decimal places")),
@@ -363,7 +306,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/update_expense/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "category_id", WireName: "category_id", Location: "body"}, {PublicName: "cost", WireName: "cost", Location: "body"}, {PublicName: "currency_code", WireName: "currency_code", Location: "body"}, {PublicName: "date", WireName: "date", Location: "body"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "details", WireName: "details", Location: "body"}, {PublicName: "group_id", WireName: "group_id", Location: "body"}, {PublicName: "repeat_interval", WireName: "repeat_interval", Location: "body"}, {PublicName: "users__0__owed_share", WireName: "users__0__owed_share", Location: "body"}, {PublicName: "users__0__paid_share", WireName: "users__0__paid_share", Location: "body"}, {PublicName: "users__0__user_id", WireName: "users__0__user_id", Location: "body"}, {PublicName: "users__1__email", WireName: "users__1__email", Location: "body"}, {PublicName: "users__1__first_name", WireName: "users__1__first_name", Location: "body"}, {PublicName: "users__1__last_name", WireName: "users__1__last_name", Location: "body"}, {PublicName: "users__1__owed_share", WireName: "users__1__owed_share", Location: "body"}, {PublicName: "users__1__paid_share", WireName: "users__1__paid_share", Location: "body"}}, []string{"id"}),
+		makeAPIHandler("POST", "/update_expense/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "category_id", WireName: "category_id", Location: "body"}, {PublicName: "cost", WireName: "cost", Location: "body"}, {PublicName: "currency_code", WireName: "currency_code", Location: "body"}, {PublicName: "date", WireName: "date", Location: "body"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "details", WireName: "details", Location: "body"}, {PublicName: "group_id", WireName: "group_id", Location: "body"}, {PublicName: "repeat_interval", WireName: "repeat_interval", Location: "body"}, {PublicName: "users__0__owed_share", WireName: "users__0__owed_share", Location: "body"}, {PublicName: "users__0__paid_share", WireName: "users__0__paid_share", Location: "body"}, {PublicName: "users__0__user_id", WireName: "users__0__user_id", Location: "body"}, {PublicName: "users__1__email", WireName: "users__1__email", Location: "body"}, {PublicName: "users__1__first_name", WireName: "users__1__first_name", Location: "body"}, {PublicName: "users__1__last_name", WireName: "users__1__last_name", Location: "body"}, {PublicName: "users__1__owed_share", WireName: "users__1__owed_share", Location: "body"}, {PublicName: "users__1__paid_share", WireName: "users__1__paid_share", Location: "body"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("update-user_create",
@@ -378,12 +321,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/update_user/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "default_currency", WireName: "default_currency", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "first_name", WireName: "first_name", Location: "body"}, {PublicName: "last_name", WireName: "last_name", Location: "body"}, {PublicName: "locale", WireName: "locale", Location: "body"}, {PublicName: "password", WireName: "password", Location: "body"}}, []string{"id"}),
+		makeAPIHandler("POST", "/update_user/{id}", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "default_currency", WireName: "default_currency", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "first_name", WireName: "first_name", Location: "body"}, {PublicName: "last_name", WireName: "last_name", Location: "body"}, {PublicName: "locale", WireName: "locale", Location: "body"}, {PublicName: "password", WireName: "password", Location: "body"}}, []string{"id"}),
 	)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
-			mcplib.WithDescription(searchToolDesc),
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -394,8 +339,8 @@ func RegisterTools(s *server.MCPServer) {
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription(sqlToolDesc),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description(sqlQueryParamDesc)),
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='add-user-to-group'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -406,7 +351,7 @@ func RegisterTools(s *server.MCPServer) {
 	// Call this first to understand the API taxonomy, query patterns, and capabilities.
 	s.AddTool(
 		mcplib.NewTool("context",
-			mcplib.WithDescription(contextToolDesc),
+			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -422,33 +367,72 @@ type mcpParamBinding struct {
 	PublicName string
 	WireName   string
 	Location   string
+	Default    string
 }
 
-// formatMCPParamValue stringifies an MCP argument for a path or query parameter.
-// JSON numbers arrive as float64, and fmt's %v renders a large integer-valued
-// float in scientific notation (e.g. id 1925035 -> "1.925035e+06"), which
-// corrupts numeric path params like /get_friend/{id} and numeric query filters.
-// FormatFloat with 'f' and precision -1 emits the minimal decimal form
-// ("1925035", "28.48") with no exponent; non-numeric values fall back to %v.
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
 func formatMCPParamValue(v any) string {
-	if f, ok := v.(float64); ok {
-		return strconv.FormatFloat(f, 'f', -1, 64)
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
 	}
-	return fmt.Sprintf("%v", v)
+}
+
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
+		}
+		if platformSession != nil {
+			defer platformSession.ZeroCredentials()
 		}
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
+			return mcpToolError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
@@ -458,6 +442,24 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
 		var headers map[string]string
 		if len(headerOverrides) > 0 {
 			headers = make(map[string]string, len(headerOverrides)+1)
@@ -479,41 +481,38 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
 			if !ok {
-				continue
+				if binding.Default != "" {
+					v = binding.Default
+				} else {
+					continue
+				}
 			}
 			switch binding.Location {
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "header":
+				if headers == nil {
+					headers = map[string]string{}
+				}
+				headers[binding.WireName] = formatMCPParamValue(v)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			case "body_json":
 				if s, ok := v.(string); ok && s != "" {
 					var parsed any
 					if err := json.Unmarshal([]byte(s), &parsed); err != nil {
-						return mcplib.NewToolResultError("body_json must be a valid JSON object: " + err.Error()), nil
+						return mcpToolError("body_json must be a valid JSON object: " + err.Error()), nil
 					}
 					if _, isMap := parsed.(map[string]any); !isMap {
-						return mcplib.NewToolResultError(fmt.Sprintf("body_json must be a JSON object, got JSON %T", parsed)), nil
+						return mcpToolError(fmt.Sprintf("body_json must be a JSON object, got JSON %T", parsed)), nil
 					}
 					bodyJSONOverride = json.RawMessage(s)
 				}
 			default:
 				params[binding.WireName] = formatMCPParamValue(v)
 			}
-		}
-		// Mark the client-side pagination cursor (offset/limit) as consumed so
-		// the generic args-forwarding loop below does not append it to the
-		// upstream query string. This applies only to GET tools that do NOT page
-		// natively — for those, the client pager (below) owns offset/limit, so
-		// neither must reach the API (a leaked client-cursor offset makes the API
-		// return a partial slice, which PaginateBody then mis-totals). Tools that
-		// page natively keep offset/limit as real query bindings, so they are
-		// left in knownArgs via the bindings loop and forwarded normally.
-		if method == "GET" && !paginatesNatively(bindings) {
-			knownArgs["offset"] = true
-			knownArgs["limit"] = true
 		}
 		for _, p := range positionalParams {
 			placeholder := "{" + p + "}"
@@ -522,7 +521,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
 			}
 		}
 
@@ -542,10 +541,18 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		switch method {
 		case "GET":
 			if len(headers) > 0 {
-				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				if readOnly {
+					data, err = c.GetWithHeaders(ctx, path, params, headers)
+				} else {
+					data, err = c.GetMutatingWithHeaders(ctx, path, params, headers)
+				}
 				break
 			}
-			data, err = c.Get(ctx, path, params)
+			if readOnly {
+				data, err = c.Get(ctx, path, params)
+			} else {
+				data, err = c.GetMutating(ctx, path, params)
+			}
 		case "POST":
 			if len(bodyJSONOverride) > 0 {
 				if len(headers) > 0 {
@@ -579,31 +586,63 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		case "PUT":
 			if len(bodyJSONOverride) > 0 {
 				if len(headers) > 0 {
-					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					if readOnly {
+						data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					} else {
+						data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					}
 					break
 				}
-				data, _, err = c.PutWithParams(ctx, path, params, bodyJSONOverride)
+				if readOnly {
+					data, _, err = c.PutQueryWithParams(ctx, path, params, bodyJSONOverride)
+				} else {
+					data, _, err = c.PutWithParams(ctx, path, params, bodyJSONOverride)
+				}
 				break
 			}
 			if len(headers) > 0 {
-				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
 			if len(bodyJSONOverride) > 0 {
 				if len(headers) > 0 {
-					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					if readOnly {
+						data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					} else {
+						data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyJSONOverride, headers)
+					}
 					break
 				}
-				data, _, err = c.PatchWithParams(ctx, path, params, bodyJSONOverride)
+				if readOnly {
+					data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyJSONOverride)
+				} else {
+					data, _, err = c.PatchWithParams(ctx, path, params, bodyJSONOverride)
+				}
 				break
 			}
 			if len(headers) > 0 {
-				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
 			if len(headers) > 0 {
 				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
@@ -611,93 +650,189 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
 			msg := err.Error()
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
+				return mcpToolTextWithPlatform("already exists (no-op)", platformSession), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export SPLITWISE_API_KEY=<your-key>" +
+					"\n      Set it with: echo \"$TOKEN\" | splitwise-pp-cli auth set-token or export SPLITWISE_API_KEY=\"your-token-here\"" +
 					"\n      Run 'splitwise-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: export SPLITWISE_API_KEY=<your-key>" +
+					"\n      Set it with: echo \"$TOKEN\" | splitwise-pp-cli auth set-token or export SPLITWISE_API_KEY=\"your-token-here\"" +
 					"\n      Run 'splitwise-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export SPLITWISE_API_KEY=<your-key>" +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set it with: echo \"$TOKEN\" | splitwise-pp-cli auth set-token or export SPLITWISE_API_KEY=\"your-token-here\"" +
 					"\n      Run 'splitwise-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+					return mcpToolTextWithPlatform("already deleted (no-op)", platformSession), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
-		// For GET list responses on tools WITHOUT native server-side paging,
-		// byte-budget-paginate by default so a large collection never blows the
-		// host token budget. Endpoints that already page server-side
-		// (get_expenses, get_notifications declare native offset/limit query
-		// bindings) are left untouched: re-wrapping their already-paginated
-		// response in the {total,...,items} envelope would both change their
-		// schema and report a `total` that reflects only the server's returned
-		// page rather than the full collection. paginatesNatively gates the
-		// whole pager off for those tools.
-		if method == "GET" && !paginatesNatively(bindings) {
-			clientOffset := mcpIntArg(args, "offset")
-			clientLimit := mcpIntArg(args, "limit")
-			if out, ok := cli.PaginateBody(data, clientOffset, clientLimit, mcpListMaxBytes(), ""); ok {
-				return mcplib.NewToolResultText(string(out)), nil
-			}
-		}
 		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
 				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"data_base64":      encoded,
 				"byte_count":       len(data),
 			})
-			return mcplib.NewToolResultText(string(out)), nil
+			if err != nil {
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
+			}
+			if len(out) > bound.MaxBytes {
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			result := string(out)
+			if platformSession != nil {
+				result = bound.WithMetadata(result, platformSession.OutputMetadata())
+			}
+			return mcplib.NewToolResultText(result), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
+		}
+		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "splitwise-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcpToolResultTextWithPlatform(method, data, nil)
+}
+
+func mcpToolTextWithPlatform(result string, platformSession *platform.Session) *mcplib.CallToolResult {
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func mcpToolResultTextWithPlatform(method string, data json.RawMessage, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointResponse(method, data)
+	return mcpToolTextWithPlatform(result, platformSession)
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+}
+
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	})
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	return newMCPClientFromConfig(ctx, cfg)
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 60*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(ctx context.Context, cfg *config.Config) (*client.Client, *platform.Session, error) {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := cli.ApplyClientHooks(c); err != nil {
+		if session != nil {
+			session.ZeroCredentials()
+		}
+		return nil, nil, fmt.Errorf("initializing MCP client: %w", err)
+	}
+	return c, session, nil
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "splitwise-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run splitwise-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run splitwise-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run splitwise-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -711,19 +846,46 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	results, err := db.Search(query, "", limit, false)
+	results, err := db.Search(query, limit)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
@@ -731,22 +893,27 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -780,6 +947,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -791,46 +1049,135 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
+	defer cancel()
+
+	rows, err := db.DB().QueryContext(queryCtx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
-	var results []map[string]any
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
+	scan := bound.NewSQLScanState(cols)
 	for rows.Next() {
 		values := make([]any, len(cols))
 		ptrs := make([]any, len(cols))
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
-		results = append(results, row)
+		if !scan.Add(row) {
+			break
+		}
+	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(scan.Rows, cols, storeStatus, scan.Truncated))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind, truncated bool) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+		"truncated":    truncated,
+	}
+	if truncated {
+		out["returned_count"] = len(rows)
+		out["max_bytes"] = bound.MaxBytes
+		out["note"] = bound.SQLResultBoundNote
+	}
+	if len(rows) == 0 && !truncated {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(queryCtx context.Context, err error) string {
+	if queryCtx.Err() != nil {
+		return fmt.Sprintf("query cancelled: %v. MCP SQL queries are bounded to %s; narrow the query with WHERE, GROUP BY, or an aggregate.", err, bound.SQLQueryTimeout)
+	}
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='add-user-to-group', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "splitwise",
-		"description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics",
+		"description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has.",
 		"archetype":   "generic",
 		"tool_count":  27,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion splitwise-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "bearer_token",
 			"env_vars": []map[string]any{
@@ -848,54 +1195,64 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "add-user-to-group",
 				"description": "Manage add user to group",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "create-comment",
 				"description": "Manage create comment",
 				"endpoints":   []string{"create"},
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "create-expense",
 				"description": "Manage create expense",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "create-friend",
 				"description": "Manage create friend",
 				"endpoints":   []string{"create"},
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "create-friends",
 				"description": "Manage create friends",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "create-group",
 				"description": "Manage create group",
 				"endpoints":   []string{"create"},
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "delete-comment",
 				"description": "Manage delete comment",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "delete-expense",
 				"description": "Manage delete expense",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "delete-friend",
 				"description": "Manage delete friend",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "delete-group",
 				"description": "Manage delete group",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "get-categories",
@@ -907,6 +1264,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "get-comments",
 				"description": "Manage get comments",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
 				"name":        "get-currencies",
@@ -970,28 +1328,33 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "remove-user-from-group",
 				"description": "Manage remove user from group",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "undelete-expense",
 				"description": "Manage undelete expense",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "undelete-group",
 				"description": "Manage undelete group",
 				"endpoints":   []string{"create"},
+				"writable":    true,
 			},
 			{
 				"name":        "update-expense",
 				"description": "Manage update expense",
 				"endpoints":   []string{"create"},
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "update-user",
 				"description": "Manage update user",
 				"endpoints":   []string{"create"},
 				"searchable":  true,
+				"writable":    true,
 			},
 		},
 		"query_tips": []string{
@@ -1006,25 +1369,46 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
 			{"name": "Net balance overview", "command": "balances", "description": "See everything you owe and are owed across every friend and group in one net-position view.", "rationale": "Splitwise returns balances separately per group and per friend; no client aggregates them into a single net position.", "via": "mcp-command-mirror"},
-			{"name": "Debt aging", "command": "debts", "description": "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.", "rationale": "Requires joining synced expenses with derived balances to compute days since the oldest open expense per relationship —", "via": "mcp-command-mirror"},
-			{"name": "Group ledger with running balance", "command": "ledger", "description": "Every expense in a group, in date order, with a cumulative running balance per member.", "rationale": "Requires replaying synced expenses in order against per-member shares — the API only returns current balances", "via": "mcp-command-mirror"},
-			{"name": "Spend analytics rollups", "command": "spend", "description": "Total shared spend broken down by category, group, or month from your synced history.", "rationale": "Requires summing synced expense amounts bucketed locally; Splitwise has no analytics, no spend-over-time", "via": "mcp-command-mirror"},
-			{"name": "Offline expense search", "command": "search", "description": "Full-text search across your entire expense history, comments, and group/friend names — offline.", "rationale": "Requires an FTS5 index over the full synced ledger", "via": "mcp-command-mirror"},
 			{"name": "Settle-up plan", "command": "settle-up", "description": "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.", "rationale": "Requires a min-cash-flow debt-simplification graph over per-member net balances", "via": "mcp-command-mirror"},
+			{"name": "Audit before settling", "command": "audit", "description": "Catch duplicate settlement rows and abnormal expense amounts before you trust a settle-up plan.", "rationale": "Requires scanning the full synced history for duplicate payment", "via": "mcp-command-mirror"},
+			{"name": "Debt aging", "command": "debts", "description": "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.", "rationale": "Requires computing days since each friend's last-settled point from synced expenses and payment:true settlements", "via": "mcp-command-mirror"},
+			{"name": "Spend analytics rollups", "command": "spend", "description": "Total shared spend broken down by category, group, or month from your synced history.", "rationale": "Requires summing synced expense amounts bucketed locally; Splitwise has no analytics, no spend-over-time", "via": "mcp-command-mirror"},
+			{"name": "Fairness lenses", "command": "fairness", "description": "See who's carrying more than their share of cost, and how likely a stale balance is to actually get paid.", "rationale": "Requires classifying members as carrier vs rider from local paid/owed shares and projecting a settle date from", "via": "mcp-command-mirror"},
+			{"name": "Cross-group netting", "command": "net", "description": "Collapse a person's balance across every group and non-group expense into the minimum set of real-world transfers.", "rationale": "Requires a debt graph over every synced group and friend balance with cycle-cancelling min-transfer math", "via": "mcp-command-mirror"},
+			{"name": "Trip/period report", "command": "report", "description": "Turn synced trip or period spend into a shareable summary plus per-person and per-category export.", "rationale": "Requires assembling multiple local rollups into one document", "via": "mcp-command-mirror"},
+			{"name": "Group ledger with running balance", "command": "ledger", "description": "Every expense in a group, in date order, with a cumulative running balance per member.", "rationale": "Requires replaying synced expenses in order against per-member shares; the API only returns current balances", "via": "mcp-command-mirror"},
+			{"name": "Split calculator", "command": "split", "description": "Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it.", "rationale": "create_expense requires a per-user paid_share/owed_share array that sums exactly to the total", "via": "mcp-command-mirror"},
+			{"name": "Recurring-expense detector", "command": "recurring", "description": "Surface repeating charges (rent, utilities, subscriptions)", "rationale": "Requires grouping synced expenses by normalized description and cadence in SQLite with a regularity gate", "via": "mcp-command-mirror"},
+			{"name": "Fairness nudge", "command": "fairness nudge", "description": "Post a payment reminder as a comment on the actual open expense thread, previewed before it sends.", "rationale": "Requires resolving a friend to their specific open expense locally and posting through create_comment", "via": "mcp-command-mirror"},
+			{"name": "Balances by group", "command": "balances", "description": "See one row per group per currency for every non-zero balance, without the noise of settled groups.", "rationale": "Requires filtering and reshaping the same local join that powers balances into a per-group-per-currency view", "via": "mcp-command-mirror"},
+			{"name": "Agent brief", "command": "brief", "description": "Get one compact digest of net position, the stalest debts, and what changed since last sync in a single call.", "rationale": "Composes three local reads (balances, debts --aged, activity)", "via": "mcp-command-mirror"},
+			{"name": "Store reconcile", "command": "reconcile", "description": "Verify the local store actually matches Splitwise before you trust a settle-up or report (calls the live Splitwise API", "rationale": "Requires paging live get_expenses with updated_after and diffing IDs/updated_at/deleted_at against the local store", "via": "mcp-command-mirror"},
 			{"name": "Activity diff", "command": "activity", "description": "Show what changed since your last sync — new, edited, and deleted expenses to review.", "rationale": "Requires diffing synced notifications and updated_after expenses against the local store's last-sync cursor.", "via": "mcp-command-mirror"},
+			{"name": "Forecast", "command": "forecast", "description": "See what shared bills are expected next, projected from your recurring-expense history.", "rationale": "Requires projecting forward from the recurring cadence model over local SQLite", "via": "mcp-command-mirror"},
+			{"name": "Normalize", "command": "normalize", "description": "Express multi-currency spend in one base currency, using rates you supply", "rationale": "Requires converting locally-synced spend totals with user-supplied rates and explicitly listing what could not be", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Net balance overview", "insight": "Splitwise returns balances separately per group and per friend; no client aggregates them into a single net position."},
-			{"topic": "Debt aging", "insight": "Requires joining synced expenses with derived balances to compute days since the oldest open expense per relationship — no single API call returns aging."},
-			{"topic": "Group ledger with running balance", "insight": "Requires replaying synced expenses in order against per-member shares — the API only returns current balances, never the running history."},
-			{"topic": "Spend analytics rollups", "insight": "Requires summing synced expense amounts bucketed locally; Splitwise has no analytics, no spend-over-time, no per-category rollups."},
-			{"topic": "Offline expense search", "insight": "Requires an FTS5 index over the full synced ledger; the Splitwise app search is weak and there is no bulk export-and-grep."},
 			{"topic": "Settle-up plan", "insight": "Requires a min-cash-flow debt-simplification graph over per-member net balances; no Splitwise client emits a transfer plan."},
+			{"topic": "Audit before settling", "insight": "Requires scanning the full synced history for duplicate payment:true rows and computing median/MAD cost outliers per category; no endpoint flags either."},
+			{"topic": "Debt aging", "insight": "Requires computing days since each friend's last-settled point from synced expenses and payment:true settlements; no single API call returns aging."},
+			{"topic": "Spend analytics rollups", "insight": "Requires summing synced expense amounts bucketed locally; Splitwise has no analytics, no spend-over-time, no per-category rollups."},
+			{"topic": "Fairness lenses", "insight": "Requires classifying members as carrier vs rider from local paid/owed shares and projecting a settle date from settlement episode history; no endpoint offers either lens."},
+			{"topic": "Cross-group netting", "insight": "Requires a debt graph over every synced group and friend balance with cycle-cancelling min-transfer math; Splitwise's simplify-debts is scoped to one group at a time."},
+			{"topic": "Trip/period report", "insight": "Requires assembling multiple local rollups into one document; Splitwise's own export is a per-group CSV with none of these sections."},
+			{"topic": "Group ledger with running balance", "insight": "Requires replaying synced expenses in order against per-member shares; the API only returns current balances, never the running history."},
+			{"topic": "Split calculator", "insight": "create_expense requires a per-user paid_share/owed_share array that sums exactly to the total; no Splitwise client computes and previews that body for you."},
+			{"topic": "Recurring-expense detector", "insight": "Requires grouping synced expenses by normalized description and cadence in SQLite with a regularity gate; Splitwise has no recurrence concept and no endpoint that returns it."},
+			{"topic": "Fairness nudge", "insight": "Requires resolving a friend to their specific open expense locally and posting through create_comment; no client turns a stale balance into a targeted reminder."},
+			{"topic": "Balances by group", "insight": "Requires filtering and reshaping the same local join that powers balances into a per-group-per-currency view; no endpoint returns this grouping directly."},
+			{"topic": "Agent brief", "insight": "Composes three local reads (balances, debts --aged, activity) into one bounded payload sized for the canonical MCP output-bounding contract; no single endpoint or client returns a state digest."},
+			{"topic": "Store reconcile", "insight": "Requires paging live get_expenses with updated_after and diffing IDs/updated_at/deleted_at against the local store; a prior sync bug silently dropped 43 of 143 expenses with no other way to detect it."},
 			{"topic": "Activity diff", "insight": "Requires diffing synced notifications and updated_after expenses against the local store's last-sync cursor."},
+			{"topic": "Forecast", "insight": "Requires projecting forward from the recurring cadence model over local SQLite; Splitwise has no forecasting or upcoming-bill concept."},
+			{"topic": "Normalize", "insight": "Requires converting locally-synced spend totals with user-supplied rates and explicitly listing what could not be converted; Splitwise never converts currencies across groups for you."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

@@ -3,14 +3,32 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
+	"github.com/spf13/cobra"
 )
+
+// novelErr gives hand-authored commands the same typed JSON error contract as
+// generated API commands while avoiding a duplicate root-level error message.
+func novelErr(cmd *cobra.Command, flags *rootFlags, err error) error {
+	if err == nil {
+		return nil
+	}
+	if wantsHumanTable(cmd.OutOrStdout(), flags) {
+		return err
+	}
+	code := ExitCode(err)
+	_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"error": err.Error(), "code": code})
+	cmd.SilenceErrors = true
+	return silentCodeErr(code)
+}
 
 // splitwiseMutationError inspects a Splitwise write response body. Splitwise
 // returns HTTP 200 even when a create/update fails, signaling the failure only
@@ -33,12 +51,39 @@ func splitwiseMutationError(data json.RawMessage) error {
 	return fmt.Errorf("splitwise rejected the request: %s", s)
 }
 
+func upsertCreatedExpenses(db *store.Store, data json.RawMessage) error {
+	var env struct {
+		Expenses []json.RawMessage `json:"expenses"`
+	}
+	if err := json.Unmarshal(data, &env); err != nil {
+		return err
+	}
+	for _, raw := range env.Expenses {
+		var expense struct {
+			ID int `json:"id"`
+		}
+		if err := json.Unmarshal(raw, &expense); err != nil {
+			return err
+		}
+		if expense.ID == 0 {
+			return errors.New("create_expense response contains an expense without an id")
+		}
+		if err := db.Upsert("get-expenses", strconv.Itoa(expense.ID), raw); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // openSplitwiseStore opens (creating if absent) the local SQLite store. Novel
 // read commands use this instead of a store-must-exist open so that running a
 // command before `sync` yields an empty result plus the unsynced stderr hint
 // rather than a hard error — matching the framework's store-query convention.
-func openSplitwiseStore(ctx context.Context) (*store.Store, error) {
-	return store.OpenWithContext(ctx, defaultDBPath("splitwise-pp-cli"))
+func openSplitwiseStore(ctx context.Context, path string) (*store.Store, error) {
+	if path == "" {
+		path = defaultDBPath("splitwise-pp-cli")
+	}
+	return store.OpenWithContext(ctx, path)
 }
 
 var htmlTagRe = regexp.MustCompile(`<[^>]*>`)
@@ -127,6 +172,65 @@ type Expense struct {
 	DeletedAt    *string       `json:"deleted_at"`
 	Category     Category      `json:"category"`
 	Users        []ExpenseUser `json:"users"`
+}
+
+type expenseWindow struct {
+	since    time.Time
+	until    time.Time
+	hasSince bool
+	hasUntil bool
+}
+
+func parseExpenseWindow(since, until string, now time.Time) (expenseWindow, error) {
+	var window expenseWindow
+	var err error
+	if strings.TrimSpace(since) != "" {
+		window.since, err = parseExpenseWindowBound(since, now, false)
+		if err != nil {
+			return window, fmt.Errorf("invalid --since %q: %w", since, err)
+		}
+		window.hasSince = true
+	}
+	if strings.TrimSpace(until) != "" {
+		window.until, err = parseExpenseWindowBound(until, now, true)
+		if err != nil {
+			return window, fmt.Errorf("invalid --until %q: %w", until, err)
+		}
+		window.hasUntil = true
+	}
+	if window.hasSince && window.hasUntil && window.until.Before(window.since) {
+		return window, fmt.Errorf("--until must be on/after --since")
+	}
+	return window, nil
+}
+
+func parseExpenseWindowBound(value string, now time.Time, endOfDay bool) (time.Time, error) {
+	value = strings.TrimSpace(value)
+	if t, err := time.Parse(time.RFC3339, value); err == nil {
+		return t, nil
+	}
+	if t, err := time.Parse("2006-01-02", value); err == nil {
+		if endOfDay {
+			t = t.Add(24*time.Hour - time.Nanosecond)
+		}
+		return t, nil
+	}
+	dur, err := cliutil.ParseDurationLoose(value)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return now.Add(-dur), nil
+}
+
+func expenseInWindow(e Expense, window expenseWindow) bool {
+	if !window.hasSince && !window.hasUntil {
+		return true
+	}
+	t, ok := parseSplitwiseDate(e.Date)
+	if !ok {
+		return false
+	}
+	return (!window.hasSince || !t.Before(window.since)) && (!window.hasUntil || !t.After(window.until))
 }
 
 func parseAmount(s string) float64 {
@@ -219,11 +323,21 @@ func loadGroups(db *store.Store) ([]Group, error) {
 	if err != nil {
 		return out, err
 	}
+	// Dedupe by group id. A store synced by more than one binary can hold the
+	// same group under two keys (the id-0 "Non-group expenses" group is stored
+	// as key "0" by one generation and by name by another), which surfaced as a
+	// duplicated row in `balances --by-group`. Rows arrive newest-first
+	// (store.List orders by updated_at DESC), so the first occurrence wins.
+	seen := make(map[int]bool)
 	for _, row := range rows {
 		var g Group
 		if err := json.Unmarshal(row, &g); err != nil {
 			continue
 		}
+		if seen[g.ID] {
+			continue
+		}
+		seen[g.ID] = true
 		if g.Members == nil {
 			g.Members = make([]GroupMember, 0)
 		}

@@ -1,19 +1,31 @@
 {
-  "timestamp": "2026-05-28T05:34:02.065468Z",
+  "timestamp": "2026-09-04T18:08:09.262069Z",
   "cli_dir": "\u003ccli-dir\u003e/splitwise-pp-cli",
   "findings": [
     {
       "kind": "thin-short",
-      "command": "version",
-      "file": "root.go",
-      "line": 348,
-      "evidence": "Print version",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
       "status": "accepted",
-      "note": "Framework version command; agents understand 'Print version' without elaboration and it is exempted from the MCP surface by classify.go"
+      "note": "DO-NOT-EDIT generated framework command (platform client profiles); the Short names the exact object listed and takes no parameters, so an agent has nothing further to choose — a richer default belongs in the generator template"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop command; \"List recorded learnings\" is precise for a no-arg local-store read (filters --query/--agent/--warnings are self-describing in the schema) — a parameter-aware default belongs in the generator template"
     }
   ],
   "scorecard_before": {
     "mcp_description_quality": 10,
-    "captured": "2026-05-28T05:29:07.49589Z"
+    "captured": "2026-09-04T17:54:20.938119Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
   }
 }

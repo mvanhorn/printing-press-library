@@ -30,12 +30,13 @@ func newGetNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/get_notifications"
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "get-notifications", path, map[string]string{
-				"updated_after": fmt.Sprintf("%v", flagUpdatedAfter),
-				"limit":         fmt.Sprintf("%v", flagLimit),
-			}, nil, flagAll, "", "offset", "limit", "", "", cmd.ErrOrStderr())
+				"updated_after": formatCLIParamValue(flagUpdatedAfter),
+				"limit":         formatCLIParamValue(flagLimit),
+			}, nil, flagAll, "", "offset", "limit", 0, "", "", "notifications", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -43,9 +44,9 @@ func newGetNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -59,9 +60,13 @@ func newGetNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"created_at": true, "id": true, "image_url": true, "type": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -69,7 +74,7 @@ func newGetNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -79,7 +84,11 @@ func newGetNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"created_at": true, "id": true, "image_url": true, "type": true})
 		},
 	}
 	cmd.Flags().StringVar(&flagUpdatedAfter, "updated-after", "", "If provided, returns only notifications after this time.")

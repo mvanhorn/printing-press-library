@@ -50,13 +50,13 @@ func TestGroupBalances_ExcludesZeroBalanceGroups(t *testing.T) {
 
 func TestGroupBalances_MultiCurrencyEmitsRowPerCurrency(t *testing.T) {
 	groups := []Group{
-		gbGroup(1, "Barcelona", gbMember(42, gbBal("USD", "10.00"), gbBal("EUR", "-5.00"))),
+		gbGroup(1, "Example Trip", gbMember(42, gbBal("USD", "10.00"), gbBal("EUR", "-5.00"))),
 	}
 	got := groupBalances(groups, 42)
 	// Within the result the larger absolute amount comes first.
 	want := []groupBalanceRow{
-		{GroupID: 1, GroupName: "Barcelona", CurrencyCode: "USD", Amount: 10.00},
-		{GroupID: 1, GroupName: "Barcelona", CurrencyCode: "EUR", Amount: -5.00},
+		{GroupID: 1, GroupName: "Example Trip", CurrencyCode: "USD", Amount: 10.00},
+		{GroupID: 1, GroupName: "Example Trip", CurrencyCode: "EUR", Amount: -5.00},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("groupBalances = %+v, want %+v", got, want)

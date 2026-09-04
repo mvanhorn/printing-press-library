@@ -17,7 +17,7 @@ func newGetGroupsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get-groups",
 		Short:       "**Note**: Expenses that are not associated with a group are listed in a group with ID 0.",
 		Long:        "**Note**: Expenses that are not associated with a group are listed in a group with ID 0.",
-		Example:     "  splitwise-pp-cli get-groups --agent --select groups.name,groups.members.first_name,groups.simplified_debts.amount",
+		Example:     "  splitwise-pp-cli get-groups --agent --select name,members.first_name,members.balance.amount",
 		Annotations: map[string]string{"pp:endpoint": "get-groups.list", "pp:method": "GET", "pp:path": "/get_groups", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -27,10 +27,11 @@ func newGetGroupsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/get_groups"
 			params := map[string]string{}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "get-groups", true, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "get-groups", true, path, params, nil, "groups", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -38,9 +39,9 @@ func newGetGroupsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -54,9 +55,13 @@ func newGetGroupsPromotedCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"id": true, "name": true, "updated_at": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -64,7 +69,7 @@ func newGetGroupsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -74,7 +79,11 @@ func newGetGroupsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"id": true, "name": true, "updated_at": true})
 		},
 	}
 

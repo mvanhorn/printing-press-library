@@ -106,23 +106,23 @@ func TestResolveSettleGroup(t *testing.T) {
 }
 
 func TestResolveSettleGroup_Ambiguous(t *testing.T) {
-	// Three "Shy 25" trips: a bare "Shy 25" must error, not silently pick one.
+	// Three synthetic cabin trips: a bare prefix must error, not silently pick one.
 	groups := []Group{
-		{ID: 1, Name: "Shy 25 Does Vegas 2021"},
-		{ID: 2, Name: "Shy 25 Weekend January 2023"},
-		{ID: 3, Name: "Shy 25 2023"},
+		{ID: 1, Name: "Cabin Weekend Vegas 2021"},
+		{ID: 2, Name: "Cabin Weekend January 2023"},
+		{ID: 3, Name: "Cabin Weekend 2023"},
 	}
-	if _, ok, err := resolveSettleGroup("Shy 25", groups); ok || err == nil {
-		t.Errorf("resolveSettleGroup(\"Shy 25\") = (ok=%v, err=%v), want ambiguous error", ok, err)
+	if _, ok, err := resolveSettleGroup("Cabin Weekend", groups); ok || err == nil {
+		t.Errorf("resolveSettleGroup(cabin prefix) = (ok=%v, err=%v), want ambiguous error", ok, err)
 	}
 	// An exact name wins even though it is a substring of the others.
-	if g, ok, err := resolveSettleGroup("Shy 25 2023", groups); !ok || err != nil || g.ID != 3 {
-		t.Errorf("resolveSettleGroup(\"Shy 25 2023\") = (%+v, %v, %v), want id 3 (exact-match preference)", g, ok, err)
+	if g, ok, err := resolveSettleGroup("Cabin Weekend 2023", groups); !ok || err != nil || g.ID != 3 {
+		t.Errorf("resolveSettleGroup(exact cabin) = (%+v, %v, %v), want id 3", g, ok, err)
 	}
 	// Duplicate exact names remain ambiguous.
-	dup := []Group{{ID: 11, Name: "ABGT500"}, {ID: 12, Name: "ABGT500"}}
-	if _, ok, err := resolveSettleGroup("ABGT500", dup); ok || err == nil {
-		t.Errorf("resolveSettleGroup(\"ABGT500\") with duplicate names = (ok=%v, err=%v), want ambiguous error", ok, err)
+	dup := []Group{{ID: 11, Name: "Festival Crew 500"}, {ID: 12, Name: "Festival Crew 500"}}
+	if _, ok, err := resolveSettleGroup("Festival Crew 500", dup); ok || err == nil {
+		t.Errorf("resolveSettleGroup with duplicate names = (ok=%v, err=%v), want ambiguous error", ok, err)
 	}
 }
 

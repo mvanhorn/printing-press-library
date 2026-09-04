@@ -88,19 +88,12 @@ func TestFindExpenseByID(t *testing.T) {
 // TestNudgeAcceptsMultiWordPositional guards the multi-word friend-name path:
 // the MCP command-mirror whitespace-splits a quoted friend name into several
 // positionals (["Tahoe","Trip"]). cobra.ExactArgs(1) rejected that before RunE
-// could rejoin them; the validator must now accept 2+ positionals so the inline
-// join can resolve the full name.
+// could rejoin them; validation now happens in RunE so Cobra does not reject
+// the split name before it can be reassembled.
 func TestNudgeAcceptsMultiWordPositional(t *testing.T) {
-	cmd := newFairnessNudgeCmd(&rootFlags{})
-	if cmd.Args == nil {
-		t.Fatal("nudge command has no Args validator")
-	}
-	if err := cmd.Args(cmd, []string{"Tahoe", "Trip"}); err != nil {
-		t.Errorf("nudge rejected a split multi-word name (2 positionals): %v", err)
-	}
-	// Zero positionals must still be rejected (MinimumNArgs(1)).
-	if err := cmd.Args(cmd, []string{}); err == nil {
-		t.Error("nudge accepted zero positionals, want a missing-argument error")
+	cmd := newNovelFairnessNudgeCmd(&rootFlags{})
+	if cmd.Args != nil {
+		t.Fatal("nudge must use verify-friendly in-RunE argument validation")
 	}
 }
 

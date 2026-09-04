@@ -1,0 +1,3133 @@
+--- internal/cli/data_source.go	2026-09-04 09:48:12.696923160 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/data_source.go	2026-09-04 13:16:35.990907079 -0400
+@@ -14,6 +14,8 @@
+ 	"net"
+ 	"net/url"
+ 	"os"
++	"sort"
++	"strconv"
+ 	"strings"
+ 	"time"
+ 
+@@ -713,9 +715,10 @@
+ }
+ 
+ // resolveLocal reads data from the local SQLite store.
+-// Note: local reads return ALL synced data for the resource type. Endpoint-specific
+-// filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
+-// The provenance metadata includes "unscoped":true when params were present but not applied.
++// Collection paths (isList, or a path whose last segment is the resource type)
++// list synced rows and apply supported query filters locally. Object paths
++// fetch by the trailing ID. Cursor-style params cannot be replayed locally
++// and are reported on stderr instead of silently ignored.
+ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+ 	db, err := openStoreForRead(ctx, "splitwise-pp-cli")
+ 	if err != nil {
+@@ -732,12 +735,7 @@
+ 
+ 	prov := localProvenance(db, resourceType, reason)
+ 
+-	// Warn if endpoint had filters that local reads can't reproduce
+-	if len(params) > 0 {
+-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
+-	}
+-
+-	if isList {
++	if localReadPathIsCollection(resourceType, path, isList) {
+ 		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
+ 		if err != nil {
+ 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
+@@ -755,7 +753,20 @@
+ 		if len(items) == 0 {
+ 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'splitwise-pp-cli sync' first", resourceType)
+ 		}
+-		// Marshal []json.RawMessage into a single JSON array
++		if parents := localReadPathParents(resourceType, path); len(parents) > 0 {
++			items = applyLocalParentScope(db, resourceType, items, parents)
++		}
++		items, unsupported := applyLocalListFilters(items, params)
++		if len(unsupported) > 0 {
++			warnWriter := hintWriter
++			if warnWriter == nil {
++				warnWriter = os.Stderr
++			}
++			fmt.Fprintf(warnWriter, "warning: local data could not apply filter(s) %s\n", strings.Join(unsupported, ", "))
++		}
++		if len(items) == 0 {
++			return json.RawMessage("[]"), prov, nil
++		}
+ 		data, err := json.Marshal(items)
+ 		if err != nil {
+ 			return nil, DataProvenance{}, fmt.Errorf("marshaling local data: %w", err)
+@@ -763,8 +774,7 @@
+ 		return data, prov, nil
+ 	}
+ 
+-	// Get by ID — extract the last path segment as the ID
+-	parts := strings.Split(strings.TrimRight(path, "/"), "/")
++	parts := strings.Split(strings.Trim(path, "/"), "/")
+ 	id := parts[len(parts)-1]
+ 
+ 	item, err := db.Get(resourceType, id)
+@@ -777,5 +787,347 @@
+ 	return item, prov, nil
+ }
+ 
++func localReadPathIsCollection(resourceType, path string, isList bool) bool {
++	if isList {
++		return true
++	}
++	trimmed := strings.Trim(path, "/")
++	if trimmed == "" {
++		return true
++	}
++	parts := strings.Split(trimmed, "/")
++	return strings.EqualFold(parts[len(parts)-1], resourceType)
++}
++
++type localPathParent struct {
++	Type string
++	ID   string
++}
++
++func localReadPathParents(resourceType, path string) []localPathParent {
++	parts := strings.Split(strings.Trim(path, "/"), "/")
++	if len(parts) == 0 || (len(parts) == 1 && parts[0] == "") {
++		return nil
++	}
++	if strings.EqualFold(parts[len(parts)-1], resourceType) {
++		parts = parts[:len(parts)-1]
++	} else if len(parts) >= 2 && strings.EqualFold(parts[len(parts)-2], resourceType) {
++		parts = parts[:len(parts)-2]
++	} else {
++		return nil
++	}
++	stripped := make([]string, 0, len(parts))
++	for _, part := range parts {
++		if part == "" || localReadPathPrefixSegment(part) {
++			continue
++		}
++		stripped = append(stripped, part)
++	}
++	var parents []localPathParent
++	for i := 1; i < len(stripped); i += 2 {
++		if stripped[i] == "" {
++			continue
++		}
++		parents = append(parents, localPathParent{Type: stripped[i-1], ID: stripped[i]})
++	}
++	return parents
++}
++
++func localReadPathPrefixSegment(seg string) bool {
++	s := strings.ToLower(seg)
++	switch s {
++	case "api", "rest", "graphql", "public", "private":
++		return true
++	}
++	if len(s) >= 2 && s[0] == 'v' {
++		for _, r := range s[1:] {
++			if r < '0' || r > '9' {
++				return false
++			}
++		}
++		return true
++	}
++	return false
++}
++
++func applyLocalParentScope(db *store.Store, resourceType string, items []json.RawMessage, parents []localPathParent) []json.RawMessage {
++	immediate, ok := localReadImmediateParent(parents)
++	if !ok {
++		return items
++	}
++	var scopedIDs []string
++	sawComposite := false
++	if ids, err := db.ListIDs(resourceType); err == nil {
++		for _, id := range ids {
++			_, parent, ok := splitLocalCompositeID(id)
++			if !ok {
++				continue
++			}
++			sawComposite = true
++			if parent == immediate.ID {
++				scopedIDs = append(scopedIDs, id)
++			}
++		}
++	}
++	if sawComposite {
++		out := make([]json.RawMessage, 0, len(scopedIDs))
++		for _, id := range scopedIDs {
++			item, err := db.Get(resourceType, id)
++			if err != nil {
++				continue
++			}
++			trimmed := strings.TrimSpace(string(item))
++			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
++				continue
++			}
++			out = append(out, item)
++		}
++		return out
++	}
++	out := make([]json.RawMessage, 0, len(items))
++	for _, raw := range items {
++		var obj map[string]any
++		if json.Unmarshal(raw, &obj) != nil {
++			continue
++		}
++		if localItemStoredParentMatches(obj, immediate) {
++			out = append(out, raw)
++		}
++	}
++	return out
++}
++
++func localReadImmediateParent(parents []localPathParent) (localPathParent, bool) {
++	if len(parents) == 0 {
++		return localPathParent{}, false
++	}
++	return parents[len(parents)-1], true
++}
++
++func splitLocalCompositeID(id string) (bare, parent string, ok bool) {
++	i := strings.IndexByte(id, 0)
++	if i <= 0 || i == len(id)-1 {
++		return "", "", false
++	}
++	return id[:i], id[i+1:], true
++}
++
++func localItemStoredParentMatches(obj map[string]any, parent localPathParent) bool {
++	for _, key := range localStoredParentFieldKeys(parent) {
++		got, ok := localObjectField(obj, key)
++		if ok && localFieldEquals(got, parent.ID) {
++			return true
++		}
++	}
++	return false
++}
++
++func localStoredParentFieldKeys(parent localPathParent) []string {
++	keys := []string{"parent_id", "parent"}
++	seen := map[string]bool{"parent_id": true, "parent": true}
++	add := func(key string) {
++		canon := localParamCanon(key)
++		if canon == "" || seen[canon] {
++			return
++		}
++		seen[canon] = true
++		keys = append(keys, key)
++	}
++	if parent.Type != "" {
++		add(parent.Type + "_id")
++		if singular := strings.TrimSuffix(parent.Type, "s"); singular != parent.Type && singular != "" {
++			add(singular + "_id")
++		}
++	}
++	return keys
++}
++
++var localListLimitParams = map[string]bool{
++	"limit": true, "per_page": true, "perpage": true, "page_size": true, "pagesize": true,
++}
++
++var localListOffsetParams = map[string]bool{
++	"offset": true, "skip": true,
++}
++
++var localListPageParams = map[string]bool{
++	"page": true, "page_number": true, "pagenumber": true,
++}
++
++var localListCursorParams = map[string]bool{
++	"cursor": true, "after": true, "before": true,
++	"page_token": true, "pagetoken": true,
++	"starting_after": true, "ending_before": true,
++	"next_cursor": true, "start_cursor": true, "next": true,
++}
++
++var localListControlParams = map[string]bool{
++	"sort": true, "order": true, "order_by": true, "orderby": true,
++	"fields": true, "field": true, "select": true,
++	"include": true, "expand": true,
++	"q": true, "query": true, "search": true,
++}
++
++func localParamCanon(key string) string {
++	return strings.ToLower(strings.ReplaceAll(strings.TrimSpace(key), "-", "_"))
++}
++
++func localListControlParam(canon string) bool {
++	if localListControlParams[canon] {
++		return true
++	}
++	return localListControlParams[strings.ReplaceAll(canon, "_", "")]
++}
++
++func applyLocalListFilters(items []json.RawMessage, params map[string]string) ([]json.RawMessage, []string) {
++	if len(params) == 0 {
++		return items, nil
++	}
++	equality := map[string]string{}
++	unsupported := make([]string, 0)
++	limit := -1
++	offset := 0
++	page := 0
++	for key, val := range params {
++		val = strings.TrimSpace(val)
++		if val == "" {
++			continue
++		}
++		canon := localParamCanon(key)
++		switch {
++		case localListCursorParams[canon]:
++			unsupported = append(unsupported, key)
++		case localListControlParam(canon):
++			unsupported = append(unsupported, key)
++		case localListLimitParams[canon]:
++			n, err := strconv.Atoi(val)
++			if err != nil || n < 0 {
++				unsupported = append(unsupported, key)
++				continue
++			}
++			limit = n
++		case localListOffsetParams[canon]:
++			n, err := strconv.Atoi(val)
++			if err != nil || n < 0 {
++				unsupported = append(unsupported, key)
++				continue
++			}
++			offset = n
++		case localListPageParams[canon]:
++			n, err := strconv.Atoi(val)
++			if err != nil || n < 1 {
++				unsupported = append(unsupported, key)
++				continue
++			}
++			page = n
++		default:
++			equality[key] = val
++		}
++	}
++	if page > 1 && limit < 0 {
++		unsupported = append(unsupported, "page")
++		page = 0
++	}
++	if len(equality) > 0 {
++		presentKeys := map[string]bool{}
++		parsed := make([]map[string]any, len(items))
++		valid := make([]bool, len(items))
++		for i, raw := range items {
++			var obj map[string]any
++			if json.Unmarshal(raw, &obj) != nil {
++				continue
++			}
++			parsed[i] = obj
++			valid[i] = true
++			for key := range equality {
++				if _, ok := localObjectField(obj, key); ok {
++					presentKeys[key] = true
++				}
++			}
++		}
++		for key := range equality {
++			if !presentKeys[key] {
++				unsupported = append(unsupported, key)
++				delete(equality, key)
++			}
++		}
++		if len(equality) > 0 {
++			filtered := make([]json.RawMessage, 0, len(items))
++			for i, raw := range items {
++				if !valid[i] {
++					continue
++				}
++				keep := true
++				for key, want := range equality {
++					got, ok := localObjectField(parsed[i], key)
++					if !ok || !localFieldEquals(got, want) {
++						keep = false
++						break
++					}
++				}
++				if keep {
++					filtered = append(filtered, raw)
++				}
++			}
++			items = filtered
++		}
++	}
++	if page > 1 && limit >= 0 {
++		offset += (page - 1) * limit
++	}
++	if offset > 0 {
++		if offset >= len(items) {
++			items = items[:0]
++		} else {
++			items = items[offset:]
++		}
++	}
++	if limit >= 0 && len(items) > limit {
++		items = items[:limit]
++	}
++	sort.Strings(unsupported)
++	return items, unsupported
++}
++
++func localObjectField(obj map[string]any, key string) (any, bool) {
++	if v, ok := obj[key]; ok {
++		return v, true
++	}
++	for k, v := range obj {
++		if strings.EqualFold(k, key) {
++			return v, true
++		}
++	}
++	canon := localParamCanon(key)
++	for k, v := range obj {
++		if localParamCanon(k) == canon {
++			return v, true
++		}
++	}
++	return nil, false
++}
++
++func localFieldEquals(got any, want string) bool {
++	if got == nil {
++		return want == "" || strings.EqualFold(want, "null")
++	}
++	switch v := got.(type) {
++	case bool:
++		return strings.EqualFold(want, strconv.FormatBool(v))
++	case float64:
++		return want == strconv.FormatFloat(v, 'f', -1, 64)
++	case json.Number:
++		return want == v.String()
++	case string:
++		return v == want
++	default:
++		encoded, err := json.Marshal(v)
++		if err != nil {
++			return fmt.Sprint(v) == want
++		}
++		return string(encoded) == want
++	}
++}
++
+ // Ensure time import is used (compilation guard).
+ var _ = time.Now
+--- internal/cli/deliver.go	2026-09-04 09:48:12.697110870 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/deliver.go	2026-09-04 13:16:35.915357355 -0400
+@@ -5,12 +5,16 @@
+ 
+ import (
+ 	"bytes"
++	"encoding/json"
+ 	"fmt"
++	"io"
+ 	"net/http"
+ 	"os"
+ 	"path/filepath"
+ 	"strings"
+ 	"time"
++
++	"splitwise-pp-cli/internal/client"
+ )
+ 
+ // DeliverSink describes where command output should be routed when
+@@ -56,7 +60,8 @@
+ 
+ // Deliver routes a captured output buffer to the configured sink. stdout
+ // is a no-op because the buffer has already been streamed to stdout via
+-// the MultiWriter set up in root.go.
++// the MultiWriter set up in root.go. Binary-response commands unwrap the
++// envelope before calling Deliver so ordinary JSON is never decoded here.
+ func Deliver(sink DeliverSink, body []byte, compact bool) error {
+ 	switch sink.Scheme {
+ 	case "", "stdout":
+@@ -70,6 +75,35 @@
+ 	}
+ }
+ 
++func unwrapBinaryDeliverBody(body []byte) (raw []byte, contentType string, ok bool) {
++	return client.UnwrapBinaryResponse(body)
++}
++
++func binaryDeliverPayload(body []byte) (raw []byte, contentType string) {
++	if raw, contentType, ok := unwrapBinaryDeliverBody(body); ok {
++		return raw, contentType
++	}
++	return body, ""
++}
++
++type binaryDeliverReceipt struct {
++	Delivered   bool   `json:"delivered"`
++	Sink        string `json:"sink"`
++	Target      string `json:"target"`
++	Bytes       int    `json:"bytes"`
++	ContentType string `json:"content_type,omitempty"`
++}
++
++func writeBinaryDeliverReceipt(w io.Writer, sink DeliverSink, raw []byte, contentType string) error {
++	return json.NewEncoder(w).Encode(binaryDeliverReceipt{
++		Delivered:   true,
++		Sink:        sink.Scheme,
++		Target:      sink.Target,
++		Bytes:       len(raw),
++		ContentType: contentType,
++	})
++}
++
+ func deliverFile(path string, body []byte) error {
+ 	// Atomic write: tmp + rename. Protects agents from seeing a partial
+ 	// file if the process is interrupted mid-write.
+@@ -90,10 +124,8 @@
+ }
+ 
+ func deliverWebhook(url string, body []byte, compact bool) error {
++	_ = compact
+ 	contentType := "application/json"
+-	if compact {
+-		contentType = "application/x-ndjson"
+-	}
+ 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+ 	if err != nil {
+ 		return fmt.Errorf("building webhook request: %w", err)
+@@ -105,8 +137,8 @@
+ 		req.Header.Set("User-Agent", "splitwise-pp-cli/deliver")
+ 	}
+ 
+-	client := &http.Client{Timeout: 30 * time.Second}
+-	resp, err := client.Do(req)
++	httpClient := &http.Client{Timeout: 30 * time.Second}
++	resp, err := httpClient.Do(req)
+ 	if err != nil {
+ 		return fmt.Errorf("posting to webhook: %w", err)
+ 	}
+--- internal/cli/helpers.go	2026-09-04 09:48:12.697993585 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/helpers.go	2026-09-04 13:16:35.920660968 -0400
+@@ -907,6 +907,7 @@
+ 		seenCursorTokens[sentCursor] = struct{}{}
+ 	}
+ 	foundCursorField := false
++	reportedTotal := 0
+ 	page := 0
+ 	for {
+ 		page++
+@@ -938,7 +939,7 @@
+ 			previousPageItems = append([]json.RawMessage(nil), items...)
+ 			previousPageItemsSet = true
+ 			allItems = append(allItems, items...)
+-			if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, len(items)); ok {
++			if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, len(items), false); ok {
+ 				if page >= paginatedGetMaxPages {
+ 					emitPaginatedGetMaxPagesWarning(ctx)
+ 					break
+@@ -984,11 +985,14 @@
+ 					allItems = append(allItems, nested...)
+ 					itemCount = len(nested)
+ 				}
++				if n := reportedCollectionTotal(obj); n > 0 {
++					reportedTotal = n
++				}
+ 
+-				// Check for next cursor
+-				if nextCursorToken != "" {
++				nextAdvance := resolvePaginatedNextCursor(obj, cursorLookupPath, cursorParam)
++				if nextAdvance != "" {
+ 					foundCursorField = true
+-					if _, seen := seenCursorTokens[nextCursorToken]; seen {
++					if _, seen := seenCursorTokens[nextAdvance]; seen {
+ 						platform.MarkContextTruncated(ctx, platform.TruncationReason{Kind: "pagination_cursor_repeated", Configured: "unique_cursor", Observed: "repeated_cursor", MoreAvailable: true})
+ 						if humanFriendly {
+ 							fmt.Fprintf(os.Stderr, "warning: --all received the same pagination cursor twice; returning fetched pages only.\n")
+@@ -997,12 +1001,12 @@
+ 						}
+ 						break
+ 					}
+-					seenCursorTokens[nextCursorToken] = struct{}{}
++					seenCursorTokens[nextAdvance] = struct{}{}
+ 					if page >= paginatedGetMaxPages {
+ 						emitPaginatedGetMaxPagesWarning(ctx)
+ 						break
+ 					}
+-					clean[cursorParam] = nextCursorToken
++					clean[cursorParam] = nextAdvance
+ 					continue
+ 				}
+ 
+@@ -1039,14 +1043,18 @@
+ 						}
+ 					}
+ 				}
+-				if !hasExplicitNoMore && nextCursorPath == "" && hasMoreField == "" {
+-					if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, itemCount); ok {
+-						if page >= paginatedGetMaxPages {
+-							emitPaginatedGetMaxPagesWarning(ctx)
+-							break
++				if !hasExplicitNoMore {
++					moreByTotal := reportedTotal > 0 && len(allItems) < reportedTotal
++					usePageHeuristic := nextCursorPath == "" && hasMoreField == ""
++					if moreByTotal || usePageHeuristic {
++						if next, ok := nextFullPageOffsetCursor(clean, cursorParam, paginationType, pageSize, itemCount, moreByTotal); ok {
++							if page >= paginatedGetMaxPages {
++								emitPaginatedGetMaxPagesWarning(ctx)
++								break
++							}
++							clean[cursorParam] = next
++							continue
+ 						}
+-						clean[cursorParam] = next
+-						continue
+ 					}
+ 				}
+ 			}
+@@ -1166,11 +1174,11 @@
+ 	deleteRawPath(child, strings.Join(parts[1:], "."))
+ 	obj[key], _ = json.Marshal(child)
+ }
+-func nextFullPageOffsetCursor(params map[string]string, cursorParam, paginationType string, pageSize, itemCount int) (string, bool) {
++func nextFullPageOffsetCursor(params map[string]string, cursorParam, paginationType string, pageSize, itemCount int, moreRemain bool) (string, bool) {
+ 	if (paginationType != "offset" && paginationType != "page") || itemCount == 0 {
+ 		return "", false
+ 	}
+-	if pageSize > 0 && itemCount < pageSize {
++	if pageSize > 0 && itemCount < pageSize && !moreRemain {
+ 		return "", false
+ 	}
+ 	if pageSize <= 0 && paginationType == "offset" {
+@@ -1318,6 +1326,177 @@
+ 			return number.String()
+ 		}
+ 	}
++	return paginationLinkURL(raw)
++}
++
++// Declared next-cursor paths win, then JSON:API/HAL links.next and top-level
++// next URLs. Followable URLs are reduced to the query token the request param
++// can carry; a raw URL is not written into page/offset params.
++func resolvePaginatedNextCursor(obj map[string]json.RawMessage, cursorLookupPath, cursorParam string) string {
++	token := ""
++	if cursorLookupPath != "" {
++		if tokenRaw, ok := rawAtPath(obj, cursorLookupPath); ok {
++			token = paginationCursorToken(tokenRaw)
++		}
++	}
++	if extracted := cursorTokenFromMaybeURL(token, cursorParam); extracted != "" {
++		return extracted
++	}
++	if fromLinks := nextCursorFromLinks(obj, cursorParam); fromLinks != "" {
++		return fromLinks
++	}
++	return nextCursorFromTopLevelURL(obj, cursorParam)
++}
++
++func cursorTokenFromMaybeURL(token, cursorParam string) string {
++	if token == "" {
++		return ""
++	}
++	if !isFollowableNextURL(token) {
++		return token
++	}
++	return cursorFromNextURL(token, cursorParam)
++}
++
++func reportedCollectionTotal(obj map[string]json.RawMessage) int {
++	return reportedCollectionTotalAtDepth(obj, 0)
++}
++
++func reportedCollectionTotalAtDepth(obj map[string]json.RawMessage, depth int) int {
++	if obj == nil || depth > 2 {
++		return 0
++	}
++	for _, key := range []string{"total", "total_count", "totalCount", "TotalCount", "totalResults", "Total"} {
++		raw, ok := obj[key]
++		if !ok {
++			continue
++		}
++		var n json.Number
++		if json.Unmarshal(raw, &n) != nil {
++			continue
++		}
++		if v, err := n.Int64(); err == nil && v > 0 {
++			return int(v)
++		}
++		if v, err := n.Float64(); err == nil && v > 0 {
++			return int(v)
++		}
++	}
++	for _, wrap := range []string{"meta", "pagination", "paging", "metadata"} {
++		raw, ok := obj[wrap]
++		if !ok {
++			continue
++		}
++		var inner map[string]json.RawMessage
++		if json.Unmarshal(raw, &inner) != nil {
++			continue
++		}
++		if n := reportedCollectionTotalAtDepth(inner, depth+1); n > 0 {
++			return n
++		}
++	}
++	return 0
++}
++
++// JSON:API links.next and HAL _links.next.href are reduced to the query
++// token the request param can carry; a raw URL is not written into
++// page/offset params.
++func nextCursorFromLinks(envelope map[string]json.RawMessage, cursorParam string) string {
++	for _, key := range []string{"links", "_links"} {
++		rawLinks, ok := envelope[key]
++		if !ok {
++			continue
++		}
++		var links map[string]json.RawMessage
++		if json.Unmarshal(rawLinks, &links) != nil {
++			continue
++		}
++		rawNext, ok := links["next"]
++		if !ok {
++			continue
++		}
++		if nextURL := paginationLinkURL(rawNext); nextURL != "" {
++			if cursor := cursorFromNextURL(nextURL, cursorParam); cursor != "" {
++				return cursor
++			}
++		}
++	}
++	return ""
++}
++
++func paginationLinkURL(raw json.RawMessage) string {
++	var nextURL string
++	if json.Unmarshal(raw, &nextURL) == nil {
++		return nextURL
++	}
++	var link map[string]json.RawMessage
++	if json.Unmarshal(raw, &link) != nil {
++		return ""
++	}
++	rawHref, ok := link["href"]
++	if !ok {
++		return ""
++	}
++	if json.Unmarshal(rawHref, &nextURL) != nil {
++		return ""
++	}
++	return nextURL
++}
++
++// Top-level next/next_url strings use the same URL-to-token reduction so
++// a followable URL is not written into page/offset params.
++func nextCursorFromTopLevelURL(envelope map[string]json.RawMessage, cursorParam string) string {
++	for _, key := range []string{"next", "next_url"} {
++		rawNext, ok := envelope[key]
++		if !ok {
++			continue
++		}
++		var nextURL string
++		if json.Unmarshal(rawNext, &nextURL) != nil || nextURL == "" {
++			continue
++		}
++		if isFollowableNextURL(nextURL) {
++			return cursorFromNextURL(nextURL, cursorParam)
++		}
++	}
++	return ""
++}
++
++// Bare opaque cursor tokens must not be treated as URLs: only absolute
++// http(s), root-relative paths, and values with a query string are reduced
++// to a request-param token.
++func isFollowableNextURL(nextURL string) bool {
++	lower := strings.ToLower(nextURL)
++	return strings.HasPrefix(lower, "http") ||
++		strings.HasPrefix(nextURL, "/") ||
++		strings.Contains(nextURL, "?")
++}
++
++func cursorFromNextURL(nextURL string, cursorParam string) string {
++	cursorKeys := []string{cursorParam}
++	if cursorParam != "page[cursor]" {
++		cursorKeys = append(cursorKeys, "page[cursor]")
++	}
++	if cursorParam != "cursor" {
++		cursorKeys = append(cursorKeys, "cursor")
++	}
++	if cursorParam != "after" {
++		cursorKeys = append(cursorKeys, "after")
++	}
++
++	parsed, err := url.Parse(nextURL)
++	if err != nil {
++		return ""
++	}
++	values := parsed.Query()
++	for _, key := range cursorKeys {
++		if key == "" {
++			continue
++		}
++		if cursor := values.Get(key); cursor != "" {
++			return cursor
++		}
++	}
+ 	return ""
+ }
+ 
+@@ -2000,6 +2179,35 @@
+ 	return ok && isDryRunResponse(dryRunClient.IsDryRun(), data)
+ }
+ 
++// handleBinaryResponseDelivery runs before the binary-response structured-output
++// refusal. Dry-run has no bytes to write; a file sink writes decoded bytes and
++// only then emits a receipt so stdout cannot claim success after a failed write.
++func handleBinaryResponseDelivery(cmd *cobra.Command, flags *rootFlags, data json.RawMessage) (bool, error) {
++	if flags != nil && isDryRunResponse(flags.dryRun, data) {
++		flags.deliverBuf = nil
++		if flags.quiet {
++			return true, nil
++		}
++		printDryRun := flags.asJSON || flags.agent || flags.csv || flags.compact || flags.plain || flags.selectFields != "" || !isTerminal(cmd.OutOrStdout())
++		if printDryRun {
++			return true, printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"})
++		}
++		return true, nil
++	}
++	if flags == nil || flags.deliverSink.Scheme != "file" {
++		return false, nil
++	}
++	raw, contentType := binaryDeliverPayload(data)
++	if err := Deliver(flags.deliverSink, raw, flags.compact); err != nil {
++		return true, err
++	}
++	flags.deliverBuf = nil
++	if flags.quiet {
++		return true, nil
++	}
++	return true, writeBinaryDeliverReceipt(cmd.OutOrStdout(), flags.deliverSink, raw, contentType)
++}
++
+ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any, documentedFields ...map[string]bool) error {
+ 	if err := validatePlatformAnalytics(flags); err != nil {
+ 		return err
+@@ -2032,13 +2240,24 @@
+ 		}
+ 		data = wrapped
+ 	}
+-	// --quiet: suppress all output, exit code communicates result
++	// --quiet: one identity value per row (id, then name/slug/title).
+ 	if flags.quiet {
+-		return nil
++		return printQuiet(w, data)
+ 	}
+ 	// --csv: render as CSV
+ 	if flags.csv {
+-		return printCSV(w, data)
++		headerFields := documentedFields
++		if flags.selectFields != "" {
++			selected := map[string]bool{}
++			for _, part := range strings.Split(flags.selectFields, ",") {
++				part = strings.TrimSpace(part)
++				if part != "" {
++					selected[part] = true
++				}
++			}
++			headerFields = []map[string]bool{selected}
++		}
++		return printCSV(w, data, headerFields...)
+ 	}
+ 	// --plain: render arrays as tab-separated rows
+ 	if flags.plain {
+@@ -2086,6 +2305,37 @@
+ 	return data
+ }
+ 
++// Endpoint-mirror commands pass documented fields into compactListFields;
++// keeping every schema key would make --compact a no-op on homogeneous API lists.
++func isCompactGravityField(name string) bool {
++	switch name {
++	case "id", "name", "title", "identifier", "code", "slug", "key",
++		"status", "state", "type", "kind", "priority",
++		"url", "email",
++		"price", "amount", "cost", "fare", "rate", "currency",
++		"rating", "score", "count",
++		"language", "locale", "country", "region", "city", "domain",
++		"created_at", "updated_at", "createdAt", "updatedAt", "date",
++		"version":
++		return true
++	}
++	lower := strings.ToLower(strings.TrimSpace(name))
++	if lower == "" {
++		return false
++	}
++	for _, suffix := range []string{"_id", "_name", "_at", "_status", "_state", "_slug", "_key", "_title", "_code", "_count", "_url"} {
++		if strings.HasSuffix(lower, suffix) {
++			return true
++		}
++	}
++	for _, suffix := range []string{"Id", "Name", "At", "Status", "State", "Slug", "Key", "Title", "Code", "Count", "URL", "Url"} {
++		if strings.HasSuffix(name, suffix) && len(name) > len(suffix) {
++			return true
++		}
++	}
++	return false
++}
++
+ // compactListFields keeps only high-gravity fields for array responses.
+ //
+ // Two-layer keep rule:
+@@ -2130,10 +2380,19 @@
+ 	}
+ 	for _, fields := range documentedFields {
+ 		for field := range fields {
+-			keepFields[field] = true
++			if isCompactGravityField(field) {
++				keepFields[field] = true
++			}
++		}
++	}
++	schemaAware := false
++	for _, fields := range documentedFields {
++		if len(fields) > 0 {
++			schemaAware = true
++			break
+ 		}
+ 	}
+-	if len(items) > 0 {
++	if !schemaAware && len(items) > 0 {
+ 		keyCounts := map[string]int{}
+ 		for _, item := range items {
+ 			for k := range item {
+@@ -2272,24 +2531,27 @@
+ 	return compacted, true
+ }
+ 
+-// printCSV renders JSON arrays as CSV with header row.
+-func printCSV(w io.Writer, data json.RawMessage) error {
+-	var items []map[string]any
+-	if err := json.Unmarshal(data, &items); err != nil {
+-		// Single object or invalid JSON - just print as JSON
++func printCSV(w io.Writer, data json.RawMessage, documentedFields ...map[string]bool) error {
++	items, ok := tabularObjectRows(data)
++	if !ok {
+ 		fmt.Fprintln(w, string(data))
+ 		return nil
+ 	}
+ 	if len(items) == 0 {
+-		// A valid empty array is an empty CSV stream, not a JSON document.
+-		// Keep the single-object fallback above for non-array payloads.
+-		if bytes.HasPrefix(bytes.TrimSpace(data), []byte("[")) {
++		keys := csvDeclaredHeader(documentedFields...)
++		if len(keys) == 0 {
+ 			return nil
+ 		}
+-		fmt.Fprintln(w, string(data))
++		writeCSVRow(w, keys)
++		return nil
++	}
++	return writeCSVRows(w, items)
++}
++
++func writeCSVRows(w io.Writer, items []map[string]any) error {
++	if len(items) == 0 {
+ 		return nil
+ 	}
+-	// Collect all keys for header
+ 	keySet := map[string]bool{}
+ 	for _, item := range items {
+ 		for k := range item {
+@@ -2301,38 +2563,56 @@
+ 		keys = append(keys, k)
+ 	}
+ 	sort.Strings(keys)
+-	// Header
+-	fmt.Fprintln(w, strings.Join(keys, ","))
+-	// Rows
++	writeCSVRow(w, keys)
+ 	for _, item := range items {
+ 		var vals []string
+ 		for _, k := range keys {
+ 			v := item[k]
+ 			if v == nil {
+ 				vals = append(vals, "")
++			} else if f, ok := v.(float64); ok {
++				vals = append(vals, strconv.FormatFloat(f, 'f', -1, 64))
+ 			} else {
+-				var s string
+-				if f, ok := v.(float64); ok {
+-					s = strconv.FormatFloat(f, 'f', -1, 64)
+-				} else {
+-					s = fmt.Sprintf("%v", v)
+-				}
+-				if strings.ContainsAny(s, ",\"\n") {
+-					s = `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
+-				}
+-				vals = append(vals, s)
++				vals = append(vals, fmt.Sprintf("%v", v))
+ 			}
+ 		}
+-		fmt.Fprintln(w, strings.Join(vals, ","))
++		writeCSVRow(w, vals)
+ 	}
+ 	return nil
+ }
+ 
+-// printPlain renders JSON arrays as tab-separated text with a header row.
++func writeCSVRow(w io.Writer, cells []string) {
++	escaped := make([]string, len(cells))
++	for i, cell := range cells {
++		if strings.ContainsAny(cell, ",\"\r\n") {
++			escaped[i] = `"` + strings.ReplaceAll(cell, `"`, `""`) + `"`
++		} else {
++			escaped[i] = cell
++		}
++	}
++	fmt.Fprintln(w, strings.Join(escaped, ","))
++}
++
++func csvDeclaredHeader(documentedFields ...map[string]bool) []string {
++	keySet := map[string]bool{}
++	for _, fields := range documentedFields {
++		for k := range fields {
++			if k != "" {
++				keySet[k] = true
++			}
++		}
++	}
++	keys := make([]string, 0, len(keySet))
++	for k := range keySet {
++		keys = append(keys, k)
++	}
++	sort.Strings(keys)
++	return keys
++}
++
+ func printPlain(w io.Writer, data json.RawMessage) error {
+-	var items []map[string]any
+-	if err := json.Unmarshal(data, &items); err != nil {
+-		// Single object - just print as JSON
++	items, ok := tabularObjectRows(data)
++	if !ok {
+ 		fmt.Fprintln(w, string(data))
+ 		return nil
+ 	}
+@@ -2361,6 +2641,133 @@
+ 	return nil
+ }
+ 
++func printQuiet(w io.Writer, data json.RawMessage) error {
++	items, ok := tabularObjectRows(data)
++	if ok {
++		for _, item := range items {
++			if v := quietRowValue(item); v != "" {
++				fmt.Fprintln(w, v)
++			}
++		}
++		return nil
++	}
++	var scalars []any
++	if err := json.Unmarshal(data, &scalars); err == nil {
++		for _, v := range scalars {
++			if m, ok := v.(map[string]any); ok {
++				if s := quietRowValue(m); s != "" {
++					fmt.Fprintln(w, s)
++				}
++				continue
++			}
++			if v == nil {
++				continue
++			}
++			fmt.Fprintln(w, fmt.Sprint(v))
++		}
++		return nil
++	}
++	var obj map[string]any
++	if err := json.Unmarshal(data, &obj); err == nil {
++		if v := quietRowValue(obj); v != "" {
++			fmt.Fprintln(w, v)
++		}
++		return nil
++	}
++	trimmed := strings.TrimSpace(string(data))
++	if trimmed == "" || trimmed == "null" {
++		return nil
++	}
++	fmt.Fprintln(w, trimmed)
++	return nil
++}
++
++func quietRowValue(item map[string]any) string {
++	for _, key := range []string{"id", "ID", "Id", "identifier", "slug", "key", "name", "title", "code"} {
++		if v, ok := item[key]; ok {
++			if s := quietScalar(v); s != "" {
++				return s
++			}
++		}
++	}
++	for k, v := range item {
++		lower := strings.ToLower(k)
++		if strings.HasSuffix(lower, "_id") || strings.HasSuffix(k, "Id") {
++			if s := quietScalar(v); s != "" {
++				return s
++			}
++		}
++	}
++	for _, v := range item {
++		if s := quietScalar(v); s != "" {
++			return s
++		}
++	}
++	return ""
++}
++
++func quietScalar(v any) string {
++	if v == nil {
++		return ""
++	}
++	switch t := v.(type) {
++	case string:
++		return t
++	case bool:
++		return strconv.FormatBool(t)
++	case float64:
++		return strconv.FormatFloat(t, 'f', -1, 64)
++	case json.Number:
++		return t.String()
++	default:
++		return ""
++	}
++}
++
++func tabularObjectRows(data json.RawMessage) ([]map[string]any, bool) {
++	projected := unwrapSingleKeyArray(collectionItemsForOutput(data, ""))
++	var items []map[string]any
++	if err := json.Unmarshal(projected, &items); err == nil && (len(items) > 0 || bytes.HasPrefix(bytes.TrimSpace(projected), []byte("["))) {
++		return items, true
++	}
++	var obj map[string]any
++	if err := json.Unmarshal(projected, &obj); err != nil || len(obj) == 0 {
++		return nil, false
++	}
++	if rows, ok := objectEnvelopeRows(obj); ok {
++		return rows, true
++	}
++	return []map[string]any{obj}, true
++}
++
++func objectEnvelopeRows(obj map[string]any) ([]map[string]any, bool) {
++	found := 0
++	var rows []map[string]any
++	for k, v := range obj {
++		if envelopeMetadataKeys[k] || envelopeMetadataArrayKeys[k] {
++			continue
++		}
++		rawItems, ok := v.([]any)
++		if !ok {
++			continue
++		}
++		items := make([]map[string]any, 0, len(rawItems))
++		for _, raw := range rawItems {
++			item, ok := raw.(map[string]any)
++			if !ok {
++				return nil, false
++			}
++			items = append(items, item)
++		}
++		rows = items
++		found++
++	}
++	if found != 1 {
++		return nil, false
++	}
++	return rows, true
++}
++
+ func plainCellValue(v any) string {
+ 	if v == nil {
+ 		return ""
+--- internal/cli/promoted_add-user-to-group.go	2026-09-04 09:48:12.700203561 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_add-user-to-group.go	2026-09-04 13:16:35.999108689 -0400
+@@ -103,7 +103,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"errors": true, "success": true, "user": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -131,7 +131,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"errors": true, "success": true, "user": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&flagBodyJSON, "body-json", "", "Provide the full request body as a JSON object string (this endpoint accepts a polymorphic schema: oneOf/anyOf)")
+--- internal/cli/promoted_create-comment.go	2026-09-04 09:48:12.700270770 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_create-comment.go	2026-09-04 13:16:35.999424027 -0400
+@@ -78,7 +78,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"comment": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -106,7 +106,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"comment": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&bodyContent, "content", "", "Content")
+--- internal/cli/promoted_create-expense.go	2026-09-04 09:48:12.700347354 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_create-expense.go	2026-09-04 13:16:35.999788282 -0400
+@@ -103,7 +103,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"category": true, "category_id": true, "comments": true, "comments_count": true, "cost": true, "created_at": true, "created_by": true, "currency_code": true, "date": true, "deleted_at": true, "deleted_by": true, "description": true, "details": true, "email_reminder": true, "email_reminder_in_advance": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "next_repeat": true, "payment": true, "receipt": true, "repayments": true, "repeat_interval": true, "repeats": true, "transaction_confirmed": true, "updated_at": true, "updated_by": true, "users": true})
++					filtered = compactFields(filtered, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -131,7 +131,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category": true, "category_id": true, "comments": true, "comments_count": true, "cost": true, "created_at": true, "created_by": true, "currency_code": true, "date": true, "deleted_at": true, "deleted_by": true, "description": true, "details": true, "email_reminder": true, "email_reminder_in_advance": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "next_repeat": true, "payment": true, "receipt": true, "repayments": true, "repeat_interval": true, "repeats": true, "transaction_confirmed": true, "updated_at": true, "updated_by": true, "users": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&flagBodyJSON, "body-json", "", "Provide the full request body as a JSON object string (this endpoint accepts a polymorphic schema: oneOf/anyOf)")
+--- internal/cli/promoted_create-friend.go	2026-09-04 09:48:12.700429855 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_create-friend.go	2026-09-04 13:16:36.000101369 -0400
+@@ -82,7 +82,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"friend": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -110,7 +110,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"friend": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&bodyUserEmail, "user-email", "", "User email")
+--- internal/cli/promoted_create-friends.go	2026-09-04 09:48:12.700517147 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_create-friends.go	2026-09-04 13:16:36.000375456 -0400
+@@ -70,7 +70,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"balance": true, "custom_picture": true, "email": true, "first_name": true, "groups": true, "id": true, "last_name": true, "picture": true, "registration_status": true, "updated_at": true})
++					filtered = compactFields(filtered, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true, "updated_at": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -98,7 +98,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"balance": true, "custom_picture": true, "email": true, "first_name": true, "groups": true, "id": true, "last_name": true, "picture": true, "registration_status": true, "updated_at": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true, "updated_at": true})
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_create-group.go	2026-09-04 09:48:12.700602981 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_create-group.go	2026-09-04 13:16:36.001141800 -0400
+@@ -103,7 +103,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"group": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -131,7 +131,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"group": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&bodyGroupType, "group-type", "", "What is the group used for? **Note**: It is recommended to use `home` in place of `house` or `apartment`.")
+--- internal/cli/promoted_delete-comment.go	2026-09-04 09:48:12.700679148 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_delete-comment.go	2026-09-04 13:16:36.002100521 -0400
+@@ -84,7 +84,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"comment": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -112,7 +112,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"comment": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_delete-expense.go	2026-09-04 09:48:12.700757899 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_delete-expense.go	2026-09-04 13:16:36.002430651 -0400
+@@ -84,7 +84,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"errors": true, "success": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -112,7 +112,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"errors": true, "success": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_delete-friend.go	2026-09-04 09:48:12.700844691 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_delete-friend.go	2026-09-04 13:16:36.002717196 -0400
+@@ -84,7 +84,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"errors": true, "success": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -112,7 +112,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"errors": true, "success": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_delete-group.go	2026-09-04 09:48:12.701094027 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_delete-group.go	2026-09-04 13:16:36.002987408 -0400
+@@ -84,7 +84,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"success": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -112,7 +112,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"success": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-comments.go	2026-09-04 09:48:12.701257903 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-comments.go	2026-09-04 13:16:36.003543291 -0400
+@@ -80,7 +80,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"comment_type": true, "content": true, "created_at": true, "deleted_at": true, "id": true, "relation_id": true, "relation_type": true, "user": true})
++					filtered = compactFields(filtered, map[string]bool{"created_at": true, "deleted_at": true, "id": true, "relation_id": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -108,7 +108,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"comment_type": true, "content": true, "created_at": true, "deleted_at": true, "id": true, "relation_id": true, "relation_type": true, "user": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"created_at": true, "deleted_at": true, "id": true, "relation_id": true})
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&flagExpenseId, "expense-id", "", "Expense id")
+--- internal/cli/promoted_get-currencies.go	2026-09-04 09:48:12.701324570 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-currencies.go	2026-09-04 13:16:36.003770835 -0400
+@@ -55,7 +55,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"currency_code": true, "unit": true})
++					filtered = compactFields(filtered, map[string]bool{"currency_code": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -83,7 +83,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"currency_code": true, "unit": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"currency_code": true})
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-current-user.go	2026-09-04 09:48:12.701396029 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-current-user.go	2026-09-04 13:16:36.003980255 -0400
+@@ -55,7 +55,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"user": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -83,7 +83,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"user": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-expense.go	2026-09-04 09:48:12.701453279 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-expense.go	2026-09-04 13:16:36.004242925 -0400
+@@ -69,7 +69,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"expense": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -97,7 +97,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"expense": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-expenses.go	2026-09-04 09:48:12.701516072 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-expenses.go	2026-09-04 13:16:36.004643389 -0400
+@@ -72,7 +72,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"category": true, "category_id": true, "comments": true, "comments_count": true, "cost": true, "created_at": true, "created_by": true, "currency_code": true, "date": true, "deleted_at": true, "deleted_by": true, "description": true, "details": true, "email_reminder": true, "email_reminder_in_advance": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "next_repeat": true, "payment": true, "receipt": true, "repayments": true, "repeat_interval": true, "repeats": true, "transaction_confirmed": true, "updated_at": true, "updated_by": true, "users": true})
++					filtered = compactFields(filtered, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -100,7 +100,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category": true, "category_id": true, "comments": true, "comments_count": true, "cost": true, "created_at": true, "created_by": true, "currency_code": true, "date": true, "deleted_at": true, "deleted_by": true, "description": true, "details": true, "email_reminder": true, "email_reminder_in_advance": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "next_repeat": true, "payment": true, "receipt": true, "repayments": true, "repeat_interval": true, "repeats": true, "transaction_confirmed": true, "updated_at": true, "updated_by": true, "users": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&flagGroupId, "group-id", "", "If provided, only expenses in that group will be returned, and `friend_id` will be ignored.")
+--- internal/cli/promoted_get-friend.go	2026-09-04 09:48:12.701590614 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-friend.go	2026-09-04 13:16:36.004896059 -0400
+@@ -69,7 +69,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"friend": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -97,7 +97,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"friend": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-friends.go	2026-09-04 09:48:12.701679114 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-friends.go	2026-09-04 13:16:36.005123978 -0400
+@@ -55,7 +55,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"balance": true, "custom_picture": true, "email": true, "first_name": true, "groups": true, "id": true, "last_name": true, "picture": true, "registration_status": true, "updated_at": true})
++					filtered = compactFields(filtered, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true, "updated_at": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -83,7 +83,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"balance": true, "custom_picture": true, "email": true, "first_name": true, "groups": true, "id": true, "last_name": true, "picture": true, "registration_status": true, "updated_at": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true, "updated_at": true})
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-group.go	2026-09-04 09:48:12.701741365 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-group.go	2026-09-04 13:16:36.005379940 -0400
+@@ -69,7 +69,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"group": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -97,7 +97,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"group": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-groups.go	2026-09-04 09:48:12.701817657 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-groups.go	2026-09-04 13:16:36.005592443 -0400
+@@ -17,7 +17,7 @@
+ 		Use:         "get-groups",
+ 		Short:       "**Note**: Expenses that are not associated with a group are listed in a group with ID 0.",
+ 		Long:        "**Note**: Expenses that are not associated with a group are listed in a group with ID 0.",
+-		Example:     "  splitwise-pp-cli get-groups --agent --select groups.name,groups.members.first_name,groups.members.balance.amount",
++		Example:     "  splitwise-pp-cli get-groups --agent --select name,members.first_name,members.balance.amount",
+ 		Annotations: map[string]string{"pp:endpoint": "get-groups.list", "pp:method": "GET", "pp:path": "/get_groups", "mcp:read-only": "true"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			c, err := flags.newClient()
+@@ -55,7 +55,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"avatar": true, "cover_photo": true, "custom_avatar": true, "group_type": true, "id": true, "invite_link": true, "members": true, "name": true, "original_debts": true, "simplified_debts": true, "simplify_by_default": true, "updated_at": true})
++					filtered = compactFields(filtered, map[string]bool{"id": true, "name": true, "updated_at": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -83,7 +83,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"avatar": true, "cover_photo": true, "custom_avatar": true, "group_type": true, "id": true, "invite_link": true, "members": true, "name": true, "original_debts": true, "simplified_debts": true, "simplify_by_default": true, "updated_at": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"id": true, "name": true, "updated_at": true})
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_get-notifications.go	2026-09-04 09:48:12.701897450 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-notifications.go	2026-09-04 13:16:36.005905906 -0400
+@@ -60,7 +60,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"content": true, "created_at": true, "created_by": true, "id": true, "image_shape": true, "image_url": true, "source": true, "type": true})
++					filtered = compactFields(filtered, map[string]bool{"created_at": true, "id": true, "image_url": true, "type": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -88,7 +88,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"content": true, "created_at": true, "created_by": true, "id": true, "image_shape": true, "image_url": true, "source": true, "type": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"created_at": true, "id": true, "image_url": true, "type": true})
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&flagUpdatedAfter, "updated-after", "", "If provided, returns only notifications after this time.")
+--- internal/cli/promoted_get-user.go	2026-09-04 09:48:12.701958033 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_get-user.go	2026-09-04 13:16:36.006149701 -0400
+@@ -69,7 +69,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"user": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -97,7 +97,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"user": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_remove-user-from-group.go	2026-09-04 09:48:12.702026492 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_remove-user-from-group.go	2026-09-04 13:16:36.006514914 -0400
+@@ -102,7 +102,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"errors": true, "success": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -130,7 +130,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"errors": true, "success": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 	cmd.Flags().IntVar(&bodyGroupId, "group-id", 0, "Group id")
+--- internal/cli/promoted_undelete-expense.go	2026-09-04 09:48:12.702131368 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_undelete-expense.go	2026-09-04 13:16:36.006814876 -0400
+@@ -84,7 +84,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"success": true})
++					filtered = compactFields(filtered, nil)
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -112,7 +112,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"success": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
+ 		},
+ 	}
+ 
+--- internal/cli/promoted_update-expense.go	2026-09-04 09:48:12.702405412 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_update-expense.go	2026-09-04 13:16:36.007752222 -0400
+@@ -175,7 +175,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"category": true, "category_id": true, "comments": true, "comments_count": true, "cost": true, "created_at": true, "created_by": true, "currency_code": true, "date": true, "deleted_at": true, "deleted_by": true, "description": true, "details": true, "email_reminder": true, "email_reminder_in_advance": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "next_repeat": true, "payment": true, "receipt": true, "repayments": true, "repeat_interval": true, "repeats": true, "transaction_confirmed": true, "updated_at": true, "updated_by": true, "users": true})
++					filtered = compactFields(filtered, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -203,7 +203,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category": true, "category_id": true, "comments": true, "comments_count": true, "cost": true, "created_at": true, "created_by": true, "currency_code": true, "date": true, "deleted_at": true, "deleted_by": true, "description": true, "details": true, "email_reminder": true, "email_reminder_in_advance": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "next_repeat": true, "payment": true, "receipt": true, "repayments": true, "repeat_interval": true, "repeats": true, "transaction_confirmed": true, "updated_at": true, "updated_by": true, "users": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"category_id": true, "comments_count": true, "cost": true, "created_at": true, "currency_code": true, "date": true, "deleted_at": true, "expense_bundle_id": true, "friendship_id": true, "group_id": true, "id": true, "updated_at": true})
+ 		},
+ 	}
+ 	cmd.Flags().IntVar(&bodyCategoryId, "category-id", 0, "A category id from `get_categories`")
+--- internal/cli/promoted_update-user.go	2026-09-04 09:48:12.702496746 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/promoted_update-user.go	2026-09-04 13:16:36.008143477 -0400
+@@ -108,7 +108,7 @@
+ 				if flags.selectFields != "" {
+ 					filtered = filterFields(filtered, flags.selectFields)
+ 				} else if flags.compact {
+-					filtered = compactFields(filtered, map[string]bool{"custom_picture": true, "email": true, "first_name": true, "id": true, "last_name": true, "picture": true, "registration_status": true})
++					filtered = compactFields(filtered, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true})
+ 				}
+ 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+ 				if wrapErr != nil {
+@@ -136,7 +136,7 @@
+ 			if flags.csv || flags.plain {
+ 				formatData = outputData
+ 			}
+-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"custom_picture": true, "email": true, "first_name": true, "id": true, "last_name": true, "picture": true, "registration_status": true})
++			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true})
+ 		},
+ 	}
+ 	cmd.Flags().StringVar(&bodyDefaultCurrency, "default-currency", "", "Default currency")
+--- internal/cli/root.go	2026-09-04 09:48:12.703528463 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/root.go	2026-09-04 13:16:36.012550870 -0400
+@@ -149,6 +149,17 @@
+ 	clientHooks = append(clientHooks, hook)
+ }
+ 
++// Keeps preserved post-construction setup consistent across interactive CLI
++// and MCP clients.
++func ApplyClientHooks(c *client.Client) error {
++	for _, hook := range clientHooks {
++		if err := hook(c); err != nil {
++			return err
++		}
++	}
++	return nil
++}
++
+ // RootCmd returns the Cobra command tree without executing it. The MCP server
+ // uses this to mirror every user-facing command as an agent tool.
+ func RootCmd() *cobra.Command {
+@@ -794,10 +805,8 @@
+ 	if err := bindPlatformClient(c, f); err != nil {
+ 		return nil, err
+ 	}
+-	for _, hook := range clientHooks {
+-		if err := hook(c); err != nil {
+-			return nil, err
+-		}
++	if err := ApplyClientHooks(c); err != nil {
++		return nil, err
+ 	}
+ 	return c, nil
+ }
+--- internal/cli/sync.go	2026-09-04 09:48:12.705653563 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/sync.go	2026-09-04 13:16:35.989142930 -0400
+@@ -4,6 +4,7 @@
+ package cli
+ 
+ import (
++	"bytes"
+ 	"context"
+ 	"database/sql"
+ 	"encoding/json"
+@@ -11,7 +12,6 @@
+ 	"fmt"
+ 	"github.com/spf13/cobra"
+ 	"io"
+-	"net/url"
+ 	"os"
+ 	"regexp"
+ 	"sort"
+@@ -131,6 +131,10 @@
+ 			defer db.Close()
+ 
+ 			syncEventWriter := cmd.OutOrStdout()
++			machineFormat := wantsMachineOutput(flags)
++			if machineFormat {
++				syncEventWriter = cmd.ErrOrStderr()
++			}
+ 
+ 			// If no specific resources, sync top-level resources
+ 			if len(resources) == 0 {
+@@ -353,6 +357,18 @@
+ 					fmt.Fprintf(os.Stderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
+ 				}
+ 			}
++			if machineFormat {
++				if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
++					"total_records": totalSynced,
++					"resources":     totalResources,
++					"success":       successCount,
++					"warned":        warnCount,
++					"errored":       errCount,
++					"duration_ms":   elapsed.Milliseconds(),
++				}, flags); err != nil {
++					return err
++				}
++			}
+ 			return nil
+ 		},
+ 	}
+@@ -916,6 +932,15 @@
+ 		fmt.Fprintf(syncEvents, `{"event":"reconcile_skipped","resource":"%s","reason":"unsupported-resource-shape"}`+"\n", resource)
+ 	}
+ 
++	if outcome.reason == "non_json_200_body" {
++		return syncResult{
++			Resource: resource,
++			Count:    0,
++			Warn:     fmt.Errorf("%s returned a 200 response with a non-JSON body; no rows were stored", resource),
++			Duration: time.Since(started),
++		}
++	}
++
+ 	// Final sync state separates pagination progress from the incremental
+ 	// watermark. A checkpoint after a capped page may retain a resume cursor
+ 	// without claiming that records on pages we did not fetch were observed.
+@@ -1720,108 +1745,6 @@
+ 	return false, false
+ }
+ 
+-// nextCursorFromLinks extracts pagination cursors from JSON:API
+-// {"links":{"next":"https://example.com/items?page[cursor]=..."}} and HAL
+-// {"_links":{"next":{"href":"https://example.com/items?cursor=..."}}}.
+-func nextCursorFromLinks(envelope map[string]json.RawMessage, cursorParam string) string {
+-	for _, key := range []string{"links", "_links"} {
+-		rawLinks, ok := envelope[key]
+-		if !ok {
+-			continue
+-		}
+-		var links map[string]json.RawMessage
+-		if json.Unmarshal(rawLinks, &links) != nil {
+-			continue
+-		}
+-		rawNext, ok := links["next"]
+-		if !ok {
+-			continue
+-		}
+-		if nextURL := paginationLinkURL(rawNext); nextURL != "" {
+-			if cursor := cursorFromNextURL(nextURL, cursorParam); cursor != "" {
+-				return cursor
+-			}
+-		}
+-	}
+-	return ""
+-}
+-
+-func paginationLinkURL(raw json.RawMessage) string {
+-	var nextURL string
+-	if json.Unmarshal(raw, &nextURL) == nil {
+-		return nextURL
+-	}
+-	var link map[string]json.RawMessage
+-	if json.Unmarshal(raw, &link) != nil {
+-		return ""
+-	}
+-	rawHref, ok := link["href"]
+-	if !ok {
+-		return ""
+-	}
+-	if json.Unmarshal(rawHref, &nextURL) != nil {
+-		return ""
+-	}
+-	return nextURL
+-}
+-
+-// nextCursorFromTopLevelURL extracts a cursor from top-level absolute or relative next URLs.
+-func nextCursorFromTopLevelURL(envelope map[string]json.RawMessage, cursorParam string) string {
+-	for _, key := range []string{"next", "next_url"} {
+-		rawNext, ok := envelope[key]
+-		if !ok {
+-			continue
+-		}
+-		var nextURL string
+-		if json.Unmarshal(rawNext, &nextURL) != nil || nextURL == "" {
+-			continue
+-		}
+-		if isFollowableNextURL(nextURL) {
+-			return cursorFromNextURL(nextURL, cursorParam)
+-		}
+-	}
+-	return ""
+-}
+-
+-// isFollowableNextURL reports whether a top-level "next" string is a URL we can
+-// pull a cursor query param from: an absolute http(s) URL, a root-relative path,
+-// or any value carrying a query string. Bare opaque cursor tokens (no query)
+-// are rejected so they aren't mis-parsed.
+-func isFollowableNextURL(nextURL string) bool {
+-	lower := strings.ToLower(nextURL)
+-	return strings.HasPrefix(lower, "http") ||
+-		strings.HasPrefix(nextURL, "/") ||
+-		strings.Contains(nextURL, "?")
+-}
+-
+-func cursorFromNextURL(nextURL string, cursorParam string) string {
+-	cursorKeys := []string{cursorParam}
+-	if cursorParam != "page[cursor]" {
+-		cursorKeys = append(cursorKeys, "page[cursor]")
+-	}
+-	if cursorParam != "cursor" {
+-		cursorKeys = append(cursorKeys, "cursor")
+-	}
+-	if cursorParam != "after" {
+-		cursorKeys = append(cursorKeys, "after")
+-	}
+-
+-	parsed, err := url.Parse(nextURL)
+-	if err != nil {
+-		return ""
+-	}
+-	values := parsed.Query()
+-	for _, key := range cursorKeys {
+-		if key == "" {
+-			continue
+-		}
+-		if cursor := values.Get(key); cursor != "" {
+-			return cursor
+-		}
+-	}
+-	return ""
+-}
+-
+ // findCursorInMap returns the first non-empty scalar value in m
+ // whose key matches one of cursorKeys. Used by extractPaginationFromEnvelope
+ // to scan both the top-level envelope and well-known wrapper objects with
+@@ -1928,10 +1851,12 @@
+ 
+ // upsertSingleObject stores a non-array API response as a single record.
+ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
++	if !json.Valid(bytes.TrimSpace(data)) || isJSONNull(data) {
++		return fmt.Errorf("%s response is not JSON; refusing to store a non-JSON body", resource)
++	}
+ 	obj, err := store.DecodeJSONObject(data)
+ 	if err != nil {
+-		// Not a JSON object either - store raw under resource name
+-		return db.Upsert(resource, resource, data)
++		return fmt.Errorf("%s response is not a JSON object: %w", resource, err)
+ 	}
+ 
+ 	resource = resolveDiscriminatedResource(resource, obj)
+--- internal/cli/sync_hint.go	2026-09-04 09:48:12.705758522 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/sync_hint.go	2026-09-04 13:16:35.940958449 -0400
+@@ -96,7 +96,7 @@
+ 	var lastSynced sql.NullTime
+ 	err := db.DB().QueryRow(query, args...).Scan(&lastSynced)
+ 	if err == nil {
+-		if !lastSynced.Valid {
++		if !lastSynced.Valid || lastSynced.Time.IsZero() {
+ 			return syncHintState{}, nil
+ 		}
+ 		return syncHintState{
+--- internal/cli/sync_hint_test.go	2026-09-04 09:48:12.705837731 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/sync_hint_test.go	2026-09-04 13:16:35.941277162 -0400
+@@ -122,6 +122,25 @@
+ 	}
+ }
+ 
++func TestHintIfUnsynced_ZeroTimestampWritesHint(t *testing.T) {
++	requireSyncHintCommand(t)
++	db := newSyncHintTestStore(t)
++	if _, err := db.DB().Exec(
++		`INSERT INTO sync_state(resource_type, last_synced_at, total_count) VALUES (?, ?, ?)`,
++		"issues", time.Time{}.UTC().Format(time.RFC3339), 1,
++	); err != nil {
++		t.Fatalf("seed sync_state: %v", err)
++	}
++	cmd, stderr := newSyncHintTestCmd()
++
++	if !hintIfUnsynced(cmd, db, "issues") {
++		t.Fatalf("hintIfUnsynced returned false for zero last_synced_at")
++	}
++	if got := stderr.String(); !strings.Contains(got, "has not been synced yet") {
++		t.Fatalf("stderr = %q, want unsynced hint", got)
++	}
++}
++
+ func TestHintIfStale_AllResourcesIgnoresNullTimestampRows(t *testing.T) {
+ 	requireSyncHintCommand(t)
+ 	db := newSyncHintTestStore(t)
+--- internal/cli/which.go	2026-09-04 09:48:12.706518111 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/which.go	2026-09-04 13:16:35.922045070 -0400
+@@ -337,7 +337,8 @@
+ 
+ Exit codes:
+   0  at least one match found
+-  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one`,
++  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {"matches":[]} (or the equivalent empty table) to stdout.`,
++		SilenceUsage: true,
+ 		Example: `  splitwise-pp-cli which "stale tickets"
+   splitwise-pp-cli which "bottleneck"
+   splitwise-pp-cli which --limit 1 "send message"
+@@ -355,14 +356,22 @@
+ 			}
+ 
+ 			if len(matches) == 0 {
+-				// Under --json, return an empty matches envelope at exit 0
+-				// so agents can branch on `matches.length == 0` instead of
+-				// parsing a usage error message. Non-JSON keeps the typed
+-				// exit-2 path so terminal users see the help hint.
+-				if flags.asJSON {
+-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
++				// Machine output still uses the typed exit-2 no-match path.
++				// --json (and piped auto-JSON) emit {"matches":[]} on stdout
++				// so agents can branch on the envelope without treating exit 0
++				// as success. Human terminals keep the usage error only.
++				asJSON := flags.asJSON
++				if !asJSON && !isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain {
++					asJSON = true
++				}
++				if asJSON || flags.csv || flags.plain || flags.quiet {
++					outputFlags := *flags
++					outputFlags.asJSON = asJSON || flags.asJSON
++					if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+ 						"matches": []whichMatch{},
+-					}, flags)
++					}, &outputFlags); err != nil {
++						return err
++					}
+ 				}
+ 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
+ 			}
+--- internal/cli/which_test.go	2026-09-04 09:48:12.706613279 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/cli/which_test.go	2026-09-04 13:16:35.901493794 -0400
+@@ -4,6 +4,8 @@
+ package cli
+ 
+ import (
++	"bytes"
++	"encoding/json"
+ 	"strings"
+ 	"testing"
+ )
+@@ -205,6 +207,62 @@
+ 	}
+ }
+ 
++func TestWhichJSONNoMatchExits2(t *testing.T) {
++	old := whichIndex
++	whichIndex = whichTestIndex
++	t.Cleanup(func() { whichIndex = old })
++
++	var stdout, stderr bytes.Buffer
++	flags := &rootFlags{asJSON: true}
++	cmd := newWhichCmd(flags)
++	cmd.SetOut(&stdout)
++	cmd.SetErr(&stderr)
++	cmd.SetArgs([]string{"teleport a rhinoceros"})
++	err := cmd.Execute()
++	if err == nil {
++		t.Fatal("expected no-match to return a typed error")
++	}
++	if got := ExitCode(err); got != 2 {
++		t.Fatalf("ExitCode = %d, want 2 (typed no-match)", got)
++	}
++	var envelope map[string]any
++	if json.Unmarshal(stdout.Bytes(), &envelope) != nil {
++		t.Fatalf("no-match --json stdout must be a JSON envelope, got %q", stdout.String())
++	}
++	matches, _ := envelope["matches"].([]any)
++	if len(matches) != 0 {
++		t.Fatalf("matches = %#v, want empty array", envelope["matches"])
++	}
++}
++
++func TestWhichPipedNoMatchExits2WithEmptyEnvelope(t *testing.T) {
++	old := whichIndex
++	whichIndex = whichTestIndex
++	t.Cleanup(func() { whichIndex = old })
++
++	var stdout bytes.Buffer
++	flags := &rootFlags{}
++	cmd := newWhichCmd(flags)
++	cmd.SetOut(&stdout)
++	cmd.SetErr(&bytes.Buffer{})
++	cmd.SetArgs([]string{"teleport a rhinoceros"})
++	err := cmd.Execute()
++	if err == nil {
++		t.Fatal("expected no-match to return a typed error")
++	}
++	if got := ExitCode(err); got != 2 {
++		t.Fatalf("ExitCode = %d, want 2", got)
++	}
++	var envelope map[string]any
++	if json.Unmarshal(stdout.Bytes(), &envelope) != nil {
++		t.Fatalf("piped no-match must write {\"matches\":[]} so agents can inspect the miss, got %q", stdout.String())
++	}
++	matches, _ := envelope["matches"].([]any)
++	if len(matches) != 0 {
++		t.Fatalf("matches = %#v, want empty array", envelope["matches"])
++	}
++}
++
+ // Sanity: whichIndex compiles and is well-formed. Generated CLIs with
+ // zero NovelFeatures ship an empty index, and that is still a valid
+ // state (which returns the "no curated index" error at runtime).
+--- internal/client/client.go	2026-09-04 09:48:12.706879572 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/client/client.go	2026-09-04 13:16:35.925308614 -0400
+@@ -1505,6 +1505,21 @@
+ 	return json.RawMessage(out), nil
+ }
+ 
++// UnwrapBinaryResponse recovers original bytes from wrapBinaryResponse's JSON
++// envelope. Ordinary JSON is left intact so file delivery of API objects is
++// not treated as media.
++func UnwrapBinaryResponse(body []byte) (raw []byte, contentType string, ok bool) {
++	var env binaryResponseEnvelope
++	if err := json.Unmarshal(body, &env); err != nil || !env.PPBinary || env.Encoding != "base64" {
++		return nil, "", false
++	}
++	raw, err := base64.StdEncoding.DecodeString(env.Data)
++	if err != nil {
++		return nil, "", false
++	}
++	return raw, env.ContentType, true
++}
++
+ // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
+ // response bodies so that downstream JSON parsing succeeds. For clean JSON
+ // responses these checks are no-ops.
+--- internal/mcp/bound/bound.go	2026-09-04 09:48:12.714178381 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/mcp/bound/bound.go	2026-09-04 13:16:35.934035190 -0400
+@@ -4,10 +4,12 @@
+ package bound
+ 
+ import (
++	"context"
+ 	"encoding/base64"
+ 	"encoding/json"
+ 	"fmt"
+ 	"strings"
++	"time"
+ 	"unicode/utf8"
+ )
+ 
+@@ -16,8 +18,18 @@
+ 	MaxItems = 50
+ 
+ 	maxPreviewBytes = 4000
++
++	// SQLQueryTimeout is the default MCP SQL execution deadline. A tighter
++	// caller deadline still wins because context.WithTimeout honors the parent.
++	SQLQueryTimeout = 5 * time.Second
++	// SQLMaxRows is a scan-time backstop so millions of tiny rows cannot
++	// allocate before the byte budget is reached. Typical results hit
++	// MaxBytes first.
++	SQLMaxRows = 10000
+ )
+ 
++const SQLResultBoundNote = "SQL result was bounded during row scanning to stay within the MCP tool result budget. Narrow the query with WHERE, GROUP BY, or an aggregate."
++
+ const (
+ 	endpointListNote    = "Typed MCP endpoint response was bounded for MCP output. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
+ 	endpointPreviewNote = "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
+@@ -562,3 +574,79 @@
+ 	}
+ 	return string(data[:limit])
+ }
++
++// WithSQLQueryDeadline applies SQLQueryTimeout when the caller has no earlier
++// deadline. A tighter caller deadline still wins via the context parent.
++func WithSQLQueryDeadline(ctx context.Context) (context.Context, context.CancelFunc) {
++	return context.WithTimeout(ctx, SQLQueryTimeout)
++}
++
++// SQLScanState accumulates MCP SQL rows until the scan-time row or byte
++// budget is reached. It bounds materialisation before JSON encoding and
++// reserves space for columns plus envelope metadata so the SQL envelope
++// still serializes under MaxBytes.
++type SQLScanState struct {
++	Rows      []map[string]any
++	Truncated bool
++	used      int
++}
++
++// NewSQLScanState starts a scan budget that already includes column names
++// and worst-case SQL envelope metadata.
++func NewSQLScanState(columns []string) SQLScanState {
++	return SQLScanState{
++		Rows: []map[string]any{},
++		used: sqlEnvelopeBaseSize(columns),
++	}
++}
++
++func sqlEnvelopeBaseSize(columns []string) int {
++	if columns == nil {
++		columns = []string{}
++	}
++	encoded, err := json.Marshal(map[string]any{
++		"count":          SQLMaxRows,
++		"columns":        columns,
++		"rows":           []map[string]any{},
++		"store_status":   "ready",
++		"resumable":      false,
++		"truncated":      true,
++		"returned_count": SQLMaxRows,
++		"max_bytes":      MaxBytes,
++		"note":           SQLResultBoundNote,
++		"meta": map[string]any{
++			"source":           "local",
++			"oldest_synced_at": "2006-01-02T15:04:05Z",
++		},
++	})
++	if err != nil {
++		return MaxBytes + 1
++	}
++	return len(encoded)
++}
++
++// Add appends row when the resulting SQL envelope still fits MaxBytes. It
++// returns false when the row is rejected and marks Truncated so callers
++// stop scanning.
++func (s *SQLScanState) Add(row map[string]any) bool {
++	if len(s.Rows) >= SQLMaxRows {
++		s.Truncated = true
++		return false
++	}
++	encoded, err := json.Marshal(row)
++	if err != nil {
++		s.Truncated = true
++		return false
++	}
++	extra := len(encoded)
++	if len(s.Rows) > 0 {
++		extra++
++	}
++	if s.used+extra > MaxBytes {
++		s.Truncated = true
++		return false
++	}
++	s.Rows = append(s.Rows, row)
++	s.used += extra
++	return true
++}
+--- internal/mcp/bound/bound_test.go	2026-09-04 09:48:12.714278298 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/mcp/bound/bound_test.go	2026-09-04 13:16:35.931079108 -0400
+@@ -4,10 +4,12 @@
+ package bound
+ 
+ import (
++	"context"
+ 	"encoding/json"
+ 	"strconv"
+ 	"strings"
+ 	"testing"
++	"time"
+ 	"unicode/utf8"
+ )
+ 
+@@ -665,3 +667,140 @@
+ 		t.Fatalf("preview introduced a replacement character at a split UTF-8 boundary: %q", envelope.Preview[len(envelope.Preview)-12:])
+ 	}
+ }
++
++func TestWithSQLQueryDeadlineAppliesDefault(t *testing.T) {
++	ctx, cancel := WithSQLQueryDeadline(context.Background())
++	defer cancel()
++	deadline, ok := ctx.Deadline()
++	if !ok {
++		t.Fatal("WithSQLQueryDeadline should apply a default deadline")
++	}
++	remain := time.Until(deadline)
++	if remain < SQLQueryTimeout/2 || remain > SQLQueryTimeout+time.Second {
++		t.Fatalf("deadline remaining %s, want about %s", remain, SQLQueryTimeout)
++	}
++}
++
++func TestWithSQLQueryDeadlineKeepsTighterCaller(t *testing.T) {
++	parent, cancel := context.WithTimeout(context.Background(), 40*time.Millisecond)
++	defer cancel()
++	parentDeadline, ok := parent.Deadline()
++	if !ok {
++		t.Fatal("parent should have a deadline")
++	}
++	ctx, cancel2 := WithSQLQueryDeadline(parent)
++	defer cancel2()
++	deadline, ok := ctx.Deadline()
++	if !ok {
++		t.Fatal("child should have a deadline")
++	}
++	if deadline.After(parentDeadline) {
++		t.Fatalf("child deadline %v is later than tighter parent %v", deadline, parentDeadline)
++	}
++}
++
++func TestSQLScanStateStopsAtByteBudget(t *testing.T) {
++	s := NewSQLScanState([]string{"blob"})
++	row := map[string]any{"blob": strings.Repeat("z", 3000)}
++	added := 0
++	for i := 0; i < 100; i++ {
++		if !s.Add(row) {
++			break
++		}
++		added++
++	}
++	if !s.Truncated {
++		t.Fatal("expected byte-budget truncation")
++	}
++	if added == 0 || added >= 100 {
++		t.Fatalf("added %d rows, want a bounded positive count", added)
++	}
++	if len(s.Rows) != added {
++		t.Fatalf("rows = %d, want %d", len(s.Rows), added)
++	}
++}
++
++func TestSQLScanStateStopsAtRowBudget(t *testing.T) {
++	s := NewSQLScanState(nil)
++	row := map[string]any{}
++	for i := 0; i < SQLMaxRows+5; i++ {
++		s.Add(row)
++	}
++	if !s.Truncated {
++		t.Fatal("expected row-budget truncation")
++	}
++	if len(s.Rows) != SQLMaxRows {
++		t.Fatalf("rows = %d, want %d", len(s.Rows), SQLMaxRows)
++	}
++}
++
++func TestSQLScanStateKeepsCompleteSmallResult(t *testing.T) {
++	s := NewSQLScanState([]string{"n"})
++	if !s.Add(map[string]any{"n": 1}) {
++		t.Fatal("small row should fit")
++	}
++	if s.Truncated {
++		t.Fatal("small result should not be truncated")
++	}
++	if len(s.Rows) != 1 {
++		t.Fatalf("rows = %d, want 1", len(s.Rows))
++	}
++}
++
++func TestSQLScanStateRejectsFirstOversizedRow(t *testing.T) {
++	s := NewSQLScanState([]string{"blob"})
++	row := map[string]any{"blob": strings.Repeat("z", MaxBytes)}
++	if s.Add(row) {
++		t.Fatal("oversized first row should be rejected")
++	}
++	if !s.Truncated || len(s.Rows) != 0 {
++		t.Fatalf("truncated=%v rows=%d, want truncated empty scan", s.Truncated, len(s.Rows))
++	}
++}
++
++func TestSQLScanStateLongColumnsStaySQLEnvelope(t *testing.T) {
++	cols := make([]string, 25)
++	row := make(map[string]any, len(cols))
++	for i := range cols {
++		cols[i] = strings.Repeat("col", 80) + strings.Repeat("x", i+1)
++		row[cols[i]] = strings.Repeat("z", 400)
++	}
++	s := NewSQLScanState(cols)
++	for i := 0; i < 20; i++ {
++		if !s.Add(row) {
++			break
++		}
++	}
++	if !s.Truncated {
++		t.Fatal("wide columns plus repeated rows should hit the envelope budget")
++	}
++	if len(s.Rows) == 0 {
++		t.Fatal("wide-column scan should keep a bounded SQL sample")
++	}
++
++	envelope := map[string]any{
++		"count":          len(s.Rows),
++		"columns":        cols,
++		"rows":           s.Rows,
++		"store_status":   "ready",
++		"resumable":      false,
++		"truncated":      s.Truncated,
++		"returned_count": len(s.Rows),
++		"max_bytes":      MaxBytes,
++		"note":           SQLResultBoundNote,
++		"meta":           map[string]any{"source": "local"},
++	}
++	text, err := JSON(envelope)
++	if err != nil {
++		t.Fatalf("JSON(envelope) error = %v", err)
++	}
++	if len(text) > MaxBytes {
++		t.Fatalf("SQL envelope length = %d, want <= %d", len(text), MaxBytes)
++	}
++	if !strings.Contains(text, `"columns"`) || !strings.Contains(text, `"rows"`) || !strings.Contains(text, `"count"`) {
++		t.Fatalf("expected SQL envelope fields, got preview: %s", text)
++	}
++	if strings.Contains(text, `"preview"`) && !strings.Contains(text, `"columns"`) {
++		t.Fatalf("wide-column result fell back to a generic preview: %s", text)
++	}
++}
+--- internal/mcp/intents.go	2026-09-04 09:48:12.714946886 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/mcp/intents.go	2026-09-04 13:16:35.997840131 -0400
+@@ -26,6 +26,7 @@
+ 	"splitwise-pp-cli/internal/cli"
+ 	"splitwise-pp-cli/internal/client"
+ 	"splitwise-pp-cli/internal/mcp/bound"
++	"splitwise-pp-cli/internal/mcp/cobratree"
+ )
+ 
+ // RegisterIntents adds generated intent tools to the MCP server.
+@@ -54,7 +55,13 @@
+ 		),
+ 		handleTripSummary,
+ 	)
+-	RegisterRecipeIntents(s)
++	s.AddTool(
++		mcplib.NewTool("one_shot_agent_state_check",
++			mcplib.WithDescription("Returns net position, the stalest debts, and recent activity in one bounded call instead of three separate fan-out calls."),
++			mcplib.WithBoolean("compact", mcplib.Description("Override the recipe's --compact value.")),
++		),
++		handleOneShotAgentStateCheck,
++	)
+ }
+ 
+ // handleGroupSettlePlan runs the group_settle_plan intent: Fetch a group's details and its recent expenses so an agent can compute who owes whom within that group (a settle-up plan) without making two separate tool calls and stitching the results itself.
+@@ -268,6 +275,25 @@
+ 	return mcplib.NewToolResultText(text), nil
+ }
+ 
++// handleOneShotAgentStateCheck runs the one_shot_agent_state_check recipe intent: Returns net position, the stalest debts, and recent activity in one bounded call instead of three separate fan-out calls.
++func handleOneShotAgentStateCheck(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
++	if recipeCLIPathErr != nil {
++		return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v", recipeCLIPathErr)), nil
++	}
++
++	input := req.GetArguments()
++	args := []string{}
++	args = append(args, "brief")
++	args = append(args, "--agent")
++	args = appendRecipeBoolFlag(args, "compact", input["compact"], true)
++
++	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
++	if err != nil {
++		return mcplib.NewToolResultError(err.Error()), nil
++	}
++	return cobratree.ToolResultFromCLICommand(out), nil
++}
++
+ // resolveIntentBinding evaluates a binding expression against the intent's
+ // runtime scope. Supported shapes:
+ //   - ${input.<field>...}   — walks the MCP request's input args
+@@ -400,3 +426,63 @@
+ 	"get-friend.get":        {method: "GET", path: "/get_friend/{id}"},
+ 	"get-categories.list":   {method: "GET", path: "/get_categories"},
+ }
++var (
++	recipeCLIPath    string
++	recipeCLIPathErr error
++)
++
++func init() {
++	recipeCLIPath, recipeCLIPathErr = cobratree.SiblingCLIPath()
++}
++
++func appendRecipePositional(args []string, value any, required bool) ([]string, bool) {
++	selected := recipeValueString(value)
++	if selected == "" {
++		return args, required
++	}
++	return append(args, selected), false
++}
++
++func appendRecipeStringFlag(args []string, name string, value any, defaultValue string, required bool, useEquals bool) ([]string, bool) {
++	selected := defaultValue
++	if value != nil {
++		selected = recipeValueString(value)
++	}
++	if selected == "" {
++		return args, required
++	}
++	if useEquals {
++		return append(args, "--"+name+"="+selected), false
++	}
++	return append(args, "--"+name, selected), false
++}
++
++func appendRecipeBoolFlag(args []string, name string, value any, defaultValue bool) []string {
++	selected := defaultValue
++	if v, ok := value.(bool); ok {
++		selected = v
++	}
++	if selected {
++		return append(args, "--"+name)
++	}
++	return args
++}
++
++func recipeValueString(value any) string {
++	switch v := value.(type) {
++	case string:
++		return strings.TrimSpace(v)
++	case float64:
++		return formatMCPParamValue(v)
++	case bool:
++		if v {
++			return "true"
++		}
++		return "false"
++	default:
++		if value == nil {
++			return ""
++		}
++		return fmt.Sprintf("%v", value)
++	}
++}
+--- internal/mcp/tools.go	2026-09-04 09:48:12.715303431 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/mcp/tools.go	2026-09-04 13:16:35.995963564 -0400
+@@ -40,7 +40,7 @@
+ 	installFreshTenantGate(s)
+ 	s.AddTool(
+ 		mcplib.NewTool("add-user-to-group_create",
+-			mcplib.WithDescription("Add a user to a group. Required: group_id, plus either user_id (existing user) or first_name/last_name/email (invite a new user). Returns success, the added user object, and errors. Check the success field: a 200 OK alone does not mean the user was added."),
++			mcplib.WithDescription("**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Returns the new AddUserToGroupCreateResponse."),
+ 			mcplib.WithString("body_json", mcplib.Required(), mcplib.Description("Request body as a JSON object string (this endpoint accepts a polymorphic schema: oneOf/anyOf)")),
+ 			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+@@ -107,7 +107,7 @@
+ 	)
+ 	s.AddTool(
+ 		mcplib.NewTool("delete-expense_create",
+-			mcplib.WithDescription("Delete an expense by id (soft delete; reversible with undelete-expense_create). Required: id (path). Returns success and errors. Check the success field: a 200 OK alone does not mean the expense was deleted."),
++			mcplib.WithDescription("**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success` is true. Required: id. Returns the new DeleteExpenseCreateResponse."),
+ 			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("ID of the expense to delete")),
+ 			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+@@ -162,7 +162,7 @@
+ 	)
+ 	s.AddTool(
+ 		mcplib.NewTool("get-current-user_list",
+-			mcplib.WithDescription("Get the authenticated user's profile. No parameters. Returns the user object with id, first_name, last_name, email, default_currency, locale, and notification settings. Call this first to learn the caller's user id before splitting or settling expenses."),
++			mcplib.WithDescription("Get information about the current user. Returns the GetCurrentUserListResponse."),
+ 			mcplib.WithReadOnlyHintAnnotation(true),
+ 			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+@@ -208,7 +208,7 @@
+ 	)
+ 	s.AddTool(
+ 		mcplib.NewTool("get-friends_list",
+-			mcplib.WithDescription("List the current user's friends with the balance owed in each direction. No parameters. Returns an array of friend objects with id, first_name, last_name, email, registration_status, per-currency balance, and per-group balances (each friend's group objects include only the balances shared with that friend). Prefer the local balances/debts commands for aggregated views."),
++			mcplib.WithDescription("**Note**: `group` objects only include group balances with that friend. Returns array of GetFriendsListItem."),
+ 			mcplib.WithReadOnlyHintAnnotation(true),
+ 			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+@@ -227,7 +227,7 @@
+ 	)
+ 	s.AddTool(
+ 		mcplib.NewTool("get-groups_list",
+-			mcplib.WithDescription("List the current user's groups with members and per-member balances. No parameters. Returns an array of group objects with id, name, group_type, members, simplify_by_default, and original_debts/simplified_debts. Expenses not tied to a group appear under the group with id 0."),
++			mcplib.WithDescription("**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns array of Group."),
+ 			mcplib.WithReadOnlyHintAnnotation(true),
+ 			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+@@ -236,7 +236,7 @@
+ 	)
+ 	s.AddTool(
+ 		mcplib.NewTool("get-notifications_list",
+-			mcplib.WithDescription("List recent activity on the current user's account, most recent first (expense added/updated/deleted, comments, group and friend changes). Optional: updated_after (ISO timestamp) and limit. Returns an array of notification objects with id, type, created_at, content (HTML-formatted text), and source. Use get-expenses_list with updated_after when you need the changed expenses themselves."),
++			mcplib.WithDescription("Return a list of recent activity on the users account with the most recent items first. `content` will be suitable for display in HTML and uses only the ` `, `<strike>`, ` `, ` ` and `<font color='#FFEE44'>` tags. The `type` value indicates what the notification is about. Notification types may be added in the future without warning. Below is an incomplete list of notification types. | Type | Meaning | | ---- | ------- | | 0 | Expense added | | 1 | Expense updated | | 2\t | Expense deleted | | 3\t | Comment added | | 4\t | Added to group | | 5\t | Removed from group | | 6\t | Group deleted | | 7\t | Group settings changed | | 8\t | Added as friend | | 9\t | Removed as friend | | 10\t | News (a URL should be included) | | 11\t | Debt simplification | | 12\t | Group undeleted | | 13\t | Expense undeleted | | 14\t | Group currency conversion | | 15\t | Friend currency conversion | **Note**: While all parameters are optional, the server sets arbitrary (but large) limits on the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a user with many notifications. Optional: updated_after, limit (default: 0). Returns array of Notification."),
+ 			mcplib.WithString("updated_after", mcplib.Description("If provided, returns only notifications after this time.")),
+ 			mcplib.WithNumber("limit", mcplib.Description("Omit (or provide `0`) to get the maximum number of notifications.")),
+ 			mcplib.WithReadOnlyHintAnnotation(true),
+@@ -267,7 +267,7 @@
+ 	)
+ 	s.AddTool(
+ 		mcplib.NewTool("undelete-expense_create",
+-			mcplib.WithDescription("Restore a previously deleted expense by id. Required: id (path). Returns success. Check the success field: a 200 OK alone does not mean the expense was restored."),
++			mcplib.WithDescription("**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success` is true. Required: id. Returns the new UndeleteExpenseCreateResponse."),
+ 			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("ID of the expense to restore")),
+ 			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+@@ -754,12 +754,7 @@
+ 	if err != nil {
+ 		return nil, nil, err
+ 	}
+-	c := newMCPClientFromConfig(cfg)
+-	session, err := cli.BindMCPClient(ctx, c)
+-	if err != nil {
+-		return nil, nil, err
+-	}
+-	return c, session, nil
++	return newMCPClientFromConfig(ctx, cfg)
+ }
+ 
+ func newMCPConfig() (*config.Config, error) {
+@@ -770,7 +765,7 @@
+ 	return cfg, nil
+ }
+ 
+-func newMCPClientFromConfig(cfg *config.Config) *client.Client {
++func newMCPClientFromConfig(ctx context.Context, cfg *config.Config) (*client.Client, *platform.Session, error) {
+ 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
+ 	// Agents calling through MCP need fresh data every call. The on-disk
+ 	// response cache survives across MCP server invocations, so a
+@@ -778,7 +773,17 @@
+ 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
+ 	// constructs its own client and is unaffected.
+ 	c.NoCache = true
+-	return c
++	session, err := cli.BindMCPClient(ctx, c)
++	if err != nil {
++		return nil, nil, err
++	}
++	if err := cli.ApplyClientHooks(c); err != nil {
++		if session != nil {
++			session.ZeroCredentials()
++		}
++		return nil, nil, fmt.Errorf("initializing MCP client: %w", err)
++	}
++	return c, session, nil
+ }
+ 
+ func mcpDBPath() (string, error) {
+@@ -1054,9 +1059,12 @@
+ 	}
+ 	defer db.Close()
+ 
+-	rows, err := db.DB().QueryContext(ctx, query)
++	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
++	defer cancel()
++
++	rows, err := db.DB().QueryContext(queryCtx, query)
+ 	if err != nil {
+-		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
++		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+ 	}
+ 	defer rows.Close()
+ 
+@@ -1064,7 +1072,7 @@
+ 	if err != nil {
+ 		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+ 	}
+-	var results []map[string]any
++	scan := bound.NewSQLScanState(cols)
+ 	for rows.Next() {
+ 		values := make([]any, len(cols))
+ 		ptrs := make([]any, len(cols))
+@@ -1078,22 +1086,24 @@
+ 		for i, col := range cols {
+ 			row[col] = values[i]
+ 		}
+-		results = append(results, row)
++		if !scan.Add(row) {
++			break
++		}
+ 	}
+ 	// rows.Next() stops on a mid-iteration error without failing the loop, so
+ 	// skipping rows.Err() would return a truncated result set as success.
+ 	if err := rows.Err(); err != nil {
+-		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
++		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+ 	}
+ 	storeStatus, err := mcpStoreStatus(db)
+ 	if err != nil {
+ 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+ 	}
+ 
+-	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
++	return toolResultJSON(mcpSQLEnvelope(scan.Rows, cols, storeStatus, scan.Truncated))
+ }
+ 
+-func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
++func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind, truncated bool) map[string]any {
+ 	if rows == nil {
+ 		rows = []map[string]any{}
+ 	}
+@@ -1103,8 +1113,14 @@
+ 		"rows":         rows,
+ 		"store_status": storeStatus,
+ 		"resumable":    false,
++		"truncated":    truncated,
+ 	}
+-	if len(rows) == 0 {
++	if truncated {
++		out["returned_count"] = len(rows)
++		out["max_bytes"] = bound.MaxBytes
++		out["note"] = bound.SQLResultBoundNote
++	}
++	if len(rows) == 0 && !truncated {
+ 		if storeStatus == mcpStoreStatusEmpty {
+ 			out["next_step"] = mcpEmptyStoreNextStep()
+ 		} else {
+@@ -1114,7 +1130,10 @@
+ 	return out
+ }
+ 
+-func mcpSQLQueryError(err error) string {
++func mcpSQLQueryError(queryCtx context.Context, err error) string {
++	if queryCtx.Err() != nil {
++		return fmt.Sprintf("query cancelled: %v. MCP SQL queries are bounded to %s; narrow the query with WHERE, GROUP BY, or an aggregate.", err, bound.SQLQueryTimeout)
++	}
+ 	msg := err.Error()
+ 	if strings.Contains(strings.ToLower(msg), "no such table") {
+ 		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='add-user-to-group', and read JSON fields with json_extract(data,'$.field').", err)
+@@ -1363,11 +1382,10 @@
+ 			{"name": "Fairness nudge", "command": "fairness nudge", "description": "Post a payment reminder as a comment on the actual open expense thread, previewed before it sends.", "rationale": "Requires resolving a friend to their specific open expense locally and posting through create_comment", "via": "mcp-command-mirror"},
+ 			{"name": "Balances by group", "command": "balances", "description": "See one row per group per currency for every non-zero balance, without the noise of settled groups.", "rationale": "Requires filtering and reshaping the same local join that powers balances into a per-group-per-currency view", "via": "mcp-command-mirror"},
+ 			{"name": "Agent brief", "command": "brief", "description": "Get one compact digest of net position, the stalest debts, and what changed since last sync in a single call.", "rationale": "Composes three local reads (balances, debts --aged, activity)", "via": "mcp-command-mirror"},
+-			{"name": "Store reconcile", "command": "reconcile", "description": "Verify the local store actually matches Splitwise before you trust a settle-up or report.", "rationale": "Requires paging live get_expenses with updated_after and diffing IDs/updated_at/deleted_at against the local store", "via": "mcp-command-mirror"},
++			{"name": "Store reconcile", "command": "reconcile", "description": "Verify the local store actually matches Splitwise before you trust a settle-up or report (calls the live Splitwise API", "rationale": "Requires paging live get_expenses with updated_after and diffing IDs/updated_at/deleted_at against the local store", "via": "mcp-command-mirror"},
+ 			{"name": "Activity diff", "command": "activity", "description": "Show what changed since your last sync — new, edited, and deleted expenses to review.", "rationale": "Requires diffing synced notifications and updated_after expenses against the local store's last-sync cursor.", "via": "mcp-command-mirror"},
+ 			{"name": "Forecast", "command": "forecast", "description": "See what shared bills are expected next, projected from your recurring-expense history.", "rationale": "Requires projecting forward from the recurring cadence model over local SQLite", "via": "mcp-command-mirror"},
+ 			{"name": "Normalize", "command": "normalize", "description": "Express multi-currency spend in one base currency, using rates you supply", "rationale": "Requires converting locally-synced spend totals with user-supplied rates and explicitly listing what could not be", "via": "mcp-command-mirror"},
+-			{"name": "Which", "command": "which", "description": "Find the right command for a task by matching a plain-language phrase against this CLI's command list.", "rationale": "Matches the phrase against a static keyword-alias table mirroring the SKILL's trigger phrases", "via": "mcp-command-mirror"},
+ 		},
+ 		"playbook": []map[string]string{
+ 			{"topic": "Net balance overview", "insight": "Splitwise returns balances separately per group and per friend; no client aggregates them into a single net position."},
+@@ -1388,7 +1406,6 @@
+ 			{"topic": "Activity diff", "insight": "Requires diffing synced notifications and updated_after expenses against the local store's last-sync cursor."},
+ 			{"topic": "Forecast", "insight": "Requires projecting forward from the recurring cadence model over local SQLite; Splitwise has no forecasting or upcoming-bill concept."},
+ 			{"topic": "Normalize", "insight": "Requires converting locally-synced spend totals with user-supplied rates and explicitly listing what could not be converted; Splitwise never converts currencies across groups for you."},
+-			{"topic": "Which", "insight": "Matches the phrase against a static keyword-alias table mirroring the SKILL's trigger phrases; a CLI-side lookup no generic help text provides."},
+ 		},
+ 	}
+ 	return toolResultJSON(ctx)
+--- internal/mcp/tools_test.go	2026-09-04 09:48:12.715377348 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/mcp/tools_test.go	2026-09-04 13:16:35.996959161 -0400
+@@ -9,6 +9,7 @@
+ 	"path/filepath"
+ 	"strings"
+ 	"testing"
++	"time"
+ 
+ 	mcplib "github.com/mark3labs/mcp-go/mcp"
+ 	"github.com/mark3labs/mcp-go/server"
+@@ -243,6 +244,7 @@
+ 		Columns     []string         `json:"columns"`
+ 		StoreStatus string           `json:"store_status"`
+ 		Resumable   bool             `json:"resumable"`
++		Truncated   bool             `json:"truncated"`
+ 		NextStep    string           `json:"next_step"`
+ 	}
+ 	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+@@ -260,6 +262,9 @@
+ 	if envelope.Resumable {
+ 		t.Fatalf("empty-store SQL envelope should not claim cursor support: %s", text)
+ 	}
++	if envelope.Truncated {
++		t.Fatalf("empty-store SQL envelope should not be truncated: %s", text)
++	}
+ 	if !strings.Contains(envelope.NextStep, "sync") {
+ 		t.Fatalf("empty-store SQL next_step should mention sync: %s", text)
+ 	}
+@@ -296,6 +301,189 @@
+ 	}
+ }
+ 
++func setupEmptyMCPStore(t *testing.T) {
++	t.Helper()
++	resetMCPPathEnv(t)
++	path, err := mcpDBPath()
++	if err != nil {
++		t.Fatalf("mcpDBPath() error = %v", err)
++	}
++	db, err := store.Open(path)
++	if err != nil {
++		t.Fatalf("creating store: %v", err)
++	}
++	if err := db.Close(); err != nil {
++		t.Fatalf("closing store: %v", err)
++	}
++}
++
++func callMCPSQL(t *testing.T, ctx context.Context, query string) *mcplib.CallToolResult {
++	t.Helper()
++	result, err := handleSQL(ctx, mcplib.CallToolRequest{Params: mcplib.CallToolParams{
++		Arguments: map[string]any{"query": query},
++	}})
++	if err != nil {
++		t.Fatalf("handleSQL returned transport error: %v", err)
++	}
++	if result == nil {
++		t.Fatal("handleSQL returned nil result")
++	}
++	return result
++}
++
++type mcpSQLResultEnvelope struct {
++	Count         int              `json:"count"`
++	Columns       []string         `json:"columns"`
++	Rows          []map[string]any `json:"rows"`
++	Truncated     bool             `json:"truncated"`
++	ReturnedCount int              `json:"returned_count"`
++	MaxBytes      int              `json:"max_bytes"`
++	Note          string           `json:"note"`
++}
++
++func decodeMCPSQLEnvelope(t *testing.T, result *mcplib.CallToolResult) (string, mcpSQLResultEnvelope) {
++	t.Helper()
++	text := mcpTextContent(t, result)
++	if len(text) > bound.MaxBytes {
++		t.Fatalf("SQL result length = %d, want <= %d", len(text), bound.MaxBytes)
++	}
++	var envelope mcpSQLResultEnvelope
++	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
++		t.Fatalf("SQL result must be valid JSON: %v\n%s", err, text)
++	}
++	return text, envelope
++}
++
++func TestMCPSQLHugeResultStopsMaterialisation(t *testing.T) {
++	setupEmptyMCPStore(t)
++	result := callMCPSQL(t, context.Background(), `WITH RECURSIVE t(x) AS (
++		SELECT 1
++		UNION ALL
++		SELECT x+1 FROM t WHERE x < 4000
++	) SELECT x, hex(randomblob(512)) AS blob FROM t`)
++	if result.IsError {
++		t.Fatalf("huge SQL query IsError = true, want bounded success: %s", mcpTextContent(t, result))
++	}
++	text, envelope := decodeMCPSQLEnvelope(t, result)
++	if !envelope.Truncated {
++		t.Fatalf("huge SQL result should be truncated: %s", text)
++	}
++	if envelope.Count == 0 || envelope.Count >= 4000 {
++		t.Fatalf("bounded row count = %d, want a sample well below 4000", envelope.Count)
++	}
++	if envelope.ReturnedCount != envelope.Count {
++		t.Fatalf("returned_count = %d, want %d", envelope.ReturnedCount, envelope.Count)
++	}
++	if len(envelope.Rows) != envelope.Count {
++		t.Fatalf("rows = %d, want count %d", len(envelope.Rows), envelope.Count)
++	}
++	if envelope.MaxBytes != bound.MaxBytes {
++		t.Fatalf("max_bytes = %d, want %d", envelope.MaxBytes, bound.MaxBytes)
++	}
++	if envelope.Note == "" {
++		t.Fatalf("truncated SQL envelope missing note: %s", text)
++	}
++}
++
++func TestMCPSQLLongColumnNamesStaySQLEnvelope(t *testing.T) {
++	setupEmptyMCPStore(t)
++	query := "WITH RECURSIVE t(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM t WHERE n < 20) SELECT "
++	for i := 0; i < 25; i++ {
++		if i > 0 {
++			query += ", "
++		}
++		name := strings.Repeat("col", 80) + strings.Repeat("x", i+1)
++		query += "'" + strings.Repeat("z", 400) + "' AS \"" + name + "\""
++	}
++	query += " FROM t"
++
++	result := callMCPSQL(t, context.Background(), query)
++	if result.IsError {
++		t.Fatalf("wide SQL query IsError = true: %s", mcpTextContent(t, result))
++	}
++	text, envelope := decodeMCPSQLEnvelope(t, result)
++	if len(text) > bound.MaxBytes {
++		t.Fatalf("wide SQL envelope length = %d, want <= %d", len(text), bound.MaxBytes)
++	}
++	if len(envelope.Columns) == 0 {
++		t.Fatalf("wide SQL result lost columns (preview fallback?): %s", text)
++	}
++	if envelope.Count == 0 && !envelope.Truncated {
++		t.Fatalf("wide SQL result returned no rows and did not truncate: %s", text)
++	}
++	if strings.Contains(text, `"preview"`) && !strings.Contains(text, `"columns"`) {
++		t.Fatalf("wide SQL result fell back to a generic preview: %s", text)
++	}
++}
++
++func TestMCPSQLCompleteResultNotTruncated(t *testing.T) {
++	setupEmptyMCPStore(t)
++	result := callMCPSQL(t, context.Background(), "SELECT 1 AS n")
++	if result.IsError {
++		t.Fatalf("complete SQL query IsError = true: %s", mcpTextContent(t, result))
++	}
++	text, envelope := decodeMCPSQLEnvelope(t, result)
++	if envelope.Truncated {
++		t.Fatalf("complete SQL result should not be truncated: %s", text)
++	}
++	if envelope.Count != 1 || len(envelope.Rows) != 1 {
++		t.Fatalf("complete SQL result = %s", text)
++	}
++	if envelope.ReturnedCount != 0 {
++		t.Fatalf("complete SQL result should omit returned_count, got %d in %s", envelope.ReturnedCount, text)
++	}
++}
++
++func TestMCPSQLAggregateKeepsOriginalSemantics(t *testing.T) {
++	setupEmptyMCPStore(t)
++	result := callMCPSQL(t, context.Background(), "SELECT COUNT(*) AS n FROM resources")
++	if result.IsError {
++		t.Fatalf("aggregate SQL query IsError = true: %s", mcpTextContent(t, result))
++	}
++	text, envelope := decodeMCPSQLEnvelope(t, result)
++	if envelope.Truncated {
++		t.Fatalf("aggregate SQL result should not be truncated: %s", text)
++	}
++	if envelope.Count != 1 || len(envelope.Rows) != 1 {
++		t.Fatalf("aggregate SQL should return one row: %s", text)
++	}
++	n, ok := envelope.Rows[0]["n"]
++	if !ok {
++		t.Fatalf("aggregate SQL missing n: %s", text)
++	}
++	switch v := n.(type) {
++	case float64:
++		if v != 0 {
++			t.Fatalf("COUNT(*) = %v, want 0", v)
++		}
++	default:
++		t.Fatalf("COUNT(*) type = %T value = %#v, want numeric 0", n, n)
++	}
++}
++
++func TestMCPSQLCallerDeadlineCancelsSlowQuery(t *testing.T) {
++	setupEmptyMCPStore(t)
++	ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
++	cancel()
++	start := time.Now()
++	result := callMCPSQL(t, ctx, `WITH RECURSIVE t(x) AS (
++		SELECT 1
++		UNION ALL
++		SELECT x+1 FROM t WHERE x < 8000000
++	) SELECT COUNT(*) AS n FROM t`)
++	elapsed := time.Since(start)
++	if elapsed > 2*time.Second {
++		t.Fatalf("cancelled SQL query was not bounded, elapsed %s", elapsed)
++	}
++	if !result.IsError {
++		t.Fatalf("slow SQL query IsError = false, want deadline error: %s", mcpTextContent(t, result))
++	}
++	text := mcpTextContent(t, result)
++	if !strings.Contains(strings.ToLower(text), "deadline") && !strings.Contains(strings.ToLower(text), "cancel") {
++		t.Fatalf("slow SQL error %q should mention deadline or cancel", text)
++	}
++}
++
+ // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
+ // sql tool's allowlist accepts SELECT and WITH-prefix queries, including
+ // CTEs, mixed case, leading whitespace, leading SQL comments, and leading
+--- internal/store/store.go	2026-09-04 09:48:12.717354072 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/store/store.go	2026-09-04 13:16:35.979907306 -0400
+@@ -1755,6 +1755,88 @@
+ 	return CanonicalResourceID(v)
+ }
+ 
++func canonicalIDFromOverride(obj map[string]any, override string) string {
++	if s := canonicalIDFromKey(obj, override); s != "" {
++		return s
++	}
++	return canonicalCompositeIDFromOverride(obj, override)
++}
++
++func overrideIdentityPresent(obj map[string]any, override string) bool {
++	if _, found := lookupRawFieldValue(obj, override); found {
++		return true
++	}
++	parts := splitResourceIDFieldOverride(override)
++	if len(parts) < 2 {
++		return false
++	}
++	for _, part := range parts {
++		if _, found := lookupRawFieldValue(obj, part); !found {
++			return false
++		}
++	}
++	return true
++}
++
++func splitResourceIDFieldOverride(override string) []string {
++	override = strings.TrimSpace(override)
++	if override == "" || !strings.Contains(override, "+") {
++		return nil
++	}
++	raw := strings.Split(override, "+")
++	parts := make([]string, 0, len(raw))
++	for _, part := range raw {
++		part = strings.TrimSpace(part)
++		if part == "" {
++			return nil
++		}
++		parts = append(parts, part)
++	}
++	if len(parts) < 2 {
++		return nil
++	}
++	return parts
++}
++
++func canonicalCompositeIDFromOverride(obj map[string]any, override string) string {
++	parts := splitResourceIDFieldOverride(override)
++	if len(parts) < 2 {
++		return ""
++	}
++	values := make([]string, 0, len(parts))
++	for _, key := range parts {
++		v, ok := lookupRawFieldValue(obj, key)
++		if !ok {
++			return ""
++		}
++		s := strings.TrimSpace(ResourceIDString(v))
++		if s == "" || s == "<nil>" {
++			return ""
++		}
++		// Date-shaped parts are allowed inside a composite; CanonicalResourceID
++		// still refuses a solo ISO date after the join.
++		if f, err := strconv.ParseFloat(s, 64); err == nil && f == 0 {
++			return ""
++		}
++		values = append(values, s)
++	}
++	return CanonicalResourceID(joinCompositeResourceID(values))
++}
++
++func encodeCompositeResourceIDPart(s string) string {
++	s = strings.ReplaceAll(s, `\`, `\\`)
++	s = strings.ReplaceAll(s, `+`, `\+`)
++	return s
++}
++
++func joinCompositeResourceID(values []string) string {
++	encoded := make([]string, len(values))
++	for i, v := range values {
++		encoded[i] = encodeCompositeResourceIDPart(v)
++	}
++	return strings.Join(encoded, "+")
++}
++
+ // ResourceIDString returns the stable text form used for resources.id.
+ func ResourceIDString(v any) string {
+ 	switch t := v.(type) {
+@@ -2236,7 +2318,7 @@
+ // non-entity envelopes into the batch path.
+ func ExtractResourceID(resourceType string, obj map[string]any) string {
+ 	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+-		if s := canonicalIDFromKey(obj, override); s != "" {
++		if s := canonicalIDFromOverride(obj, override); s != "" {
+ 			return s
+ 		}
+ 	}
+@@ -2282,7 +2364,7 @@
+ 		return false
+ 	}
+ 	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+-		if _, found := lookupRawFieldValue(obj, override); found {
++		if overrideIdentityPresent(obj, override) {
+ 			return true
+ 		}
+ 	}
+--- internal/store/upsert_batch_test.go	2026-09-04 09:48:12.717427531 -0400
++++ /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/internal/store/upsert_batch_test.go	2026-09-04 13:16:35.984508951 -0400
+@@ -832,6 +832,151 @@
+ 	}
+ }
+ 
++func TestExtractResourceID_CompositeDateAndSlug(t *testing.T) {
++	prev, hadPrev := resourceIDFieldOverrides["rankings-daily"]
++	resourceIDFieldOverrides["rankings-daily"] = "date+model_permaslug"
++	defer func() {
++		if hadPrev {
++			resourceIDFieldOverrides["rankings-daily"] = prev
++		} else {
++			delete(resourceIDFieldOverrides, "rankings-daily")
++		}
++	}()
++
++	obj := map[string]any{
++		"date":            "2026-08-22",
++		"model_permaslug": "openrouter/auto",
++		"total_tokens":    json.Number("1530"),
++	}
++	got := ExtractResourceID("rankings-daily", obj)
++	want := "2026-08-22+openrouter/auto"
++	if got != want {
++		t.Fatalf("composite ExtractResourceID = %q, want %q", got, want)
++	}
++	if CanonicalResourceID("2026-08-22") != "" {
++		t.Fatal("solo ISO date must still be unusable as an ID")
++	}
++
++	dateOnly := map[string]any{"date": "2026-08-22"}
++	if got := ExtractResourceID("rankings-daily", dateOnly); got != "" {
++		t.Fatalf("incomplete composite must not extract, got %q", got)
++	}
++
++	resourceIDFieldOverrides["rankings-daily"] = "date"
++	if got := ExtractResourceID("rankings-daily", obj); got != "" {
++		t.Fatalf("date-only override must still be refused, got %q", got)
++	}
++}
++
++func TestExtractResourceID_CompositePartsDoNotCollide(t *testing.T) {
++	prev, hadPrev := resourceIDFieldOverrides["rankings-daily"]
++	resourceIDFieldOverrides["rankings-daily"] = "ts+model"
++	defer func() {
++		if hadPrev {
++			resourceIDFieldOverrides["rankings-daily"] = prev
++		} else {
++			delete(resourceIDFieldOverrides, "rankings-daily")
++		}
++	}()
++
++	offsetTZ := map[string]any{
++		"ts":    "2026-08-22T12:00:00+01:00",
++		"model": "model",
++	}
++	splitPlus := map[string]any{
++		"ts":    "2026-08-22T12:00:00",
++		"model": "01:00+model",
++	}
++	gotOffset := ExtractResourceID("rankings-daily", offsetTZ)
++	gotSplit := ExtractResourceID("rankings-daily", splitPlus)
++	if gotOffset == "" || gotSplit == "" {
++		t.Fatalf("composite extraction returned empty: offset=%q split=%q", gotOffset, gotSplit)
++	}
++	if gotOffset == gotSplit {
++		t.Fatalf("distinct composite tuples collided: both %q", gotOffset)
++	}
++	wantOffset := `2026-08-22T12:00:00\+01:00+model`
++	wantSplit := `2026-08-22T12:00:00+01:00\+model`
++	if gotOffset != wantOffset {
++		t.Fatalf("offset-tz composite = %q, want %q", gotOffset, wantOffset)
++	}
++	if gotSplit != wantSplit {
++		t.Fatalf("split-plus composite = %q, want %q", gotSplit, wantSplit)
++	}
++}
++
++func TestExtractResourceID_CompositeNumericPart(t *testing.T) {
++	prev, hadPrev := resourceIDFieldOverrides["orders"]
++	resourceIDFieldOverrides["orders"] = "delivery_date+order_number"
++	defer func() {
++		if hadPrev {
++			resourceIDFieldOverrides["orders"] = prev
++		} else {
++			delete(resourceIDFieldOverrides, "orders")
++		}
++	}()
++
++	obj := map[string]any{
++		"delivery_date": "2026-08-22",
++		"order_number":  json.Number("42"),
++	}
++	got := ExtractResourceID("orders", obj)
++	want := "2026-08-22+42"
++	if got != want {
++		t.Fatalf("numeric composite ExtractResourceID = %q, want %q", got, want)
++	}
++}
++
++func TestUpsertBatch_CompositeDateIDStoresDistinctRows(t *testing.T) {
++	dbPath := filepath.Join(t.TempDir(), "data.db")
++	s, err := Open(dbPath)
++	if err != nil {
++		t.Fatalf("open: %v", err)
++	}
++	defer s.Close()
++
++	prev, hadPrev := resourceIDFieldOverrides["rankings-daily"]
++	resourceIDFieldOverrides["rankings-daily"] = "date+model_permaslug"
++	defer func() {
++		if hadPrev {
++			resourceIDFieldOverrides["rankings-daily"] = prev
++		} else {
++			delete(resourceIDFieldOverrides, "rankings-daily")
++		}
++	}()
++
++	items := []json.RawMessage{
++		json.RawMessage(`{"date":"2026-08-22","model_permaslug":"openrouter/auto","total_tokens":10}`),
++		json.RawMessage(`{"date":"2026-08-23","model_permaslug":"openrouter/auto","total_tokens":20}`),
++		json.RawMessage(`{"date":"2026-08-22","model_permaslug":"acme/model","total_tokens":30}`),
++		json.RawMessage(`{"date":"2026-08-22","model_permaslug":"openrouter/auto","total_tokens":11}`),
++	}
++	stored, extractFailures, err := s.UpsertBatch("rankings-daily", items)
++	if err != nil {
++		t.Fatalf("UpsertBatch: %v", err)
++	}
++	if extractFailures != 0 {
++		t.Fatalf("extractFailures = %d, want 0", extractFailures)
++	}
++	if stored != 4 {
++		t.Fatalf("stored = %d, want 4 (3 distinct keys, last row upserts)", stored)
++	}
++	var count int
++	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "rankings-daily").Scan(&count); err != nil {
++		t.Fatalf("count rows: %v", err)
++	}
++	if count != 3 {
++		t.Fatalf("distinct rows = %d, want 3", count)
++	}
++	row, err := s.Get("rankings-daily", "2026-08-22+openrouter/auto")
++	if err != nil {
++		t.Fatalf("Get composite id: %v", err)
++	}
++	if !strings.Contains(string(row), `"total_tokens":11`) && !strings.Contains(string(row), `"total_tokens": 11`) {
++		t.Fatalf("upserted composite row missing updated tokens, got %s", row)
++	}
++}
++
+ func TestUpsertBatch_NestedOverrideStoresRows(t *testing.T) {
+ 	dbPath := filepath.Join(t.TempDir(), "data.db")
+ 	s, err := Open(dbPath)
+# library-only generated: internal/mcp/recipe_intents.go ; fresh-only: cmd/splitwise-pp-mcp/http_auth_test.go

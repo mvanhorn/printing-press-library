@@ -4,8 +4,11 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"strings"
 
@@ -19,17 +22,31 @@ import (
 // The flag surface lets one binary serve stdio locally and streamable HTTP
 // when hosted in a container or remote sandbox, matching the Anthropic
 // guidance that production agents need a remote option.
+//
+// HTTP is never an unauthenticated open door: --transport http refuses to
+// start without SPLITWISE_MCP_HTTP_TOKEN, rejects callers that omit
+// a matching Authorization: Bearer header, and requires --tls-cert/--tls-key
+// for any non-loopback bind. An empty host from :PORT binds every interface
+// and does not qualify as loopback. Named hosts (including localhost) are
+// loopback only when every resolved address is loopback, and the listener
+// is then pinned to that IP so a later lookup cannot leave loopback.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
+	httpTokenEnvVar = "SPLITWISE_MCP_HTTP_TOKEN"
 )
 
 func main() {
-	buildVersion := cli.Version()
-
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	_ = os.Setenv("SPLITWISE_LEARN_SURFACE", "mcp")
+	if err := cli.BindMCPServerProfile(); err != nil {
+		fmt.Fprintf(os.Stderr, "MCP client-profile bind failed: %v\n", err)
+		os.Exit(1)
+	}
 	s := server.NewMCPServer(
 		"Splitwise",
-		buildVersion,
+		cli.Version(),
 		server.WithToolCapabilities(false),
 	)
 
@@ -37,22 +54,43 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	tlsCert := flag.String("tls-cert", "", "TLS certificate file; required with --tls-key for any non-loopback --addr")
+	tlsKey := flag.String("tls-key", "", "TLS private key file; required with --tls-cert for any non-loopback --addr")
 	flag.Parse()
 
-	// Startup banner to stderr so the host's MCP log identifies the running build.
-	resolvedTransport := strings.ToLower(*transport)
-	fmt.Fprintln(os.Stderr, startupBanner(buildVersion, resolvedTransport))
-
-	switch resolvedTransport {
+	switch strings.ToLower(*transport) {
 	case "stdio":
 		if err := server.ServeStdio(s); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
-		fmt.Fprintf(os.Stderr, "splitwise-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		token, err := requireHTTPCallerToken()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(1)
+		}
+		bindAddr, loopback := classifyHTTPBind(*addr)
+		if err := requireTLSForNonLoopback(*addr, loopback, *tlsCert, *tlsKey); err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(1)
+		}
+		if (*tlsCert != "") != (*tlsKey != "") {
+			fmt.Fprintf(os.Stderr, "MCP server error: both --tls-cert and --tls-key are required for TLS\n")
+			os.Exit(1)
+		}
+		inner := server.NewStreamableHTTPServer(s)
+		httpSrv := &http.Server{
+			Addr:    bindAddr,
+			Handler: requireBearerAuth(token, inner),
+		}
+		fmt.Fprintf(os.Stderr, "splitwise-pp-mcp serving MCP over streamable HTTP at %s (Authorization: Bearer $%s)\n", bindAddr, httpTokenEnvVar)
+		if *tlsCert != "" {
+			err = httpSrv.ListenAndServeTLS(*tlsCert, *tlsKey)
+		} else {
+			err = httpSrv.ListenAndServe()
+		}
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -60,13 +98,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
-}
-
-// startupBanner is the one line the MCP server writes to stderr on load. It lands
-// in the host's MCP log (e.g. Claude Desktop) and identifies exactly which build
-// is running.
-func startupBanner(version, transport string) string {
-	return fmt.Sprintf("splitwise-pp-mcp %s starting (transport=%s)", version, transport)
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back
@@ -78,4 +109,77 @@ func defaultTransport() string {
 		return t
 	}
 	return "stdio"
+}
+
+func requireHTTPCallerToken() (string, error) {
+	token := strings.TrimSpace(os.Getenv(httpTokenEnvVar))
+	if token == "" {
+		return "", fmt.Errorf("%s must be set to a non-empty bearer token before starting --transport http", httpTokenEnvVar)
+	}
+	return token, nil
+}
+
+func classifyHTTPBind(addr string) (string, bool) {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil || host == "" {
+		return addr, false
+	}
+	if ip := net.ParseIP(host); ip != nil {
+		return addr, ip.IsLoopback()
+	}
+	// Names such as localhost are loopback only when every resolved
+	// address is loopback. Pin the listener to that IP so a later
+	// ListenAndServe lookup cannot bind a remapped non-loopback host.
+	ips, err := net.LookupIP(host)
+	if err != nil || len(ips) == 0 {
+		return addr, false
+	}
+	var chosen net.IP
+	for _, ip := range ips {
+		if !ip.IsLoopback() {
+			return addr, false
+		}
+		if chosen == nil || ip.To4() != nil {
+			chosen = ip
+		}
+	}
+	return net.JoinHostPort(chosen.String(), port), true
+}
+
+func httpBindIsLoopback(addr string) bool {
+	_, loopback := classifyHTTPBind(addr)
+	return loopback
+}
+
+func requireTLSForNonLoopback(addr string, loopback bool, certFile, keyFile string) error {
+	if loopback {
+		return nil
+	}
+	if certFile == "" || keyFile == "" {
+		return fmt.Errorf("non-loopback --addr %q requires --tls-cert and --tls-key; plaintext HTTP is only allowed on loopback", addr)
+	}
+	return nil
+}
+
+func requireBearerAuth(expected string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !bearerTokenMatches(r.Header.Get("Authorization"), expected) {
+			w.Header().Set("WWW-Authenticate", `Bearer realm="mcp"`)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func bearerTokenMatches(header, expected string) bool {
+	const prefix = "Bearer "
+	if expected == "" || !strings.HasPrefix(header, prefix) {
+		return false
+	}
+	got := strings.TrimSpace(header[len(prefix):])
+	if got == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(got), []byte(expected)) == 1
 }

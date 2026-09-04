@@ -32,7 +32,7 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/update_user/{id}"
-			if len(args) < 1 {
+			if len(args) < 1 || args[0] == "" {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
@@ -51,31 +51,32 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyDefaultCurrency != "" {
-				body["default_currency"] = bodyDefaultCurrency
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("default-currency") || bodyDefaultCurrency != "" {
+				bodyMap["default_currency"] = bodyDefaultCurrency
 			}
-			if bodyEmail != "" {
-				body["email"] = bodyEmail
+			if cmd.Flags().Changed("email") || bodyEmail != "" {
+				bodyMap["email"] = bodyEmail
 			}
-			if bodyFirstName != "" {
-				body["first_name"] = bodyFirstName
+			if cmd.Flags().Changed("first-name") || bodyFirstName != "" {
+				bodyMap["first_name"] = bodyFirstName
 			}
-			if bodyLastName != "" {
-				body["last_name"] = bodyLastName
+			if cmd.Flags().Changed("last-name") || bodyLastName != "" {
+				bodyMap["last_name"] = bodyLastName
 			}
-			if bodyLocale != "" {
-				body["locale"] = bodyLocale
+			if cmd.Flags().Changed("locale") || bodyLocale != "" {
+				bodyMap["locale"] = bodyLocale
 			}
-			if bodyPassword != "" {
-				body["password"] = bodyPassword
+			if cmd.Flags().Changed("password") || bodyPassword != "" {
+				bodyMap["password"] = bodyPassword
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
@@ -83,6 +84,7 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
 				writeMutationResponseToStore(cmd.Context(), "update-user", data, "")
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -90,9 +92,9 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -106,9 +108,13 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -116,7 +122,7 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -126,7 +132,11 @@ func newUpdateUserPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"email": true, "first_name": true, "id": true, "last_name": true, "registration_status": true})
 		},
 	}
 	cmd.Flags().StringVar(&bodyDefaultCurrency, "default-currency", "", "Default currency")

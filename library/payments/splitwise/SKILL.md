@@ -1,6 +1,6 @@
 ---
 name: pp-splitwise
-description: "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics Trigger phrases: `what do I owe on splitwise`, `who owes me money`, `split this expense`, `settle up the trip`, `how much did we spend on food`, `use splitwise`, `run splitwise`."
+description: "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has. Trigger phrases: `what do I owe on splitwise`, `who owes me money`, `split this expense`, `settle up the trip`, `how much did we spend on food`, `use splitwise`, `run splitwise`."
 author: "Vinny Pasceri"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -10,10 +10,6 @@ metadata:
     requires:
       bins:
         - splitwise-pp-cli
-    install:
-      - kind: go
-        bins: [splitwise-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/payments/splitwise/cmd/splitwise-pp-cli
 ---
 
 # Splitwise — Printing Press CLI
@@ -29,172 +25,79 @@ This skill drives the `splitwise-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `splitwise-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/payments/splitwise/cmd/splitwise-pp-cli@latest
-```
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+splitwise-pp-cli wraps the full Splitwise API — expenses, groups, friends, comments, settle-ups — and keeps a local copy of your whole ledger. That local store powers a net `balances` view, `debts --aged` (who never pays you back), `spend` rollups by category or month, offline `search`, a group `ledger` with running balances, `fairness` and `net` for who's carrying cost and how balances collapse across groups, and a `settle-up` plan that minimizes transfers. `brief` gives an agent one bounded state digest, and `reconcile` verifies the local store still matches Splitwise before you trust any of it. Fuzzy name resolution means you never paste a numeric ID.
+
 ## When to Use This CLI
 
-Reach for splitwise-pp-cli when a task involves shared expenses, group trips, roommate bills, or settling up — logging an expense, checking who owes whom, rolling up spend by category, finding a past expense, or computing a settle-up plan. It is the right tool when you want offline analytics over a Splitwise account or scriptable expense automation, not a one-off live lookup.
+Reach for splitwise-pp-cli when a task involves shared expenses, group trips, roommate bills, or settling up — logging an expense, checking who owes whom, aging a stale debt, rolling up spend by category, finding a past expense, checking who's carrying more than their share, or computing a settle-up plan. It is the right tool when you want offline analytics or a verified local copy of a Splitwise account, not a one-off live lookup. Under --agent every command wraps its payload as {"meta": {...}, "results": ...}; --json returns the bare payload.
+
+## Anti-triggers
+
+Do not use this CLI for:
+- do not use for live FX conversion — normalize takes user-supplied rates
+- do not use to pay anyone — it records settlements in Splitwise only
+- do not use for multi-user OAuth apps — the CLI authenticates as a single user with a personal API key
+- do not use for real-time push notifications — sync and reconcile are both pull-based, not a live feed
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
-### Balances at a glance
+### Money state that compounds locally
 - **`balances`** — See everything you owe and are owed across every friend and group in one net-position view.
 
-  _Reach for this instead of N get_groups + get_friends calls when an agent needs the user's overall money position._
+  _Reach for this instead of separate get-groups + get-friends calls when an agent needs the user's overall money position._
 
   ```bash
-  splitwise-pp-cli balances --agent
-  ```
-
-  Add `--by-group` to break your net position out **per group** (one row per group per currency, biggest absolute balance first) instead of per friend — answers "what's my outstanding balance by group?" directly from the synced store:
-
-  ```bash
-  splitwise-pp-cli balances --by-group --agent
+  splitwise-pp-cli balances --by-currency --agent
   ```
 - **`debts`** — List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.
 
-  _Use when the task is 'who never pays me back' or chasing stale IOUs._
+  _Use when the task is 'who never pays me back' or chasing stale IOUs, not just the current balance._
 
   ```bash
   splitwise-pp-cli debts --aged --agent
   ```
+- **`net`** — Collapse a person's balance across every group and non-group expense into the minimum set of real-world transfers.
+
+  _Use when one person's balance is scattered across multiple groups and one-off expenses and you want the fewest real transfers, not a per-group snapshot._
+
+  ```bash
+  splitwise-pp-cli net --agent
+  ```
 - **`ledger`** — Every expense in a group, in date order, with a cumulative running balance per member.
 
-  _Use to audit how a group's balances got to where they are, not just the snapshot._
+  _Use to audit how a group's balances got to where they are, not just the snapshot. Add --friend to replay one person across every group instead of one group's members._
 
   ```bash
   splitwise-pp-cli ledger "Tahoe Trip" --agent
   ```
+- **`balances`** — See one row per group per currency for every non-zero balance, without the noise of settled groups.
 
-### Offline spend intelligence
-- **`spend`** — Total shared spend broken down by category, group, or month from your synced history.
-
-  _Use for any 'how much did we spend on X' question instead of paging the whole expense list._
+  _Use when the question is scoped to 'which groups do I still owe in', not the single net number._
 
   ```bash
-  splitwise-pp-cli spend --group-by category --agent
-  ```
-- **`search`** — Full-text search across your entire expense history, comments, and group/friend names — offline.
-
-  _Use to find a specific past expense by keyword without paging the API._
-
-  ```bash
-  splitwise-pp-cli search "ramen" --agent
-  ```
-- **`recurring`** — Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a month missing an expected entry.
-
-  _Use to catch a shared monthly bill nobody remembered to log this cycle._
-
-  ```bash
-  splitwise-pp-cli recurring --agent
+  splitwise-pp-cli balances --by-group --agent
   ```
 
-### Upcoming-obligations forecast
-- **`forecast`** — Project your next shared obligations from recurring spending patterns over your synced history. Clusters expenses by normalized description, finds the ones with a regular cadence (>= 3 dated occurrences, mean cadence 2-400 days, largest gap <= 3x the smallest), and projects the next expected date and amount. Returns charges whose next occurrence falls inside the window (default 35 days) or is already overdue, sorted by expected date.
-  Reads from your synced local store; on large accounts, results can be incomplete until a full sync.
+### Settle and record safely
+- **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments (print-only by default; --record writes real payment expenses to your Splitwise account).
 
-  _Use to answer "what shared bills are coming up?" or "what should I budget for next month?" — and to catch a regular charge that's overdue and hasn't been logged yet._
-
-  ```bash
-  splitwise-pp-cli forecast --agent
-  splitwise-pp-cli forecast --days 60 --limit 20 --json
-  ```
-
-  Output shape (`--agent` / `--json`):
-
-  ```json
-  {
-    "as_of": "2026-05-30",
-    "window_days": 35,
-    "upcoming": [
-      {
-        "description": "Rent",
-        "group": "Roommates",
-        "last_date": "2026-05-01",
-        "expected_date": "2026-06-01",
-        "expected_amount": 1850.00,
-        "cadence_days": 30,
-        "occurrences": 6,
-        "overdue": false
-      }
-    ]
-  }
-  ```
-
-  Payments and settlement rows (`settle all balances`, `settle up`, `payment`, `paid via …`) are excluded. Read-only; never posts.
-
-### Multi-currency normalization
-- **`normalize`** — Normalize multi-currency net position and spend into one base currency using user-supplied offline FX rates (`--rate` / `--rates-file`); historical/automatic FX lookup is intentionally out of scope.
-
-  _Use to compare or total spend across trips in different currencies — supply the rates and get one base-currency number; a currency with no rate is surfaced as unconverted, never silently dropped._
-
-  ```bash
-  splitwise-pp-cli normalize --base USD --rate EUR=1.08 --agent
-  ```
-
-### Trip & period reports
-- **`report`** — Export an offline trip/period spend report as Markdown, CSV, or JSON. Single-currency only: defaults to the most common filtered currency, excludes other currencies with an explicit excluded count, and supports `--currency` to pin one. PDF is intentionally out of scope in v1.
-
-  Output shape (`--agent` / `--json`):
-
-  ```json
-  {
-    "scope": "group:Tahoe Trip",
-    "currency": "USD",
-    "period_start": "2025-01-10",
-    "period_end": "2025-02-01",
-    "expense_count": 12,
-    "excluded_other_currency": 0,
-    "total_cost": 1840.00,
-    "your_paid": 920.00,
-    "your_owed": 613.33,
-    "your_net": 306.67,
-    "people": [
-      { "user_id": 1, "name": "You", "paid": 920.00, "owed": 613.33, "net": 306.67 }
-    ],
-    "categories": [
-      { "name": "Lodging", "total": 1200.00, "count": 2 }
-    ],
-    "expenses": [
-      { "id": 9001, "date": "2025-01-10", "description": "Cabin", "cost": 1200.00, "currency_code": "USD", "payer": "You" }
-    ],
-    "truncated": false
-  }
-  ```
-
-  Payment and deleted rows are excluded. Single-currency: other-currency expenses are excluded and counted in `excluded_other_currency`. Read-only; never posts.
-
-### Fairness & collection risk
-- **`fairness`** — Score who carries the group, who's a collection risk, and who to chase or write off — offline, from your synced history.
-
-  _Turns "who still owes me, and will I ever see it" into an action list: nudge, chase, or write off (debt that is old **and** gone quiet). `--by contribution` shows who fronts cash vs. free-rides; `--by collectability` ranks by debt age and settle latency. New group members with no history are surfaced separately, never flagged as risks._
-
-  ```bash
-  splitwise-pp-cli fairness --by risk --agent
-  ```
-
-### Reconcile and settle
-- **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
-
-  _Use when a group wants the fewest Venmo transfers to get everyone to zero._
+  _Use when a group wants the fewest transfers to get everyone to zero, previewed before anything is recorded._
 
   ```bash
   splitwise-pp-cli settle-up "Tahoe Trip" --agent
   ```
-- **`activity`** — Show what changed since your last sync — new, edited, and deleted expenses to review.
+- **`audit`** — Catch duplicate settlement rows and abnormal expense amounts before you trust a settle-up plan.
 
-  _Use to reconcile recent account activity before settling or reporting._
+  _Run this before settle-up or report so a duplicate settlement or an outlier expense doesn't get baked into a transfer plan._
 
   ```bash
-  splitwise-pp-cli activity --agent
+  splitwise-pp-cli audit --since 90d --agent
   ```
 - **`split`** — Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it.
 
@@ -203,23 +106,79 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   splitwise-pp-cli split "Tahoe Trip" --amount 84 --equal --agent
   ```
+- **`fairness nudge`** — Post a payment reminder as a comment on the actual open expense thread, previewed before it sends (print-only by default; --send posts a real comment your friend will see).
 
-### Cross-group netting
-- **`net`** — Net what you owe and are owed across every group and non-group into the fewest direct transfers to settle your entire account.
-
-  _Use when you share groups with the same person and per-group settle-ups would mean paying them more than once — `net` collapses to one transfer per counterparty. Plan-only in v1; `--record` (auto-post the netted payments) is a planned future enhancement._
+  _Use to nudge one person about a specific unpaid expense instead of a generic message outside Splitwise._
 
   ```bash
-  splitwise-pp-cli net --agent
+  splitwise-pp-cli fairness nudge "Jordan"
+  ```
+- **`reconcile`** — Verify the local store actually matches Splitwise before you trust a settle-up or report (calls the live Splitwise API; needs SPLITWISE_API_KEY and network).
+
+  _Run this before a settle-up or report when a number looks wrong, or as a routine pre-settle check._
+
+  ```bash
+  splitwise-pp-cli reconcile --since 30d --agent
   ```
 
-### Data-quality audit
-- **`audit`** — Scan your synced expenses offline for likely duplicates (same description, cost, currency, date, and group) and per-category cost outliers (robust modified z-score using median/MAD; two-sided threshold |z| > 3.5, flagging items far above OR below the category median), grouped by finding type.
+### Analytics no endpoint offers
+- **`spend`** — Total shared spend broken down by category, group, or month from your synced history.
 
-  _Use before reporting or settling to catch double-entered charges (e.g. repeated "Settle all balances" rows) and surface unusually expensive or unusually cheap entries (likely data-quality errors) an agent or user should review. Read-only; never mutates. `--limit` caps findings per type (default 50)._
+  _Use for any 'how much did we spend on X' question instead of paging the whole expense list._
 
   ```bash
-  splitwise-pp-cli audit --agent
+  splitwise-pp-cli spend --group-by category --since 30d --agent
+  ```
+- **`fairness`** — See who's carrying more than their share of cost, and how likely a stale balance is to actually get paid.
+
+  _Use when the question is who's owed the most relative to what they've paid, not just the raw balance._
+
+  ```bash
+  splitwise-pp-cli fairness --by collectability --agent
+  ```
+- **`report`** — Turn synced trip or period spend into a shareable summary plus per-person and per-category export.
+
+  _Use for an end-of-trip or end-of-month writeup, or as a generic JSON/CSV sink into an external workflow tool._
+
+  ```bash
+  splitwise-pp-cli report --group "Tahoe Trip" --format md
+  ```
+- **`recurring`** — Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a cycle missing an expected entry.
+
+  _Use to catch a shared monthly bill nobody remembered to log this cycle._
+
+  ```bash
+  splitwise-pp-cli recurring --agent
+  ```
+- **`forecast`** — See what shared bills are expected next, projected from your recurring-expense history.
+
+  _Use for 'what's coming up' instead of recurring, which only detects the pattern of bills already logged._
+
+  ```bash
+  splitwise-pp-cli forecast --agent
+  ```
+- **`normalize`** — Express multi-currency spend in one base currency, using rates you supply, with anything unconverted called out honestly.
+
+  _Use when spend spans more than one currency and you want one honest number, not a silently-dropped or auto-converted total._
+
+  ```bash
+  splitwise-pp-cli normalize --base USD --rate EUR=1.08 --agent
+  ```
+
+### Agent-native plumbing
+- **`brief`** — Get one compact digest of net position, the stalest debts, and what changed since last sync in a single call.
+
+  _Reach for this first at the start of a session instead of three separate calls; use balances, debts --aged, or activity directly when you need the full detail behind one of these numbers._
+
+  ```bash
+  splitwise-pp-cli brief --agent --compact
+  ```
+- **`activity`** — Show what changed since your last sync — new, edited, and deleted expenses to review.
+
+  _Use to reconcile recent account activity before settling or reporting._
+
+  ```bash
+  splitwise-pp-cli activity --agent
   ```
 
 ## Command Reference
@@ -333,6 +292,47 @@ These capabilities aren't available in any other tool for this API.
 - `splitwise-pp-cli update-user <id>` — Update a user
 
 
+## Freshness Contract
+
+This printed CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, those paths check `sync_state` and may run a bounded refresh before reading local data. `--data-source local` never refreshes. `--data-source live` reads the API and does not mutate the local store. Set `SPLITWISE_NO_AUTO_REFRESH=1` to skip the freshness hook without changing source selection.
+
+Covered paths:
+
+- `splitwise-pp-cli get-categories`
+- `splitwise-pp-cli get-categories get`
+- `splitwise-pp-cli get-categories list`
+- `splitwise-pp-cli get-categories search`
+- `splitwise-pp-cli get-comments`
+- `splitwise-pp-cli get-comments get`
+- `splitwise-pp-cli get-comments list`
+- `splitwise-pp-cli get-comments search`
+- `splitwise-pp-cli get-currencies`
+- `splitwise-pp-cli get-currencies get`
+- `splitwise-pp-cli get-currencies list`
+- `splitwise-pp-cli get-currencies search`
+- `splitwise-pp-cli get-current-user`
+- `splitwise-pp-cli get-current-user get`
+- `splitwise-pp-cli get-current-user list`
+- `splitwise-pp-cli get-current-user search`
+- `splitwise-pp-cli get-expenses`
+- `splitwise-pp-cli get-expenses get`
+- `splitwise-pp-cli get-expenses list`
+- `splitwise-pp-cli get-expenses search`
+- `splitwise-pp-cli get-friends`
+- `splitwise-pp-cli get-friends get`
+- `splitwise-pp-cli get-friends list`
+- `splitwise-pp-cli get-friends search`
+- `splitwise-pp-cli get-groups`
+- `splitwise-pp-cli get-groups get`
+- `splitwise-pp-cli get-groups list`
+- `splitwise-pp-cli get-groups search`
+- `splitwise-pp-cli get-notifications`
+- `splitwise-pp-cli get-notifications get`
+- `splitwise-pp-cli get-notifications list`
+- `splitwise-pp-cli get-notifications search`
+
+When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
+
 ### Finding the right command
 
 When you know what you want to do but not which command does it, ask the CLI directly:
@@ -341,126 +341,9 @@ When you know what you want to do but not which command does it, ask the CLI dir
 splitwise-pp-cli which "<capability in your own words>"
 ```
 
-`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
+`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query. `--json` (and other machine formats) keep that exit-2 contract and write `{"matches":[]}` on stdout so agents can inspect the envelope without treating a miss as success.
 
 ## Recipes
-
-### Settle the whole network in the fewest transfers — `net`
-
-**One payment list that zeroes out everyone — across every group and non-group debt at once:**
-
-```bash
-splitwise-pp-cli net
-```
-
-Nets each friend's balances (cancelling A→B→C→A cycles) into the minimum set of real-world transfers, separated per currency, and reports how many transfers it saved vs. settling each group on its own. Add `--agent` for JSON.
-
-### Catch bad data before you settle — `audit`
-
-**Find likely duplicate expenses and per-category cost outliers:**
-
-```bash
-splitwise-pp-cli audit
-```
-
-Flags repeated near-identical expenses (same description, cost, date, currency, and group) and expenses far from their category baseline (either unusually expensive or unusually cheap) using a robust median/MAD score. Use `--limit N` to cap findings per type, `--agent` for JSON.
-
-### See what's coming — `forecast`
-
-**Project next month's recurring shared obligations:**
-
-```bash
-splitwise-pp-cli forecast
-```
-
-Detects regular charges (rent, utilities, subscriptions) from your synced history and projects the upcoming ones, flagging anything overdue or due soon. Set the window with `--days N` (default 35), add `--agent` for JSON.
-
-### Normalize multi-currency spend — `normalize`
-
-Convert mixed-currency balances/spend into one base currency with deterministic, user-supplied rates.
-
-```bash
-splitwise-pp-cli normalize --base USD --rate EUR=1.08 --rate GBP=1.27
-```
-
-Add `--agent` for JSON output in automation flows. A currency with no `--rate` is listed as unconverted (not mixed into the total); pin rates with repeated `--rate CUR=FACTOR` or a `--rates-file`.
-
-### Export a trip/period report — `report`
-
-Build a deterministic offline report from synced expenses for a trip/group or date window.
-
-```bash
-splitwise-pp-cli report --group "Tahoe Trip" --format md
-splitwise-pp-cli report --since 2025-01-01 --until 2025-12-31 --format csv > 2025.csv
-splitwise-pp-cli report --agent
-```
-
-### Collect what you're owed — the `fairness` cookbook
-
-`fairness` turns your synced ledger into an action list. Default lens is **risk** (who to chase, worst first).
-
-**Who should I chase, and what should I just write off?**
-
-```bash
-splitwise-pp-cli fairness --by risk
-```
-
-Ranks everyone who owes you by a 0–100 collection-risk score with a per-row action: 🟢 on track · 🟡 nudge · 🟠 chase · 🔴 write-off (old **and** gone quiet). The footer totals at-risk vs. write-off dollars.
-
-**Who carries the group (fronts cash) vs. who free-rides?**
-
-```bash
-splitwise-pp-cli fairness --by contribution
-```
-
-Per person: paid, owed, net, carry-ratio, and a carrier/even/rider role. Informational — Splitwise settles regardless of who pays, so this is for when you still care who fronts the money.
-
-**Who's slow to settle / a live collection risk?**
-
-```bash
-splitwise-pp-cli fairness --by collectability
-```
-
-Sorted by debt age, with average settle latency and days since they last settled; `--by collectability` now also shows a projected settle date (raw `projected_days_out` in JSON).
-
-**Scope to one friend, or one group/trip:**
-
-```bash
-splitwise-pp-cli fairness --friend "Alex"
-splitwise-pp-cli fairness --group "Tahoe Trip"
-```
-
-**Agent mode — the action list as JSON (raw day-counts for your own math):**
-
-```bash
-splitwise-pp-cli fairness --by risk --agent
-```
-
-Human tables print ages as `4y 3mo 8d`; JSON keeps raw `*_days` integers so tools convert themselves.
-
-**Tune the write-off threshold** (default: 365 days old + 180 days silent):
-
-```bash
-splitwise-pp-cli fairness --by risk --write-off-days 730 --ghost-days 90
-```
-
-### Nudge a friend to pay — `fairness nudge`
-
-Splitwise has no send-reminder endpoint, so this command posts a comment on a shared unsettled expense; Splitwise then notifies participants per their own notification settings.
-
-Preview only by default:
-
-```bash
-splitwise-pp-cli fairness nudge "Alex"
-```
-
-Actually post the reminder comment:
-
-```bash
-splitwise-pp-cli fairness nudge "Alex" --send
-```
-
-Optional flags: `--message` to override reminder text, `--expense-id` to force a specific expense, and `--send` to post (otherwise preview only). Reachability caveat: this CLI's synced `Friend` shape does not include email/registration status, so v1 does not pre-gate on confirmed-account status.
 
 ### Net position for an agent
 
@@ -470,23 +353,29 @@ splitwise-pp-cli balances --agent --select by_currency
 
 Returns just the headline numbers an agent needs to report the user's overall money position.
 
-### Inspect a group's members and debts (narrow a verbose payload)
+### Inspect a group's members and balances (narrow a verbose payload)
 
 ```bash
-splitwise-pp-cli get-groups --agent --select groups.name,groups.members.first_name,groups.simplified_debts.amount
+splitwise-pp-cli get-groups --agent --select name,members.first_name,members.balance.amount
 ```
 
-get-groups returns deeply nested members + balance arrays; --select keeps only the fields you need so an agent doesn't burn context on the full payload.
+get-groups returns deeply nested members and balance arrays; --select with dotted paths keeps only the fields you need so an agent doesn't burn context on the full payload.
 
-### Find a forgotten expense
+### Verify the local store before trusting it
 
 ```bash
-splitwise-pp-cli search "airbnb" --limit 10
-splitwise-pp-cli search "sushi" --fuzzy        # typo-tolerant
-splitwise-pp-cli search "hotel" --type get-expenses
+splitwise-pp-cli reconcile --since 30d --agent
 ```
 
-Word-boundary search across the meaningful text of your synced history (descriptions, member and group names, categories). Add `--fuzzy` for typo tolerance, or `--type <resource>` to scope to one resource type.
+Diffs the local store against live get_expenses and reports anything missing, stale, or deleted remotely before you build a settle-up or report on it.
+
+### One-shot agent state check
+
+```bash
+splitwise-pp-cli brief --agent --compact
+```
+
+Returns net position, the stalest debts, and recent activity in one bounded call instead of three separate fan-out calls.
 
 ### Plan the fewest transfers to settle a trip
 
@@ -496,25 +385,49 @@ splitwise-pp-cli settle-up "Tahoe Trip"
 
 Prints the minimum-transfer settle-up plan; add --record to create the payment expenses.
 
+### Who is carrying the cost in a group
+
+```bash
+splitwise-pp-cli fairness --by contribution --group "Tahoe Trip" --agent
+```
+
+Classifies each member as carrier or rider from paid vs owed shares; --by risk and --by collectability switch lenses. The --agent output is wrapped as {meta, results}.
+
+### Turn a friend, group, or category name into its id
+
+```bash
+splitwise-pp-cli resolve "Alex Kim" --type friend --agent
+```
+
+Use resolve whenever you need an id for a name: it matches the local store (no network) and returns the candidate records. Do not page through get-friends or get-groups and grep for a name; resolve is the id lookup.
+
 ## Auth Setup
 
-Splitwise authenticates with a personal API key used as an HTTP Bearer token. Register an app at https://secure.splitwise.com/apps to get your key, then set SPLITWISE_API_KEY. OAuth 2.0 (authorization-code) is also supported for multi-user apps, but a personal API key is the fastest path for a power-user CLI.
+Splitwise authenticates with a personal API key used as an HTTP Bearer token. Register an app at https://secure.splitwise.com/apps to get your key, then set SPLITWISE_API_KEY. The Splitwise API also offers OAuth 2.0 (authorization-code) for multi-user apps, but this CLI authenticates as a single user with a personal API key only — there is no OAuth login flow in the binary.
 
 Run `splitwise-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 
-Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color`.
+
+Global format flags share one contract on promoted, novel, sync, and `--deliver` paths:
+
+- `--json` — one JSON document on stdout (sync progress events go to stderr)
+- `--compact` — keep identity/status/timestamp fields; does not change the document vs stream shape
+- `--csv` / `--plain` — tabular rows (collection envelopes unwrap to the row array)
+- `--quiet` — one identity value per row, no envelope
 
 - **Pipeable** — JSON on stdout, errors on stderr
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  splitwise-pp-cli get-categories --agent --select id,name,status
+  splitwise-pp-cli get-categories --agent
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
+- **Explicit confirmation** — `--agent` does not imply `--yes`; pass `--yes` separately only after the target, arguments, and side effects are clear
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success
 
 ### Response envelope
@@ -530,6 +443,225 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
+## Paths and state
+
+Agents should treat the CLI's path resolver as part of the runtime contract:
+
+- Use `--home <dir>` for one invocation, or set `SPLITWISE_HOME=<dir>` to relocate all four path kinds under one root.
+- Use per-kind env vars only when a specific kind must diverge: `SPLITWISE_CONFIG_DIR`, `SPLITWISE_DATA_DIR`, `SPLITWISE_STATE_DIR`, `SPLITWISE_CACHE_DIR`.
+- Resolution order is per-kind env var, `--home`, `SPLITWISE_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
+- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
+- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
+- Run `splitwise-pp-cli doctor --fail-on warn` to surface path and credential-location warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
+- For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
+
+  ```json
+  {
+    "mcpServers": {
+      "splitwise": {
+        "command": "splitwise-pp-mcp",
+        "env": {
+          "SPLITWISE_HOME": "/srv/splitwise"
+        }
+      }
+    }
+  }
+  ```
+
+Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `SPLITWISE_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `SPLITWISE_HOME`, or `doctor` will not find credentials left under the former root.
+
+## Automatic learning
+
+This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping: every invocation is journaled locally, a failed flag followed by a corrected retry auto-derives a `flag_alias` candidate, and a `teach` on a query family without a playbook auto-synthesizes a `playbook_candidate` from the session's journal. Your job is judgment only: `recall` first, act on surfaced candidates, `teach` the final answer, `playbook amend` when you observe a correction. You never record failures by hand.
+
+### Step 1: `recall` before any discovery
+
+Before list/search/drill commands on a new user question, run:
+
+```bash
+splitwise-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "<normalized form>",
+  "query_entities": ["..."],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ],
+  "candidates": [
+    { "id": 12, "class": "flag_alias | playbook_candidate",
+      "summary": "...", "sightings": 3, "last_seen": "...",
+      "rationale": "...",
+      "next_action": ["<trial command>", "splitwise-pp-cli learnings confirm 12"] }
+  ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "<command with {slot} substitution>", "purpose": "..." } ],
+      "entity_slots": ["$ENTITY"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$ENTITY": { "token": "<live token>", "canonical": "<canonical>" } },
+    "notes": "<workarounds + gotchas for this query family>"
+  },
+  "notes": "<duplicate surface for non-playbook callers>"
+}
+```
+
+Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and `learnings list` and `learnings candidates` are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.
+
+### Step 2: decision tree
+
+Read `candidates`, `playbook`, `notes`, `results[0]`, and warnings in that order:
+
+```
+if Candidates present (warnings include "candidates_present"):
+    -> candidates are try-then-confirm, never facts. Follow each candidate's
+       two-step next_action verbatim: run the trial command first, then run
+       `learnings confirm <id>` only after the trial verified the behavior.
+       Reject a wrong candidate with `learnings reject <id>`.
+    -> NEVER re-teach something recall surfaced as a candidate; confirm or
+       reject that candidate instead of teaching a duplicate.
+    -> candidates ride alongside playbooks and resource hits, not instead of
+       them; continue with the branches below after acting on them.
+
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via `splitwise-pp-cli playbook amend`
+       at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (different canonical resolved from query_entities)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward (Step 4).
+       If the family has no playbook yet, that teach auto-synthesizes a
+       playbook candidate from this session's journal - you do not need to
+       record one by hand.
+```
+
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a `Results[]` hit - use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+Candidate judgment details: `learnings confirm <id>` prints the candidate's full payload before materializing it - check that the printed payload matches the behavior you verified. `learnings reject <id>` tombstones the derivation signature so the same candidate does not resurface. The envelope carries only the few candidates worth acting on now; `splitwise-pp-cli learnings candidates` lists the full open set.
+
+Graceful degradation: if `learnings confirm` is an unknown command, you are driving an older binary - ignore the candidates guidance and follow the rest of the protocol.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- `cross_alias_match` (per-result): the row was taught under a different alias and matched the live query's canonical via `entity_lookups` (e.g., a "USA" teach satisfying a "United States" recall). Trust the resource_id.
+- `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
+- `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
+- `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `splitwise-pp-cli sync` to refresh entity lookups.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response - always
+
+Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
+
+```bash
+splitwise-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
+
+PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning.
+
+### Step 5: playbooks - optional flags, automatic synthesis
+
+You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation:
+
+```bash
+# Common case: record both the resource learning AND the playbook in one call.
+splitwise-pp-cli teach \
+  --query "<user's question>" \
+  --resource <id> \
+  --playbook-file ~/playbooks/<shape>.json \
+  --playbook-notes-file ~/playbooks/<shape>-notes.md
+# (append shell `&` to background it)
+
+# Alternate: playbook-only (no resource to record alongside).
+splitwise-pp-cli teach-playbook \
+  --query "<user's question>" \
+  --playbook-file ~/playbooks/<shape>.json \
+  --notes-file ~/playbooks/<shape>-notes.md
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+splitwise-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+
+- A workaround for a CLI surface that silently drops or misorders a flag.
+- An undocumented endpoint shape (response wrapped in `{meta, results}`, payload nested two levels deeper than the docs claim).
+- Observed schema drift (a field renamed, an index that shifted between seasons, a category label that the API now returns lower-cased).
+
+What does NOT belong in notes:
+
+- The year-specific or entity-specific answer to the user's question. That's the response, not a learning.
+- Per-team / per-athlete / per-row data the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
+#### PII discipline for amend notes
+
+`playbook amend` notes are designed to potentially flow upstream as shared knowledge in future versions of the Printing Press. Keep them clean of user-identifying content so the upstream-contribution path stays open without retroactive scrubbing:
+
+- **Do NOT embed** paths to user filesystems, personal API keys or tokens, user email addresses, user GitHub handles, or specific query histories tied to a single user.
+- **Acceptable**: endpoint shapes, undocumented field names, API gotchas, observed schema drift, workarounds for CLI surfaces, generalizable pagination or retry tactics.
+
+If a correction is only meaningful with user-specific context, it belongs in a personal note, not in the playbook amend.
+
+### Measuring the loop
+
+`splitwise-pp-cli learnings stats` reports recall hit rate, teach-to-reuse, playbook resolution rate, and candidate confirm/reject counts from the local `learn_events` table. Rates are null until they have a denominator; everything stays on this machine. Use it to check whether the loop is earning its keep for this CLI.
+
+### Disabling learning
+
+- `--no-learn` on a single command short-circuits both `recall` and the `teach` write path. Use for deterministic agent flows or tests that must not be affected by accumulated learnings.
+- `SPLITWISE_NO_LEARN=true` in the environment globally disables the pipeline.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:
@@ -540,7 +672,7 @@ splitwise-pp-cli feedback --stdin < notes.txt
 splitwise-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.local/share/splitwise-pp-cli/feedback.jsonl`. They are never POSTed unless `SPLITWISE_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SPLITWISE_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally as `feedback.jsonl` under the resolved data dir. They are never POSTed unless `SPLITWISE_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SPLITWISE_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -551,14 +683,14 @@ Every command accepts `--deliver <sink>`. The output goes to the named sink in a
 | Sink | Effect |
 |------|--------|
 | `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
-| `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
+| `file:<path>` | Atomically write output to `<path>` (tmp + rename). Binary-response commands write decoded payload bytes (not the base64 JSON envelope) and print a small JSON receipt on stdout; `--json`/`--csv` do not refuse when this sink is set. |
+| `webhook:<url>` | POST the output body to the URL (`application/json`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
 
 ## Named Profiles
 
-A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled or recurring agent reuses the same saved flags while providing different input each run.
 
 ```
 splitwise-pp-cli profile save briefing --json
@@ -592,15 +724,13 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-1. Install the MCP server:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/payments/splitwise/cmd/splitwise-pp-mcp@latest
-   ```
-2. Register with Claude Code:
-   ```bash
-   claude mcp add splitwise-pp-mcp -- splitwise-pp-mcp
-   ```
-3. Verify: `claude mcp list`
+Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
+
+```bash
+claude mcp add splitwise-pp-mcp -- splitwise-pp-mcp
+```
+
+Verify: `claude mcp list`
 
 ## Direct Use
 

@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
   "id": "balances-by-group",
-  "applied_at": "2026-05-30",
-  "base_run_id": "20260528-002755",
-  "base_printing_press_version": "4.19.0",
+  "applied_at": "2026-09-04",
+  "base_run_id": "20260903-215539-b484b7c9",
+  "base_printing_press_version": "4.31.6",
   "summary": "Add a --by-group flag to the balances command: the current user's net position per group (one row per group per currency, non-zero only, biggest absolute balance first) computed offline from synced group members.",
-  "reason": "balances only broke down per friend or per currency; there was no first-class 'outstanding balance by group' view, even though every synced group object carries members[].balance. Agent hosts had to hand-roll raw SQL (and one falsely concluded the store lacked per-group debt). Added a pure groupBalances(groups, currentUserID) helper plus the --by-group branch reusing loadGroups/loadCurrentUserID/emitStructured. The 'current user not synced' note is emitted before the structured-output early return so it reaches stderr in agent/JSON/pipe mode (otherwise an agent reading {\"by_group\":[]} had no signal that the empty result was due to an unknown identity rather than no balances).",
+  "reason": "balances only broke down per friend or per currency; there was no first-class 'outstanding balance by group' view, even though every synced group object carries members[].balance. Agent hosts had to hand-roll raw SQL (and one falsely concluded the store lacked per-group debt). A pure groupBalances(groups, currentUserID) helper (splitwise_balances_bygroup.go) plus the --by-group branch in balances.go reuse loadGroups/loadCurrentUserID/emitStructured. The 'current user not synced' note is emitted before the structured-output early return so it reaches stderr in agent/JSON/pipe mode (otherwise an agent reading {\"by_group\":[]} had no signal that the empty result was due to an unknown identity rather than no balances).",
   "files": [
     "internal/cli/splitwise_balances_bygroup.go",
     "internal/cli/splitwise_balances_bygroup_test.go",
     "internal/cli/splitwise_balances_bygroup_cmd_test.go",
-    "internal/cli/splitwise_balances.go",
+    "internal/cli/balances.go",
     "SKILL.md",
     "README.md"
   ],

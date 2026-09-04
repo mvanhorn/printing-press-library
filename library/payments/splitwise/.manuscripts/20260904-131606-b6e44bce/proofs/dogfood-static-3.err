@@ -1,0 +1,4 @@
+dogfood: using spec /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/spec.yaml (bundled)
+warning: request body for POST "/add_user_to_group" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/create_expense" contains oneOf/anyOf; emitting --body-json fallback
+dogfood: left unmodified internal/mcp/tools.go (command_mirror_capabilities); on-disk block differs from research.json

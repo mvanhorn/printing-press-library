@@ -19,6 +19,11 @@ import (
 func TestBalancesByGroupCommand(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
+	// Clear the XDG overrides too: DataDir/ConfigDir honour XDG_*_HOME before HOME, so an
+	// operator (or CI) sandbox in the environment would otherwise leak a shared store
+	// into this test.
+	t.Setenv("XDG_DATA_HOME", "")
+	t.Setenv("XDG_CONFIG_HOME", "")
 
 	dbPath := defaultDBPath("splitwise-pp-cli")
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
@@ -40,7 +45,7 @@ func TestBalancesByGroupCommand(t *testing.T) {
 	}
 
 	flags := &rootFlags{agent: true} // force the structured (JSON) output path
-	cmd := newBalancesCmd(flags)
+	cmd := newNovelBalancesCmd(flags)
 	var out, errBuf bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&errBuf)
@@ -86,6 +91,11 @@ func TestBalancesByGroupCommand(t *testing.T) {
 func TestBalancesByGroupUnsyncedUserNoteInAgentMode(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
+	// Clear the XDG overrides too: DataDir/ConfigDir honour XDG_*_HOME before HOME, so an
+	// operator (or CI) sandbox in the environment would otherwise leak a shared store
+	// into this test.
+	t.Setenv("XDG_DATA_HOME", "")
+	t.Setenv("XDG_CONFIG_HOME", "")
 
 	dbPath := defaultDBPath("splitwise-pp-cli")
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
@@ -104,7 +114,7 @@ func TestBalancesByGroupUnsyncedUserNoteInAgentMode(t *testing.T) {
 	}
 
 	flags := &rootFlags{agent: true} // structured output path
-	cmd := newBalancesCmd(flags)
+	cmd := newNovelBalancesCmd(flags)
 	var out, errBuf bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&errBuf)

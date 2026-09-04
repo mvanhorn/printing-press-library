@@ -1,0 +1,213 @@
+
+=== verify ===
+warning: request body for POST "/add_user_to_group" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/create_expense" contains oneOf/anyOf; emitting --body-json fallback
+Runtime Verification: /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/splitwise-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:tail             static       PASS   PASS     PASS     3/3
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+activity                       write        PASS   PASS     PASS     3/3
+add-user-to-group              write        PASS   PASS     FAIL     2/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+audit                          write        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+balances                       write        PASS   PASS     PASS     3/3
+brief                          write        PASS   PASS     PASS     3/3
+create-comment                 write        PASS   PASS     PASS     3/3
+create-expense                 write        PASS   PASS     FAIL     2/3
+create-friend                  write        PASS   PASS     PASS     3/3
+create-friends                 write        PASS   PASS     PASS     3/3
+create-group                   write        PASS   PASS     FAIL     2/3
+debts                          write        PASS   PASS     PASS     3/3
+delete-comment                 write        PASS   PASS     PASS     3/3
+delete-expense                 write        PASS   PASS     PASS     3/3
+delete-friend                  write        PASS   PASS     PASS     3/3
+delete-group                   write        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+fairness                       read         PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+forecast                       write        PASS   PASS     PASS     3/3
+get-categories                 read         PASS   PASS     PASS     3/3
+get-comments                   read         PASS   PASS     FAIL     2/3
+get-currencies                 read         PASS   PASS     PASS     3/3
+get-current-user               read         PASS   PASS     PASS     3/3
+get-expense                    read         PASS   PASS     PASS     3/3
+get-expenses                   read         PASS   PASS     FAIL     2/3
+get-friend                     read         PASS   PASS     PASS     3/3
+get-friends                    read         PASS   PASS     PASS     3/3
+get-group                      read         PASS   PASS     PASS     3/3
+get-groups                     read         PASS   PASS     PASS     3/3
+get-notifications              read         PASS   PASS     FAIL     2/3
+get-user                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     FAIL     2/3
+ledger                         read         PASS   PASS     PASS     3/3
+net                            write        PASS   PASS     PASS     3/3
+normalize                      write        PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     FAIL     2/3
+profile                        write        PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+reconcile                      read         PASS   PASS     FAIL     2/3
+recurring                      write        PASS   PASS     PASS     3/3
+remove-user-from-group         write        PASS   PASS     FAIL     2/3
+report                         read         PASS   PASS     PASS     3/3
+resolve                        write        PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+settle-up                      write        PASS   PASS     PASS     3/3
+spend                          write        PASS   PASS     PASS     3/3
+split                          write        PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+undelete-expense               write        PASS   PASS     PASS     3/3
+undelete-group                 write        PASS   PASS     PASS     3/3
+update-expense                 write        PASS   PASS     FAIL     2/3
+update-user                    write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       write        PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS fairness nudge
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (75/75 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=/Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/research/splitwise-spec-enriched.yaml overridden by bundled /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/spec.yaml
+warning: request body for POST "/add_user_to_group" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/create_expense" contains oneOf/anyOf; emitting --body-json fallback
+dogfood: left unmodified internal/mcp/tools.go (command_mirror_capabilities); on-disk block differs from research.json
+Dogfood Report: splitwise-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    1 dead (WARN)
+  - handleBinaryResponseDelivery (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    18/18 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 1 dead helper functions found
+
+=== workflow-verify ===
+Workflow Verification: splitwise-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== splitwise-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: splitwise
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 7/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      7/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              7/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               4/5
+
+  Total: 96/100 - Grade A (1 of 26 dimensions unverified: live_api_verification)
+  Note: omitted from denominator: mcp_surface_strategy, live_api_verification
+  Hold: unverified dimensions: live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh_fallback (same-name runnable binary is newer than Go sources)
+  Passed: 13/18  (72% pass rate, 0 skipped)
+  Failures:
+    - Settle-up plan: exit 3: 
+    - Trip/period report: exit 3: hint: local store has not been synced yet. Run 'splitwise-pp-cli sync' before trusting local results.
+Error: no group matches "Tahoe Trip"; run sync first
+    - Split calculator: exit 3: Error: no group matches "Tahoe Trip"; run sync first
+    - Fairness nudge: exit 3: Error: no friend matches "Jordan"; run sync first
+    - Store reconcile: exit 3: hint: local expense mirror is missing; run: splitwise-pp-cli sync --resources get-expenses --since 30d
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         16.847s
+  validate-narrative  PASS    0         225ms
+  dogfood           PASS    0         1.843s
+  workflow-verify   PASS    0         11ms
+  apify-audit       PASS    0         20ms
+  verify-skill      PASS    0         5.457s
+  scorecard         HOLD    3         824ms
+    hold: scorecard hold: unverified dimensions: live_api_verification
+
+Verdict: HOLD (unverified: 1/7 legs)

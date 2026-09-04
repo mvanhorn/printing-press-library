@@ -90,6 +90,36 @@ func TestComputeFairnessAnchors(t *testing.T) {
 			},
 		},
 		{
+			name: "A2 collectability totals sum the tiers it reports",
+			now:  time.Date(2026, 1, 10, 0, 0, 0, 0, time.UTC),
+			opts: fairnessOpts{by: "collectability", writeOffDays: 365, ghostDays: 180, minEpisodes: 1},
+			fn: func(t *testing.T, res fairnessResult) {
+				// Regression: at_risk_total / write_off_total were only rolled up for
+				// --by risk, so --by collectability emitted write_off_total: 0 beside
+				// people[] rows tagged risk_tier=write_off. The rollup must equal the
+				// sum of the tiers it reports.
+				wantAtRisk, wantWriteOff := 0.0, 0.0
+				for _, p := range res.People {
+					if p.OutstandingTotal <= 0 {
+						continue
+					}
+					wantAtRisk += p.OutstandingTotal
+					if p.RiskTier == "write_off" {
+						wantWriteOff += p.OutstandingTotal
+					}
+				}
+				if wantWriteOff != 100 {
+					t.Fatalf("fixture drift: expected Carol's 100 in the write_off tier, got %.2f", wantWriteOff)
+				}
+				if res.WriteOffTotal != round2(wantWriteOff) {
+					t.Fatalf("WriteOffTotal=%.2f, want %.2f (sum of write_off rows)", res.WriteOffTotal, wantWriteOff)
+				}
+				if res.AtRiskTotal != round2(wantAtRisk) {
+					t.Fatalf("AtRiskTotal=%.2f, want %.2f (sum of outstanding rows)", res.AtRiskTotal, wantAtRisk)
+				}
+			},
+		},
+		{
 			name: "B settled excluded from risk",
 			now:  time.Date(2025, 12, 25, 0, 0, 0, 0, time.UTC),
 			opts: fairnessOpts{by: "risk", writeOffDays: 365, ghostDays: 180, minEpisodes: 1},
@@ -292,6 +322,19 @@ func TestEpisodeMetricsTwoCycles(t *testing.T) {
 	}
 	if m.lastSettledDays == nil || *m.lastSettledDays <= 0 {
 		t.Fatalf("last settled=%v", m.lastSettledDays)
+	}
+}
+
+func TestAgedDebtEpisodeResetsAfterSettlement(t *testing.T) {
+	now := time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC)
+	events := []subjectEvent{
+		{date: mustDate(t, "2019-01-01")},
+		{date: mustDate(t, "2025-12-31"), payment: true},
+		{date: mustDate(t, "2026-08-01")},
+	}
+	got := episodeMetrics(now, events, 1)
+	if got.debtAgeDays == nil || *got.debtAgeDays != 31 {
+		t.Fatalf("debt age=%v, want 31 days from post-settlement expense", got.debtAgeDays)
 	}
 }
 

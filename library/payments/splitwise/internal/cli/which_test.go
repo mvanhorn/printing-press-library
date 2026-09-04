@@ -4,6 +4,8 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -38,6 +40,95 @@ func TestRankWhich_DescriptionMatch(t *testing.T) {
 	got := rankWhich(whichTestIndex, "bottlenecks", 3)
 	if len(got) == 0 || got[0].Entry.Command != "bottleneck" {
 		t.Errorf("expected bottleneck command as top match for bottlenecks query, got %+v", got)
+	}
+}
+
+func TestRankWhich_WhyItMattersMatch(t *testing.T) {
+	index := []whichEntry{
+		{
+			Command:      "students at-risk",
+			Description:  "List students",
+			WhyItMatters: "Use this for early-alert outreach; answer who is falling behind right now",
+		},
+		{
+			Command:     "students summary",
+			Description: "Summarize student status",
+		},
+	}
+	got := rankWhich(index, "who is falling behind", 1)
+	if len(got) != 1 || got[0].Entry.Command != "students at-risk" || got[0].Score <= 0 {
+		t.Fatalf("expected the why-it-matters entry as the top match, got %+v", got)
+	}
+}
+
+func TestRankWhich_GroupMatchRequiresWholeToken(t *testing.T) {
+	index := []whichEntry{
+		{
+			Command:     "risk",
+			Description: "Student risk",
+			Group:       "Local snapshots that compound",
+		},
+	}
+	got := rankWhich(index, "at", 1)
+	if len(got) != 0 {
+		t.Fatalf("substring-only group match should be discarded, got %+v", got)
+	}
+}
+
+func TestRankWhich_GroupCreditIsCapped(t *testing.T) {
+	index := []whichEntry{
+		{Command: "local", Group: "Local state"},
+	}
+	got := rankWhich(index, "local state", 1)
+	if len(got) != 1 || got[0].Score != 4 {
+		t.Fatalf("group match should add one point per entry, got %+v", got)
+	}
+}
+
+func TestRankWhich_DescriptionSubTokens(t *testing.T) {
+	index := []whichEntry{
+		{Command: "show", Description: "Grade-distribution"},
+	}
+	got := rankWhich(index, "distribution", 1)
+	if len(got) != 1 || got[0].Score != 3 {
+		t.Fatalf("hyphenated description token should receive substring and token credit, got %+v", got)
+	}
+}
+
+func TestRankWhich_ProseCreditDoesNotDoubleCount(t *testing.T) {
+	index := []whichEntry{
+		{Command: "grades distribution", Description: "Grade breakdown"},
+		{
+			Command:      "class overview",
+			Description:  "Summarize grade distribution report",
+			WhyItMatters: "Read the grade distribution report by class",
+		},
+	}
+	got := rankWhich(index, "grade distribution report", 1)
+	if len(got) != 1 || got[0].Entry.Command != "grades distribution" {
+		t.Fatalf("exact command match should outrank repeated prose, got %+v", got)
+	}
+}
+
+func TestRankWhich_IncidentalWhyItMattersTokenDoesNotAdmitEntry(t *testing.T) {
+	index := []whichEntry{
+		{Command: "risk", WhyItMatters: "Use this to help agents answer questions"},
+	}
+	got := rankWhich(index, "agents", 1)
+	if len(got) != 0 {
+		t.Fatalf("incidental rationale token should not create confidence, got %+v", got)
+	}
+}
+
+func TestRankWhich_WhyItMattersCreditDeduplicatesEquivalentTokens(t *testing.T) {
+	index := []whichEntry{
+		{Command: "risk", WhyItMatters: "Use this to coordinate repositories"},
+	}
+	for _, query := range []string{"repositories repositories", "repo repositories"} {
+		got := rankWhich(index, query, 1)
+		if len(got) != 0 {
+			t.Fatalf("duplicate rationale concepts should not create confidence for %q, got %+v", query, got)
+		}
 	}
 }
 
@@ -83,29 +174,111 @@ func TestRankWhich_NoMatchReturnsEmpty(t *testing.T) {
 	}
 }
 
+func TestWhichTokenMatch_DoesNotCrossResourceNames(t *testing.T) {
+	pairs := make([][2]string, 0, 2)
+	pairs = append(pairs, [2]string{"user", "usersettings"})
+	pairs = append(pairs, [2]string{"list", "listeners"})
+	for _, pair := range pairs {
+		if whichTokenMatch(pair[0], pair[1]) {
+			t.Fatalf("whichTokenMatch(%q, %q) must not use arbitrary prefixes", pair[0], pair[1])
+		}
+	}
+	if !whichTokenMatch("repositories", "repos") {
+		t.Fatal("known repository abbreviation should match")
+	}
+}
+
+func TestRankWhich_NestedResourceMatchSurvivesSpecificity(t *testing.T) {
+	index := make([]whichEntry, 0, 1)
+	index = append(index, whichEntry{Command: "projects tasks list-project", Description: "List project tasks"})
+	got := rankWhich(index, "tasks", 1)
+	if len(got) != 1 || got[0].Score <= 0 {
+		t.Fatalf("nested tasks command should remain a positive match, got %+v", got)
+	}
+}
+
+func TestRankWhich_WriteSynonymsAreNotPenalized(t *testing.T) {
+	index := make([]whichEntry, 0, 2)
+	index = append(index, whichEntry{Command: "projects list", Description: "List projects"})
+	index = append(index, whichEntry{Command: "projects edit", Description: "Edit a project"})
+	got := rankWhich(index, "edit project", 1)
+	if len(got) != 1 || got[0].Entry.Command != "projects edit" {
+		t.Fatalf("explicit write intent should select the edit command, got %+v", got)
+	}
+}
+
+func TestWhichJSONNoMatchExits2(t *testing.T) {
+	old := whichIndex
+	whichIndex = whichTestIndex
+	t.Cleanup(func() { whichIndex = old })
+
+	var stdout, stderr bytes.Buffer
+	flags := &rootFlags{asJSON: true}
+	cmd := newWhichCmd(flags)
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"teleport a rhinoceros"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected no-match to return a typed error")
+	}
+	if got := ExitCode(err); got != 2 {
+		t.Fatalf("ExitCode = %d, want 2 (typed no-match)", got)
+	}
+	var envelope map[string]any
+	if json.Unmarshal(stdout.Bytes(), &envelope) != nil {
+		t.Fatalf("no-match --json stdout must be a JSON envelope, got %q", stdout.String())
+	}
+	matches, _ := envelope["matches"].([]any)
+	if len(matches) != 0 {
+		t.Fatalf("matches = %#v, want empty array", envelope["matches"])
+	}
+}
+
+func TestWhichPipedNoMatchExits2WithEmptyEnvelope(t *testing.T) {
+	old := whichIndex
+	whichIndex = whichTestIndex
+	t.Cleanup(func() { whichIndex = old })
+
+	var stdout bytes.Buffer
+	flags := &rootFlags{}
+	cmd := newWhichCmd(flags)
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"teleport a rhinoceros"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected no-match to return a typed error")
+	}
+	if got := ExitCode(err); got != 2 {
+		t.Fatalf("ExitCode = %d, want 2", got)
+	}
+	var envelope map[string]any
+	if json.Unmarshal(stdout.Bytes(), &envelope) != nil {
+		t.Fatalf("piped no-match must write {\"matches\":[]} so agents can inspect the miss, got %q", stdout.String())
+	}
+	matches, _ := envelope["matches"].([]any)
+	if len(matches) != 0 {
+		t.Fatalf("matches = %#v, want empty array", envelope["matches"])
+	}
+}
+
 // Sanity: whichIndex compiles and is well-formed. Generated CLIs with
 // zero NovelFeatures ship an empty index, and that is still a valid
 // state (which returns the "no curated index" error at runtime).
 func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
+	root := newRootCmd(&rootFlags{})
 	for i, e := range whichIndex {
 		if e.Command == "" {
 			t.Errorf("whichIndex[%d] has empty Command - template rendered bad data", i)
+			continue
 		}
 		if strings.TrimSpace(e.Description) == "" {
 			t.Errorf("whichIndex[%d] (%s) has empty Description - template rendered bad data", i, e.Command)
 		}
-	}
-}
-
-func TestRankWhich_WhoOwesMeMoneyMatchesDebts(t *testing.T) {
-	got := rankWhich(whichIndex, "who owes me money", 3)
-	if len(got) == 0 {
-		t.Fatalf("expected at least one match, got zero")
-	}
-	if got[0].Entry.Command != "debts" {
-		t.Fatalf("top match: want debts, got %s", got[0].Entry.Command)
-	}
-	if got[0].Score <= 0 {
-		t.Fatalf("top match score should be > 0, got %d", got[0].Score)
+		found, remaining, err := root.Find(strings.Fields(e.Command))
+		if err != nil || len(remaining) > 0 {
+			t.Errorf("whichIndex[%d] command %q does not resolve in the Cobra tree (found=%v, remaining=%v, err=%v)", i, e.Command, found, remaining, err)
+		}
 	}
 }

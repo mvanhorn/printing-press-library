@@ -1,0 +1,106 @@
+{
+  "dir": "/Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli",
+  "spec_path": "/Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 26,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 102,
+    "dead": 1,
+    "items": [
+      "handleBinaryResponseDelivery"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 100,
+      "registered": 100
+    },
+    "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 18,
+    "found": 18
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 18,
+    "exempted_via_store": 18
+  },
+  "description_drift_check": {
+    "expected": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has."
+  },
+  "source_client_check": {
+    "checked": 9
+  },
+  "print_json_filtered_check": {
+    "checked": 78
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 78
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead helper functions found"
+  ]
+}

@@ -1,0 +1,16 @@
+warning: request body for POST "/add_user_to_group" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/create_expense" contains oneOf/anyOf; emitting --body-json fallback
+warning: pagination_undeterminable: resource "get-notifications" declares page-size parameter "limit" without a cursor, page, or offset parameter; sync cannot page beyond the first request
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS splitwise-pp-cli --help
+PASS splitwise-pp-cli version
+PASS splitwise-pp-cli doctor
+Generated splitwise at /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli
+Bundled /Users/vinnypasceri/printing-press/.runstate/printing-press-workshop-e51dd43c/runs/20260904-131606-b6e44bce/working/splitwise-pp-cli/build/splitwise-pp-mcp-darwin-arm64.mcpb

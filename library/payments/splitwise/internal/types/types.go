@@ -15,22 +15,30 @@ type CreateCommentCreateResponse struct {
 	Comment string `json:"comment"`
 }
 
-type CreateExpenseCreateResponse struct {
-	Errors   json.RawMessage `json:"errors"`
-	Expenses json.RawMessage `json:"expenses"`
-}
-
 type CreateFriendCreateResponse struct {
 	Friend string `json:"friend"`
 }
 
-type CreateFriendsCreateResponse struct {
-	Errors json.RawMessage `json:"errors"`
-	Users  json.RawMessage `json:"users"`
+type CreateFriendsCreateItem struct {
+	Balance            json.RawMessage `json:"balance"`
+	CustomPicture      bool            `json:"custom_picture"`
+	Email              string          `json:"email"`
+	FirstName          string          `json:"first_name"`
+	Groups             json.RawMessage `json:"groups"`
+	Id                 int             `json:"id"`
+	LastName           string          `json:"last_name"`
+	Picture            json.RawMessage `json:"picture"`
+	RegistrationStatus string          `json:"registration_status"`
+	UpdatedAt          string          `json:"updated_at"`
 }
 
 type CreateGroupCreateResponse struct {
 	Group json.RawMessage `json:"group"`
+}
+
+type Currency struct {
+	CurrencyCode string `json:"currency_code"`
+	Unit         string `json:"unit"`
 }
 
 type CurrentUser struct {
@@ -77,18 +85,6 @@ type ForbiddenError struct {
 	Errors json.RawMessage `json:"errors"`
 }
 
-type GetCategoriesListResponse struct {
-	Categories json.RawMessage `json:"categories"`
-}
-
-type GetCommentsListResponse struct {
-	Comments json.RawMessage `json:"comments"`
-}
-
-type GetCurrenciesListResponse struct {
-	Currencies json.RawMessage `json:"currencies"`
-}
-
 type GetCurrentUserListResponse struct {
 	User string `json:"user"`
 }
@@ -97,28 +93,25 @@ type GetExpenseGetResponse struct {
 	Expense string `json:"expense"`
 }
 
-type GetExpensesListResponse struct {
-	Expenses json.RawMessage `json:"expenses"`
-}
-
 type GetFriendGetResponse struct {
 	Friend string `json:"friend"`
 }
 
-type GetFriendsListResponse struct {
-	Friends json.RawMessage `json:"friends"`
+type GetFriendsListItem struct {
+	Balance            json.RawMessage `json:"balance"`
+	CustomPicture      bool            `json:"custom_picture"`
+	Email              string          `json:"email"`
+	FirstName          string          `json:"first_name"`
+	Groups             json.RawMessage `json:"groups"`
+	Id                 int             `json:"id"`
+	LastName           string          `json:"last_name"`
+	Picture            json.RawMessage `json:"picture"`
+	RegistrationStatus string          `json:"registration_status"`
+	UpdatedAt          string          `json:"updated_at"`
 }
 
 type GetGroupGetResponse struct {
 	Group json.RawMessage `json:"group"`
-}
-
-type GetGroupsListResponse struct {
-	Groups json.RawMessage `json:"groups"`
-}
-
-type GetNotificationsListResponse struct {
-	Notifications json.RawMessage `json:"notifications"`
 }
 
 type GetUserGetResponse struct {
@@ -158,16 +151,6 @@ type UnauthorizedError struct {
 
 type UndeleteExpenseCreateResponse struct {
 	Success bool `json:"success"`
-}
-
-type UndeleteGroupCreateResponse struct {
-	Errors  json.RawMessage `json:"errors"`
-	Success bool            `json:"success"`
-}
-
-type UpdateExpenseCreateResponse struct {
-	Errors   json.RawMessage `json:"errors"`
-	Expenses json.RawMessage `json:"expenses"`
 }
 
 type User struct {

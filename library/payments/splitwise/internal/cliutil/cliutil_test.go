@@ -44,19 +44,50 @@ func TestCleanText(t *testing.T) {
 	}
 }
 
+func TestScrubTerminal(t *testing.T) {
+	input := "keep\tcolumns\nlines\x00\x07\x1b[31m\x7f\u0085\u009b31m"
+	want := "keep columns lines[31m31m"
+	if got := ScrubTerminal(input); got != want {
+		t.Fatalf("ScrubTerminal(%q) = %q, want %q", input, got, want)
+	}
+}
+
 func TestParseStoredTime(t *testing.T) {
 	cases := []struct {
-		name string
-		in   string
-		want time.Time
+		name         string
+		in           string
+		want         time.Time
+		wantLocation *time.Location
 	}{
+		{
+			name: "rfc3339",
+			in:   "2026-04-21T09:02:49-07:00",
+			want: time.Date(2026, 4, 21, 9, 2, 49, 0, time.FixedZone("", -7*60*60)),
+		},
 		{
 			name: "rfc3339 nano",
 			in:   "2026-04-21T09:02:49.123456789-07:00",
 			want: time.Date(2026, 4, 21, 9, 2, 49, 123456789, time.FixedZone("", -7*60*60)),
 		},
 		{
-			name: "modernc go string",
+			name:         "sqlite current timestamp",
+			in:           "2026-07-02 19:35:41",
+			want:         time.Date(2026, 7, 2, 19, 35, 41, 0, time.UTC),
+			wantLocation: time.UTC,
+		},
+		{
+			name:         "sqlite current timestamp fractional",
+			in:           "2026-07-02 19:35:41.123456789",
+			want:         time.Date(2026, 7, 2, 19, 35, 41, 123456789, time.UTC),
+			wantLocation: time.UTC,
+		},
+		{
+			name: "go string numeric offset",
+			in:   "2026-04-21 09:02:49.123456789 -0700",
+			want: time.Date(2026, 4, 21, 9, 2, 49, 123456789, time.FixedZone("", -7*60*60)),
+		},
+		{
+			name: "go string zone name",
 			in:   "2026-04-21 09:02:49.123456789 -0700 PDT",
 			want: time.Date(2026, 4, 21, 9, 2, 49, 123456789, time.FixedZone("PDT", -7*60*60)),
 		},
@@ -78,6 +109,9 @@ func TestParseStoredTime(t *testing.T) {
 			if !got.Equal(tc.want) {
 				t.Fatalf("ParseStoredTime(%q) = %s, want %s", tc.in, got, tc.want)
 			}
+			if tc.wantLocation != nil && got.Location() != tc.wantLocation {
+				t.Fatalf("ParseStoredTime(%q) location = %s, want %s", tc.in, got.Location(), tc.wantLocation)
+			}
 		})
 	}
 }
@@ -90,8 +124,8 @@ func TestAuthErrorHelpers(t *testing.T) {
 		t.Fatal("unexpected auth classification for non-auth message")
 	}
 
-	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue")
-	if got != "token [REDACTED] [REDACTED] [REDACTED]" {
+	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue token=abc.def-ghi")
+	if got != "token [REDACTED] [REDACTED] [REDACTED] [REDACTED]" {
 		t.Fatalf("SanitizeErrorBody redaction = %q", got)
 	}
 }
@@ -637,7 +671,9 @@ func TestAdaptiveLimiter_NewNilOnNonPositive(t *testing.T) {
 
 func TestAdaptiveLimiter_NilSafeMethods(t *testing.T) {
 	var l *AdaptiveLimiter
-	l.Wait()
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("nil Wait() = %v, want nil", err)
+	}
 	l.OnSuccess()
 	l.OnRateLimit()
 	if got := l.Rate(); got != 0 {
@@ -646,7 +682,7 @@ func TestAdaptiveLimiter_NilSafeMethods(t *testing.T) {
 }
 
 func TestAdaptiveLimiter_RampsUpAfterSuccesses(t *testing.T) {
-	l := NewAdaptiveLimiter(2.0)
+	l := NewAdaptiveLimiterAuto(2.0)
 	startRate := l.Rate()
 	for i := 0; i < l.rampAfter; i++ {
 		l.OnSuccess()
@@ -676,14 +712,233 @@ func TestAdaptiveLimiter_FloorsAtHalfRPS(t *testing.T) {
 	}
 }
 
+func TestAdaptiveLimiter_DoesNotRaiseSubFloorRateOnRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	startRate := l.Rate()
+	l.OnRateLimit()
+	if got := l.Rate(); got > startRate {
+		t.Errorf("Rate() after OnRateLimit = %v, want <= %v", got, startRate)
+	}
+}
+
+func TestAdaptiveLimiter_DoesNotRampBelowFloorAfterRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	floor := l.Rate()
+	l.OnRateLimit()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got < floor {
+		t.Errorf("Rate() after ramping from rate-limit ceiling = %v, want >= %v", got, floor)
+	}
+}
+
 func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	l := NewAdaptiveLimiter(10.0)
-	l.Wait()
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("first Wait() = %v", err)
+	}
 	start := time.Now()
-	l.Wait()
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("second Wait() = %v", err)
+	}
 	elapsed := time.Since(start)
 	if elapsed < 80*time.Millisecond {
 		t.Errorf("second Wait() took %v, want >= 80ms", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_WaitHonorsCanceledContext(t *testing.T) {
+	l := NewAdaptiveLimiter(0.5)
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("prime Wait() = %v", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 40*time.Millisecond)
+	defer cancel()
+	start := time.Now()
+	err := l.Wait(ctx)
+	elapsed := time.Since(start)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("Wait() = %v, want context deadline exceeded", err)
+	}
+	if elapsed > 400*time.Millisecond {
+		t.Fatalf("Wait() elapsed %s, want cancel near 40ms not the ~2s pace", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_ConcurrentCancelInReservationOrderDoesNotRestoreAbandonedSlot(t *testing.T) {
+	l := NewAdaptiveLimiter(2.0)
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("prime Wait() = %v", err)
+	}
+
+	firstCtx, cancelFirst := context.WithCancel(context.Background())
+	firstErr := make(chan error, 1)
+	go func() { firstErr <- l.Wait(firstCtx) }()
+
+	waitForReservation := func(minAhead time.Duration) bool {
+		deadline := time.Now().Add(200 * time.Millisecond)
+		for time.Now().Before(deadline) {
+			l.mu.Lock()
+			ahead := time.Until(l.lastRequest)
+			l.mu.Unlock()
+			if ahead >= minAhead {
+				return true
+			}
+			time.Sleep(time.Millisecond)
+		}
+		return false
+	}
+	if !waitForReservation(300 * time.Millisecond) {
+		cancelFirst()
+		t.Fatal("first waiter did not reserve a future slot")
+	}
+
+	secondCtx, cancelSecond := context.WithCancel(context.Background())
+	secondErr := make(chan error, 1)
+	go func() { secondErr <- l.Wait(secondCtx) }()
+	if !waitForReservation(700 * time.Millisecond) {
+		cancelFirst()
+		cancelSecond()
+		t.Fatal("second waiter did not reserve past the first slot")
+	}
+
+	cancelFirst()
+	if err := <-firstErr; !errors.Is(err, context.Canceled) {
+		cancelSecond()
+		t.Fatalf("first Wait() = %v, want canceled", err)
+	}
+	cancelSecond()
+	if err := <-secondErr; !errors.Is(err, context.Canceled) {
+		t.Fatalf("second Wait() = %v, want canceled", err)
+	}
+
+	start := time.Now()
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("next Wait() = %v", err)
+	}
+	elapsed := time.Since(start)
+	if elapsed > 700*time.Millisecond {
+		t.Fatalf("next Wait after ordered cancels elapsed %s; restoring the first abandoned slot would add an extra interval", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_CanceledWaitDoesNotConsumeNextSlot(t *testing.T) {
+	l := NewAdaptiveLimiter(5.0)
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("prime Wait() = %v", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	defer cancel()
+	if err := l.Wait(ctx); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("canceled Wait() = %v, want context deadline exceeded", err)
+	}
+	start := time.Now()
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("next Wait() = %v", err)
+	}
+	elapsed := time.Since(start)
+	if elapsed > 350*time.Millisecond {
+		t.Fatalf("next Wait after cancel elapsed %s; an unused reservation would add a full extra interval", elapsed)
+	}
+	if elapsed < 120*time.Millisecond {
+		t.Fatalf("next Wait elapsed %s, want remaining pace from the last successful Wait", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_LaterCancelDoesNotRewindPastEarlierPendingReservation(t *testing.T) {
+	l := NewAdaptiveLimiter(2.0)
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("prime Wait() = %v", err)
+	}
+
+	waitForReservation := func(minAhead time.Duration) bool {
+		deadline := time.Now().Add(200 * time.Millisecond)
+		for time.Now().Before(deadline) {
+			l.mu.Lock()
+			ahead := time.Until(l.lastRequest)
+			l.mu.Unlock()
+			if ahead >= minAhead {
+				return true
+			}
+			time.Sleep(time.Millisecond)
+		}
+		return false
+	}
+
+	firstDone := make(chan error, 1)
+	go func() { firstDone <- l.Wait(context.Background()) }()
+	if !waitForReservation(300 * time.Millisecond) {
+		t.Fatal("first waiter did not reserve a future slot")
+	}
+
+	secondCtx, cancelSecond := context.WithCancel(context.Background())
+	secondDone := make(chan error, 1)
+	go func() { secondDone <- l.Wait(secondCtx) }()
+	if !waitForReservation(700 * time.Millisecond) {
+		cancelSecond()
+		t.Fatal("second waiter did not reserve past the first slot")
+	}
+
+	cancelSecond()
+	if err := <-secondDone; !errors.Is(err, context.Canceled) {
+		t.Fatalf("second Wait() = %v, want canceled", err)
+	}
+
+	l.mu.Lock()
+	ahead := time.Until(l.lastRequest)
+	l.mu.Unlock()
+	if ahead < 200*time.Millisecond {
+		t.Fatalf("lastRequest is only %s ahead; later-waiter cancel rewound past the still-pending first reservation", ahead)
+	}
+
+	start := time.Now()
+	if err := l.Wait(context.Background()); err != nil {
+		t.Fatalf("third Wait() = %v", err)
+	}
+	elapsed := time.Since(start)
+	if elapsed < 700*time.Millisecond {
+		t.Fatalf("third Wait elapsed %s; later-waiter cancel rewound lastRequest past the still-pending first reservation", elapsed)
+	}
+
+	if err := <-firstDone; err != nil {
+		t.Fatalf("first Wait() = %v", err)
+	}
+}
+
+func TestAdaptiveLimiter_ObserveHeadersPacesToBudgetAndSuppressesRamp(t *testing.T) {
+	l := NewAdaptiveLimiterAuto(2.0)
+	// Full bucket: 100 requests left over a 20s window => ~5 rps sustainable.
+	l.ObserveHeaders(100, time.Now().Add(20*time.Second))
+	if got := l.Rate(); got < 4.9 || got > 5.1 {
+		t.Errorf("Rate() after ObserveHeaders = %v, want ~5", got)
+	}
+	// Once header-driven, the blind success ramp is suppressed: headers govern.
+	rateBefore := l.Rate()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got != rateBefore {
+		t.Errorf("Rate() ramped while header-driven = %v, want unchanged %v", got, rateBefore)
+	}
+}
+
+// A header-carrying 429 must not double-brake: ObserveHeaders (called first on
+// the same response, with remaining exhausted) already paces the rate down, so
+// OnRateLimit must leave the high-water budgetRate intact for header-driven
+// limiters. See OnRateLimit's !headerDriven guard.
+func TestAdaptiveLimiter_OnRateLimitPreservesHeaderBudgetRate(t *testing.T) {
+	l := NewAdaptiveLimiterAuto(2.0)
+	l.ObserveHeaders(100, time.Now().Add(20*time.Second)) // full bucket sets budgetRate
+	budget := l.budgetRate
+	if budget <= 0 {
+		t.Fatalf("ObserveHeaders did not set budgetRate: %v", budget)
+	}
+	// Header-carrying 429: ObserveHeaders sees the drained bucket, then OnRateLimit fires.
+	l.ObserveHeaders(0, time.Now().Add(20*time.Second))
+	l.OnRateLimit()
+	if got := l.budgetRate; got != budget {
+		t.Errorf("OnRateLimit decayed header-driven budgetRate = %v, want unchanged %v", got, budget)
 	}
 }
 
@@ -724,13 +979,17 @@ func TestRateLimitError_ErrorMessage(t *testing.T) {
 }
 
 func TestRateLimitError_ErrorsAs(t *testing.T) {
-	var err error = &RateLimitError{URL: "https://x", RetryAfter: time.Second}
+	cause := errors.New("underlying API error")
+	var err error = &RateLimitError{URL: "https://x", RetryAfter: time.Second, Cause: cause}
 	var target *RateLimitError
 	if !errors.As(err, &target) {
 		t.Fatal("errors.As should match *RateLimitError")
 	}
 	if target.URL != "https://x" {
 		t.Errorf("target.URL = %q, want %q", target.URL, "https://x")
+	}
+	if !errors.Is(err, cause) {
+		t.Fatal("errors.Is should reach the wrapped cause")
 	}
 }
 

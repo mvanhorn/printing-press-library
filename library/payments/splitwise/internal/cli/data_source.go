@@ -25,52 +25,29 @@ import (
 
 const networkFallbackReason = "api_unreachable"
 
-// paginationParamNames are query params that page a result set rather than
-// filter its content. Local reads ignore them (they return all synced rows), so
-// they must not count toward the "unscoped" provenance signal — otherwise every
-// local read would report itself unfiltered because limit/offset carry defaults.
-var paginationParamNames = map[string]bool{
-	"limit":    true,
-	"offset":   true,
-	"cursor":   true,
-	"page":     true,
-	"per_page": true,
-}
+type liveAllRejectReason string
 
-// droppedFilterParams returns the sorted set of content-filter params that a
-// local read cannot honor against the cache: those with a non-empty value that
-// are not pure pagination. Unset flags arrive as "" and limit/offset carry
-// defaults, so this deliberately excludes both — otherwise every local read
-// would report itself unscoped and the signal would be meaningless.
-func droppedFilterParams(params map[string]string) []string {
-	dropped := make([]string, 0, len(params))
-	for k, v := range params {
-		if strings.TrimSpace(v) == "" || paginationParamNames[k] {
-			continue
-		}
-		dropped = append(dropped, k)
-	}
-	sort.Strings(dropped)
-	return dropped
-}
+const (
+	liveAllRejectNone    liveAllRejectReason = ""
+	liveAllRejectHTML    liveAllRejectReason = "html"
+	liveAllRejectNonJSON liveAllRejectReason = "non-json"
+)
 
-// localPageBounds extracts a positive offset and limit from the caller's
-// pagination params so a local list read honors the requested page size instead
-// of returning the whole cache. Zero means "unbounded" — analytics callers go
-// straight to db.List and never pass through here, but the generic get-* list
-// commands carry the user's --limit and must not have it silently dropped.
-func localPageBounds(params map[string]string) (offset, limit int) {
-	if v := strings.TrimSpace(params["limit"]); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 {
-			limit = n
+func liveAllUnsupportedError(reason liveAllRejectReason, allowLocalHint bool) error {
+	switch reason {
+	case liveAllRejectHTML:
+		if allowLocalHint {
+			return fmt.Errorf("--all is not supported for live HTML responses; omit --all or use --data-source local")
 		}
-	}
-	if v := strings.TrimSpace(params["offset"]); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 {
-			offset = n
+		return fmt.Errorf("--all is not supported for live HTML responses; omit --all to extract the current page")
+	case liveAllRejectNonJSON:
+		if allowLocalHint {
+			return fmt.Errorf("--all is not supported for live binary/text responses; omit --all or use --data-source local")
 		}
+		return fmt.Errorf("--all is not supported for live binary/text responses; omit --all to fetch the current page")
+	default:
+		return nil
 	}
-	return offset, limit
 }
 
 func unsupportedDataSourceError(strategy, requested string) error {
@@ -128,14 +105,20 @@ func isNetworkError(err error) bool {
 		strings.Contains(msg, "TLS handshake timeout")
 }
 
-// openStoreForRead opens the local SQLite store for reading.
+// openStoreForRead opens the local SQLite store read-only for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
+//
+// Read paths open with store.OpenReadOnly: no MkdirAll, no migration loop, and
+// no write lock, so a read concurrent with a sync cannot block on the writer
+// and a read command never runs a schema migration as a side effect. ctx is
+// threaded into OpenReadOnlyContext so a cancelled command (SIGINT, deadline)
+// interrupts the driver-init SQLITE_BUSY retry rather than blocking on it.
 func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.OpenWithContext(ctx, dbPath)
+	return store.OpenReadOnlyContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -175,10 +158,22 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 //     reads on per-endpoint-versioned APIs silently get the wrong response shape
 //     (cal-com retro #334 F1).
 func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
-	return resolveReadWithStrategy(ctx, c, flags, "auto", resourceType, isList, path, params, headers, hintWriter)
+	return resolveReadWithResponsePath(ctx, c, flags, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, "auto", resourceType, isList, path, params, headers, responsePath, hintWriter)
 }
 
 func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, strategy, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithStrategyAndResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyResponsePathAndJSONGuard(ctx, c, flags, strategy, resourceType, isList, path, params, headers, responsePath, true, hintWriter)
+}
+
+func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, guardLiveJSON bool, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
 	if err := validateDataSourceStrategy(flags, strategy); err != nil {
 		return nil, DataProvenance{}, err
 	}
@@ -191,6 +186,15 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 	}
 	switch flags.dataSource {
@@ -203,11 +207,29 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
 		data, err := c.GetWithHeaders(ctx, path, params, headers)
 		if err == nil {
+			if isDryRunResponse(c.IsDryRun(), data) {
+				return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+			}
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
+			data = applyResponsePath(data, responsePath)
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
@@ -228,22 +250,42 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 // or local store. When local, skips pagination and returns all synced data. The
 // headers argument carries per-endpoint required headers; pass nil when the
 // endpoint declares no overrides.
-func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
-	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, hintWriter)
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, "", hintWriter)
 }
 
-func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategyAndJSONGuard(ctx, c, flags, strategy, resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath, true, liveAllRejectNone, hintWriter)
+}
+
+func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField, responsePath string, guardLiveJSON bool, liveAllReject liveAllRejectReason, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
 	if err := validateDataSourceStrategy(flags, strategy); err != nil {
 		return nil, DataProvenance{}, err
+	}
+	if flags != nil && flags.dryRun {
+		fetchAll = false
 	}
 	if strategy == "local" {
 		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, "strategy_local")
 		return data, attachFreshness(prov, flags), err
 	}
 	if strategy == "live" {
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if fetchAll {
+			if err := liveAllUnsupportedError(liveAllReject, false); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data, err := paginatedGetWithResponsePath(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath)
 		if err != nil {
 			return nil, DataProvenance{}, err
+		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 	}
@@ -253,15 +295,41 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if fetchAll {
+			if err := liveAllUnsupportedError(liveAllReject, false); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data, err := paginatedGetWithResponsePath(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath)
 		if err != nil {
 			return nil, DataProvenance{}, err
+		}
+		if isDryRunResponse(c.IsDryRun(), data) {
+			return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if fetchAll {
+			if err := liveAllUnsupportedError(liveAllReject, true); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data, err := paginatedGetWithResponsePath(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, responsePath)
 		if err == nil {
+			if isDryRunResponse(c.IsDryRun(), data) {
+				return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil
+			}
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
@@ -338,7 +406,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
 			matchedListEnvelope := false
-			if extracted, ok := extractWriteThroughListItems(envelope); ok {
+			if extracted, ok := extractWriteThroughListItems(resourceType, envelope); ok {
 				matchedListEnvelope = true
 				items = extracted
 			}
@@ -398,8 +466,11 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 
 type writeThroughArrayDecoder func(json.RawMessage) ([]json.RawMessage, bool)
 
-func extractWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+func extractWriteThroughListItems(resourceType string, envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
 	if items, ok := extractWriteThroughListWrapperItems(envelope, decodeWriteThroughNonEmptyArray); ok {
+		return items, true
+	}
+	if items, ok := extractWriteThroughResourceItems(resourceType, envelope); ok {
 		return items, true
 	}
 
@@ -417,7 +488,65 @@ func extractWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.R
 		}
 	}
 
-	return extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughNonEmptyArray)
+	if items, ok := extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughNonEmptyArray); ok {
+		return items, true
+	}
+	return extractWriteThroughMapKeyedItems(envelope)
+}
+
+// extractWriteThroughMapKeyedItems mirrors the sync path's handling of a
+// collection that files each record under its id instead of listing records in
+// an array. Without it a live list and a sync of the same endpoint disagree:
+// sync caches the records, the live path caches the whole envelope or nothing.
+// The strategy order matches sync's — a wrapper key holding the collection,
+// then the envelope as the collection itself, then a lone non-metadata sibling
+// — so both paths pick the same records out of the same payload.
+func extractWriteThroughMapKeyedItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	for _, key := range writeThroughListWrapperKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		if items, ok := store.FlattenMapKeyedCollection(raw); ok {
+			return items, true
+		}
+	}
+
+	if envelopeJSON, err := json.Marshal(envelope); err == nil {
+		if items, ok := store.FlattenMapKeyedCollection(envelopeJSON); ok {
+			return items, true
+		}
+	}
+
+	// The live path serves one response, so a collection's own paging metadata
+	// has nothing to page and is dropped here.
+	items, _, ok := store.FlattenSoleMapKeyedSibling(envelope, func(key string) bool {
+		return listEnvelopeMetadataKeys[key]
+	})
+	return items, ok
+}
+
+func extractWriteThroughResourceItems(resourceType string, envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	var envelopeObject map[string]any
+	envelopeJSON, err := json.Marshal(envelope)
+	if err != nil || json.Unmarshal(envelopeJSON, &envelopeObject) != nil {
+		return nil, false
+	}
+	if store.ExtractResourceID(resourceType, envelopeObject) != "" {
+		return nil, false
+	}
+
+	for key, raw := range envelope {
+		if !strings.EqualFold(key, resourceType) {
+			continue
+		}
+		items, ok := decodeWriteThroughArray(raw)
+		if !ok || !writeThroughArrayItemsAreObjects(items) {
+			return nil, false
+		}
+		return items, true
+	}
+	return nil, false
 }
 
 func extractNestedWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
@@ -508,7 +637,7 @@ func writeMutationResponseToStore(ctx context.Context, resourceType string, data
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {
 	if responsePath != "" {
-		if pathData, ok := mutationResponseAtPath(data, responsePath); ok {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
 			data = pathData
 		}
 	}
@@ -574,14 +703,6 @@ func mutationResponsePayload(data json.RawMessage) json.RawMessage {
 	}
 }
 
-func mutationResponseAtPath(data json.RawMessage, responsePath string) (json.RawMessage, bool) {
-	var root map[string]json.RawMessage
-	if err := json.Unmarshal(data, &root); err != nil {
-		return nil, false
-	}
-	return rawAtPath(root, strings.TrimPrefix(responsePath, "$."))
-}
-
 func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil || len(obj) == 0 {
@@ -594,9 +715,10 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 }
 
 // resolveLocal reads data from the local SQLite store.
-// Note: local reads return ALL synced data for the resource type. Endpoint-specific
-// filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
-// The provenance metadata includes "unscoped":true when params were present but not applied.
+// Collection paths (isList, or a path whose last segment is the resource type)
+// list synced rows and apply supported query filters locally. Object paths
+// fetch by the trailing ID. Cursor-style params cannot be replayed locally
+// and are reported on stderr instead of silently ignored.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "splitwise-pp-cli")
 	if err != nil {
@@ -613,48 +735,38 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 
 	prov := localProvenance(db, resourceType, reason)
 
-	// Local reads return ALL synced rows; endpoint filters are not applied to
-	// the cache. Surface that both on stderr (for TTY users) and in the
-	// provenance (so JSON/agent consumers, who never see stderr, get an in-band
-	// signal).
-	if dropped := droppedFilterParams(params); len(dropped) > 0 {
-		prov.Unscoped = true
-		prov.UnappliedParams = dropped
-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — filters (%s) are not applied to cached data; re-run with --data-source live to apply them\n", strings.Join(dropped, ", "))
-	}
-
-	if isList {
-		// Honor the caller's pagination on local reads. db.List orders by
-		// updated_at DESC, so fetching offset+limit rows and trimming the offset
-		// yields a stable page; a non-positive limit fetches everything (analytics
-		// resources with no limit param). Without this, a plain
-		// `--data-source local --limit N` returned the entire store.
-		offset, limit := localPageBounds(params)
-		fetch := 0
-		if limit > 0 {
-			fetch = offset + limit
-		}
-		raw, err := db.List(resourceType, fetch)
+	if localReadPathIsCollection(resourceType, path, isList) {
+		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
-		items := raw
+		// Filter out empty/invalid records (empty arrays, null, whitespace-only)
+		// that can end up in the store from pagination boundary artifacts.
+		var items []json.RawMessage
+		for _, r := range raw {
+			trimmed := strings.TrimSpace(string(r))
+			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
+				continue
+			}
+			items = append(items, r)
+		}
 		if len(items) == 0 {
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'splitwise-pp-cli sync' first", resourceType)
 		}
-		// Apply the requested page within the fetched rows. An offset past the
-		// end is a valid empty page, not an error.
-		if offset > 0 {
-			if offset >= len(items) {
-				items = items[:0]
-			} else {
-				items = items[offset:]
+		if parents := localReadPathParents(resourceType, path); len(parents) > 0 {
+			items = applyLocalParentScope(db, resourceType, items, parents)
+		}
+		items, unsupported := applyLocalListFilters(items, params)
+		if len(unsupported) > 0 {
+			warnWriter := hintWriter
+			if warnWriter == nil {
+				warnWriter = os.Stderr
 			}
+			fmt.Fprintf(warnWriter, "warning: local data could not apply filter(s) %s\n", strings.Join(unsupported, ", "))
 		}
-		if limit > 0 && limit < len(items) {
-			items = items[:limit]
+		if len(items) == 0 {
+			return json.RawMessage("[]"), prov, nil
 		}
-		// Marshal []json.RawMessage into a single JSON array ([] when empty).
 		data, err := json.Marshal(items)
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("marshaling local data: %w", err)
@@ -662,8 +774,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		return data, prov, nil
 	}
 
-	// Get by ID — extract the last path segment as the ID
-	parts := strings.Split(strings.TrimRight(path, "/"), "/")
+	parts := strings.Split(strings.Trim(path, "/"), "/")
 	id := parts[len(parts)-1]
 
 	item, err := db.Get(resourceType, id)
@@ -674,6 +785,348 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 	}
 	return item, prov, nil
+}
+
+func localReadPathIsCollection(resourceType, path string, isList bool) bool {
+	if isList {
+		return true
+	}
+	trimmed := strings.Trim(path, "/")
+	if trimmed == "" {
+		return true
+	}
+	parts := strings.Split(trimmed, "/")
+	return strings.EqualFold(parts[len(parts)-1], resourceType)
+}
+
+type localPathParent struct {
+	Type string
+	ID   string
+}
+
+func localReadPathParents(resourceType, path string) []localPathParent {
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+	if len(parts) == 0 || (len(parts) == 1 && parts[0] == "") {
+		return nil
+	}
+	if strings.EqualFold(parts[len(parts)-1], resourceType) {
+		parts = parts[:len(parts)-1]
+	} else if len(parts) >= 2 && strings.EqualFold(parts[len(parts)-2], resourceType) {
+		parts = parts[:len(parts)-2]
+	} else {
+		return nil
+	}
+	stripped := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part == "" || localReadPathPrefixSegment(part) {
+			continue
+		}
+		stripped = append(stripped, part)
+	}
+	var parents []localPathParent
+	for i := 1; i < len(stripped); i += 2 {
+		if stripped[i] == "" {
+			continue
+		}
+		parents = append(parents, localPathParent{Type: stripped[i-1], ID: stripped[i]})
+	}
+	return parents
+}
+
+func localReadPathPrefixSegment(seg string) bool {
+	s := strings.ToLower(seg)
+	switch s {
+	case "api", "rest", "graphql", "public", "private":
+		return true
+	}
+	if len(s) >= 2 && s[0] == 'v' {
+		for _, r := range s[1:] {
+			if r < '0' || r > '9' {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
+func applyLocalParentScope(db *store.Store, resourceType string, items []json.RawMessage, parents []localPathParent) []json.RawMessage {
+	immediate, ok := localReadImmediateParent(parents)
+	if !ok {
+		return items
+	}
+	var scopedIDs []string
+	sawComposite := false
+	if ids, err := db.ListIDs(resourceType); err == nil {
+		for _, id := range ids {
+			_, parent, ok := splitLocalCompositeID(id)
+			if !ok {
+				continue
+			}
+			sawComposite = true
+			if parent == immediate.ID {
+				scopedIDs = append(scopedIDs, id)
+			}
+		}
+	}
+	if sawComposite {
+		out := make([]json.RawMessage, 0, len(scopedIDs))
+		for _, id := range scopedIDs {
+			item, err := db.Get(resourceType, id)
+			if err != nil {
+				continue
+			}
+			trimmed := strings.TrimSpace(string(item))
+			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
+				continue
+			}
+			out = append(out, item)
+		}
+		return out
+	}
+	out := make([]json.RawMessage, 0, len(items))
+	for _, raw := range items {
+		var obj map[string]any
+		if json.Unmarshal(raw, &obj) != nil {
+			continue
+		}
+		if localItemStoredParentMatches(obj, immediate) {
+			out = append(out, raw)
+		}
+	}
+	return out
+}
+
+func localReadImmediateParent(parents []localPathParent) (localPathParent, bool) {
+	if len(parents) == 0 {
+		return localPathParent{}, false
+	}
+	return parents[len(parents)-1], true
+}
+
+func splitLocalCompositeID(id string) (bare, parent string, ok bool) {
+	i := strings.IndexByte(id, 0)
+	if i <= 0 || i == len(id)-1 {
+		return "", "", false
+	}
+	return id[:i], id[i+1:], true
+}
+
+func localItemStoredParentMatches(obj map[string]any, parent localPathParent) bool {
+	for _, key := range localStoredParentFieldKeys(parent) {
+		got, ok := localObjectField(obj, key)
+		if ok && localFieldEquals(got, parent.ID) {
+			return true
+		}
+	}
+	return false
+}
+
+func localStoredParentFieldKeys(parent localPathParent) []string {
+	keys := []string{"parent_id", "parent"}
+	seen := map[string]bool{"parent_id": true, "parent": true}
+	add := func(key string) {
+		canon := localParamCanon(key)
+		if canon == "" || seen[canon] {
+			return
+		}
+		seen[canon] = true
+		keys = append(keys, key)
+	}
+	if parent.Type != "" {
+		add(parent.Type + "_id")
+		if singular := strings.TrimSuffix(parent.Type, "s"); singular != parent.Type && singular != "" {
+			add(singular + "_id")
+		}
+	}
+	return keys
+}
+
+var localListLimitParams = map[string]bool{
+	"limit": true, "per_page": true, "perpage": true, "page_size": true, "pagesize": true,
+}
+
+var localListOffsetParams = map[string]bool{
+	"offset": true, "skip": true,
+}
+
+var localListPageParams = map[string]bool{
+	"page": true, "page_number": true, "pagenumber": true,
+}
+
+var localListCursorParams = map[string]bool{
+	"cursor": true, "after": true, "before": true,
+	"page_token": true, "pagetoken": true,
+	"starting_after": true, "ending_before": true,
+	"next_cursor": true, "start_cursor": true, "next": true,
+}
+
+var localListControlParams = map[string]bool{
+	"sort": true, "order": true, "order_by": true, "orderby": true,
+	"fields": true, "field": true, "select": true,
+	"include": true, "expand": true,
+	"q": true, "query": true, "search": true,
+}
+
+func localParamCanon(key string) string {
+	return strings.ToLower(strings.ReplaceAll(strings.TrimSpace(key), "-", "_"))
+}
+
+func localListControlParam(canon string) bool {
+	if localListControlParams[canon] {
+		return true
+	}
+	return localListControlParams[strings.ReplaceAll(canon, "_", "")]
+}
+
+func applyLocalListFilters(items []json.RawMessage, params map[string]string) ([]json.RawMessage, []string) {
+	if len(params) == 0 {
+		return items, nil
+	}
+	equality := map[string]string{}
+	unsupported := make([]string, 0)
+	limit := -1
+	offset := 0
+	page := 0
+	for key, val := range params {
+		val = strings.TrimSpace(val)
+		if val == "" {
+			continue
+		}
+		canon := localParamCanon(key)
+		switch {
+		case localListCursorParams[canon]:
+			unsupported = append(unsupported, key)
+		case localListControlParam(canon):
+			unsupported = append(unsupported, key)
+		case localListLimitParams[canon]:
+			n, err := strconv.Atoi(val)
+			if err != nil || n < 0 {
+				unsupported = append(unsupported, key)
+				continue
+			}
+			limit = n
+		case localListOffsetParams[canon]:
+			n, err := strconv.Atoi(val)
+			if err != nil || n < 0 {
+				unsupported = append(unsupported, key)
+				continue
+			}
+			offset = n
+		case localListPageParams[canon]:
+			n, err := strconv.Atoi(val)
+			if err != nil || n < 1 {
+				unsupported = append(unsupported, key)
+				continue
+			}
+			page = n
+		default:
+			equality[key] = val
+		}
+	}
+	if page > 1 && limit < 0 {
+		unsupported = append(unsupported, "page")
+		page = 0
+	}
+	if len(equality) > 0 {
+		presentKeys := map[string]bool{}
+		parsed := make([]map[string]any, len(items))
+		valid := make([]bool, len(items))
+		for i, raw := range items {
+			var obj map[string]any
+			if json.Unmarshal(raw, &obj) != nil {
+				continue
+			}
+			parsed[i] = obj
+			valid[i] = true
+			for key := range equality {
+				if _, ok := localObjectField(obj, key); ok {
+					presentKeys[key] = true
+				}
+			}
+		}
+		for key := range equality {
+			if !presentKeys[key] {
+				unsupported = append(unsupported, key)
+				delete(equality, key)
+			}
+		}
+		if len(equality) > 0 {
+			filtered := make([]json.RawMessage, 0, len(items))
+			for i, raw := range items {
+				if !valid[i] {
+					continue
+				}
+				keep := true
+				for key, want := range equality {
+					got, ok := localObjectField(parsed[i], key)
+					if !ok || !localFieldEquals(got, want) {
+						keep = false
+						break
+					}
+				}
+				if keep {
+					filtered = append(filtered, raw)
+				}
+			}
+			items = filtered
+		}
+	}
+	if page > 1 && limit >= 0 {
+		offset += (page - 1) * limit
+	}
+	if offset > 0 {
+		if offset >= len(items) {
+			items = items[:0]
+		} else {
+			items = items[offset:]
+		}
+	}
+	if limit >= 0 && len(items) > limit {
+		items = items[:limit]
+	}
+	sort.Strings(unsupported)
+	return items, unsupported
+}
+
+func localObjectField(obj map[string]any, key string) (any, bool) {
+	if v, ok := obj[key]; ok {
+		return v, true
+	}
+	for k, v := range obj {
+		if strings.EqualFold(k, key) {
+			return v, true
+		}
+	}
+	canon := localParamCanon(key)
+	for k, v := range obj {
+		if localParamCanon(k) == canon {
+			return v, true
+		}
+	}
+	return nil, false
+}
+
+func localFieldEquals(got any, want string) bool {
+	if got == nil {
+		return want == "" || strings.EqualFold(want, "null")
+	}
+	switch v := got.(type) {
+	case bool:
+		return strings.EqualFold(want, strconv.FormatBool(v))
+	case float64:
+		return want == strconv.FormatFloat(v, 'f', -1, 64)
+	case json.Number:
+		return want == v.String()
+	case string:
+		return v == want
+	default:
+		encoded, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprint(v) == want
+		}
+		return string(encoded) == want
+	}
 }
 
 // Ensure time import is used (compilation guard).

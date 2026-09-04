@@ -1,0 +1,15 @@
+splitwise-pp-cli
+splitwise-pp-mcp
+*.db
+*.db-*
+build/
+_coding-result.json
+_codex-result.json
+/splitwise-pp-cli
+/splitwise-pp-mcp
+# Raw live-dogfood reports carry live API response samples (account ids, invite links, balances).
+# They stay in the private run dir; only the acceptance marker is publishable.
+.manuscripts/*/proofs/dogfood-live-*.json
+.manuscripts/*/proofs/dogfood-live-*.err
+.manuscripts/*/proofs/publish-live-gate.json
+.manuscripts/*/proofs/publish-live-gate.err

@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -45,7 +45,7 @@ brews:
       owner: vinnyp
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics"
+    description: "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has."
     install: |
       bin.install "splitwise-pp-cli"
       bin.install "splitwise-pp-mcp"
