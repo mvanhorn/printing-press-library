@@ -41,6 +41,9 @@ func newBranchesProtectionRemoveUserAccessRestrictionsCmd(flags *rootFlags) *cob
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users"
 			path = replacePathParam(path, "owner", args[0])

@@ -1351,7 +1351,41 @@ type discriminatorDispatch struct {
 
 var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
+// dropGitHubIssuePullRequests removes pull requests from an issues page.
+// GitHub's issues list includes PRs (identified by a pull_request key);
+// storing them as issues duplicates the pulls resource and poisons
+// offline issue commands. PRs keep their own ids on /pulls, so they
+// are dropped here rather than reclassified.
+func dropGitHubIssuePullRequests(resource string, items []json.RawMessage) []json.RawMessage {
+	if resource != "issues" || len(items) == 0 {
+		return items
+	}
+	out := make([]json.RawMessage, 0, len(items))
+	for _, item := range items {
+		obj, err := store.DecodeJSONObject(item)
+		if err != nil {
+			out = append(out, item)
+			continue
+		}
+		if _, isPR := obj["pull_request"]; isPR {
+			continue
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func githubIssueIsPullRequest(data json.RawMessage) bool {
+	obj, err := store.DecodeJSONObject(data)
+	if err != nil {
+		return false
+	}
+	_, isPR := obj["pull_request"]
+	return isPR
+}
+
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
+	items = dropGitHubIssuePullRequests(resource, items)
 	if _, ok := discriminatorDispatchers[resource]; !ok {
 		return db.UpsertBatch(resource, items)
 	}
@@ -1398,6 +1432,9 @@ func resolveDiscriminatedResource(resource string, obj map[string]any) string {
 
 // upsertSingleObject stores a non-array API response as a single record.
 func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
+	if resource == "issues" && githubIssueIsPullRequest(data) {
+		return nil
+	}
 	obj, err := store.DecodeJSONObject(data)
 	if err != nil {
 		// Not a JSON object either - store raw under resource name

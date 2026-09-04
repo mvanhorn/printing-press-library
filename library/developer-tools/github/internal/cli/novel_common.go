@@ -535,6 +535,7 @@ func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, r
 		if len(items) == 0 {
 			break
 		}
+		items = dropGitHubIssuePullRequests(resource, items)
 		for _, it := range items {
 			id := nvResourceID(it)
 			if id == "" {

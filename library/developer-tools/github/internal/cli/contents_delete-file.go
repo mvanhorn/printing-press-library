@@ -50,6 +50,9 @@ func newContentsDeleteFileCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/contents/{path}"
 			path = replacePathParam(path, "owner", args[0])

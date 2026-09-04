@@ -4,8 +4,8 @@
   "applied_at": "2026-09-04",
   "base_run_id": "20260617-101859-30092ba9",
   "base_printing_press_version": "4.24.0",
-  "summary": "DELETE commands require --yes (or an interactive confirm); POST/PATCH 5xx responses must not be retried; MCP path params must be PathEscaped.",
-  "reason": "Generated mutate handlers skip the advertised confirmation gate, the HTTP client retried every method on 5xx (duplicating GitHub writes), and MCP path substitution inserted raw strings so ?, #, and % in content paths were parsed as URL syntax. A regen must preserve fail-closed deletes, idempotent-only 5xx retries, and escaped MCP paths.",
+  "summary": "Every DELETE handler requires --yes (or an interactive confirm); POST/PATCH 5xx responses must not be retried; MCP path params must be PathEscaped.",
+  "reason": "Generated mutate handlers skip the advertised confirmation gate — including body-bearing DELETEs such as contents delete-file — the HTTP client retried every method on 5xx (duplicating GitHub writes), and MCP path substitution inserted raw strings so ?, #, and % in content paths were parsed as URL syntax. A regen must preserve fail-closed deletes on all DELETE endpoints, idempotent-only 5xx retries, and escaped MCP paths.",
   "files": [
     "internal/cli/github_confirm.go",
     "internal/cli/repos_delete.go",

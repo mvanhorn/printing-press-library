@@ -4,8 +4,8 @@
   "applied_at": "2026-09-04",
   "base_run_id": "20260617-101859-30092ba9",
   "base_printing_press_version": "4.24.0",
-  "summary": "Framework sync must target a repository via --repo and paginate GitHub's path-scoped list endpoints; commits key on sha.",
-  "reason": "GitHub collaboration resources live under /repos/{owner}/{repo}/... and cannot be enumerated as a flat catalog. A regen that restores empty defaultSyncResources or disables pagination would make `sync` a no-op and truncate collections after the first page.",
+  "summary": "Framework sync must target a repository via --repo, paginate GitHub's path-scoped list endpoints, key commits on sha, and drop pull requests from the issues list.",
+  "reason": "GitHub collaboration resources live under /repos/{owner}/{repo}/... and cannot be enumerated as a flat catalog. The issues list also returns pull requests (pull_request key) whose issue ids must not land in the issues store. A regen that restores empty defaultSyncResources, disables pagination, or stores PRs as issues would make sync a no-op, truncate pages, or duplicate cross-entity data.",
   "files": [
     "internal/cli/sync.go",
     "internal/cli/github_sync_repo_test.go"

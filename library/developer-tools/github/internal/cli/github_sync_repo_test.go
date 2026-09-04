@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -25,6 +26,25 @@ func TestDefaultSyncResources_RepoScoped(t *testing.T) {
 	}
 	if extractID("commits", map[string]any{"sha": "abc123"}) != "abc123" {
 		t.Fatal("commits must key on sha")
+	}
+}
+
+func TestDropGitHubIssuePullRequests(t *testing.T) {
+	t.Parallel()
+	issue, err := json.Marshal(map[string]any{"id": 1, "title": "bug"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	pr, err := json.Marshal(map[string]any{"id": 2, "title": "feat", "pull_request": map[string]any{"url": "https://api.github.com/repos/cli/cli/pulls/2"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := dropGitHubIssuePullRequests("issues", []json.RawMessage{issue, pr})
+	if len(got) != 1 {
+		t.Fatalf("kept %d items, want 1 issue", len(got))
+	}
+	if dropGitHubIssuePullRequests("pulls", []json.RawMessage{pr})[0] == nil {
+		t.Fatal("pulls resource should keep PR payloads")
 	}
 }
 

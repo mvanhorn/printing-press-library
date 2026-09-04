@@ -41,6 +41,9 @@ func newIssuesSubIssueIssuesRemoveCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/issues/{issue_number}/sub_issue"
 			path = replacePathParam(path, "owner", args[0])

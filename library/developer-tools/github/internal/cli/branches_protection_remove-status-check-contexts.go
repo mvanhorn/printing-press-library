@@ -31,6 +31,9 @@ func newBranchesProtectionRemoveStatusCheckContextsCmd(flags *rootFlags) *cobra.
 			if err != nil {
 				return err
 			}
+			if err := confirmDestructive(cmd, flags); err != nil {
+				return err
+			}
 
 			path := "/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts"
 			path = replacePathParam(path, "owner", args[0])
