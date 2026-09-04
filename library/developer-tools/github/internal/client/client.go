@@ -370,10 +370,11 @@ func isMutatingVerb(method string) bool {
 	return false
 }
 
-// retryOnServerError reports whether a 5xx response may be retried for this
-// HTTP method. RFC 9110 treats GET/HEAD/PUT/DELETE/OPTIONS/TRACE as
-// idempotent; POST and PATCH are not, so a transient 5xx after GitHub
-// applied the write must not replay the body.
+// retryOnServerError reports whether an ambiguous failure — a 5xx response
+// or a transport error with no HTTP status — may be retried. RFC 9110
+// treats GET/HEAD/PUT/DELETE/OPTIONS/TRACE as idempotent; POST and PATCH
+// are not, so a timeout or 5xx after GitHub applied the write must not
+// replay the body.
 func retryOnServerError(method string) bool {
 	switch strings.ToUpper(method) {
 	case http.MethodGet, http.MethodHead, http.MethodPut, http.MethodDelete, http.MethodOptions, http.MethodTrace:
@@ -559,6 +560,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
+			if !retryOnServerError(method) {
+				return nil, 0, lastErr
+			}
 			continue
 		}
 
