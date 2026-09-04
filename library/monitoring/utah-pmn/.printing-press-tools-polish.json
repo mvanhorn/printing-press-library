@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-27T06:27:18.393247Z",
+  "cli_dir": "\u003ccli-dir\u003e/utah-pmn-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-27T06:23:00.42073Z"
+  }
+}

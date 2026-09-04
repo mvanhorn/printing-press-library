@@ -1,0 +1,53 @@
+name: utah-pmn
+display_name: Utah Public Notice Website
+category: monitoring
+cli_description: Monitor Utah public-body meetings, agendas, and minutes from the state Public Notice Website — tuned for land-use approval tracking in Delta City and Millard County.
+base_url: https://www.utah.gov/pmn
+auth:
+  type: none
+
+resources:
+  notices:
+    description: Public meeting notices published by Utah public bodies (agendas inline)
+    endpoints:
+      upcoming:
+        method: GET
+        path: /getUpcomingNotices.json
+        no_auth: true
+        description: >
+          List meeting notices near a ZIP code or city, within a date range.
+          Returns past and future notices when startDate/endDate span them.
+          Each notice carries the full agenda text inline.
+        params:
+          - name: zipOrCity
+            flag_name: location
+            required: true
+            description: Utah ZIP code (e.g. 84624) or city name (e.g. Delta, Fillmore)
+          - name: startDate
+            flag_name: start
+            description: Window start date (YYYY-MM-DD)
+          - name: endDate
+            flag_name: end
+            description: Window end date (YYYY-MM-DD)
+          - name: listSize
+            flag_name: limit
+            description: Max notices to return (default 50)
+          - name: returnFormattedDateValues
+            flag_name: formatted-dates
+            description: Return human dates instead of epoch millis (true/false)
+  notice:
+    description: A single notice detail page (full agenda, minutes, attached materials)
+    endpoints:
+      get:
+        method: GET
+        path: /sitemap/notice/{noticeId}.html
+        no_auth: true
+        response_format: html
+        description: Fetch the full HTML detail page for a notice, including minutes and material links
+        params:
+          - name: noticeId
+            required: true
+            description: Notice ID from the upcoming notices list
+        html_extract:
+          mode: links
+          link_prefixes: [/pmn/]

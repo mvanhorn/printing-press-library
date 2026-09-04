@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "utah-pmn-pp-mcp",
+  "display_name": "Utah Public Notice Website",
+  "version": "0.0.0",
+  "description": "One command to sweep Utah public-meeting notices for land-use approvals — county-wide, agenda-scanned, and diffed against what you've already seen.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/utah-pmn-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/utah-pmn-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
