@@ -1,0 +1,303 @@
+{
+  "api_name": "github",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "gh",
+      "url": "https://github.com/cli/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 39000,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "github-mcp-server",
+      "url": "https://github.com/github/github-mcp-server",
+      "language": "Go",
+      "install_method": "",
+      "stars": 19000,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-github",
+      "url": "https://github.com/google/go-github",
+      "language": "Go",
+      "install_method": "",
+      "stars": 10000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "octokit.js",
+      "url": "https://github.com/octokit/octokit.js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 7800,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PyGithub",
+      "url": "https://github.com/PyGithub/PyGithub",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7100,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hub",
+      "url": "https://github.com/mislav/hub",
+      "language": "Go",
+      "install_method": "",
+      "stars": 22800,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T17:26:00Z",
+  "novel_features": [
+    {
+      "name": "Duplicate-issue finder",
+      "command": "issues dupes",
+      "description": "Find open issues whose title and body match a term, ranked by relevance, so you spot duplicates before re-triaging.",
+      "rationale": "Runs a local FTS5 query over the synced issue corpus offline, surviving GitHub's 30-requests-per-minute search ceiling that throttles repeated online triage sweeps.",
+      "example": "github-pp-cli issues dupes \"panic on nil map\" --repo cli/cli --limit 10",
+      "why_it_matters": "Reach for this when triaging a new issue and you need to know whether it duplicates an existing one without burning the search rate limit.",
+      "group": "Offline search and cross-entity joins"
+    },
+    {
+      "name": "Cross-entity term hunter",
+      "command": "mentions",
+      "description": "One query across issue bodies, PR comments, and commit messages returning every place a symbol or error string appears, tagged by entity type.",
+      "rationale": "A single local SQL UNION over the FTS5 tables produces a cross-entity answer no individual GitHub API call can express.",
+      "example": "github-pp-cli mentions \"ParseConfig\" --repo cli/cli --since 30d --json",
+      "why_it_matters": "Pick this over per-resource search when you need every reference to a symbol across issues, PRs, and commits at once.",
+      "group": "Offline search and cross-entity joins"
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "issues context",
+      "description": "Assemble one JSON envelope for an issue: the issue, its comments, and the recent commits that mention it, ready for an agent to act on.",
+      "rationale": "Collapses what would be several rate-limited online calls into a single offline read from the local mirror, shaped for tool-calling agents.",
+      "example": "github-pp-cli issues context 456 --repo cli/cli --agent --select issue.title,comments.body,commits.sha",
+      "why_it_matters": "Use this as the first call when an agent is assigned an issue and needs its full working set in one shot instead of N round-trips.",
+      "group": "Offline search and cross-entity joins"
+    },
+    {
+      "name": "Review-backlog by reviewer",
+      "command": "pulls review-load",
+      "description": "Aggregate open PRs by requested reviewer to show who has the largest unactioned review queue.",
+      "rationale": "Joins pull requests to their requested reviewers and groups by login locally, an aggregation gh never computes across PRs.",
+      "example": "github-pp-cli pulls review-load --repo cli/cli --state open",
+      "why_it_matters": "Reach for this in a pre-release sweep to find the review bottleneck before it slips the release train.",
+      "group": "Release and review operations"
+    },
+    {
+      "name": "Stale-PR detector",
+      "command": "pulls stale",
+      "description": "List open PRs with no new commit, review, or comment in N days, sorted by staleness with last-activity time.",
+      "rationale": "Computes the latest activity timestamp per PR across multiple local tables, a staleness view the API does not return directly.",
+      "example": "github-pp-cli pulls stale --repo cli/cli --older-than 14d",
+      "why_it_matters": "Use this to decide which open PRs to nudge or close before they rot.",
+      "group": "Release and review operations"
+    },
+    {
+      "name": "Release diff by author",
+      "command": "repos changelog",
+      "description": "List every commit between two refs, attach its PR when synced, and group by author for release-note prep.",
+      "rationale": "Combines a live compare for the SHA range with a local join of those commits to synced PRs and authors that a single API call cannot produce.",
+      "example": "github-pp-cli repos changelog --repo cli/cli --base v2.93.0 --head v2.94.0",
+      "why_it_matters": "Reach for this when drafting release notes and you need what merged since the last tag, organized by contributor.",
+      "group": "Release and review operations"
+    },
+    {
+      "name": "File ownership and churn",
+      "command": "repos who-touched",
+      "description": "For a file or directory prefix, rank committers by number of commits touching that path, with first and last touch dates.",
+      "rationale": "A local GROUP BY over synced commits filtered by path, producing a path-level ownership ranking gh does not offer.",
+      "example": "github-pp-cli repos who-touched internal/parser --repo cli/cli --since 90d",
+      "why_it_matters": "Use this when onboarding onto an unfamiliar area to find who knows a file before you ask around.",
+      "group": "Repo intelligence"
+    },
+    {
+      "name": "Label coverage report",
+      "command": "labels coverage",
+      "description": "Report each label's open and closed issue and PR counts, and flag labels that are defined but unused and issues that are unlabeled.",
+      "rationale": "A local GROUP BY over the synced issue-label join surfaces unused labels and unlabeled issues that no single API call returns.",
+      "example": "github-pp-cli labels coverage --repo cli/cli",
+      "why_it_matters": "Reach for this during triage hygiene to prune dead labels and catch issues that slipped through unlabeled.",
+      "group": "Repo intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Duplicate-issue finder",
+      "command": "issues dupes",
+      "description": "Find open issues whose title and body match a term, ranked by relevance, so you spot duplicates before re-triaging.",
+      "rationale": "Runs a local FTS5 query over the synced issue corpus offline, surviving GitHub's 30-requests-per-minute search ceiling that throttles repeated online triage sweeps.",
+      "example": "github-pp-cli issues dupes \"panic on nil map\" --repo cli/cli --limit 10",
+      "why_it_matters": "Reach for this when triaging a new issue and you need to know whether it duplicates an existing one without burning the search rate limit.",
+      "group": "Offline search and cross-entity joins"
+    },
+    {
+      "name": "Cross-entity term hunter",
+      "command": "mentions",
+      "description": "One query across issue bodies, PR comments, and commit messages returning every place a symbol or error string appears, tagged by entity type.",
+      "rationale": "A single local SQL UNION over the FTS5 tables produces a cross-entity answer no individual GitHub API call can express.",
+      "example": "github-pp-cli mentions \"ParseConfig\" --repo cli/cli --since 30d --json",
+      "why_it_matters": "Pick this over per-resource search when you need every reference to a symbol across issues, PRs, and commits at once.",
+      "group": "Offline search and cross-entity joins"
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "issues context",
+      "description": "Assemble one JSON envelope for an issue: the issue, its comments, and the recent commits that mention it, ready for an agent to act on.",
+      "rationale": "Collapses what would be several rate-limited online calls into a single offline read from the local mirror, shaped for tool-calling agents.",
+      "example": "github-pp-cli issues context 456 --repo cli/cli --agent --select issue.title,comments.body,commits.sha",
+      "why_it_matters": "Use this as the first call when an agent is assigned an issue and needs its full working set in one shot instead of N round-trips.",
+      "group": "Offline search and cross-entity joins"
+    },
+    {
+      "name": "Review-backlog by reviewer",
+      "command": "pulls review-load",
+      "description": "Aggregate open PRs by requested reviewer to show who has the largest unactioned review queue.",
+      "rationale": "Joins pull requests to their requested reviewers and groups by login locally, an aggregation gh never computes across PRs.",
+      "example": "github-pp-cli pulls review-load --repo cli/cli --state open",
+      "why_it_matters": "Reach for this in a pre-release sweep to find the review bottleneck before it slips the release train.",
+      "group": "Release and review operations"
+    },
+    {
+      "name": "Stale-PR detector",
+      "command": "pulls stale",
+      "description": "List open PRs with no new commit, review, or comment in N days, sorted by staleness with last-activity time.",
+      "rationale": "Computes the latest activity timestamp per PR across multiple local tables, a staleness view the API does not return directly.",
+      "example": "github-pp-cli pulls stale --repo cli/cli --older-than 14d",
+      "why_it_matters": "Use this to decide which open PRs to nudge or close before they rot.",
+      "group": "Release and review operations"
+    },
+    {
+      "name": "Release diff by author",
+      "command": "repos changelog",
+      "description": "List every commit between two refs, attach its PR when synced, and group by author for release-note prep.",
+      "rationale": "Combines a live compare for the SHA range with a local join of those commits to synced PRs and authors that a single API call cannot produce.",
+      "example": "github-pp-cli repos changelog --repo cli/cli --base v2.93.0 --head v2.94.0",
+      "why_it_matters": "Reach for this when drafting release notes and you need what merged since the last tag, organized by contributor.",
+      "group": "Release and review operations"
+    },
+    {
+      "name": "File ownership and churn",
+      "command": "repos who-touched",
+      "description": "For a file or directory prefix, rank committers by number of commits touching that path, with first and last touch dates.",
+      "rationale": "A local GROUP BY over synced commits filtered by path, producing a path-level ownership ranking gh does not offer.",
+      "example": "github-pp-cli repos who-touched internal/parser --repo cli/cli --since 90d",
+      "why_it_matters": "Use this when onboarding onto an unfamiliar area to find who knows a file before you ask around.",
+      "group": "Repo intelligence"
+    },
+    {
+      "name": "Label coverage report",
+      "command": "labels coverage",
+      "description": "Report each label's open and closed issue and PR counts, and flag labels that are defined but unused and issues that are unlabeled.",
+      "rationale": "A local GROUP BY over the synced issue-label join surfaces unused labels and unlabeled issues that no single API call returns.",
+      "example": "github-pp-cli labels coverage --repo cli/cli",
+      "why_it_matters": "Reach for this during triage hygiene to prune dead labels and catch issues that slipped through unlabeled.",
+      "group": "Repo intelligence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GITHUB_TOKEN"
+  },
+  "narrative": {
+    "display_name": "GitHub",
+    "headline": "Every gh issue, PR, repo, and code-search workflow, plus a local SQLite mirror, offline full-text search, and cross-entity joins no GitHub tool offers.",
+    "value_prop": "github-pp-cli mirrors the GitHub collaboration core — issues, pull requests, commits, branches, contents, labels, releases, and search — into a local SQLite store you sync once and query offline forever. It matches the gh CLI and the official MCP server command-for-command on the scoped surfaces, then adds offline FTS search that survives GitHub's rate limits and local joins (issues to PRs to commits to authors) the online API cannot express in a single call.",
+    "auth_narrative": "Set a personal access token in GITHUB_TOKEN (or GH_TOKEN). A fine-grained or classic PAT with the scopes your workflow needs works; read-only scopes suffice for sync and search. github-pp-cli doctor reports your token state and remaining rate-limit budget.",
+    "quickstart": [
+      {
+        "command": "github-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary, token, and rate-limit budget before doing real work."
+      },
+      {
+        "command": "github-pp-cli issues dupes \"rate limit\" --repo cli/cli",
+        "comment": "Populate the local mirror from a repo and find duplicate issues offline."
+      },
+      {
+        "command": "github-pp-cli mentions \"ParseConfig\" --repo cli/cli",
+        "comment": "Find a symbol across issues, PRs, and commits in one query."
+      },
+      {
+        "command": "github-pp-cli pulls review-load --repo cli/cli",
+        "comment": "See who owes the most reviews across all open PRs."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 or 429 with a rate-limit message",
+        "fix": "Authenticated REST is 5,000/hr and search is 30/min; populate once with --repo and read offline, and check budget with github-pp-cli doctor."
+      },
+      {
+        "symptom": "A novel command returns empty results",
+        "fix": "Those commands read the local mirror — pass --repo owner/repo once to populate it (the framework sync cannot fill GitHub repo-scoped resources)."
+      },
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Set GITHUB_TOKEN (or run gh auth login) and re-check with github-pp-cli doctor."
+      }
+    ],
+    "when_to_use": "Choose github-pp-cli when you need to query GitHub's issue, PR, commit, and code-search data repeatedly or offline, when you need cross-entity answers (a symbol across issues+PRs+commits, review backlog by reviewer, file ownership) that take multiple gh calls and a spreadsheet, or when an agent needs an issue's full working set in one rate-limit-friendly read.",
+    "anti_triggers": [
+      "Do not use this CLI for GitHub Actions, workflow runs, or CI status — that surface is out of scope.",
+      "Do not use this CLI for org, team, or enterprise administration.",
+      "Do not use this CLI for git operations like clone, push, or rebase — use git.",
+      "Do not use this CLI for notifications, gists, or marketplace."
+    ],
+    "recipes": [
+      {
+        "title": "Triage duplicates before re-labeling",
+        "command": "github-pp-cli issues dupes \"connection reset\" --repo cli/cli --limit 10",
+        "explanation": "Populates the local mirror then FTS-matches synced issue titles/bodies so you label the canonical duplicate."
+      },
+      {
+        "title": "Find a symbol across everything",
+        "command": "github-pp-cli mentions \"ParseConfig\" --repo cli/cli --since 30d --json",
+        "explanation": "One local query returns every issue, PR, comment, and commit referencing the symbol, tagged by type."
+      },
+      {
+        "title": "Assemble an agent read-set for one issue",
+        "command": "github-pp-cli issues context 456 --repo cli/cli --agent --select issue.title,comments.body,commits.sha",
+        "explanation": "Returns the issue, its comments, and mentioning commits as one narrowed JSON envelope for a single offline read."
+      },
+      {
+        "title": "Find who owns a file before changing it",
+        "command": "github-pp-cli repos who-touched internal/parser --repo cli/cli --since 90d",
+        "explanation": "Ranks committers by commits touching the path so you know who to ask."
+      }
+    ],
+    "trigger_phrases": [
+      "find duplicate issues",
+      "who owes me reviews",
+      "what changed since the last release",
+      "who owns this file",
+      "search github offline",
+      "use github-pp-cli",
+      "run github-pp-cli"
+    ]
+  }
+}

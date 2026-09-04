@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "github-tail-no-error-path-probe",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260617-101859-30092ba9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added the pp:no-error-path-probe annotation to the generated tail command.",
+  "reason": "tail accepts an optional [resource] positional; dogfood's error-path probe expected a non-zero exit for a stray invalid positional that tail legitimately ignores. Annotation suppresses that probe. Generator retro candidate — the emitted tail command could reject stray positionals upstream.",
+  "files": [
+    "internal/cli/tail.go"
+  ]
+}

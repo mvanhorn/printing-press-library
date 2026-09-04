@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "github-novel-features",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260617-101859-30092ba9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-authored the 8 transcendence commands plus shared logic, with repository-isolated populate-on-demand, bounded issue-reference matching, and explicit partial-result reporting.",
+  "reason": "The generator scaffolds novel commands as stubs and cannot populate GitHub's path-templated /repos/{owner}/{repo}/... resources via the framework sync. Reprints must preserve repo isolation, exact search semantics, pagination completeness, and database error propagation so the offline aggregation commands never silently mix or truncate results.",
+  "files": [
+    "internal/cli/novel_common.go",
+    "internal/cli/issues_dupes.go",
+    "internal/cli/mentions.go",
+    "internal/cli/issues_context.go",
+    "internal/cli/pulls_review_load.go",
+    "internal/cli/pulls_stale.go",
+    "internal/cli/repos_changelog.go",
+    "internal/cli/repos_who_touched.go",
+    "internal/cli/labels_coverage.go",
+    "internal/cli/novel_common_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/... pass; full live dogfood 331/331 against cli/cli; scorecard 95/100 Grade A."
+}
