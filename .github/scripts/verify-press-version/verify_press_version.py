@@ -79,13 +79,39 @@ def is_new_cli(base_ref: str, cli_dir: Path) -> bool:
     return not git_exists(base_ref, cli_dir / ".printing-press.json")
 
 
+_SEMVER_RE = re.compile(
+    r"^v?(\d+)\.(\d+)\.(\d+)(?:-([^+]*))?(?:\+(.*))?$"
+)
+
+
 def parse_semver(value: object) -> tuple[int, int, int] | None:
+    parsed = _parse_version(value)
+    if parsed is None:
+        return None
+    return parsed[0]
+
+
+def _parse_version(value: object) -> tuple[tuple[int, int, int], bool] | None:
     if not isinstance(value, str):
         return None
-    match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", value.strip())
+    match = _SEMVER_RE.match(value.strip())
     if match is None:
         return None
-    return tuple(int(part) for part in match.groups())
+    parts = tuple(int(part) for part in match.group(1, 2, 3))
+    is_prerelease = match.group(4) is not None
+    return parts, is_prerelease
+
+
+def version_meets_floor(value: object) -> bool:
+    parsed = _parse_version(value)
+    if parsed is None:
+        return False
+    parts, is_prerelease = parsed
+    if parts > MIN_VERSION_PARTS:
+        return True
+    if parts < MIN_VERSION_PARTS:
+        return False
+    return not is_prerelease
 
 
 def upgrade_message(actual: object) -> str:
@@ -124,8 +150,7 @@ def validate_cli_dir(cli_dir: Path) -> list[Problem]:
         return [Problem(manifest_path, ".printing-press.json must contain a JSON object")]
 
     raw_version = manifest.get("printing_press_version")
-    parsed = parse_semver(raw_version)
-    if parsed is None or parsed < MIN_VERSION_PARTS:
+    if not version_meets_floor(raw_version):
         return [Problem(manifest_path, upgrade_message(raw_version))]
 
     return []

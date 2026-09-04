@@ -113,6 +113,35 @@ class PressVersionVerifierTest(unittest.TestCase):
 
         self.assertEqual(0, self.run_quiet(base))
 
+    def test_prerelease_at_floor_fails(self) -> None:
+        base = self.commit_base()
+        self.git("switch", "-c", "feature")
+        self.write_manifest("library/cloud/new", "4.31.7-rc1")
+        self.write("library/cloud/new/README.md", "# New\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "add prerelease cli")
+
+        self.assertEqual(1, self.run_quiet(base))
+
+    def test_prerelease_newer_than_floor_passes(self) -> None:
+        base = self.commit_base()
+        self.git("switch", "-c", "feature")
+        self.write_manifest("library/cloud/newer", "4.32.0-rc1")
+        self.write("library/cloud/newer/README.md", "# Newer\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "add newer prerelease cli")
+
+        self.assertEqual(0, self.run_quiet(base))
+
+    def test_prerelease_at_floor_reports_below_required(self) -> None:
+        cli_dir = self.tmp / "library" / "cloud" / "rc"
+        self.write_manifest("library/cloud/rc", "4.31.7-rc1")
+
+        problems = verifier.validate_cli_dir(cli_dir)
+
+        self.assertEqual(1, len(problems))
+        self.assertIn("printing_press_version '4.31.7-rc1' is below the required", problems[0].message)
+
     def test_missing_version_fails_with_upgrade_guidance(self) -> None:
         cli_dir = self.tmp / "library" / "cloud" / "missing"
         self.write_manifest("library/cloud/missing", "")
