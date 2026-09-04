@@ -90,24 +90,32 @@ func (q catalogQuery) serverFilters() string {
 	return strings.Join(f, " AND ")
 }
 
+func (q catalogQuery) localFiltersActive() bool {
+	return len(q.formats) > 0 || q.noSubscription
+}
+
 func (q catalogQuery) request() algolia.SearchRequest {
 	limit := q.limit
 	if limit <= 0 {
 		limit = 20
 	}
-	// When local post-filters are active, over-fetch so the post-filter still
-	// has enough rows to satisfy the requested limit.
-	hitsPerPage := limit
-	if len(q.formats) > 0 || q.noSubscription {
-		hitsPerPage = clampInt(limit*4, limit, 100)
-	}
 	return algolia.SearchRequest{
 		IndexName:   q.index(),
 		Query:       q.query,
 		Page:        q.page,
-		HitsPerPage: hitsPerPage,
+		HitsPerPage: limit,
 		Filters:     q.serverFilters(),
 	}
+}
+
+func (q catalogQuery) matchLocal(h algolia.Hit) bool {
+	if q.noSubscription && !h.OutsideSubscription {
+		return false
+	}
+	if len(q.formats) > 0 && !hitMatchesFormat(h, q.formats) {
+		return false
+	}
+	return true
 }
 
 // applyLocalFilters applies the format and subscription-free filters that
@@ -117,20 +125,68 @@ func (q catalogQuery) applyLocalFilters(hits []algolia.Hit) []algolia.Hit {
 	if limit <= 0 {
 		limit = 20
 	}
-	out := hits[:0:0]
+	return appendLocalMatches(nil, hits, q, limit)
+}
+
+func appendLocalMatches(dst []algolia.Hit, hits []algolia.Hit, q catalogQuery, limit int) []algolia.Hit {
 	for _, h := range hits {
-		if q.noSubscription && !h.OutsideSubscription {
+		if !q.matchLocal(h) {
 			continue
 		}
-		if len(q.formats) > 0 && !hitMatchesFormat(h, q.formats) {
-			continue
+		dst = append(dst, h)
+		if len(dst) >= limit {
+			return dst
 		}
-		out = append(out, h)
-		if len(out) >= limit {
+	}
+	return dst
+}
+
+// maxLocalScanPages is the Algolia page budget when local post-filters are
+// active. 10 pages × 100 hits covers the typical 1000-hit window.
+const maxLocalScanPages = 10
+
+func fetchCatalogHits(ctx context.Context, c *algolia.Client, q catalogQuery) ([]algolia.Hit, error) {
+	limit := q.limit
+	if limit <= 0 {
+		limit = 20
+	}
+	if !q.localFiltersActive() {
+		results, err := c.Search(ctx, q.request())
+		if err != nil {
+			return nil, err
+		}
+		if len(results) == 0 {
+			return nil, nil
+		}
+		hits := results[0].Hits
+		if len(hits) > limit {
+			hits = hits[:limit]
+		}
+		return hits, nil
+	}
+	pages := maxLocalScanPages
+	if cliutil.IsDogfoodEnv() && pages > 2 {
+		pages = 2
+	}
+	var out []algolia.Hit
+	start := q.page
+	for page := start; page < start+pages; page++ {
+		req := q.request()
+		req.Page = page
+		req.HitsPerPage = 100
+		results, err := c.Search(ctx, req)
+		if err != nil {
+			return out, err
+		}
+		if len(results) == 0 || len(results[0].Hits) == 0 {
+			break
+		}
+		out = appendLocalMatches(out, results[0].Hits, q, limit)
+		if len(out) >= limit || page+1 >= results[0].NbPages {
 			break
 		}
 	}
-	return out
+	return out, nil
 }
 
 // hitMatchesFormat reports whether any requested file format token appears in
@@ -285,14 +341,10 @@ func runCatalogSearch(cmd *cobra.Command, flags *rootFlags, q catalogQuery) erro
 	ctx, cancel := boundCtx(cmd.Context(), flags)
 	defer cancel()
 	c := newAlgoliaClient(flags)
-	results, err := c.Search(ctx, q.request())
+	hits, err := fetchCatalogHits(ctx, c, q)
 	if err != nil {
 		return apiErr(err)
 	}
-	if len(results) == 0 {
-		return printProducts(cmd, flags, nil)
-	}
-	hits := q.applyLocalFilters(results[0].Hits)
 	return printProducts(cmd, flags, toViews(hits))
 }
 

@@ -4,6 +4,10 @@
 
 Creative Fabrica's web UI is heavy, upsell-laden, and gives you only the facets it wants to. This CLI talks straight to the same catalog index the site uses and adds the filters crafters and print-on-demand sellers actually need: file format (svg/dxf/png/eps), commercial-license (POD), subscription-free, and real discount depth. It also tracks designers and surfaces what is new since your last run — all agent-native with `--json`, `--csv`, and `--select`.
 
+Created by [@vcolombo](https://github.com/vcolombo) (Vincent Colombo).
+
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Why this exists
 
 Creative Fabrica has **no official API**. Its site search is powered by a public Algolia index, and this CLI queries that same index directly over plain HTTPS — no browser, no scraping, no Cloudflare at runtime. That unlocks things the web UI simply does not offer:
@@ -11,7 +15,7 @@ Creative Fabrica has **no official API**. Its site search is powered by a public
 - **File-format filtering.** Creative Fabrica has no "SVG only" facet. `find --format svg,dxf` matches the format in tags and titles, so Cricut/Silhouette crafters stop wading through subscription-locked previews of the wrong format.
 - **Commercial-license sourcing.** Print-on-demand sellers can filter to `--pod` (commercial use) and `--no-subscription` (usable without an active plan) and export candidates to CSV.
 - **Real discount depth.** `deals` ranks by the actual regular→sale percentage, cutting through discount theater.
-- **Designer intelligence.** `designer-stats` and `designer-compare` profile a creator's whole catalog; `new-since` reports only what's new since your last run.
+- **Designer intelligence.** `designer-stats` and `designer-compare` profile a scanned sample of a creator's catalog (`--max-scan-pages`); `new-since` reports only what's new since your last run.
 
 **Who it's for:** Cricut/Silhouette crafters hunting cut files, print-on-demand sellers sourcing license-safe assets, designers and budget crafters chasing genuine free/discounted items, and AI agents that need structured catalog data without parsing a heavy web page.
 

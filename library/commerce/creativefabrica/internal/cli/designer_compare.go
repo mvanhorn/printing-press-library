@@ -16,6 +16,9 @@ func newNovelDesignerCompareCmd(flags *rootFlags) *cobra.Command {
 		Short: "Compare two designers head-to-head (size, type mix, price band, free/POD share)",
 		Long: `Profile two designers and render them side by side.
 
+Free/POD/sale/price/type mix are from the scanned sample
+(--max-scan-pages). JSON on each profile includes scanned and sampled.
+
 For a single designer profile use 'designer-stats'.`,
 		Example:     strings.Trim("\n  creativefabrica-pp-cli designer-compare \"DigiArt\" \"CraftLab\" --agent\n  creativefabrica-pp-cli designer-compare 2880714 123456", "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -45,9 +48,9 @@ For a single designer profile use 'designer-stats'.`,
 			rows := [][]string{
 				{"Total products", fmt.Sprintf("%d", a.Total), fmt.Sprintf("%d", b.Total)},
 				{"Scanned", fmt.Sprintf("%d", a.Scanned), fmt.Sprintf("%d", b.Scanned)},
-				{"Free", fmt.Sprintf("%d", a.FreeCount), fmt.Sprintf("%d", b.FreeCount)},
-				{"POD", fmt.Sprintf("%d", a.PodCount), fmt.Sprintf("%d", b.PodCount)},
-				{"On sale", fmt.Sprintf("%d", a.OnSaleCount), fmt.Sprintf("%d", b.OnSaleCount)},
+				{"Free (scanned)", fmt.Sprintf("%d", a.FreeCount), fmt.Sprintf("%d", b.FreeCount)},
+				{"POD (scanned)", fmt.Sprintf("%d", a.PodCount), fmt.Sprintf("%d", b.PodCount)},
+				{"On sale (scanned)", fmt.Sprintf("%d", a.OnSaleCount), fmt.Sprintf("%d", b.OnSaleCount)},
 				{"Median price", fmt.Sprintf("$%.2f", a.MedianPrice), fmt.Sprintf("$%.2f", b.MedianPrice)},
 				{"Top type", topType(a), topType(b)},
 			}

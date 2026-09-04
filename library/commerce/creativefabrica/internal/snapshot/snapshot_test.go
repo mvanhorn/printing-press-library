@@ -1,6 +1,8 @@
 package snapshot
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -47,5 +49,25 @@ func TestPutGetRoundTrip(t *testing.T) {
 	}
 	if len(snap.ObjectIDs) != 3 || snap.ObjectIDs[0] != "1" {
 		t.Errorf("stored ids = %v (want sorted)", snap.ObjectIDs)
+	}
+}
+
+func TestPutLeavesNoTempFiles(t *testing.T) {
+	dir := t.TempDir()
+	s := Open(dir)
+	if err := s.Put("k", []string{"a"}); err != nil {
+		t.Fatal(err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if filepath.Ext(e.Name()) == ".tmp" {
+			t.Fatalf("temp file left behind: %s", e.Name())
+		}
+	}
+	if _, ok := s.Get("k"); !ok {
+		t.Fatal("final snapshot missing")
 	}
 }

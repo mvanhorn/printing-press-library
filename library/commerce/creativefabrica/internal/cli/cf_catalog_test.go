@@ -60,6 +60,26 @@ func TestHitMatchesFormat(t *testing.T) {
 	}
 }
 
+func TestAppendLocalMatchesPagesUntilLimit(t *testing.T) {
+	q := catalogQuery{formats: []string{"svg"}, limit: 2}
+	page1 := []algolia.Hit{
+		{ObjectID: "1", NameEN: "Heart PNG"},
+		{ObjectID: "2", NameEN: "Star SVG"},
+	}
+	page2 := []algolia.Hit{
+		{ObjectID: "3", NameEN: "Moon SVG"},
+		{ObjectID: "4", NameEN: "Leaf SVG"},
+	}
+	got := appendLocalMatches(nil, page1, q, 2)
+	if len(got) != 1 || got[0].ObjectID != "2" {
+		t.Fatalf("after page1 = %+v", got)
+	}
+	got = appendLocalMatches(got, page2, q, 2)
+	if len(got) != 2 || got[1].ObjectID != "3" {
+		t.Fatalf("after page2 = %+v (should stop at limit 2, skipping later svg)", got)
+	}
+}
+
 func TestApplyLocalFilters(t *testing.T) {
 	hits := []algolia.Hit{
 		{ObjectID: "1", NameEN: "Heart SVG", OutsideSubscription: true},

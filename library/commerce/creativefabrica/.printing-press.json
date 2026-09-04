@@ -9,6 +9,12 @@
     "handle": "vcolombo",
     "name": "Vincent Colombo"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "vcolombo",
   "printer": "vcolombo",
   "printer_name": "Vincent Colombo",

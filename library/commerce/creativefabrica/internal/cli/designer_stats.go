@@ -16,6 +16,7 @@ type designerProfile struct {
 	DesignerID  int          `json:"designer_id"`
 	Total       int          `json:"total_products"`
 	Scanned     int          `json:"scanned"`
+	Sampled     bool         `json:"sampled"`
 	FreeCount   int          `json:"free_count"`
 	PodCount    int          `json:"pod_count"`
 	OnSaleCount int          `json:"on_sale_count"`
@@ -41,7 +42,7 @@ func profileDesigner(cmd *cobra.Command, flags *rootFlags, designer string, maxS
 	if err != nil {
 		return designerProfile{}, apiErr(err)
 	}
-	p := designerProfile{Designer: designer, Total: nbHits, Scanned: len(hits)}
+	p := designerProfile{Designer: designer, Total: nbHits, Scanned: len(hits), Sampled: nbHits > len(hits)}
 	if len(hits) == 0 {
 		return p, nil
 	}
@@ -111,6 +112,10 @@ func newNovelDesignerStatsCmd(flags *rootFlags) *cobra.Command {
 		Short: "Profile a designer's catalog: type mix, price band, free/POD counts, newest drop",
 		Long: `Aggregate a single designer's catalog into a one-shot profile.
 
+Counts other than total_products come from the scanned sample
+(--max-scan-pages, 100 hits/page). When scanned < total_products, JSON
+sets sampled=true. Use --max-scan-pages to widen the sample.
+
 For the raw product list use 'designer'; to compare two designers use
 'designer-compare'.`,
 		Example:     strings.Trim("\n  creativefabrica-pp-cli designer-stats \"DigiArt\" --agent\n  creativefabrica-pp-cli designer-stats 2880714", "\n"),
@@ -136,6 +141,9 @@ For the raw product list use 'designer'; to compare two designers use
 			out := cmd.OutOrStdout()
 			fmt.Fprintf(out, "Designer: %s (id %d)\n", p.Designer, p.DesignerID)
 			fmt.Fprintf(out, "Catalog:  %d total, %d scanned\n", p.Total, p.Scanned)
+			if p.Sampled {
+				fmt.Fprintf(out, "Note:     free/POD/sale/price/type mix are from the scanned sample, not the full catalog\n")
+			}
 			fmt.Fprintf(out, "Free:     %d   POD: %d   On sale: %d\n", p.FreeCount, p.PodCount, p.OnSaleCount)
 			fmt.Fprintf(out, "Price:    $%.2f–$%.2f (median $%.2f)\n", p.MinPrice, p.MaxPrice, p.MedianPrice)
 			var mix []string

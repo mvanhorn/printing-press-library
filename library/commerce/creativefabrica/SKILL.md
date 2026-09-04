@@ -79,14 +79,14 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   creativefabrica-pp-cli deals "font bundle" --agent
   ```
-- **`designer-stats`** — Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release.
+- **`designer-stats`** — Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release. Mix metrics come from a scanned sample (`--max-scan-pages`); JSON sets `sampled=true` when scanned < total.
 
   _Pick this when you need a one-shot read on a creator instead of scrolling their page._
 
   ```bash
-  creativefabrica-pp-cli designer-stats "DigiArt" --agent
+  creativefabrica-pp-cli designer-stats "DigiArt" --agent --max-scan-pages 5
   ```
-- **`designer-compare`** — Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity.
+- **`designer-compare`** — Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity. Free/POD/sale counts are from the scanned sample.
 
   _Use this for competitor research when sourcing or scouting creators._
 
@@ -115,6 +115,7 @@ These capabilities aren't available in any other tool for this API.
 **products** — Search and browse the Creative Fabrica catalog (Algolia)
 
 - `creativefabrica-pp-cli products` — Low-level Algolia multi-query passthrough (prefer the top-level search/browse/free/pod commands)
+- `creativefabrica-pp-cli products --requests '[{"indexName":"prod_Productsv2","query":"svg"}]'` — Optional JSON array (or `{"requests":[...]}`) of Algolia query objects
 
 
 ### Finding the right command

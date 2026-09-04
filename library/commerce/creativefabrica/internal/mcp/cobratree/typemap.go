@@ -21,6 +21,9 @@ func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {
 		if flag == nil || flag.Hidden || flag.Deprecated != "" {
 			return
 		}
+		if blockedRootFlags[flag.Name] {
+			return
+		}
 		if seen[flag.Name] {
 			return
 		}

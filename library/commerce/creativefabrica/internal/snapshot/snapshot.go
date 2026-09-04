@@ -65,8 +65,33 @@ func (s *Store) Put(key string, ids []string) error {
 	}
 	sorted := append([]string(nil), ids...)
 	sort.Strings(sorted)
-	data, _ := json.MarshalIndent(Snapshot{Key: key, UpdatedAt: time.Now().Unix(), ObjectIDs: sorted}, "", "  ")
-	return os.WriteFile(s.path(key), data, 0o600)
+	data, err := json.MarshalIndent(Snapshot{Key: key, UpdatedAt: time.Now().Unix(), ObjectIDs: sorted}, "", "  ")
+	if err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(s.dir, ".snap-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	ok := false
+	defer func() {
+		if !ok {
+			_ = os.Remove(tmpName)
+		}
+	}()
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpName, s.path(key)); err != nil {
+		return err
+	}
+	ok = true
+	return nil
 }
 
 // Diff returns the ids present in current but not in prior.

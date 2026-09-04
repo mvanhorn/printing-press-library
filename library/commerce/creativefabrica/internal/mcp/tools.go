@@ -42,7 +42,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/1/indexes/*/queries", true, false, nil, []mcpParamBinding{{PublicName: "requests", WireName: "requests", Location: "body"}}, []string{}),
+		handleProductsSearch,
 	)
 
 	// Context tool — front-loaded domain knowledge for agents.
