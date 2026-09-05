@@ -1,9 +1,0 @@
-{
-  "dir": "\u003ccli-dir\u003e/agilix-dawn-pp-cli",
-  "research_dir": "\u003ccli-dir\u003e/20260705-122309-e47ed112",
-  "verdict": "pass",
-  "actors": null,
-  "issues": [
-    "no Apify actor references found, skipping"
-  ]
-}
