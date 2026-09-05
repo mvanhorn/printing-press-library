@@ -60,6 +60,24 @@ func TestResolveReportsUIHost(t *testing.T) {
 			apiBaseURL: "http://127.0.0.1:0/%zz",
 			wantErr:    true,
 		},
+		{
+			// PATCH(amend-2026-09-04: security regression test) -- exact
+			// repro of the finding: a plain string-suffix check on
+			// "concursolutions.com" treats this host as trusted, since it
+			// literally ends with that substring, even though it's a
+			// completely unrelated domain not owned by Concur at all.
+			name:       "lookalike domain sharing a raw string suffix is rejected, not trusted",
+			apiBaseURL: "https://evilconcursolutions.com",
+			wantErr:    true,
+		},
+		{
+			// Same lookalike-suffix attack, routed through the www-/.api.
+			// cleaning transform first, proving the boundary check applies
+			// to the cleaned host, not just the raw input.
+			name:       "lookalike domain surviving the www-/.api. cleaning transform is still rejected",
+			apiBaseURL: "https://www-us2.api.evilconcursolutions.com",
+			wantErr:    true,
+		},
 	}
 
 	for _, tt := range tests {
