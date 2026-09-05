@@ -196,7 +196,7 @@
         "fipi"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"resources\": [],\n  \"has_gaps\": false,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\n"
+      "output_sample": "{\n  \"resources\": [],\n  \"has_gaps\": false,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\n"
     },
     {
       "command": "coverage",
@@ -208,7 +208,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"resources\": [],\n  \"has_gaps\": false,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\n"
+      "output_sample": "{\n  \"resources\": [],\n  \"has_gaps\": false,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\n"
     },
     {
       "command": "coverage",
@@ -235,7 +235,7 @@
         "--dry-run"
       ],
       "status": "pass",
-      "output_sample": "  OK Config: ok\n  FAIL Auth: not configured\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.config/nccpl-pp-cli/config.toml\n  base_url: https://www.nccpl.com.pk\n  credentials_location: none\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.config/nccpl-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/state/nccpl-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.cache/nccpl-pp-cli (XDG_CACHE_HOME)\nGET https://www.nccpl.com.pk/api/fipi/latest-date\n\n(dry run - no request sent)\n"
+      "output_sample": "  OK Config: ok\n  FAIL Auth: not configured\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.config/nccpl-pp-cli/config.toml\n  base_url: https://www.nccpl.com.pk\n  credentials_location: none\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.config/nccpl-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/state/nccpl-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.cache/nccpl-pp-cli (XDG_CACHE_HOME)\nGET https://www.nccpl.com.pk/api/fipi/latest-date\n\n(dry run - no request sent)\n"
     },
     {
       "command": "doctor",
@@ -246,7 +246,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not configured\",\n  \"auth_hint\": \"nccpl-pp-cli auth login --chrome\",\n  \"base_url\": \"https://www.nccpl.com.pk\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.config/nccpl-pp-cli/config.toml\",\n  \"cookie_tool\": \"not found (install: pip install pycookiecheat)\",\n  \"credentials_location\": \"none\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.cache/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.config/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/state/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\nGET https://www.nccpl.com.pk/api/fipi/latest-date\n\n(dry run - no request sent)\n"
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not configured\",\n  \"auth_hint\": \"nccpl-pp-cli auth login --chrome\",\n  \"base_url\": \"https://www.nccpl.com.pk\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.config/nccpl-pp-cli/config.toml\",\n  \"cookie_tool\": \"not found (install: pip install pycookiecheat)\",\n  \"credentials_location\": \"none\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.cache/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.config/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/state/nccpl-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\nGET https://www.nccpl.com.pk/api/fipi/latest-date\n\n(dry run - no request sent)\n"
     },
     {
       "command": "doctor",
@@ -283,7 +283,7 @@
         "jsonl"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"format\": \"jsonl\",\n  \"output\": \"store.jsonl\",\n  \"resources\": [],\n  \"total_rows\": 0,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\",\n  \"note\": \"no NCCPL observations stored yet; nothing was written\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\n"
+      "output_sample": "{\n  \"format\": \"jsonl\",\n  \"output\": \"store.jsonl\",\n  \"resources\": [],\n  \"total_rows\": 0,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\",\n  \"note\": \"no NCCPL observations stored yet; nothing was written\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\n"
     },
     {
       "command": "export",
@@ -295,7 +295,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"format\": \"jsonl\",\n  \"output\": \"stdout\",\n  \"resources\": [],\n  \"total_rows\": 0,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\",\n  \"note\": \"no NCCPL observations stored yet; nothing was written\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\n"
+      "output_sample": "{\n  \"format\": \"jsonl\",\n  \"output\": \"stdout\",\n  \"resources\": [],\n  \"total_rows\": 0,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\",\n  \"note\": \"no NCCPL observations stored yet; nothing was written\"\n}\nno NCCPL data synced yet at /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\nrun: nccpl-pp-cli sync --resources fipi --latest-only --db /var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\n"
     },
     {
       "command": "export",
@@ -641,7 +641,7 @@
         "2026-09-04"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"dates_requested\": 1,\n  \"dates_fetched\": 1,\n  \"dates_skipped_already_stored\": 0,\n  \"rows_stored\": 86,\n  \"dates_empty\": 0,\n  \"dates_failed\": 0,\n  \"from\": \"2026-09-03\",\n  \"to\": \"2026-09-04\",\n  \"source\": \"https://www.scstrade.com/FIPILIPI.aspx/loadfipisector\",\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\n"
+      "output_sample": "{\n  \"dates_requested\": 1,\n  \"dates_fetched\": 1,\n  \"dates_skipped_already_stored\": 0,\n  \"rows_stored\": 86,\n  \"dates_empty\": 0,\n  \"dates_failed\": 0,\n  \"from\": \"2026-09-03\",\n  \"to\": \"2026-09-04\",\n  \"source\": \"https://www.scstrade.com/FIPILIPI.aspx/loadfipisector\",\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\n"
     },
     {
       "command": "flows",
@@ -655,7 +655,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"dates_requested\": 1,\n  \"dates_fetched\": 0,\n  \"dates_skipped_already_stored\": 1,\n  \"rows_stored\": 0,\n  \"dates_empty\": 0,\n  \"dates_failed\": 0,\n  \"from\": \"2026-09-03\",\n  \"to\": \"2026-09-04\",\n  \"source\": \"https://www.scstrade.com/FIPILIPI.aspx/loadfipisector\",\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\n"
+      "output_sample": "{\n  \"dates_requested\": 1,\n  \"dates_fetched\": 0,\n  \"dates_skipped_already_stored\": 1,\n  \"rows_stored\": 0,\n  \"dates_empty\": 0,\n  \"dates_failed\": 0,\n  \"from\": \"2026-09-03\",\n  \"to\": \"2026-09-04\",\n  \"source\": \"https://www.scstrade.com/FIPILIPI.aspx/loadfipisector\",\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\n"
     },
     {
       "command": "flows",
@@ -724,7 +724,7 @@
         "--stdin"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"ingested\": [\n    {\n      \"resource\": \"var-margins\",\n      \"date\": \"2026-09-04\",\n      \"rows\": 1,\n      \"source\": \"stdin\"\n    }\n  ],\n  \"total_rows\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\n"
+      "output_sample": "{\n  \"ingested\": [\n    {\n      \"resource\": \"var-margins\",\n      \"date\": \"2026-09-04\",\n      \"rows\": 1,\n      \"source\": \"stdin\"\n    }\n  ],\n  \"total_rows\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\n"
     },
     {
       "command": "ingest",
@@ -739,7 +739,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"ingested\": [\n    {\n      \"resource\": \"var-margins\",\n      \"date\": \"2026-09-04\",\n      \"rows\": 1,\n      \"source\": \"stdin\"\n    }\n  ],\n  \"total_rows\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\n"
+      "output_sample": "{\n  \"ingested\": [\n    {\n      \"resource\": \"var-margins\",\n      \"date\": \"2026-09-04\",\n      \"rows\": 1,\n      \"source\": \"stdin\"\n    }\n  ],\n  \"total_rows\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\n"
     },
     {
       "command": "ingest",
@@ -1212,7 +1212,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/lipi-normal/latest-date returned HTTP 403: HTML error page (5914 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/lipi-normal/latest-date returned HTTP 403: HTML error page (5914 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/lipi-normal/latest-date returned HTTP 403: HTML error page (5893 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/lipi-normal/latest-date returned HTTP 403: HTML error page (5893 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "lipi-normal latest-date",
@@ -1254,7 +1254,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"POST /api/lipi-sector-wise/data returned HTTP 403: HTML error page (5908 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: POST /api/lipi-sector-wise/data returned HTTP 403: HTML error page (5908 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"POST /api/lipi-sector-wise/data returned HTTP 403: HTML error page (5887 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: POST /api/lipi-sector-wise/data returned HTTP 403: HTML error page (5887 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "lipi-sector data",
@@ -1292,7 +1292,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/lipi-sector-wise/latest-date returned HTTP 403: HTML error page (5930 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/lipi-sector-wise/latest-date returned HTTP 403: HTML error page (5930 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/lipi-sector-wise/latest-date returned HTTP 403: HTML error page (5951 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/lipi-sector-wise/latest-date returned HTTP 403: HTML error page (5951 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "lipi-sector latest-date",
@@ -1456,7 +1456,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/mfs-open-position/latest-date returned HTTP 403: HTML error page (5954 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/mfs-open-position/latest-date returned HTTP 403: HTML error page (5954 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/mfs-open-position/latest-date returned HTTP 403: HTML error page (5933 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/mfs-open-position/latest-date returned HTTP 403: HTML error page (5933 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "mfs latest-date",
@@ -1534,7 +1534,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/mfs-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6029 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/mfs-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6029 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/mfs-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6008 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/mfs-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6008 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "mfs-top latest-date",
@@ -1690,7 +1690,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/msf-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6029 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/msf-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6029 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/msf-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6008 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/msf-top-15-financees-and-financiers/latest-date returned HTTP 403: HTML error page (6008 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "msf-top latest-date",
@@ -2211,7 +2211,7 @@
         "--agent"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"confidence\": 2,\n      \"created_at\": \"2026-09-05T17:46:26Z\",\n      \"id\": 2,\n      \"last_observed_at\": \"2026-09-05T17:46:26.199965Z\",\n      \"notes_text\": \"[amend 2026-09-05T17:46Z]: summary endpoint envelope: data lives at .results.header, not .header\\n\\n[amend 2026-09-05T17:46Z]: summary endpoint envelope: data lives at .results.header, not .header\",\n      \"query_family\": \"\\u003cexact query\\u003e recall\",\n      \"source\": \"taught\"\n    }\n  ]\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"confidence\": 2,\n      \"created_at\": \"2026-09-05T17:55:02Z\",\n      \"id\": 2,\n      \"last_observed_at\": \"2026-09-05T17:55:02.190764Z\",\n      \"notes_text\": \"[amend 2026-09-05T17:55Z]: summary endpoint envelope: data lives at .results.header, not .header\\n\\n[amend 2026-09-05T17:55Z]: summary endpoint envelope: data lives at .results.header, not .header\",\n      \"query_family\": \"\\u003cexact query\\u003e recall\",\n      \"source\": \"taught\"\n    }\n  ]\n}\n"
     },
     {
       "command": "playbook list",
@@ -2222,7 +2222,7 @@
         "--agent"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"confidence\": 2,\n      \"created_at\": \"2026-09-05T17:46:26Z\",\n      \"id\": 2,\n      \"last_observed_at\": \"2026-09-05T17:46:26.199965Z\",\n      \"notes_text\": \"[amend 2026-09-05T17:46Z]: summary endpoint envelope: data lives at .results.header, not .header\\n\\n[amend 2026-09-05T17:46Z]: summary endpoint envelope: data lives at .results.header, not .header\",\n      \"query_family\": \"\\u003cexact query\\u003e recall\",\n      \"source\": \"taught\"\n    }\n  ]\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"confidence\": 2,\n      \"created_at\": \"2026-09-05T17:55:02Z\",\n      \"id\": 2,\n      \"last_observed_at\": \"2026-09-05T17:55:02.190764Z\",\n      \"notes_text\": \"[amend 2026-09-05T17:55Z]: summary endpoint envelope: data lives at .results.header, not .header\\n\\n[amend 2026-09-05T17:55Z]: summary endpoint envelope: data lives at .results.header, not .header\",\n      \"query_family\": \"\\u003cexact query\\u003e recall\",\n      \"source\": \"taught\"\n    }\n  ]\n}\n"
     },
     {
       "command": "playbook list",
@@ -2532,7 +2532,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"query\": \"__printing_press_invalid__\",\n  \"hits\": [],\n  \"hit_count\": 0,\n  \"limit\": 50,\n  \"truncated\": false,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\",\n  \"note\": \"nothing stored matches this query; check 'coverage' for which sessions are held before reading anything into an empty result\"\n}\n"
+      "output_sample": "{\n  \"query\": \"__printing_press_invalid__\",\n  \"hits\": [],\n  \"hit_count\": 0,\n  \"limit\": 50,\n  \"truncated\": false,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\",\n  \"note\": \"nothing stored matches this query; check 'coverage' for which sessions are held before reading anything into an empty result\"\n}\n"
     },
     {
       "command": "settlement-cm data",
@@ -2596,7 +2596,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/sett-info-cm-wise/latest-date returned HTTP 403: HTML error page (5933 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/sett-info-cm-wise/latest-date returned HTTP 403: HTML error page (5933 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/sett-info-cm-wise/latest-date returned HTTP 403: HTML error page (5954 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/sett-info-cm-wise/latest-date returned HTTP 403: HTML error page (5954 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "settlement-cm latest-date",
@@ -3191,7 +3191,7 @@
       "status": "unverified",
       "exit_code": 4,
       "reason": "unverified-needs-access",
-      "output_sample": "{\"code\":4,\"error\":\"GET /api/var-margins/latest-date returned HTTP 403: HTML error page (5893 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/var-margins/latest-date returned HTTP 403: HTML error page (5893 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
+      "output_sample": "{\"code\":4,\"error\":\"GET /api/var-margins/latest-date returned HTTP 403: HTML error page (5914 bytes): Just a moment...\\nhint: permission denied. Your credentials are valid but lack access to this resource.\\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\\n      See API docs: https://www.nccpl.com.pk\\n      Run 'nccpl-pp-cli doctor' to check auth status.\"}\nError: GET /api/var-margins/latest-date returned HTTP 403: HTML error page (5914 bytes): Just a moment...\nhint: permission denied. Your credentials are valid but lack access to this resource.\n      Check that your credentials have the required permissions and match the API's expected auth scheme.\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials.\n      See API docs: https://www.nccpl.com.pk\n      Run 'nccpl-pp-cli doctor' to check auth status.\n"
     },
     {
       "command": "var-margins latest-date",
@@ -3228,7 +3228,7 @@
         "2026-09-04"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"dates_checked\": 1,\n  \"dates_passed\": 1,\n  \"dates_failed\": 0,\n  \"dates_skipped_missing_side\": 0,\n  \"failures\": [],\n  \"quarantine\": [],\n  \"tolerance\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\n"
+      "output_sample": "{\n  \"dates_checked\": 1,\n  \"dates_passed\": 1,\n  \"dates_failed\": 0,\n  \"dates_skipped_missing_side\": 0,\n  \"failures\": [],\n  \"quarantine\": [],\n  \"tolerance\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\n"
     },
     {
       "command": "verify",
@@ -3242,7 +3242,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"dates_checked\": 1,\n  \"dates_passed\": 1,\n  \"dates_failed\": 0,\n  \"dates_skipped_missing_side\": 0,\n  \"failures\": [],\n  \"quarantine\": [],\n  \"tolerance\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-1273646021/.local/share/nccpl-pp-cli/data.db\"\n}\n"
+      "output_sample": "{\n  \"dates_checked\": 1,\n  \"dates_passed\": 1,\n  \"dates_failed\": 0,\n  \"dates_skipped_missing_side\": 0,\n  \"failures\": [],\n  \"quarantine\": [],\n  \"tolerance\": 1,\n  \"db_path\": \"/var/folders/52/5z57yqy15y9fmt6vd9d3t33m0000gn/T/printing-press-subprocess-2626990923/.local/share/nccpl-pp-cli/data.db\"\n}\n"
     },
     {
       "command": "verify",
@@ -3288,5 +3288,5 @@
       "output_sample": "{\n  \"matches\": []\n}\nError: no match for \"__printing_press_invalid__\"; try 'nccpl-pp-cli --help' for the full command list\n"
     }
   ],
-  "ran_at": "2026-09-05T17:46:10.997199Z"
+  "ran_at": "2026-09-05T17:54:46.736277Z"
 }

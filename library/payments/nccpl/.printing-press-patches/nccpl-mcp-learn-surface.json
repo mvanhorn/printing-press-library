@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "nccpl-mcp-learn-surface",
+  "applied_at": "2026-09-05",
+  "base_run_id": "20260905-000548-4451d26d",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Restored os.Setenv(\"NCCPL_LEARN_SURFACE\", \"mcp\") in the MCP entrypoint.",
+  "reason": "`mcp-sync` regenerates cmd/<cli>-pp-mcp/main.go and drops this line. internal/store/events.go defaults surface detection to \"cli\" when the variable is unset, and the command-mirror tools launch the companion CLI with the server's environment, so without it every MCP invocation is recorded as CLI activity and the per-surface learning statistics are wrong. Re-apply after any future mcp-sync.",
+  "files": [
+    "cmd/nccpl-pp-mcp/main.go"
+  ],
+  "markers": [
+    "NCCPL_LEARN_SURFACE"
+  ],
+  "validated_outcome": "go build/vet clean, go test ./... 0 failures; grep confirms the Setenv is present and events.go reads the same constant.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4317"
+}

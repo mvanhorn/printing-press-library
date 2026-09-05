@@ -11,11 +11,11 @@
   "auth_context": {
     "type": "composed"
   },
-  "source_fingerprint": "78b3d5b92b11e386299f677cf4844929b03d91abf367a7c3dfdc517c10ba0fe6",
+  "source_fingerprint": "14bafa439815a6535d4e430a38e089da9eaca580b892ae45c656b765f9abb70f",
   "source_files": {
     "cmd/nccpl-pp-cli/main.go": "481bb97126d3e46bb3ca62ffe0151b3c193f9f978be8c2119d4221f44c04395b",
     "cmd/nccpl-pp-mcp/http_auth_test.go": "03799a097250137cd418c3f11d955418d7a96986e74abdbbae4ca48196729bc4",
-    "cmd/nccpl-pp-mcp/main.go": "4174bddecadee305b935be65a4946a7bf3e2658aacb8b66195987525e600dd07",
+    "cmd/nccpl-pp-mcp/main.go": "7ec57617a2f26d4ab4d1127a5754a23fb928f93d3dd116b2d76f429bbc843b4f",
     "go.mod": "16641dd69ed3e7f997a5fd5a5414061c83825ef2c1603275b72e0eb33c460aaf",
     "go.sum": "471045b2e170a2ce1b6023807c632ffac9b9aca353928ac0c2582f033cb23c06",
     "internal/cache/cache.go": "ff162da8a64ae6b4c3b67a3174b41a8d5b7124b0784c256372e763e582edac70",

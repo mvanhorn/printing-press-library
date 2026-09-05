@@ -40,6 +40,15 @@ const (
 var version = "0.0.0-dev"
 
 func main() {
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	//
+	// Restored by hand after `mcp-sync` regenerated this file and dropped it:
+	// internal/store/events.go defaults surface detection to "cli" when
+	// NCCPL_LEARN_SURFACE is unset, and the command-mirror tools launch the
+	// companion CLI with this process's environment, so without this every
+	// MCP call is recorded as CLI activity.
+	_ = os.Setenv("NCCPL_LEARN_SURFACE", "mcp")
 	if err := cli.BindMCPServerProfile(); err != nil {
 		fmt.Fprintf(os.Stderr, "MCP client-profile bind failed: %v\n", err)
 		os.Exit(1)
