@@ -1,0 +1,85 @@
+name: artistly
+description: "CLI for Artistly (app.artistly.ai) — scriptable AI image generation, batch runs, and a searchable local archive."
+version: "0.1.0"
+base_url: "https://app.artistly.ai"
+category: ai
+spec_source: sniffed
+health_check_path: "/dashboard"
+
+auth:
+  type: cookie
+  cookie_domain: "app.artistly.ai"
+  cookies:
+    - artistly_session
+    - XSRF-TOKEN
+
+config:
+  format: toml
+  path: "~/.config/artistly-pp-cli/config.toml"
+
+resources:
+  designs:
+    description: "Browse and sync your Artistly designs (generations)"
+    endpoints:
+      list:
+        method: GET
+        path: "/fetch-personal-designs"
+        description: "List your personal designs (generations)"
+        response:
+          type: array
+          item: Design
+        response_path: designs
+      by-folder:
+        method: GET
+        path: "/designs-by-folder"
+        description: "List designs grouped by folder"
+        params:
+          - name: folder_id
+            flag_name: folder
+            type: string
+            required: false
+            description: "Folder id to filter by"
+        response:
+          type: array
+          item: Design
+        response_path: designs
+
+types:
+  Design:
+    fields:
+      - name: id
+        type: int
+      - name: uuid
+        type: string
+      - name: positive_prompt
+        type: string
+      - name: negative_prompt
+        type: string
+      - name: checkpoint
+        type: string
+      - name: checkpoint_id
+        type: int
+      - name: width
+        type: int
+      - name: height
+        type: int
+      - name: quantity
+        type: int
+      - name: images
+        type: string
+      - name: aspect_ratio
+        type: string
+      - name: seed
+        type: string
+      - name: tool_used
+        type: string
+      - name: status
+        type: string
+      - name: category
+        type: string
+      - name: folder_id
+        type: int
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string

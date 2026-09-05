@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-refresh-example-ids",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Replace the hardcoded example design id in designs download / edit upscale / prompt extract / redo examples (and README/SKILL) with a non-account `<design-id>` placeholder.",
+  "reason": "The generated examples embedded a real, account-linked design id. The original (57628105) had been deleted upstream (breaking the dogfood happy-path probes), and any real id leaks an account artifact into the public library. Using a `<design-id>` placeholder removes the account linkage; the commands were live-verified separately at publish time. Caveat: the press's dogfood treats example text as a live happy-path fixture, so a future local `dogfood --live` will report these four commands as not-found (upstream issue to fix so examples can stay placeholders).",
+  "files": ["internal/cli/designs_download.go", "internal/cli/edit.go", "internal/cli/prompt.go", "internal/cli/redo.go", "README.md", "SKILL.md"],
+  "validated_outcome": "go build/vet pass in both trees; library verify_skill.py passes with the placeholder."
+}

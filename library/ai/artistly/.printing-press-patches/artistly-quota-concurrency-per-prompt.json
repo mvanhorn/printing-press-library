@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-quota-concurrency-per-prompt",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "quota --for's fits_concurrent_limit must measure a single prompt's image quantity against the concurrent slots, not the whole batch's total volume.",
+  "reason": "batch submits one prompt at a time and paces itself between prompts, so the concurrent limit bounds each submission, not prompts*quantity. Comparing total volume to the concurrent cap produced a misleading boolean (any large batch read as 'exceeds') and a factually wrong JSON key. Total volume is bounded by the app-hidden daily cap instead.",
+  "files": ["internal/cli/quota.go"],
+  "validated_outcome": "quota --for with quantity 2 over 3 prompts reports 6 planned generations and fits_concurrent_limit based on per-prompt quantity vs slots. go build/vet/test pass."
+}

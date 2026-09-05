@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T04:00:55.574384Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "artistly",
+  "display_name": "Artistly",
+  "cli_name": "artistly-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:2b21b65e4acdb851cb3928b2b0e86ad1fb4cc3f12bb0f93debdac345bcbc747a",
+  "run_id": "20260615-000318-b56125c5",
+  "category": "ai",
+  "description": "The first CLI for Artistly — scriptable AI image generation, batch runs, and a searchable local archive the web app has no way to offer.",
+  "mcp_binary": "artistly-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Batch generate from a prompt file",
+      "command": "batch",
+      "description": "Generate many images from a file of prompts in one quota-aware run."
+    },
+    {
+      "name": "Generate, wait, and download in one shot",
+      "command": "generate",
+      "description": "Submit a generation, block until it renders, and save the images to disk."
+    },
+    {
+      "name": "Offline prompt search over your archive",
+      "command": "search",
+      "description": "Full-text search your own generation history by prompt, style, folder, or date — entirely offline."
+    },
+    {
+      "name": "Reproduce or remix a past design",
+      "command": "redo",
+      "description": "Resubmit a past design's exact settings (prompt, style, dimensions, seed) with optional overrides."
+    },
+    {
+      "name": "Generation settings presets",
+      "command": "preset",
+      "description": "Save a named bundle of generation settings (style, dimensions, aspect ratio, negative prompt, quality) and replay it."
+    },
+    {
+      "name": "Bulk export by query",
+      "command": "export",
+      "description": "Download all images from designs matching a query into a directory tree, with templated filenames — no generation."
+    },
+    {
+      "name": "Quota preflight / batch budget check",
+      "command": "quota",
+      "description": "Report remaining daily generations and whether a planned batch fits under the cap before you start."
+    }
+  ]
+}

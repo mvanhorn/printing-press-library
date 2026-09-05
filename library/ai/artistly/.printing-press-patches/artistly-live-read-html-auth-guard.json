@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "artistly-live-read-html-auth-guard",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "A live JSON read whose body comes back as HTML (the expired-session login page, served HTTP 200) must fail as an auth error, not be handed back as data.",
+  "reason": "The Artistly app serves its login page as HTTP 200 HTML on an expired session. The generic read chokepoint (resolveReadWithStrategy / resolvePaginatedReadWithStrategy) returned that body verbatim with Source=live and no error, so designs list/by-folder shipped HTML as results with exit 0. Guard every live-read branch with assertLiveJSONBody (leading '<' -> authErr), matching parseDesigns/fetchCheckpoints, and check before writeThroughCache so HTML never enters the local store.",
+  "files": ["internal/cli/data_source.go"],
+  "validated_outcome": "ARTISTLY_SESSION_COOKIE=invalid artistly-pp-cli designs list --agent --select id now exits 4 with the auth message instead of exit 0 with HTML in results. go build/vet/test pass.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3174"
+}

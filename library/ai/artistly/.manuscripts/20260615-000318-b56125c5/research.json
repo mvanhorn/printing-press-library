@@ -1,0 +1,224 @@
+{
+  "api_name": "artistly",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T06:15:00Z",
+  "novel_features": [
+    {
+      "name": "Batch generate from a prompt file",
+      "command": "batch",
+      "description": "Generate many images from a file of prompts in one quota-aware run.",
+      "rationale": "The web UI is strictly one-prompt-at-a-time; this loops the generate endpoint over a prompt/CSV/JSONL file, caps concurrency to the account limit, and refuses to exceed the undocumented ~400/day cap where even failed generations count.",
+      "example": "artistly-pp-cli batch prompts.txt --style watercolor --aspect-ratio 1:1 --wait --download ./out",
+      "why_it_matters": "Reach for this when the user has more than one prompt or a spreadsheet of variations; it is the headline workflow no manual web session can match.",
+      "group": "Scriptable generation"
+    },
+    {
+      "name": "Generate, wait, and download in one shot",
+      "command": "generate",
+      "description": "Submit a generation, block until it renders, and save the images to disk.",
+      "rationale": "Completion is pushed over a Pusher WebSocket the web UI consumes and scripts cannot see; --wait polls the design list until status flips processing-\u003eprivate, then --download pulls the real CDN images.",
+      "example": "artistly-pp-cli generate \"a watercolor fox in a misty forest\" --wait --download ./out --json",
+      "why_it_matters": "Use this to make image generation a single blocking step in a script or agent flow instead of a manual click-and-babysit loop.",
+      "group": "Scriptable generation"
+    },
+    {
+      "name": "Offline prompt search over your archive",
+      "command": "search",
+      "description": "Full-text search your own generation history by prompt, style, folder, or date — entirely offline.",
+      "rationale": "Artistly offers no search over your own designs; sync mirrors /fetch-personal-designs into local SQLite and search runs FTS over prompts, tags, checkpoint, and dimensions with no API calls.",
+      "example": "artistly-pp-cli search \"pirate ship\" --status private --json",
+      "why_it_matters": "Reach for this to find an old design's exact prompt/seed to reuse, instead of scrolling the web gallery.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Reproduce or remix a past design",
+      "command": "redo",
+      "description": "Resubmit a past design's exact settings (prompt, style, dimensions, seed) with optional overrides.",
+      "rationale": "Reads a prior design's saved params from the local mirror and resubmits via the generate endpoint; the web UI has no 'make more like this' that reuses the original seed and settings.",
+      "example": "artistly-pp-cli redo 57628105 --seed random --quantity 4 --wait --download ./out",
+      "why_it_matters": "Use this when a user liked a previous result and wants variations or a re-run with one tweak.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Generation settings presets",
+      "command": "preset",
+      "description": "Save a named bundle of generation settings (style, dimensions, aspect ratio, negative prompt, quality) and replay it.",
+      "rationale": "Artistly has no preset feature; this stores settings in local config and applies them across generate/batch with --preset, guaranteeing brand-consistent output with zero re-typing and zero quota cost.",
+      "example": "artistly-pp-cli preset save house-style --style watercolor --aspect-ratio 1:1 --quality highQuality",
+      "why_it_matters": "Reach for this when a user reuses one 'house style' across many prompts or campaigns.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Bulk export by query",
+      "command": "export",
+      "description": "Download all images from designs matching a query into a directory tree, with templated filenames — no generation.",
+      "rationale": "Selects designs from the local mirror by folder/date/prompt-match and downloads every CDN image with filename templating; the web UI downloads one asset at a time and never touches quota here.",
+      "example": "artistly-pp-cli export --query \"coloring book\" --to ./client-assets --name-template '{prompt}-{id}'",
+      "why_it_matters": "Use this to assemble a deliverable folder of already-generated assets without re-generating or clicking through downloads.",
+      "group": "Scriptable generation"
+    },
+    {
+      "name": "Quota preflight / batch budget check",
+      "command": "quota",
+      "description": "Report remaining daily generations and whether a planned batch fits under the cap before you start.",
+      "rationale": "Does the arithmetic the web UI will not: reads the concurrent limit and today's count from page props and tells you if prompts x quantity fits under the ~400/day cap (where failures also count) before burning it.",
+      "example": "artistly-pp-cli quota --for prompts.txt --quantity 4 --json",
+      "why_it_matters": "Reach for this before a large batch so a quota wall does not silently truncate a run mid-way.",
+      "group": "Scriptable generation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Batch generate from a prompt file",
+      "command": "batch",
+      "description": "Generate many images from a file of prompts in one quota-aware run.",
+      "rationale": "The web UI is strictly one-prompt-at-a-time; this loops the generate endpoint over a prompt/CSV/JSONL file, caps concurrency to the account limit, and refuses to exceed the undocumented ~400/day cap where even failed generations count.",
+      "example": "artistly-pp-cli batch prompts.txt --style watercolor --aspect-ratio 1:1 --wait --download ./out",
+      "why_it_matters": "Reach for this when the user has more than one prompt or a spreadsheet of variations; it is the headline workflow no manual web session can match.",
+      "group": "Scriptable generation"
+    },
+    {
+      "name": "Generate, wait, and download in one shot",
+      "command": "generate",
+      "description": "Submit a generation, block until it renders, and save the images to disk.",
+      "rationale": "Completion is pushed over a Pusher WebSocket the web UI consumes and scripts cannot see; --wait polls the design list until status flips processing-\u003eprivate, then --download pulls the real CDN images.",
+      "example": "artistly-pp-cli generate \"a watercolor fox in a misty forest\" --wait --download ./out --json",
+      "why_it_matters": "Use this to make image generation a single blocking step in a script or agent flow instead of a manual click-and-babysit loop.",
+      "group": "Scriptable generation"
+    },
+    {
+      "name": "Offline prompt search over your archive",
+      "command": "search",
+      "description": "Full-text search your own generation history by prompt, style, folder, or date — entirely offline.",
+      "rationale": "Artistly offers no search over your own designs; sync mirrors /fetch-personal-designs into local SQLite and search runs FTS over prompts, tags, checkpoint, and dimensions with no API calls.",
+      "example": "artistly-pp-cli search \"pirate ship\" --status private --json",
+      "why_it_matters": "Reach for this to find an old design's exact prompt/seed to reuse, instead of scrolling the web gallery.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Reproduce or remix a past design",
+      "command": "redo",
+      "description": "Resubmit a past design's exact settings (prompt, style, dimensions, seed) with optional overrides.",
+      "rationale": "Reads a prior design's saved params from the local mirror and resubmits via the generate endpoint; the web UI has no 'make more like this' that reuses the original seed and settings.",
+      "example": "artistly-pp-cli redo 57628105 --seed random --quantity 4 --wait --download ./out",
+      "why_it_matters": "Use this when a user liked a previous result and wants variations or a re-run with one tweak.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Generation settings presets",
+      "command": "preset",
+      "description": "Save a named bundle of generation settings (style, dimensions, aspect ratio, negative prompt, quality) and replay it.",
+      "rationale": "Artistly has no preset feature; this stores settings in local config and applies them across generate/batch with --preset, guaranteeing brand-consistent output with zero re-typing and zero quota cost.",
+      "example": "artistly-pp-cli preset save house-style --style watercolor --aspect-ratio 1:1 --quality highQuality",
+      "why_it_matters": "Reach for this when a user reuses one 'house style' across many prompts or campaigns.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Bulk export by query",
+      "command": "export",
+      "description": "Download all images from designs matching a query into a directory tree, with templated filenames — no generation.",
+      "rationale": "Selects designs from the local mirror by folder/date/prompt-match and downloads every CDN image with filename templating; the web UI downloads one asset at a time and never touches quota here.",
+      "example": "artistly-pp-cli export --query \"coloring book\" --to ./client-assets --name-template '{prompt}-{id}'",
+      "why_it_matters": "Use this to assemble a deliverable folder of already-generated assets without re-generating or clicking through downloads.",
+      "group": "Scriptable generation"
+    },
+    {
+      "name": "Quota preflight / batch budget check",
+      "command": "quota",
+      "description": "Report remaining daily generations and whether a planned batch fits under the cap before you start.",
+      "rationale": "Does the arithmetic the web UI will not: reads the concurrent limit and today's count from page props and tells you if prompts x quantity fits under the ~400/day cap (where failures also count) before burning it.",
+      "example": "artistly-pp-cli quota --for prompts.txt --quantity 4 --json",
+      "why_it_matters": "Reach for this before a large batch so a quota wall does not silently truncate a run mid-way.",
+      "group": "Scriptable generation"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Artistly",
+    "headline": "The first CLI for Artistly — scriptable AI image generation, batch runs, and a searchable local archive the web app has no way to offer.",
+    "value_prop": "Artistly (app.artistly.ai) is a login-only web app with no public API. This CLI authenticates with your browser session and turns the one-prompt-at-a-time web flow into something an agent or a Makefile can drive: batch-generate from a prompt file, block until images render and download them, search your whole generation history offline, and replay saved style presets — all while respecting the undocumented ~400/day generation cap.",
+    "auth_narrative": "Artistly has no API keys. Authentication is your logged-in browser session: run `artistly-pp-cli auth login --chrome` to import the `artistly_session` cookie and CSRF token from Chrome (be logged in to app.artistly.ai first). Generation and other write commands send the CSRF token and Inertia headers automatically.",
+    "quickstart": [
+      {
+        "command": "artistly-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired up before authenticating."
+      },
+      {
+        "command": "artistly-pp-cli doctor",
+        "comment": "After auth login --chrome: verify the session works and shows remaining daily generations."
+      },
+      {
+        "command": "artistly-pp-cli designs list --json --limit 5",
+        "comment": "Pull your most recent designs to confirm the session reads real data."
+      },
+      {
+        "command": "artistly-pp-cli generate \"a watercolor fox in a misty forest\" --wait --download ./out",
+        "comment": "Generate one image, wait for it to render, and save it."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return 'not authenticated' or redirect to login",
+        "fix": "Run `artistly-pp-cli auth login --chrome` while logged in to app.artistly.ai in Chrome; the session cookie expires periodically."
+      },
+      {
+        "symptom": "Generation never finishes / stays 'processing'",
+        "fix": "Artistly may be under load; re-run `artistly-pp-cli designs list` to check status, or raise the wait timeout with `--wait-timeout`."
+      },
+      {
+        "symptom": "A batch stops part-way through",
+        "fix": "You likely hit the ~400/day cap (failed generations count too). Run `artistly-pp-cli quota` to see remaining budget before retrying."
+      },
+      {
+        "symptom": "search returns nothing",
+        "fix": "Run `artistly-pp-cli sync` first to mirror your designs into the local store; search is offline-only."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to drive Artistly image generation from a script or agent: batch-generating many prompt variations, blocking until images render and saving them to disk, searching or re-running past generations, or bulk-exporting finished assets into a deliverable folder. It is the right choice whenever the manual one-prompt web flow is too slow or not scriptable.",
+    "anti_triggers": [
+      "Do not use this CLI for outpaint or inpaint — not implemented in v1 (upscale and background removal ARE supported via 'edit').",
+      "Do not use this CLI for billing, subscription, or account-management changes — use the Artistly website.",
+      "Do not use this CLI to bypass Artistly's generation limits — it respects the daily cap rather than evading it."
+    ],
+    "recipes": [
+      {
+        "title": "Batch a spreadsheet of prompts and download finals",
+        "command": "artistly-pp-cli batch prompts.csv --preset house-style --wait --download ./finals",
+        "explanation": "Reads each row as a prompt (with optional per-row overrides), applies a saved preset, waits for each to render, and saves the images — the Sunday-afternoon merch workflow in one command."
+      },
+      {
+        "title": "Find and re-run a past design",
+        "command": "artistly-pp-cli search \"axolotl astronaut\" --agent --select designs.uuid,designs.positive_prompt,designs.checkpoint \u0026\u0026 artistly-pp-cli redo \u003cuuid\u003e --quantity 4",
+        "explanation": "Search the local mirror for the old design, then resubmit its exact settings for more variations. The --agent --select pair narrows the verbose design records to just the fields you need."
+      },
+      {
+        "title": "Bulk-export a client's assets without re-generating",
+        "command": "artistly-pp-cli export --query \"logo concept\" --to ./client --name-template '{prompt}-{id}'",
+        "explanation": "Downloads every finished image whose prompt matches, into a folder with readable filenames — zero quota cost."
+      },
+      {
+        "title": "Enhance a prompt before generating",
+        "command": "artistly-pp-cli prompt enhance \"a fox in a forest\"",
+        "explanation": "Expand a short prompt into a rich, detailed one (no quota cost), then feed it to generate. Use prompt extract \u003cdesign-id|image-url\u003e for the reverse (image-to-prompt)."
+      },
+      {
+        "title": "Upscale or remove the background of a design",
+        "command": "artistly-pp-cli edit upscale 57628105 --wait --download ./out",
+        "explanation": "Run editor image-to-image tools on an existing design (by id/uuid), an image URL, or a local file. Use 'edit bg-remove' for background removal. Both auto-authenticate via your app session."
+      }
+    ],
+    "trigger_phrases": [
+      "generate an image with artistly",
+      "batch generate artistly images",
+      "search my artistly designs",
+      "download my artistly art",
+      "re-run that artistly generation",
+      "use artistly",
+      "run artistly"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-checkpoints-verify-env-guard",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "checkpoints list must short-circuit under PRINTING_PRESS_VERIFY like every other CSRF-requiring command, so verify runs don't dial the live app.",
+  "reason": "fetchCheckpoints calls writeHeaders -> primeCSRF, which does a live GET to mint an XSRF cookie. The client's verify-mode short-circuit only gates mutating verbs, so that read GET slips through and dials the live app during credential-less verify runs. Any hand-authored command that primes CSRF needs the IsVerifyEnv guard.",
+  "files": ["internal/cli/checkpoints.go"],
+  "validated_outcome": "PRINTING_PRESS_VERIFY=1 artistly-pp-cli checkpoints list returns exit 0 with no network dial; normal runs still list the catalog. go build/vet/test pass."
+}

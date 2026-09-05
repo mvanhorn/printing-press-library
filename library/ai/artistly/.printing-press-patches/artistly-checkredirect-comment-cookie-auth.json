@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-checkredirect-comment-cookie-auth",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The CheckRedirect doc comment must describe this CLI's actual cookie-jar redirect behavior, not the generic nonce-re-derivation boilerplate.",
+  "reason": "The generated comment claimed CheckRedirect calls c.authHeader() to re-sign nonce-bound schemes (OAuth 1.0a/SigV4/Hawk) on each hop, but artistly is cookie-auth and the function never re-derives any header — it only caps redirects at 10 and relies on the cookie jar. A regen re-emits the misleading boilerplate; this guard says to correct it for cookie-auth CLIs.",
+  "files": ["internal/client/client.go"],
+  "validated_outcome": "Comment now matches the implementation; go build ./... and go vet ./... pass."
+}

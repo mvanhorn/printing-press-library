@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "artistly-import-resolves-emitted-resource-path",
+  "applied_at": "2026-08-10",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "import must resolve its POST path through the emitted resource path map, never by concatenating \"/\" + <resource>, because this API's endpoints are not named after their resources.",
+  "reason": "The generated import command built its request path as `path := \"/\" + resource`, so `import designs` POSTed to /designs — a route that does not exist on this API. The emitted map resolves designs -> /designs-by-folder and designs-fetch-personal-designs -> /fetch-personal-designs, and every other name is not a route at all. The derived-path form also accepted any string, silently issuing POSTs against arbitrary paths under the API base instead of failing. Routing through syncResourcePath() makes unknown resources an explicit usage error (exit 2) that lists the accepted names, and makes the two real resources resolve to their actual endpoints. A regen must keep the resolver call: any CLI whose endpoint paths differ from its resource names is mis-routed by the derived-path form.",
+  "files": [
+    "internal/cli/import.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; full test suite passes. `import bogus --input one.jsonl` now exits with `unknown sync resource \"bogus\" (known resources: designs, designs-fetch-personal-designs)` instead of POSTing to /bogus; `import designs --input one.jsonl --dry-run` resolves to POST https://app.artistly.ai/designs-by-folder instead of the nonexistent /designs. cli-printing-press verify no longer reports the import-specific `derives paths from arbitrary resource names` error (the residual generic resource-path:import/:export finding is a verifier false positive — it also fires on openfda, which already uses syncResourcePath, and on this CLI's hand-authored novel export command, which has no resource path at all).",
+  "upstream_tracking": "Generator-shaped: `path := \"/\" + resource` appears in ~550 files across ~292 published CLIs (internal/cli/import.go and internal/cli/tail.go). Only openfda resolves through syncResourcePath. The generated import/tail templates should emit the resource-path resolver call rather than deriving the path from the resource name, and cli-printing-press verify's resource-path static check should recognize the resolver (it currently fails even when the resolver is used)."
+}
