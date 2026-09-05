@@ -4,6 +4,8 @@ description: "The Bing Webmaster Tools API: manage sites, submit URLs, and read 
 cli_description: "Manage Bing indexing and read SEO performance from the terminal — all 60 Webmaster API methods plus query deltas, ranking drift, and quota-paced submission."
 version: "1.0.0"
 base_url: "https://ssl.bing.com/webmaster/api.svc"
+# Research redo 2026-09-05: Microsoft retired the SOAP/POX protocol variants on
+# 2026-08-31 — this spec is JSON-only (all /json/* paths) and unaffected.
 spec_source: official
 category: developer-tools
 website_url: "https://www.bing.com/webmasters"
@@ -15,7 +17,7 @@ auth:
   env_vars:
     - BING_WEBMASTER_API_KEY
   key_url: "https://www.bing.com/webmasters"
-  instructions: "Settings -> API Access -> accept terms -> Generate API Key. The key is per-user and covers every verified site."
+  instructions: "Settings -> API Access -> accept terms -> Generate API Key. The key is per-user and covers every verified site. OAuth2 bearer is the Microsoft-recommended alternative for server apps; this CLI ships the api-key path."
   verify_path: "/json/GetUserSites"
 
 config:

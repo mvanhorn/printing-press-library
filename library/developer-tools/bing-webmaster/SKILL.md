@@ -22,20 +22,20 @@ metadata:
 
 This skill drives the `bing-webmaster-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install bing-webmaster --cli-only
+   npx -y @mvanhorn/printing-press-library install bing-webmaster --cli-only
    ```
 2. Verify: `bing-webmaster-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/cmd/bing-webmaster-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 The most complete Bing Webmaster CLI: all 60 documented API methods as composable commands, with offline FTS search, read-only SQL, and agent-native output. On top of raw endpoints it layers what SEOs actually need — `review` for weekly query deltas, `drift` for ranking movement, `publish` for quota-paced bulk indexing, `triage` for crawl-error prioritization, and `gap` to reconcile Bing against Google Search Console.
 

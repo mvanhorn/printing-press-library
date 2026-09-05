@@ -72,7 +72,7 @@
   "gaps": [],
   "patterns": [],
   "recommendation": "proceed",
-  "researched_at": "2026-06-16T21:30:00Z",
+  "researched_at": "2026-09-05T11:00:00Z",
   "novel_features": [
     {
       "name": "Query-performance delta review",
@@ -299,5 +299,11 @@
       "use bing webmaster",
       "run bing-webmaster"
     ]
+  },
+  "reprint_of": {
+    "run_id": "20260616-212356",
+    "printing_press_version": "4.3.0",
+    "research_mode": "redo",
+    "prior_research_reverified": "done 2026-09-05: /json/* surface unchanged; SOAP/POX retired 2026-08-31 (spec is JSON-only); OAuth2 noted as alternative; 3 deep-link OBSOLETE markers kept"
   }
 }

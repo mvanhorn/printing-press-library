@@ -1,4 +1,9 @@
-# Bing Webmaster API CLI Brief
+# Bing Webmaster API CLI Brief (reprint redo, run 20260905-104918-633b1430, 2026-09-05)
+
+> Reprint of run 20260616-212356 (press 4.3.0) under press 4.31.1 with REDO research.
+> Endpoint surface re-verified against current Microsoft Learn docs (see research verdict);
+> the 8 prior novel commands (review, drift, publish, triage, quota, gap, feed-health, watch)
+> are carried as Pass 2(d) reconciliation input — keep, reframe, or drop with reasons, never silent.
 
 ## API Identity
 - **Domain:** SEO / site management for the Bing search index (Bing Webmaster Tools API). NOT the retired Bing Search API v7 — this service is live.
