@@ -141,6 +141,8 @@ Concur's documented OAuth2 partner API is gated behind a Partner Enablement Mana
 
 On Concur tenants where custom policies are required, creating a report via pure HTTP can fail with `policyId is required` because the CLI has no way to query or supply policy IDs. To handle this, `reports create` has a transparent browser-automation fallback. When the HTTP API returns that specific validation error, the command will automatically spin up `agent-browser` (using the same Remote Debugging CDP attach or isolated login as described for `hotels search` above), drive the report creation modal, and seamlessly fetch the resulting report details to return to you in the standard CLI format. This fallback is completely automatic and conditional; tenants that do not require policy ID selection will continue to use the fast, dependency-free HTTP API path.
 
+The fallback derives which Concur web UI host to open from your configured API base URL, but only when that URL is actually a `concursolutions.com` host -- it will never silently guess a region. If you're on a supported proxy or custom endpoint where that derivation can't work, set `CONCUR_UI_BASE_URL` to the correct region's UI host explicitly (e.g. `https://us2.concursolutions.com`); without a derivable host or this override, the command fails with a clear error rather than risking the wrong tenant/region. If the click succeeds in Concur but a later step fails, the error will say so explicitly (with the report ID, when known) instead of looking like an ordinary, safely-retryable failure -- re-running `reports create` blindly at that point risks creating a duplicate report, so check `reports get <id>` or `reports list` first.
+
 ## Quick Start
 
 ```bash

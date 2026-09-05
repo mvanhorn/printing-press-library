@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,109 @@ import (
 	"strings"
 	"testing"
 )
+
+// TestResolveReportsUIHost covers the region-derivation bug flagged in PR
+// review: the original implementation silently defaulted to
+// "us2.concursolutions.com" for any base URL it couldn't confirm was a
+// concursolutions.com host, which for a real tenant on a different region
+// (or behind a supported proxy/custom endpoint) opens the wrong Concur UI
+// outright. This asserts derivation only ever succeeds for a genuinely
+// trusted host or an explicit override -- never a guess.
+func TestResolveReportsUIHost(t *testing.T) {
+	tests := []struct {
+		name       string
+		apiBaseURL string
+		override   string
+		wantHost   string
+		wantErr    bool
+	}{
+		{
+			name:       "derives host from a trusted www-<region>.api.concursolutions.com base URL",
+			apiBaseURL: "https://www-us2.api.concursolutions.com",
+			wantHost:   "us2.concursolutions.com",
+		},
+		{
+			name:       "derives host from a trusted eu region, proving this is not hardcoded to us2",
+			apiBaseURL: "https://www-eu1.api.concursolutions.com",
+			wantHost:   "eu1.concursolutions.com",
+		},
+		{
+			name:       "override wins even when it disagrees with a trusted derivable host",
+			apiBaseURL: "https://www-us2.api.concursolutions.com",
+			override:   "https://eu1.concursolutions.com",
+			wantHost:   "eu1.concursolutions.com",
+		},
+		{
+			name:       "override is honored for a base URL that would not otherwise be trusted",
+			apiBaseURL: "https://my-custom-proxy.example.com",
+			override:   "https://us2.concursolutions.com",
+			wantHost:   "us2.concursolutions.com",
+		},
+		{
+			name:       "untrusted host with no override is a hard error, not a guess",
+			apiBaseURL: "https://my-custom-proxy.example.com",
+			wantErr:    true,
+		},
+		{
+			name:       "unparsable base URL with no override is a hard error",
+			apiBaseURL: "http://127.0.0.1:0/%zz",
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.override != "" {
+				t.Setenv("CONCUR_UI_BASE_URL", tt.override)
+			} else {
+				t.Setenv("CONCUR_UI_BASE_URL", "")
+			}
+
+			host, err := resolveReportsUIHost(tt.apiBaseURL)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Fatalf("expected an error, got host %q", host)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if host != tt.wantHost {
+				t.Errorf("got host %q, want %q", host, tt.wantHost)
+			}
+		})
+	}
+}
+
+// TestReportsCreatePartialSuccessError covers the duplicate-report-risk
+// bug flagged in PR review: once the browser fallback's Create Report
+// click fires, Concur has (almost certainly) already created the report,
+// so any later failure must say so explicitly rather than looking like an
+// ordinary, safely-retryable error.
+func TestReportsCreatePartialSuccessError(t *testing.T) {
+	cause := errors.New("boom")
+
+	withID := &reportsCreatePartialSuccessError{reportID: "ABC123", cause: cause}
+	if !strings.Contains(withID.Error(), "ABC123") {
+		t.Errorf("expected error message to include the known report ID, got: %s", withID.Error())
+	}
+	if !strings.Contains(strings.ToLower(withID.Error()), "duplicate") {
+		t.Errorf("expected error message to warn about duplicate creation, got: %s", withID.Error())
+	}
+	if !errors.Is(withID, cause) {
+		t.Error("expected Unwrap() to expose the underlying cause via errors.Is")
+	}
+
+	withoutID := &reportsCreatePartialSuccessError{cause: cause}
+	if !strings.Contains(strings.ToLower(withoutID.Error()), "duplicate") {
+		t.Errorf("expected error message to warn about duplicate creation even without a known ID, got: %s", withoutID.Error())
+	}
+	if !errors.Is(withoutID, cause) {
+		t.Error("expected Unwrap() to expose the underlying cause via errors.Is")
+	}
+}
 
 func TestReportsCreate_BrowserFallback(t *testing.T) {
 	// Create a temp directory for our mock agent-browser script
@@ -89,6 +193,10 @@ exit 0
 		defer server.Close()
 
 		t.Setenv("CONCUR_BASE_URL", server.URL)
+		// The test server obviously isn't a real concursolutions.com host --
+		// resolveReportsUIHost (added in PR review to stop silently guessing
+		// a region) requires this override for any base URL it can't trust.
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
 		t.Setenv("PRINTING_PRESS_VERIFY", "1")
 		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
 
@@ -144,6 +252,10 @@ exit 0
 		defer server.Close()
 
 		t.Setenv("CONCUR_BASE_URL", server.URL)
+		// The test server obviously isn't a real concursolutions.com host --
+		// resolveReportsUIHost (added in PR review to stop silently guessing
+		// a region) requires this override for any base URL it can't trust.
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
 		t.Setenv("PRINTING_PRESS_VERIFY", "1")
 		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
 
@@ -188,6 +300,10 @@ exit 0
 		defer server.Close()
 
 		t.Setenv("CONCUR_BASE_URL", server.URL)
+		// The test server obviously isn't a real concursolutions.com host --
+		// resolveReportsUIHost (added in PR review to stop silently guessing
+		// a region) requires this override for any base URL it can't trust.
+		t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
 		t.Setenv("PRINTING_PRESS_VERIFY", "1")
 		t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
 
@@ -308,6 +424,10 @@ exit 0
 	defer server.Close()
 
 	t.Setenv("CONCUR_BASE_URL", server.URL)
+	// The test server obviously isn't a real concursolutions.com host --
+	// resolveReportsUIHost (added in PR review to stop silently guessing a
+	// region) requires this override for any base URL it can't trust.
+	t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
 	t.Setenv("PRINTING_PRESS_VERIFY", "1")
 	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
 
@@ -432,6 +552,10 @@ exit 0
 	defer server.Close()
 
 	t.Setenv("CONCUR_BASE_URL", server.URL)
+	// The test server obviously isn't a real concursolutions.com host --
+	// resolveReportsUIHost (added in PR review to stop silently guessing a
+	// region) requires this override for any base URL it can't trust.
+	t.Setenv("CONCUR_UI_BASE_URL", "https://us2.concursolutions.com")
 	t.Setenv("PRINTING_PRESS_VERIFY", "1")
 	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
 

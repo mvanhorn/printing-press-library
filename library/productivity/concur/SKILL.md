@@ -55,7 +55,7 @@ Do not use this CLI for:
 These capabilities aren't available in any other tool for this API.
 
 ### Conditional browser fallback for report creation
-- **`reports create`** — Automatically and transparently retries report creation via automated browser when the Concur v4 API rejects pure HTTP requests with a `policyId is required` error. This fallback is completely conditional and only triggers for tenants requiring explicit policy assignment.
+- **`reports create`** — Automatically and transparently retries report creation via automated browser when the Concur v4 API rejects pure HTTP requests with a `policyId is required` error. This fallback is completely conditional and only triggers for tenants requiring explicit policy assignment. It never guesses a Concur region: the UI host is derived only from a base URL that's actually `concursolutions.com`, or from an explicit `CONCUR_UI_BASE_URL` override — anything else is a clear error, not a silent default. If the browser click already succeeded before a later step fails, the error says so explicitly (with the report ID when known) instead of looking like a safely-retryable failure; do not blindly retry in that case.
 
 ### Local state that compounds
 - **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses.
