@@ -44,7 +44,6 @@ func newHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			path := "/archive"
 			params := map[string]string{}
 			if flagLatitude != 0.0 {
@@ -68,7 +67,7 @@ func newHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagTemperatureUnit != "" {
 				params["temperature_unit"] = fmt.Sprintf("%v", flagTemperatureUnit)
 			}
-			data, prov, err := resolveRead(c, flags, "history", false, path, params)
+			data, prov, err := resolveOpenMeteoRead(c, flags, "history", false, path, archiveAPIBaseURL, params)
 			if err != nil {
 				return classifyAPIError(err)
 			}

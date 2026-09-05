@@ -33,7 +33,6 @@ func newAirQualityPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			path := "/air-quality"
 			params := map[string]string{}
 			if flagLatitude != 0.0 {
@@ -48,7 +47,7 @@ func newAirQualityPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagTimezone != "" {
 				params["timezone"] = fmt.Sprintf("%v", flagTimezone)
 			}
-			data, prov, err := resolveRead(c, flags, "air-quality", false, path, params)
+			data, prov, err := resolveOpenMeteoRead(c, flags, "air-quality", false, path, airQualityAPIBaseURL, params)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/other/weather-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/weather-goat/internal/config"
 
 	"github.com/spf13/cobra"
@@ -151,14 +152,14 @@ type clientGetter interface {
 	Get(path string, params map[string]string) (json.RawMessage, error)
 }
 
-func fetchAQI(c clientGetter, lat, lon float64) float64 {
+func fetchAQI(c *client.Client, lat, lon float64) float64 {
 	params := map[string]string{
 		"latitude":  fmt.Sprintf("%f", lat),
 		"longitude": fmt.Sprintf("%f", lon),
 		"current":   "us_aqi",
 		"timezone":  "auto",
 	}
-	data, err := c.Get("/air-quality", params)
+	data, err := clientForOpenMeteoService(c, airQualityAPIBaseURL).Get("/air-quality", params)
 	if err != nil {
 		return 0
 	}
@@ -237,7 +238,7 @@ func runWalk(cmd *cobra.Command, flags *rootFlags, c clientGetter, lat, lon floa
 
 // --- Bike ---
 
-func runBike(cmd *cobra.Command, flags *rootFlags, c clientGetter, lat, lon float64, loc string) error {
+func runBike(cmd *cobra.Command, flags *rootFlags, c *client.Client, lat, lon float64, loc string) error {
 	cond, err := fetchCurrentForActivity(c, lat, lon)
 	if err != nil {
 		return classifyAPIError(err)

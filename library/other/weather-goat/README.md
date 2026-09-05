@@ -6,6 +6,8 @@ Powered by Open-Meteo (global forecasts, 80 years of history, air quality) and N
 
 Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
+Contributors: [@KalebCole](https://github.com/KalebCole) (Kaleb Cole).
+
 ## Install
 
 The recommended path installs both the `weather-goat-pp-cli` binary and the `pp-weather-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

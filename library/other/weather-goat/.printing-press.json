@@ -9,6 +9,12 @@
     "handle": "tmchow",
     "name": "Trevin Chow"
   },
+  "contributors": [
+    {
+      "handle": "KalebCole",
+      "name": "Kaleb Cole"
+    }
+  ],
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260411-153728/research/weather-spec.yaml",

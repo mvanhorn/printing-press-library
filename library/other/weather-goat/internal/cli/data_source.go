@@ -16,6 +16,12 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/other/weather-goat/internal/store"
 )
 
+const (
+	defaultOpenMeteoBaseURL = "https://api.open-meteo.com/v1"
+	archiveAPIBaseURL       = "https://archive-api.open-meteo.com/v1"
+	airQualityAPIBaseURL    = "https://air-quality-api.open-meteo.com/v1"
+)
+
 // isNetworkError returns true for errors caused by network connectivity issues
 // (DNS, connection refused, timeout). HTTP 4xx/5xx errors are NOT network errors.
 func isNetworkError(err error) bool {
@@ -102,6 +108,51 @@ func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
+		localData, prov, localErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
+		if localErr != nil {
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'weather-goat-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+		}
+		return localData, prov, nil
+	}
+}
+
+// clientForOpenMeteoService routes the default Open-Meteo client to a
+// service-specific host while preserving explicit WEATHER_BASE_URL overrides.
+// The shallow copy retains timeout, rate limiting, dry-run, and cache behavior.
+func clientForOpenMeteoService(c *client.Client, serviceBaseURL string) *client.Client {
+	if strings.TrimRight(c.BaseURL, "/") != defaultOpenMeteoBaseURL {
+		return c
+	}
+	serviceClient := *c
+	serviceClient.BaseURL = strings.TrimRight(serviceBaseURL, "/")
+	return &serviceClient
+}
+
+// resolveOpenMeteoRead is resolveRead for Open-Meteo endpoints hosted outside
+// the main forecast API, such as archive-api and air-quality-api.
+func resolveOpenMeteoRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path, serviceBaseURL string, params map[string]string) (json.RawMessage, DataProvenance, error) {
+	serviceClient := clientForOpenMeteoService(c, serviceBaseURL)
+	switch flags.dataSource {
+	case "local":
+		return resolveLocal(resourceType, isList, path, params, "user_requested")
+
+	case "live":
+		data, err := serviceClient.Get(path, params)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		writeThroughCache(resourceType, data)
+		return data, DataProvenance{Source: "live"}, nil
+
+	default: // "auto"
+		data, err := serviceClient.Get(path, params)
+		if err == nil {
+			writeThroughCache(resourceType, data)
+			return data, DataProvenance{Source: "live"}, nil
+		}
+		if !isNetworkError(err) {
+			return nil, DataProvenance{}, err
+		}
 		localData, prov, localErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
 		if localErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'weather-goat-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
