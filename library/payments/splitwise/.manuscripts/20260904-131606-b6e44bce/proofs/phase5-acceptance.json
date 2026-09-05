@@ -12,7 +12,7 @@
     "type": "bearer_token",
     "api_key_available": true
   },
-  "source_fingerprint": "dcaa2d57ac38039afbe53c4c7f47543a0e9245debfccfc4e7b22492275f6291f",
+  "source_fingerprint": "cc89387c728a6600f327be80fcb5c92c672b26184379796b2d5647cbf8d8bb68",
   "source_files": {
     "cmd/splitwise-pp-cli/main.go": "04c5d4f182e66c71384ea76e9828ece1b32665a82b1312267ddd438d20184940",
     "cmd/splitwise-pp-mcp/http_auth_test.go": "0ff20769c91061852db9430edb7e2149c18cc8c8b1db8c972acd8e78ff9b3cfd",
@@ -137,6 +137,7 @@
     "internal/cli/splitwise_output.go": "a031a1f0975b7dc6ae80685e395ff71e880683f4cb4588424109314deb7211c5",
     "internal/cli/splitwise_report_test.go": "ae1528d718042b96efbce1b0ef0a486015a1b2e89ac196d65cf10a8b002fd89a",
     "internal/cli/splitwise_settle_input_test.go": "2fe8097a0887810020575a88c8da3c14918bd3979ac5604be4f4567815e985de",
+    "internal/cli/splitwise_sync_pagination_test.go": "f7f1151a00787bead5931be4c8a041e0fa9b4c26ca3d4987e422225210c33aac",
     "internal/cli/splitwise_window_test.go": "242d39b3bb0b9f0942fd8c77356d6184f2441ac535635d0809dc044281d07979",
     "internal/cli/sync.go": "4677f5b8369be1d99fa01d94081209f0d3486e883cdbab5be76644c94b8d1b6c",
     "internal/cli/sync_hint.go": "b921843a1dda2af4494cea9c922bd9aafa72551c638fda85f5b2cd7b8d0edbf0",
