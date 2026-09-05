@@ -335,31 +335,21 @@ func resolveReportsUIHost(apiBaseURL string) (string, error) {
 			apiBaseURL,
 		)
 	}
-	// PATCH(leftover-1936: port-strip) -- u.Host includes ":443", so a
-	// trusted https://www-us2.api.concursolutions.com:443 failed the
-	// domain-boundary check after www-/.api. cleaning. Hostname()
-	// matches client.go's baseURLIsTrustedConcurHost trust check.
-	h := u.Hostname()
+	// Hostname() strips :port; ToLower so WWW-US2.API.… still rewrites to
+	// the UI host. Trust the original API host before www-/api. rewrite:
+	// www-concursolutions.com would otherwise become concursolutions.com.
+	h := strings.ToLower(u.Hostname())
+	if h == "" || (h != "concursolutions.com" && !strings.HasSuffix(h, ".concursolutions.com")) {
+		return "", fmt.Errorf(
+			"cannot determine the Concur web UI host for the browser fallback: base URL host %q is not a concursolutions.com domain (custom proxy or endpoint?); set CONCUR_UI_BASE_URL to the correct region's UI host explicitly (e.g. https://us2.concursolutions.com)",
+			h,
+		)
+	}
 	if strings.HasPrefix(h, "www-") {
 		h = strings.TrimPrefix(h, "www-")
 	}
 	if idx := strings.Index(h, ".api."); idx >= 0 {
 		h = h[:idx] + "." + h[idx+len(".api."):]
-	}
-	// PATCH(amend-2026-09-04: security -- require a real domain boundary,
-	// not a raw string suffix) -- flagged in PR review: a plain
-	// strings.HasSuffix(h, "concursolutions.com") treats a host like
-	// "evilconcursolutions.com" as trusted, since that string does
-	// literally end with "concursolutions.com" even though it is a
-	// completely unrelated domain, not a subdomain. Require either the
-	// exact domain or a "."-prefixed suffix, matching client.go's
-	// baseURLIsTrustedConcurHost cookie-scoping check.
-	lower := strings.ToLower(h)
-	if lower != "concursolutions.com" && !strings.HasSuffix(lower, ".concursolutions.com") {
-		return "", fmt.Errorf(
-			"cannot determine the Concur web UI host for the browser fallback: base URL host %q is not a concursolutions.com domain (custom proxy or endpoint?); set CONCUR_UI_BASE_URL to the correct region's UI host explicitly (e.g. https://us2.concursolutions.com)",
-			h,
-		)
 	}
 	return h, nil
 }
@@ -386,8 +376,7 @@ func createReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 
 	fmt.Fprintf(cmd.ErrOrStderr(), "HTTP API returned policyId is required error. Falling back to browser automation to create report...\n")
 
-	if port := detectDedicatedConcurBrowser(); port != "" {
-		activeCDPPort = port
+	if port := refreshActiveCDPPort(); port != "" {
 		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
 	}
 

@@ -34,13 +34,19 @@ func TestResolveReportsUIHost(t *testing.T) {
 			wantHost:   "us2.concursolutions.com",
 		},
 		{
-			// PATCH(leftover-1936: port-strip) -- u.Host includes the
-			// explicit :443, so the domain-boundary check rejected this
-			// otherwise-trusted API host. Hostname() must still derive
-			// the UI host.
 			name:       "explicit port on a trusted API host is stripped, not rejected",
 			apiBaseURL: "https://www-us2.api.concursolutions.com:443",
 			wantHost:   "us2.concursolutions.com",
+		},
+		{
+			name:       "uppercase trusted API host still maps to the UI host",
+			apiBaseURL: "https://WWW-US2.API.CONCURSOLUTIONS.COM",
+			wantHost:   "us2.concursolutions.com",
+		},
+		{
+			name:       "www-concursolutions.com lookalike is rejected, not trusted after rewrite",
+			apiBaseURL: "https://www-concursolutions.com",
+			wantErr:    true,
 		},
 		{
 			name:       "derives host from a trusted eu region, proving this is not hardcoded to us2",
@@ -80,9 +86,6 @@ func TestResolveReportsUIHost(t *testing.T) {
 			wantErr:    true,
 		},
 		{
-			// Same lookalike-suffix attack, routed through the www-/.api.
-			// cleaning transform first, proving the boundary check applies
-			// to the cleaned host, not just the raw input.
 			name:       "lookalike domain surviving the www-/.api. cleaning transform is still rejected",
 			apiBaseURL: "https://www-us2.api.evilconcursolutions.com",
 			wantErr:    true,
@@ -113,6 +116,31 @@ func TestResolveReportsUIHost(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRefreshActiveCDPPort(t *testing.T) {
+	origDetect := detectCDPPort
+	origPort := activeCDPPort
+	t.Cleanup(func() {
+		detectCDPPort = origDetect
+		activeCDPPort = origPort
+	})
+
+	t.Run("clears stale port when detection finds nothing", func(t *testing.T) {
+		activeCDPPort = "9222"
+		detectCDPPort = func() string { return "" }
+		if got := refreshActiveCDPPort(); got != "" || activeCDPPort != "" {
+			t.Fatalf("stale CDP port kept: got %q activeCDPPort=%q", got, activeCDPPort)
+		}
+	})
+
+	t.Run("replaces stale port with newly detected port", func(t *testing.T) {
+		activeCDPPort = "9222"
+		detectCDPPort = func() string { return "9333" }
+		if got := refreshActiveCDPPort(); got != "9333" || activeCDPPort != "9333" {
+			t.Fatalf("CDP port not refreshed: got %q activeCDPPort=%q", got, activeCDPPort)
+		}
+	})
 }
 
 // TestReportsCreatePartialSuccessError covers the duplicate-report-risk

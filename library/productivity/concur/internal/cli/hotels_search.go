@@ -125,11 +125,23 @@ var concurCDPPortCandidates = []string{"9222", "9333", "9229"}
 // this file through that CDP debug port (an attach to an already-running,
 // already-authenticated Chrome instance) instead of agent-browser's default
 // isolated-profile launch. Package-level rather than threaded through every
-// call site because this command is a single, non-concurrent execution path
-// per process invocation -- see detectDedicatedConcurBrowser and this
-// file's header comment for why attaching (not copying credentials) is
-// what makes session reuse actually work here.
+// call site because attaching (not copying credentials) is what makes
+// session reuse actually work here. MCP and in-process retries can run
+// more than one command, so refreshActiveCDPPort must re-detect (and
+// clear) this value on every invocation rather than keep a dead port.
 var activeCDPPort string
+
+// detectCDPPort is the live probe behind refreshActiveCDPPort; tests swap
+// it to cover stale-port clearing without a real Chrome instance.
+var detectCDPPort = detectDedicatedConcurBrowser
+
+// refreshActiveCDPPort re-detects the dedicated Concur Chrome debug port
+// for this invocation. Always assigns, including "", so a previous
+// in-process command cannot leave a dead CDP port selected.
+func refreshActiveCDPPort() string {
+	activeCDPPort = detectCDPPort()
+	return activeCDPPort
+}
 
 // detectDedicatedConcurBrowser looks for a Chrome instance already running
 // with remote debugging enabled and an authenticated Concur session, so
@@ -430,8 +442,7 @@ command in this CLI.`,
 			// agent-browser's isolated profile (which needs its own login).
 			// See detectDedicatedConcurBrowser and this file's header
 			// comment.
-			if port := detectDedicatedConcurBrowser(); port != "" {
-				activeCDPPort = port
+			if port := refreshActiveCDPPort(); port != "" {
 				fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
 			}
 
