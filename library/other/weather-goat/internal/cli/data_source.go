@@ -131,34 +131,7 @@ func clientForOpenMeteoService(c *client.Client, serviceBaseURL string) *client.
 // resolveOpenMeteoRead is resolveRead for Open-Meteo endpoints hosted outside
 // the main forecast API, such as archive-api and air-quality-api.
 func resolveOpenMeteoRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path, serviceBaseURL string, params map[string]string) (json.RawMessage, DataProvenance, error) {
-	serviceClient := clientForOpenMeteoService(c, serviceBaseURL)
-	switch flags.dataSource {
-	case "local":
-		return resolveLocal(resourceType, isList, path, params, "user_requested")
-
-	case "live":
-		data, err := serviceClient.Get(path, params)
-		if err != nil {
-			return nil, DataProvenance{}, err
-		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
-
-	default: // "auto"
-		data, err := serviceClient.Get(path, params)
-		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
-		}
-		if !isNetworkError(err) {
-			return nil, DataProvenance{}, err
-		}
-		localData, prov, localErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
-		if localErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'weather-goat-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
-		}
-		return localData, prov, nil
-	}
+	return resolveRead(clientForOpenMeteoService(c, serviceBaseURL), flags, resourceType, isList, path, params)
 }
 
 // resolvePaginatedRead dispatches a paginated GET request to either the live API
