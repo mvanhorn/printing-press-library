@@ -335,7 +335,11 @@ func resolveReportsUIHost(apiBaseURL string) (string, error) {
 			apiBaseURL,
 		)
 	}
-	h := u.Host
+	// PATCH(leftover-1936: port-strip) -- u.Host includes ":443", so a
+	// trusted https://www-us2.api.concursolutions.com:443 failed the
+	// domain-boundary check after www-/.api. cleaning. Hostname()
+	// matches client.go's baseURLIsTrustedConcurHost trust check.
+	h := u.Hostname()
 	if strings.HasPrefix(h, "www-") {
 		h = strings.TrimPrefix(h, "www-")
 	}

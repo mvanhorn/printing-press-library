@@ -34,6 +34,15 @@ func TestResolveReportsUIHost(t *testing.T) {
 			wantHost:   "us2.concursolutions.com",
 		},
 		{
+			// PATCH(leftover-1936: port-strip) -- u.Host includes the
+			// explicit :443, so the domain-boundary check rejected this
+			// otherwise-trusted API host. Hostname() must still derive
+			// the UI host.
+			name:       "explicit port on a trusted API host is stripped, not rejected",
+			apiBaseURL: "https://www-us2.api.concursolutions.com:443",
+			wantHost:   "us2.concursolutions.com",
+		},
+		{
 			name:       "derives host from a trusted eu region, proving this is not hardcoded to us2",
 			apiBaseURL: "https://www-eu1.api.concursolutions.com",
 			wantHost:   "eu1.concursolutions.com",
