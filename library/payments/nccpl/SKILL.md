@@ -66,7 +66,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`coverage`** — List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is.
 
-  _Use this as a pipeline pre-flight - it exits non-zero on a gap, so a scheduled research job fails loudly instead of silently treating a missing session as a zero._
+  _Use this as a pipeline pre-flight - it exits non-zero on a gap, so a scheduled research job fails loudly instead of silently treating a missing session as a zero. Re-syncing a date replaces it rather than adding to it: a stored settlement date always mirrors the last snapshot fetched for it, so if NCCPL revises a date and drops symbols the next sync removes them and the store never serves a row the source stopped publishing. coverage row_count therefore always equals the number of observations actually stored, and the audit can never disagree with the data it audits. One deliberate exception: a fetch returning zero rows for a date that already holds rows does NOT delete them, because an empty response and a transient failure look identical from here; the next non-empty fetch mirrors the date correctly._
 
   ```bash
   nccpl-pp-cli coverage --resources fipi,lipi,var-margins --exit-code --agent
@@ -121,7 +121,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`ingest`** — Load NCCPL responses captured through your own browser into the same local store.
 
-  _Reach for this when a dataset is gated: export a HAR from a normal browsing session and every other command works on it unchanged. Bodies can also be piped in directly with --stdin (pbpaste | nccpl-pp-cli ingest --stdin --resource var-margins --date 2026-09-04), so a single copied response never needs a temp file._
+  _Reach for this when a dataset is gated: export a HAR from a normal browsing session and every other command works on it unchanged. Bodies can also be piped in directly with --stdin (pbpaste | nccpl-pp-cli ingest --stdin --resource var-margins --date 2026-09-04), so a single copied response never needs a temp file. Nothing unidentifiable is stored: a HAR entry is only ingested when it was served by nccpl.com.pk or a subdomain over https, and a response body must carry either the documented envelope key for the resource or exactly one of the API's own other envelope names. An all-traffic capture routinely holds other origins -- a proxy, a mock, a local dev server on the same path -- and those are refused and listed under skipped with a reason, never filed under a guess._
 
   ```bash
   nccpl-pp-cli ingest capture.har --agent

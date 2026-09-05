@@ -251,7 +251,7 @@
     {
       "name": "Browser-assisted capture",
       "command": "capture",
-      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch."
+      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch, and add --headless to run with no window."
     }
   ]
 }

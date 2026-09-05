@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -40,49 +41,145 @@ type harEntry struct {
 }
 
 // nccplBatchesFromHAR extracts every recognisable /api/<resource>/data exchange.
-func nccplBatchesFromHAR(raw []byte) ([]nccplIngestBatch, error) {
+//
+// The second return value lists the entries that looked like NCCPL data and were
+// refused anyway, each with the reason. They are reported rather than dropped: a
+// capture that silently ingested nothing looks exactly like a day the market
+// published nothing, and only one of those is something the operator can fix.
+func nccplBatchesFromHAR(raw []byte) ([]nccplIngestBatch, []string, error) {
 	var har harFile
 	if err := json.Unmarshal(raw, &har); err != nil {
-		return nil, fmt.Errorf("not a valid HAR: %w", err)
+		return nil, nil, fmt.Errorf("not a valid HAR: %w", err)
 	}
 	out := make([]nccplIngestBatch, 0)
+	skipped := make([]string, 0)
+	seen := make(map[string]bool)
+	note := func(format string, args ...any) {
+		msg := fmt.Sprintf(format, args...)
+		if seen[msg] {
+			return
+		}
+		seen[msg] = true
+		skipped = append(skipped, msg)
+	}
+
 	for _, e := range har.Log.Entries {
-		res, ok := nccplResourceForURL(e.Request.URL)
-		if !ok || e.Response.Status != 200 {
+		res, refusal, ok := nccplResourceForURL(e.Request.URL)
+		if !ok {
+			// refusal is empty for the ordinary unrelated traffic that fills a
+			// HAR (images, scripts, analytics); those stay silent.
+			if refusal != "" {
+				note("%s", refusal)
+			}
+			continue
+		}
+		label := nccplCapturedURLLabel(e.Request.URL)
+		if e.Response.Status != 200 {
+			note("%s: HTTP %d, so it carries no data to store", label, e.Response.Status)
 			continue
 		}
 		date := nccplDateFromRequestBody(e.Request.PostData.Text, res)
 		if date == "" {
+			note("%s: request body names no settlement date, so its rows cannot be dated", label)
 			continue
 		}
 		body := []byte(e.Response.Content.Text)
 		if strings.EqualFold(e.Response.Content.Encoding, "base64") {
 			decoded, err := base64.StdEncoding.DecodeString(e.Response.Content.Text)
 			if err != nil {
+				note("%s (%s): response body is not decodable base64", label, date)
 				continue
 			}
 			body = decoded
 		}
 		rows, err := nccplRowsFromEnvelope(body, res)
-		if err != nil || len(rows) == 0 {
+		if err != nil {
+			note("%s (%s): %v", label, date, err)
+			continue
+		}
+		if len(rows) == 0 {
+			// A genuinely empty publication, not a refusal.
 			continue
 		}
 		out = append(out, nccplIngestBatch{Resource: res.Name, Date: date, Rows: rows})
 	}
-	return out, nil
+	return out, skipped, nil
 }
 
+// nccplOriginDomain is NCCPL's registrable domain. Only this domain and its
+// subdomains are treated as NCCPL speaking.
+const nccplOriginDomain = "nccpl.com.pk"
+
 // nccplResourceForURL maps a captured URL back to a registry resource.
-func nccplResourceForURL(url string) (nccplResource, bool) {
-	if !strings.Contains(url, "/api/") || !strings.HasSuffix(strings.SplitN(url, "?", 2)[0], "/data") {
-		return nccplResource{}, false
+//
+// Three results, distinguished by the second and third return values:
+//   - (resource, "", true)  the entry is NCCPL data for that resource;
+//   - (zero, reason, false) it named a known data endpoint but did not come from
+//     NCCPL over https, so it is refused with a reason the caller reports;
+//   - (zero, "", false)     ordinary unrelated traffic, silently ignored.
+//
+// The path shape alone is not evidence of provenance. "Save all as HAR with content"
+// exports EVERY request the browser made, so a capture routinely holds other origins
+// -- a corporate proxy, a mock, a local dev server at
+// http://localhost:3000/api/var-margins/data. Matching on the URL as a string filed
+// all of those as authoritative NCCPL market data. So the URL is parsed and the host
+// is compared against the registrable domain: a substring test would accept both
+// "nccpl.com.pk.evil.com" and "notnccpl.com.pk", neither of which is NCCPL.
+func nccplResourceForURL(rawURL string) (nccplResource, string, bool) {
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || u.Host == "" {
+		return nccplResource{}, "", false
 	}
+	res, ok := nccplResourceForAPIPath(u.Path)
+	if !ok {
+		return nccplResource{}, "", false
+	}
+	label := nccplCapturedURLLabel(rawURL)
+	if !strings.EqualFold(u.Scheme, "https") {
+		return nccplResource{}, fmt.Sprintf(
+			"%s: ignored, NCCPL data is only accepted over https (this entry used %q)", label, u.Scheme), false
+	}
+	if !nccplIsNCCPLHost(u.Hostname()) {
+		return nccplResource{}, fmt.Sprintf(
+			"%s: ignored, host %q is not %s or a subdomain of it", label, u.Hostname(), nccplOriginDomain), false
+	}
+	return res, "", true
+}
+
+// nccplResourceForAPIPath matches a URL path against the registry's data endpoints.
+// The comparison is exact rather than a substring, so "/api/var-margins/data-mock"
+// and "/proxy/api/var-margins/data" are not this API.
+func nccplResourceForAPIPath(path string) (nccplResource, bool) {
+	p := strings.TrimSuffix(path, "/")
 	for _, r := range nccplResources {
-		if strings.Contains(url, "/api/"+r.Segment+"/data") {
+		// `flows` is republished by a different origin and carries no NCCPL
+		// segment, so it can never be recognised from a captured NCCPL URL.
+		if r.External || r.Segment == "" {
+			continue
+		}
+		if p == "/api/"+r.Segment+"/data" {
 			return r, true
 		}
 	}
 	return nccplResource{}, false
+}
+
+// nccplIsNCCPLHost reports whether a hostname is NCCPL's own: the registrable domain
+// itself, or a label-aligned subdomain of it. Matching on the dot boundary is what
+// rejects the lookalikes a Contains check lets through.
+func nccplIsNCCPLHost(host string) bool {
+	h := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(host), "."))
+	return h == nccplOriginDomain || strings.HasSuffix(h, "."+nccplOriginDomain)
+}
+
+// nccplCapturedURLLabel renders a captured URL for a skip message: scheme, host and
+// path only. The query is dropped so a capture's session tokens never reach a report.
+func nccplCapturedURLLabel(rawURL string) string {
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || u.Host == "" {
+		return "(unparseable URL)"
+	}
+	return u.Scheme + "://" + u.Host + u.Path
 }
 
 // nccplDateFromRequestBody recovers the settlement date the page requested.

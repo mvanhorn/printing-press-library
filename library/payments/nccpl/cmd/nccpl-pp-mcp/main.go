@@ -40,9 +40,6 @@ const (
 var version = "0.0.0-dev"
 
 func main() {
-	// Pin the learn-event surface for this process and every walker
-	// shell-out child, so usage events record surface=mcp.
-	_ = os.Setenv("NCCPL_LEARN_SURFACE", "mcp")
 	if err := cli.BindMCPServerProfile(); err != nil {
 		fmt.Fprintf(os.Stderr, "MCP client-profile bind failed: %v\n", err)
 		os.Exit(1)

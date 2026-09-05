@@ -91,13 +91,18 @@ What this does NOT do: it is not the CLI's transport. 'panel', 'verify', 'covera
 Mechanics: a throwaway Chrome profile is created, used, then killed and deleted. Your
 normal Chrome profile is never touched. With --headless no window appears, which is what
 a scheduled capture should use; without it a window appears while the capture runs.
-Pair --headless with --profile to keep the solved clearance between scheduled runs.
+
+--headless must solve the challenge from a FRESH profile every run, so it cannot be
+combined with --profile. Handing a headless Chrome a clearance that was solved earlier --
+whether by reusing its profile directory or by injecting the cookies -- is answered with a
+hard block ("Sorry, you have been blocked"), which is worse than the ordinary challenge.
+Solving fresh costs about 15 seconds and is what --headless is tuned for.
 `, "\n"),
 		Example: strings.Trim(`
   nccpl-pp-cli capture --resources var-margins --latest-only
   nccpl-pp-cli capture --resources mts,mfs,msf,slb --on 2026-09-04 --launch
   nccpl-pp-cli capture --resources var-margins --from 2026-09-01 --to 2026-09-04 --launch
-  nccpl-pp-cli capture --resources var-margins --latest-only --launch --headless --profile ~/.nccpl-chrome
+  nccpl-pp-cli capture --resources var-margins --latest-only --launch --headless
 `, "\n"),
 		Annotations: map[string]string{
 			// capture fetches gated NCCPL datasets through a controlled browser and writes them
@@ -183,6 +188,14 @@ Pair --headless with --profile to keep the solved clearance between scheduled ru
 				return err
 			}
 
+			// --headless + --profile is measured-broken, not merely discouraged: a
+			// headless Chrome handed a previously-solved clearance (by profile reuse
+			// or cookie injection) gets the hard WAF block rather than a challenge.
+			// Refusing here stops a scheduled job from failing that way every run.
+			if headless && strings.TrimSpace(keepProfile) != "" {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--headless cannot be combined with --profile: a headless Chrome given a previously-solved clearance is hard-blocked, so it must solve from a fresh profile each run (about 15s). Drop --profile, or drop --headless to reuse a solved profile with a visible window"))
+			}
 			if headless {
 				fmt.Fprintf(cmd.ErrOrStderr(), "launching a controlled headless Chrome (no window)...\n")
 			} else {

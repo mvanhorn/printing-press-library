@@ -20,7 +20,6 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/platform"
@@ -698,19 +697,16 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials." +
-					"\n      See API docs: https://www.nccpl.com.pk" +
 					"\n      Run 'nccpl-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API credentials." +
 					"\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials." +
-					"\n      See API docs: https://www.nccpl.com.pk" +
 					"\n      Run 'nccpl-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
 					"\n      Run 'nccpl-pp-cli auth login --chrome' to refresh browser-session credentials." +
-					"\n      See API docs: https://www.nccpl.com.pk" +
 					"\n      Run 'nccpl-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -865,14 +861,8 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion nccpl-pp-cli binary.",
-		// learn_protocol is generated from the single shared source of
-		// truth (the exported constant internal/learn.RecallFirstProtocol)
-		// also consumed by the CLI agent-context command, so the MCP and
-		// CLI agent surfaces cannot drift.
-		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
-			"type":     "composed",
-			"docs_url": "https://www.nccpl.com.pk",
+			"type": "composed",
 		},
 		"resources": []map[string]any{
 			{
@@ -1009,22 +999,28 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Arithmetic invariant validator", "command": "verify", "description": "Prove a date's flow numbers are internally consistent before they reach a regression.", "rationale": "NCCPL publishes two exact identities for free - FIPI net equals minus LIPI net", "via": "mcp-command-mirror"},
-			{"name": "Per-resource coverage and gap ledger", "command": "coverage", "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is.", "rationale": "The latest-date endpoints report one date per resource and are structurally blind to a hole in the middle of the archive", "via": "mcp-command-mirror"},
-			{"name": "Live endpoint self-test", "command": "contract-check", "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest.", "rationale": "This API uses three different date formats and five different response envelope keys", "via": "mcp-command-mirror"},
-			{"name": "Vintage-stamped research panel export", "command": "panel", "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled.", "rationale": "NCCPL publishes no timestamp of its own", "via": "mcp-command-mirror"},
-			{"name": "Point-in-time symbol roster", "command": "universe", "description": "Reconstruct which symbols were listed and clearing-eligible on any past date.", "rationale": "NCCPL only publishes risk parameters and settlement records for symbols that were actually eligible that day", "via": "mcp-command-mirror"},
-			{"name": "Risk-parameter change detector", "command": "risk-changes", "description": "Date every step change in a symbol's free float, VAR margin and haircut.", "rationale": "A single-date endpoint cannot express a change; diffing consecutive stored var-margins rows surfaces corporate actions", "via": "mcp-command-mirror"},
-			{"name": "Unified leverage and short-interest panel", "command": "leverage", "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section.", "rationale": "Four endpoints across three different response envelopes all key on the same date and symbol", "via": "mcp-command-mirror"},
+			{"name": "Arithmetic invariant validator", "command": "verify", "description": "Prove a date's flow numbers are internally consistent before they reach a regression.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Per-resource coverage and gap ledger", "command": "coverage", "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Live endpoint self-test", "command": "contract-check", "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Vintage-stamped research panel export", "command": "panel", "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Point-in-time symbol roster", "command": "universe", "description": "Reconstruct which symbols were listed and clearing-eligible on any past date.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Risk-parameter change detector", "command": "risk-changes", "description": "Date every step change in a symbol's free float, VAR margin and haircut.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Unified leverage and short-interest panel", "command": "leverage", "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Gate-free FIPI/LIPI flow feed", "command": "flows", "description": "Fetch daily FIPI/LIPI sector flows into the local store without a browser.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Browser-capture ingest", "command": "ingest", "description": "Load NCCPL responses captured through your own browser into the same local store.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Browser-assisted capture", "command": "capture", "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Arithmetic invariant validator", "insight": "NCCPL publishes two exact identities for free - FIPI net equals minus LIPI net, and every sector row nets to zero across the ten investor classes. Neither is checkable without holding both sides locally."},
-			{"topic": "Per-resource coverage and gap ledger", "insight": "The latest-date endpoints report one date per resource and are structurally blind to a hole in the middle of the archive; only a local date-set diff can see a missing session."},
-			{"topic": "Live endpoint self-test", "insight": "This API uses three different date formats and five different response envelope keys; encoding either wrong returns an empty array rather than an error."},
-			{"topic": "Vintage-stamped research panel export", "insight": "NCCPL publishes no timestamp of its own, so ex-ante availability can only be established by stamping observed_at at sync time; it is not reconstructible afterwards."},
-			{"topic": "Point-in-time symbol roster", "insight": "NCCPL only publishes risk parameters and settlement records for symbols that were actually eligible that day, so presence across dates yields a clearing-house liveness signal independent of price staleness."},
-			{"topic": "Risk-parameter change detector", "insight": "A single-date endpoint cannot express a change; diffing consecutive stored var-margins rows surfaces corporate actions, lockup expiries and clearing-house re-ratings that exist nowhere else in this market."},
-			{"topic": "Unified leverage and short-interest panel", "insight": "Four endpoints across three different response envelopes all key on the same date and symbol; no single API call performs the join and no incumbent exposes symbol-level leverage cross-sectionally."},
+			{"topic": "Arithmetic invariant validator", "insight": ""},
+			{"topic": "Per-resource coverage and gap ledger", "insight": ""},
+			{"topic": "Live endpoint self-test", "insight": ""},
+			{"topic": "Vintage-stamped research panel export", "insight": ""},
+			{"topic": "Point-in-time symbol roster", "insight": ""},
+			{"topic": "Risk-parameter change detector", "insight": ""},
+			{"topic": "Unified leverage and short-interest panel", "insight": ""},
+			{"topic": "Gate-free FIPI/LIPI flow feed", "insight": ""},
+			{"topic": "Browser-capture ingest", "insight": ""},
+			{"topic": "Browser-assisted capture", "insight": ""},
 			{"topic": "Resource discovery", "insight": "Use list commands to discover available resources before attempting operations. Developer platform APIs often have nested resource hierarchies."},
 		},
 	}

@@ -169,9 +169,17 @@ recorded, and each gets a coverage entry exactly as a live fetch would.
 				base := src.label
 				var batches []nccplIngestBatch
 				if looksLikeHAR(raw) {
-					batches, err = nccplBatchesFromHAR(raw)
-					if err != nil {
-						return fmt.Errorf("%s: %w", base, err)
+					found, skips, harErr := nccplBatchesFromHAR(raw)
+					if harErr != nil {
+						return fmt.Errorf("%s: %w", base, harErr)
+					}
+					batches = found
+					// Entries the HAR parser refused are reported, not dropped. A capture
+					// that quietly ingested nothing is indistinguishable from a day the
+					// market published nothing, and only one of those is something the
+					// operator can act on.
+					for _, s := range skips {
+						view.Skipped = append(view.Skipped, fmt.Sprintf("%s: %s", base, s))
 					}
 				} else {
 					b, err := nccplBatchFromBody(raw, resource, date)
@@ -202,7 +210,11 @@ recorded, and each gets a coverage entry exactly as a live fetch would.
 				return view.Ingested[i].Date < view.Ingested[j].Date
 			})
 			if view.TotalRows == 0 {
-				view.Note = "nothing ingested: the capture held no recognisable NCCPL /api/*/data responses. Re-export with \"Save all as HAR with content\" so response bodies are included."
+				if len(view.Skipped) > 0 {
+					view.Note = fmt.Sprintf("nothing ingested: %d input(s) were refused. See \"skipped\" for why each one was not stored -- a body or capture entry that cannot be identified is never filed under a guess.", len(view.Skipped))
+				} else {
+					view.Note = "nothing ingested: the capture held no recognisable NCCPL /api/*/data responses. Re-export with \"Save all as HAR with content\" so response bodies are included."
+				}
 			}
 
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
@@ -260,34 +272,47 @@ func nccplBatchFromBody(raw []byte, resource, date string) (nccplIngestBatch, er
 	return nccplIngestBatch{Resource: res.Name, Date: date, Rows: rows}, nil
 }
 
-// nccplRowsFromEnvelope pulls the row array out of a response body, accepting either
-// the documented envelope for this resource or a bare array.
+// nccplKnownEnvelopes is the fixed, exhaustive list of envelope keys this API is
+// known to use, deduplicated in registry order. It is the ONLY set of names the
+// fallback in nccplRowsFromEnvelope will read, and its order never varies, so the
+// same body always yields the same rows.
+var nccplKnownEnvelopes = func() []string {
+	out := make([]string, 0, len(nccplResources))
+	seen := make(map[string]bool, len(nccplResources))
+	for _, r := range nccplResources {
+		if r.Envelope == "" || seen[r.Envelope] {
+			continue
+		}
+		seen[r.Envelope] = true
+		out = append(out, r.Envelope)
+	}
+	return out
+}()
+
+// nccplRowsFromEnvelope pulls the row array out of a response body.
+//
+// Exactly three shapes are accepted, tried in this order:
+//
+//  1. a bare array of row objects;
+//  2. an object carrying THIS resource's documented envelope key;
+//  3. an object carrying exactly one of the API's own other envelope keys, which is
+//     what a body hand-saved from a sibling endpoint -- or upstream envelope drift --
+//     looks like.
+//
+// Anything else is refused, and the caller reports the refusal in its skipped list.
+//
+// Case 3 used to be a walk over every key in the body, taking the first array-valued
+// one under ANY name. Go randomises map iteration order, so a body holding several
+// arrays produced a different resource's rows from run to run, and an `errors` array
+// -- or an unrelated `data` array pasted from another endpoint -- was stored as
+// authoritative observations for the named resource and date. A body whose contents
+// cannot be identified must not become data, so the allow-list is closed, the order
+// is fixed, and two candidates at once is an ambiguity that refuses rather than
+// guesses. Refusing costs one observation; guessing corrupts the series.
 func nccplRowsFromEnvelope(raw []byte, res nccplResource) ([]store.NCCPLRow, error) {
-	var objs []map[string]any
-	if err := json.Unmarshal(raw, &objs); err != nil {
-		var env map[string]json.RawMessage
-		if err := json.Unmarshal(raw, &env); err != nil {
-			return nil, fmt.Errorf("not JSON")
-		}
-		payload, ok := env[res.Envelope]
-		if !ok {
-			// Fall back to any array-valued key: a hand-saved body may have been
-			// copied from a sibling endpoint whose envelope differs.
-			for _, v := range env {
-				if json.Unmarshal(v, &objs) == nil && len(objs) > 0 {
-					payload = nil
-					break
-				}
-			}
-			if objs == nil {
-				return nil, fmt.Errorf("no %q array in body", res.Envelope)
-			}
-		}
-		if payload != nil {
-			if err := json.Unmarshal(payload, &objs); err != nil {
-				return nil, fmt.Errorf("decoding %s: %w", res.Envelope, err)
-			}
-		}
+	objs, err := nccplRowObjectsFromEnvelope(raw, res)
+	if err != nil {
+		return nil, err
 	}
 	rows := make([]store.NCCPLRow, 0, len(objs))
 	seen := map[string]bool{}
@@ -299,4 +324,77 @@ func nccplRowsFromEnvelope(raw []byte, res nccplResource) ([]store.NCCPLRow, err
 		rows = append(rows, store.NCCPLRow{Key: nccplRowKey(res, o, i, seen), Payload: string(enc)})
 	}
 	return rows, nil
+}
+
+// nccplRowObjectsFromEnvelope resolves the row array, or explains why it will not.
+func nccplRowObjectsFromEnvelope(raw []byte, res nccplResource) ([]map[string]any, error) {
+	var objs []map[string]any
+	if err := json.Unmarshal(raw, &objs); err == nil {
+		return objs, nil
+	}
+	var env map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return nil, fmt.Errorf("not JSON")
+	}
+	if payload, ok := env[res.Envelope]; ok {
+		if err := json.Unmarshal(payload, &objs); err != nil {
+			return nil, fmt.Errorf("decoding %s: %w", res.Envelope, err)
+		}
+		return objs, nil
+	}
+
+	// The documented key is absent. Consider only the API's own other envelope
+	// names, in their fixed registry order, and only where the value is genuinely a
+	// JSON array -- a null or an object under a known name is not row data.
+	matched := make([]string, 0, 2)
+	decoded := make(map[string][]map[string]any, 2)
+	for _, key := range nccplKnownEnvelopes {
+		if key == res.Envelope {
+			continue
+		}
+		payload, ok := env[key]
+		if !ok || !nccplIsJSONArray(payload) {
+			continue
+		}
+		var candidate []map[string]any
+		if err := json.Unmarshal(payload, &candidate); err != nil {
+			continue
+		}
+		matched = append(matched, key)
+		decoded[key] = candidate
+	}
+	switch len(matched) {
+	case 1:
+		return decoded[matched[0]], nil
+	case 0:
+		return nil, fmt.Errorf("no %q array in body (keys present: %s)", res.Envelope, nccplEnvelopeKeyList(env))
+	default:
+		return nil, fmt.Errorf("body has no %q array and carries more than one known envelope (%s), so which endpoint it came from is ambiguous",
+			res.Envelope, strings.Join(matched, ", "))
+	}
+}
+
+// nccplIsJSONArray reports whether a raw envelope value is a JSON array.
+func nccplIsJSONArray(raw json.RawMessage) bool {
+	trimmed := bytes.TrimLeft(raw, " \t\r\n")
+	return len(trimmed) > 0 && trimmed[0] == '['
+}
+
+// nccplEnvelopeKeyList renders the keys a refused body did carry, sorted so the
+// message is reproducible and bounded so a stray large object cannot flood the
+// skipped list.
+func nccplEnvelopeKeyList(env map[string]json.RawMessage) string {
+	if len(env) == 0 {
+		return "none"
+	}
+	keys := make([]string, 0, len(env))
+	for k := range env {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	const maxKeys = 12
+	if len(keys) > maxKeys {
+		keys = append(keys[:maxKeys:maxKeys], fmt.Sprintf("... and %d more", len(keys)-maxKeys))
+	}
+	return strings.Join(keys, ", ")
 }

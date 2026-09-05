@@ -1,0 +1,1082 @@
+name: nccpl
+description: "Pakistan's clearing-layer market data: investor-class flows, leverage-market positions, risk parameters and settlement reconciliation."
+version: "0.1.0"
+base_url: "https://www.nccpl.com.pk"
+category: payments
+spec_source: sniffed
+http_transport: browser-chrome
+health_check_path: "/api/fipi/latest-date"
+cli_description: "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard."
+
+auth:
+  type: composed
+  header: "X-XSRF-TOKEN"
+  format: "{XSRF-TOKEN}"
+  cookie_domain: "www.nccpl.com.pk"
+  cookies:
+    - cf_clearance
+    - nccpl-session
+    - XSRF-TOKEN
+  in: header
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/nccpl-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+mcp:
+  transport: [stdio, http]
+
+learn:
+  # No ticker_patterns. PSX symbols are ALL-CAPS (HUBC, OGDC, FFC) and
+  # entities.Extract already classifies ALL-CAPS alphanumeric tokens as
+  # entities. A lowercase pattern is INVERTED here: matchesTicker runs on the
+  # RAW token before lowercasing, so "^[a-z0-9]{2,12}$" never matched a real
+  # symbol and matched every ordinary word instead, emptying QueryFamily and
+  # making every seeded playbook unreachable at recall time (20 failing tests).
+  ticker_patterns: []
+  synonyms:
+    "foreign flows": "fipi"
+    "local flows": "lipi"
+    "foreigners": "fipi"
+    "locals": "lipi"
+    "short interest": "slb"
+    "margin financing": "mts"
+    "most recent": "latest"
+  entity_lookup_seeds:
+    investor_type:
+      - canonical: "101"
+        aliases: [all, everyone, all-investors]
+      - canonical: "FI"
+        aliases: [foreign individual, foreign individuals, foreign retail]
+      - canonical: "FC"
+        aliases: [foreign corporates, foreign corporate, foreign institutions, foreign institutional]
+      - canonical: "FOP"
+        aliases: [overseas pakistani, overseas pakistanis, non-resident, nrp]
+      - canonical: "FN"
+        aliases: [fipi net, foreign net, net foreign]
+      - canonical: "LBD"
+        aliases: [banks, banks/dfi, banks dfi, dfi, commercial banks]
+      - canonical: "LBP"
+        aliases: [brokers, broker proprietary trading, broker prop, proprietary]
+      - canonical: "LC"
+        aliases: [companies, corporates, local companies]
+      - canonical: "LI"
+        aliases: [individuals, retail, local individuals]
+      - canonical: "LN"
+        aliases: [lipi net, local net, net local]
+      - canonical: "LMF"
+        aliases: [mutual funds, mutual fund, funds, mf]
+      - canonical: "LNB"
+        aliases: [nbfc, non-banking finance, non banking finance companies]
+      - canonical: "IC"
+        aliases: [insurance, insurance companies, insurers]
+      - canonical: "LOO"
+        aliases: [other organization, other organisations, other, others]
+    market_segment:
+      - canonical: "EQUITY"
+        aliases: [equities, equity market, stock market, cash market]
+      - canonical: "DEBT"
+        aliases: [debt market, bonds, fixed income]
+
+resources:
+  fipi:
+    description: "Foreign Investors Portfolio Investment (FIPI) net flows by investor class and market segment."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/fipi/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for fipi. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli fipi latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/fipi/data"
+        mutation: false
+        description: "Foreign Investors Portfolio Investment (FIPI) net flows by investor class and market segment. Date range. NOTE: this endpoint requires DD/MM/YYYY dates, unlike the sector-wise and single-date endpoints which use YYYY-MM-DD."
+        example: "  nccpl-pp-cli fipi data --from-date 01/09/2026 --to-date 04/09/2026 --type 101 --json"
+        happy_args: "--from-date=01/09/2026;--to-date=04/09/2026;--type=101"
+        body:
+          - name: fromDate
+            type: string
+            required: true
+            positional: false
+            description: "Range start in DD/MM/YYYY format (for example 01/09/2026). NOT YYYY-MM-DD - this endpoint differs from the sector-wise endpoints."
+          - name: toDate
+            type: string
+            required: true
+            positional: false
+            description: "Range end in DD/MM/YYYY format (for example 04/09/2026)."
+          - name: type
+            type: string
+            required: true
+            positional: false
+            default: "101"
+            description: "FIPI investor class code. 101 returns all classes."
+            enum: [101, FI, FC, FOP, FN]
+        response:
+          type: array
+          item: FlowRow
+        response_path: data
+        response_format: json
+  lipi:
+    description: "Local Investors Portfolio Investment (LIPI) net flows by investor class and market segment."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/lipi/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for lipi. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli lipi latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/lipi/data"
+        mutation: false
+        description: "Local Investors Portfolio Investment (LIPI) net flows by investor class and market segment. Date range. NOTE: this endpoint requires DD/MM/YYYY dates, unlike the sector-wise and single-date endpoints which use YYYY-MM-DD."
+        example: "  nccpl-pp-cli lipi data --from-date 01/09/2026 --to-date 04/09/2026 --type 101 --json"
+        happy_args: "--from-date=01/09/2026;--to-date=04/09/2026;--type=101"
+        body:
+          - name: fromDate
+            type: string
+            required: true
+            positional: false
+            description: "Range start in DD/MM/YYYY format (for example 01/09/2026). NOT YYYY-MM-DD - this endpoint differs from the sector-wise endpoints."
+          - name: toDate
+            type: string
+            required: true
+            positional: false
+            description: "Range end in DD/MM/YYYY format (for example 04/09/2026)."
+          - name: type
+            type: string
+            required: true
+            positional: false
+            default: "101"
+            description: "LIPI investor class code. 101 returns all classes."
+            enum: [101, LBD, LBP, LC, LI, LN, LMF, LNB, IC, LOO]
+        response:
+          type: array
+          item: FlowRow
+        response_path: data
+        response_format: json
+  fipi-sector:
+    description: "FIPI net flows broken out by market sector."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/fipi-sector-wise/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for fipi-sector. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli fipi-sector latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/fipi-sector-wise/data"
+        mutation: false
+        description: "FIPI net flows broken out by market sector. Date range. NOTE: this endpoint requires YYYY-MM-DD dates, unlike the fipi/lipi endpoints which use DD/MM/YYYY."
+        example: "  nccpl-pp-cli fipi-sector data --from-date 2026-09-01 --to-date 2026-09-04 --json"
+        happy_args: "--from-date=2026-09-01;--to-date=2026-09-04"
+        body:
+          - name: fromDate
+            type: string
+            required: true
+            positional: false
+            description: "Range start in YYYY-MM-DD format (for example 2026-09-01)."
+          - name: toDate
+            type: string
+            required: true
+            positional: false
+            description: "Range end in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: SectorFlowRow
+        response_path: data
+        response_format: json
+  lipi-sector:
+    description: "LIPI net flows broken out by market sector."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/lipi-sector-wise/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for lipi-sector. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli lipi-sector latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/lipi-sector-wise/data"
+        mutation: false
+        description: "LIPI net flows broken out by market sector. Date range. NOTE: this endpoint requires YYYY-MM-DD dates, unlike the fipi/lipi endpoints which use DD/MM/YYYY."
+        example: "  nccpl-pp-cli lipi-sector data --from-date 2026-09-01 --to-date 2026-09-04 --json"
+        happy_args: "--from-date=2026-09-01;--to-date=2026-09-04"
+        body:
+          - name: fromDate
+            type: string
+            required: true
+            positional: false
+            description: "Range start in YYYY-MM-DD format (for example 2026-09-01)."
+          - name: toDate
+            type: string
+            required: true
+            positional: false
+            description: "Range end in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: SectorFlowRow
+        response_path: data
+        response_format: json
+  fipi-normal:
+    description: "FIPI buy/sell volume and value by client type and market type for one date."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/fipi-normal/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for fipi-normal. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli fipi-normal latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/fipi-normal/data"
+        mutation: false
+        description: "FIPI buy/sell volume and value by client type and market type for one date. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli fipi-normal data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: NormalFlowRow
+        response_path: records
+        response_format: json
+  lipi-normal:
+    description: "LIPI buy/sell volume and value by client type and market type for one date."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/lipi-normal/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for lipi-normal. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli lipi-normal latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/lipi-normal/data"
+        mutation: false
+        description: "LIPI buy/sell volume and value by client type and market type for one date. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli lipi-normal data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: NormalFlowRow
+        response_path: data
+        response_format: json
+  mts:
+    description: "Margin Trading System (MTS) open positions per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/open-positions/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mts. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mts latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/open-positions/data"
+        mutation: false
+        description: "Margin Trading System (MTS) open positions per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mts data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: MTSPosition
+        response_path: positions
+        response_format: json
+  mts-financiers:
+    description: "Count of MTS financiers and financees per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/financiers-financees/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mts-financiers. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mts-financiers latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/financiers-financees/data"
+        mutation: false
+        description: "Count of MTS financiers and financees per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mts-financiers data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: FinancierCount
+        response_path: records
+        response_format: json
+  mts-force-release:
+    description: "MTS force-release volume and value by date."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/force-release/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mts-force-release. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mts-force-release latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/force-release/data"
+        mutation: false
+        description: "MTS force-release volume and value by date. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mts-force-release data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: ForceRelease
+        response_path: records
+        response_format: json
+  mts-top-financiers:
+    description: "Top 15 MTS financier / financee pairs."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/top-15-financiers/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mts-top-financiers. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mts-top-financiers latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/top-15-financiers/data"
+        mutation: false
+        description: "Top 15 MTS financier / financee pairs. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mts-top-financiers data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: FinancierPair
+        response_path: records
+        response_format: json
+  mts-refinanced:
+    description: "MTS amount released versus amount refinanced."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/mts-amount-refinanced/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mts-refinanced. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mts-refinanced latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/mts-amount-refinanced/data"
+        mutation: false
+        description: "MTS amount released versus amount refinanced. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mts-refinanced data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: Refinanced
+        response_path: records
+        response_format: json
+  mfs:
+    description: "Murabaha Share Financing (MFS) open positions per symbol, with free-float percentages."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/mfs-open-position/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mfs. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mfs latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/mfs-open-position/data"
+        mutation: false
+        description: "Murabaha Share Financing (MFS) open positions per symbol, with free-float percentages. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mfs data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: MFSPosition
+        response_path: positions
+        response_format: json
+  mfs-top:
+    description: "Top 15 MFS financee / financier pairs."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/mfs-top-15-financees-and-financiers/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for mfs-top. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli mfs-top latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/mfs-top-15-financees-and-financiers/data"
+        mutation: false
+        description: "Top 15 MFS financee / financier pairs. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli mfs-top data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: FinancierPair
+        response_path: records
+        response_format: json
+  msf:
+    description: "Margin Sharia Financing (MSF) open positions per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/msf-open-position/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for msf. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli msf latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/msf-open-position/data"
+        mutation: false
+        description: "Margin Sharia Financing (MSF) open positions per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli msf data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: MSFPosition
+        response_path: positions
+        response_format: json
+  msf-top:
+    description: "Top 15 MSF buyer / seller pairs."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/msf-top-15-financees-and-financiers/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for msf-top. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli msf-top latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/msf-top-15-financees-and-financiers/data"
+        mutation: false
+        description: "Top 15 MSF buyer / seller pairs. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli msf-top data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: MSFPair
+        response_path: records
+        response_format: json
+  slb:
+    description: "Securities Lending and Borrowing (SLB) open positions per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/slb-market-information/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for slb. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli slb latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/slb-market-information/data"
+        mutation: false
+        description: "Securities Lending and Borrowing (SLB) open positions per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli slb data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: SLBRow
+        response_path: rows
+        response_format: json
+  var-margins:
+    description: "Value-at-Risk margin, haircut and free float per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/var-margins/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for var-margins. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli var-margins latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/var-margins/data"
+        mutation: false
+        description: "Value-at-Risk margin, haircut and free float per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli var-margins data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: VarMargin
+        response_path: margins
+        response_format: json
+  settlement-uin:
+    description: "Trade versus settlement volume and value, UIN-wise, per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/sett-info-uin-wise/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for settlement-uin. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli settlement-uin latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/sett-info-uin-wise/data"
+        mutation: false
+        description: "Trade versus settlement volume and value, UIN-wise, per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli settlement-uin data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: SettlementRow
+        response_path: sett
+        response_format: json
+  settlement-cm:
+    description: "Trade versus settlement volume and value, clearing-member-wise, per symbol."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/sett-info-cm-wise/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for settlement-cm. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli settlement-cm latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/sett-info-cm-wise/data"
+        mutation: false
+        description: "Trade versus settlement volume and value, clearing-member-wise, per symbol. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli settlement-cm data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: SettlementCMRow
+        response_path: sett
+        response_format: json
+  tfc:
+    description: "Unlisted Term Finance Certificate (TFC) transactions."
+    endpoints:
+      latest-date:
+        method: GET
+        path: "/api/un-listed-tfc/latest-date"
+        no_auth: true
+        description: "Most recent publication date available for tfc. Needs Cloudflare clearance only; no CSRF or session."
+        example: "  nccpl-pp-cli tfc latest-date --json"
+        response:
+          type: object
+          item: LatestDate
+        response_format: json
+      data:
+        method: POST
+        path: "/api/un-listed-tfc/data"
+        mutation: false
+        description: "Unlisted Term Finance Certificate (TFC) transactions. Single settlement date. The 'date' field must be YYYY-MM-DD."
+        example: "  nccpl-pp-cli tfc data --date 2026-09-04 --json"
+        happy_args: "--date=2026-09-04"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: false
+            description: "Settlement date in YYYY-MM-DD format (for example 2026-09-04)."
+        response:
+          type: array
+          item: TFCTrade
+        response_path: tfc
+        response_format: json
+  market:
+    description: "Market-wide traded value and volume series."
+    endpoints:
+      latest:
+        method: GET
+        path: "/api/graph-data/latest-data"
+        no_auth: true
+        mutation: false
+        description: "Most recent market-wide traded value or volume series. Needs Cloudflare clearance only."
+        example: "  nccpl-pp-cli market latest --graph-type value --limit 30 --json"
+        happy_args: "--graph-type=value;--limit=30"
+        params:
+          - name: graph_type
+            flag_name: graph-type
+            type: string
+            required: true
+            positional: false
+            default: "value"
+            description: "Series to return: value (traded value) or volume (traded volume)."
+            enum: [value, volume]
+          - name: limit
+            type: int
+            required: false
+            positional: false
+            default: 30
+            description: "Number of trailing sessions to return."
+        response:
+          type: object
+          item: GraphSeries
+        response_format: json
+      range:
+        method: POST
+        path: "/api/graph-data/data-by-date-range"
+        mutation: false
+        description: "Market-wide traded value or volume series over an explicit date range. Sent as multipart/form-data with YYYY-MM-DD dates."
+        example: "  nccpl-pp-cli market range --start-date 2026-03-01 --end-date 2026-09-04 --graph-type value --json"
+        happy_args: "--start-date=2026-08-01;--end-date=2026-09-04;--graph-type=value"
+        body:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            required: true
+            positional: false
+            description: "Range start in YYYY-MM-DD format."
+          - name: end_date
+            flag_name: end-date
+            type: string
+            required: true
+            positional: false
+            description: "Range end in YYYY-MM-DD format."
+          - name: graph_type
+            flag_name: graph-type
+            type: string
+            required: true
+            positional: false
+            default: "value"
+            description: "Series to return: value or volume."
+            enum: [value, volume]
+        response:
+          type: object
+          item: GraphSeries
+        response_format: json
+
+types:
+  LatestDate:
+    fields:
+      - name: success
+        type: bool
+      - name: latest_date
+        type: string
+  FlowRow:
+    fields:
+      - name: client_type
+        type: string
+      - name: segment
+        type: string
+      - name: buy_value
+        type: float
+      - name: sell_value
+        type: float
+      - name: net_value
+        type: float
+      - name: net_value_USD
+        type: float
+  SectorFlowRow:
+    fields:
+      - name: SEC_CODE
+        type: string
+      - name: SECTOR_NAME
+        type: string
+      - name: CLIENT_TYPE
+        type: string
+      - name: BUY_VALUE
+        type: float
+      - name: SELL_VALUE
+        type: float
+      - name: NET_VALUE
+        type: float
+  NormalFlowRow:
+    fields:
+      - name: CLIENT_TYPE
+        type: string
+      - name: MARKET_TYPE
+        type: string
+      - name: BUY_VOLUME
+        type: float
+      - name: BUY_VALUE
+        type: float
+      - name: SELL_VOLUME
+        type: float
+      - name: SELL_VALUE
+        type: float
+      - name: NET_VOLUME
+        type: float
+      - name: NET_VALUE
+        type: float
+      - name: USD
+        type: float
+  MTSPosition:
+    fields:
+      - name: report_date
+        type: string
+      - name: symbol_code
+        type: string
+      - name: symbol_name
+        type: string
+      - name: open_mts_volume_before_release
+        type: float
+      - name: open_mts_amount_before_release
+        type: float
+      - name: adjustment
+        type: float
+      - name: current_day_release_volume
+        type: float
+      - name: current_day_release_amount
+        type: float
+      - name: current_day_mts_volume
+        type: float
+      - name: current_day_mts_amount
+        type: float
+      - name: net_open_mts_volume
+        type: float
+      - name: net_open_mts_amount
+        type: float
+      - name: mts_open_percentage
+        type: float
+      - name: symbol_category
+        type: string
+  FinancierCount:
+    fields:
+      - name: report_date
+        type: string
+      - name: symbol_code
+        type: string
+      - name: symbol_name
+        type: string
+      - name: no_of_financiers
+        type: int
+      - name: no_of_financees
+        type: int
+  ForceRelease:
+    fields:
+      - name: release_date
+        type: string
+      - name: release_volume
+        type: float
+      - name: release_value
+        type: float
+  FinancierPair:
+    fields:
+      - name: sr
+        type: int
+      - name: financee_name
+        type: string
+      - name: financier_name
+        type: string
+  Refinanced:
+    fields:
+      - name: date
+        type: string
+      - name: amount_released
+        type: float
+      - name: amount_refinanced
+        type: float
+  MFSPosition:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: open_position_before_release_volume
+        type: float
+      - name: open_position_before_release_value
+        type: float
+      - name: current_day_release_volume
+        type: float
+      - name: current_day_release_value
+        type: float
+      - name: current_day_take_up_volume
+        type: float
+      - name: current_day_take_up_value
+        type: float
+      - name: markup_weighted_average_net
+        type: float
+      - name: net_open_position_volume
+        type: float
+      - name: net_open_position_value
+        type: float
+      - name: net_open_position_percentage
+        type: float
+      - name: free_float
+        type: float
+      - name: percentage_of_free_float
+        type: float
+  MSFPosition:
+    fields:
+      - name: symbol
+        type: string
+      - name: description
+        type: string
+      - name: msf_currentday_vol
+        type: float
+      - name: msf_currentday_val
+        type: float
+  MSFPair:
+    fields:
+      - name: sr
+        type: int
+      - name: msf_buyer_name
+        type: string
+      - name: msf_seller_name
+        type: string
+  SLBRow:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: open_position_before_release_volume
+        type: float
+      - name: open_position_before_release_value
+        type: float
+      - name: current_day_release_volume
+        type: float
+      - name: current_day_release_value
+        type: float
+      - name: current_day_take_up_volume
+        type: float
+      - name: current_day_take_up_value
+        type: float
+      - name: net_open_position_volume
+        type: float
+      - name: net_open_position_value
+        type: float
+      - name: net_open_position_percentage
+        type: float
+  VarMargin:
+    fields:
+      - name: date
+        type: string
+      - name: symbol
+        type: string
+      - name: var_value
+        type: float
+      - name: hair_cut
+        type: float
+      - name: half_hour_avg_rate
+        type: float
+      - name: free_float
+        type: float
+  SettlementRow:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: trade_volume
+        type: float
+      - name: trade_value
+        type: float
+      - name: uin_settlement_volume
+        type: float
+      - name: uin_settlement_value
+        type: float
+      - name: uin_percentage_volume
+        type: float
+      - name: uin_percentage_value
+        type: float
+  SettlementCMRow:
+    fields:
+      - name: se
+        type: string
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: trade_volume
+        type: float
+      - name: trade_value
+        type: float
+      - name: settlement_volume
+        type: float
+      - name: settlement_value
+        type: float
+      - name: percentage_volume
+        type: float
+      - name: percentage_value
+        type: float
+  TFCTrade:
+    fields:
+      - name: transaction_date
+        type: string
+      - name: settlement_date
+        type: string
+      - name: transaction_type
+        type: string
+      - name: buying_cm_loc
+        type: string
+      - name: seller_cm_loc
+        type: string
+      - name: tfc_symbol
+        type: string
+      - name: tfc_name
+        type: string
+      - name: transaction_mode
+        type: string
+      - name: volume
+        type: float
+      - name: price
+        type: float
+      - name: par_value
+        type: float
+      - name: transaction_value
+        type: float
+      - name: total_value
+        type: float
+  GraphSeries:
+    fields:
+      - name: graph_type
+        type: string
+      - name: total_records
+        type: int

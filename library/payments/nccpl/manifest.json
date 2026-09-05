@@ -1,0 +1,49 @@
+{
+  "manifest_version": "0.3",
+  "name": "nccpl-pp-mcp",
+  "display_name": "Nccpl",
+  "version": "4.31.7",
+  "description": "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nccpl-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nccpl-pp-mcp",
+      "args": [],
+      "env": {
+        "NCCPL_BASE_URL": "${user_config.nccpl_base_url}",
+        "NCCPL_SKIP_TLS_VERIFY": "${user_config.nccpl_skip_tls_verify}",
+        "NCCPL_USER_AGENT": "${user_config.nccpl_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "nccpl_base_url": {
+      "type": "string",
+      "title": "NCCPL_BASE_URL",
+      "description": "Optional. Sets NCCPL_BASE_URL for the Nccpl MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "nccpl_skip_tls_verify": {
+      "type": "string",
+      "title": "NCCPL_SKIP_TLS_VERIFY",
+      "description": "Optional. Sets NCCPL_SKIP_TLS_VERIFY for the Nccpl MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "nccpl_user_agent": {
+      "type": "string",
+      "title": "NCCPL_USER_AGENT",
+      "description": "Optional. Sets NCCPL_USER_AGENT for the Nccpl MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

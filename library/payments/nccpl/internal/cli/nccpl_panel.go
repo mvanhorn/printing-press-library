@@ -69,11 +69,18 @@ is not reconstructible afterwards.
 
 --emit appends the panel into a caller-supplied SQLite file as table nccpl_panel,
 keyed (resource, date, key, metric) so re-emission is idempotent.
+
+--pivot renders ONE settlement date of a sector-wise resource as a sector x
+investor-class matrix. It has no date axis and folds a single field, so it requires a
+sector-wise --resource, one --metrics field, and one date. Anything else is refused
+rather than summed: a cell holding a month of flows, or a net value added to a buy
+value, is indistinguishable from a real session figure once it leaves this program.
 `, "\n"),
 		Example: strings.Trim(`
   nccpl-pp-cli panel --resource fipi --from 2026-08-01 --to 2026-09-04 --json
   nccpl-pp-cli panel --resource var-margins --metrics free_float --agent
   nccpl-pp-cli panel --resource fipi --emit ~/psx-research/data/research.db
+  nccpl-pp-cli panel --resource fipi-sector --metrics NET_VALUE --from 2026-09-04 --to 2026-09-04 --pivot
 `, "\n"),
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
@@ -102,6 +109,15 @@ keyed (resource, date, key, metric) so re-emission is idempotent.
 			if err := nccplSortPanel(nil, sortBy); err != nil {
 				_ = cmd.Usage()
 				return usageErr(err)
+			}
+			if pivot {
+				// Checked before the store is even opened: a pivot whose shape is
+				// wrong is wrong regardless of what is stored, and the caller must
+				// never see a number that survived only because the mirror was thin.
+				if err := nccplValidatePivotArgs(res, metricsCSV, fromDate, toDate); err != nil {
+					_ = cmd.Usage()
+					return usageErr(err)
+				}
 			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -221,9 +237,12 @@ keyed (resource, date, key, metric) so re-emission is idempotent.
 
 			if pivot {
 				metric := strings.TrimSpace(metricsCSV)
-				if strings.Contains(metric, ",") {
+				// The --from/--to check above cannot see this case: with neither
+				// bound given, the panel spans whatever the mirror happens to hold,
+				// which is routinely a month. Refuse rather than fold it into a cell.
+				if err := nccplCheckPivotSingleDate(view.Rows, metric, resource); err != nil {
 					_ = cmd.Usage()
-					return usageErr(fmt.Errorf("--pivot needs a single field; pass one --metrics value (got %q)", metricsCSV))
+					return usageErr(err)
 				}
 				pv := nccplPivotPanel(view.Rows, metric)
 				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
@@ -288,8 +307,136 @@ keyed (resource, date, key, metric) so re-emission is idempotent.
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().StringVar(&sortBy, "sort", "date", "Row order: date, value, abs-value (largest absolute flow first), key or metric")
 	cmd.Flags().StringVar(&currency, "currency", "", "Restrict flow metrics to one currency: pkr (net_value/buy_value/sell_value) or usd (net_value_USD)")
-	cmd.Flags().BoolVar(&pivot, "pivot", false, "Pivot sector-wise rows into a sector x investor-class matrix, the shape the public dashboards publish")
+	cmd.Flags().BoolVar(&pivot, "pivot", false, "Pivot one settlement date of a sector-wise resource ("+
+		strings.Join(nccplPivotableResourceNames(), ", ")+") into a sector x investor-class matrix, the shape the "+
+		"public dashboards publish; needs a single --metrics field and --from == --to")
 	return cmd
+}
+
+// --pivot admissibility.
+//
+// nccplPivotPanel reads a stored row key as (sector..., investor class): it splits the
+// key on "|", takes the last segment as the investor class, folds everything before it
+// into the sector, and SUMS the metric into that cell. Three inputs make that fold
+// report a number the source never published, so each is refused rather than rendered:
+//
+//  1. no --metrics -- every numeric field on the row lands in the same cell, adding a
+//     net value to a buy value.
+//  2. a resource whose key is not (sector, investor class) -- fipi is keyed
+//     (client_type, segment), so a market segment would be printed under an
+//     investor-class heading: a table that looks right and means nothing.
+//  3. more than one settlement date -- the matrix has no date axis, so a month of daily
+//     flows collapses into one cell with nothing in the output to say so.
+//
+// Refusal is the only safe answer. A summed-across-dates or summed-across-fields cell
+// is indistinguishable from a genuine single-session figure once it leaves this program,
+// and this CLI feeds research where a fabricated observation is worse than a missing one.
+
+// nccplPivotInvestorKeyFields and nccplPivotSectorKeyFields name the registry key fields
+// that give a resource the (sector, investor class) row key --pivot assumes. Matching on
+// nccplResource.KeyParts rather than on resource names keeps the admissible set derived
+// from the registry itself, so a resource added there with the same key shape qualifies
+// without this list being edited, and one whose key shape changes stops qualifying.
+var (
+	nccplPivotInvestorKeyFields = map[string]bool{"CLIENT_TYPE": true, "FLTypeNew": true}
+	nccplPivotSectorKeyFields   = map[string]bool{"SEC_CODE": true, "SECTOR_NAME": true, "FLSectorName": true}
+)
+
+// nccplPivotableResource reports whether the resource's stored row key ends in an
+// investor class and carries a sector ahead of it.
+func nccplPivotableResource(r nccplResource) bool {
+	if len(r.KeyParts) < 2 {
+		return false
+	}
+	if !nccplPivotInvestorKeyFields[r.KeyParts[len(r.KeyParts)-1]] {
+		return false
+	}
+	for _, f := range r.KeyParts[:len(r.KeyParts)-1] {
+		if nccplPivotSectorKeyFields[f] {
+			return true
+		}
+	}
+	return false
+}
+
+// nccplPivotableResourceNames lists the resources --pivot accepts, in registry order.
+func nccplPivotableResourceNames() []string {
+	out := make([]string, 0, len(nccplResources))
+	for _, r := range nccplResources {
+		if nccplPivotableResource(r) {
+			out = append(out, r.Name)
+		}
+	}
+	return out
+}
+
+// nccplPivotKeyDesc describes a resource's row key for the rejection message, so the
+// caller can see the actual shape rather than being told only that theirs is wrong.
+func nccplPivotKeyDesc(r nccplResource) string {
+	if len(r.KeyParts) == 0 {
+		return "row ordinal"
+	}
+	return strings.Join(r.KeyParts, ", ")
+}
+
+// nccplPivotMetricHint suggests a field name for the rejection message. It is a hint
+// for the error text only -- nothing validates --metrics against it, because the field
+// set is whatever the publisher put on the row.
+func nccplPivotMetricHint(r nccplResource) string {
+	if len(r.KeyParts) > 0 && r.KeyParts[len(r.KeyParts)-1] == "FLTypeNew" {
+		return "FLNetValueUSD"
+	}
+	return "NET_VALUE"
+}
+
+// nccplValidatePivotArgs refuses the --pivot inputs whose output would be arithmetic the
+// source never published. It returns a plain error; the caller stamps the usage code.
+func nccplValidatePivotArgs(res nccplResource, metricsCSV, fromDate, toDate string) error {
+	if !nccplPivotableResource(res) {
+		return fmt.Errorf("--pivot reads every row key as (sector, investor class), but %s rows are keyed by (%s), so the pivot would fold unrelated dimensions into one matrix; pass --resource with one of: %s",
+			res.Name, nccplPivotKeyDesc(res), strings.Join(nccplPivotableResourceNames(), ", "))
+	}
+	metric := strings.TrimSpace(metricsCSV)
+	if strings.Contains(metric, ",") {
+		return fmt.Errorf("--pivot needs a single field; pass one --metrics value (got %q)", metricsCSV)
+	}
+	if metric == "" {
+		return fmt.Errorf("--pivot needs one --metrics field: with none, every numeric field on the row is summed into the same cell (a net value added to a buy value). Pass a single field, e.g. --metrics %s, or run the same command without --pivot to list the fields %s publishes",
+			nccplPivotMetricHint(res), res.Name)
+	}
+	if strings.TrimSpace(fromDate) != strings.TrimSpace(toDate) {
+		return fmt.Errorf("--pivot renders one settlement date and has no date axis, so every date in a range is summed into each cell; pass --from and --to set to the same date (got --from %q --to %q)",
+			fromDate, toDate)
+	}
+	return nil
+}
+
+// nccplCheckPivotSingleDate refuses a pivot whose selected rows span more than one
+// settlement date. --from/--to catches an explicit range; this catches the case neither
+// bound was given and the panel spans the whole mirror.
+func nccplCheckPivotSingleDate(rows []nccplPanelRow, metric, resource string) error {
+	seen := map[string]bool{}
+	first, last := "", ""
+	for _, r := range rows {
+		if metric != "" && r.Metric != metric {
+			continue
+		}
+		if seen[r.Date] {
+			continue
+		}
+		seen[r.Date] = true
+		if first == "" || r.Date < first {
+			first = r.Date
+		}
+		if r.Date > last {
+			last = r.Date
+		}
+	}
+	if len(seen) > 1 {
+		return fmt.Errorf("--pivot renders one settlement date, but the stored %s rows for %s span %d dates (%s..%s); rendering them would sum %d sessions into every cell. Re-run with --from and --to set to one of those dates",
+			metric, resource, len(seen), first, last, len(seen))
+	}
+	return nil
 }
 
 // nccplEmitPanel appends panel rows into a caller-supplied SQLite file.
