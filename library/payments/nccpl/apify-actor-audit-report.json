@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/nccpl",
+  "research_dir": "\u003ccli-dir\u003e/20260905-000548-4451d26d",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

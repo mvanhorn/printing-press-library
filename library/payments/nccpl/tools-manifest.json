@@ -1,0 +1,257 @@
+{
+  "api_name": "nccpl",
+  "base_url": "https://www.nccpl.com.pk",
+  "description": "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "composed",
+    "header": "X-XSRF-TOKEN",
+    "format": "{XSRF-TOKEN}",
+    "in": "header",
+    "cookie_domain": "www.nccpl.com.pk",
+    "cookies": [
+      "cf_clearance",
+      "nccpl-session",
+      "XSRF-TOKEN"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "fipi_latest-date",
+      "description": "Most recent publication date available for fipi. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/fipi/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "fipi-normal_latest-date",
+      "description": "Most recent publication date available for fipi-normal. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/fipi-normal/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "fipi-sector_latest-date",
+      "description": "Most recent publication date available for fipi-sector. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/fipi-sector-wise/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "lipi_latest-date",
+      "description": "Most recent publication date available for lipi. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/lipi/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "lipi-normal_latest-date",
+      "description": "Most recent publication date available for lipi-normal. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/lipi-normal/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "lipi-sector_latest-date",
+      "description": "Most recent publication date available for lipi-sector. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/lipi-sector-wise/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "market_latest",
+      "description": "Most recent market-wide traded value or volume series. Needs Cloudflare clearance only. Required: graph-type (default: value). Optional: limit (default: 30). Returns the GraphSeries.",
+      "method": "GET",
+      "path": "/api/graph-data/latest-data",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "graph-type",
+          "wire_name": "graph_type",
+          "type": "string",
+          "location": "query",
+          "description": "Series to return: value (traded value) or volume (traded volume).",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of trailing sessions to return."
+        }
+      ]
+    },
+    {
+      "name": "mfs_latest-date",
+      "description": "Most recent publication date available for mfs. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/mfs-open-position/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mfs-top_latest-date",
+      "description": "Most recent publication date available for mfs-top. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "msf_latest-date",
+      "description": "Most recent publication date available for msf. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/msf-open-position/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "msf-top_latest-date",
+      "description": "Most recent publication date available for msf-top. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mts_latest-date",
+      "description": "Most recent publication date available for mts. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/open-positions/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mts-financiers_latest-date",
+      "description": "Most recent publication date available for mts-financiers. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/financiers-financees/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mts-force-release_latest-date",
+      "description": "Most recent publication date available for mts-force-release. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/force-release/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mts-refinanced_latest-date",
+      "description": "Most recent publication date available for mts-refinanced. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/mts-amount-refinanced/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "mts-top-financiers_latest-date",
+      "description": "Most recent publication date available for mts-top-financiers. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/top-15-financiers/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "settlement-cm_latest-date",
+      "description": "Most recent publication date available for settlement-cm. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/sett-info-cm-wise/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "settlement-uin_latest-date",
+      "description": "Most recent publication date available for settlement-uin. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/sett-info-uin-wise/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "slb_latest-date",
+      "description": "Most recent publication date available for slb. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/slb-market-information/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tfc_latest-date",
+      "description": "Most recent publication date available for tfc. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/un-listed-tfc/latest-date",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "var-margins_latest-date",
+      "description": "Most recent publication date available for var-margins. Needs Cloudflare clearance only; no CSRF or session. Returns the LatestDate.",
+      "method": "GET",
+      "path": "/api/var-margins/latest-date",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Arithmetic invariant validator",
+      "command": "verify",
+      "description": "Prove a date's flow numbers are internally consistent before they reach a regression."
+    },
+    {
+      "name": "Per-resource coverage and gap ledger",
+      "command": "coverage",
+      "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is."
+    },
+    {
+      "name": "Live endpoint self-test",
+      "command": "contract-check",
+      "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest."
+    },
+    {
+      "name": "Vintage-stamped research panel export",
+      "command": "panel",
+      "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled."
+    },
+    {
+      "name": "Point-in-time symbol roster",
+      "command": "universe",
+      "description": "Reconstruct which symbols were listed and clearing-eligible on any past date."
+    },
+    {
+      "name": "Risk-parameter change detector",
+      "command": "risk-changes",
+      "description": "Date every step change in a symbol's free float, VAR margin and haircut."
+    },
+    {
+      "name": "Unified leverage and short-interest panel",
+      "command": "leverage",
+      "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section."
+    },
+    {
+      "name": "Gate-free FIPI/LIPI flow feed",
+      "command": "flows",
+      "description": "Fetch daily FIPI/LIPI sector flows into the local store without a browser."
+    },
+    {
+      "name": "Browser-capture ingest",
+      "command": "ingest",
+      "description": "Load NCCPL responses captured through your own browser into the same local store."
+    },
+    {
+      "name": "Browser-assisted capture",
+      "command": "capture",
+      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch."
+    }
+  ]
+}

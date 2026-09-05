@@ -1,0 +1,4228 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.nccpl.com.pk/",
+    "entry_count": 204,
+    "api_entry_count": 51,
+    "noise_entry_count": 153,
+    "host_distribution": {
+      "analytics.google.com": 2,
+      "cdn-cookieyes.com": 3,
+      "cdn.jsdelivr.net": 2,
+      "cdnjs.cloudflare.com": 3,
+      "fonts.googleapis.com": 3,
+      "fonts.gstatic.com": 3,
+      "maxcdn.bootstrapcdn.com": 2,
+      "static.cloudflareinsights.com": 3,
+      "unpkg.com": 6,
+      "www.google.com.pk": 1,
+      "www.googletagmanager.com": 2,
+      "www.nccpl.com.pk": 174
+    },
+    "http_version_distribution": {
+      "h2": 6,
+      "h3": 198
+    },
+    "time_start": "2026-09-04T18:37:01.936Z",
+    "time_end": "2026-09-04T18:42:14.676Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "analytics.google.com",
+      "count": 2,
+      "reason": "telemetry host"
+    }
+  ],
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.78,
+    "reasons": [
+      "bot-protection signals observed; use browser-like HTTP transport"
+    ],
+    "evidence": [
+      {
+        "entry_index": 0,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 2,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/fonts/fonts.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 3,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/libs/css/bootstrap/bootstrap.min.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 4,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/libs/css/toastify.min.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 5,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/libs/css/swiper-bundle.min.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 7,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/css/main.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 8,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/images/logo/ncc-logo.svg",
+        "status": 200,
+        "content_type": "image/svg+xml",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 9,
+        "method": "GET",
+        "host": "www.nccpl.com.pk",
+        "path": "/assets/images/sections/home/googleplay.png",
+        "status": 200,
+        "content_type": "image/png",
+        "reason": "Cloudflare header or challenge marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 65,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 104,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 105,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 106,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 107,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 108,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 109,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 110,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 111,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 112,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 113,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 114,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 115,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 119,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 121,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 122,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 124,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 133,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 135,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 136,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 179,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 180,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 181,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 182,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 183,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 184,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 185,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 188,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 190,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 191,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 195,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 196,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/prev.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/next.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 129,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/loading.gif",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 130,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/close.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/market-information",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/prev.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 199,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/next.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 200,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/loading.gif",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 201,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/close.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/fonts/fonts.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/bootstrap/bootstrap.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/toastify.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/swiper-bundle.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/css/main.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/logo/ncc-logo.svg",
+          "status": 200,
+          "content_type": "image/svg+xml",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/googleplay.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/appstore.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/fippi-lippi.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/assets-levarage-market.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/trade-vs-settlement.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/asset-reports.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/assets-var-margins.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/assets-banks-guarantees.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/capital-gains-tax.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/govt-debt-security.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/cko.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/clearing-settlement.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/Section4__RiskManagement_380x222px.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/connect.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/connect.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/bioverify.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/bio.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/whatsap.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/whatsapbg.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/press-releases.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/brochure-leaflets.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/videos.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/jamapunji.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/sgs-ukas.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/secp.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/widgetcontacForm.svg",
+          "status": 200,
+          "content_type": "image/svg+xml",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/bootstrap.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/jquery.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/jquery-validate.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 40,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/toastify.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/lightbox.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 42,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/swiper-bundle.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 43,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/flipbook.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 44,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/forms-submissions.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/main.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 46,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/swiper.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 48,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/cgt-certificate-announcement.jpeg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 51,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/bg-mobile.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 52,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/bg-footer.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/videos/Home-Banner-Video.webm",
+          "status": 206,
+          "content_type": "video/webm",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 55,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/banner-cgt-announcement.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 56,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/new-banner2.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 57,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/mts-banner.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/ncconnect-banner.jpg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/MTS-Homepage.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 60,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/Homepage-MFS.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/MSF-Homepage.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/SLB-Homepage.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/favicon.ico",
+          "status": 200,
+          "content_type": "image/vnd.microsoft.icon",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 65,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 66,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/market-information",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/fonts/fonts.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 69,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/bootstrap/bootstrap.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 70,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/toastify.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 72,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/flipbook/flipbook.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 73,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/swiper-bundle.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 74,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/lightbox.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 76,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/css/main.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 78,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/logo/ncc-logo.svg",
+          "status": 200,
+          "content_type": "image/svg+xml",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 79,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/archive-icon.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 80,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/download-icon.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 82,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/jamapunji.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 83,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/sgs-ukas.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 84,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/secp.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 85,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/widgetcontacForm.svg",
+          "status": 200,
+          "content_type": "image/svg+xml",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 86,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 87,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/bootstrap.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 88,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/jquery.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 89,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/jquery-validate.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 91,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/toastify.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 92,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/lightbox.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 93,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/swiper-bundle.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 94,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/flipbook.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 95,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/forms-submissions.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 96,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/main.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 97,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/swiper.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/cgt-certificate-announcement.jpeg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 104,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 105,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 106,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 107,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 108,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 109,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 110,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 111,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 112,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 113,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 114,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 115,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 119,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 121,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 122,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 124,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/storage/sections/banners/01K4WCH30R6VVFZ9AMESJ8HZD7.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/bg-footer.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/prev.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/next.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 129,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/loading.gif",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 130,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/close.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 133,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 135,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 136,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/market-information",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/fonts/fonts.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/bootstrap/bootstrap.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/toastify.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/flipbook/flipbook.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/swiper-bundle.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 145,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/css/lightbox.min.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/css/main.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/logo/ncc-logo.svg",
+          "status": 200,
+          "content_type": "image/svg+xml",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 150,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/archive-icon.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/download-icon.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/jamapunji.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 154,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/sgs-ukas.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 155,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/affiliations/secp.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/icons/widgetcontacForm.svg",
+          "status": 200,
+          "content_type": "image/svg+xml",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/bootstrap.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 159,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/jquery.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 160,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/jquery-validate.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 162,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/toastify.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 163,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/lightbox.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 164,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/swiper-bundle.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 165,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/js/flipbook.min.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 166,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/forms-submissions.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 167,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/main.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 168,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/js/swiper.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 170,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/sections/home/cgt-certificate-announcement.jpeg",
+          "status": 200,
+          "content_type": "image/jpeg",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 173,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/images/bg-footer.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 179,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 180,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 181,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 182,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 183,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 184,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 185,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 188,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 190,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 191,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 195,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 196,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/storage/sections/banners/01K4WCH30R6VVFZ9AMESJ8HZD7.png",
+          "status": 200,
+          "content_type": "image/png",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/prev.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 199,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/next.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 200,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/loading.gif",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 201,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/assets/libs/images/close.png",
+          "status": 404,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/financiers-financees/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 110,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 182,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/fipi-normal/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/fipi-sector-wise/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 104,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/fipi/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 179,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/force-release/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 111,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 183,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "POST",
+      "path": "/api/graph-data/data-by-date-range",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 135,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/graph-data/latest-data",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 191,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/lipi-normal/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 105,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/lipi-sector-wise/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 106,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/lipi/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 108,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 180,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/mfs-open-position/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 114,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 115,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 187,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/msf-open-position/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 188,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/mts-amount-refinanced/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 113,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 185,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/open-positions/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 109,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 181,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/sett-info-cm-wise/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 195,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/sett-info-uin-wise/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 122,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 194,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/slb-market-information/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 190,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/top-15-financiers/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 184,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/un-listed-tfc/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 121,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "GET",
+      "path": "/api/var-margins/latest-date",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "latest_date",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 124,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 196,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.nccpl.com.pk",
+      "method": "POST",
+      "path": "/cdn-cgi/rum",
+      "count": 5,
+      "statuses": [
+        204
+      ],
+      "content_types": [
+        "text/plain"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "bi",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "eventType",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "firstContentfulPaint",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "firstPaint",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "location",
+            "type": "string",
+            "required": true,
+            "format": "url"
+          },
+          {
+            "name": "memory",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "nt",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "pageloadId",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "referrer",
+            "type": "string",
+            "required": true,
+            "format": "url"
+          },
+          {
+            "name": "siteToken",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "st",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "startTime",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "timingsV2",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "versions",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status",
+        "request-body-only-on-some-samples"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 65,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 133,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 136,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 65,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 104,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 105,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 106,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 107,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 108,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "limit",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 191,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_data_by_date_range",
+      "resource": "data_by_date_range",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/graph-data/data-by-date-range traffic.",
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 135,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_rum",
+      "resource": "rum",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /cdn-cgi/rum traffic.",
+      "evidence": [
+        {
+          "entry_index": 63,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 65,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 133,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 136,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/cdn-cgi/rum",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_latest_data",
+      "resource": "latest_data",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/graph-data/latest-data traffic.",
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 191,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 192,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_latest_date",
+      "resource": "latest_date",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/financiers-financees/latest-date traffic.",
+      "evidence": [
+        {
+          "entry_index": 110,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 182,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_http_transport",
+    "requires_protected_client"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 104,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 105,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-normal/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 106,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi-sector-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/fipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 108,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/lipi/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 109,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/open-positions/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 110,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/financiers-financees/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 111,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/force-release/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/top-15-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 113,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mts-amount-refinanced/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 114,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 115,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/mfs-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-open-position/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/msf-top-15-financees-and-financiers/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/slb-market-information/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/latest-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 121,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/un-listed-tfc/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 122,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-uin-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 123,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/sett-info-cm-wise/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 124,
+          "method": "GET",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/var-margins/latest-date",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 135,
+          "method": "POST",
+          "host": "www.nccpl.com.pk",
+          "path": "/api/graph-data/data-by-date-range",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    }
+  ]
+}

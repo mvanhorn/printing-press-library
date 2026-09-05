@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-05",
+  "base_run_id": "20260905-000548-4451d26d",
+  "base_printing_press_version": "4.31.7",
+  "id": "nccpl-learn-ticker-pattern-removed",
+  "summary": "Removed the spec-declared lowercase ticker_patterns regex from newLearnConfig.",
+  "reason": "The spec declared ticker_patterns: ^[a-z0-9]{2,12}$, which is inverted for this API. entities.Extract applies matchesTicker to the RAW token before lowercasing and at higher precedence than its ALL-CAPS rule, so the pattern could never match a real PSX symbol (HUBC, OGDC are already entities via that rule) and instead matched every ordinary lowercase word. QueryFamily -- a bag of NON-entity tokens -- therefore returned empty for every example, every seeded playbook was skipped as unreachable at recall time, and 20 generated tests failed. The spec was corrected too.",
+  "files": [
+    "internal/cli/learn_init.go"
+  ],
+  "validated_outcome": "go test ./... 20 failures -> 0; recall surface restored; scorecard unchanged.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4565"
+}

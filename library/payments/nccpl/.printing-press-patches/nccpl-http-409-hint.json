@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-05",
+  "base_run_id": "20260905-000548-4451d26d",
+  "base_printing_press_version": "4.31.7",
+  "id": "nccpl-http-409-hint",
+  "summary": "Gave HTTP 409 a hint line in classifyAPIErrorOnly and removed an empty-bodied if branch.",
+  "reason": "409 was the only status in classifyAPIErrorOnly with no hint, while internal/mcp/tools.go already rendered the same status as 'already exists (no-op)' -- the CLI and MCP surfaces of one binary disagreed. The adjacent `if strings.Contains(msg, \"HTTP 409\") {}` was a real staticcheck SA9003 empty-branch defect. Error class is unchanged; only the message is richer.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "error_handling 8/10 -> 10/10; exit codes and errors.Is/As behaviour unchanged."
+}

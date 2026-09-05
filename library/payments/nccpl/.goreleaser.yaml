@@ -1,0 +1,51 @@
+version: 2
+project_name: nccpl-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nccpl-pp-cli
+    main: ./cmd/nccpl-pp-cli
+    binary: nccpl-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nccpl-pp-mcp
+    main: ./cmd/nccpl-pp-mcp
+    binary: nccpl-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nccpl-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard."
+    install: |
+      bin.install "nccpl-pp-cli"
+      bin.install "nccpl-pp-mcp"

@@ -1,0 +1,1047 @@
+name: nccpl
+description: Discovered API spec for nccpl-com
+version: 0.1.0
+base_url: https://www.nccpl.com.pk
+spec_source: sniffed
+http_transport: browser-chrome-h3
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+    - 'rejected auth candidate "siteToken" from body: request body field'
+config:
+    format: toml
+    path: ~/.config/nccpl-pp-cli/config.toml
+resources:
+    cdn-cgi:
+        description: Operations on rum
+        endpoints:
+            create_rum:
+                method: POST
+                path: /cdn-cgi/rum
+                description: POST /cdn-cgi/rum
+                params: []
+                body:
+                    - name: bi
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: be
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: bev
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: bv
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: ov
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: eventType
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: firstContentfulPaint
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: firstPaint
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: location
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: memory
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: jsHeapSizeLimit
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: totalJSHeapSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: usedJSHeapSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: nt
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pageloadId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: referrer
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: siteToken
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: st
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startTime
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timingsV2
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: connectEnd
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: connectStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: decodedBodySize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domComplete
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domInteractive
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domainLookupEnd
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: domainLookupStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: finalResponseHeadersStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: firstInterimResponseStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: loadEventEnd
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: loadEventStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: nextHopProtocol
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: requestStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: responseEnd
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: responseStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: secureConnectionStart
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: transferSize
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: versions
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: fl
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: js
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: timings
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: rum
+                pagination: null
+    financiers-financees:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/financiers-financees/latest-date
+                description: GET /api/financiers-financees/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate8
+                pagination: null
+    fipi:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/fipi/latest-date
+                description: GET /api/fipi/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate5
+                pagination: null
+    fipi-normal:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/fipi-normal/latest-date
+                description: GET /api/fipi-normal/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate
+                pagination: null
+    fipi-sector-wise:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/fipi-sector-wise/latest-date
+                description: GET /api/fipi-sector-wise/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate2
+                pagination: null
+    force-release:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/force-release/latest-date
+                description: GET /api/force-release/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate9
+                pagination: null
+    graph-data:
+        description: Operations on latest-data
+        endpoints:
+            create_data_by_date_range:
+                method: POST
+                path: /api/graph-data/data-by-date-range
+                description: POST /api/graph-data/data-by-date-range
+                params: []
+                body: []
+                request_content_type: multipart/form-data
+                response:
+                    type: object
+                    item: data_by_date_range
+                pagination: null
+            list_latest_data:
+                method: GET
+                path: /api/graph-data/latest-data
+                description: GET /api/graph-data/latest-data
+                params:
+                    - name: graph_type
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestData
+                pagination: null
+    lipi:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/lipi/latest-date
+                description: GET /api/lipi/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate6
+                pagination: null
+    lipi-normal:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/lipi-normal/latest-date
+                description: GET /api/lipi-normal/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate3
+                pagination: null
+    lipi-sector-wise:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/lipi-sector-wise/latest-date
+                description: GET /api/lipi-sector-wise/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate4
+                pagination: null
+    mfs-open-position:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/mfs-open-position/latest-date
+                description: GET /api/mfs-open-position/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate12
+                pagination: null
+    mfs-top-15-financees-and-financiers:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/mfs-top-15-financees-and-financiers/latest-date
+                description: GET /api/mfs-top-15-financees-and-financiers/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate13
+                pagination: null
+    msf-open-position:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/msf-open-position/latest-date
+                description: GET /api/msf-open-position/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate14
+                pagination: null
+    msf-top-15-financees-and-financiers:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/msf-top-15-financees-and-financiers/latest-date
+                description: GET /api/msf-top-15-financees-and-financiers/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate15
+                pagination: null
+    mts-amount-refinanced:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/mts-amount-refinanced/latest-date
+                description: GET /api/mts-amount-refinanced/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate11
+                pagination: null
+    open-positions:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/open-positions/latest-date
+                description: GET /api/open-positions/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate7
+                pagination: null
+    sett-info-cm-wise:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/sett-info-cm-wise/latest-date
+                description: GET /api/sett-info-cm-wise/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate19
+                pagination: null
+    sett-info-uin-wise:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/sett-info-uin-wise/latest-date
+                description: GET /api/sett-info-uin-wise/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate18
+                pagination: null
+    slb-market-information:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/slb-market-information/latest-date
+                description: GET /api/slb-market-information/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate16
+                pagination: null
+    top-15-financiers:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/top-15-financiers/latest-date
+                description: GET /api/top-15-financiers/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate10
+                pagination: null
+    un-listed-tfc:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/un-listed-tfc/latest-date
+                description: GET /api/un-listed-tfc/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate17
+                pagination: null
+    var-margins:
+        description: Operations on latest-date
+        endpoints:
+            list_latest_date:
+                method: GET
+                path: /api/var-margins/latest-date
+                description: GET /api/var-margins/latest-date
+                params:
+                    - name: latest_date
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: LatestDate20
+                pagination: null
+types:
+    Data:
+        fields:
+            - name: graph_type
+              type: string
+            - name: total_records
+              type: integer
+            - name: value_data
+              type: '[]ref:ValueData'
+            - name: volume_data
+              type: '[]ref:VolumeData'
+    LatestData:
+        fields:
+            - name: data
+              type: ref:Data
+    LatestDate:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate2:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate3:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate4:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate5:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate6:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate7:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate8:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate9:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate10:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate11:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate12:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate13:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate14:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate15:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate16:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate17:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate18:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate19:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    LatestDate20:
+        fields:
+            - name: latest_date
+              type: string
+            - name: success
+              type: bool
+    ValueData:
+        fields:
+            - name: x
+              type: string
+            - name: "y"
+              type: integer
+    VolumeData:
+        fields:
+            - name: x
+              type: string
+            - name: "y"
+              type: integer

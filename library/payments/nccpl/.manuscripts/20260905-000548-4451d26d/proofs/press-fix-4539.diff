@@ -1,0 +1,54 @@
+--- a/internal/pipeline/live_dogfood.go
++++ b/internal/pipeline/live_dogfood.go
+@@ -626,6 +626,15 @@
+ type commandMutationClassification struct {
+ 	mutating     bool
+ 	unclassified bool
++	// localWrite marks a command that writes only to the CLI's own local
++	// store, never to the upstream API. It is still "mutating" for MCP and
++	// write-safety purposes, but it is NOT a reason to force --dry-run during
++	// live dogfood: the dry-run injection exists to protect the live API and
++	// the runner's credentials, and live dogfood already runs in an isolated
++	// temp HOME. Forcing it made every local-write novel feature hollow by
++	// construction, so the only way to pass the phase5 gate was to mislabel
++	// the command mcp:read-only.
++	localWrite bool
+ }
+ 
+ func liveDogfoodCommandMutation(command liveDogfoodCommand) commandMutationClassification {
+@@ -637,7 +646,7 @@
+ 		return commandMutationClassification{}
+ 	}
+ 	if annotationIsTrueValue(annotations[mcpLocalWriteAnnotation]) {
+-		return commandMutationClassification{mutating: true}
++		return commandMutationClassification{mutating: true, localWrite: true}
+ 	}
+ 	if method := strings.ToUpper(strings.TrimSpace(annotations[endpointMethodAnnotation])); method != "" {
+ 		return commandMutationClassification{
+@@ -1560,7 +1569,7 @@
+ 	successCodes := liveDogfoodSuccessExitCodes(command)
+ 	mutation := liveDogfoodCommandMutation(command)
+ 	mutating := mutation.mutating
+-	useDryRun := mutating && commandSupportsDryRun(command.Help)
++	useDryRun := mutating && !mutation.localWrite && commandSupportsDryRun(command.Help)
+ 
+ 	if annotationIsTrueValue(command.Annotations[interactiveAnnotation]) {
+ 		results = append(results,
+@@ -1620,7 +1629,16 @@
+ 	}
+ 	happyArgs, ok, parsedHappyArgs := liveDogfoodHappyArgsParsed(command)
+ 	if stdinFixture != "" {
+-		happyArgs = liveDogfoodAppendStdinArg(happyArgs)
++		// The fixture IS the input, so Example-derived positionals must not be
++		// overlaid on top of it. Those positionals are documentation filenames
++		// (e.g. `ingest capture.har`) that do not exist in the isolated HOME, so
++		// keeping them turned an otherwise-runnable stdin happy path into an
++		// exit-1 failure -- which then read as hollow coverage rather than as a
++		// missing fixture. Rebuild from the command path plus the annotation's
++		// own flags.
++		rebuilt := append([]string{}, command.Path...)
++		rebuilt = append(rebuilt, parsedHappyArgs.flags...)
++		happyArgs = liveDogfoodAppendStdinArg(rebuilt)
+ 		ok = true
+ 	}
+ 	if !ok {

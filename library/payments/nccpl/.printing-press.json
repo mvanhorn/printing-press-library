@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-05T06:49:14.947316Z",
+  "printing_press_version": "4.31.7",
+  "api_name": "nccpl",
+  "cli_name": "nccpl-pp-cli",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "nccpl-spec.yaml",
+  "run_id": "20260905-000548-4451d26d",
+  "category": "payments",
+  "novel_features": [
+    {
+      "name": "Arithmetic invariant validator",
+      "command": "verify",
+      "description": "Prove a date's flow numbers are internally consistent before they reach a regression."
+    },
+    {
+      "name": "Per-resource coverage and gap ledger",
+      "command": "coverage",
+      "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is."
+    },
+    {
+      "name": "Live endpoint self-test",
+      "command": "contract-check",
+      "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest."
+    },
+    {
+      "name": "Vintage-stamped research panel export",
+      "command": "panel",
+      "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled."
+    },
+    {
+      "name": "Point-in-time symbol roster",
+      "command": "universe",
+      "description": "Reconstruct which symbols were listed and clearing-eligible on any past date."
+    },
+    {
+      "name": "Risk-parameter change detector",
+      "command": "risk-changes",
+      "description": "Date every step change in a symbol's free float, VAR margin and haircut."
+    },
+    {
+      "name": "Unified leverage and short-interest panel",
+      "command": "leverage",
+      "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section."
+    },
+    {
+      "name": "Gate-free FIPI/LIPI flow feed",
+      "command": "flows",
+      "description": "Fetch daily FIPI/LIPI sector flows into the local store without a browser."
+    },
+    {
+      "name": "Browser-capture ingest",
+      "command": "ingest",
+      "description": "Load NCCPL responses captured through your own browser into the same local store."
+    },
+    {
+      "name": "Browser-assisted capture",
+      "command": "capture",
+      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch, and add --headless to run with no window."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Arithmetic invariant validator",
+      "command": "verify",
+      "description": "Prove a date's flow numbers are internally consistent before they reach a regression."
+    },
+    {
+      "name": "Per-resource coverage and gap ledger",
+      "command": "coverage",
+      "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is."
+    },
+    {
+      "name": "Live endpoint self-test",
+      "command": "contract-check",
+      "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest."
+    },
+    {
+      "name": "Vintage-stamped research panel export",
+      "command": "panel",
+      "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled."
+    },
+    {
+      "name": "Point-in-time symbol roster",
+      "command": "universe",
+      "description": "Reconstruct which symbols were listed and clearing-eligible on any past date."
+    },
+    {
+      "name": "Risk-parameter change detector",
+      "command": "risk-changes",
+      "description": "Date every step change in a symbol's free float, VAR margin and haircut."
+    },
+    {
+      "name": "Unified leverage and short-interest panel",
+      "command": "leverage",
+      "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section."
+    },
+    {
+      "name": "Gate-free FIPI/LIPI flow feed",
+      "command": "flows",
+      "description": "Fetch daily FIPI/LIPI sector flows into the local store without a browser."
+    },
+    {
+      "name": "Browser-capture ingest",
+      "command": "ingest",
+      "description": "Load NCCPL responses captured through your own browser into the same local store."
+    },
+    {
+      "name": "Browser-assisted capture",
+      "command": "capture",
+      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch, and add --headless to run with no window."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 98.24561403508771,
+    "passed": 56,
+    "total": 57,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 84
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  },
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "contributors": null
+}

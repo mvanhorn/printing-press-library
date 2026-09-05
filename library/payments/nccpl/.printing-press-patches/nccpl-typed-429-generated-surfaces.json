@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-05",
+  "base_run_id": "20260905-000548-4451d26d",
+  "base_printing_press_version": "4.31.7",
+  "id": "nccpl-typed-429-generated-surfaces",
+  "summary": "Placed a typed 429 branch ahead of the generic >= 400 handling in deliver.go and feedback.go.",
+  "reason": "Both swallowed HTTP 429 inside a generic status check, so an exhausted throttle was indistinguishable from an ordinary error. The CLI is run unattended, where that reads as a permanent failure rather than 'wait and retry'. probe.go and auth.go were deliberately left alone: probe.go's ReachabilityStatus is a documented three-value contract with generated tests, and auth.go already falls through on 429, which is correct -- a throttle is not evidence of a bad credential.",
+  "files": [
+    "internal/cli/deliver.go",
+    "internal/cli/feedback.go"
+  ],
+  "validated_outcome": "Rate limits surface as typed errors; 11 hand-authored httptest cases cover the behaviour."
+}

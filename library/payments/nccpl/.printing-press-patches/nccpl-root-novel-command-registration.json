@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-05",
+  "base_run_id": "20260905-000548-4451d26d",
+  "base_printing_press_version": "4.31.7",
+  "id": "nccpl-root-novel-command-registration",
+  "summary": "Added literal rootCmd.AddCommand(...) lines in root.go for the hand-written commands.",
+  "reason": "The commands are also registered by the init() hook in nccpl_register.go, which is what preserves the wiring across `generate --force`. But the press's scorecard reachability walk seeds only from literal AddCommand arguments in root.go, so 11 of 12 hand-written commands were invisible to the entire scorecard, dead-code analysis, breadth sampling and MCP surface scoring. addNovelCommandIfAbsent is idempotent, so listing them here as well changes no runtime behaviour (--help output is byte-identical) and keeps the reprint-survival property intact.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "insight 2/10 -> 10/10, workflows 6/10 -> 10/10; `--help` byte-identical, no command registered twice.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4567"
+}

@@ -1,0 +1,305 @@
+{
+  "api_name": "nccpl",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "PSX-Trader",
+      "url": "https://github.com/hmehmood56-debug/PSX-Trader",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-05T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Arithmetic invariant validator",
+      "command": "verify",
+      "description": "Prove a date's flow numbers are internally consistent before they reach a regression.",
+      "rationale": "NCCPL publishes two exact identities for free - FIPI net equals minus LIPI net, and every sector row nets to zero across the ten investor classes. Neither is checkable without holding both sides locally.",
+      "example": "nccpl-pp-cli verify --from 2026-08-01 --to 2026-09-04 --agent",
+      "why_it_matters": "Reach for this before feeding any NCCPL date into a model; a date that fails an invariant is corrupt input, not a weak signal.",
+      "group": "Research-grade integrity"
+    },
+    {
+      "name": "Per-resource coverage and gap ledger",
+      "command": "coverage",
+      "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is.",
+      "rationale": "The latest-date endpoints report one date per resource and are structurally blind to a hole in the middle of the archive; only a local date-set diff can see a missing session.",
+      "example": "nccpl-pp-cli coverage --resources fipi,lipi,var-margins --exit-code --agent",
+      "why_it_matters": "Use this as a pipeline pre-flight - it exits non-zero on a gap, so a scheduled research job fails loudly instead of silently treating a missing session as a zero.",
+      "group": "Research-grade integrity"
+    },
+    {
+      "name": "Live endpoint self-test",
+      "command": "contract-check",
+      "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest.",
+      "rationale": "This API uses three different date formats and five different response envelope keys; encoding either wrong returns an empty array rather than an error.",
+      "example": "nccpl-pp-cli contract-check --agent",
+      "why_it_matters": "Run this when results look empty - it separates an expired session or a changed request contract from a genuine no-data day.",
+      "group": "Research-grade integrity"
+    },
+    {
+      "name": "Vintage-stamped research panel export",
+      "command": "panel",
+      "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled.",
+      "rationale": "NCCPL publishes no timestamp of its own, so ex-ante availability can only be established by stamping observed_at at sync time; it is not reconstructible afterwards.",
+      "example": "nccpl-pp-cli panel --resource fipi --from 2015-12-09 --to 2026-09-04 --agent",
+      "why_it_matters": "This is the handoff from CLI to research store - it is the shape a regression consumes, and the observed_at column is what makes a flow number admissible as an ex-ante input.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Point-in-time symbol roster",
+      "command": "universe",
+      "description": "Reconstruct which symbols were listed and clearing-eligible on any past date.",
+      "rationale": "NCCPL only publishes risk parameters and settlement records for symbols that were actually eligible that day, so presence across dates yields a clearing-house liveness signal independent of price staleness.",
+      "example": "nccpl-pp-cli universe --on 2019-03-15 --agent",
+      "why_it_matters": "Use this to state a screen's universe width in genuinely live names, and as a second opinion that can disagree with a price-staleness filter for reasons that filter cannot move for.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Risk-parameter change detector",
+      "command": "risk-changes",
+      "description": "Date every step change in a symbol's free float, VAR margin and haircut.",
+      "rationale": "A single-date endpoint cannot express a change; diffing consecutive stored var-margins rows surfaces corporate actions, lockup expiries and clearing-house re-ratings that exist nowhere else in this market.",
+      "example": "nccpl-pp-cli risk-changes --since 30d --field free_float --agent",
+      "why_it_matters": "Free float is the input a cap-weighted cross-section needs and no other public Pakistani source publishes it daily.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Unified leverage and short-interest panel",
+      "command": "leverage",
+      "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section.",
+      "rationale": "Four endpoints across three different response envelopes all key on the same date and symbol; no single API call performs the join and no incumbent exposes symbol-level leverage cross-sectionally.",
+      "example": "nccpl-pp-cli leverage --from 2026-08-01 --to 2026-09-04 --agent",
+      "why_it_matters": "SLB net open position is the closest thing this market has to published short interest; pair it with MTS and MFS open interest to see leverage building in a name before a forced release.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Gate-free FIPI/LIPI flow feed",
+      "command": "flows",
+      "description": "Fetch daily FIPI/LIPI sector flows into the local store without a browser.",
+      "rationale": "NCCPL's own origin is behind a Cloudflare clearance that no non-browser HTTP client can pass; this reaches the same investor-class flow data over plain HTTPS and stores it under its own resource name so provenance stays explicit.",
+      "example": "nccpl-pp-cli flows --from 2026-08-01 --to 2026-09-04 --agent",
+      "why_it_matters": "This is the one NCCPL dataset obtainable unattended, so it is what a scheduled daily job can actually collect.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Browser-capture ingest",
+      "command": "ingest",
+      "description": "Load NCCPL responses captured through your own browser into the same local store.",
+      "rationale": "The leverage, VAR-margin and settlement datasets are reachable only from a real browser session, so the browser becomes the capture step and the CLI does the parsing, filing and validation.",
+      "example": "nccpl-pp-cli ingest capture.har --agent",
+      "why_it_matters": "Reach for this when a dataset is gated: export a HAR from a normal browsing session and every other command works on it unchanged. Bodies can also be piped in directly with --stdin (pbpaste | nccpl-pp-cli ingest --stdin --resource var-margins --date 2026-09-04), so a single copied response never needs a temp file.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Browser-assisted capture",
+      "command": "capture",
+      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch, and add --headless to run with no window.",
+      "rationale": "NCCPL's clearance cookie cannot be replayed by any HTTP client, proven across matched TLS fingerprints and both HTTP versions; a real headed browser solves the challenge itself, so it is used as an explicit acquisition step rather than as the CLI's transport.",
+      "example": "nccpl-pp-cli capture --resources var-margins --latest-only --agent",
+      "why_it_matters": "This is the only route to per-symbol free float, VAR margins, leverage positions and settlement data; every other command then reads them from the local store with no browser involved. With --headless no window appears and the run is unattended, so a scheduled job can keep the gated datasets current; Chrome must be installed because the clearance cannot be replayed by any non-browser HTTP client.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Arithmetic invariant validator",
+      "command": "verify",
+      "description": "Prove a date's flow numbers are internally consistent before they reach a regression.",
+      "rationale": "NCCPL publishes two exact identities for free - FIPI net equals minus LIPI net, and every sector row nets to zero across the ten investor classes. Neither is checkable without holding both sides locally.",
+      "example": "nccpl-pp-cli verify --from 2026-08-01 --to 2026-09-04 --agent",
+      "why_it_matters": "Reach for this before feeding any NCCPL date into a model; a date that fails an invariant is corrupt input, not a weak signal.",
+      "group": "Research-grade integrity"
+    },
+    {
+      "name": "Per-resource coverage and gap ledger",
+      "command": "coverage",
+      "description": "List which sessions are missing per resource, how stale each one is, and how wide each date's data actually is.",
+      "rationale": "The latest-date endpoints report one date per resource and are structurally blind to a hole in the middle of the archive; only a local date-set diff can see a missing session.",
+      "example": "nccpl-pp-cli coverage --resources fipi,lipi,var-margins --exit-code --agent",
+      "why_it_matters": "Use this as a pipeline pre-flight - it exits non-zero on a gap, so a scheduled research job fails loudly instead of silently treating a missing session as a zero.",
+      "group": "Research-grade integrity"
+    },
+    {
+      "name": "Live endpoint self-test",
+      "command": "contract-check",
+      "description": "Assert every endpoint family still answers correctly for a date it just reported as its own latest.",
+      "rationale": "This API uses three different date formats and five different response envelope keys; encoding either wrong returns an empty array rather than an error.",
+      "example": "nccpl-pp-cli contract-check --agent",
+      "why_it_matters": "Run this when results look empty - it separates an expired session or a changed request contract from a genuine no-data day.",
+      "group": "Research-grade integrity"
+    },
+    {
+      "name": "Vintage-stamped research panel export",
+      "command": "panel",
+      "description": "Emit any synced resource as a tidy long-format panel, with gaps marked rather than filled.",
+      "rationale": "NCCPL publishes no timestamp of its own, so ex-ante availability can only be established by stamping observed_at at sync time; it is not reconstructible afterwards.",
+      "example": "nccpl-pp-cli panel --resource fipi --from 2015-12-09 --to 2026-09-04 --agent",
+      "why_it_matters": "This is the handoff from CLI to research store - it is the shape a regression consumes, and the observed_at column is what makes a flow number admissible as an ex-ante input.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Point-in-time symbol roster",
+      "command": "universe",
+      "description": "Reconstruct which symbols were listed and clearing-eligible on any past date.",
+      "rationale": "NCCPL only publishes risk parameters and settlement records for symbols that were actually eligible that day, so presence across dates yields a clearing-house liveness signal independent of price staleness.",
+      "example": "nccpl-pp-cli universe --on 2019-03-15 --agent",
+      "why_it_matters": "Use this to state a screen's universe width in genuinely live names, and as a second opinion that can disagree with a price-staleness filter for reasons that filter cannot move for.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Risk-parameter change detector",
+      "command": "risk-changes",
+      "description": "Date every step change in a symbol's free float, VAR margin and haircut.",
+      "rationale": "A single-date endpoint cannot express a change; diffing consecutive stored var-margins rows surfaces corporate actions, lockup expiries and clearing-house re-ratings that exist nowhere else in this market.",
+      "example": "nccpl-pp-cli risk-changes --since 30d --field free_float --agent",
+      "why_it_matters": "Free float is the input a cap-weighted cross-section needs and no other public Pakistani source publishes it daily.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Unified leverage and short-interest panel",
+      "command": "leverage",
+      "description": "Join MTS, MFS and MSF open positions with SLB net open position into one per-symbol cross-section.",
+      "rationale": "Four endpoints across three different response envelopes all key on the same date and symbol; no single API call performs the join and no incumbent exposes symbol-level leverage cross-sectionally.",
+      "example": "nccpl-pp-cli leverage --from 2026-08-01 --to 2026-09-04 --agent",
+      "why_it_matters": "SLB net open position is the closest thing this market has to published short interest; pair it with MTS and MFS open interest to see leverage building in a name before a forced release.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Gate-free FIPI/LIPI flow feed",
+      "command": "flows",
+      "description": "Fetch daily FIPI/LIPI sector flows into the local store without a browser.",
+      "rationale": "NCCPL's own origin is behind a Cloudflare clearance that no non-browser HTTP client can pass; this reaches the same investor-class flow data over plain HTTPS and stores it under its own resource name so provenance stays explicit.",
+      "example": "nccpl-pp-cli flows --from 2026-08-01 --to 2026-09-04 --agent",
+      "why_it_matters": "This is the one NCCPL dataset obtainable unattended, so it is what a scheduled daily job can actually collect.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Browser-capture ingest",
+      "command": "ingest",
+      "description": "Load NCCPL responses captured through your own browser into the same local store.",
+      "rationale": "The leverage, VAR-margin and settlement datasets are reachable only from a real browser session, so the browser becomes the capture step and the CLI does the parsing, filing and validation.",
+      "example": "nccpl-pp-cli ingest capture.har --agent",
+      "why_it_matters": "Reach for this when a dataset is gated: export a HAR from a normal browsing session and every other command works on it unchanged. Bodies can also be piped in directly with --stdin (pbpaste | nccpl-pp-cli ingest --stdin --resource var-margins --date 2026-09-04), so a single copied response never needs a temp file.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Browser-assisted capture",
+      "command": "capture",
+      "description": "Fetch the gated NCCPL datasets through a controlled browser and store them locally; opt in with --launch, and add --headless to run with no window.",
+      "rationale": "NCCPL's clearance cookie cannot be replayed by any HTTP client, proven across matched TLS fingerprints and both HTTP versions; a real headed browser solves the challenge itself, so it is used as an explicit acquisition step rather than as the CLI's transport.",
+      "example": "nccpl-pp-cli capture --resources var-margins --latest-only --agent",
+      "why_it_matters": "This is the only route to per-symbol free float, VAR margins, leverage positions and settlement data; every other command then reads them from the local store with no browser involved. With --headless no window appears and the run is unattended, so a scheduled job can keep the gated datasets current; Chrome must be installed because the clearance cannot be replayed by any non-browser HTTP client.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "NCCPL",
+    "headline": "Pakistan's clearing-layer data as a local research panel with a coverage audit and an arithmetic self-check, not another dashboard.",
+    "value_prop": "NCCPL publishes the only per-symbol leverage, short-interest and free-float data in the Pakistani market - once, behind Cloudflare, one date at a time, with no export. Every tool built on it renders a chart and throws the history away. This one keeps it: sync backfills a local SQLite panel, panel emits it in the shape a regression consumes, coverage tells you exactly which sessions are missing, and verify proves each date against NCCPL's own arithmetic identities before you trust it.",
+    "auth_narrative": "NCCPL sits behind Cloudflare and a Laravel session, so there is no API key to set. Run 'nccpl-pp-cli auth login --chrome' to import the clearance and session cookies from a Chrome profile that has visited the site; the CLI then performs the CSRF handshake itself on each call. The Laravel session lasts about two hours and is renewed automatically, but the Cloudflare clearance cookie comes only from a real browser - if calls start returning challenge pages, re-run auth login.",
+    "quickstart": [
+      {
+        "command": "nccpl-pp-cli doctor --dry-run",
+        "comment": "confirm the binary and config resolve before touching the network"
+      },
+      {
+        "command": "nccpl-pp-cli flows --from 2026-08-01 --to 2026-09-04",
+        "comment": "backfill investor-class flows; no browser or credentials needed"
+      },
+      {
+        "command": "nccpl-pp-cli capture --resources var-margins --latest-only",
+        "comment": "preview the capture plan; add --launch to open the browser and fetch"
+      },
+      {
+        "command": "nccpl-pp-cli verify",
+        "comment": "prove each stored date against NCCPL's own arithmetic identities"
+      },
+      {
+        "command": "nccpl-pp-cli coverage",
+        "comment": "see exactly which sessions landed and which are missing"
+      },
+      {
+        "command": "nccpl-pp-cli panel --resource var-margins --metrics free_float --agent",
+        "comment": "emit the panel in the shape a regression consumes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every NCCPL request returns a Cloudflare challenge.",
+        "fix": "That is expected and permanent: the clearance cannot be replayed by an HTTP client. Use 'nccpl-pp-cli capture' for gated datasets and 'nccpl-pp-cli flows' for investor-class flows."
+      },
+      {
+        "symptom": "capture reports it could not clear the challenge.",
+        "fix": "A Chrome window opens during capture; if it shows a checkbox, click it. Raise the wait with --solve-wait 120s if your connection is slow."
+      },
+      {
+        "symptom": "A command returns an empty result after a capture.",
+        "fix": "Run 'nccpl-pp-cli coverage' - the resource may have no rows for that date, which is recorded distinctly from never having been fetched."
+      },
+      {
+        "symptom": "A resource looks frozen weeks behind the others.",
+        "fix": "That is usually real. NCCPL resources publish on independent schedules; coverage reports each one's own latest date."
+      },
+      {
+        "symptom": "A date range returns nothing on the fipi or lipi commands.",
+        "fix": "Those two endpoints require DD/MM/YYYY while the sector-wise and single-date endpoints require YYYY-MM-DD. Check the flag help for the format that command expects."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need Pakistani market data that sits below the exchange feed: who bought and sold by investor class, how much leverage and short interest is open against a symbol, what a symbol's free float and VAR margin are, and how trade volume reconciles against settlement. It is built for assembling history into a local panel and handing that panel to a model, so prefer it whenever the question spans more than one date. It is also the right tool for auditing data you already pulled, because it can prove a date against NCCPL's own arithmetic identities and tell you which sessions are missing.",
+    "anti_triggers": [
+      "Do not use this CLI for live or intraday prices, quotes, or index levels - NCCPL publishes post-settlement data once per session, not a market feed.",
+      "Do not use this CLI for company fundamentals, earnings, announcements or corporate actions; it is a clearing house, not a filings source.",
+      "Do not use this CLI to place, modify or settle trades - every endpoint it reaches is read-only market information.",
+      "Do not use this CLI to compute a regression or backtest result; export a panel and run the analysis in your own research code.",
+      "Do not expect deep history on every resource - some NCCPL surfaces are near-dormant, so run coverage before assuming an archive exists."
+    ],
+    "recipes": [
+      {
+        "title": "Backfill the foreign-flow archive and check it landed",
+        "command": "nccpl-pp-cli sync --resources fipi,lipi --full && nccpl-pp-cli coverage --resources fipi,lipi --exit-code",
+        "explanation": "Fills the local store as far back as NCCPL serves, then fails non-zero if any session is missing so a scheduled job cannot silently proceed on a hole."
+      },
+      {
+        "title": "Emit a regression-ready flow panel with only the fields a model needs",
+        "command": "nccpl-pp-cli panel --resource fipi --from 2015-12-09 --to 2026-09-04 --agent --select date,metric,value,observed_at",
+        "explanation": "Long-format rows with the vintage stamp that establishes ex-ante availability, narrowed to four columns so an agent does not parse the whole payload."
+      },
+      {
+        "title": "Find every symbol whose free float stepped this quarter",
+        "command": "nccpl-pp-cli risk-changes --since 90d --field free_float --agent",
+        "explanation": "Dates each change and prints symbols scanned versus symbols changed, so an empty result is distinguishable from an unscanned universe."
+      },
+      {
+        "title": "Scan for leverage building ahead of a forced release",
+        "command": "nccpl-pp-cli leverage --from 2026-08-01 --to 2026-09-04 --agent",
+        "explanation": "One cross-section joining MTS, MFS and MSF open interest with SLB net open position, with force-release events flagged against the open interest they hit."
+      },
+      {
+        "title": "Audit a date before trusting it",
+        "command": "nccpl-pp-cli verify --from 2026-09-01 --to 2026-09-04 --agent",
+        "explanation": "Checks FIPI net against minus LIPI net and each sector row's netting, returning a quarantine list of dates that fail."
+      }
+    ],
+    "trigger_phrases": [
+      "foreign investor flows on the PSX",
+      "FIPI and LIPI for last week",
+      "which sectors did foreigners buy",
+      "short interest on a Pakistani stock",
+      "free float for a PSX symbol",
+      "MTS open positions",
+      "use nccpl",
+      "run nccpl"
+    ]
+  }
+}
