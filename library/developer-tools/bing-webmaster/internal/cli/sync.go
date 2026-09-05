@@ -5,6 +5,7 @@ package cli
 
 import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/store"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -160,7 +161,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages)
 						results <- res
 					}
 				}()
@@ -271,8 +272,8 @@ Exit codes & warnings:
 
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
-func syncResource(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func syncResource(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
 	started := time.Now()
@@ -383,7 +384,7 @@ func syncResource(c interface {
 			params[sinceParam] = effectiveSince
 		}
 
-		data, err := c.Get(path, params)
+		data, err := c.Get(ctx, path, params)
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
@@ -946,7 +947,7 @@ var criticalResources = map[string]bool{}
 func extractID(resource string, obj map[string]any) string {
 	if override, ok := resourceIDFieldOverrides[resource]; ok && override != "" {
 		if v := store.LookupFieldValue(obj, override); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
@@ -954,7 +955,7 @@ func extractID(resource string, obj map[string]any) string {
 	}
 	for _, key := range genericIDFieldFallbacks {
 		if v := store.LookupFieldValue(obj, key); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}

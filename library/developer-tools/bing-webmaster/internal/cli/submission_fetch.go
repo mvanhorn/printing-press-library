@@ -57,7 +57,7 @@ func newSubmissionFetchCmd(flags *rootFlags) *cobra.Command {
 					body["url"] = bodyUrl
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.Post(cmd.Context(), path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

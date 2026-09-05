@@ -700,9 +700,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	var data json.RawMessage
 	switch ep.Method {
 	case "GET":
-		data, err = c.Get(path, query)
+		data, err = c.Get(ctx, path, query)
 	case "DELETE":
-		data, _, err = c.Delete(path)
+		data, _, err = c.Delete(ctx, path)
 	default:
 		body, mErr := json.Marshal(params)
 		if mErr != nil {
@@ -710,11 +710,11 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		}
 		switch ep.Method {
 		case "POST":
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(ctx, path, body)
 		case "PUT":
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(ctx, path, body)
 		case "PATCH":
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(ctx, path, body)
 		default:
 			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 		}

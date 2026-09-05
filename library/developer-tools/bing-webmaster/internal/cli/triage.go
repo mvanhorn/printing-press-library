@@ -76,7 +76,7 @@ func newTriageCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/json/GetCrawlIssues", map[string]string{"siteUrl": site})
+			data, err := c.Get(cmd.Context(), "/json/GetCrawlIssues", map[string]string{"siteUrl": site})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

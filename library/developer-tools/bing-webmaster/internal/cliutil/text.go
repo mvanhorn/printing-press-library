@@ -5,6 +5,7 @@ package cliutil
 
 import (
 	"html"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -21,6 +22,17 @@ import (
 // deeper escaping problem upstream — fix there, not here.
 func CleanText(s string) string {
 	return html.UnescapeString(strings.TrimSpace(s))
+}
+
+// EscapePathParam encodes a path-param value as one URL path segment.
+// Ported from the current generator template during the 4.31.1 reprint
+// (merge reconciliation): the refreshed export command needs it and the
+// preserved cliutil predates it.
+func EscapePathParam(value string) string {
+	if value == "." || value == ".." {
+		return strings.Repeat("%2E", len(value))
+	}
+	return url.PathEscape(value)
 }
 
 // ParseStoredTime parses timestamps read back from SQLite-backed generated

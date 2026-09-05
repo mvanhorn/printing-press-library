@@ -31,7 +31,7 @@ func newDriftCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/json/GetQueryStats", map[string]string{"siteUrl": site})
+			data, err := c.Get(cmd.Context(), "/json/GetQueryStats", map[string]string{"siteUrl": site})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

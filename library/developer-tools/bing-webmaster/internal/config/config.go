@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -23,6 +24,21 @@ type Config struct {
 	TokenExpiry         time.Time         `toml:"token_expiry"`
 	ClientID            string            `toml:"client_id"`
 	ClientSecret        string            `toml:"client_secret"`
+	// CredentialRefusals records credentials the loader refused to accept
+	// (e.g. world-readable files). Ported from the current generator
+	// template during the 4.31.1 reprint (merge reconciliation): the
+	// refreshed permission/credential tests need it.
+	CredentialRefusals []cliutil.CredentialRefusal `toml:"-"`
+	// CredentialSource names where the working credential came from
+	// ("credentials file", env var, agentcookie, ...). Diagnostic only.
+	CredentialSource string `toml:"-"`
+	// AgentcookieManaged flags external-secret-store management.
+	AgentcookieManaged bool `toml:"-"`
+	// configOwner records which on-disk file populated this config.
+	configOwner string
+	// legacySourcePath remembers a legacy-path fallback read so a later
+	// save can scrub secrets from the legacy file.
+	legacySourcePath string
 	Path                string            `toml:"-"`
 	BingWebmasterApiKey string            `toml:"webmaster_api_key"`
 }
@@ -33,21 +49,114 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Resolve config path
-	path := configPath
-	if path == "" {
-		path = os.Getenv("BING_WEBMASTER_CONFIG")
-	}
-	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "bing-webmaster-pp-cli", "config.toml")
+	path, explicitConfigFile, err := resolveConfigPath(configPath)
+	if err != nil {
+		return nil, err
 	}
 	cfg.Path = path
 
-	// Try to load config file
-	data, err := os.ReadFile(path)
-	if err == nil {
-		if err := toml.Unmarshal(data, cfg); err != nil {
-			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+	if explicitConfigFile {
+		// Keep non-secret settings from a readable config even when its permissions
+		// have drifted, but never trust credentials from that file. Canonicalizing
+		// first also makes a symlink inherit the target's permission verdict.
+		if real, evalErr := filepath.EvalSymlinks(path); evalErr == nil {
+			credentialPermErr := cliutil.VerifyCredsPerms(real)
+			parsed := *cfg
+			if err := readConfigFile(path, &parsed, "config-kind path"); err != nil {
+				if !os.IsNotExist(err) {
+					return nil, err
+				}
+			} else {
+				if credentialPermErr != nil && parsed.hasCredentialFields() {
+					parsed.addCredentialRefusal(cliutil.CredentialRefusal{
+						Source:             "config-kind path",
+						Path:               path,
+						Err:                credentialPermErr,
+						CredentialsPresent: true,
+					})
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+			}
+		}
+	} else {
+		legacyPath, err := LegacyConfigPath()
+		if err != nil {
+			return nil, err
+		}
+		data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(path, legacyPath)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return nil, err
+			}
+		} else if real, evalErr := filepath.EvalSymlinks(sourcePath); evalErr == nil {
+			credentialPermErr := cliutil.VerifyCredsPerms(real)
+			owner := "config-kind path"
+			if sourcePath == legacyPath {
+				owner = "legacy config path"
+			}
+			parsed := *cfg
+			if err := parseConfigData(data, &parsed, sourcePath, owner); err != nil {
+				if sourcePath == legacyPath {
+					fmt.Fprintf(os.Stderr, "warning: legacy config parse skipped for %s: %v\n", sourcePath, err)
+				} else {
+					return nil, err
+				}
+			} else {
+				if credentialPermErr != nil && parsed.hasCredentialFields() {
+					parsed.addCredentialRefusal(cliutil.CredentialRefusal{
+						Source:             owner,
+						Path:               sourcePath,
+						Err:                credentialPermErr,
+						CredentialsPresent: true,
+					})
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+				if sourcePath == legacyPath {
+					cfg.legacySourcePath = legacyPath
+				}
+			}
+		}
+	}
+	cfg.Path = path
+	if cfg.AgentcookieManagedByExternalStore() {
+		cfg.markAgentcookieManaged()
+	} else {
+		var creds *cliutil.Credentials
+		var ok bool
+		credentialsRefused := false
+		if !cfg.hasCompleteCredentialFields() {
+			if explicitConfigFile {
+				var status cliutil.CredentialLoadStatus
+				creds, status, err = cliutil.LoadCredentialsForConfigWithStatus(path)
+				if err != nil {
+					return nil, err
+				}
+				ok = status.Loaded
+				if status.Refusal != nil {
+					cfg.addCredentialRefusal(*status.Refusal)
+					credentialsRefused = status.Refusal.CredentialsPresent
+				}
+			}
+			if (!ok || creds == nil || !creds.HasValues()) && !credentialsRefused {
+				var status cliutil.CredentialLoadStatus
+				creds, status, err = cliutil.LoadCredentialsWithStatus()
+				if err != nil {
+					return nil, err
+				}
+				ok = status.Loaded
+				if status.Refusal != nil {
+					cfg.addCredentialRefusal(*status.Refusal)
+				}
+			}
+			if ok && creds.HasValues() {
+				cfg.applyCredentials(creds)
+				if cfg.hasCredentialFields() {
+					cfg.AuthSource = "config"
+					cfg.CredentialSource = "credentials file"
+				}
+			}
 		}
 	}
 
@@ -55,6 +164,7 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("BING_WEBMASTER_API_KEY"); v != "" {
 		cfg.BingWebmasterApiKey = v
 		cfg.AuthSource = "env:BING_WEBMASTER_API_KEY"
+		cfg.CredentialSource = "env:BING_WEBMASTER_API_KEY"
 	}
 
 	// Label config-file-derived credentials so doctor can distinguish
@@ -65,11 +175,34 @@ func Load(configPath string) (*Config, error) {
 	// config file path is exposed separately as report["config_path"], and
 	// embedding it in auth_source leaks the user's home directory through
 	// doctor's JSON envelope.
-	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
+	if cfg.AuthSource == "" && cfg.hasCredentialFields() {
 		cfg.AuthSource = "config"
 	}
-	if cfg.AuthSource == "" && cfg.BingWebmasterApiKey != "" {
-		cfg.AuthSource = "config"
+	if cfg.CredentialSource == "" && cfg.AuthSource == "config" {
+		// Label config-stored credentials with the file they were parsed
+		// from: the resolved config-kind path (covers --home and per-kind
+		// env relocation as well as explicit --config files) or the legacy
+		// config path when the read fell back to the pre-paths layout.
+		cfg.CredentialSource = cfg.configOwner
+		if cfg.CredentialSource == "" {
+			cfg.CredentialSource = "legacy config path"
+		}
+	}
+
+	// Soft agentcookie integration: if the agentcookie daemon manages this
+	// CLI's secrets, it writes a marker file alongside the config file. When
+	// the marker is present AND credentials came from the config (not from a
+	// direct env var override that wins above), upgrade AuthSource to
+	// "agentcookie" so doctor / auth-status can surface the bus state. When
+	// the marker is absent, behavior is identical to pre-agentcookie: no
+	// import, no network, no error. agentcookie itself is never imported
+	// here — the contract is purely on-disk.
+	if cfg.AuthSource == "config" {
+		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		if _, err := os.Stat(marker); err == nil {
+			cfg.AuthSource = "agentcookie"
+			cfg.markAgentcookieManaged()
+		}
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -77,6 +210,195 @@ func Load(configPath string) (*Config, error) {
 		cfg.BaseURL = v
 	}
 	return cfg, nil
+}
+
+func resolveConfigPath(configPath string) (string, bool, error) {
+	if strings.TrimSpace(configPath) != "" {
+		return configPath, true, nil
+	}
+	if path := os.Getenv("BING_WEBMASTER_CONFIG"); path != "" {
+		return path, true, nil
+	}
+	dir, err := cliutil.ConfigDir()
+	if err != nil {
+		return "", false, err
+	}
+	return filepath.Join(dir, "config.toml"), false, nil
+}
+
+func LegacyConfigPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolve legacy config path: %w", err)
+	}
+	return filepath.Join(home, ".config", "bing-webmaster-pp-cli", "config.toml"), nil
+}
+
+func readConfigFile(path string, cfg *Config, owner string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return parseConfigData(data, cfg, path, owner)
+}
+
+func parseConfigData(data []byte, cfg *Config, path string, owner string) error {
+	if err := toml.Unmarshal(data, cfg); err != nil {
+		return fmt.Errorf("parsing %s %s: %w", owner, path, err)
+	}
+	cfg.configOwner = owner
+	return nil
+}
+
+func FileHasCredentialFields(path string) (bool, error) {
+	var cfg Config
+	if err := readConfigFile(path, &cfg, "credential probe"); err != nil {
+		return false, err
+	}
+	return cfg.hasCredentialFields(), nil
+}
+
+func (c *Config) addCredentialRefusal(refusal cliutil.CredentialRefusal) {
+	if c == nil || !refusal.CredentialsPresent {
+		return
+	}
+	c.CredentialRefusals = append(c.CredentialRefusals, refusal)
+	cliutil.ReportCredentialRefusal(refusal)
+}
+
+func (c *Config) AgentcookieManagedByExternalStore() bool {
+	if c.AgentcookieManaged || c.AuthSource == "agentcookie" || c.CredentialSource == "agentcookie" {
+		return true
+	}
+	if c.Path == "" {
+		return false
+	}
+	marker := filepath.Join(filepath.Dir(c.Path), ".agentcookie-managed")
+	if _, err := os.Stat(marker); err == nil {
+		return true
+	}
+	return false
+}
+
+func (c *Config) markAgentcookieManaged() {
+	c.AgentcookieManaged = true
+	c.CredentialSource = "agentcookie"
+}
+
+func (c *Config) hasCompleteCredentialFields() bool {
+	if c.AuthHeaderVal != "" {
+		return true
+	}
+	if c.BingWebmasterApiKey == "" {
+		return false
+	}
+	if c.BingWebmasterApiKey == "" {
+		return false
+	}
+	return true
+}
+
+func (c *Config) clearCredentialFields() {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.BingWebmasterApiKey = ""
+}
+
+func (c *Config) credentials() *cliutil.Credentials {
+	return &cliutil.Credentials{
+		AuthHeaderVal:       c.AuthHeaderVal,
+		AccessToken:         c.AccessToken,
+		RefreshToken:        c.RefreshToken,
+		TokenExpiry:         c.TokenExpiry,
+		ClientID:            c.ClientID,
+		ClientSecret:        c.ClientSecret,
+		BingWebmasterApiKey: c.BingWebmasterApiKey,
+	}
+}
+
+func (c *Config) applyCredentials(creds *cliutil.Credentials) {
+	if creds == nil {
+		return
+	}
+	if c.AuthHeaderVal == "" {
+		c.AuthHeaderVal = creds.AuthHeaderVal
+	}
+	if c.AccessToken == "" {
+		c.AccessToken = creds.AccessToken
+	}
+	if c.RefreshToken == "" {
+		c.RefreshToken = creds.RefreshToken
+	}
+	if c.TokenExpiry.IsZero() {
+		c.TokenExpiry = creds.TokenExpiry
+	}
+	if c.ClientID == "" {
+		c.ClientID = creds.ClientID
+	}
+	if c.ClientSecret == "" {
+		c.ClientSecret = creds.ClientSecret
+	}
+	if c.BingWebmasterApiKey == "" {
+		c.BingWebmasterApiKey = creds.BingWebmasterApiKey
+	}
+}
+
+func (c *Config) saveCredentialsFirst() error {
+	if c.AgentcookieManagedByExternalStore() {
+		c.markAgentcookieManaged()
+		return nil
+	}
+	if err := cliutil.SaveCredentials(c.credentials()); err != nil {
+		return err
+	}
+	c.CredentialSource = "credentials file"
+	return nil
+}
+
+func (c *Config) StoreScopeCredential() string {
+	if c == nil {
+		return ""
+	}
+	if header := c.AuthHeader(); header != "" {
+		return header
+	}
+
+	var parts []string
+	if c.AuthHeaderVal != "" {
+		parts = append(parts, "auth_header="+c.AuthHeaderVal)
+	}
+	if c.RefreshToken != "" {
+		parts = append(parts, "refresh_token="+c.RefreshToken)
+	}
+	if c.AccessToken != "" {
+		parts = append(parts, "access_token="+c.AccessToken)
+	}
+	if c.ClientID != "" {
+		parts = append(parts, "client_id="+c.ClientID)
+	}
+	if c.ClientSecret != "" {
+		parts = append(parts, "client_secret="+c.ClientSecret)
+	}
+	if c.BingWebmasterApiKey != "" {
+		parts = append(parts, "webmaster_api_key="+c.BingWebmasterApiKey)
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return strings.Join(parts, "\n")
+}
+
+// Raw browser-session values count as credentials even when no header
+// representation exists; hand-coded flows may also preserve a working header.
+func (c *Config) CredentialConfigured() bool {
+	if c == nil {
+		return false
+	}
+	return c.AuthHeader() != ""
 }
 
 func (c *Config) AuthHeader() string {
@@ -112,6 +434,9 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
 	return c.save()
 }
 
@@ -127,26 +452,141 @@ func (c *Config) SaveCredential(token string) error {
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.BingWebmasterApiKey = token
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
 	return c.save()
 }
 
 func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.BingWebmasterApiKey = ""
+	if c.AgentcookieManagedByExternalStore() {
+		c.markAgentcookieManaged()
+		// save() persists the full config (credential fields included) for
+		// agentcookie-managed stores, so the zeroed fields must be written
+		// back; returning early would leave the secrets on disk.
+		return c.save()
+	}
+	if err := cliutil.RemoveCredentials(); err != nil {
+		return err
+	}
 	return c.save()
 }
 
 func (c *Config) save() error {
-	dir := filepath.Dir(c.Path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return fmt.Errorf("creating config dir: %w", err)
+	var persist any = c
+	if !c.AgentcookieManagedByExternalStore() {
+		// Credentials live in the credentials file; the config file
+		// persists non-secret settings only, so no credential key names
+		// remain in the TOML at all.
+		persist = c.persisted()
 	}
-	data, err := toml.Marshal(c)
+	data, err := toml.Marshal(persist)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := cliutil.AtomicWritePrivateFile(c.Path, data, 0o600, 0o700); err != nil {
+		return err
+	}
+	c.scrubLegacyCredentials()
+	return nil
+}
+
+func (c *Config) scrubLegacyCredentials() {
+	if c.legacySourcePath == "" || c.legacySourcePath == c.Path {
+		return
+	}
+	if c.AgentcookieManagedByExternalStore() {
+		return
+	}
+	data, err := os.ReadFile(c.legacySourcePath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "warning: cannot read legacy config to scrub credentials: %v\n", err)
+		}
+		return
+	}
+	var legacy Config
+	if err := toml.Unmarshal(data, &legacy); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot parse legacy config to scrub credentials: %v\n", err)
+		return
+	}
+	legacy.clearCredentialFields()
+	scrubbed := legacy.persisted()
+	scrubbedData, err := toml.Marshal(scrubbed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot marshal scrubbed legacy config: %v\n", err)
+		return
+	}
+	if err := cliutil.AtomicWritePrivateFile(c.legacySourcePath, scrubbedData, 0o600, 0o700); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot write scrubbed legacy config: %v\n", err)
+	}
+}
+
+type persistedConfig struct {
+	BaseURL string            `toml:"base_url"`
+	Headers map[string]string `toml:"headers,omitempty"`
+}
+
+func (c *Config) persisted() persistedConfig {
+	return persistedConfig{
+		BaseURL: c.BaseURL,
+		Headers: c.Headers,
+	}
+}
+
+// HasCredentialRefusals reports whether the loader refused any credentials.
+// Ported from the current generator template during the 4.31.1 reprint
+// (merge reconciliation): the refreshed permission/credential tests need it.
+func (c *Config) HasCredentialRefusals() bool {
+	return c != nil && len(c.CredentialRefusals) > 0
+}
+
+// CredentialRefusalSummaries renders one human-readable line per refusal.
+func (c *Config) CredentialRefusalSummaries() []string {
+	if c == nil || len(c.CredentialRefusals) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(c.CredentialRefusals))
+	for _, refusal := range c.CredentialRefusals {
+		out = append(out, refusal.Error())
+	}
+	return out
+}
+
+// CredentialRefusalError aggregates all refusals into a single error.
+func (c *Config) CredentialRefusalError() error {
+	summaries := c.CredentialRefusalSummaries()
+	if len(summaries) == 0 {
+		return nil
+	}
+	return fmt.Errorf("stored credentials refused: %s", strings.Join(summaries, "; "))
+}
+
+func (c *Config) hasCredentialFields() bool {
+	if c.AuthHeaderVal != "" ||
+		c.AccessToken != "" ||
+		c.RefreshToken != "" ||
+		c.ClientID != "" ||
+		c.ClientSecret != "" {
+		return true
+	}
+	if c.BingWebmasterApiKey != "" {
+		return true
+	}
+	return false
 }
 
 // Ensure strings import is used

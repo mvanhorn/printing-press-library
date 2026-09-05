@@ -88,7 +88,7 @@ func newPublishCmd(flags *rootFlags) *cobra.Command {
 
 			// Live quota check (best-effort; 0 means "unknown, submit all").
 			daily := 0
-			if qdata, qerr := c.Get("/json/GetUrlSubmissionQuota", map[string]string{"siteUrl": site}); qerr == nil {
+			if qdata, qerr := c.Get(cmd.Context(), "/json/GetUrlSubmissionQuota", map[string]string{"siteUrl": site}); qerr == nil {
 				if v, ok := bNum(bCIMap(qdata), "DailyQuota"); ok {
 					daily = int(v)
 				}
@@ -126,7 +126,7 @@ func newPublishCmd(flags *rootFlags) *cobra.Command {
 			// Real submission.
 			for _, chunk := range chunks {
 				body := map[string]any{"siteUrl": site, "urlList": chunk}
-				if _, _, serr := c.Post("/json/SubmitUrlBatch", body); serr != nil {
+				if _, _, serr := c.Post(cmd.Context(), "/json/SubmitUrlBatch", body); serr != nil {
 					return fmt.Errorf("submitting batch (submitted %d so far): %w", plan.Submitted, classifyAPIError(serr, flags))
 				}
 				plan.Submitted += len(chunk)

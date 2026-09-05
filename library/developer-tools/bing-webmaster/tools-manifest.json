@@ -1,0 +1,1569 @@
+{
+  "api_name": "bing-webmaster",
+  "base_url": "https://ssl.bing.com/webmaster/api.svc",
+  "description": "Every Bing Webmaster API endpoint, plus the SEO intelligence no other Bing tool ships: period-over-period deltas, ranking drift, quota-aware bulk submission, and Bing-vs-Google reconciliation — all backed by a local SQLite store.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "in": "query",
+    "env_vars": [
+      "BING_WEBMASTER_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BING_WEBMASTER_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.bing.com/webmasters"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "blocked_add",
+      "description": "Block a page or directory from the index. Required: site, blockedUrl.",
+      "method": "POST",
+      "path": "/json/AddBlockedUrl",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "blocked-url-url",
+          "wire_name": "blockedUrl.Url",
+          "type": "string",
+          "location": "body",
+          "description": "URL or directory to block"
+        },
+        {
+          "name": "blocked-url-entity-type",
+          "wire_name": "blockedUrl.EntityType",
+          "type": "string",
+          "location": "body",
+          "description": "Page or Directory"
+        },
+        {
+          "name": "blocked-url-request-type",
+          "wire_name": "blockedUrl.RequestType",
+          "type": "string",
+          "location": "body",
+          "description": "Block request type"
+        }
+      ]
+    },
+    {
+      "name": "blocked_add-preview-block",
+      "description": "Block the page preview for a URL. Required: site, url, blockReason.",
+      "method": "POST",
+      "path": "/json/AddPagePreviewBlock",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Page URL",
+          "required": true
+        },
+        {
+          "name": "blockReason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for blocking the preview",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "blocked_list",
+      "description": "List blocked pages and directories. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetBlockedUrls",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "blocked_preview-blocks",
+      "description": "List active page-preview blocks. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetActivePagePreviewBlocks",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "blocked_remove",
+      "description": "Unblock a previously blocked page or directory. Required: site, blockedUrl.",
+      "method": "POST",
+      "path": "/json/RemoveBlockedUrl",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "blocked-url-url",
+          "wire_name": "blockedUrl.Url",
+          "type": "string",
+          "location": "body",
+          "description": "URL or directory to unblock"
+        },
+        {
+          "name": "blocked-url-entity-type",
+          "wire_name": "blockedUrl.EntityType",
+          "type": "string",
+          "location": "body",
+          "description": "Page or Directory"
+        },
+        {
+          "name": "blocked-url-request-type",
+          "wire_name": "blockedUrl.RequestType",
+          "type": "string",
+          "location": "body",
+          "description": "Block request type"
+        }
+      ]
+    },
+    {
+      "name": "blocked_remove-preview-block",
+      "description": "Remove a page-preview block. Required: site, url.",
+      "method": "POST",
+      "path": "/json/RemovePagePreviewBlock",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Page URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crawl_children-info",
+      "description": "Index details for the pages under a directory. Required: site, url. Optional: page. Returns array.",
+      "method": "GET",
+      "path": "/json/GetChildrenUrlInfo",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Directory URL",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (paged results)"
+        }
+      ]
+    },
+    {
+      "name": "crawl_issues",
+      "description": "Crawl issues found for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetCrawlIssues",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crawl_save-settings",
+      "description": "Save crawl settings for a site. Required: site, crawlSettings.",
+      "method": "POST",
+      "path": "/json/SaveCrawlSettings",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "crawl-settings-crawl-rate",
+          "wire_name": "crawlSettings.CrawlRate",
+          "type": "array",
+          "location": "body",
+          "description": "24 hourly crawl-rate values (0-10)"
+        }
+      ]
+    },
+    {
+      "name": "crawl_settings",
+      "description": "Get crawl settings for a site. Required: site.",
+      "method": "GET",
+      "path": "/json/GetCrawlSettings",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crawl_stats",
+      "description": "Daily crawl statistics for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetCrawlStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crawl_url-info",
+      "description": "Index details for a single page. Required: site, url.",
+      "method": "GET",
+      "path": "/json/GetUrlInfo",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Page URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deeplinks_add-block",
+      "description": "Block a deep link. Required: site, market, searchUrl, deepLinkUrl.",
+      "method": "POST",
+      "path": "/json/AddDeepLinkBlock",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "body",
+          "description": "Market (e.g. en-US)",
+          "required": true
+        },
+        {
+          "name": "searchUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Search result URL",
+          "required": true
+        },
+        {
+          "name": "deepLinkUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Deep link URL to block",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deeplinks_algo-urls",
+      "description": "[OBSOLETE in Bing API] Get algorithmic deep link URLs. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetDeepLinkAlgoUrls",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deeplinks_blocks",
+      "description": "List deep link blocks for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetDeepLinkBlocks",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deeplinks_get",
+      "description": "[OBSOLETE in Bing API] Get deep links for a URL. Required: site, url. Returns array.",
+      "method": "GET",
+      "path": "/json/GetDeepLink",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Page URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deeplinks_remove-block",
+      "description": "Remove a deep link block. Required: site, market, searchUrl, deepLinkUrl.",
+      "method": "POST",
+      "path": "/json/RemoveDeepLinkBlock",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "body",
+          "description": "Market (e.g. en-US)",
+          "required": true
+        },
+        {
+          "name": "searchUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Search result URL",
+          "required": true
+        },
+        {
+          "name": "deepLinkUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Deep link URL to unblock",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deeplinks_update",
+      "description": "[OBSOLETE in Bing API] Update a deep link weight. Required: site, market, searchUrl, weight.",
+      "method": "POST",
+      "path": "/json/UpdateDeepLink",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "body",
+          "description": "Market (e.g. en-US)",
+          "required": true
+        },
+        {
+          "name": "searchUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Search result URL",
+          "required": true
+        },
+        {
+          "name": "weight",
+          "type": "string",
+          "location": "body",
+          "description": "Deep link weight",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "feeds_details",
+      "description": "Get details for a feed or sitemap index. Required: site, feedUrl. Returns array.",
+      "method": "GET",
+      "path": "/json/GetFeedDetails",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "feedUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Feed/sitemap URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "feeds_list",
+      "description": "List all top-level feeds (sitemaps) for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetFeeds",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "feeds_remove",
+      "description": "Remove a submitted feed. Required: site, feedUrl.",
+      "method": "POST",
+      "path": "/json/RemoveFeed",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "feedUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Feed/sitemap URL to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "feeds_submit",
+      "description": "Submit a sitemap or feed URL. Required: site, feedUrl.",
+      "method": "POST",
+      "path": "/json/SubmitFeed",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "feedUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Sitemap/feed URL to submit",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "geo_add",
+      "description": "Add a country/region targeting setting. Required: site, settings.",
+      "method": "POST",
+      "path": "/json/AddCountryRegionSettings",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "settings-url",
+          "wire_name": "settings.Url",
+          "type": "string",
+          "location": "body",
+          "description": "URL or directory scope"
+        },
+        {
+          "name": "settings-two-letter-iso-country-region-name",
+          "wire_name": "settings.TwoLetterISOCountryRegionName",
+          "type": "string",
+          "location": "body",
+          "description": "Two-letter ISO country/region code"
+        },
+        {
+          "name": "settings-type",
+          "wire_name": "settings.Type",
+          "type": "string",
+          "location": "body",
+          "description": "Setting scope type"
+        }
+      ]
+    },
+    {
+      "name": "geo_remove",
+      "description": "Remove a country/region targeting setting. Required: site, settings.",
+      "method": "POST",
+      "path": "/json/RemoveCountryRegionSettings",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "settings-url",
+          "wire_name": "settings.Url",
+          "type": "string",
+          "location": "body",
+          "description": "URL or directory scope"
+        },
+        {
+          "name": "settings-two-letter-iso-country-region-name",
+          "wire_name": "settings.TwoLetterISOCountryRegionName",
+          "type": "string",
+          "location": "body",
+          "description": "Two-letter ISO country/region code"
+        },
+        {
+          "name": "settings-type",
+          "wire_name": "settings.Type",
+          "type": "string",
+          "location": "body",
+          "description": "Setting scope type"
+        }
+      ]
+    },
+    {
+      "name": "geo_settings",
+      "description": "List country/region targeting settings. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetCountryRegionSettings",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keywords_get",
+      "description": "Keyword impressions for a period. Required: query. Optional: country, language, startDate (plus 1 more).",
+      "method": "GET",
+      "path": "/json/GetKeyword",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword/query text",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code (e.g. us, gb)"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code (e.g. en-US)"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (ISO, e.g. 2026-01-01)"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date (ISO)"
+        }
+      ]
+    },
+    {
+      "name": "keywords_related",
+      "description": "Keywords related to a query for a period. Required: query. Optional: country, language, startDate (plus 1 more). Returns array.",
+      "method": "GET",
+      "path": "/json/GetRelatedKeywords",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword/query text",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (ISO)"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date (ISO)"
+        }
+      ]
+    },
+    {
+      "name": "keywords_stats",
+      "description": "Historical stats for a keyword. Required: query. Optional: country, language. Returns array.",
+      "method": "GET",
+      "path": "/json/GetKeywordStats",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword/query text",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        }
+      ]
+    },
+    {
+      "name": "links_add-connected",
+      "description": "Add a connected page to the site. Required: site, masterUrl.",
+      "method": "POST",
+      "path": "/json/AddConnectedPage",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "masterUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Master URL to connect",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_connected",
+      "description": "List pages connected to the site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetConnectedPages",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_counts",
+      "description": "Pages with inbound link counts (paged). Required: site. Optional: page.",
+      "method": "GET",
+      "path": "/json/GetLinkCounts",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (paged results)"
+        }
+      ]
+    },
+    {
+      "name": "links_url-links",
+      "description": "Inbound links for a specific URL (paged). Required: site, link. Optional: page.",
+      "method": "GET",
+      "path": "/json/GetUrlLinks",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "link",
+          "type": "string",
+          "location": "query",
+          "description": "Target URL to get inbound links for",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (paged results)"
+        }
+      ]
+    },
+    {
+      "name": "params_add",
+      "description": "Add a query-parameter normalization rule. Required: site, queryParameter.",
+      "method": "POST",
+      "path": "/json/AddQueryParameter",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "queryParameter",
+          "type": "string",
+          "location": "body",
+          "description": "Query parameter name to normalize",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "params_list",
+      "description": "List query-parameter normalization rules. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetQueryParameters",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "params_remove",
+      "description": "Remove a query-parameter rule. Required: site, queryParameter.",
+      "method": "POST",
+      "path": "/json/RemoveQueryParameter",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "queryParameter",
+          "type": "string",
+          "location": "body",
+          "description": "Query parameter name to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "params_toggle",
+      "description": "Enable or disable a query-parameter rule. Required: site, queryParameter, isEnabled.",
+      "method": "POST",
+      "path": "/json/EnableDisableQueryParameter",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "queryParameter",
+          "type": "string",
+          "location": "body",
+          "description": "Query parameter name",
+          "required": true
+        },
+        {
+          "name": "isEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable (true) or disable (false)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_add",
+      "description": "Add a new site to your account. Required: site.",
+      "method": "POST",
+      "path": "/json/AddSite",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Site URL to add (e.g. https://example.com)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_add-role",
+      "description": "Delegate site access to another user. Required: site, delegatedUrl, email. Optional: businessVerificationCode, canDelegate, isAdministrator.",
+      "method": "POST",
+      "path": "/json/AddSiteRoles",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Site URL",
+          "required": true
+        },
+        {
+          "name": "delegatedUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Delegated site URL scope",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email of the user to delegate to",
+          "required": true
+        },
+        {
+          "name": "businessVerificationCode",
+          "type": "string",
+          "location": "body",
+          "description": "Business verification code (if required)"
+        },
+        {
+          "name": "canDelegate",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the delegate may further delegate"
+        },
+        {
+          "name": "isAdministrator",
+          "type": "bool",
+          "location": "body",
+          "description": "Grant administrator role"
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "List all verified sites for the current user. Returns array.",
+      "method": "GET",
+      "path": "/json/GetUserSites",
+      "params": []
+    },
+    {
+      "name": "sites_moves",
+      "description": "List submitted site moves (migrations) for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetSiteMoves",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_remove",
+      "description": "Remove a site from your account. Required: site.",
+      "method": "POST",
+      "path": "/json/RemoveSite",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Site URL to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_remove-role",
+      "description": "Revoke a user's delegated access to a site. Required: site, siteRole.",
+      "method": "POST",
+      "path": "/json/RemoveSiteRole",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Site URL",
+          "required": true
+        },
+        {
+          "name": "siteRole",
+          "type": "string",
+          "location": "body",
+          "description": "Site role to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_roles",
+      "description": "Get delegated user roles for a site. Required: site. Optional: isCurrentUserAdmin.",
+      "method": "GET",
+      "path": "/json/GetSiteRoles",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Site URL",
+          "required": true
+        },
+        {
+          "name": "isCurrentUserAdmin",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether the current user is an admin"
+        }
+      ]
+    },
+    {
+      "name": "sites_submit-move",
+      "description": "Submit a site migration. Required: site. Optional: settings.",
+      "method": "POST",
+      "path": "/json/SubmitSiteMove",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Source site URL",
+          "required": true
+        },
+        {
+          "name": "settings-target-url",
+          "wire_name": "settings.TargetUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Destination site URL"
+        },
+        {
+          "name": "settings-type",
+          "wire_name": "settings.Type",
+          "type": "string",
+          "location": "body",
+          "description": "Move type (e.g. SiteWide, Directory)"
+        },
+        {
+          "name": "settings-scope",
+          "wire_name": "settings.Scope",
+          "type": "string",
+          "location": "body",
+          "description": "Move scope (e.g. Domain, Subdomain)"
+        }
+      ]
+    },
+    {
+      "name": "sites_verify",
+      "description": "Attempt verification of a site you have added. Required: site.",
+      "method": "POST",
+      "path": "/json/VerifySite",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Site URL to verify",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_content-quota",
+      "description": "Get content submission quota. Required: site.",
+      "method": "GET",
+      "path": "/json/GetContentSubmissionQuota",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_fetch",
+      "description": "Request that Bing fetch a single URL. Required: site, url.",
+      "method": "POST",
+      "path": "/json/FetchUrl",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to fetch",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_fetched",
+      "description": "List URLs Bing has fetched on request. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetFetchedUrls",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_fetched-details",
+      "description": "Get details of a fetched URL. Required: site, url.",
+      "method": "GET",
+      "path": "/json/GetFetchedUrlDetails",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Fetched URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_submit-batch",
+      "description": "Submit up to 500 URLs for indexing in one request. Required: site, urlList.",
+      "method": "POST",
+      "path": "/json/SubmitUrlBatch",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "urlList",
+          "type": "array",
+          "location": "body",
+          "description": "List of URLs to submit (max 500)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_submit-content",
+      "description": "Submit page content directly to Bing. Required: site, url, httpMessage. Optional: structuredData, httpStatus.",
+      "method": "POST",
+      "path": "/json/SubmitContent",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the page",
+          "required": true
+        },
+        {
+          "name": "httpMessage",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded HTTP response (headers + body)",
+          "required": true
+        },
+        {
+          "name": "structuredData",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded structured data"
+        },
+        {
+          "name": "httpStatus",
+          "type": "int",
+          "location": "body",
+          "description": "HTTP status code of the page"
+        }
+      ]
+    },
+    {
+      "name": "submission_submit-url",
+      "description": "Submit a single URL for indexing. Required: site, url.",
+      "method": "POST",
+      "path": "/json/SubmitUrl",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to submit for indexing",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submission_url-quota",
+      "description": "Get daily and monthly URL submission quota. Required: site.",
+      "method": "GET",
+      "path": "/json/GetUrlSubmissionQuota",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_children-traffic",
+      "description": "Index and traffic info for the pages under a directory. Required: site, url. Optional: page. Returns array.",
+      "method": "GET",
+      "path": "/json/GetChildrenUrlTrafficInfo",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Directory URL",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (paged results)"
+        }
+      ]
+    },
+    {
+      "name": "traffic_page-queries",
+      "description": "Queries that lead to a given page. Required: site, page. Returns array.",
+      "method": "GET",
+      "path": "/json/GetPageQueryStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_pages",
+      "description": "Top pages for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetPageStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_queries",
+      "description": "Top query stats for a site (may be empty below Bing's data threshold). Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetQueryStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_query-page-detail",
+      "description": "Detailed stats for a specific query and page pair. Required: site, query, page. Returns array.",
+      "method": "GET",
+      "path": "/json/GetQueryPageDetailStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_query-pages",
+      "description": "Pages that rank for a given query. Required: site, query. Returns array.",
+      "method": "GET",
+      "path": "/json/GetQueryPageStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_query-traffic",
+      "description": "Traffic stats for a single query. Required: site, query. Returns array.",
+      "method": "GET",
+      "path": "/json/GetQueryTrafficStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_rank-traffic",
+      "description": "Daily impressions and clicks for a site. Required: site. Returns array.",
+      "method": "GET",
+      "path": "/json/GetRankAndTrafficStats",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "traffic_url-traffic",
+      "description": "Index and traffic info for a single page. Required: site, url.",
+      "method": "GET",
+      "path": "/json/GetUrlTrafficInfo",
+      "params": [
+        {
+          "name": "site",
+          "wire_name": "siteUrl",
+          "type": "string",
+          "location": "query",
+          "description": "Verified site URL",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Page URL",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Query-performance delta review",
+      "command": "review",
+      "description": "See which Bing queries you gained or lost, and how CTR and average position shifted, vs the previous period — not just a raw snapshot."
+    },
+    {
+      "name": "Ranking-drift detection",
+      "command": "drift",
+      "description": "Track average-position movement per query and page over time and surface the biggest climbers and droppers."
+    },
+    {
+      "name": "Quota-aware bulk submit + publish pipeline",
+      "command": "publish",
+      "description": "Submit many URLs (or a whole sitemap) for indexing, automatically chunked to the 500-per-request cap, paced against your live remaining quota, and deduped against URLs already submitted."
+    },
+    {
+      "name": "Crawl-error triage",
+      "command": "triage",
+      "description": "Categorize crawl issues by severity, diff them against your last sync, and map each issue to the affected child URLs in one view."
+    },
+    {
+      "name": "Submission quota intelligence",
+      "command": "quota",
+      "description": "One view of URL and content submission quota — daily and monthly remaining — plus a pacing recommendation."
+    },
+    {
+      "name": "Bing-vs-Google coverage gap",
+      "command": "gap",
+      "description": "Reconcile your Bing query/page performance against a Google Search Console export to find queries and pages you rank for on one engine but not the other."
+    },
+    {
+      "name": "Feed/sitemap health monitor",
+      "command": "feed-health",
+      "description": "Track submitted, discovered, and indexed counts for each feed over time and flag drops."
+    },
+    {
+      "name": "Indexation watch",
+      "command": "watch",
+      "description": "Diff the latest sync against the previous one and surface indexation, crawl, and impression regressions per site."
+    }
+  ]
+}

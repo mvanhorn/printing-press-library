@@ -6,6 +6,8 @@ package cli
 import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/cliutil"
+	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -275,8 +278,8 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 // argument carries per-endpoint required headers (e.g. cal-api-version) that
 // must be sent on every page request, including the first; pass nil when the
 // endpoint has no per-endpoint header overrides.
-func paginatedGet(c interface {
-	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+func paginatedGet(ctx context.Context, c interface {
+	GetWithHeaders(context.Context, string, map[string]string, map[string]string) (json.RawMessage, error)
 }, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Clean zero-value params
 	clean := map[string]string{}
@@ -287,7 +290,7 @@ func paginatedGet(c interface {
 	}
 
 	if !fetchAll {
-		return c.GetWithHeaders(path, clean, headers)
+		return c.GetWithHeaders(ctx, path, clean, headers)
 	}
 
 	// Fetch all pages
@@ -301,7 +304,7 @@ func paginatedGet(c interface {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
 		}
 
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
@@ -415,16 +418,47 @@ func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
 	return printOutputWithFlags(w, json.RawMessage(raw), flags)
 }
 
+// envelopeMetadataArrayKeys lists sidecar arrays that must not be mistaken for
+// a domain collection when projecting wrapped output or aggregating pages.
+// Ported from the current generator template during the 4.31.1 reprint
+// (merge reconciliation): the refreshed envelope-aware --select filter needs
+// these, and the preserved helpers.go predates them.
+var envelopeMetadataArrayKeys = map[string]bool{
+	"errors": true, "Errors": true,
+	"warnings": true, "Warnings": true,
+	// fetch_failures is emitted by fan-out scaffolding. It is bookkeeping,
+	// not a competing domain payload array during compact projection.
+	"fetch_failures": true, "FetchFailures": true,
+}
+
+// envelopeMetadataKeys lists pagination and collection-envelope metadata
+// siblings to ignore when recognizing a wrapped array. Projection helpers
+// preserve these keys while filtering or compacting the collection.
+// Keep this data-driven so the envelope helpers do not depend on one API's
+// response vocabulary.
+var envelopeMetadataKeys = map[string]bool{
+	"paging": true, "pagination": true,
+	"_links": true, "links": true,
+	"meta": true, "metadata": true,
+	"total": true, "totalCount": true, "total_count": true,
+	"hasMore": true, "has_more": true,
+	"offset":   true,
+	"nextPage": true, "next_page": true,
+	"cursor": true,
+}
+
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
 // Supports dotted paths like "events.shortName" to descend into nested structures.
 // Arrays are traversed element-wise: "events.shortName" keeps shortName on each event.
 func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	var paths [][]string
+	var requestedPaths []string
 	for _, f := range strings.Split(fields, ",") {
 		f = strings.TrimSpace(f)
 		if f == "" {
 			continue
 		}
+		requestedPaths = append(requestedPaths, f)
 		parts := strings.Split(f, ".")
 		for i := range parts {
 			parts[i] = strings.ToLower(parts[i])
@@ -434,20 +468,95 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	if len(paths) == 0 {
 		return data
 	}
-	return filterFieldsRec(data, paths)
+	filtered, state := filterFieldsRec(data, paths, true)
+	valid := ""
+	for i, path := range paths {
+		_, pathState := filterFieldsRec(data, [][]string{path}, true)
+		pathIndeterminate := pathState.anchoredIndeterminate || (len(paths) == 1 && pathState.fallbackIndeterminate)
+		if pathState.matched || pathIndeterminate {
+			continue
+		}
+		if valid == "" {
+			valid = strings.Join(selectFieldKeys(data), ", ")
+			if valid == "" {
+				valid = "none"
+			}
+		}
+		fmt.Fprintf(os.Stderr, "warning: --select %q matched no fields; valid fields: %s\n", requestedPaths[i], valid)
+	}
+	if !state.matched && !state.anchoredIndeterminate && !state.fallbackIndeterminate {
+		return data
+	}
+	return filtered
+}
+
+func selectFieldKeys(data json.RawMessage) []string {
+	keys := map[string]bool{}
+	var collect func(json.RawMessage)
+	collect = func(value json.RawMessage) {
+		var obj map[string]json.RawMessage
+		if err := json.Unmarshal(value, &obj); err == nil && obj != nil {
+			for key := range obj {
+				keys[key] = true
+			}
+			return
+		}
+		var arr []json.RawMessage
+		if err := json.Unmarshal(value, &arr); err == nil {
+			for _, element := range arr {
+				collect(element)
+			}
+		}
+	}
+	collect(data)
+
+	result := make([]string, 0, len(keys))
+	for key := range keys {
+		result = append(result, key)
+	}
+	sort.Strings(result)
+	return result
+}
+
+type selectMatchState struct {
+	matched               bool
+	anchoredIndeterminate bool
+	fallbackIndeterminate bool
+}
+
+// maxListEnvelopeDepth bounds generic object descent so malformed or hostile
+// JSON cannot force unbounded recursion in selector or compact projection.
+const maxListEnvelopeDepth = 32
+
+func (s *selectMatchState) merge(other selectMatchState) {
+	s.matched = s.matched || other.matched
+	s.anchoredIndeterminate = s.anchoredIndeterminate || other.anchoredIndeterminate
+	s.fallbackIndeterminate = s.fallbackIndeterminate || other.fallbackIndeterminate
 }
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
-// lowercase segments; arrays descend element-wise.
-func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
+// lowercase segments; arrays descend element-wise. pathAnchored distinguishes
+// empty arrays reached through a known selector prefix from empty arrays found
+// only by the list-envelope fallback.
+func filterFieldsRec(data json.RawMessage, paths [][]string, pathAnchored bool) (json.RawMessage, selectMatchState) {
+	return filterFieldsRecAtDepth(data, paths, pathAnchored, 0)
+}
+
+func filterFieldsRecAtDepth(data json.RawMessage, paths [][]string, pathAnchored bool, envelopeDepth int) (json.RawMessage, selectMatchState) {
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
 		out := make([]json.RawMessage, len(arr))
+		state := selectMatchState{
+			anchoredIndeterminate: len(arr) == 0 && pathAnchored,
+			fallbackIndeterminate: len(arr) == 0 && !pathAnchored,
+		}
 		for i, el := range arr {
-			out[i] = filterFieldsRec(el, paths)
+			var childState selectMatchState
+			out[i], childState = filterFieldsRecAtDepth(el, paths, pathAnchored, envelopeDepth)
+			state.merge(childState)
 		}
 		result, _ := json.Marshal(out)
-		return result
+		return result, state
 	}
 
 	var obj map[string]json.RawMessage
@@ -466,24 +575,100 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 			}
 		}
 		filtered := map[string]json.RawMessage{}
+		headMatched := false
+		state := selectMatchState{}
 		for k, v := range obj {
 			matched := matchSelectSegment(k, keepWhole, subPaths)
 			if matched == "" {
 				continue
 			}
+			headMatched = true
 			if keepWhole[matched] {
 				filtered[k] = v
+				state.matched = true
 				continue
 			}
 			if subs := subPaths[matched]; subs != nil {
-				filtered[k] = filterFieldsRec(v, subs)
+				var childState selectMatchState
+				filtered[k], childState = filterFieldsRecAtDepth(v, subs, true, envelopeDepth)
+				state.merge(childState)
+			}
+		}
+		// Envelope fallback: when no top-level keys matched but at least one
+		// sibling is a non-null array, treat the object as a list envelope
+		// (`{"items":[...]}`, `{"data":[...]}`, `{"total_count":N,"items":[...]}`)
+		// and apply the selector inside the array(s). Non-array siblings pass
+		// through verbatim so envelope metadata (counts, null pagination
+		// cursors) stays visible. The foundArray guard keeps flat objects
+		// without matching keys as an all-miss result for the caller to
+		// diagnose and preserve. The `arr != nil` check rejects JSON null,
+		// which json.Unmarshal otherwise accepts into a []json.RawMessage
+		// as a nil slice and would coerce to `[]`.
+		if !headMatched {
+			if pending, foundArray, nestedState := filterListEnvelopeFields(obj, paths, envelopeDepth); foundArray {
+				filtered = pending
+				state.merge(nestedState)
 			}
 		}
 		result, _ := json.Marshal(filtered)
-		return result
+		return result, state
 	}
 
-	return data
+	return data, selectMatchState{}
+}
+
+func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, envelopeDepth int) (map[string]json.RawMessage, bool, selectMatchState) {
+	pending := map[string]json.RawMessage{}
+	foundArray := false
+	state := selectMatchState{}
+	for k, v := range obj {
+		if envelopeMetadataArrayKeys[k] || envelopeMetadataKeys[k] {
+			pending[k] = v
+			continue
+		}
+		trimmed := bytes.TrimLeft(v, " 	\r\n")
+		if len(trimmed) > 0 {
+			switch trimmed[0] {
+			case '[':
+				var arr []json.RawMessage
+				if json.Unmarshal(v, &arr) == nil && arr != nil {
+					foundArray = true
+					var childState selectMatchState
+					pending[k], childState = filterFieldsRecAtDepth(v, paths, false, envelopeDepth)
+					state.merge(childState)
+					continue
+				}
+			case '{':
+				var nestedObj map[string]json.RawMessage
+				if json.Unmarshal(v, &nestedObj) == nil && nestedObj != nil {
+					if nested, ok, nestedState := filterNestedListEnvelopeFields(v, paths, envelopeDepth); ok {
+						foundArray = true
+						pending[k] = nested
+						state.merge(nestedState)
+						continue
+					}
+				}
+			}
+		}
+		pending[k] = v
+	}
+	return pending, foundArray, state
+}
+
+func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, envelopeDepth int) (json.RawMessage, bool, selectMatchState) {
+	if envelopeDepth >= maxListEnvelopeDepth {
+		return nil, false, selectMatchState{}
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return nil, false, selectMatchState{}
+	}
+	filtered, found, state := filterListEnvelopeFields(obj, paths, envelopeDepth+1)
+	if !found {
+		return nil, false, selectMatchState{}
+	}
+	result, _ := json.Marshal(filtered)
+	return result, true, state
 }
 
 // matchSelectSegment returns the matching lowercase segment, or "" if no match.
@@ -516,6 +701,16 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
+	return printOutputWithFlagsMeta(w, data, flags, map[string]any{"source": "local"})
+}
+
+// printOutputWithFlagsMeta is printOutputWithFlags with an explicit agent
+// envelope meta map. Ported from the current generator template during the
+// 4.31.1 reprint (merge reconciliation): the refreshed learn-loop tests
+// expect agent envelopes to carry meta.source, and the preserved printer
+// predates the whole agent-envelope convention. Platform-structured output
+// is intentionally not wired here (no platform session in this build).
+func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any) error {
 	// --select wins over --compact when both are set: an explicit field list
 	// is the user's authoritative request, so the high-gravity allow-list
 	// must not strip those fields out before --select can pick them. When
@@ -526,6 +721,13 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	} else if flags.compact {
 		data = compactFields(data)
 	}
+	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
+		wrapped, err := wrapAgentOutput(data, agentMeta)
+		if err != nil {
+			return err
+		}
+		data = wrapped
+	}
 	// --quiet: suppress all output, exit code communicates result
 	if flags.quiet {
 		return nil
@@ -534,7 +736,126 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	if flags.csv {
 		return printCSV(w, data)
 	}
+	// --plain: render arrays as tab-separated rows
+	if flags.plain {
+		return printPlain(w, data)
+	}
 	return printOutput(w, data, flags.asJSON)
+}
+
+// wrapAgentOutput wraps data in the stable agent envelope
+// ({"meta": {...}, "results": ...}). The raw value is preserved under
+// results so --json without --agent stays backward-compatible while shell
+// agents get stable metadata.
+func wrapAgentOutput(data json.RawMessage, meta map[string]any) (json.RawMessage, error) {
+	if meta == nil {
+		meta = map[string]any{}
+	}
+	if _, ok := meta["source"]; !ok {
+		meta["source"] = "local"
+	}
+	if source, _ := meta["source"].(string); source == "live" {
+		data = unwrapSingleKeyArray(data)
+	}
+	var results any
+	if json.Valid(data) {
+		results = data
+	} else {
+		results = string(data)
+	}
+	envelope := map[string]any{
+		"meta":    meta,
+		"results": results,
+	}
+	return json.Marshal(envelope)
+}
+
+// unwrapSingleKeyArray flattens single-key collection envelopes
+// ({"results":[...]}, {"data":[...]}, etc.) so the agent envelope
+// emits a stable .results[] across APIs. Known pagination metadata siblings
+// do not prevent a recognized collection wrapper from being flattened;
+// unrelated multi-key objects still pass through so non-collection responses
+// aren't reshaped.
+func unwrapSingleKeyArray(data json.RawMessage) json.RawMessage {
+	leading := bytes.TrimLeft(data, " 	\r\n")
+	if len(leading) == 0 || leading[0] != '{' {
+		return data
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return data
+	}
+	var collectionKey string
+	var collectionValue json.RawMessage
+	foundCollection := false
+	for key, val := range obj {
+		if envelopeMetadataKeys[key] {
+			continue
+		}
+		if foundCollection {
+			return data
+		}
+		foundCollection = true
+		collectionKey = key
+		collectionValue = val
+	}
+	if collectionKey != "results" && collectionKey != "data" && collectionKey != "items" && collectionKey != "nodes" && collectionKey != "entries" && collectionKey != "records" {
+		return data
+	}
+	trimmed := bytes.TrimLeft(collectionValue, " 	\r\n")
+	if len(trimmed) == 0 || trimmed[0] != '[' {
+		return data
+	}
+	return collectionValue
+}
+
+func printPlain(w io.Writer, data json.RawMessage) error {
+	var items []map[string]any
+	if err := json.Unmarshal(data, &items); err != nil {
+		// Single object - just print as JSON
+		fmt.Fprintln(w, string(data))
+		return nil
+	}
+	if len(items) == 0 {
+		return nil
+	}
+	keySet := map[string]bool{}
+	for _, item := range items {
+		for k := range item {
+			keySet[k] = true
+		}
+	}
+	var keys []string
+	for k := range keySet {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	fmt.Fprintln(w, strings.Join(keys, "	"))
+	for _, item := range items {
+		var vals []string
+		for _, k := range keys {
+			vals = append(vals, plainCellValue(item[k]))
+		}
+		fmt.Fprintln(w, strings.Join(vals, "	"))
+	}
+	return nil
+}
+
+func plainCellValue(v any) string {
+	if v == nil {
+		return ""
+	}
+	var s string
+	if f, ok := v.(float64); ok {
+		s = strconv.FormatFloat(f, 'f', -1, 64)
+	} else {
+		s = fmt.Sprintf("%v", v)
+	}
+	s = strings.ReplaceAll(s, "	", " ")
+	s = strings.ReplaceAll(s, "\r\n", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	return s
 }
 
 // compactFields keeps only the most important fields for agent consumption.
@@ -1210,8 +1531,73 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	return json.Marshal(envelope)
 }
 
+func responsePayloadAtPath(data json.RawMessage, responsePath string) (json.RawMessage, bool) {
+	if strings.TrimSpace(responsePath) == "" {
+		return data, false
+	}
+	var root map[string]json.RawMessage
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil, false
+	}
+	return rawAtPath(root, strings.TrimPrefix(responsePath, "$."))
+}
+
 // defaultDBPath returns the canonical path for the local SQLite database.
 func defaultDBPath(name string) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", name, "data.db")
+}
+
+type dryRunResult struct {
+	DryRun bool   `json:"dry_run"`
+	Action string `json:"action"`
+	Would  string `json:"would"`
+}
+
+// writeDryRun ends a --dry-run short-circuit by reporting the action that was
+// skipped. Ported from the current generator template during the 4.31.1
+// reprint (merge reconciliation): refreshed learnings/export commands need it
+// and the preserved helpers predate it. Callers pass cmd.OutOrStdout() so the
+// report follows any redirected writer.
+func writeDryRun(w io.Writer, flags *rootFlags, action string) error {
+	would := "run " + action + "; no changes made"
+	if flags != nil && flags.asJSON {
+		return json.NewEncoder(w).Encode(dryRunResult{DryRun: true, Action: action, Would: would})
+	}
+	_, err := fmt.Fprintf(w, "dry-run: would %s\n", would)
+	return err
+}
+
+// parentNoSubcommandRunE returns a RunE that handles parents invoked without a
+// subcommand. Ported from the current generator template during the 4.31.1
+// reprint (merge reconciliation): refreshed teach/learnings parents need it.
+func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		machine := flags != nil && flags.asJSON
+		subs := make([]string, 0, len(cmd.Commands()))
+		for _, c := range cmd.Commands() {
+			if c.IsAvailableCommand() && c.Name() != "help" {
+				subs = append(subs, c.Name())
+			}
+		}
+		sort.Strings(subs)
+		if len(args) > 0 {
+			if machine {
+				_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+					"error":             "unknown subcommand",
+					"unknown":           args[0],
+					"valid_subcommands": subs,
+				})
+			}
+			return usageErr(fmt.Errorf("unknown subcommand %q for %q\nRun '%s --help' for available subcommands", args[0], cmd.CommandPath(), cmd.CommandPath()))
+		}
+		if machine {
+			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+				"error":             "subcommand required",
+				"valid_subcommands": subs,
+			})
+			return usageErr(fmt.Errorf("subcommand required for %q", cmd.CommandPath()))
+		}
+		return cmd.Help()
+	}
 }

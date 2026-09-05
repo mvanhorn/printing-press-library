@@ -44,7 +44,7 @@ func newQuotaCmd(flags *rootFlags) *cobra.Command {
 			var result bQuotaResult
 			result.Site = site
 
-			if data, err := c.Get("/json/GetUrlSubmissionQuota", map[string]string{"siteUrl": site}); err != nil {
+			if data, err := c.Get(cmd.Context(), "/json/GetUrlSubmissionQuota", map[string]string{"siteUrl": site}); err != nil {
 				return classifyAPIError(err, flags)
 			} else {
 				m := bCIMap(data)
@@ -52,7 +52,7 @@ func newQuotaCmd(flags *rootFlags) *cobra.Command {
 				mo, _ := bNum(m, "MonthlyQuota")
 				result.URL = bQuotaSide{DailyRemaining: int(d), MonthlyRemaining: int(mo)}
 			}
-			if data, err := c.Get("/json/GetContentSubmissionQuota", map[string]string{"siteUrl": site}); err != nil {
+			if data, err := c.Get(cmd.Context(), "/json/GetContentSubmissionQuota", map[string]string{"siteUrl": site}); err != nil {
 				// Content quota is less universally available; treat its failure as non-fatal.
 				result.Content = bQuotaSide{}
 			} else {

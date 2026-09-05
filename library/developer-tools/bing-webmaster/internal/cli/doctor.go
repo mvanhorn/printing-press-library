@@ -147,7 +147,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					reachBody, reachErr := c.Get("/", nil)
+					reachBody, reachErr := c.Get(cmd.Context(), "/", nil)
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:
@@ -192,7 +192,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						authHeaders := map[string]string{}
 						authParams["apikey"] = authHeader
 						authHeaders["User-Agent"] = "bing-webmaster-pp-cli"
-						_, authErr := c.GetWithHeaders(verifyPath, authParams, authHeaders)
+						_, authErr := c.GetWithHeaders(cmd.Context(), verifyPath, authParams, authHeaders)
 						var authAPIErr *client.APIError
 						switch {
 						case authErr == nil:

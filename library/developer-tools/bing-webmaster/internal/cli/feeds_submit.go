@@ -57,7 +57,7 @@ func newFeedsSubmitCmd(flags *rootFlags) *cobra.Command {
 					body["feedUrl"] = bodyFeedUrl
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.Post(cmd.Context(), path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
