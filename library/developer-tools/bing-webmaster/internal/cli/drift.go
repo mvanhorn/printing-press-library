@@ -33,7 +33,7 @@ func newDriftCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, err := c.Get(cmd.Context(), "/json/GetQueryStats", map[string]string{"siteUrl": site})
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			current := bParseQueryRows(data)
 

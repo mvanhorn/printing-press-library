@@ -45,7 +45,7 @@ func newQuotaCmd(flags *rootFlags) *cobra.Command {
 			result.Site = site
 
 			if data, err := c.Get(cmd.Context(), "/json/GetUrlSubmissionQuota", map[string]string{"siteUrl": site}); err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			} else {
 				m := bCIMap(data)
 				d, _ := bNum(m, "DailyQuota")

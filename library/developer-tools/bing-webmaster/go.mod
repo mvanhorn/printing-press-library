@@ -3,12 +3,12 @@ module github.com/mvanhorn/printing-press-library/library/developer-tools/bing-w
 go 1.26.6
 
 require (
-	github.com/mark3labs/mcp-go v0.57.0
-	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/sys v0.46.0
+	github.com/pelletier/go-toml/v2 v2.2.4
 	modernc.org/sqlite v1.37.0
+	github.com/mark3labs/mcp-go v0.57.0
+	golang.org/x/sys v0.46.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/google/jsonschema-go v0.4.2
 	github.com/google/uuid v1.6.0

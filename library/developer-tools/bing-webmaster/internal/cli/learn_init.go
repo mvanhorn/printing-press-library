@@ -74,3 +74,55 @@ func runLearnInitOnce(ctx context.Context) {
 		}
 	})
 }
+
+// learnCommonIdentityFields is the ordered, domain-neutral list
+// ResourceEntitiesFromJSON walks when a resource has no more specific
+// identity key. Missing JSON keys are skipped, so one list can serve
+// every collection.
+var learnCommonIdentityFields = []string{
+	"name", "title", "display_name", "full_name", "short_name", "label",
+	"slug", "key", "code", "id", "address",
+}
+
+// learnResourceTypeFields returns the per-resource identity-field map
+// passed to Recall so entity_match can be exact when the stored JSON
+// actually carries the identity.
+func learnResourceTypeFields() map[string][]string {
+	return map[string][]string{
+		"blocked":                                {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"blocked-get-active-page-preview-blocks": {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"crawl":                                  {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"crawl-get-crawl-issues":                 {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"crawl-get-crawl-stats":                  {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"deeplinks":                              {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"deeplinks-get-deep-link":                {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"deeplinks-get-deep-link-blocks":         {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"feeds":                                  {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"feeds-get-feed-details":                 {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"geo":                                    {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"keywords":                               {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"keywords-get-keyword-stats":             {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"links":                                  {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"params":                                 {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"sites":                                  {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"sites-get-site-moves":                   {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"submission":                             {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic":                                {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-page-query-stats":           {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-page-stats":                 {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-query-page-detail-stats":    {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-query-page-stats":           {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-query-stats":                {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-query-traffic-stats":        {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+		"traffic-get-rank-and-traffic-stats":     {"name", "title", "display_name", "full_name", "short_name", "label", "slug", "key", "code", "id", "address"},
+	}
+}
+
+// learnIdentityFieldsFor returns the identity fields for one resource
+// type, falling back to the common list when the type is unknown.
+func learnIdentityFieldsFor(resourceType string) []string {
+	if fields, ok := learnResourceTypeFields()[resourceType]; ok && len(fields) > 0 {
+		return fields
+	}
+	return append([]string(nil), learnCommonIdentityFields...)
+}

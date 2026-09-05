@@ -80,7 +80,7 @@ func newFeedHealthCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, err := c.Get(cmd.Context(), "/json/GetFeeds", map[string]string{"siteUrl": site})
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			feeds := parseFeedRows(data)
 

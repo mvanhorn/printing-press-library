@@ -114,3 +114,17 @@ func TestLearnNormalizers_SynonymFoldSymmetry(t *testing.T) {
 		t.Error("write side folded tonight into yesterday")
 	}
 }
+
+func TestLearnIdentityFields_CommonFallback(t *testing.T) {
+	if len(learnCommonIdentityFields) == 0 {
+		t.Fatal("learnCommonIdentityFields must not be empty")
+	}
+	got := learnIdentityFieldsFor("unknown-resource-type")
+	if len(got) == 0 {
+		t.Fatal("learnIdentityFieldsFor fallback must return the common list")
+	}
+	fields := learnResourceTypeFields()
+	if fields == nil {
+		t.Fatal("learnResourceTypeFields must return a non-nil map")
+	}
+}

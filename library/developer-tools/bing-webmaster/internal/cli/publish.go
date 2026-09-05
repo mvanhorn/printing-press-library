@@ -127,7 +127,7 @@ func newPublishCmd(flags *rootFlags) *cobra.Command {
 			for _, chunk := range chunks {
 				body := map[string]any{"siteUrl": site, "urlList": chunk}
 				if _, _, serr := c.Post(cmd.Context(), "/json/SubmitUrlBatch", body); serr != nil {
-					return fmt.Errorf("submitting batch (submitted %d so far): %w", plan.Submitted, classifyAPIError(serr, flags))
+					return fmt.Errorf("submitting batch (submitted %d so far): %w", plan.Submitted, classifyAPIError(cmd.OutOrStdout(), serr, flags))
 				}
 				plan.Submitted += len(chunk)
 			}

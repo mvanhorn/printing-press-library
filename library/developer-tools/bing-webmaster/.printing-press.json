@@ -1,14 +1,9 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-06-16T20:40:39.6395866Z",
-  "printing_press_version": "4.3.0",
   "api_name": "bing-webmaster",
-  "cli_name": "bing-webmaster-pp-cli",
-  "printer": "Pimmetjeoss",
-  "printer_name": "Pimmetjeoss",
-  "run_id": "20260616-212356",
   "category": "developer-tools",
+  "cli_name": "bing-webmaster-pp-cli",
   "description": "The Bing Webmaster Tools API: manage sites, submit URLs, and read query/traffic/crawl/link stats from the Bing search index.",
+  "generated_at": "2026-09-05T13:05:59.706289147Z",
   "novel_features": [
     {
       "name": "Query-performance delta review",
@@ -50,5 +45,10 @@
       "command": "watch",
       "description": "Diff the latest sync against the previous one and surface indexation, crawl, and impression regressions per site."
     }
-  ]
+  ],
+  "printer": "Pimmetjeoss",
+  "printer_name": "Pimmetjeoss",
+  "printing_press_version": "4.31.7",
+  "run_id": "20260905-130559",
+  "schema_version": 2
 }

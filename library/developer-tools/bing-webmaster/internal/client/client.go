@@ -4,9 +4,6 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/platform"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -15,6 +12,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/bing-webmaster/internal/platform"
 	"html"
 	"io"
 	"math"
@@ -32,6 +32,7 @@ import (
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
+const HTMLResponseHeader = "X-Printing-Press-HTML-Response"
 const maxErrorBodyBytes = 4096
 
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
@@ -279,6 +280,28 @@ func newRateLimiter(rateLimit float64) *cliutil.AdaptiveLimiter {
 	return cliutil.NewAdaptiveLimiter(rateLimit) // 0 -> nil (disabled); >0 -> explicit ceiling
 }
 
+// redirectLeavesOrigin reports whether a redirect hop should drop custom
+// credentials. Host is compared against the original request so a foreign
+// hop (A -> B -> B) cannot re-stamp A's credential onto B. Same-host
+// http -> https keeps the credential. Once any hop in the chain was
+// https, later plaintext hops must not re-stamp; comparing only the
+// original URL and the immediate predecessor misses
+// http -> https -> http -> http.
+func redirectLeavesOrigin(next *url.URL, via []*http.Request) bool {
+	if next.Host != via[0].URL.Host {
+		return true
+	}
+	if next.Scheme == "https" {
+		return false
+	}
+	for _, hop := range via {
+		if hop.URL.Scheme == "https" {
+			return true
+		}
+	}
+	return false
+}
+
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	cacheDir := ""
 	if dir, err := cliutil.CacheDir(); err == nil {
@@ -308,17 +331,18 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Never carry credential material across a host-changing redirect.
-		// Go strips Authorization and Cookie in common cases, but custom
-		// headers and URL query values need explicit removal here.
-		if req.URL.Host != via[0].URL.Host {
+		// Never carry credential material across a host change or protocol
+		// downgrade. Go strips Authorization and Cookie in common cases, but
+		// custom headers and URL query values need explicit removal here.
+		// Block protocol downgrade.
+		if redirectLeavesOrigin(req.URL, via) {
 			req.Header.Del("apikey")
 			q := req.URL.Query()
 			q.Del("apikey")
 			req.URL.RawQuery = q.Encode()
 		}
-		// Query credentials are removed above on cross-host hops and remain
-		// unchanged on same-host redirects.
+		// Query credentials are removed above when the hop leaves the origin
+		// and remain unchanged otherwise.
 		return nil
 	}
 	return c
@@ -482,6 +506,11 @@ func (c *Client) cacheKeyFor(method, path string, params map[string]string, head
 		key += "|body_sha256=" + hex.EncodeToString(bodyHash[:])
 	}
 	key += "|representation=" + canonicalRepresentationHeaders(c.Config, headers)
+	// Tenant-selecting headers choose which resource comes back (MSP org,
+	// workspace). Fold them into the cache identity so two invocations that
+	// differ only by that header never share a row. Representation headers
+	// stay in canonicalRepresentationHeaders and are not treated as tenancy.
+	key += "|tenant=" + canonicalTenantSelectingHeaders(c.Config, headers)
 	h := sha256.Sum256([]byte(key))
 	if c.platformSession != nil {
 		return hex.EncodeToString(h[:])
@@ -520,6 +549,73 @@ func canonicalRepresentationHeaders(cfg *config.Config, overrides map[string]str
 	return canonicalStringMap(values)
 }
 
+func canonicalTenantSelectingHeaders(cfg *config.Config, overrides map[string]string) string {
+	values := map[string]string{}
+	add := func(headers map[string]string) {
+		for name, value := range headers {
+			if !isTenantSelectingHeader(name) {
+				continue
+			}
+			values[strings.ToLower(strings.TrimSpace(name))] = strings.TrimSpace(value)
+		}
+	}
+	if cfg != nil {
+		add(cfg.Headers)
+	}
+	add(overrides)
+	return canonicalStringMap(values)
+}
+
+func foldHeaderName(name string) string {
+	normalized := strings.ToLower(strings.TrimSpace(name))
+	if normalized == "" {
+		return ""
+	}
+	var b strings.Builder
+	b.Grow(len(normalized))
+	for _, r := range normalized {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+func isRepresentationHeaderName(folded string) bool {
+	return folded == "accept" || folded == "contenttype" || folded == "revision" ||
+		folded == "version" || strings.Contains(folded, "apiversion")
+}
+
+func isNonTenantHeaderName(folded string) bool {
+	switch folded {
+	case "useragent", "authorization", "cookie", "host", "connection",
+		"acceptencoding", "contentlength", "transferencoding", "cachecontrol",
+		"pragma", "te", "upgrade", "via", "forwarded", "xforwardedfor",
+		"xforwardedproto", "xforwardedhost", "xrealip", "traceparent", "tracestate":
+		return true
+	}
+	for _, stem := range []string{
+		"requestid", "correlationid", "traceid", "spanid", "idempotencykey",
+	} {
+		if folded == stem || strings.HasSuffix(folded, stem) {
+			return true
+		}
+	}
+	return false
+}
+
+func isTenantSelectingHeader(name string) bool {
+	folded := foldHeaderName(name)
+	if folded == "" || isRepresentationHeaderName(folded) || isNonTenantHeaderName(folded) {
+		return false
+	}
+	switch folded {
+	case "tenant", "workspace", "organization", "organisation", "org", "region", "account":
+		return true
+	}
+	return strings.HasSuffix(folded, "id") || strings.HasSuffix(folded, "filter")
+}
+
 func requestIdempotencyKey(cfg *config.Config, overrides map[string]string) string {
 	value := ""
 	read := func(headers map[string]string) {
@@ -556,7 +652,8 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) readCacheWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, bool) {
-	cacheFile := filepath.Join(c.cacheResourceDir(path), c.cacheKeyFor(http.MethodGet, path, params, headers, nil)+".json")
+	resourceDir := c.cacheResourceDir(path)
+	cacheFile := filepath.Join(resourceDir, c.cacheKeyFor(http.MethodGet, path, params, headers, nil)+".json")
 	info, err := os.Stat(cacheFile)
 	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
 		return nil, false
@@ -568,6 +665,8 @@ func (c *Client) readCacheWithHeaders(path string, params map[string]string, hea
 	if err != nil {
 		return nil, false
 	}
+	// A leftover 0644 file can still be inside the TTL after upgrade; tighten before returning.
+	ensureCachePerms(resourceDir, cacheFile)
 	return json.RawMessage(data), true
 }
 
@@ -578,12 +677,20 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 func (c *Client) writeCacheWithHeaders(path string, params map[string]string, headers map[string]string, data json.RawMessage) {
 	resourceDir := c.cacheResourceDir(path)
 	_ = os.MkdirAll(resourceDir, 0o700)
-	_ = os.Chmod(resourceDir, 0o700)
 	cacheFile := filepath.Join(resourceDir, c.cacheKeyFor(http.MethodGet, path, params, headers, nil)+".json")
+	ensureCachePerms(resourceDir, cacheFile)
+	// Drop the leftover inode so an already-open 0644 FD keeps the old body.
+	_ = os.Remove(cacheFile)
 	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
+	ensureCachePerms(resourceDir, cacheFile)
 	if c.platformSession != nil {
 		c.writePlatformCacheMetadata(cacheFile)
 	}
+}
+
+func ensureCachePerms(resourceDir, cacheFile string) {
+	_ = os.Chmod(resourceDir, 0o700)
+	_ = os.Chmod(cacheFile, 0o600)
 }
 
 type platformCacheMetadata struct {
@@ -839,6 +946,39 @@ func sleepContext(ctx context.Context, wait time.Duration) error {
 	}
 }
 
+// Exhausted 429 retries are a pacing signal, not a command failure. Sleep
+// the last Retry-After so the attempt can continue while the operation
+// deadline still has time; a non-positive wait falls back to one second
+// so Retry-After: 0 cannot tight-loop.
+func (c *Client) waitForRateLimitRefill(ctx context.Context, wait time.Duration) error {
+	if wait <= 0 {
+		wait = time.Second
+	}
+	fmt.Fprintf(os.Stderr, "rate-limit budget empty, waiting %s for refill\n", wait)
+	if err := sleepContext(ctx, wait); err != nil {
+		return fmt.Errorf("timed out waiting %s for rate-limit budget to refill: %w", wait, err)
+	}
+	return nil
+}
+
+// One --timeout (or the caller's deadline) covers refill waits, limiter
+// pacing, and retry sleeps. A fresh timeout per wait would let a
+// persistently 429ing endpoint run indefinitely. The HTTP request keeps
+// the caller's ctx so unmarked binary streams can outlive the default
+// whole-call budget.
+func (c *Client) bindOperationDeadline(ctx context.Context) (context.Context, context.CancelFunc) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if _, ok := ctx.Deadline(); ok {
+		return ctx, func() {}
+	}
+	if timeout := c.ConfiguredTimeout(); timeout > 0 {
+		return context.WithTimeout(ctx, timeout)
+	}
+	return ctx, func() {}
+}
+
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
@@ -890,6 +1030,11 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	if err := rejectUnresolvedPathParams(path, nil); err != nil {
 		return nil, 0, err
 	}
+	// Bound waits and retries once. Do not attach this deadline to the
+	// HTTP request: unmarked binary transfers drop the whole-call
+	// Timeout and must keep streaming after --timeout's default budget.
+	opCtx, cancel := c.bindOperationDeadline(ctx)
+	defer cancel()
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -934,13 +1079,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	}
 	var lastErr error
 
-	for attempt := 0; attempt <= maxRetries; attempt++ {
-		if err := c.waitForPlatformBudget(ctx, endpointClass); err != nil {
+	for attempt := 0; ; attempt++ {
+		if err := c.waitForPlatformBudget(opCtx, endpointClass); err != nil {
 			return nil, 0, err
 		}
 		// Proactive rate limiting — wait before sending
 		adaptiveStarted := time.Now()
-		c.limiter.Wait()
+		if err := c.limiter.Wait(opCtx); err != nil {
+			return nil, 0, err
+		}
 		if c.platformSession != nil {
 			c.platformSession.RecordRateLimitWait(time.Since(adaptiveStarted))
 		}
@@ -985,6 +1132,10 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
 		if binaryResponse {
 			req.Header.Del(BinaryResponseHeader)
+		}
+		htmlResponse := strings.EqualFold(req.Header.Get(HTMLResponseHeader), "true")
+		if htmlResponse {
+			req.Header.Del(HTMLResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
 			if ua := os.Getenv("BING_WEBMASTER_USER_AGENT"); ua != "" {
@@ -1035,7 +1186,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 					return nil, 0, lastErr
 				}
 				fmt.Fprintf(os.Stderr, "network error (%v), retrying in %s (attempt %d/%d)\n", c.maskError(err, authHeader), wait, attempt+1, maxRetries)
-				if serr := sleepContext(ctx, wait); serr != nil {
+				if serr := sleepContext(opCtx, wait); serr != nil {
 					return nil, 0, serr
 				}
 				continue
@@ -1074,10 +1225,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				}
 				return env, resp.StatusCode, nil
 			}
+			if !htmlResponse {
+				if summary, ok := summarizeHTMLDocument(respBody); ok {
+					return nil, resp.StatusCode, fmt.Errorf("%s %s: expected JSON, API returned HTML instead of JSON: %s", method, c.displayURL(path, authHeader), summary)
+				}
+			}
 			// Bing-specific: rewrite Microsoft /Date(...)/ literals and strip the
 			// WCF {"d": ...} envelope so every command and the store see clean
-			// data. Preserved from the prior print during the 4.31.1 reprint
-			// (merge reconciliation); the fresh template has no Bing API.
+			// data. Preserved hand-edit (see bing_envelope.go); re-applied
+			// after every regen-merge, which overwrites this templated file.
 			return json.RawMessage(unwrapBingEnvelope(normalizeMSDates(sanitizeJSONResponse(respBody)))), resp.StatusCode, nil
 		}
 
@@ -1092,8 +1248,12 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
 
-		// Rate limited: classify before provider decoding. Unsafe-to-replay
-		// writes and exhausted retries return the shared typed error.
+		// Rate limited: classify before provider decoding. The server-driven
+		// 429 / Retry-After retry policy is unchanged (maxRetries, RetryBudget,
+		// RetryAfterDelay). Unsafe-to-replay writes still return the shared
+		// typed error. After that policy is exhausted, wait for the local
+		// politeness budget to refill — bounded by ctx / --timeout — instead
+		// of failing the command while time remains.
 		if resp.StatusCode == http.StatusTooManyRequests {
 			c.limiter.OnRateLimit()
 			wait := platform.RetryAfterDelay(resp.Header.Get("Retry-After"), attempt, time.Now().UTC(), nil)
@@ -1102,7 +1262,17 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 					c.platformSession.RecordRateLimitRetry(wait)
 				}
 				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-				if err := sleepContext(ctx, wait); err != nil {
+				if err := sleepContext(opCtx, wait); err != nil {
+					return nil, 0, err
+				}
+				lastErr = apiErr
+				continue
+			}
+			if canRetryAmbiguousFailure && maxRetries > 0 && attempt >= maxRetries {
+				if c.platformSession != nil {
+					c.platformSession.RecordRateLimitWait(wait)
+				}
+				if err := c.waitForRateLimitRefill(opCtx, wait); err != nil {
 					return nil, 0, err
 				}
 				lastErr = apiErr
@@ -1134,7 +1304,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, resp.StatusCode, apiErr
 			}
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			if err := sleepContext(ctx, wait); err != nil {
+			if err := sleepContext(opCtx, wait); err != nil {
 				return nil, 0, err
 			}
 			lastErr = apiErr
@@ -1144,8 +1314,6 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Client error or retries exhausted - return the error
 		return nil, resp.StatusCode, apiErr
 	}
-
-	return nil, 0, lastErr
 }
 
 func safeEndpointClass(method, path string) string {
@@ -1280,7 +1448,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export BING_WEBMASTER_API_KEY=<your-token-here> or bing-webmaster-pp-cli auth set-token YOUR_TOKEN_HERE")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export BING_WEBMASTER_API_KEY=<your-token-here> or echo \"$TOKEN\" | bing-webmaster-pp-cli auth set-token")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {
@@ -1346,6 +1514,21 @@ func wrapBinaryResponse(ct string, body []byte) (json.RawMessage, error) {
 		return nil, fmt.Errorf("encoding binary response: %w", err)
 	}
 	return json.RawMessage(out), nil
+}
+
+// UnwrapBinaryResponse recovers original bytes from wrapBinaryResponse's JSON
+// envelope. Ordinary JSON is left intact so file delivery of API objects is
+// not treated as media.
+func UnwrapBinaryResponse(body []byte) (raw []byte, contentType string, ok bool) {
+	var env binaryResponseEnvelope
+	if err := json.Unmarshal(body, &env); err != nil || !env.PPBinary || env.Encoding != "base64" {
+		return nil, "", false
+	}
+	raw, err := base64.StdEncoding.DecodeString(env.Data)
+	if err != nil {
+		return nil, "", false
+	}
+	return raw, env.ContentType, true
 }
 
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
@@ -1478,6 +1661,14 @@ func truncateBody(b []byte) string {
 }
 
 func collapseHTMLErrorBody(b []byte) (string, bool) {
+	return summarizeHTMLBody(b, "HTML error page")
+}
+
+func summarizeHTMLDocument(b []byte) (string, bool) {
+	return summarizeHTMLBody(b, "HTML document")
+}
+
+func summarizeHTMLBody(b []byte, kind string) (string, bool) {
 	scanBytes := b
 	if len(scanBytes) > maxErrorBodyBytes {
 		scanBytes = scanBytes[:maxErrorBodyBytes]
@@ -1488,7 +1679,7 @@ func collapseHTMLErrorBody(b []byte) (string, bool) {
 		return "", false
 	}
 
-	summary := fmt.Sprintf("HTML error page (%d bytes)", len(b))
+	summary := fmt.Sprintf("%s (%d bytes)", kind, len(b))
 	if title := extractHTMLTitle(trimmed); title != "" {
 		summary += ": " + truncateRunes(title, 160)
 	}

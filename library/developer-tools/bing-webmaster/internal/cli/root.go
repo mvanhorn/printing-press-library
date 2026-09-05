@@ -77,21 +77,67 @@ type rootFlags struct {
 // novelCommandHooks are optional hooks for hand-authored command extensions.
 // A markerless file in package cli may register one from init without editing
 // this generated root, so force regeneration preserves both the source and
-// wiring. Registration is additive: independent extensions never replace one
-// another.
+// wiring. Hooks run after generated novel parent groups are attached so a
+// hook can Find a novel parent and add children. Registration is additive:
+// independent extensions never replace one another, except that a real
+// command replaces a TODO scaffold with the same name.
 var novelCommandHooks []func(root *cobra.Command, flags *rootFlags)
 
 func registerNovelCommand(hook func(root *cobra.Command, flags *rootFlags)) {
 	novelCommandHooks = append(novelCommandHooks, hook)
 }
 
+const novelScaffoldAnnotation = "pp:novel-scaffold"
+
+func isNovelScaffoldCommand(cmd *cobra.Command) bool {
+	return cmd != nil && cmd.Annotations[novelScaffoldAnnotation] == "true"
+}
+
 func addNovelCommandIfAbsent(parent *cobra.Command, candidate *cobra.Command) {
+	if parent == nil || candidate == nil {
+		return
+	}
 	for _, existing := range parent.Commands() {
-		if existing.Name() == candidate.Name() {
-			return
+		if existing.Name() != candidate.Name() {
+			continue
 		}
+		if isNovelScaffoldCommand(existing) && !isNovelScaffoldCommand(candidate) {
+			parent.RemoveCommand(existing)
+			parent.AddCommand(candidate)
+		}
+		return
 	}
 	parent.AddCommand(candidate)
+}
+
+func preferImplementedNovelCommands(cmd *cobra.Command) {
+	if cmd == nil {
+		return
+	}
+	byName := map[string][]*cobra.Command{}
+	for _, child := range cmd.Commands() {
+		byName[child.Name()] = append(byName[child.Name()], child)
+	}
+	for _, group := range byName {
+		var keep *cobra.Command
+		for _, child := range group {
+			if !isNovelScaffoldCommand(child) {
+				keep = child
+				break
+			}
+		}
+		if keep == nil {
+			continue
+		}
+		for _, child := range group {
+			if child != keep && isNovelScaffoldCommand(child) {
+				cmd.RemoveCommand(child)
+			}
+		}
+	}
+	for _, child := range cmd.Commands() {
+		preferImplementedNovelCommands(child)
+	}
 }
 
 // clientHooks let preserved package-local extensions configure a newly-created
@@ -101,6 +147,17 @@ var clientHooks []func(*client.Client) error
 
 func registerClientHook(hook func(*client.Client) error) {
 	clientHooks = append(clientHooks, hook)
+}
+
+// Keeps preserved post-construction setup consistent across interactive CLI
+// and MCP clients.
+func ApplyClientHooks(c *client.Client) error {
+	for _, hook := range clientHooks {
+		if err := hook(c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -117,6 +174,7 @@ func RootCmd() *cobra.Command {
 func Execute() (retErr error) {
 	var flags rootFlags
 	rootCmd := newRootCmd(&flags)
+	defer finalizePlatformInvocation(&flags, &retErr)
 
 	executedCmd, err := rootCmd.ExecuteC()
 	var journalFailedFlag, journalSuggestedFlag string
@@ -246,19 +304,8 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Short: `Manage Bing indexing and read SEO performance from the terminal — all 60 Webmaster API methods plus query deltas, ranking drift, and quota-paced submission.`,
 		Long: `Manage Bing indexing and read SEO performance from the terminal — all 60 Webmaster API methods plus query deltas, ranking drift, and quota-paced submission.
 
-Highlights (not in the official API docs):
-  • review   See which Bing queries you gained or lost, and how CTR and average position shifted, vs the previous period — not just a raw snapshot.
-  • drift   Track average-position movement per query and page over time and surface the biggest climbers and droppers.
-  • publish   Submit many URLs (or a whole sitemap) for indexing, automatically chunked to the 500-per-request cap, paced against your live remaining quota, and deduped against URLs already submitted.
-  • triage   Categorize crawl issues by severity, diff them against your last sync, and map each issue to the affected child URLs in one view.
-  • quota   One view of URL and content submission quota — daily and monthly remaining — plus a pacing recommendation.
-  • gap   Reconcile your Bing query/page performance against a Google Search Console export to find queries and pages you rank for on one engine but not the other.
-  • feed-health   Track submitted, discovered, and indexed counts for each feed over time and flag drops.
-  • watch   Diff the latest sync against the previous one and surface indexation, crawl, and impression regressions per site.
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'bing-webmaster-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'bing-webmaster-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -290,15 +337,26 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.runProfileName, "profile", "", "Apply values from a saved run profile; this does not select a client (see 'bing-webmaster-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.clientProfileName, "client-profile", "", "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)")
+	if strings.TrimSpace(os.Getenv(mcpBoundProfileEnv)) != "" {
+		if flag := rootCmd.PersistentFlags().Lookup("client-profile"); flag != nil {
+			flag.Hidden = true
+		}
+	}
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", client.RateLimitAuto, "Max requests per second (0 to disable; default auto — pace to server rate-limit headers)")
+	if f := rootCmd.PersistentFlags().Lookup("rate-limit"); f != nil {
+		f.DefValue = "auto"
+	}
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		var appliedProfile *Profile
-		_ = appliedProfile
+		if err := enforceMCPBoundProfile(cmd, flags); err != nil {
+			return err
+		}
 		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {
 			return err
 		}
+		configureDefaultDBScope(flags.configPath)
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -327,9 +385,29 @@ See README.md or the bundled SKILL.md for recipes.`,
 			}
 			appliedProfile = profile
 		}
-		// Platform tenant-gating is not wired in this build: the preserved
-		// novel commands predate the platform-session subsystem, so gated
-		// setup is skipped and every command runs platform-free.
+		if platformCommandNeedsGate(cmd) {
+			if err := preparePlatformSession(flags); err != nil {
+				return err
+			}
+			cmd.SetContext(platform.ContextWithSession(cmd.Context(), flags.platformSession))
+			if err := validatePlatformLegacyInputs(cmd, flags); err != nil {
+				return err
+			}
+			if err := initializePlatformReceipt(cmd, flags); err != nil {
+				return err
+			}
+			if err := adoptPlatformCommandWindow(cmd, flags); err != nil {
+				return err
+			}
+			flags.platformMetadataWriter = cmd.ErrOrStderr()
+			if err := verifyPlatformSession(cmd.Context(), flags); err != nil {
+				if platformCommandIsDoctor(cmd) {
+					flags.platformGateError = err
+				} else {
+					return err
+				}
+			}
+		}
 		if flags.agent {
 			if !cmd.Flags().Changed("json") {
 				flags.asJSON = true
@@ -374,6 +452,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSubmissionCmd(flags))
 	rootCmd.AddCommand(newTrafficCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
+	if registeredPlatformSource != nil {
+		attachPlatformClientCommands(rootCmd, flags)
+	}
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
@@ -401,6 +482,13 @@ See README.md or the bundled SKILL.md for recipes.`,
 	for _, hook := range novelCommandHooks {
 		hook(rootCmd, flags)
 	}
+	preferImplementedNovelCommands(rootCmd)
+	// Attach the conditional platform identity command last so ordinary,
+	// promoted, and novel API-owned `whoami` commands all win the name.
+	if registeredPlatformSource != nil {
+		attachPlatformWhoamiCommand(rootCmd, flags)
+	}
+
 	rootCmd.AddCommand(newDriftCmd(flags))
 	rootCmd.AddCommand(newFeedHealthCmd(flags))
 	rootCmd.AddCommand(newGapCmd(flags))
@@ -657,12 +745,16 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 		return nil, configErr(err)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
+	if f.timeoutExplicit {
+		c.SetTimeoutExplicit(true)
+	}
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
-	for _, hook := range clientHooks {
-		if err := hook(c); err != nil {
-			return nil, err
-		}
+	if err := bindPlatformClient(c, f); err != nil {
+		return nil, err
+	}
+	if err := ApplyClientHooks(c); err != nil {
+		return nil, err
 	}
 	return c, nil
 }

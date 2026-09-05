@@ -66,7 +66,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			// rank/traffic
 			rt, err := c.Get(cmd.Context(), "/json/GetRankAndTrafficStats", map[string]string{"siteUrl": site})
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			prevRT, hadRT, err := db.Latest(site, "rank_traffic")
 			if err != nil {
@@ -85,7 +85,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			// crawl
 			cr, err := c.Get(cmd.Context(), "/json/GetCrawlStats", map[string]string{"siteUrl": site})
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			prevCR, hadCR, err := db.Latest(site, "crawl")
 			if err != nil {
