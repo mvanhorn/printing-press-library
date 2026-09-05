@@ -66,7 +66,7 @@ func ensureLancetStore(cmd *cobra.Command, flags *rootFlags, dbPath string) (*st
 		journs, _ := lancet.Lookup("lancet")
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
-		if _, rerr := lancet.Refresh(ctx, c, st.DB(), journs, 0, maxPages, nil); rerr != nil {
+		if _, rerr := lancet.Refresh(ctx, c, st.DB(), journs, 0, 0, maxPages, nil); rerr != nil {
 			fmt.Fprintf(cmd.ErrOrStderr(), "auto-sync failed (%v); returning local data only\n", rerr)
 		}
 	}

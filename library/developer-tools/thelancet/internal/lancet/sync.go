@@ -123,9 +123,10 @@ type RefreshResult struct {
 }
 
 // Refresh syncs works for each journal into the local store using OpenAlex
-// cursor pagination. fromYear of 0 means no lower bound. maxPages caps the
-// number of 200-item pages fetched per journal (bounds cost and time).
-func Refresh(ctx context.Context, c Fetcher, db *sql.DB, journ []Journal, fromYear, maxPages int, progress io.Writer) ([]RefreshResult, error) {
+// cursor pagination. fromYear of 0 means no lower bound and toYear of 0 means
+// no upper bound. maxPages caps the number of 200-item pages fetched per
+// journal (bounds cost and time).
+func Refresh(ctx context.Context, c Fetcher, db *sql.DB, journ []Journal, fromYear, toYear, maxPages int, progress io.Writer) ([]RefreshResult, error) {
 	if err := EnsureSchema(ctx, db); err != nil {
 		return nil, err
 	}
@@ -142,6 +143,9 @@ func Refresh(ctx context.Context, c Fetcher, db *sql.DB, journ []Journal, fromYe
 		filter := "primary_location.source.issn:" + j.ISSN
 		if fromYear > 0 {
 			filter += ",from_publication_date:" + strconv.Itoa(fromYear) + "-01-01"
+		}
+		if toYear > 0 {
+			filter += ",to_publication_date:" + strconv.Itoa(toYear) + "-12-31"
 		}
 		cursor := "*"
 		stored := 0
