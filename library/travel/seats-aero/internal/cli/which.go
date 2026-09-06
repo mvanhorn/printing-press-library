@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -27,10 +27,11 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "availability bulk", Description: "Retrieve bulk availability for all tracked routes in a mileage program.", Group: "availability"},
-	{Command: "routes get", Description: "Get all origin-destination routes tracked for a mileage program.", Group: "routes"},
-	{Command: "seats-aero-partner-search cached-search", Description: "Search Seats.aero cached award availability between an origin and destination.", Group: "seats-aero-partner-search"},
-	{Command: "trips get", Description: "Get detailed trip information by revalidation/trip ID from search or availability results.", Group: "trips"},
+	{Command: "new-since", Description: "See which award seats appeared on a route since you last looked, from your synced local data.", Group: "Local state that compounds", WhyItMatters: "Reach for this when the user asks what changed or what is new on a route, instead of re-running a full search and diffing by eye."},
+	{Command: "recheck", Description: "Re-verify aging award rows are still live right before booking. It performs one live quota probe per run (1 daily call), and --apply is refused when quota is unknown unless --ignore-quota is passed.", Group: "Quota-aware plumbing", WhyItMatters: "Print-only by default: lists the aging rows it would refresh, their age, and the remaining daily quota (one probe call). Add --apply to spend refresh credits; --apply is refused when the quota is unknown unless --ignore-quota is passed."},
+	{Command: "direct-scan", Description: "Find direct-flight award seats under a mileage ceiling across every synced program at once.", Group: "Local state that compounds", WhyItMatters: "Pick this over the awards search when the user wants nonstop-only results across programs from already-synced data with zero API calls."},
+	{Command: "calendar", Description: "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance.", Group: "Local state that compounds", WhyItMatters: "Use this when the user asks which dates have business or first availability on a route; it answers from the local store in one shot."},
+	{Command: "reach", Description: "Discover where your miles can take you nonstop from one airport, ranked by cost and cross-checked against real dated seats.", Group: "Quota-aware plumbing", WhyItMatters: "Reach for this when the user has miles but no fixed destination. It has no local mode, and results is an object {origin, cabin, max_mileage, source, destinations[]} rather than a bare array. --confirm-live makes up to 10 extra live /search calls (opt-in; never under the test harness)."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -48,8 +49,9 @@ type whichMatch struct {
 //
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
-//	+2  substring match on the description
-//	+1  group tag contains the query as a word
+//	+2  substring match on description or why_it_matters
+//	+1  per-token match on description or why_it_matters (capped at 3)
+//	+1  group tag contains the query as a whole token
 //
 // Ties break on declaration order in the index. An empty query returns
 // every entry at score 0 in declaration order - this is the "list all"
@@ -66,7 +68,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -76,7 +80,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -95,14 +106,21 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
 	desc := strings.ToLower(e.Description)
+	descTokens := whichSubTokens(desc)
+	why := strings.ToLower(e.WhyItMatters)
+	whyTokens := whichSubTokens(why)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
@@ -112,20 +130,185 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(cmd, query) {
 		score += 2
 	}
-	// Substring match on the description.
-	if strings.Contains(desc, query) {
+	// Description and rationale are correlated prose fields. Share the existing
+	// per-token cap so repeating the same query in both fields cannot outweigh
+	// an exact command match. A rationale-only match needs two tokens or an
+	// exact multi-token phrase to avoid promoting incidental prose words.
+	descPhrase := strings.Contains(desc, query)
+	descCredit := whichFieldCredit(qTokens, descTokens)
+	whyCredit := whichFieldCredit(qTokens, whyTokens)
+	whyPhrase := len(qTokens) > 1 && strings.Contains(why, query)
+	if score == 0 && whyCredit < 2 && !whyPhrase {
+		whyCredit = 0
+	}
+	if descPhrase || whyPhrase {
 		score += 2
 	}
-	// Group tag match.
-	if group != "" {
-		for _, qt := range qTokens {
-			if strings.Contains(group, qt) {
+	if whyCredit > descCredit {
+		score += whyCredit
+	} else {
+		score += descCredit
+	}
+	// Group tag match requires a whole token, not an arbitrary substring.
+	groupTokens := whichSubTokens(group)
+	groupMatched := false
+	for _, qt := range qTokens {
+		for _, gt := range groupTokens {
+			if whichTokenMatch(qt, gt) {
 				score += 1
+				groupMatched = true
+				break
+			}
+		}
+		if groupMatched {
+			break
+		}
+	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
 				break
 			}
 		}
 	}
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] {
+				queryWrite = true
+				break
+			}
+		}
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
+				}
+			}
+		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path.
+	if score > 0 && len(qTokens) > 1 {
+		unmatched := 0
+		commandParts := strings.Fields(cmd)
+		leafTokens := whichSubTokens(commandParts[len(commandParts)-1])
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		score -= unmatched
+	}
 	return score
+}
+
+func whichFieldCredit(qTokens, fieldTokens []string) int {
+	credit := 0
+	matched := make(map[string]struct{})
+	for _, qt := range qTokens {
+		for _, ft := range fieldTokens {
+			if whichTokenMatch(qt, ft) {
+				key := whichTokenKey(ft)
+				if _, ok := matched[key]; ok {
+					break
+				}
+				matched[key] = struct{}{}
+				credit++
+				break
+			}
+		}
+		if credit == 3 {
+			break
+		}
+	}
+	return credit
+}
+
+func whichTokenKey(token string) string {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if alias := whichTokenAliases[token]; alias != "" {
+		return alias
+	}
+	return whichSingular(token)
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		return strings.TrimSuffix(s, "es")
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -134,13 +317,15 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
   0  at least one match found
-  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one`,
+  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {"matches":[]} (or the equivalent empty table) to stdout.`,
+		SilenceUsage: true,
 		Example: `  seats-aero-pp-cli which "stale tickets"
   seats-aero-pp-cli which "bottleneck"
   seats-aero-pp-cli which --limit 1 "send message"
@@ -158,14 +343,22 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
-				// Under --json, return an empty matches envelope at exit 0
-				// so agents can branch on `matches.length == 0` instead of
-				// parsing a usage error message. Non-JSON keeps the typed
-				// exit-2 path so terminal users see the help hint.
-				if flags.asJSON {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				// Machine output still uses the typed exit-2 no-match path.
+				// --json (and piped auto-JSON) emit {"matches":[]} on stdout
+				// so agents can branch on the envelope without treating exit 0
+				// as success. Human terminals keep the usage error only.
+				asJSON := flags.asJSON
+				if !asJSON && !isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain {
+					asJSON = true
+				}
+				if asJSON || flags.csv || flags.plain || flags.quiet {
+					outputFlags := *flags
+					outputFlags.asJSON = asJSON || flags.asJSON
+					if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"matches": []whichMatch{},
-					}, flags)
+					}, &outputFlags); err != nil {
+						return err
+					}
 				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}

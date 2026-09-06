@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-test-isolation",
+  "applied_at": "2026-09-06",
+  "base_run_id": "20260905-230744-c6d96a39",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Add isolateNovelTest so root-command tests never open the operator's real store.",
+  "reason": "Novel command tests exercise default path resolution and must redirect all CLI data, state, config, and cache paths.",
+  "files": ["internal/cli/novel_test_helpers_test.go"],
+  "validated_outcome": "TestNovelCommandsNeverTouchDefaultStore verifies the resolved default database stays inside the isolated test home and is not created by reads."
+}

@@ -6,44 +6,177 @@ package types
 import "encoding/json"
 
 type Availability struct {
-	Date            string          `json:"Date"`
-	FAirlines       json.RawMessage `json:"FAirlines"`
-	FAvailable      bool            `json:"FAvailable"`
-	FDirect         bool            `json:"FDirect"`
-	FMileageCost    int             `json:"FMileageCost"`
-	FRemainingSeats int             `json:"FRemainingSeats"`
-	ID              string          `json:"ID"`
-	JAirlines       json.RawMessage `json:"JAirlines"`
-	JAvailable      bool            `json:"JAvailable"`
-	JDirect         bool            `json:"JDirect"`
-	JMileageCost    int             `json:"JMileageCost"`
-	JRemainingSeats int             `json:"JRemainingSeats"`
-	Route           string          `json:"Route"`
-	RouteID         string          `json:"RouteID"`
-	Source          string          `json:"Source"`
-	WAirlines       json.RawMessage `json:"WAirlines"`
-	WAvailable      bool            `json:"WAvailable"`
-	WDirect         bool            `json:"WDirect"`
-	WMileageCost    int             `json:"WMileageCost"`
-	WRemainingSeats int             `json:"WRemainingSeats"`
-	YAirlines       json.RawMessage `json:"YAirlines"`
-	YAvailable      bool            `json:"YAvailable"`
-	YDirect         bool            `json:"YDirect"`
-	YMileageCost    int             `json:"YMileageCost"`
-	YRemainingSeats int             `json:"YRemainingSeats"`
-}
-
-type AvailabilityResponse struct {
-	Count   int             `json:"count"`
-	Cursor  int             `json:"cursor"`
-	Data    json.RawMessage `json:"data"`
-	HasMore bool            `json:"hasMore"`
+	AvailabilityTrips        json.RawMessage `json:"AvailabilityTrips"`
+	CreatedAt                string          `json:"CreatedAt"`
+	Date                     string          `json:"Date"`
+	FAirlines                string          `json:"FAirlines"`
+	FAvailable               bool            `json:"FAvailable"`
+	FAvailableRaw            bool            `json:"FAvailableRaw"`
+	FDirect                  bool            `json:"FDirect"`
+	FDirectAirlines          string          `json:"FDirectAirlines"`
+	FDirectMileageCost       float64         `json:"FDirectMileageCost"`
+	FDirectMileageCostRaw    float64         `json:"FDirectMileageCostRaw"`
+	FDirectRemainingSeats    float64         `json:"FDirectRemainingSeats"`
+	FDirectRemainingSeatsRaw float64         `json:"FDirectRemainingSeatsRaw"`
+	FDirectTotalTaxes        float64         `json:"FDirectTotalTaxes"`
+	FDirectTotalTaxesRaw     float64         `json:"FDirectTotalTaxesRaw"`
+	FMileageCost             string          `json:"FMileageCost"`
+	FMileageCostRaw          float64         `json:"FMileageCostRaw"`
+	FRemainingSeats          float64         `json:"FRemainingSeats"`
+	FRemainingSeatsRaw       float64         `json:"FRemainingSeatsRaw"`
+	FTotalTaxes              float64         `json:"FTotalTaxes"`
+	FTotalTaxesRaw           float64         `json:"FTotalTaxesRaw"`
+	ID                       string          `json:"ID"`
+	JAirlines                string          `json:"JAirlines"`
+	JAvailable               bool            `json:"JAvailable"`
+	JAvailableRaw            bool            `json:"JAvailableRaw"`
+	JDirect                  bool            `json:"JDirect"`
+	JDirectAirlines          string          `json:"JDirectAirlines"`
+	JDirectMileageCost       float64         `json:"JDirectMileageCost"`
+	JDirectMileageCostRaw    float64         `json:"JDirectMileageCostRaw"`
+	JDirectRemainingSeats    float64         `json:"JDirectRemainingSeats"`
+	JDirectRemainingSeatsRaw float64         `json:"JDirectRemainingSeatsRaw"`
+	JDirectTotalTaxes        float64         `json:"JDirectTotalTaxes"`
+	JDirectTotalTaxesRaw     float64         `json:"JDirectTotalTaxesRaw"`
+	JMileageCost             string          `json:"JMileageCost"`
+	JMileageCostRaw          float64         `json:"JMileageCostRaw"`
+	JRemainingSeats          float64         `json:"JRemainingSeats"`
+	JRemainingSeatsRaw       float64         `json:"JRemainingSeatsRaw"`
+	JTotalTaxes              float64         `json:"JTotalTaxes"`
+	JTotalTaxesRaw           float64         `json:"JTotalTaxesRaw"`
+	ParsedDate               string          `json:"ParsedDate"`
+	Route                    json.RawMessage `json:"Route"`
+	RouteID                  string          `json:"RouteID"`
+	Source                   string          `json:"Source"`
+	TaxesCurrency            string          `json:"TaxesCurrency"`
+	UpdatedAt                string          `json:"UpdatedAt"`
+	WAirlines                string          `json:"WAirlines"`
+	WAvailable               bool            `json:"WAvailable"`
+	WAvailableRaw            bool            `json:"WAvailableRaw"`
+	WDirect                  bool            `json:"WDirect"`
+	WDirectAirlines          string          `json:"WDirectAirlines"`
+	WDirectMileageCost       float64         `json:"WDirectMileageCost"`
+	WDirectMileageCostRaw    float64         `json:"WDirectMileageCostRaw"`
+	WDirectRemainingSeats    float64         `json:"WDirectRemainingSeats"`
+	WDirectRemainingSeatsRaw float64         `json:"WDirectRemainingSeatsRaw"`
+	WDirectTotalTaxes        float64         `json:"WDirectTotalTaxes"`
+	WDirectTotalTaxesRaw     float64         `json:"WDirectTotalTaxesRaw"`
+	WMileageCost             string          `json:"WMileageCost"`
+	WMileageCostRaw          float64         `json:"WMileageCostRaw"`
+	WRemainingSeats          float64         `json:"WRemainingSeats"`
+	WRemainingSeatsRaw       float64         `json:"WRemainingSeatsRaw"`
+	WTotalTaxes              float64         `json:"WTotalTaxes"`
+	WTotalTaxesRaw           float64         `json:"WTotalTaxesRaw"`
+	YAirlines                string          `json:"YAirlines"`
+	YAvailable               bool            `json:"YAvailable"`
+	YAvailableRaw            bool            `json:"YAvailableRaw"`
+	YDirect                  bool            `json:"YDirect"`
+	YDirectAirlines          string          `json:"YDirectAirlines"`
+	YDirectMileageCost       float64         `json:"YDirectMileageCost"`
+	YDirectMileageCostRaw    float64         `json:"YDirectMileageCostRaw"`
+	YDirectRemainingSeats    float64         `json:"YDirectRemainingSeats"`
+	YDirectRemainingSeatsRaw float64         `json:"YDirectRemainingSeatsRaw"`
+	YDirectTotalTaxes        float64         `json:"YDirectTotalTaxes"`
+	YDirectTotalTaxesRaw     float64         `json:"YDirectTotalTaxesRaw"`
+	YMileageCost             string          `json:"YMileageCost"`
+	YMileageCostRaw          float64         `json:"YMileageCostRaw"`
+	YRemainingSeats          float64         `json:"YRemainingSeats"`
+	YRemainingSeatsRaw       float64         `json:"YRemainingSeatsRaw"`
+	YTotalTaxes              float64         `json:"YTotalTaxes"`
+	YTotalTaxesRaw           float64         `json:"YTotalTaxesRaw"`
 }
 
 type BookingLink struct {
-	Label   string `json:"Label"`
-	Link    string `json:"Link"`
-	Primary bool   `json:"Primary"`
+	Label   string `json:"label"`
+	Link    string `json:"link"`
+	Primary bool   `json:"primary"`
+}
+
+type Coordinates struct {
+	Lat float64 `json:"Lat"`
+	Lon float64 `json:"Lon"`
+}
+
+type Destination struct {
+	Airport  string `json:"airport"`
+	Business int    `json:"business"`
+	Economy  int    `json:"economy"`
+	First    int    `json:"first"`
+	Premium  int    `json:"premium"`
+}
+
+type DestinationsResponse struct {
+	DestinationAirport string          `json:"destination_airport"`
+	Destinations       json.RawMessage `json:"destinations"`
+	OriginAirport      string          `json:"origin_airport"`
+	Success            bool            `json:"success"`
+}
+
+type LiveSearchRequest struct {
+	DepartureDate      string `json:"departure_date"`
+	DestinationAirport string `json:"destination_airport"`
+	DisableFilters     bool   `json:"disable_filters"`
+	OriginAirport      string `json:"origin_airport"`
+	SeatCount          int    `json:"seat_count"`
+	ShowDynamicPricing bool   `json:"show_dynamic_pricing"`
+	SmartCache         bool   `json:"smart_cache"`
+	Source             string `json:"source"`
+}
+
+type LiveSearchResponse struct {
+	BookingLinks json.RawMessage `json:"bookingLinks"`
+	Cached       bool            `json:"cached"`
+	Results      json.RawMessage `json:"results"`
+	Success      bool            `json:"success"`
+}
+
+type LiveSearchResult struct {
+	Aircraft             string          `json:"Aircraft"`
+	AllianceCost         int             `json:"AllianceCost"`
+	ArrivesAt            string          `json:"ArrivesAt"`
+	AvailabilityID       string          `json:"AvailabilityID"`
+	AvailabilitySegments json.RawMessage `json:"AvailabilitySegments"`
+	Cabin                string          `json:"Cabin"`
+	Carriers             string          `json:"Carriers"`
+	Connections          string          `json:"Connections"`
+	CreatedAt            string          `json:"CreatedAt"`
+	DepartsAt            string          `json:"DepartsAt"`
+	DestinationAirport   string          `json:"DestinationAirport"`
+	Filtered             bool            `json:"Filtered"`
+	FlightNumbers        string          `json:"FlightNumbers"`
+	ID                   string          `json:"ID"`
+	MileageCost          int             `json:"MileageCost"`
+	MixedCabinPct        int             `json:"MixedCabinPct"`
+	OriginAirport        string          `json:"OriginAirport"`
+	RemainingSeats       int             `json:"RemainingSeats"`
+	RouteID              string          `json:"RouteID"`
+	Source               string          `json:"Source"`
+	Stops                int             `json:"Stops"`
+	TaxesCurrency        string          `json:"TaxesCurrency"`
+	TaxesCurrencySymbol  string          `json:"TaxesCurrencySymbol"`
+	TotalDuration        int             `json:"TotalDuration"`
+	TotalSegmentDistance int             `json:"TotalSegmentDistance"`
+	TotalTaxes           int             `json:"TotalTaxes"`
+	UpdatedAt            string          `json:"UpdatedAt"`
+}
+
+type RefreshAvailabilityItem struct {
+	AvailabilityId string `json:"availability_id"`
+	Status         string `json:"status"`
+	UpdatedAt      string `json:"updated_at"`
+}
+
+type RefreshRequest struct {
+	AvailabilityIds json.RawMessage `json:"availability_ids"`
+}
+
+type RefreshResponse struct {
+	Complete bool            `json:"complete"`
+	Counts   json.RawMessage `json:"counts"`
+	Items    json.RawMessage `json:"items"`
+	Queued   int             `json:"queued"`
+	Quota    json.RawMessage `json:"quota"`
+	Refunded int             `json:"refunded"`
 }
 
 type Route struct {
@@ -51,31 +184,67 @@ type Route struct {
 	DestinationRegion  string `json:"DestinationRegion"`
 	Distance           int    `json:"Distance"`
 	ID                 string `json:"ID"`
+	NumDaysOut         int    `json:"NumDaysOut"`
 	OriginAirport      string `json:"OriginAirport"`
 	OriginRegion       string `json:"OriginRegion"`
 	Source             string `json:"Source"`
 }
 
+type SearchResponse struct {
+	Count   int             `json:"count"`
+	Cursor  int             `json:"cursor"`
+	Data    json.RawMessage `json:"data"`
+	HasMore bool            `json:"hasMore"`
+}
+
 type Trip struct {
-	BookingLinks   json.RawMessage `json:"BookingLinks"`
-	Duration       int             `json:"Duration"`
-	ID             string          `json:"ID"`
-	MileageCost    int             `json:"MileageCost"`
-	RemainingSeats int             `json:"RemainingSeats"`
-	Route          string          `json:"Route"`
-	RouteID        string          `json:"RouteID"`
-	Segments       json.RawMessage `json:"Segments"`
-	Stops          int             `json:"Stops"`
-	Taxes          float64         `json:"Taxes"`
+	AllianceCost         int             `json:"AllianceCost"`
+	ArrivesAt            string          `json:"ArrivesAt"`
+	AvailabilityID       string          `json:"AvailabilityID"`
+	AvailabilitySegments json.RawMessage `json:"AvailabilitySegments"`
+	Cabin                string          `json:"Cabin"`
+	Carriers             string          `json:"Carriers"`
+	CreatedAt            string          `json:"CreatedAt"`
+	DepartsAt            string          `json:"DepartsAt"`
+	FlightNumbers        string          `json:"FlightNumbers"`
+	ID                   string          `json:"ID"`
+	MileageCost          int             `json:"MileageCost"`
+	MixedCabinPct        int             `json:"MixedCabinPct"`
+	RemainingSeats       int             `json:"RemainingSeats"`
+	RouteID              string          `json:"RouteID"`
+	Source               string          `json:"Source"`
+	Stops                int             `json:"Stops"`
+	TaxesCurrency        string          `json:"TaxesCurrency"`
+	TaxesCurrencySymbol  string          `json:"TaxesCurrencySymbol"`
+	TotalDuration        int             `json:"TotalDuration"`
+	TotalTaxes           int             `json:"TotalTaxes"`
+	UpdatedAt            string          `json:"UpdatedAt"`
+}
+
+type TripDetailResponse struct {
+	BookingLinks           json.RawMessage `json:"booking_links"`
+	Data                   json.RawMessage `json:"data"`
+	DestinationCoordinates json.RawMessage `json:"destination_coordinates"`
+	OriginCoordinates      json.RawMessage `json:"origin_coordinates"`
 }
 
 type TripSegment struct {
-	Aircraft           string `json:"Aircraft"`
-	ArrivalTime        string `json:"ArrivalTime"`
-	DepartureTime      string `json:"DepartureTime"`
+	AircraftCode       string `json:"AircraftCode"`
+	AircraftName       string `json:"AircraftName"`
+	ArrivesAt          string `json:"ArrivesAt"`
+	AvailabilityID     string `json:"AvailabilityID"`
+	AvailabilityTripID string `json:"AvailabilityTripID"`
+	Cabin              string `json:"Cabin"`
+	CreatedAt          string `json:"CreatedAt"`
+	DepartsAt          string `json:"DepartsAt"`
 	DestinationAirport string `json:"DestinationAirport"`
 	Distance           int    `json:"Distance"`
 	FareClass          string `json:"FareClass"`
 	FlightNumber       string `json:"FlightNumber"`
+	ID                 string `json:"ID"`
+	Order              int    `json:"Order"`
 	OriginAirport      string `json:"OriginAirport"`
+	RouteID            string `json:"RouteID"`
+	Source             string `json:"Source"`
+	UpdatedAt          string `json:"UpdatedAt"`
 }

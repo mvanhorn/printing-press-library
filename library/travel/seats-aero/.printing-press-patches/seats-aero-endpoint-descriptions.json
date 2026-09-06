@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-endpoint-descriptions",
+  "applied_at": "2026-09-06",
+  "base_run_id": "20260905-230744-c6d96a39",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Restore the full first sentence of the spec descriptions for the trips and awards endpoint commands (Short/Long), and the matching SKILL.md command list entries.",
+  "reason": "The generator's Short/Long sentence splitter cut the vendor descriptions at the first period \u2014 'Seats.aero' became 'Search Seats.' for awards and the trips sentence was truncated mid-clause \u2014 which made --help and the MCP tool descriptions read as broken text (Phase 5.5 polish finding).",
+  "files": [
+    "internal/cli/promoted_trips.go",
+    "internal/cli/promoted_awards.go"
+  ],
+  "markers": [
+    "PATCH(seats-aero-endpoint-descriptions)"
+  ],
+  "validated_outcome": "`seats-aero-pp-cli trips --help` and `awards --help` show complete first sentences; the SKILL.md validation CI passes against the shipped source."
+}

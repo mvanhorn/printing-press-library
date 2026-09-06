@@ -1,0 +1,229 @@
+{
+  "api_name": "seats-aero",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "seats.aero-mcp-server",
+      "url": "https://github.com/gavgrego/seats.aero-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 25,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "seats-aero-go",
+      "url": "https://github.com/denverquane/seats-aero-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "award-travel-finder-plugin",
+      "url": "https://github.com/AwardTravelFinder/award-travel-finder-plugin",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 127,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-06T03:30:00Z",
+  "novel_features": [
+    {
+      "name": "New-since award watch",
+      "command": "new-since",
+      "description": "See which award seats appeared on a route since you last looked, from your synced local data.",
+      "rationale": "Requires a first-seen timestamp on every locally synced availability row, which no live API call or wrapper provides.",
+      "example": "seats-aero-pp-cli new-since --origin JFK --destination NRT --cabin business --since 24h --agent",
+      "why_it_matters": "Reach for this when the user asks what changed or what is new on a route, instead of re-running a full search and diffing by eye.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit-aware recheck",
+      "command": "recheck",
+      "description": "Re-verify aging award rows are still live right before booking. It performs one live quota probe per run (1 daily call), and --apply is refused when quota is unknown unless --ignore-quota is passed.",
+      "rationale": "Joins local synced_at ages with the credit-metered refresh endpoint and its quota block, guarding the 1,000-call daily budget no wrapper tracks.",
+      "example": "seats-aero-pp-cli recheck --origin JFK --destination NRT --cabin business --max-mileage 90000 --agent",
+      "why_it_matters": "Print-only by default: lists the aging rows it would refresh, their age, and the remaining daily quota (one probe call). Add --apply to spend refresh credits; --apply is refused when the quota is unknown unless --ignore-quota is passed.",
+      "group": "Quota-aware plumbing"
+    },
+    {
+      "name": "Cross-program direct-only scan",
+      "command": "direct-scan",
+      "description": "Find direct-flight award seats under a mileage ceiling across every synced program at once.",
+      "rationale": "The bulk availability endpoint serves one program per call; the cross-program direct-only join exists only in the local store.",
+      "example": "seats-aero-pp-cli direct-scan --origin JFK --destination NRT --cabin business --max-mileage 90000 --sources united,virginatlantic,aeroplan --agent",
+      "why_it_matters": "Pick this over the awards search when the user wants nonstop-only results across programs from already-synced data with zero API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cabin/date calendar matrix",
+      "command": "calendar",
+      "description": "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance.",
+      "rationale": "Pivots the flat bulk feed into the calendar shape shortlist-building actually needs, entirely from local rows.",
+      "example": "seats-aero-pp-cli calendar --origin JFK --destination NRT --source united --start 2026-10-01 --end 2026-12-31 --agent",
+      "why_it_matters": "Use this when the user asks which dates have business or first availability on a route; it answers from the local store in one shot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Nonstop reach finder",
+      "command": "reach",
+      "description": "Discover where your miles can take you nonstop from one airport, ranked by cost and cross-checked against real dated seats.",
+      "rationale": "Chains the destinations fan-out with locally synced availability so the cheapest theoretical fares are confirmed against bookable dates.",
+      "example": "seats-aero-pp-cli reach --origin JFK --cabin business --max-mileage 90000 --top 10 --agent",
+      "why_it_matters": "Reach for this when the user has miles but no fixed destination. It has no local mode, and results is an object {origin, cabin, max_mileage, source, destinations[]} rather than a bare array. --confirm-live makes up to 10 extra live /search calls (opt-in; never under the test harness).",
+      "group": "Quota-aware plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "New-since award watch",
+      "command": "new-since",
+      "description": "See which award seats appeared on a route since you last looked, from your synced local data.",
+      "rationale": "Requires a first-seen timestamp on every locally synced availability row, which no live API call or wrapper provides.",
+      "example": "seats-aero-pp-cli new-since --origin JFK --destination NRT --cabin business --since 24h --agent",
+      "why_it_matters": "Reach for this when the user asks what changed or what is new on a route, instead of re-running a full search and diffing by eye.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit-aware recheck",
+      "command": "recheck",
+      "description": "Re-verify aging award rows are still live right before booking. It performs one live quota probe per run (1 daily call), and --apply is refused when quota is unknown unless --ignore-quota is passed.",
+      "rationale": "Joins local synced_at ages with the credit-metered refresh endpoint and its quota block, guarding the 1,000-call daily budget no wrapper tracks.",
+      "example": "seats-aero-pp-cli recheck --origin JFK --destination NRT --cabin business --max-mileage 90000 --agent",
+      "why_it_matters": "Print-only by default: lists the aging rows it would refresh, their age, and the remaining daily quota (one probe call). Add --apply to spend refresh credits; --apply is refused when the quota is unknown unless --ignore-quota is passed.",
+      "group": "Quota-aware plumbing"
+    },
+    {
+      "name": "Cross-program direct-only scan",
+      "command": "direct-scan",
+      "description": "Find direct-flight award seats under a mileage ceiling across every synced program at once.",
+      "rationale": "The bulk availability endpoint serves one program per call; the cross-program direct-only join exists only in the local store.",
+      "example": "seats-aero-pp-cli direct-scan --origin JFK --destination NRT --cabin business --max-mileage 90000 --sources united,virginatlantic,aeroplan --agent",
+      "why_it_matters": "Pick this over the awards search when the user wants nonstop-only results across programs from already-synced data with zero API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cabin/date calendar matrix",
+      "command": "calendar",
+      "description": "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance.",
+      "rationale": "Pivots the flat bulk feed into the calendar shape shortlist-building actually needs, entirely from local rows.",
+      "example": "seats-aero-pp-cli calendar --origin JFK --destination NRT --source united --start 2026-10-01 --end 2026-12-31 --agent",
+      "why_it_matters": "Use this when the user asks which dates have business or first availability on a route; it answers from the local store in one shot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Nonstop reach finder",
+      "command": "reach",
+      "description": "Discover where your miles can take you nonstop from one airport, ranked by cost and cross-checked against real dated seats.",
+      "rationale": "Chains the destinations fan-out with locally synced availability so the cheapest theoretical fares are confirmed against bookable dates.",
+      "example": "seats-aero-pp-cli reach --origin JFK --cabin business --max-mileage 90000 --top 10 --agent",
+      "why_it_matters": "Reach for this when the user has miles but no fixed destination. It has no local mode, and results is an object {origin, cabin, max_mileage, source, destinations[]} rather than a bare array. --confirm-live makes up to 10 extra live /search calls (opt-in; never under the test harness).",
+      "group": "Quota-aware plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SEATS_AERO_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Seats.aero",
+    "headline": "Every Seats.aero Partner API endpoint, plus a local award-availability store that tells you what is new, what is still live, and where your miles reach nonstop.",
+    "value_prop": "seats-aero-pp-cli wraps all seven Partner API endpoints (cached search, bulk availability, trips, routes, destinations, refresh, live) with agent-native output, then syncs routes and availability into typed SQLite tables. That local store powers new-since, calendar, direct-scan, reach and a quota-guarded recheck, none of which a thin wrapper or the web app can do.",
+    "auth_narrative": "Seats.aero Pro subscribers create a Partner API key under Settings, then export it as SEATS_AERO_API_KEY. Keys are Pro-tier (1,000 calls per day, resets at midnight UTC; the X-RateLimit-Remaining header tracks it) or commercial-agreement keys. Pro keys cannot call live search and commercial keys cannot call refresh; doctor reports the remaining daily calls and which tier your key appears to be.",
+    "quickstart": [
+      {
+        "command": "seats-aero-pp-cli doctor --dry-run",
+        "comment": "Confirm the key is picked up and see the remaining daily quota"
+      },
+      {
+        "command": "seats-aero-pp-cli awards --origin-airport JFK --destination-airport LHR --cabins business --take 5 --agent",
+        "comment": "Cheapest business-class awards JFK to LHR across every program in one call"
+      },
+      {
+        "command": "seats-aero-pp-cli sync --resources routes --since 7d",
+        "comment": "Pull the tracked route atlas into the local store"
+      },
+      {
+        "command": "seats-aero-pp-cli availability --source aeroplan --cabin business --take 20 --agent",
+        "comment": "Bulk calendar for one program, ready to pipe into jq"
+      },
+      {
+        "command": "seats-aero-pp-cli reach --origin JFK --cabin business --max-mileage 90000 --top 10 --agent",
+        "comment": "Where 90k miles get you nonstop from JFK, confirmed against dated seats"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 on live search",
+        "fix": "Live search needs a commercial-agreement key; Pro keys are rejected by design. Use awards (cached search) instead."
+      },
+      {
+        "symptom": "HTTP 429 or requests rejected until tomorrow",
+        "fix": "The Pro daily quota of 1,000 calls is exhausted; run seats-aero-pp-cli doctor --json to see x-ratelimit-remaining and reset seconds, and prefer local commands (calendar, direct-scan, new-since) until it resets."
+      },
+      {
+        "symptom": "new-since or direct-scan return nothing",
+        "fix": "sync and sync --resources availability cannot populate availability because the endpoint requires source. Run seats-aero-pp-cli sync --resources availability --resource-param availability:source=\u003cprogram\u003e --since 7d once per program; routes needs no parameter. Then re-run; local commands never call the API."
+      },
+      {
+        "symptom": "refresh says quota remaining 0",
+        "fix": "Refresh credits are separate from daily calls and reset on the schedule in the response quota block. recheck is print-only by default but performs one live quota probe per run (1 daily call); --apply is refused when quota is unknown unless --ignore-quota is passed."
+      }
+    ],
+    "when_to_use": "Use seats-aero-pp-cli whenever an agent needs award-flight availability by mileage program: cheapest awards on a route, a program's calendar, nonstop reach from an airport, or verifying a cached seat before booking. It is the right tool for miles-and-points redemption research and for building a local award-availability corpus that can be queried offline.",
+    "anti_triggers": [
+      "Do not use it to book or ticket a flight; it reports availability only and never books.",
+      "Do not use it for cash fares, hotel awards, points valuations, or transfer-partner math; the Partner API carries none of that.",
+      "Do not use it to set push alerts; Seats.aero alerts are a web-app feature, use new-since on a schedule instead.",
+      "Do not expect live search with a Pro key; that endpoint is commercial-agreement only."
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest business awards across all programs, narrowed for an agent",
+        "command": "seats-aero-pp-cli awards --origin-airport SFO --destination-airport NRT --cabins business --order-by lowest_mileage --take 10 --agent --select data.Date,data.Route.Source,data.JMileageCost,data.JDirect",
+        "explanation": "One cached search across every program, with --select trimming the wide availability rows to the four fields that matter."
+      },
+      {
+        "title": "What appeared since yesterday",
+        "command": "seats-aero-pp-cli new-since --origin JFK --destination NRT --cabin business --since 24h --agent",
+        "explanation": "Diffs the local availability table on first_seen_at, so only genuinely new rows come back."
+      },
+      {
+        "title": "Verify before you book, without spending credits",
+        "command": "seats-aero-pp-cli recheck --origin JFK --destination NRT --cabin business --max-mileage 90000 --agent",
+        "explanation": "Print-only by default: lists the aging rows it would refresh, their age, and the remaining daily quota (one probe call). Add --apply to spend refresh credits."
+      },
+      {
+        "title": "Direct-only under 90k miles across three programs",
+        "command": "seats-aero-pp-cli direct-scan --origin JFK --destination NRT --cabin business --max-mileage 90000 --sources united,virginatlantic,aeroplan --agent",
+        "explanation": "A cross-program join over synced data that the one-program-per-call bulk endpoint cannot answer."
+      },
+      {
+        "title": "Where can 90k miles take me nonstop",
+        "command": "seats-aero-pp-cli reach --origin JFK --cabin business --max-mileage 90000 --top 10 --agent",
+        "explanation": "Fans out via destinations then confirms each candidate against dated seats. reach has no local mode, and results is an object {origin, cabin, max_mileage, source, destinations[]} rather than a bare array. --confirm-live makes up to 10 extra live /search calls (opt-in; never under the test harness)."
+      }
+    ],
+    "trigger_phrases": [
+      "find award seats to Tokyo in business",
+      "what award availability is new since yesterday",
+      "where can my miles take me nonstop from JFK",
+      "is this award seat still available before I book",
+      "show me the award calendar for united to Europe",
+      "use seats-aero",
+      "run seats-aero"
+    ]
+  }
+}

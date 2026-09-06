@@ -1,0 +1,14 @@
+/seats-aero-pp-cli
+/seats-aero-pp-mcp
+/build/
+*.db
+*.db-*
+_coding-result.json
+_codex-result.json
+.printing-press-tools-polish.json
+.printing-press-pii-polish.json
+.manuscripts/**/proofs/*-dogfood-results.json
+_coding-result.json
+
+# raw pipeline logs never ship (home paths, run-tree layout) — workshop private-artifacts holds them
+.manuscripts/**/pipeline/

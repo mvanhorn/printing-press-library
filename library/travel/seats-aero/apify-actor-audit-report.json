@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/seats-aero-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260905-230744-c6d96a39",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

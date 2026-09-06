@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-awards-take-example",
+  "applied_at": "2026-09-06",
+  "base_run_id": "20260905-230744-c6d96a39",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Correct the generated awards example to use the endpoint's minimum take value.",
+  "reason": "The generated example used --take 5 even though the shipped flag validation requires at least 10.",
+  "files": ["internal/cli/promoted_awards.go"],
+  "markers": ["PATCH(seats-aero-awards-take-example)"],
+  "validated_outcome": "The awards help example uses --take 10 and the full Go verification suite passes."
+}
