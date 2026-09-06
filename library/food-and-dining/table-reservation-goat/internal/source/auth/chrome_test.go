@@ -94,6 +94,32 @@ func TestChromeCookieCandidatePathsIn_MissingRoot(t *testing.T) {
 	}
 }
 
+func TestChromeUserDataDirRequiresExistingAbsoluteDirectory(t *testing.T) {
+	tmp := t.TempDir()
+
+	got, err := chromeUserDataDir(tmp)
+	if err != nil {
+		t.Fatalf("chromeUserDataDir(%q): %v", tmp, err)
+	}
+	if got != tmp {
+		t.Fatalf("chromeUserDataDir() = %q, want %q", got, tmp)
+	}
+
+	for _, input := range []string{"relative-profile", filepath.Join(tmp, "missing")} {
+		if _, err := chromeUserDataDir(input); err == nil {
+			t.Errorf("chromeUserDataDir(%q) succeeded; want validation error", input)
+		}
+	}
+
+	file := filepath.Join(tmp, "not-a-directory")
+	if err := os.WriteFile(file, []byte("fixture"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := chromeUserDataDir(file); err == nil {
+		t.Errorf("chromeUserDataDir(%q) succeeded; want directory validation error", file)
+	}
+}
+
 // TestDedupeCookies_KeysOnDomainNamePath verifies the dedupe collapses
 // duplicate (Domain, Name, Path) entries and prefers the entry with the
 // later Expires.

@@ -129,6 +129,17 @@ table-reservation-goat-pp-cli doctor
 
 This checks your configuration.
 
+### Chrome session import
+
+To import OpenTable and Tock cookies from a dedicated Chromium profile, supply its **absolute user-data directory**. In this mode the CLI reads only that directory and never falls back to another browser profile:
+
+```bash
+table-reservation-goat-pp-cli auth login --chrome \
+  --chrome-user-data-dir /absolute/path/to/chromium-user-data
+```
+
+The command rejects relative paths, missing paths, and files. It imports cookies into the CLI's selected `--home` session store; it does not copy or modify the browser profile.
+
 ### 3. Try Your First Command
 
 ```bash

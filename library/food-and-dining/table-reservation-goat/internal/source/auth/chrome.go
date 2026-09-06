@@ -25,6 +25,24 @@ import (
 // listed in <root>/Local State's profile.info_cache, so a profile dir present
 // on disk but missing from info_cache (corrupted, stale, fresh-install edge
 // cases) gets silently skipped along with its <profile>/Cookies file.
+// chromeUserDataDir validates a user-supplied Chrome/Chromium user-data
+// directory. Explicit mode must never accept a relative path or silently
+// fall back to ambient browser discovery: callers use it to keep account
+// sessions isolated.
+func chromeUserDataDir(path string) (string, error) {
+	if !filepath.IsAbs(path) {
+		return "", fmt.Errorf("Chrome user-data directory must be an absolute path")
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", fmt.Errorf("stat Chrome user-data directory: %w", err)
+	}
+	if !info.IsDir() {
+		return "", fmt.Errorf("Chrome user-data path is not a directory")
+	}
+	return filepath.Clean(path), nil
+}
+
 func chromeRoots() []string {
 	cfgDir, err := os.UserConfigDir()
 	if err != nil {
@@ -113,7 +131,14 @@ func chromeCookieCandidatePathsIn(roots []string) []string {
 // keychain entries or corrupt files yield zero cookies for that file but
 // don't abort the rest of the walk.
 func supplementaryChromeCookies(ctx context.Context, domainSuffix string) ([]*kooky.Cookie, []string) {
-	paths := chromeCookieCandidatePaths()
+	return supplementaryChromeCookiesIn(ctx, domainSuffix, chromeRoots())
+}
+
+// supplementaryChromeCookiesIn reads only from roots supplied by the caller.
+// Explicit browser-profile imports use this path so they cannot fall back to
+// unrelated Chrome profiles discovered from the host configuration directory.
+func supplementaryChromeCookiesIn(ctx context.Context, domainSuffix string, roots []string) ([]*kooky.Cookie, []string) {
+	paths := chromeCookieCandidatePathsIn(roots)
 	if len(paths) == 0 {
 		return nil, nil
 	}
@@ -202,14 +227,33 @@ type ImportChromeResult struct {
 // key in the system keychain, so the user may be prompted by macOS to
 // authorize keychain access.
 func ImportFromChrome(ctx context.Context) (otCookies, tockCookies []Cookie, result *ImportChromeResult, err error) {
+	return importFromChrome(ctx, nil)
+}
+
+// ImportFromChromeUserDataDir imports cookies only from a specific Chromium
+// user-data directory. It deliberately bypasses kooky's ambient discovery so
+// a generic profile cannot read a personal profile by fallback.
+func ImportFromChromeUserDataDir(ctx context.Context, userDataDir string) (otCookies, tockCookies []Cookie, result *ImportChromeResult, err error) {
+	root, err := chromeUserDataDir(userDataDir)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return importFromChrome(ctx, []string{root})
+}
+
+func importFromChrome(ctx context.Context, roots []string) (otCookies, tockCookies []Cookie, result *ImportChromeResult, err error) {
 	result = &ImportChromeResult{}
 	// kooky returns a non-nil error when ANY cookie store fails to open,
 	// even when other stores returned cookies successfully. The errors from
 	// missing Chrome 96+ Network/Cookies paths or absent Chrome Canary are
 	// expected and non-fatal — we keep the cookies that did read and surface
 	// the error text as a note.
-	otRaw, otErr := kooky.ReadCookies(ctx, kooky.DomainHasSuffix("opentable.com"))
-	tockRaw, tockErr := kooky.ReadCookies(ctx, kooky.DomainHasSuffix("exploretock.com"))
+	var otRaw, tockRaw kooky.Cookies
+	var otErr, tockErr error
+	if roots == nil {
+		otRaw, otErr = kooky.ReadCookies(ctx, kooky.DomainHasSuffix("opentable.com"))
+		tockRaw, tockErr = kooky.ReadCookies(ctx, kooky.DomainHasSuffix("exploretock.com"))
+	}
 	// Supplement kooky's info_cache-driven discovery with a direct filesystem
 	// walk: kooky silently skips profile directories that aren't listed in
 	// <root>/Local State's profile.info_cache, even when their <profile>/Cookies
@@ -218,8 +262,12 @@ func ImportFromChrome(ctx context.Context) (otCookies, tockCookies []Cookie, res
 	// missing entries that exist on disk — recovery the user reported is to
 	// symlink <profile>/Network/Cookies -> ../Cookies, but a direct walk is
 	// the right fix.
-	otSupp, otSuppNotes := supplementaryChromeCookies(ctx, "opentable.com")
-	tockSupp, tockSuppNotes := supplementaryChromeCookies(ctx, "exploretock.com")
+	scanRoots := roots
+	if scanRoots == nil {
+		scanRoots = chromeRoots()
+	}
+	otSupp, otSuppNotes := supplementaryChromeCookiesIn(ctx, "opentable.com", scanRoots)
+	tockSupp, tockSuppNotes := supplementaryChromeCookiesIn(ctx, "exploretock.com", scanRoots)
 	otRaw = dedupeCookies(otRaw, otSupp)
 	tockRaw = dedupeCookies(tockRaw, tockSupp)
 	if otErr != nil && len(otRaw) == 0 && tockErr != nil && len(tockRaw) == 0 {

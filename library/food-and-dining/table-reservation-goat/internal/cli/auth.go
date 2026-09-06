@@ -42,6 +42,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var fromChrome bool
+	var chromeUserDataDir string
 	var withResy bool
 	var resyEmail string
 	// `auth login --chrome` writes session cookies to disk via
@@ -81,7 +82,14 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			out := map[string]any{}
 
 			if fromChrome {
-				otCookies, tockCookies, result, err := auth.ImportFromChrome(cmd.Context())
+				var otCookies, tockCookies []auth.Cookie
+				var result *auth.ImportChromeResult
+				var err error
+				if chromeUserDataDir == "" {
+					otCookies, tockCookies, result, err = auth.ImportFromChrome(cmd.Context())
+				} else {
+					otCookies, tockCookies, result, err = auth.ImportFromChromeUserDataDir(cmd.Context(), chromeUserDataDir)
+				}
 				if err != nil {
 					return fmt.Errorf("importing chrome cookies: %w", err)
 				}
@@ -143,6 +151,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&fromChrome, "chrome", false, "Import OpenTable + Tock session cookies from local Chrome profile")
+	cmd.Flags().StringVar(&chromeUserDataDir, "chrome-user-data-dir", "", "Absolute Chrome/Chromium user-data directory to import exclusively (requires --chrome)")
 	cmd.Flags().BoolVar(&withResy, "resy", false, "Exchange Resy email + password for an auth token (password read from TTY with echo disabled, or stdin when piped)")
 	cmd.Flags().StringVar(&resyEmail, "email", "", "Resy email (required with --resy)")
 	return cmd

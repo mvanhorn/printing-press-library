@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "explicit-chromium-user-data-dir-import",
+  "applied_at": "2026-09-05",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Chrome cookie import accepts an explicit absolute Chromium user-data directory and reads only that directory for OpenTable and Tock sessions.",
+  "reason": "Isolated provider profiles may deliberately live outside conventional Chrome configuration paths. Regeneration must preserve strict absolute/existing-directory validation and explicit-mode isolation: no ambient browser discovery, cookie copying, symlinks, or browser-profile mutation.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/source/auth/chrome.go",
+    "internal/source/auth/chrome_test.go",
+    "README.md"
+  ],
+  "validated_outcome": "Focused auth and CLI tests verify absolute, existing-directory validation and preserve default Chrome discovery. Explicit imports route solely through the selected root; the documented command imports into the selected CLI home without modifying browser storage."
+}
