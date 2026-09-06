@@ -568,12 +568,16 @@ func outlineTextVsSchedule(trip map[string]any, outline planOutlineReport) []map
 			}
 			startMin, startOK := parseClockToMinutes(block.Start, "")
 			endMin, endOK := parseClockToMinutes(block.End, "")
-			matches := timeWindowRe.FindAllStringSubmatch(plain, -1)
+			matches := intendedVisitWindows(plain)
 			if len(matches) == 0 {
 				continue
 			}
 			m := matches[0]
-			textStart, textStartOK := parseClockToMinutes(m[1], m[2])
+			startMeridiem := m[2]
+			if startMeridiem == "" {
+				startMeridiem = m[4]
+			}
+			textStart, textStartOK := parseClockToMinutes(m[1], startMeridiem)
 			textEnd, textEndOK := parseClockToMinutes(m[3], m[4])
 			disagree := false
 			if startOK && textStartOK && startMin != textStart {
@@ -629,4 +633,28 @@ func parseClockToMinutes(raw, ampm string) (int, bool) {
 		return 0, false
 	}
 	return h*60 + m, true
+}
+
+// intendedVisitWindows excludes availability, alternatives, transport connections,
+// date ranges and numeric quantities. Only explicit visit labels or a clock range
+// starting its own note line are compared with the block's visit schedule.
+func intendedVisitWindows(text string) [][]string {
+	var matches [][]string
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimSpace(line)
+		for _, index := range timeWindowRe.FindAllStringSubmatchIndex(line, -1) {
+			m := timeWindowRe.FindStringSubmatch(line[index[0]:index[1]])
+			if !strings.Contains(m[1], ":") && !strings.Contains(m[3], ":") && m[2] == "" && m[4] == "" {
+				continue
+			}
+			prefix := strings.ToLower(strings.TrimSpace(line[:index[0]]))
+			prefix = strings.TrimSpace(strings.TrimLeft(prefix, "-*• "))
+			explicit := strings.HasSuffix(prefix, "visit:") || strings.HasSuffix(prefix, "planned visit:") || strings.HasSuffix(prefix, "schedule:") || strings.HasSuffix(prefix, "planned:")
+			if prefix != "" && !explicit {
+				continue
+			}
+			matches = append(matches, m)
+		}
+	}
+	return matches
 }

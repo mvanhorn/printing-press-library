@@ -49,6 +49,9 @@ type planEditReport struct {
 	Applied        bool                `json:"applied"`
 	ApplyRequested bool                `json:"apply_requested"`
 	DryRun         bool                `json:"dry_run"`
+	Validation     string              `json:"validation,omitempty"`
+	Errors         []string            `json:"errors,omitempty"`
+	Changes        []map[string]any    `json:"changes,omitempty"`
 	Version        int                 `json:"version,omitempty"`
 	Sections       []planSectionReport `json:"sections,omitempty"`
 	Section        *planSectionReport  `json:"section,omitempty"`
@@ -146,6 +149,7 @@ func newNovelPlanNoteCmd(flags *rootFlags) *cobra.Command {
 
 func newNovelPlanNoteAddCmd(flags *rootFlags) *cobra.Command {
 	opts := planEditOptions{clientSchemaVersion: 2, sectionIndex: -1, position: -1}
+	var markdown bool
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a note block to a day or section",
@@ -159,7 +163,12 @@ func newNovelPlanNoteAddCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return planEditBuildResult{}, err
 				}
+				delta, stripped, err := blockNoteText(opts.text, markdown)
+				if err != nil {
+					return planEditBuildResult{}, err
+				}
 				block := newNoteBlock(opts.text)
+				block["text"] = delta
 				idx := normalizeInsertPosition(opts.position, len(sec.Blocks))
 				ops := []map[string]any{{"p": []any{"itinerary", "sections", sec.Index, "blocks", idx}, "li": block}}
 				report := baseEditReport("plan note add", opts, target)
@@ -168,6 +177,7 @@ func newNovelPlanNoteAddCmd(flags *rootFlags) *cobra.Command {
 				report.BlockID = intAny(block["id"])
 				report.BlockIndex = idx
 				report.Operation = "insert note block"
+				report.Stripped = stripped
 				report.OpPaths = opPaths(ops)
 				return planEditBuildResult{Ops: ops, Report: report}, nil
 			})
@@ -176,6 +186,7 @@ func newNovelPlanNoteAddCmd(flags *rootFlags) *cobra.Command {
 	addPlanTargetFlags(cmd, &opts)
 	addPlanSectionFlags(cmd, &opts)
 	cmd.Flags().StringVar(&opts.text, "text", "", "Note text")
+	cmd.Flags().BoolVar(&markdown, "markdown", false, "Compile Markdown bold, bullets, and labels into rich text")
 	cmd.Flags().IntVar(&opts.position, "position", -1, "Zero-based insertion position within section blocks; default appends")
 	cmd.Flags().BoolVar(&opts.apply, "apply", false, "Apply the edit through Wanderlog ShareDB; default is preview only")
 	cmd.Flags().IntVar(&opts.clientSchemaVersion, "client-schema-version", 2, "Wanderlog client schema version")
@@ -277,6 +288,8 @@ func newNovelPlanBlockCmd(flags *rootFlags) *cobra.Command {
 		Short: "Move, delete, rename, retime, re-text, attach files to, or batch-apply JSON0 ops against blocks in an editable Wanderlog plan",
 		RunE:  parentNoSubcommandRunE(flags),
 	}
+	cmd.AddCommand(newNovelPlanBlockGetCmd(flags))
+	cmd.AddCommand(newNovelPlanBlockAddBatchCmd(flags))
 	cmd.AddCommand(newNovelPlanBlockDeleteCmd(flags))
 	cmd.AddCommand(newNovelPlanBlockMoveCmd(flags))
 	cmd.AddCommand(newNovelPlanBlockEditTextCmd(flags))
@@ -427,6 +440,7 @@ func runPlanEditWithClient(cmd *cobra.Command, flags *rootFlags, c *client.Clien
 		if err != nil {
 			return apiErr(err)
 		}
+		result.Report.Validation = "valid"
 		result.Report.Command = commandName
 		result.Report.TargetKey = key
 		result.Report.Version = version
@@ -444,20 +458,19 @@ func runPlanEditWithClient(cmd *cobra.Command, flags *rootFlags, c *client.Clien
 	}
 	result, err := build(target)
 	if err != nil {
-		// Preview/dry-run still succeeds with a structured report so agents
-		// can inspect missing attachments, empty budget rows, or a non-checklist
-		// block without treating the help example as a hard failure.
 		report := baseEditReport(commandName, opts, target)
 		report.TargetKey = key
 		report.ApplyRequested = opts.apply
 		report.DryRun = true
 		report.Applied = false
-		report.Warnings = append(report.Warnings, err.Error())
-		if flags != nil && flags.dryRun {
-			report.Warnings = append(report.Warnings, "global --dry-run set: no edit will be applied")
+		report.Validation = "invalid"
+		report.Errors = []string{err.Error()}
+		if printErr := printPlanEditReport(cmd, flags, report); printErr != nil {
+			return printErr
 		}
-		return printPlanEditReport(cmd, flags, report)
+		return usageErr(err)
 	}
+	result.Report.Validation = "valid"
 	result.Report.Command = commandName
 	result.Report.TargetKey = key
 	result.Report.ApplyRequested = opts.apply
@@ -483,8 +496,18 @@ func applyPlanEditViaShareDBWithRetry(ctx context.Context, c *client.Client, tar
 			return result, version, nil
 		}
 		lastErr = err
+		var rejection *shareDBResponseError
+		if !errors.As(err, &rejection) || !rejection.Retryable {
+			break
+		}
 		if attempt < attempts {
-			time.Sleep(time.Duration(attempt) * 500 * time.Millisecond)
+			timer := time.NewTimer(time.Duration(attempt) * 500 * time.Millisecond)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return planEditBuildResult{}, 0, ctx.Err()
+			case <-timer.C:
+			}
 		}
 	}
 	return planEditBuildResult{}, 0, lastErr
@@ -519,6 +542,9 @@ func applyPlanEditViaShareDB(ctx context.Context, c *client.Client, targetKey st
 		if err := conn.ReadJSON(&frame); err != nil {
 			return planEditBuildResult{}, 0, fmt.Errorf("ShareDB handshake: %w", err)
 		}
+		if err := shareDBFrameError("handshake", frame, auth); err != nil {
+			return planEditBuildResult{}, 0, err
+		}
 		if frame["a"] == "init" {
 			sessionID = stringAny(frame["id"])
 			continue
@@ -536,6 +562,9 @@ func applyPlanEditViaShareDB(ctx context.Context, c *client.Client, targetKey st
 		var frame map[string]any
 		if err := conn.ReadJSON(&frame); err != nil {
 			return planEditBuildResult{}, 0, fmt.Errorf("ShareDB subscribe: %w", err)
+		}
+		if err := shareDBFrameError("subscribe", frame, auth); err != nil {
+			return planEditBuildResult{}, 0, err
 		}
 		if frame["a"] != "s" {
 			continue
@@ -558,17 +587,17 @@ func applyPlanEditViaShareDB(ctx context.Context, c *client.Client, targetKey st
 	frame := map[string]any{"a": "op", "c": "TripPlans", "d": targetKey, "v": version, "seq": 1, "x": map[string]any{}, "op": result.Ops}
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	if err := conn.WriteJSON(frame); err != nil {
-		return planEditBuildResult{}, 0, err
+		return planEditBuildResult{}, 0, fmt.Errorf("ShareDB op send failed; outcome unknown, inspect the target before retrying: %w", err)
 	}
 	for {
 		var ack map[string]any
 		if err := conn.ReadJSON(&ack); err != nil {
-			return planEditBuildResult{}, 0, fmt.Errorf("ShareDB op ack: %w", err)
+			return planEditBuildResult{}, 0, fmt.Errorf("ShareDB op acknowledgement lost; outcome unknown, inspect the target before retrying: %w", err)
 		}
-		if code := intAny(ack["code"]); code != 0 {
-			return planEditBuildResult{}, 0, fmt.Errorf("ShareDB rejected op (%d): %s", code, stringAny(ack["message"]))
+		if err := shareDBFrameError("apply", ack, auth); err != nil {
+			return planEditBuildResult{}, 0, err
 		}
-		if ack["a"] == "op" && (intAny(ack["seq"]) == 1 || stringAny(ack["src"]) == sessionID) {
+		if shareDBAcknowledges(ack, sessionID, targetKey) {
 			return result, version, nil
 		}
 	}
@@ -602,6 +631,9 @@ func fetchPlanSnapshotViaShareDB(ctx context.Context, c *client.Client, targetKe
 		if err := conn.ReadJSON(&frame); err != nil {
 			return nil, 0, fmt.Errorf("ShareDB handshake: %w", err)
 		}
+		if err := shareDBFrameError("handshake", frame, auth); err != nil {
+			return nil, 0, err
+		}
 		if frame["a"] == "hs" {
 			break
 		}
@@ -613,6 +645,9 @@ func fetchPlanSnapshotViaShareDB(ctx context.Context, c *client.Client, targetKe
 		var frame map[string]any
 		if err := conn.ReadJSON(&frame); err != nil {
 			return nil, 0, fmt.Errorf("ShareDB subscribe: %w", err)
+		}
+		if err := shareDBFrameError("subscribe", frame, auth); err != nil {
+			return nil, 0, err
 		}
 		if frame["a"] != "s" {
 			continue
@@ -816,6 +851,12 @@ func validateClosedPlacePolicy(policy string) error {
 }
 
 func placeClosedOnDateWarning(place map[string]any, date string) (string, bool) {
+	switch strings.ToUpper(stringAny(place["business_status"])) {
+	case "CLOSED_PERMANENTLY":
+		return firstNonEmpty(stringAny(place["name"]), "Place") + " is marked permanently closed", true
+	case "CLOSED_TEMPORARILY":
+		return firstNonEmpty(stringAny(place["name"]), "Place") + " is currently marked temporarily closed; verify reopening for the planned date", true
+	}
 	date = strings.TrimSpace(date)
 	if date == "" {
 		return "", false
@@ -970,7 +1011,10 @@ func printPlanEditReport(cmd *cobra.Command, flags *rootFlags, report planEditRe
 	// PATCH(amend-2026-08-23: terse mutation JSON omits op_paths and sections unless --verbose)
 	if flags == nil || !flags.verbose {
 		report.OpPaths = nil
-		report.Sections = nil
+		// Sections are the primary result of this read, not mutation metadata.
+		if report.Command != "plan sections" {
+			report.Sections = nil
+		}
 	}
 	data, err := json.Marshal(report)
 	if err != nil {
@@ -1156,4 +1200,68 @@ func sliceContainsString(items []string, want string) bool {
 		}
 	}
 	return false
+}
+
+// shareDBResponseError marks definite rejection separately from uncertain transport
+// outcomes. Only a definite version conflict is safe to rebuild and resubmit.
+type shareDBResponseError struct {
+	Stage, Code, Message string
+	Retryable            bool
+}
+
+func (e *shareDBResponseError) Error() string {
+	return fmt.Sprintf("ShareDB %s rejected (%s, retryable=%t): %s", e.Stage, e.Code, e.Retryable, e.Message)
+}
+func shareDBFrameError(stage string, frame map[string]any, credential string) error {
+	detail := frame
+	if nested, ok := frame["error"].(map[string]any); ok {
+		detail = nested
+	}
+	code := stringAny(detail["code"])
+	if detail["code"] != nil && code == "" {
+		code = fmt.Sprint(detail["code"])
+	}
+	message := stringAny(detail["message"])
+	if text, ok := frame["error"].(string); ok && text != "" {
+		message = text
+	}
+	if (code == "" || code == "0") && message == "" {
+		return nil
+	}
+	if code == "" {
+		code = "application_error"
+	}
+	if message == "" {
+		message = "request rejected by server"
+	}
+	// Never print entire websocket frames, plan data, or session credentials.
+	for _, part := range strings.Split(credential, ";") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		message = strings.ReplaceAll(message, part, "[redacted]")
+		if _, value, ok := strings.Cut(part, "="); ok && value != "" {
+			message = strings.ReplaceAll(message, value, "[redacted]")
+		}
+	}
+	if len(message) > 1024 {
+		message = message[:1024] + "..."
+	}
+	return &shareDBResponseError{Stage: stage, Code: code, Message: message, Retryable: stage == "apply" && code == "ERR_OP_VERSION_TOO_OLD"}
+}
+
+// Only the acknowledgement for our operation counts; another collaborator may
+// emit an op with the same sequence number on this shared connection.
+func shareDBAcknowledges(frame map[string]any, sessionID, targetKey string) bool {
+	if frame["a"] != "op" || intAny(frame["seq"]) != 1 {
+		return false
+	}
+	if source := stringAny(frame["src"]); source != "" && source != sessionID {
+		return false
+	}
+	if target := stringAny(frame["d"]); target != "" && target != targetKey {
+		return false
+	}
+	return true
 }

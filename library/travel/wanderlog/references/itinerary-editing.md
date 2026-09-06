@@ -38,6 +38,6 @@ Note shape: bold label line only when the note mixes several kinds of info; one 
 
 ## Batches
 
-Write inspectable TSV/JSON first. Order: headings, day notes, place blocks, schedules. Avoid nested quoting in place-lookup loops. After each batch, outline or `plan inspect --target-key KEY --check=unformatted,lodging-coverage --agent`. Always write `--check=NAMES`: the space form `--check NAMES` silently runs all five checks and discards the argument.
+Write inspectable TSV/JSON first. Order: headings, day notes, place blocks, schedules. Avoid nested quoting in place-lookup loops. After each batch, outline or `plan inspect --target-key KEY --check=unformatted,lodging-coverage --agent`. Always write `--check=NAMES`: the space form `--check NAMES` is rejected; use `--check=NAMES` or consult help.
 
 Undo journal: `sharedb-json0.md`.

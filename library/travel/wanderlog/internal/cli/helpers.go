@@ -998,9 +998,50 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
-		out := make([]json.RawMessage, len(arr))
+		out := []json.RawMessage{}
+		indexed := false
+		for _, path := range paths {
+			if len(path) > 0 {
+				if _, err := strconv.Atoi(path[0]); err == nil {
+					indexed = true
+				}
+			}
+		}
 		for i, el := range arr {
-			out[i] = filterFieldsRec(el, paths)
+			selected := [][]string{}
+			whole := false
+			for _, path := range paths {
+				if len(path) == 0 {
+					whole = true
+					continue
+				}
+				if index, err := strconv.Atoi(path[0]); err == nil {
+					if index != i {
+						continue
+					}
+					if len(path) == 1 {
+						whole = true
+					} else {
+						selected = append(selected, path[1:])
+					}
+				} else if path[0] == "*" {
+					if len(path) == 1 {
+						whole = true
+					} else {
+						selected = append(selected, path[1:])
+					}
+				} else {
+					selected = append(selected, path)
+				}
+			}
+			if whole {
+				out = append(out, el)
+			} else if len(selected) > 0 {
+				out = append(out, filterFieldsRec(el, selected))
+			}
+		}
+		if indexed && len(out) == 0 {
+			return json.RawMessage(`{}`)
 		}
 		result, _ := json.Marshal(out)
 		return result
@@ -1055,7 +1096,8 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 				if json.Unmarshal(v, &arr) == nil && arr != nil {
 					foundArray = true
 					pending[k] = filterFieldsRec(v, paths)
-				} else {
+				} else if len(v) == 0 || v[0] != '{' {
+					// Preserve scalar envelope metadata, never unrelated resource objects.
 					pending[k] = v
 				}
 			}
@@ -1069,6 +1111,9 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		return result
 	}
 
+	if len(paths) > 0 {
+		return json.RawMessage(`{}`)
+	}
 	return data
 }
 
@@ -1093,14 +1138,23 @@ func valueLooksSelectEmpty(v any) bool {
 			return false
 		}
 		for _, el := range t {
-			obj, ok := el.(map[string]any)
-			if !ok || len(obj) > 0 {
+			if !valueLooksSelectEmpty(el) {
 				return false
 			}
 		}
 		return true
 	case map[string]any:
 		if len(t) == 0 {
+			return true
+		}
+		allNestedEmpty := true
+		for _, child := range t {
+			if !valueLooksSelectEmpty(child) {
+				allNestedEmpty = false
+				break
+			}
+		}
+		if allNestedEmpty {
 			return true
 		}
 		sawEmptyObjectList := false
@@ -1178,6 +1232,16 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	if flags.csv {
 		return printCSV(w, data)
 	}
+	// Agent responses avoid indentation tokens without changing JSON values or
+	// numeric precision. Human --json output remains pretty-printed.
+	if flags.agent && flags.asJSON {
+		var compact bytes.Buffer
+		if err := json.Compact(&compact, data); err != nil {
+			return err
+		}
+		_, err := fmt.Fprintln(w, compact.String())
+		return err
+	}
 	return printOutput(w, data, flags.asJSON)
 }
 
@@ -1224,8 +1288,6 @@ var compactVerboseListFields = map[string]bool{
 // Use `--select` to drop them explicitly.
 var compactVerboseObjectFields = map[string]bool{
 	"description": true,
-	"comments":    true,
-	"attachments": true,
 }
 
 // compactFields keeps frequent id/name/status/timestamp keys on JSON arrays.

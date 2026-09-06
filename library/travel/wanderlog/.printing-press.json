@@ -196,6 +196,46 @@
       "name": "Raw JSON0 escape hatch",
       "command": "plan raw op",
       "description": "Preview or apply an explicit ShareDB JSON0 operation array."
+    },
+    {
+      "name": "Full itinerary block read",
+      "command": "plan block get",
+      "description": "Read a complete note, schedule and place details by stable block ID."
+    },
+    {
+      "name": "Semantic batch edits",
+      "command": "plan edit",
+      "description": "Preview and atomically apply named Markdown, label and schedule changes by block ID."
+    },
+    {
+      "name": "Saved travel legs",
+      "command": "plan route legs",
+      "description": "Read saved driving and walking durations and distances in itinerary order, missing coverage and explicit-mode schedule slack."
+    },
+    {
+      "name": "Saved place suggestions",
+      "command": "plan suggestions",
+      "description": "Read saved candidate places for an itinerary section without duplicating planned stops."
+    },
+    {
+      "name": "Efficient day planning",
+      "command": "plan day",
+      "description": "Read complete day constraints and saved travel in one deduplicated response, with opt-in verified local state changes."
+    },
+    {
+      "name": "Trip orientation",
+      "command": "plan overview",
+      "description": "Orient across every day with stop locations, schedules, saved travel, accommodation changes and global constraints."
+    },
+    {
+      "name": "Multi-day planning",
+      "command": "plan days",
+      "description": "Read full selected days with shared notes, reservations and place metadata represented once."
+    },
+    {
+      "name": "Batch itinerary creation",
+      "command": "plan block add-batch",
+      "description": "Validate and preview multiple stops, notes, checklists and schedules before one ShareDB transaction."
     }
   ],
   "novel_features_built": [
@@ -368,6 +408,52 @@
       "name": "Raw JSON0 escape hatch",
       "command": "plan raw op",
       "description": "Preview or apply an explicit ShareDB JSON0 operation array."
+    },
+    {
+      "name": "Full itinerary block read",
+      "command": "plan block get",
+      "description": "Read a complete note, schedule and place details by stable block ID."
+    },
+    {
+      "name": "Semantic batch edits",
+      "command": "plan edit",
+      "description": "Preview and atomically apply named Markdown, label and schedule changes by block ID."
+    },
+    {
+      "name": "Saved travel legs",
+      "command": "plan route legs",
+      "description": "Read saved driving and walking durations and distances in itinerary order, missing coverage and explicit-mode schedule slack."
+    },
+    {
+      "name": "Saved place suggestions",
+      "command": "plan suggestions",
+      "description": "Read saved candidate places for an itinerary section without duplicating planned stops."
+    },
+    {
+      "name": "Efficient day planning",
+      "command": "plan day",
+      "description": "Read complete day constraints and saved travel in one deduplicated response, with opt-in verified local state changes."
+    },
+    {
+      "name": "Trip orientation",
+      "command": "plan overview",
+      "description": "Orient across every day with stop locations, schedules, saved travel, accommodation changes and global constraints.",
+      "rationale": "Focused itinerary workflow through the CLI command mirror.",
+      "via": "mcp-command-mirror"
+    },
+    {
+      "name": "Multi-day planning",
+      "command": "plan days",
+      "description": "Read full selected days with shared notes, reservations and place metadata represented once.",
+      "rationale": "Focused itinerary workflow through the CLI command mirror.",
+      "via": "mcp-command-mirror"
+    },
+    {
+      "name": "Batch itinerary creation",
+      "command": "plan block add-batch",
+      "description": "Validate and preview multiple stops, notes, checklists and schedules before one ShareDB transaction.",
+      "rationale": "Focused itinerary workflow through the CLI command mirror.",
+      "via": "mcp-command-mirror"
     }
   ],
   "verify": {

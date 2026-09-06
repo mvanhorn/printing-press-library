@@ -72,7 +72,7 @@ func testOutlineTrip() map[string]any {
 							"startTime": "09:00",
 							"endTime":   "10:00",
 							"text": map[string]any{"ops": []any{
-								map[string]any{"insert": "Open 11:00-13:00\n"},
+								map[string]any{"insert": "Visit: 11:00-13:00\n"},
 							}},
 						},
 					},

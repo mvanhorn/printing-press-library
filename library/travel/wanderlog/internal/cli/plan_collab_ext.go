@@ -50,33 +50,22 @@ func newNovelPlanBlockScheduleCmd(flags *rootFlags) *cobra.Command {
 					return planEditBuildResult{}, err
 				}
 				base := []any{"itinerary", "sections", sec.Index, "blocks", idx}
-				var ops []map[string]any
-				previewBlock := cloneJSONMap(block)
-				if clear {
-					for _, field := range []string{"startTime", "endTime", "durationMinutes", "timezone"} {
-						old, exists := block[field]
-						if exists {
-							ops = append(ops, objectSetOp(append(base, field), old, exists, nil, true))
-							delete(previewBlock, field)
-						}
-					}
-				} else {
-					if cmd.Flags().Changed("start") {
-						ops = append(ops, objectSetOp(append(base, "startTime"), block["startTime"], block["startTime"] != nil, start, false))
-						previewBlock["startTime"] = start
-					}
-					if cmd.Flags().Changed("end") {
-						ops = append(ops, objectSetOp(append(base, "endTime"), block["endTime"], block["endTime"] != nil, end, false))
-						previewBlock["endTime"] = end
-					}
-					if cmd.Flags().Changed("duration-minutes") {
-						ops = append(ops, objectSetOp(append(base, "durationMinutes"), block["durationMinutes"], block["durationMinutes"] != nil, duration, false))
-						previewBlock["durationMinutes"] = duration
-					}
-					if cmd.Flags().Changed("timezone") {
-						ops = append(ops, objectSetOp(append(base, "timezone"), block["timezone"], block["timezone"] != nil, timezone, false))
-						previewBlock["timezone"] = timezone
-					}
+				changes := map[string]any{}
+				if cmd.Flags().Changed("start") {
+					changes["startTime"] = start
+				}
+				if cmd.Flags().Changed("end") {
+					changes["endTime"] = end
+				}
+				if cmd.Flags().Changed("duration-minutes") {
+					changes["durationMinutes"] = duration
+				}
+				if cmd.Flags().Changed("timezone") {
+					changes["timezone"] = timezone
+				}
+				ops, previewBlock, err := buildScheduleOps(block, base, changes, clear)
+				if err != nil {
+					return planEditBuildResult{}, err
 				}
 				if len(ops) == 0 {
 					return planEditBuildResult{}, errors.New("schedule edit produced no changes")
@@ -621,7 +610,7 @@ func runPlanCommentWrite(cmd *cobra.Command, flags *rootFlags, opts planEditOpti
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
-	return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"command": commandName, "target_key": key, "status": status, "applied": true, "results": json.RawMessage(data)}, flags)
+	return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"command": commandName, "target_key": key, "status": status, "applied": !syntheticMutationResponse(data), "validation": mutationValidation(data), "results": json.RawMessage(data)}, flags)
 }
 
 func newNovelPlanCollaboratorsCmd(flags *rootFlags) *cobra.Command {
@@ -831,11 +820,12 @@ func runPlanCollaboratorWrite(cmd *cobra.Command, flags *rootFlags, opts planEdi
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
-	return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"command": commandName, "target_key": key, "status": status, "applied": true, "results": json.RawMessage(data)}, flags)
+	return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"command": commandName, "target_key": key, "status": status, "applied": !syntheticMutationResponse(data), "validation": mutationValidation(data), "results": json.RawMessage(data)}, flags)
 }
 
 func newNovelPlanRouteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{Use: "route", Short: "Build or send Wanderlog route optimization requests", RunE: parentNoSubcommandRunE(flags)}
+	cmd.AddCommand(newNovelPlanRouteLegsCmd(flags))
 	cmd.AddCommand(newNovelPlanRouteDayBodyCmd(flags))
 	cmd.AddCommand(newNovelPlanRouteOptimizeCmd(flags))
 	return cmd
@@ -978,4 +968,95 @@ func routeBodyForSection(sec resolvedSection, mode string) map[string]any {
 		places = append(places, stop)
 	}
 	return map[string]any{"places": places, "travelMode": firstNonEmpty(mode, "DRIVING")}
+}
+
+// buildScheduleOps keeps the native start/end/duration tuple coherent. A start
+// change preserves the existing duration; an explicit end recomputes duration.
+// Times crossing midnight use the following day, with a maximum of 24 hours.
+func buildScheduleOps(block map[string]any, base []any, changes map[string]any, clear bool) ([]map[string]any, map[string]any, error) {
+	preview := cloneJSONMap(block)
+	fields := []string{"startTime", "endTime", "durationMinutes", "timezone"}
+	if clear && len(changes) > 0 {
+		return nil, nil, errors.New("clear cannot be combined with schedule values")
+	}
+	for key, value := range changes {
+		switch key {
+		case "startTime", "endTime":
+			clock, ok := value.(string)
+			if !ok || !validClock(clock) {
+				return nil, nil, fmt.Errorf("%s must be HH:MM", key)
+			}
+		case "durationMinutes":
+			n := intAny(value)
+			if n < 0 || n > 1440 || fmt.Sprint(value) != strconv.Itoa(n) {
+				return nil, nil, errors.New("durationMinutes must be an integer between 0 and 1440")
+			}
+		case "timezone":
+			if _, ok := value.(string); !ok {
+				return nil, nil, errors.New("timezone must be a string")
+			}
+		default:
+			return nil, nil, fmt.Errorf("unsupported schedule field %s", key)
+		}
+		preview[key] = value
+	}
+	if clear {
+		for _, field := range fields {
+			delete(preview, field)
+		}
+	} else {
+		_, startChanged := changes["startTime"]
+		_, endChanged := changes["endTime"]
+		_, durationChanged := changes["durationMinutes"]
+		start, hasStart := parseClockToMinutes(stringAny(preview["startTime"]), "")
+		end, hasEnd := parseClockToMinutes(stringAny(preview["endTime"]), "")
+		duration := intAny(preview["durationMinutes"])
+		_, hasDuration := preview["durationMinutes"]
+		if startChanged && !endChanged && !durationChanged && !hasDuration {
+			oldStart, okStart := parseClockToMinutes(stringAny(block["startTime"]), "")
+			oldEnd, okEnd := parseClockToMinutes(stringAny(block["endTime"]), "")
+			if okStart && okEnd {
+				duration = (oldEnd - oldStart + 1440) % 1440
+				hasDuration = true
+				preview["durationMinutes"] = duration
+			}
+		}
+		if hasStart && hasEnd && endChanged {
+			span := (end - start + 1440) % 1440
+			if durationChanged && duration%1440 != span {
+				return nil, nil, errors.New("startTime, endTime, and durationMinutes disagree")
+			}
+			if !durationChanged {
+				preview["durationMinutes"] = span
+			}
+		} else if hasStart && hasDuration && (startChanged || durationChanged) {
+			end = (start + duration) % 1440
+			preview["endTime"] = fmt.Sprintf("%02d:%02d", end/60, end%60)
+		}
+	}
+	var ops []map[string]any
+	for _, field := range fields {
+		before, had := block[field]
+		after, has := preview[field]
+		if had == has && fmt.Sprint(before) == fmt.Sprint(after) {
+			continue
+		}
+		path := append(append([]any{}, base...), field)
+		ops = append(ops, objectSetOp(path, before, had, after, !has))
+	}
+	return ops, preview, nil
+}
+
+func syntheticMutationResponse(data json.RawMessage) bool {
+	var result map[string]any
+	if json.Unmarshal(data, &result) != nil {
+		return false
+	}
+	return result["__pp_verify_synthetic__"] == true || result["dry_run"] == true
+}
+func mutationValidation(data json.RawMessage) string {
+	if syntheticMutationResponse(data) {
+		return "skipped"
+	}
+	return "valid"
 }

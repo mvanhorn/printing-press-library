@@ -28,6 +28,17 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "plan overview", Description: "Orient across every day with stop locations, schedules, saved travel, accommodation changes and global constraints.", Group: "Trip planning", Aliases: []string{"Trip orientation"}},
+	{Command: "plan days", Description: "Read full selected days with shared notes, reservations and place metadata represented once.", Group: "Trip planning", Aliases: []string{"Multi-day planning"}},
+	{Command: "plan block add-batch", Description: "Validate and preview multiple stops, notes, checklists and schedules before one ShareDB transaction.", Group: "Trip planning", Aliases: []string{"Batch itinerary creation"}},
+	{Command: "plan day", Description: "Read a complete day planning view with notes, bookings, travel legs and warnings in one response; optionally read changes since saved state.", Group: "Trip planning", Aliases: []string{"plan my day", "day planning view", "what changed in my itinerary", "changes since last read"}},
+	{Command: "trips create", Description: "Create a new blank trip plan from scratch with destination geo IDs, title and dates.", Group: "Trip planning", WhyItMatters: "Start a trip without copying another plan; use explicit --dry-run before creation.", Aliases: []string{"create a blank trip", "new plan from scratch", "create new plan"}},
+	{Command: "geos autocomplete", Description: "Find destination geo IDs by city, region or country.", Group: "Trip planning", WhyItMatters: "Resolve destinations before creating a trip.", Aliases: []string{"destination lookup"}},
+	{Command: "places autocomplete", Description: "Search places by query with latitude and longitude bias.", Group: "Trip planning", WhyItMatters: "Get place IDs before adding stops.", Aliases: []string{"search a place", "find a cafe"}},
+	{Command: "plan block get", Description: "Read full details and note text for one itinerary block by stable block ID.", Group: "Trip planning", WhyItMatters: "Read the complete note, schedule and place information before editing.", Aliases: []string{"show full details and note text for an itinerary block", "read full note", "read block"}},
+	{Command: "plan edit", Description: "Batch Markdown, name and schedule changes to existing blocks from a changes file.", Group: "Trip planning", WhyItMatters: "Preview named edits by block ID and apply one ShareDB transaction.", Aliases: []string{"batch edit notes", "format all notes"}},
+	{Command: "plan route legs", Description: "Read driving and walking travel times and distances between consecutive itinerary locations.", Group: "Trip planning", WhyItMatters: "Use saved API estimates in existing stop order; report missing routes and schedule slack.", Aliases: []string{"travel time driving walking between itinerary stops", "distance between stops", "driving time", "walking time"}},
+	{Command: "plan suggestions", Description: "Read saved nearby place recommendations for an itinerary section.", Group: "Trip planning", WhyItMatters: "Find candidate stops with known coordinates; do not duplicate already planned places.", Aliases: []string{"nearby suggestions", "candidate stops"}},
 	{Command: "plan clone", Description: "Create a new Wanderlog trip from a shared or public source plan, then fill it with the source plan template.", Group: "Plan cloning and fill", WhyItMatters: "Use this when the user wants a private editable copy of a shared plan. A `/plan/<16-char-key>/...` URL is often already editable — do not clone just to edit it."},
 	{Command: "plan fill", Description: "Fill an existing Wanderlog trip from a shared or public source plan with dry-run and force safeguards.", Group: "Plan cloning and fill", WhyItMatters: "Use this when the user already created a target trip and wants to populate it from a shared template. Substitute YOUR_TRIP_KEY with the 16-character key of a trip you own, from `trips home`."},
 	{Command: "plan preview", Description: "Inspect a shared plan and report dates, sections, blocks, resources, and clone warnings before any write.", Group: "Plan cloning and fill", WhyItMatters: "Use this before clone/fill to confirm what will be copied and whether credentials are needed. The report is ~1KB, so it is safe to run on any pasted link."},
@@ -192,6 +203,9 @@ func whichAliasHits(aliases []string, query string, qTokens []string) bool {
 		}
 		aTokens := whichTokens(a)
 		for _, qt := range qTokens {
+			if len(qt) <= 2 || qt == "the" || qt == "for" || qt == "plan" || qt == "trip" {
+				continue
+			}
 			for _, at := range aTokens {
 				if qt == at {
 					return true

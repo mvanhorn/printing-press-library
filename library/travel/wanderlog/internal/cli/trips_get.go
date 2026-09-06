@@ -74,8 +74,14 @@ func newTripsGetCmd(flags *rootFlags) *cobra.Command {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+					if selectLooksEmpty(filtered) {
+						return usageErr(fmt.Errorf("--select %q matched no fields; use dotted fields or numeric array indices", flags.selectFields))
+					}
 				} else if flags.compact {
 					filtered = compactFields(filtered)
+				}
+				if !flagFull && (flags.agent || flags.compact) && len(filtered) > fatTripByteLimit {
+					return usageErr(fmt.Errorf("selected trip JSON exceeds 32KB; narrow --select, use plan block get or plan route legs, or explicitly pass --full"))
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

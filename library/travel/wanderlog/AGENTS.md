@@ -10,14 +10,14 @@ Start by asking the generated CLI for current runtime truth:
 wanderlog-pp-cli doctor --json
 ```
 
-Use runtime discovery instead of relying on a copied command list, and instead of
-`agent-context`, which returns 88,306 bytes (182 KB with `--pretty`) and adds nothing
-over the two calls below:
-
-```bash
-wanderlog-pp-cli which "<capability>" --json
-wanderlog-pp-cli <command> --help
-```
+Use focused runtime discovery: `agent-context --task review`, `--task create`, or
+`--task edit` supplies the relevant workflow. For another capability, use
+`which "<capability>" --agent` and the matching command's help. An exact schema
+is available with `agent-context --command "plan overview" --agent`.
+The default discovery inventory is complete; `--full` includes all schemas and
+is expensive. For a complete itinerary review, read full days once with `plan days`.
+For orientation or a focused question, use `plan overview` then only missing details. Reload a full day if its prior
+baseline is no longer in model context before requesting deltas.
 
 Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
 
