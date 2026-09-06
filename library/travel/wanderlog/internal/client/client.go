@@ -134,7 +134,7 @@ func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[str
 	cacheEnabled := c.responseCacheEnabled(binaryResponse)
 	// Check cache for GET requests
 	if cacheEnabled {
-		if cached, contentType, ok := c.readCache(path, params); ok {
+		if cached, contentType, ok := c.readCache(path, params); ok && applicationFailure(cached) == "" {
 			c.lastContentType = contentType
 			return cached, nil
 		}
@@ -589,8 +589,13 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			return nil, 0, fmt.Errorf("reading response: %w", err)
 		}
 
-		// Success
+		// Wanderlog also reports application failures in HTTP 200 envelopes.
+		// Reject them before cache invalidation or any caller can claim applied:true.
 		if resp.StatusCode < 400 {
+			if message := applicationFailure(respBody); message != "" {
+				return nil, resp.StatusCode, &APIError{Method: method, Path: c.displayURL(path, authHeader), StatusCode: resp.StatusCode, Body: c.maskCredentialText(message, authHeader)}
+			}
+
 			c.lastContentType = resp.Header.Get("Content-Type")
 			c.limiter.OnSuccess()
 			if method != http.MethodGet && !c.DryRun {
@@ -951,4 +956,37 @@ func truncateBody(b []byte) string {
 		return string(b)
 	}
 	return strings.ToValidUTF8(string(b[:maxBytes]), "") + "..."
+}
+
+// applicationFailure inspects only the API envelope, never nested user content.
+func applicationFailure(body []byte) string {
+	var envelope struct {
+		Success  *bool           `json:"success"`
+		Error    json.RawMessage `json:"error"`
+		Messages []string        `json:"messages"`
+		Types    []string        `json:"errTypes"`
+	}
+	if json.Unmarshal(body, &envelope) != nil {
+		return ""
+	}
+	// Routing and CSV-export failures can omit success entirely and return
+	// only a top-level error. Never classify nested note/place content.
+	errorJSON := strings.TrimSpace(string(envelope.Error))
+	hasError := errorJSON != "" && errorJSON != "null" && errorJSON != `""` && errorJSON != "false" && errorJSON != "{}" && errorJSON != "[]"
+	if !hasError && (envelope.Success == nil || *envelope.Success) {
+		return ""
+	}
+	message := "Wanderlog application request failed"
+	var detail string
+	if json.Unmarshal(envelope.Error, &detail) == nil && detail != "" {
+		message = detail
+	} else if len(envelope.Messages) > 0 {
+		message = strings.Join(envelope.Messages, "; ")
+	} else if hasError {
+		message = errorJSON
+	}
+	if len(envelope.Types) > 0 {
+		message = strings.Join(envelope.Types, ",") + ": " + message
+	}
+	return truncateBody([]byte(message))
 }

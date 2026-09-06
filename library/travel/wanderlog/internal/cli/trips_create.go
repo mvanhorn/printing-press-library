@@ -7,7 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -27,8 +29,9 @@ func newTripsCreateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "create",
-		Short:       "Create a Wanderlog trip for the authenticated account",
-		Example:     "  wanderlog-pp-cli trips create --geo-ids [86696] --title \"Okinawa test trip\" --dry-run",
+		Short:       "Create a new trip; pass --dry-run to preview without creating it",
+		Args:        cobra.NoArgs,
+		Example:     "  wanderlog-pp-cli trips create --geo-ids '[86696]' --title \"Okinawa test trip\" --dry-run",
 		Annotations: map[string]string{"pp:endpoint": "trips.create", "pp:method": "POST", "pp:path": "/api/tripPlans"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -101,6 +104,12 @@ func newTripsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["isMapEmbed"] = bodyIsMapEmbed
 				}
 			}
+			validation := "valid"
+			if _, hasGeo := body["geoIds"]; !hasGeo && flags.dryRun && !stdinBody && cmd.Flags().NFlag() == 0 {
+				validation = "skipped"
+			} else if err := validateTripCreation(body); err != nil {
+				return usageErr(err)
+			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -162,11 +171,12 @@ func newTripsCreateCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 				envelope := map[string]any{
-					"action":   "post",
-					"resource": "trips",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+					"validation": validation,
+					"action":     "post",
+					"resource":   "trips",
+					"path":       path,
+					"status":     statusCode,
+					"success":    statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
@@ -175,6 +185,8 @@ func newTripsCreateCmd(flags *rootFlags) *cobra.Command {
 					envelope["dry_run"] = true
 					envelope["status"] = 0
 					envelope["success"] = false
+					envelope["applied"] = false
+					envelope["request"] = body
 				}
 				// Verify-mode synthetic envelope detection runs against RAW data
 				// (before --compact/--select filtering) so the sentinel field is
@@ -250,4 +262,45 @@ func newTripsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+// validateTripCreation catches request mistakes before any remote creation.
+func validateTripCreation(body map[string]any) error {
+	ids, ok := body["geoIds"].([]any)
+	if !ok || len(ids) == 0 {
+		return fmt.Errorf("geoIds must be a non-empty JSON array of positive integer destination IDs")
+	}
+	for _, id := range ids {
+		n, ok := id.(float64)
+		if !ok || n <= 0 || math.Trunc(n) != n {
+			return fmt.Errorf("geoIds must contain positive integers")
+		}
+	}
+	if v, ok := body["privacy"]; ok {
+		p, ok := v.(string)
+		if !ok || (p != "private" && p != "friends" && p != "public") {
+			return fmt.Errorf("privacy must be private, friends or public")
+		}
+	}
+	start, hasStart := body["startDate"]
+	end, hasEnd := body["endDate"]
+	if hasStart != hasEnd {
+		return fmt.Errorf("provide both startDate and endDate (or --start-date and --end-date)")
+	}
+	if hasStart {
+		a, aok := start.(string)
+		b, bok := end.(string)
+		if !aok || !bok {
+			return fmt.Errorf("dates must be YYYY-MM-DD strings")
+		}
+		x, e1 := time.Parse("2006-01-02", a)
+		y, e2 := time.Parse("2006-01-02", b)
+		if e1 != nil || e2 != nil {
+			return fmt.Errorf("dates must use YYYY-MM-DD")
+		}
+		if y.Before(x) {
+			return fmt.Errorf("end date precedes start date")
+		}
+	}
+	return nil
 }

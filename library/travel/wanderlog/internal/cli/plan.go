@@ -11,7 +11,7 @@ func newNovelPlanCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "plan",
-		Short:       "plan subcommands: clone, fill, preview, sections, section, note, place, reservation, block, checklist, comments, collaborators, budget, route, history, undo, redo, raw",
+		Short:       "Read, create from templates, edit, and check itineraries, travel legs, reservations and budgets",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
@@ -22,6 +22,9 @@ func newNovelPlanCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newNovelPlanPreviewCmd(flags))
 	// PATCH(amend-2026-08-23: register slim outline/inspect for agent itinerary reads)
 	cmd.AddCommand(newNovelPlanOutlineCmd(flags))
+	cmd.AddCommand(newNovelPlanDayCmd(flags))
+	cmd.AddCommand(newNovelPlanDaysCmd(flags))
+	cmd.AddCommand(newNovelPlanOverviewCmd(flags))
 	cmd.AddCommand(newNovelPlanInspectCmd(flags))
 	// PATCH(amend-2026-08-23: register plan votes inspect)
 	cmd.AddCommand(newNovelPlanVotesCmd(flags))
@@ -30,11 +33,13 @@ func newNovelPlanCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newNovelPlanPlaceCmd(flags))
 	cmd.AddCommand(newNovelPlanReservationCmd(flags))
 	cmd.AddCommand(newNovelPlanBlockCmd(flags))
+	cmd.AddCommand(newNovelPlanEditCmd(flags))
 	cmd.AddCommand(newNovelPlanChecklistCmd(flags))
 	cmd.AddCommand(newNovelPlanCommentsCmd(flags))
 	cmd.AddCommand(newNovelPlanCollaboratorsCmd(flags))
 	cmd.AddCommand(newNovelPlanBudgetCmd(flags))
 	cmd.AddCommand(newNovelPlanRouteCmd(flags))
+	cmd.AddCommand(newNovelPlanSuggestionsCmd(flags))
 	cmd.AddCommand(newNovelPlanHistoryCmd(flags))
 	cmd.AddCommand(newNovelPlanUndoCmd(flags))
 	cmd.AddCommand(newNovelPlanRedoCmd(flags))

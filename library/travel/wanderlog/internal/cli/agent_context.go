@@ -93,18 +93,52 @@ type agentContextForEdit struct {
 func newAgentContextCmd(rootCmd *cobra.Command, flags *rootFlags) *cobra.Command {
 	var pretty bool
 	var forEdit bool
+	var full bool
+	var commandPath string
+	var task string
 	cmd := &cobra.Command{
 		Use:         "agent-context",
-		Short:       "Emit structured JSON describing this CLI for agents",
+		Short:       "List compact command summaries; use --command for a flag schema or --full for all schemas",
+		Args:        cobra.NoArgs,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Outputs a machine-readable description of commands, flags, and auth so
 agents can introspect this CLI at runtime without parsing --help or
-reading source. Schema is versioned via schema_version.
+reading source. The default schema 4 summary preserves the entire command inventory and
+auth/safety annotations, but omits flag schemas. --command "plan day" retrieves
+one command schema; --full restores the complete legacy schema 3 payload.
+--task review|create|edit returns bounded workflow command schemas and safety guidance.
+No commands are hidden by the default summary. Schema is versioned via schema_version.
 
 --for-edit emits a slim payload (cli, auth, identifier_rules, which_index,
 hero_commands) without discovery or the full command tree.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			payload := buildAgentContextPayload(rootCmd, forEdit)
+			modes := 0
+			for _, enabled := range []bool{forEdit, full, commandPath != "", task != ""} {
+				if enabled {
+					modes++
+				}
+			}
+			if modes > 1 {
+				return usageErr(fmt.Errorf("choose only one of --for-edit, --full, --command, or --task"))
+			}
+			var payload any
+			if forEdit || full {
+				payload = buildAgentContextPayload(rootCmd, forEdit)
+			} else if task != "" {
+				var err error
+				payload, err = taskAgentContext(rootCmd, task)
+				if err != nil {
+					return usageErr(err)
+				}
+			} else if commandPath != "" {
+				var err error
+				payload, err = scopedAgentContext(rootCmd, commandPath)
+				if err != nil {
+					return usageErr(err)
+				}
+			} else {
+				payload = compactAgentContext(rootCmd)
+			}
 			raw, err := json.Marshal(payload)
 			if err != nil {
 				return err
@@ -126,6 +160,9 @@ hero_commands) without discovery or the full command tree.`,
 			return enc.Encode(v)
 		},
 	}
+	cmd.Flags().StringVar(&task, "task", "", "Focused workflow schemas: review, create, or edit; default inventory remains complete")
+	cmd.Flags().BoolVar(&full, "full", false, "Include all flag schemas (legacy schema 3); usually prefer --command")
+	cmd.Flags().StringVar(&commandPath, "command", "", "Exact command path whose flag schema to read, e.g. plan day")
 	cmd.Flags().BoolVar(&pretty, "pretty", false, "indent JSON output for human reading")
 	cmd.Flags().BoolVar(&forEdit, "for-edit", false, "Emit a slim payload: cli, auth, identifier_rules, which_index, and hero commands (plan/trips/which/lodging/auth)")
 	return cmd

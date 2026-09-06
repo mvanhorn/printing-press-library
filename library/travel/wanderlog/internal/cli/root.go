@@ -293,6 +293,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPlaceListsPromotedCmd(flags))
 	rootCmd.AddCommand(newSessionPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCmd())
+	applyWanderlogDogfoodFixtures(rootCmd)
 
 	return rootCmd
 }
@@ -324,6 +325,24 @@ func writeShortHelp(w io.Writer, cmd *cobra.Command) {
 		local := cmd.NonInheritedFlags()
 		if local != nil && local.HasAvailableFlags() {
 			fmt.Fprintf(w, "Flags:\n%s\n", local.FlagUsages())
+		}
+	}
+	// Keep the execution contract discoverable without dumping every inherited
+	// flag. Model harnesses inspect short help before deciding how to preview.
+	if cmd.HasParent() {
+		inherited := cmd.InheritedFlags()
+		shown := false
+		for _, name := range []string{"dry-run", "agent", "json"} {
+			if flag := inherited.Lookup(name); flag != nil {
+				if !shown {
+					fmt.Fprintln(w, "Common flags:")
+					shown = true
+				}
+				fmt.Fprintf(w, "  --%-10s %s\n", name, flag.Usage)
+			}
+		}
+		if shown {
+			fmt.Fprintln(w)
 		}
 	}
 	if cmd.Example != "" {

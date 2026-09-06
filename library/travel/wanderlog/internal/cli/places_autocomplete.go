@@ -4,20 +4,28 @@
 package cli
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 func newPlacesAutocompleteCmd(flags *rootFlags) *cobra.Command {
 	var flagRequest string
+	var query, language string
+	var lat, lng float64
+	var radius int
 
 	cmd := &cobra.Command{
 		Use:         "autocomplete",
-		Short:       "Search places with Wanderlog's Places API autocomplete request envelope",
-		Example:     "  wanderlog-pp-cli places autocomplete --request '{\"input\":\"Eiffel Tower\",\"sessiontoken\":\"printing-press-dogfood\",\"location\":{\"lat\":48.8584,\"lng\":2.2945},\"radius\":50000,\"language\":\"en\"}' --agent --select data.0.place_id,data.0.description",
+		Short:       "Search places by query and optional location, or an advanced JSON request",
+		Args:        cobra.NoArgs,
+		Example:     "  wanderlog-pp-cli places autocomplete --query 'Eiffel Tower' --lat 48.8584 --lng 2.2945 --agent --select data.0.place_id,data.0.description",
 		Annotations: map[string]string{"pp:endpoint": "places.autocomplete", "pp:method": "GET", "pp:path": "/api/placesAPI/autocomplete/v2", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -26,8 +34,27 @@ func newPlacesAutocompleteCmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("request") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "request")
+			if cmd.Flags().Changed("request") {
+				for _, name := range []string{"query", "lat", "lng", "radius", "language"} {
+					if cmd.Flags().Changed(name) {
+						return usageErr(fmt.Errorf("--request cannot be combined with --%s", name))
+					}
+				}
+				var body map[string]any
+				if err := json.Unmarshal([]byte(flagRequest), &body); err != nil || body == nil {
+					return usageErr(fmt.Errorf("--request must be a JSON object"))
+				}
+			} else if cmd.Flags().Changed("query") {
+				if cmd.Flags().Changed("radius") && !cmd.Flags().Changed("lat") {
+					return usageErr(fmt.Errorf("--radius requires --lat and --lng"))
+				}
+				request, err := autocompleteQueryEnvelope(query, lat, lng, cmd.Flags().Changed("lat"), cmd.Flags().Changed("lng"), radius, language)
+				if err != nil {
+					return usageErr(err)
+				}
+				flagRequest = request
+			} else if !flags.dryRun || cmd.Flags().NFlag() > 0 {
+				return usageErr(fmt.Errorf("provide --query or --request"))
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -62,6 +89,9 @@ func newPlacesAutocompleteCmd(flags *rootFlags) *cobra.Command {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+					if selectLooksEmpty(filtered) {
+						return usageErr(fmt.Errorf("--select %q matched no fields; use dotted fields or numeric array indices", flags.selectFields))
+					}
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
@@ -89,5 +119,36 @@ func newPlacesAutocompleteCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagRequest, "request", "", "JSON request envelope with input, sessiontoken, optional location, radius, and language")
 
+	cmd.Flags().StringVar(&query, "query", "", "Place name or address to search")
+	cmd.Flags().Float64Var(&lat, "lat", 0, "Latitude bias; requires --lng")
+	cmd.Flags().Float64Var(&lng, "lng", 0, "Longitude bias; requires --lat")
+	cmd.Flags().IntVar(&radius, "radius", 50000, "Search radius in meters")
+	cmd.Flags().StringVar(&language, "language", "en", "Preferred result language")
 	return cmd
+}
+
+func autocompleteQueryEnvelope(query string, lat, lng float64, hasLat, hasLng bool, radius int, language string) (string, error) {
+	if strings.TrimSpace(query) == "" {
+		return "", fmt.Errorf("--query must not be empty")
+	}
+	if hasLat != hasLng {
+		return "", fmt.Errorf("--lat and --lng must be supplied together")
+	}
+	if math.IsNaN(lat) || math.IsInf(lat, 0) || math.IsNaN(lng) || math.IsInf(lng, 0) || lat < -90 || lat > 90 || lng < -180 || lng > 180 {
+		return "", fmt.Errorf("invalid latitude or longitude")
+	}
+	if radius <= 0 {
+		return "", fmt.Errorf("--radius must be positive")
+	}
+	token := make([]byte, 16)
+	if _, err := rand.Read(token); err != nil {
+		return "", fmt.Errorf("create autocomplete session: %w", err)
+	}
+	body := map[string]any{"input": query, "sessiontoken": hex.EncodeToString(token), "language": language}
+	if hasLat {
+		body["location"] = map[string]float64{"lat": lat, "lng": lng}
+		body["radius"] = radius
+	}
+	data, err := json.Marshal(body)
+	return string(data), err
 }

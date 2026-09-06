@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -466,19 +467,41 @@ func summarizeBudget(budget map[string]any) map[string]any {
 	payments := budgetArray(budget, "payments")
 	byCategory := map[string]float64{}
 	byCurrency := map[string]float64{}
+	byCategoryCurrency := map[string]map[string]float64{}
+	incomplete := 0
 	for _, raw := range expenses {
 		exp, _ := raw.(map[string]any)
 		if exp == nil {
+			incomplete++
 			continue
 		}
 		amount := mapField(exp, "amount")
-		value := floatAny(amount["amount"])
-		currency := firstNonEmpty(stringField(amount, "currencyCode"), stringField(mapField(budget, "amount"), "currencyCode"))
+		value, validAmount := budgetSummaryValue(amount["amount"])
+		currency := strings.ToUpper(strings.TrimSpace(firstNonEmpty(stringField(amount, "currencyCode"), stringField(mapField(budget, "amount"), "currencyCode"))))
+		if !validAmount || currency == "" {
+			incomplete++
+			continue
+		}
 		category := firstNonEmpty(stringField(exp, "category"), "other")
-		byCategory[category] += value
+		if byCategoryCurrency[category] == nil {
+			byCategoryCurrency[category] = map[string]float64{}
+		}
+		byCategoryCurrency[category][currency] += value
 		byCurrency[currency] += value
 	}
-	return map[string]any{"amount": budget["amount"], "expense_count": len(expenses), "payment_count": len(payments), "totals_by_category": byCategory, "totals_by_currency": byCurrency, "simplify_debt": budget["simplifyDebt"]}
+	// Preserve numeric category totals for single-currency categories only.
+	// Mixed currencies have no meaningful nominal sum; expose qualified totals instead.
+	mixed := false
+	for category, currencies := range byCategoryCurrency {
+		if len(currencies) == 1 {
+			for _, amount := range currencies {
+				byCategory[category] = amount
+			}
+		} else {
+			mixed = true
+		}
+	}
+	return map[string]any{"amount": budget["amount"], "expense_count": len(expenses), "payment_count": len(payments), "totals_by_category": byCategory, "totals_by_category_currency": byCategoryCurrency, "mixed_currency_categories_omitted": mixed, "totals_complete": incomplete == 0, "incomplete_expense_count": incomplete, "totals_by_currency": byCurrency, "simplify_debt": budget["simplifyDebt"]}
 }
 
 func buildBudgetExpense(in budgetExpenseFlags, target map[string]any) (map[string]any, error) {
@@ -755,4 +778,32 @@ func firstNonZeroFloat(values ...float64) float64 {
 		}
 	}
 	return 0
+}
+
+// Invalid or absent values are unknown expenses, not zero-cost expenses.
+func budgetSummaryValue(value any) (float64, bool) {
+	var n float64
+	switch v := value.(type) {
+	case float64:
+		n = v
+	case int:
+		n = float64(v)
+	case int64:
+		n = float64(v)
+	case json.Number:
+		var err error
+		n, err = v.Float64()
+		if err != nil {
+			return 0, false
+		}
+	case string:
+		var err error
+		n, err = strconv.ParseFloat(v, 64)
+		if err != nil {
+			return 0, false
+		}
+	default:
+		return 0, false
+	}
+	return n, !math.IsNaN(n) && !math.IsInf(n, 0)
 }

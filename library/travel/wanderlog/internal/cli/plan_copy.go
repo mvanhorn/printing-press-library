@@ -387,6 +387,9 @@ func fillTargetViaShareDB(ctx context.Context, c *client.Client, source map[stri
 		if err := conn.ReadJSON(&frame); err != nil {
 			return fmt.Errorf("ShareDB handshake: %w", err)
 		}
+		if err := shareDBFrameError("handshake", frame, auth); err != nil {
+			return err
+		}
 		if frame["a"] == "init" {
 			sessionID = stringAny(frame["id"])
 			continue
@@ -405,6 +408,9 @@ func fillTargetViaShareDB(ctx context.Context, c *client.Client, source map[stri
 		if err := conn.ReadJSON(&frame); err != nil {
 			return fmt.Errorf("ShareDB subscribe: %w", err)
 		}
+		if err := shareDBFrameError("subscribe", frame, auth); err != nil {
+			return err
+		}
 		if frame["a"] != "s" {
 			continue
 		}
@@ -413,8 +419,8 @@ func fillTargetViaShareDB(ctx context.Context, c *client.Client, source map[stri
 		target = mapField(data, "data")
 		break
 	}
-	if target == nil || version == 0 {
-		return errors.New("ShareDB subscribe did not return target snapshot/version")
+	if target == nil {
+		return errors.New("ShareDB subscribe did not return target snapshot")
 	}
 	if countBlocks(target) > 0 && !force {
 		return errors.New("target trip contains blocks; rerun with --force after preview")
@@ -423,20 +429,18 @@ func fillTargetViaShareDB(ctx context.Context, c *client.Client, source map[stri
 	frame := map[string]any{"a": "op", "c": "TripPlans", "d": targetKey, "v": version, "seq": 1, "x": map[string]any{}, "op": op}
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	if err := conn.WriteJSON(frame); err != nil {
-		return err
+		return fmt.Errorf("ShareDB op send failed; outcome unknown, inspect the target before retrying: %w", err)
 	}
 	for {
 		var ack map[string]any
 		if err := conn.ReadJSON(&ack); err != nil {
-			return fmt.Errorf("ShareDB op ack: %w", err)
+			return fmt.Errorf("ShareDB op acknowledgement lost; outcome unknown, inspect the target before retrying: %w", err)
 		}
-		if code := intAny(ack["code"]); code != 0 {
-			return fmt.Errorf("ShareDB rejected op (%d): %s", code, stringAny(ack["message"]))
+		if err := shareDBFrameError("apply", ack, auth); err != nil {
+			return err
 		}
-		if ack["a"] == "op" {
-			if intAny(ack["seq"]) == 1 || stringAny(ack["src"]) == sessionID {
-				return nil
-			}
+		if shareDBAcknowledges(ack, sessionID, targetKey) {
+			return nil
 		}
 	}
 }
