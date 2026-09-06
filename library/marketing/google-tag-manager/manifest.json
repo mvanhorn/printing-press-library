@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-tag-manager-pp-mcp",
+  "display_name": "Google Tag Manager",
+  "version": "0.0.0",
+  "description": "Mirror any GTM container into a local database, then audit, diff, and query it from the terminal — everything the GTM console can't do, read-only and safe against production.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-tag-manager-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-tag-manager-pp-mcp",
+      "args": [],
+      "env": {
+        "GTM_ACCESS_TOKEN": "${user_config.gtm_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "gtm_access_token": {
+      "type": "string",
+      "title": "GTM_ACCESS_TOKEN",
+      "description": "Google OAuth access token (tagmanager.readonly scope). From gcloud auth print-access-token or a service-account token.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

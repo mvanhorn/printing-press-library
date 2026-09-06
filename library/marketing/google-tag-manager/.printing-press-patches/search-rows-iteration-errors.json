@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "search-rows-iteration-errors",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260617-170034-29a18b19",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Propagate database iteration errors from the search command instead of emitting partial results.",
+  "reason": "The search query checked row scan errors but not rows.Err() after iteration, so an I/O failure or canceled context could silently return a truncated result with exit status 0.",
+  "files": ["internal/cli/search.go"],
+  "validated_outcome": "Unit tests, go vet, and go build pass with the post-iteration rows.Err() guard in place."
+}

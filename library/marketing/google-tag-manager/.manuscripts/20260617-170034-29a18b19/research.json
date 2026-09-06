@@ -1,0 +1,289 @@
+{
+  "api_name": "google-tag-manager",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gtm-tools",
+      "url": "https://github.com/lessmess-dev/gtm-tools",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-api-go-client (tagmanager/v2)",
+      "url": "https://github.com/googleapis/google-api-go-client",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-17T21:06:00Z",
+  "novel_features": [
+    {
+      "name": "Mirror container to SQLite",
+      "command": "pull",
+      "description": "Walk an entire GTM container — every tag, trigger, variable, folder, template, client, zone, and gtag config — into a local SQLite store in one command.",
+      "rationale": "A local cross-referenced store is the precondition for every offline, diff, and graph query the GTM API and console cannot answer on their own.",
+      "example": "google-tag-manager-pp-cli pull --account 6012345 --container 9876543 --live",
+      "why_it_matters": "Reach for this first — every other command reads the mirror, and re-pulls become time-stamped snapshots for history/drift.",
+      "group": "Local mirror that compounds"
+    },
+    {
+      "name": "Hygiene audit",
+      "command": "audit",
+      "description": "Run a battery of hygiene checks against the mirror: dead tags, orphan triggers, unused variables, paused tags, Custom HTML tags, and tags firing on All Pages.",
+      "rationale": "These checks require joining the full tag/trigger/variable graph locally, which the per-resource GTM UI and single-call API cannot do.",
+      "example": "google-tag-manager-pp-cli audit --json --fail-on high",
+      "why_it_matters": "Use to gate a release in CI or sanity-check a container before publishing; typed exit code fails the build on high-severity findings.",
+      "group": "Hygiene, compliance \u0026 governance"
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "diff",
+      "description": "Field-level diff between two snapshots: workspace vs live, version vs version, or container vs container, with stable name+type keys so renames are not add+remove.",
+      "rationale": "The GTM console has no diff of any kind; cross-container and version-to-version comparison is only possible against the local store.",
+      "example": "google-tag-manager-pp-cli diff live workspace:7",
+      "why_it_matters": "Use before publishing to see exactly what changed, or to compare two properties' containers.",
+      "group": "Diff \u0026 fleet visibility"
+    },
+    {
+      "name": "Cross-container fleet matrix",
+      "command": "fleet",
+      "description": "One table across all pulled containers: GA4/measurement-id inventory, Consent Mode coverage, Custom HTML count, and entity counts per container.",
+      "rationale": "The GTM UI is single-container; a fleet-wide inventory only exists once many containers share one local store.",
+      "example": "google-tag-manager-pp-cli fleet --metric ga4 --json",
+      "why_it_matters": "Use when you manage containers across multiple properties and need a portfolio view the console can never give.",
+      "group": "Diff \u0026 fleet visibility"
+    },
+    {
+      "name": "Consent Mode v2 readiness",
+      "command": "consent-report",
+      "description": "Per-tag consentSettings coverage and a list of tags that fire without consent gating, classified by vendor (ads vs analytics).",
+      "rationale": "Derived from the joined tag/consent graph in the mirror — the API returns consentSettings per tag but never the rolled-up coverage view.",
+      "example": "google-tag-manager-pp-cli consent-report --json",
+      "why_it_matters": "Use to answer 'are we Consent Mode v2 compliant for the EEA' without clicking through every tag.",
+      "group": "Hygiene, compliance \u0026 governance"
+    },
+    {
+      "name": "Full-text search across config",
+      "command": "search",
+      "description": "FTS5 search across every entity's name, type, parameters, and notes — find hardcoded GA4 ids, stray pixels, or leftover URLs across all pulled containers.",
+      "rationale": "Searching parameter blobs across all entities and containers at once requires the flattened local index, not per-resource API calls.",
+      "example": "google-tag-manager-pp-cli search \"G-ABCDE12345\"",
+      "why_it_matters": "Use to track down where a measurement id, domain, or vendor pixel is referenced before changing or removing it.",
+      "group": "Diff \u0026 fleet visibility"
+    },
+    {
+      "name": "Reverse-dependency blast radius",
+      "command": "uses",
+      "description": "Show everything that references a variable or trigger — the safe-to-delete / what-breaks-if-I-touch-this check.",
+      "rationale": "A reverse reference index across all tags and triggers is only available from the joined local store.",
+      "example": "google-tag-manager-pp-cli uses \"DLV - userId\"",
+      "why_it_matters": "Use before deleting or renaming a variable or trigger to see its blast radius.",
+      "group": "Dependency graph"
+    },
+    {
+      "name": "Runtime fire graph",
+      "command": "fires",
+      "description": "Bidirectional graph walk: which tags fire on a trigger, or which triggers and variables a tag depends on.",
+      "rationale": "Resolving the trigger-tag-variable graph in both directions needs the cross-referenced store, not a single GET.",
+      "example": "google-tag-manager-pp-cli fires --trigger 42 --json",
+      "why_it_matters": "Use for incident debugging — 'why did this fire' or 'what fires here'.",
+      "group": "Dependency graph"
+    },
+    {
+      "name": "Git-friendly export",
+      "command": "export",
+      "description": "Emit a deterministic flattened representation of the container for clean version-control diffs, or container-export-compatible JSON.",
+      "rationale": "Stable key ordering across a flattened entity set produces VCS-friendly diffs the GTM native export does not.",
+      "example": "google-tag-manager-pp-cli export --flat",
+      "why_it_matters": "Use to check GTM config into git and review changes in pull requests.",
+      "group": "Local mirror that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mirror container to SQLite",
+      "command": "pull",
+      "description": "Walk an entire GTM container — every tag, trigger, variable, folder, template, client, zone, and gtag config — into a local SQLite store in one command.",
+      "rationale": "A local cross-referenced store is the precondition for every offline, diff, and graph query the GTM API and console cannot answer on their own.",
+      "example": "google-tag-manager-pp-cli pull --account 6012345 --container 9876543 --live",
+      "why_it_matters": "Reach for this first — every other command reads the mirror, and re-pulls become time-stamped snapshots for history/drift.",
+      "group": "Local mirror that compounds"
+    },
+    {
+      "name": "Hygiene audit",
+      "command": "audit",
+      "description": "Run a battery of hygiene checks against the mirror: dead tags, orphan triggers, unused variables, paused tags, Custom HTML tags, and tags firing on All Pages.",
+      "rationale": "These checks require joining the full tag/trigger/variable graph locally, which the per-resource GTM UI and single-call API cannot do.",
+      "example": "google-tag-manager-pp-cli audit --json --fail-on high",
+      "why_it_matters": "Use to gate a release in CI or sanity-check a container before publishing; typed exit code fails the build on high-severity findings.",
+      "group": "Hygiene, compliance \u0026 governance"
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "diff",
+      "description": "Field-level diff between two snapshots: workspace vs live, version vs version, or container vs container, with stable name+type keys so renames are not add+remove.",
+      "rationale": "The GTM console has no diff of any kind; cross-container and version-to-version comparison is only possible against the local store.",
+      "example": "google-tag-manager-pp-cli diff live workspace:7",
+      "why_it_matters": "Use before publishing to see exactly what changed, or to compare two properties' containers.",
+      "group": "Diff \u0026 fleet visibility"
+    },
+    {
+      "name": "Cross-container fleet matrix",
+      "command": "fleet",
+      "description": "One table across all pulled containers: GA4/measurement-id inventory, Consent Mode coverage, Custom HTML count, and entity counts per container.",
+      "rationale": "The GTM UI is single-container; a fleet-wide inventory only exists once many containers share one local store.",
+      "example": "google-tag-manager-pp-cli fleet --metric ga4 --json",
+      "why_it_matters": "Use when you manage containers across multiple properties and need a portfolio view the console can never give.",
+      "group": "Diff \u0026 fleet visibility"
+    },
+    {
+      "name": "Consent Mode v2 readiness",
+      "command": "consent-report",
+      "description": "Per-tag consentSettings coverage and a list of tags that fire without consent gating, classified by vendor (ads vs analytics).",
+      "rationale": "Derived from the joined tag/consent graph in the mirror — the API returns consentSettings per tag but never the rolled-up coverage view.",
+      "example": "google-tag-manager-pp-cli consent-report --json",
+      "why_it_matters": "Use to answer 'are we Consent Mode v2 compliant for the EEA' without clicking through every tag.",
+      "group": "Hygiene, compliance \u0026 governance"
+    },
+    {
+      "name": "Full-text search across config",
+      "command": "search",
+      "description": "FTS5 search across every entity's name, type, parameters, and notes — find hardcoded GA4 ids, stray pixels, or leftover URLs across all pulled containers.",
+      "rationale": "Searching parameter blobs across all entities and containers at once requires the flattened local index, not per-resource API calls.",
+      "example": "google-tag-manager-pp-cli search \"G-ABCDE12345\"",
+      "why_it_matters": "Use to track down where a measurement id, domain, or vendor pixel is referenced before changing or removing it.",
+      "group": "Diff \u0026 fleet visibility"
+    },
+    {
+      "name": "Reverse-dependency blast radius",
+      "command": "uses",
+      "description": "Show everything that references a variable or trigger — the safe-to-delete / what-breaks-if-I-touch-this check.",
+      "rationale": "A reverse reference index across all tags and triggers is only available from the joined local store.",
+      "example": "google-tag-manager-pp-cli uses \"DLV - userId\"",
+      "why_it_matters": "Use before deleting or renaming a variable or trigger to see its blast radius.",
+      "group": "Dependency graph"
+    },
+    {
+      "name": "Runtime fire graph",
+      "command": "fires",
+      "description": "Bidirectional graph walk: which tags fire on a trigger, or which triggers and variables a tag depends on.",
+      "rationale": "Resolving the trigger-tag-variable graph in both directions needs the cross-referenced store, not a single GET.",
+      "example": "google-tag-manager-pp-cli fires --trigger 42 --json",
+      "why_it_matters": "Use for incident debugging — 'why did this fire' or 'what fires here'.",
+      "group": "Dependency graph"
+    },
+    {
+      "name": "Git-friendly export",
+      "command": "export",
+      "description": "Emit a deterministic flattened representation of the container for clean version-control diffs, or container-export-compatible JSON.",
+      "rationale": "Stable key ordering across a flattened entity set produces VCS-friendly diffs the GTM native export does not.",
+      "example": "google-tag-manager-pp-cli export --flat",
+      "why_it_matters": "Use to check GTM config into git and review changes in pull requests.",
+      "group": "Local mirror that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GTM_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Google Tag Manager",
+    "headline": "Mirror any GTM container into a local database, then audit, diff, and query it from the terminal — everything the GTM console can't do, read-only and safe against production.",
+    "value_prop": "The Google Tag Manager console can't diff anything, can't bulk-query, can't cross-reference the tag/trigger/variable graph, and can't export to version control. This CLI pulls a container into local SQLite and turns all of that into one command: audit hygiene, diff workspace-vs-live or container-vs-container, inventory GA4 ids and Consent Mode coverage across your whole fleet, and full-text search every parameter. It is read-only by construction — the mutating endpoints are stripped, so it is safe to point at a production container.",
+    "auth_narrative": "Google Tag Manager has no API key — it uses OAuth 2.0. Provide a read-scoped access token as GTM_ACCESS_TOKEN. The quickest path with gcloud: run `gcloud auth application-default login --scopes=https://www.googleapis.com/auth/tagmanager.readonly`, then `export GTM_ACCESS_TOKEN=$(gcloud auth application-default print-access-token)`. Alternatively use a service account whose email is granted Viewer access in GTM admin and mint a token for it. The CLI sends the token as `Authorization: Bearer \u003ctoken\u003e` and only ever needs the read-only scope.",
+    "quickstart": [
+      {
+        "command": "google-tag-manager-pp-cli doctor",
+        "comment": "Check the token and API reachability before anything else"
+      },
+      {
+        "command": "google-tag-manager-pp-cli tagmanager accounts-list",
+        "comment": "Find your account id"
+      },
+      {
+        "command": "google-tag-manager-pp-cli pull --account 6012345 --container 9876543 --live",
+        "comment": "Mirror the live container into the local store"
+      },
+      {
+        "command": "google-tag-manager-pp-cli audit --json",
+        "comment": "Run the hygiene battery against the mirror"
+      },
+      {
+        "command": "google-tag-manager-pp-cli search \"G-ABCDE12345\"",
+        "comment": "Find where a measurement id is referenced"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 missing authentication credential",
+        "fix": "GTM_ACCESS_TOKEN is unset or expired; mint a fresh one with gcloud auth application-default print-access-token"
+      },
+      {
+        "symptom": "403 insufficient permission / scope",
+        "fix": "Re-run gcloud auth application-default login with --scopes=https://www.googleapis.com/auth/tagmanager.readonly, or grant the service account Viewer access in GTM admin"
+      },
+      {
+        "symptom": "audit/diff returns nothing",
+        "fix": "Run pull first — the query commands read the local mirror, not the live API"
+      },
+      {
+        "symptom": "403 on a container you can see in the UI",
+        "fix": "The token's identity differs from your GTM login; confirm the token's account has access to that container"
+      }
+    ],
+    "when_to_use": "Use this CLI to audit, diff, export, and query Google Tag Manager container configuration from the terminal, CI, or an agent. It is the right tool for hygiene checks before a release, comparing two containers or a workspace against live, inventorying GA4 ids and Consent Mode coverage across many containers, and full-text search over tag/trigger/variable config. It is read-only — it never creates, edits, deletes, or publishes.",
+    "anti_triggers": [
+      "Do not use this CLI to create, edit, delete, or publish tags, triggers, variables, or versions — it is read-only by design; use the GTM console or the write API for changes.",
+      "Do not use it to render or test tag firing in a browser; it reads configuration, not runtime behavior — use Google Tag Assistant for live firing tests.",
+      "Do not use it for Google Analytics report data; this is GTM container configuration, not GA4 analytics."
+    ],
+    "recipes": [
+      {
+        "title": "Pre-publish review",
+        "command": "google-tag-manager-pp-cli diff live workspace:7 --json",
+        "explanation": "See exactly what a workspace changes relative to the published live container before publishing."
+      },
+      {
+        "title": "Consent Mode v2 audit",
+        "command": "google-tag-manager-pp-cli consent-report --json --select tags.name,tags.consentStatus",
+        "explanation": "List every tag with its consent gating status, narrowed to just name and status for a compact agent-friendly payload."
+      },
+      {
+        "title": "Fleet GA4 inventory",
+        "command": "google-tag-manager-pp-cli fleet --metric ga4 --csv",
+        "explanation": "Export which GA4 measurement ids appear in which containers across your whole estate as CSV."
+      },
+      {
+        "title": "Blast-radius before deleting a variable",
+        "command": "google-tag-manager-pp-cli uses \"DLV - userId\" --json",
+        "explanation": "List every tag and trigger that references a variable so you know what breaks before touching it."
+      },
+      {
+        "title": "Find stray pixels",
+        "command": "google-tag-manager-pp-cli search \"facebook\" --json --select results.container,results.name,results.type",
+        "explanation": "Full-text search every entity across all pulled containers for leftover vendor pixels, narrowing the nested response to the fields that matter."
+      }
+    ],
+    "trigger_phrases": [
+      "audit my GTM container",
+      "diff my GTM workspace against live",
+      "what GA4 ids are in my tag manager",
+      "check consent mode coverage",
+      "what fires on this GTM trigger",
+      "use google-tag-manager",
+      "run google-tag-manager"
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T21:50:54.409922Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "google-tag-manager",
+  "display_name": "Google Tag Manager",
+  "cli_name": "google-tag-manager-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_path": "google-tag-manager-readonly.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:f5f2fb3124eab7f1ec725b87033bb9c427f9a52164019760477df1225d40a70b",
+  "run_id": "20260617-170034-29a18b19",
+  "category": "marketing",
+  "description": "Mirror any GTM container into a local database, then audit, diff, and query it from the terminal — everything the GTM console can't do, read-only and safe against production.",
+  "mcp_binary": "google-tag-manager-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GTM_ACCESS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "GTM_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Google OAuth access token (tagmanager.readonly scope). From gcloud auth print-access-token or a service-account token."
+    }
+  ],
+  "auth_key_url": "https://www.googleapis.com/auth/tagmanager.readonly",
+  "novel_features": [
+    {
+      "name": "Mirror container to SQLite",
+      "command": "pull",
+      "description": "Walk an entire GTM container — every tag, trigger, variable, folder, template, client, zone, and gtag config — into a local SQLite store in one command."
+    },
+    {
+      "name": "Hygiene audit",
+      "command": "audit",
+      "description": "Run a battery of hygiene checks against the mirror: dead tags, orphan triggers, unused variables, paused tags, Custom HTML tags, and tags firing on All Pages."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "diff",
+      "description": "Field-level diff between two snapshots: workspace vs live, version vs version, or container vs container, with stable name+type keys so renames are not add+remove."
+    },
+    {
+      "name": "Cross-container fleet matrix",
+      "command": "fleet",
+      "description": "One table across all pulled containers: GA4/measurement-id inventory, Consent Mode coverage, Custom HTML count, and entity counts per container."
+    },
+    {
+      "name": "Consent Mode v2 readiness",
+      "command": "consent-report",
+      "description": "Per-tag consentSettings coverage and a list of tags that fire without consent gating, classified by vendor (ads vs analytics)."
+    },
+    {
+      "name": "Full-text search across config",
+      "command": "search",
+      "description": "Substring search across every entity's name, type, parameters, and notes — find hardcoded GA4 ids, stray pixels, or leftover URLs across all pulled containers."
+    },
+    {
+      "name": "Reverse-dependency blast radius",
+      "command": "uses",
+      "description": "Show everything that references a variable or trigger — the safe-to-delete / what-breaks-if-I-touch-this check."
+    },
+    {
+      "name": "Runtime fire graph",
+      "command": "fires",
+      "description": "Bidirectional graph walk: which tags fire on a trigger, or which triggers and variables a tag depends on."
+    },
+    {
+      "name": "Git-friendly export",
+      "command": "export",
+      "description": "Emit a deterministic flattened representation of the container for clean version-control diffs, or container-export-compatible JSON."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "google-tag-manager-pp-cli"
+display_name = "Google Tag Manager"
+description = "Mirror any GTM container into a local database, then audit, diff, and query it from the terminal — everything the GTM console can't do, read-only and safe against production."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/google-tag-manager-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GTM_ACCESS_TOKEN = true

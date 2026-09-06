@@ -1,0 +1,457 @@
+{
+  "api_name": "google-tag-manager",
+  "base_url": "https://tagmanager.googleapis.com",
+  "description": "Mirror any GTM container into a local database, then audit, diff, and query it from the terminal — everything the GTM console can't do, read-only and safe against production.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GTM_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GTM_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Google OAuth access token (tagmanager.readonly scope). From gcloud auth print-access-token or a service-account token."
+      }
+    ],
+    "key_url": "https://www.googleapis.com/auth/tagmanager.readonly"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "tagmanager_accounts-containers-destinations-list",
+      "description": "Lists all Destinations linked to a GTM Container. Required: parent. Returns array of Destination.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/destinations",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM parent Container's API relative path. Example: accounts/{account_id}/containers/{container_id}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-environments-list",
+      "description": "Lists all GTM Environments of a GTM Container. Required: parent. Optional: pageToken. Returns array of Environment.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/environments",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Container's API relative path. Example: accounts/{account_id}/containers/{container_id}",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-list",
+      "description": "Lists all Containers that belongs to a GTM Account. Required: parent. Optional: pageToken. Returns array of Container.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/containers",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Account's API relative path. Example: accounts/{account_id}.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-lookup",
+      "description": "Looks up a Container by destination ID. Optional: destinationId. Returns the Container.",
+      "method": "GET",
+      "path": "/tagmanager/v2/accounts/containers:lookup",
+      "params": [
+        {
+          "name": "destinationId",
+          "type": "string",
+          "location": "query",
+          "description": "Destination ID linked to a GTM Container, e.g. AW-123456789. Example: accounts/containers:lookup?destination_id={destination_id}."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-snippet",
+      "description": "Gets the tagging snippet for a Container. Required: path. Returns the GetContainerSnippetResponse.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{path}:snippet",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Container snippet's API relative path. Example: accounts/{account_id}/containers/{container_id}:snippet",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-version-headers-latest",
+      "description": "Gets the latest container version header. Required: parent. Returns the ContainerVersionHeader.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/version_headers:latest",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Container's API relative path. Example: accounts/{account_id}/containers/{container_id}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-version-headers-list",
+      "description": "Lists all Container Versions of a GTM Container. Required: parent. Optional: includeDeleted, pageToken. Returns array of ContainerVersionHeader.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/version_headers",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Container's API relative path. Example: accounts/{account_id}/containers/{container_id}",
+          "required": true
+        },
+        {
+          "name": "includeDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Also retrieve deleted (archived) versions when true."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-versions-live",
+      "description": "Gets the live (i.e. published) container version. Required: parent. Returns the ContainerVersion.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/versions:live",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Container's API relative path. Example: accounts/{account_id}/containers/{container_id}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-built-in-variables-list",
+      "description": "Lists all the enabled Built-In Variables of a GTM Container. Required: parent. Optional: pageToken. Returns array of BuiltInVariable.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/built_in_variables",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-clients-list",
+      "description": "Lists all GTM Clients of a GTM container workspace. Required: parent. Optional: pageToken. Returns array of Client.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/clients",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-folders-list",
+      "description": "Lists all GTM Folders of a Container. Required: parent. Optional: pageToken. Returns array of Folder.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/folders",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-get-status",
+      "description": "Finds conflicting and modified entities in the workspace. Required: path. Returns the GetWorkspaceStatusResponse.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{path}/status",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path. Example: accounts/{account_id}/containers/{container_id}/workspaces/{workspace_id}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-gtag-config-list",
+      "description": "Lists all Google tag configs in a Container. Required: parent. Optional: pageToken. Returns array of GtagConfig.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/gtag_config",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace's API relative path. Example: accounts/{account_id}/containers/{container_id}/workspaces/{workspace_id}",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-list",
+      "description": "Lists all Workspaces that belong to a GTM Container. Required: parent. Optional: pageToken. Returns array of Workspace.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/workspaces",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM parent Container's API relative path. Example: accounts/{account_id}/containers/{container_id}",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-tags-list",
+      "description": "Lists all GTM Tags of a Container. Required: parent. Optional: pageToken. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/tags",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-templates-list",
+      "description": "Lists all GTM Templates of a GTM container workspace. Required: parent. Optional: pageToken. Returns array of CustomTemplate.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/templates",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-triggers-list",
+      "description": "Lists all GTM Triggers of a Container. Required: parent. Optional: pageToken. Returns array of Trigger.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/triggers",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-variables-list",
+      "description": "Lists all GTM Variables of a Container. Required: parent. Optional: pageToken. Returns array of Variable.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/variables",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-containers-workspaces-zones-list",
+      "description": "Lists all GTM Zones of a GTM container workspace. Required: parent. Optional: pageToken. Returns array of Zone.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/zones",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Workspace's API relative path.",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-list",
+      "description": "Lists all GTM Accounts that a user has access to. Optional: includeGoogleTags, pageToken. Returns array of Account.",
+      "method": "GET",
+      "path": "/tagmanager/v2/accounts",
+      "params": [
+        {
+          "name": "includeGoogleTags",
+          "type": "bool",
+          "location": "query",
+          "description": "Also retrieve accounts associated with Google Tag when true."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-user-permissions-get",
+      "description": "Gets a user's Account \u0026 Container access. Required: path. Optional: containerVersionId. Returns array of ContainerAccess.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{path}",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "GTM UserPermission's API relative path. Example: accounts/{account_id}/user_permissions/{user_permission_id}",
+          "required": true
+        },
+        {
+          "name": "containerVersionId",
+          "type": "string",
+          "location": "query",
+          "description": "The GTM ContainerVersion ID. Specify published to retrieve the currently published version."
+        }
+      ]
+    },
+    {
+      "name": "tagmanager_accounts-user-permissions-list",
+      "description": "List all users that have access to the account along with Account and Container user access granted to each of them. Required: parent. Optional: pageToken. Returns array of UserPermission.",
+      "method": "GET",
+      "path": "/tagmanager/v2/{parent}/user_permissions",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "GTM Account's API relative path. Example: accounts/{account_id}",
+          "required": true
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for fetching the next page of results."
+        }
+      ]
+    }
+  ]
+}
