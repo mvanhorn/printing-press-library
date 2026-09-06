@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-24T15:13:53Z",
+  "elapsed_ms": 11285,
+  "live_check": "disabled because auth_required_no_credential",
+  "legs": [
+    {"name": "verify", "exit_code": 0, "passed": true},
+    {"name": "validate-narrative", "exit_code": 0, "passed": true},
+    {"name": "dogfood", "exit_code": 0, "passed": true},
+    {"name": "workflow-verify", "exit_code": 0, "passed": true},
+    {"name": "apify-audit", "exit_code": 0, "passed": true},
+    {"name": "verify-skill", "exit_code": 0, "passed": true},
+    {"name": "scorecard", "exit_code": 0, "passed": true}
+  ]
+}

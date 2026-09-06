@@ -1,0 +1,51 @@
+version: 2
+project_name: amc-theatres-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: amc-theatres-pp-cli
+    main: ./cmd/amc-theatres-pp-cli
+    binary: amc-theatres-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: amc-theatres-pp-mcp
+    main: ./cmd/amc-theatres-pp-mcp
+    binary: amc-theatres-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: amc-theatres-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Browser-captured docs-derived contract for AMC Theatres Showtime API v2."
+    install: |
+      bin.install "amc-theatres-pp-cli"
+      bin.install "amc-theatres-pp-mcp"

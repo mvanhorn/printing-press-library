@@ -1,0 +1,99 @@
+{
+  "dir": "/Users/alderik/Code/projects/pr-worktrees/amc-theatres/library/media-and-entertainment/amc-theatres",
+  "spec_path": "/Users/alderik/Code/projects/pr-worktrees/amc-theatres/library/media-and-entertainment/amc-theatres/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 1,
+    "valid": 1,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "api key header \"X-AMC-Vendor-Key\"",
+    "generated_format": "X-AMC-Vendor-Key",
+    "match": true,
+    "detail": "spec and generated client both use api key header \"X-AMC-Vendor-Key\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 23,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 72,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 56,
+      "registered": 56
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 7
+  },
+  "print_json_filtered_check": {
+    "checked": 31
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 31
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "sync uses generic Upsert only"
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "api_name": "amc-theatres",
+  "base_url": "https://api.amctheatres.com",
+  "description": "Browser-captured docs-derived contract for AMC Theatres Showtime API v2.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-AMC-Vendor-Key",
+    "in": "header",
+    "env_vars": [
+      "AMC_THEATRES_VENDOR_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AMC_THEATRES_VENDOR_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "showtimes_get-by-id",
+      "description": "Retrieves showtime details for the provided ID. Required: id. Returns the FlexibleResponse.",
+      "method": "GET",
+      "path": "/v2/showtimes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "showtimes_search-by-lat-long",
+      "description": "Retrieves a paged list of showtimes for a date and coordinates. Required: searchDate, latitude, longitude. Optional: page-number, page-size. Returns the FlexibleResponse.",
+      "method": "GET",
+      "path": "/v2/showtimes/views/current-location/{searchDate}/{latitude}/{longitude}",
+      "params": [
+        {
+          "name": "searchDate",
+          "type": "string",
+          "location": "path",
+          "description": "Search date",
+          "required": true
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "path",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "path",
+          "description": "Longitude",
+          "required": true
+        },
+        {
+          "name": "page-number",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "theatres_movies_get-earliest-showtime-by-theatre",
+      "description": "Retrieves the earliest movie showtime for a theatre number and movie ID. Required: theatreNumber, movieId. Returns the FlexibleResponse.",
+      "method": "GET",
+      "path": "/v2/theatres/{theatreNumber}/movies/{movieId}/earliest-showtime",
+      "params": [
+        {
+          "name": "theatreNumber",
+          "type": "int",
+          "location": "path",
+          "description": "Theatre number",
+          "required": true
+        },
+        {
+          "name": "movieId",
+          "type": "int",
+          "location": "path",
+          "description": "Movie id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "theatres_showtimes_get-by-theatre",
+      "description": "Retrieves a paged list of showtimes for a theatre number. Required: theatreNumber. Optional: page-number, page-size. Returns the FlexibleResponse.",
+      "method": "GET",
+      "path": "/v2/theatres/{theatreNumber}/showtimes",
+      "params": [
+        {
+          "name": "theatreNumber",
+          "type": "int",
+          "location": "path",
+          "description": "Theatre number",
+          "required": true
+        },
+        {
+          "name": "page-number",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "theatres_showtimes_search",
+      "description": "Retrieves a paged list of showtimes for a theatre number and date. Required: theatreNumber, searchDate. Optional: page-number, page-size. Returns the FlexibleResponse.",
+      "method": "GET",
+      "path": "/v2/theatres/{theatreNumber}/showtimes/{searchDate}",
+      "params": [
+        {
+          "name": "theatreNumber",
+          "type": "int",
+          "location": "path",
+          "description": "Theatre number",
+          "required": true
+        },
+        {
+          "name": "searchDate",
+          "type": "string",
+          "location": "path",
+          "description": "Search date",
+          "required": true
+        },
+        {
+          "name": "page-number",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

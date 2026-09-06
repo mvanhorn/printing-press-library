@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "amc-theatres-pp-mcp",
+  "display_name": "Amc Theatres Showtime",
+  "version": "4.29.0",
+  "description": "Browser-captured docs-derived contract for AMC Theatres Showtime API v2.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/amc-theatres-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/amc-theatres-pp-mcp",
+      "args": [],
+      "env": {
+        "AMC_THEATRES_VENDOR_KEY": "${user_config.amc_theatres_vendor_key}",
+        "AMC_THEATRES_AUTH_TOKEN": "${user_config.amc_theatres_auth_token}",
+        "AMC_THEATRES_ENV": "${user_config.amc_theatres_env}"
+      }
+    }
+  },
+  "user_config": {
+    "amc_theatres_vendor_key": {
+      "type": "string",
+      "title": "AMC vendor key",
+      "description": "Vendor key from the AMC Theatres developer portal.",
+      "required": true,
+      "sensitive": true
+    },
+    "amc_theatres_auth_token": {
+      "type": "string",
+      "title": "AMC auth token",
+      "description": "Optional user-scoped AMC authorization token.",
+      "required": false,
+      "sensitive": true
+    },
+    "amc_theatres_env": {
+      "type": "string",
+      "title": "AMC environment",
+      "description": "Use production (default) or sandbox.",
+      "required": false,
+      "default": "production"
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
