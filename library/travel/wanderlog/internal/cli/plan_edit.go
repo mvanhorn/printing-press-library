@@ -1254,13 +1254,13 @@ func shareDBFrameError(stage string, frame map[string]any, credential string) er
 // Only the acknowledgement for our operation counts; another collaborator may
 // emit an op with the same sequence number on this shared connection.
 func shareDBAcknowledges(frame map[string]any, sessionID, targetKey string) bool {
-	if frame["a"] != "op" || intAny(frame["seq"]) != 1 {
+	if sessionID == "" || targetKey == "" || frame["a"] != "op" || intAny(frame["seq"]) != 1 {
 		return false
 	}
-	if source := stringAny(frame["src"]); source != "" && source != sessionID {
+	if stringAny(frame["src"]) != sessionID {
 		return false
 	}
-	if target := stringAny(frame["d"]); target != "" && target != targetKey {
+	if stringAny(frame["d"]) != targetKey {
 		return false
 	}
 	return true

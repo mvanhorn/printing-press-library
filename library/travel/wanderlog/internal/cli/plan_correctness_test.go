@@ -134,6 +134,11 @@ func TestNoteAddMarkdownFlag(t *testing.T) {
 
 func TestShareDBAcknowledgementMatchesOwnOperation(t *testing.T) {
 	for _, frame := range []map[string]any{
+		{"a": "op", "seq": 1},
+		{"a": "op", "seq": 1, "d": "target"},
+		{"a": "op", "seq": 1, "src": "mine"},
+		{"a": "op", "seq": 1, "src": "", "d": "target"},
+		{"a": "op", "seq": 1, "src": "mine", "d": nil},
 		{"a": "op", "seq": 1, "src": "other", "d": "target"},
 		{"a": "op", "seq": 2, "src": "mine", "d": "target"},
 		{"a": "op", "seq": 1, "src": "mine", "d": "other-target"},
@@ -141,6 +146,9 @@ func TestShareDBAcknowledgementMatchesOwnOperation(t *testing.T) {
 		if shareDBAcknowledges(frame, "mine", "target") {
 			t.Fatalf("accepted unrelated frame: %v", frame)
 		}
+	}
+	if shareDBAcknowledges(map[string]any{"a": "op", "seq": 1}, "", "") {
+		t.Fatal("accepted acknowledgement without an expected identity")
 	}
 	if !shareDBAcknowledges(map[string]any{"a": "op", "seq": 1, "src": "mine", "d": "target"}, "mine", "target") {
 		t.Fatal("rejected matching acknowledgement")

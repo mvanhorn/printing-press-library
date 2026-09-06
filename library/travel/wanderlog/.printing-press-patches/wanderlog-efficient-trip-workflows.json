@@ -5,7 +5,7 @@
   "base_run_id": "20260619-000132-cc275322",
   "base_printing_press_version": "4.24.0",
   "summary": "Preserve complete trip context with scope-based reads and validated batch writes, while keeping saved travel uncertainty, operation failures and incremental state explicit.",
-  "reason": "Wanderlog planning requires full notes, bookings, directed travel estimates and coherent schedules; compact output must preserve these constraints and honest API/ShareDB results. Repeated discovery and whole-trip reads inflate model input, so complete reviews read full days once, focused questions expand only missing details, and deltas require a matching baseline.",
+  "reason": "Wanderlog planning requires full notes, bookings, directed travel estimates and coherent schedules; compact output must preserve these constraints and honest API/ShareDB results. Repeated discovery and whole-trip reads inflate model input, so complete reviews read full days once, focused questions expand only missing details, and deltas require a matching baseline. Successful operation acknowledgements must include matching source and document identities; missing identities leave the outcome unconfirmed.",
   "files": [
     ".printing-press.json",
     "AGENTS.md",
@@ -60,7 +60,7 @@
     "references/trip-planning.md",
     "scripts/token-benchmark.py"
   ],
-  "validated_outcome": "All Go tests passed. Refreshed live acceptance: 272 passed, zero failed, 183 skipped/unverified; all 12 publication checks and skill verifier passed. Paired Luna Max scope-refinement study reduced reported total tokens 20.7\u201331.0%, with mixed uncached input effects. All 12 exact proposals validated; 9/12 final reports covered all required findings (68/72). Reporting omissions remain documented model limitations; no billing or lossless-reasoning claim. Two checklist retests did not resolve the omission and were reverted. No global installation or publication.",
+  "validated_outcome": "All Go tests passed. Refreshed live acceptance: 272 passed, zero failed, 183 skipped/unverified; all 12 publication checks and skill verifier passed. Paired Luna Max scope-refinement study reduced reported total tokens 20.7\u201331.0%, with mixed uncached input effects. All 12 exact proposals validated; 9/12 final reports covered all required findings (68/72). Reporting omissions remain documented model limitations; no billing or lossless-reasoning claim. Two checklist retests did not resolve the omission and were reverted. No global installation or publication. Review hardening: missing/blank acknowledgement identities are rejected; focused and full Go tests pass, and a real synthetic insert plus explicit journal undo both acknowledged successfully and restored the day exactly.",
   "findings_addressed": [
     "F1",
     "F2",

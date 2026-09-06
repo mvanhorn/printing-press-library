@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "api_key"
   },
-  "source_fingerprint": "766b89fa5ae7a0c789dd4c6495201f54d18afc3fab727aaea044330d11fe58de",
+  "source_fingerprint": "4296dbf607a59165227bc9a2ee5fd5fba4f95aa386001350efa7aee8a2aee375",
   "source_files": {
     "cmd/wanderlog-pp-cli/main.go": "5e879d22c28113ee4541cdaf4402d4b27b6329105661c465e31870d468adbc15",
     "cmd/wanderlog-pp-mcp/main.go": "4db9c9a2a23990a3c573fa30adf3cafd3c63f253521ab3d11b58a0861b6433da",
@@ -66,7 +66,7 @@
     "internal/cli/plan_clone_test.go": "275059125b6374b93d57ee291c487446233877cc6215004da8c51bcb23e3c532",
     "internal/cli/plan_collab_ext.go": "6d6d9ec77c364fa88c0c05276d06bfa9304b44839b3c45ba76036ea46ff3bf94",
     "internal/cli/plan_copy.go": "e17405ab57097c7f2956bbabe11e37afd8ea34de62de33562fe8638f351715c7",
-    "internal/cli/plan_correctness_test.go": "73a0afed1ba3ed0359836a8089956ec3374a790ff2c1fa9174cec1631b8791f1",
+    "internal/cli/plan_correctness_test.go": "9814754834408ee7c53a597ff16bd88f92e749af2f900dcb23ccfb29b1d25eaa",
     "internal/cli/plan_create_batch.go": "3ff3ba75b294273b76c487a39ef5186c99afbfabc0c234c6e498e4bcf7997fe2",
     "internal/cli/plan_create_batch_build.go": "2b405f8973704d1d7877f6f579fac5842a9cf09bdd82435f33765023311bcdf9",
     "internal/cli/plan_create_batch_test.go": "fcdf829651f214f9c76ba138c250184d2d558af98ff5ad5f017ca921ceb883b9",
@@ -77,7 +77,7 @@
     "internal/cli/plan_days_test.go": "96df345db29f63e67ffd2907853ade6a3ebc5dc8adfbbdeddbeb2077ae803152",
     "internal/cli/plan_dogfood_fixtures.go": "87d9a65186134ef1d775a5afa8c5eca226747b3e13e1f1af7d5ab14045757879",
     "internal/cli/plan_dogfood_fixtures_test.go": "0b4dfb1aa7b978effca77f40460f1343f005ffb78ed655f03177ce1bb263cd29",
-    "internal/cli/plan_edit.go": "8118b9b1a25c838e830d333355629737add47e99bcaa70972f90e859da47d43f",
+    "internal/cli/plan_edit.go": "f6fb68da1432f33b7c2afb8f35f5c5029b4678420261396ab2b5ef11a8b18707",
     "internal/cli/plan_edit_more.go": "8991469c004b0b5988b4ecbef0e3467b962be0d2d75c746b341de2d3d996266e",
     "internal/cli/plan_edit_test.go": "266686133ede47ec8f690d327be6833fd021b768bced2bc90308f8e4ffbeca87",
     "internal/cli/plan_fill.go": "db5cade1211327ee9d14e907cc9aa4b00a2f0b683e6f334e90cdce7c4f7b57d9",
