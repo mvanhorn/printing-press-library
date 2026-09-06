@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "seats-aero-pp-mcp",
-  "display_name": "Seats Aero Partner",
-  "version": "3.10.0",
-  "description": "Seats Aero Partner API surface as MCP tools.",
+  "display_name": "Seats.aero",
+  "version": "4.31.7",
+  "description": "Every Seats.aero Partner API endpoint, plus a local award-availability store that tells you what is new, what is still live, and where your miles reach nonstop.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,17 +15,29 @@
       "command": "${__dirname}/bin/seats-aero-pp-mcp",
       "args": [],
       "env": {
-        "SEATS_AERO_API_KEY": "${user_config.seats_aero_api_key}"
+        "SEATS_AERO_API_KEY": "${user_config.seats_aero_api_key}",
+        "SEATS_AERO_BASE_URL": "${user_config.seats_aero_base_url}",
+        "SEATS_AERO_USER_AGENT": "${user_config.seats_aero_user_agent}"
       }
     }
   },
   "user_config": {
     "seats_aero_api_key": {
       "type": "string",
-      "title": "SEATS_AERO_API_KEY",
-      "description": "Seats.aero Partner API key.",
+      "title": "Seats.aero Partner API key",
+      "description": "Sets SEATS_AERO_API_KEY for the Seats.aero MCP server. Get a credential from https://seats.aero/settings.",
       "sensitive": true,
       "required": true
+    },
+    "seats_aero_base_url": {
+      "type": "string",
+      "title": "SEATS_AERO_BASE_URL",
+      "description": "Optional. Sets SEATS_AERO_BASE_URL for the Seats.aero MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "seats_aero_user_agent": {
+      "type": "string",
+      "title": "SEATS_AERO_USER_AGENT",
+      "description": "Optional. Sets SEATS_AERO_USER_AGENT for the Seats.aero MCP server. Per-instance, non-secret setting; not a credential."
     }
   },
   "compatibility": {

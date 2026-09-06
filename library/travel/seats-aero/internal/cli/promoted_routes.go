@@ -13,19 +13,38 @@ import (
 
 func newRoutesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagSource string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "routes",
 		Short:       "Get all origin-destination routes tracked for a mileage program.",
-		Long:        "Shortcut for 'routes get'. Get all origin-destination routes tracked for a mileage program.",
-		Example:     "  seats-aero-pp-cli routes",
-		Annotations: map[string]string{"pp:endpoint": "routes.get", "pp:method": "GET", "pp:path": "/routes", "mcp:read-only": "true"},
+		Long:        "Get all origin-destination routes tracked for a mileage program.",
+		Example:     "  seats-aero-pp-cli routes --source eurobonus",
+		Annotations: map[string]string{"pp:endpoint": "routes.get", "pp:method": "GET", "pp:path": "/routes", "mcp:read-only": "true", "pp:requires-input": "true", "pp:happy-args": "--source=aeroplan"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("source") && !flags.dryRun {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("source") && flagSource == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "source")
 			}
 			if cmd.Flags().Changed("source") {
-				allowedSource := []string{"eurobonus", "virginatlantic", "aeromexico", "american", "delta", "etihad", "united", "emirates", "aeroplan", "alaska", "velocity", "qantas", "connectmiles", "azul", "smiles", "flyingblue", "jetblue", "qatar", "turkish", "singapore", "ethiopian", "saudia"}
+				allowedSource := []string{"eurobonus", "virginatlantic", "aeromexico", "american", "delta", "etihad", "united", "emirates", "aeroplan", "alaska", "velocity", "qantas", "connectmiles", "azul", "smiles", "flyingblue", "jetblue", "qatar", "turkish", "singapore", "ethiopian", "saudia", "finnair", "lufthansa", "frontier", "spirit"}
 				validSource := false
 				for _, v := range allowedSource {
 					if flagSource == v {
@@ -34,7 +53,7 @@ func newRoutesPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSource {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "source", flagSource, allowedSource)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSource, "source", allowedSource)
 				}
 			}
 			c, err := flags.newClient()
@@ -43,42 +62,43 @@ func newRoutesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/routes"
-			params := map[string]string{}
-			if flagSource != "" {
-				params["source"] = fmt.Sprintf("%v", flagSource)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "routes", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "routes", path, map[string]string{
+				"source": formatCLIParamValue(flagSource),
+			}, nil, flagAll, "", "none", "", 0, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			outputData := collectionItemsForOutput(data, path)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, nil)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
 				if wrapErr != nil {
 					return wrapErr
 				}
@@ -86,7 +106,7 @@ func newRoutesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -96,10 +116,15 @@ func newRoutesPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, nil)
 		},
 	}
-	cmd.Flags().StringVar(&flagSource, "source", "", "Mileage program source identifier. (one of: eurobonus, virginatlantic, aeromexico, american, delta, etihad, united, emirates, aeroplan, alaska, velocity, qantas, connectmiles, azul, smiles, flyingblue, jetblue, qatar, turkish, singapore, ethiopian, saudia)")
+	cmd.Flags().StringVar(&flagSource, "source", "", "The mileage program to list tracked routes for. (one of: eurobonus, virginatlantic, aeromexico, american, delta, etihad, united, emirates, aeroplan, alaska, velocity, qantas, connectmiles, azul, smiles, flyingblue, jetblue, qatar, turkish, singapore, ethiopian, saudia, finnair, lufthansa, frontier, spirit)")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

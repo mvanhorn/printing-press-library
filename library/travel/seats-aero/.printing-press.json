@@ -1,51 +1,107 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-06T18:59:03.81882Z",
-  "printing_press_version": "3.10.0",
+  "schema_version": 2,
+  "generated_at": "2026-09-06T11:28:53.349929Z",
+  "printing_press_version": "4.31.7",
   "api_name": "seats-aero",
-  "display_name": "Seats Aero Partner",
+  "display_name": "Seats.aero",
   "cli_name": "seats-aero-pp-cli",
   "creator": {
     "handle": "cathrynlavery",
     "name": "Cathryn Lavery"
   },
+  "contributors": [
+    {
+      "handle": "vinnyp",
+      "name": "Vinny Pasceri"
+    }
+  ],
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
-  "spec_url": "https://developers.seats.aero/reference",
-  "spec_path": "/Users/knox/Developer/PrintingPress/seats-specs/seats-aero-openapi.yaml",
+  "spec_path": "spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:a79c4af6a4f00bc52f2e26e965aebebb32126c11cdab46806f4a16cbb41d3919",
+  "spec_checksum": "sha256:7318179c5922d8ef0d810ee74a1e02181f04ca724729f1142cc6591fa8d309b5",
+  "run_id": "20260905-230744-c6d96a39",
+  "category": "travel",
+  "description": "Every Seats.aero Partner API endpoint, plus a local award-availability store that tells you what is new, what is still live, and where your miles reach nonstop.",
   "mcp_binary": "seats-aero-pp-mcp",
-  "mcp_tool_count": 4,
+  "mcp_tool_count": 7,
   "mcp_ready": "full",
   "api_version": "1.0",
   "auth_type": "api_key",
+  "auth_preference": "PartnerAuthorization",
   "auth_env_vars": [
     "SEATS_AERO_API_KEY"
   ],
-  "run_id": "20260506-seats-aero",
-  "category": "travel",
-  "description": "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.",
-  "auth_key_url": "https://seats.aero/partner-api",
+  "auth_key_url": "https://seats.aero/settings",
+  "auth_title": "Seats.aero Partner API key",
   "novel_features": [
     {
-      "name": "Award deal finder",
-      "command": "seats-aero-partner-search",
-      "description": "Find bookable award seats between airports with cabin, direct-flight, carrier, date, and lowest-mileage filters in one agent-safe command."
+      "name": "New-since award watch",
+      "command": "new-since",
+      "description": "See which award seats appeared on a route since you last looked, from your synced local data."
     },
     {
-      "name": "Program route atlas",
-      "command": "routes",
-      "description": "List every route tracked for a mileage program so agents can discover origin-destination coverage before searching availability."
+      "name": "Credit-aware recheck",
+      "command": "recheck",
+      "description": "Re-verify aging award rows are still live right before booking. It performs one live quota probe per run (1 daily call), and --apply is refused when quota is unknown unless --ignore-quota is passed."
     },
     {
-      "name": "Bulk award calendar",
-      "command": "availability",
-      "description": "Pull a mileage program availability feed by cabin, date window, and regions to build award calendars and destination shortlists."
+      "name": "Cross-program direct-only scan",
+      "command": "direct-scan",
+      "description": "Find direct-flight award seats under a mileage ceiling across every synced program at once."
+    },
+    {
+      "name": "Cabin/date calendar matrix",
+      "command": "calendar",
+      "description": "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance."
+    },
+    {
+      "name": "Nonstop reach finder",
+      "command": "reach",
+      "description": "Discover where your miles can take you nonstop from one airport, ranked by cost and cross-checked against real dated seats."
     }
   ],
-  "auth_title": "Seats.aero API key",
-  "auth_description": "Seats.aero Partner API key from https://seats.aero/partner-api.",
-  "catalog_description": "Search Seats.aero award-flight availability, route coverage, mileage-program feeds, and trip details from the terminal."
+  "novel_features_built": [
+    {
+      "name": "New-since award watch",
+      "command": "new-since",
+      "description": "See which award seats appeared on a route since you last looked, from your synced local data."
+    },
+    {
+      "name": "Credit-aware recheck",
+      "command": "recheck",
+      "description": "Re-verify aging award rows are still live right before booking, without blowing the daily refresh quota."
+    },
+    {
+      "name": "Cross-program direct-only scan",
+      "command": "direct-scan",
+      "description": "Find direct-flight award seats under a mileage ceiling across every synced program at once."
+    },
+    {
+      "name": "Cabin/date calendar matrix",
+      "command": "calendar",
+      "description": "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance."
+    },
+    {
+      "name": "Nonstop reach finder",
+      "command": "reach",
+      "description": "Discover where your miles can take you nonstop from one airport, ranked by cost and cross-checked against real dated seats."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 43,
+    "total": 43,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A",
+      "total": 93
+    }
+  }
 }

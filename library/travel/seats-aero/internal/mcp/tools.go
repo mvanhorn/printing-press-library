@@ -5,10 +5,13 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,72 +21,129 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/store"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	installFreshTenantGate(s)
 	s.AddTool(
 		mcplib.NewTool("availability_bulk",
-			mcplib.WithDescription("Retrieve bulk availability for all tracked routes in a mileage program. Required: source. Optional: cabin, start_date, end_date (plus 5 more). Returns array of Availability."),
-			mcplib.WithString("source", mcplib.Required(), mcplib.Description("Mileage program source identifier.")),
-			mcplib.WithString("cabin", mcplib.Description("Cabin class filter.")),
-			mcplib.WithString("start_date", mcplib.Description("Start date in YYYY-MM-DD format.")),
-			mcplib.WithString("end_date", mcplib.Description("End date in YYYY-MM-DD format.")),
-			mcplib.WithString("origin_region", mcplib.Description("Origin region")),
-			mcplib.WithString("destination_region", mcplib.Description("Destination region")),
-			mcplib.WithString("take", mcplib.Description("Number of results to return.")),
-			mcplib.WithString("skip", mcplib.Description("Number of results to skip.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor from the previous response.")),
+			mcplib.WithDescription("Retrieve a large amount of availability objects from one specific mileage program. Required: source. Optional: cabin, start_date, end_date (plus 7 more). Returns array of Availability."),
+			mcplib.WithString("source", mcplib.Required(), mcplib.Description("The mileage program to retrieve availability from.")),
+			mcplib.WithString("cabin", mcplib.Description("Only returns results with this cabin available. Must be one of: [economy, premium, business, first]")),
+			mcplib.WithString("start_date", mcplib.Description("Only returns results between start_date and end_date when specified.")),
+			mcplib.WithString("end_date", mcplib.Description("Only returns results between start_date and end_date when specified.")),
+			mcplib.WithString("origin_region", mcplib.Description("Only returns results originating in this region when specified.")),
+			mcplib.WithString("destination_region", mcplib.Description("Only returns results arriving in this region when specified.")),
+			mcplib.WithNumber("take", mcplib.Description("How many results to return. Must be >=10 and <= 1000 if specified, otherwise 500.")),
+			mcplib.WithNumber("skip", mcplib.Description("How many results to skip that you have already retrieved. Use this with the cursor to paginate responses.")),
+			mcplib.WithBoolean("include_filtered", mcplib.Description("Return results that only have raw (filtered) results.")),
+			mcplib.WithNumber("min_cabin_pct", mcplib.Description("Minimum percentage of each itinerary's distance that must be flown in its reported Cabin or...")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/availability", []string{}),
+		makeAPIHandler("GET", "/availability", true, false, nil, mcpPageConfig{CursorParam: "cursor", NextCursorPath: "cursor"}, []mcpParamBinding{{PublicName: "source", WireName: "source", Location: "query"}, {PublicName: "cabin", WireName: "cabin", Location: "query"}, {PublicName: "start_date", WireName: "start_date", Location: "query"}, {PublicName: "end_date", WireName: "end_date", Location: "query"}, {PublicName: "origin_region", WireName: "origin_region", Location: "query"}, {PublicName: "destination_region", WireName: "destination_region", Location: "query"}, {PublicName: "take", WireName: "take", Location: "query", Default: "500"}, {PublicName: "skip", WireName: "skip", Location: "query", Default: "0"}, {PublicName: "include_filtered", WireName: "include_filtered", Location: "query", Default: "false"}, {PublicName: "min_cabin_pct", WireName: "min_cabin_pct", Location: "query", Default: "100"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("awards_cached-search",
+			mcplib.WithDescription("Search Seats.aero cached award availability between one or more origin and destination airports, across one or more mileage programs. This is the flagship cached-search endpoint behind seats.aero's own web app. Required: origin_airport, destination_airport. Optional: start_date, end_date, cursor (plus 11 more). Returns array of Availability."),
+			mcplib.WithString("origin_airport", mcplib.Required(), mcplib.Description("A list of origin airports. Comma-delimited if multiple, such as 'SFO,LAX'.")),
+			mcplib.WithString("destination_airport", mcplib.Required(), mcplib.Description("A list of destination airports. Comma-delimited if multiple, such as 'FRA,LHR'.")),
+			mcplib.WithString("start_date", mcplib.Description("Results must depart between start_date and end_date when specified, in YYYY-MM-DD format.")),
+			mcplib.WithString("end_date", mcplib.Description("Results must depart between start_date and end_date when specified, in YYYY-MM-DD format.")),
+			mcplib.WithNumber("take", mcplib.Description("Maximum amount of results to respond with. Must be >= 10 and <= 1000.")),
+			mcplib.WithNumber("skip", mcplib.Description("How many results to skip.")),
+			mcplib.WithString("order_by", mcplib.Description("By default, results are ordered by departure date and then by available cabins")),
+			mcplib.WithBoolean("include_trips", mcplib.Description("Include trip-level details in the API response. This may degrade response time and sizing.")),
+			mcplib.WithBoolean("only_direct_flights", mcplib.Description("Only return results that have a direct flight available. Respects the cabin parameter if provided.")),
+			mcplib.WithString("carriers", mcplib.Description("Only return results involving these comma-separated carriers (i.e. 'DL,AA'). Respects the cabin parameter if provided.")),
+			mcplib.WithBoolean("include_filtered", mcplib.Description("Return results that only have raw (filtered) results.")),
+			mcplib.WithString("sources", mcplib.Description("A list of mileage programs to filter by. Comma-delimited if multiple, such as 'aeroplan,united'.")),
+			mcplib.WithBoolean("minify_trips", mcplib.Description("When include_trips and minify_trips are both enabled")),
+			mcplib.WithString("cabins", mcplib.Description("Results must have these cabins available when specified. Comma-delimited if multiple, such as 'economy,business'.")),
+			mcplib.WithNumber("min_cabin_pct", mcplib.Description("Minimum percentage of each itinerary's distance that must be flown in its reported Cabin or...")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/search", true, false, nil, mcpPageConfig{CursorParam: "cursor", NextCursorPath: "cursor"}, []mcpParamBinding{{PublicName: "origin_airport", WireName: "origin_airport", Location: "query"}, {PublicName: "destination_airport", WireName: "destination_airport", Location: "query"}, {PublicName: "start_date", WireName: "start_date", Location: "query"}, {PublicName: "end_date", WireName: "end_date", Location: "query"}, {PublicName: "take", WireName: "take", Location: "query", Default: "500"}, {PublicName: "skip", WireName: "skip", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "include_trips", WireName: "include_trips", Location: "query", Default: "false"}, {PublicName: "only_direct_flights", WireName: "only_direct_flights", Location: "query", Default: "false"}, {PublicName: "carriers", WireName: "carriers", Location: "query"}, {PublicName: "include_filtered", WireName: "include_filtered", Location: "query", Default: "false"}, {PublicName: "sources", WireName: "sources", Location: "query"}, {PublicName: "minify_trips", WireName: "minify_trips", Location: "query"}, {PublicName: "cabins", WireName: "cabins", Location: "query"}, {PublicName: "min_cabin_pct", WireName: "min_cabin_pct", Location: "query", Default: "100"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("destinations_get",
+			mcplib.WithDescription("Returns the airports reachable from (or to) a single airport, along with the cheapest raw nonstop mileage price per cabin, aggregated across every source. Only direct/nonstop itineraries are considered; connecting prices are excluded. Supply exactly one of origin_airport or destination_airport. A cabin with no nonstop availability is returned as null (never 0). Optional: origin_airport, destination_airport."),
+			mcplib.WithString("origin_airport", mcplib.Description("Origin IATA code (3 letters). When supplied, the response lists reachable destinations and their cheapest nonstop price.")),
+			mcplib.WithString("destination_airport", mcplib.Description("Destination IATA code (3 letters).")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/destinations", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "origin_airport", WireName: "origin_airport", Location: "query"}, {PublicName: "destination_airport", WireName: "destination_airport", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("live_search",
+			mcplib.WithDescription("Commercial-agreement API keys only; Pro keys receive 403 -- do not retry. 5-15 s latency. Required: departure_date, destination_airport, origin_airport, source. Optional: disable_filters (default: false), seat_count (default: 1), show_dynamic_pricing (default: false) (plus 1 more). Returns the new LiveSearchResponse."),
+			mcplib.WithString("departure_date", mcplib.Required(), mcplib.Description("Departure date to search, in YYYY-MM-DD format.")),
+			mcplib.WithString("destination_airport", mcplib.Required(), mcplib.Description("The destination airport to search to.")),
+			mcplib.WithBoolean("disable_filters", mcplib.Description("Disables filters for dynamic pricing and mismatched airports.")),
+			mcplib.WithString("origin_airport", mcplib.Required(), mcplib.Description("The origin airport to search from.")),
+			mcplib.WithNumber("seat_count", mcplib.Description("Number of adult passengers to search for, between 1-9 seats.")),
+			mcplib.WithBoolean("show_dynamic_pricing", mcplib.Description("Disables only filters for dynamic pricing, but not for mismatched airports.")),
+			mcplib.WithBoolean("smart_cache", mcplib.Description("When true, an eligible failed live search can return matching cached availability instead.")),
+			mcplib.WithString("source", mcplib.Required(), mcplib.Description("Mileage program source identifier (26 programs tracked by the Partner API).")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/live", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "departure_date", WireName: "departure_date", Location: "body"}, {PublicName: "destination_airport", WireName: "destination_airport", Location: "body"}, {PublicName: "disable_filters", WireName: "disable_filters", Location: "body"}, {PublicName: "origin_airport", WireName: "origin_airport", Location: "body"}, {PublicName: "seat_count", WireName: "seat_count", Location: "body"}, {PublicName: "show_dynamic_pricing", WireName: "show_dynamic_pricing", Location: "body"}, {PublicName: "smart_cache", WireName: "smart_cache", Location: "body"}, {PublicName: "source", WireName: "source", Location: "body"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("refresh_availability",
+			mcplib.WithDescription("Use this endpoint to refresh old cached data. Pro API keys only; commercial-agreement keys cannot use /refresh (use /live). Credit-metered -- the response quota block shows remaining refreshes. Required: availability_ids. Returns array of RefreshAvailabilityItem."),
+			mcplib.WithString("availability_ids", mcplib.Required(), mcplib.Description("1 to 250 availability object IDs, as returned by /search or /availability. Duplicates are ignored.")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/refresh", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "availability_ids", WireName: "availability_ids", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("routes_get",
 			mcplib.WithDescription("Get all origin-destination routes tracked for a mileage program. Required: source. Returns array of Route."),
-			mcplib.WithString("source", mcplib.Required(), mcplib.Description("Mileage program source identifier.")),
+			mcplib.WithString("source", mcplib.Required(), mcplib.Description("The mileage program to list tracked routes for.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/routes", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("seats-aero-partner-search_cached-search",
-			mcplib.WithDescription("Search Seats.aero cached award availability between an origin and destination. Required: origin_airport, destination_airport. Optional: cabin, start_date, end_date (plus 8 more). Returns array of Availability."),
-			mcplib.WithString("origin_airport", mcplib.Required(), mcplib.Description("Origin IATA airport code.")),
-			mcplib.WithString("destination_airport", mcplib.Required(), mcplib.Description("Destination IATA airport code.")),
-			mcplib.WithString("cabin", mcplib.Description("Cabin class filter.")),
-			mcplib.WithString("start_date", mcplib.Description("Start date in YYYY-MM-DD format.")),
-			mcplib.WithString("end_date", mcplib.Description("End date in YYYY-MM-DD format.")),
-			mcplib.WithString("departure_date", mcplib.Description("Departure date")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor from the previous response.")),
-			mcplib.WithString("skip", mcplib.Description("Number of results to skip.")),
-			mcplib.WithString("take", mcplib.Description("Number of results to return.")),
-			mcplib.WithString("order_by", mcplib.Description("Order by")),
-			mcplib.WithString("include_trips", mcplib.Description("Include trips")),
-			mcplib.WithString("only_direct_flights", mcplib.Description("Only direct flights")),
-			mcplib.WithString("carriers", mcplib.Description("Carriers")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/search", []string{}),
+		makeAPIHandler("GET", "/routes", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "source", WireName: "source", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("trips_get",
-			mcplib.WithDescription("Get detailed trip information by revalidation/trip ID from search or availability results. Required: id. Returns the Trip."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
+			mcplib.WithDescription("Retrieve flight-level information from an Availability object by its revalidation/trip ID from search or availability results. Required: id. Optional: include_filtered (default: false), min_cabin_pct (default: 100). Returns array of Trip."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the availability object.")),
+			mcplib.WithBoolean("include_filtered", mcplib.Description("Include expensive dynamically-priced results that may have been filtered out.")),
+			mcplib.WithNumber("min_cabin_pct", mcplib.Description("Minimum percentage of each itinerary's distance that must be flown in its reported Cabin or...")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/trips/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/trips/{id}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "include_filtered", WireName: "include_filtered", Location: "query", Default: "false"}, {PublicName: "min_cabin_pct", WireName: "min_cabin_pct", Location: "query", Default: "100"}}, []string{"id"}),
 	)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -99,7 +159,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='availability'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -122,24 +182,142 @@ func RegisterTools(s *server.MCPServer) {
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
+type mcpParamBinding struct {
+	PublicName string
+	WireName   string
+	Location   string
+	Default    string
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
+		}
+		if platformSession != nil {
+			defer platformSession.ZeroCredentials()
 		}
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
+			return mcpToolError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
 		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
+		knownArgs := make(map[string]bool, len(bindings))
 		pathParams := make(map[string]bool, len(positionalParams))
+		params := make(map[string]string)
+		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
+		for _, binding := range bindings {
+			knownArgs[binding.PublicName] = true
+			v, ok := args[binding.PublicName]
+			if !ok {
+				if binding.Default != "" {
+					v = binding.Default
+				} else {
+					continue
+				}
+			}
+			switch binding.Location {
+			case "path":
+				placeholder := "{" + binding.WireName + "}"
+				pathParams[binding.PublicName] = true
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "header":
+				if headers == nil {
+					headers = map[string]string{}
+				}
+				headers[binding.WireName] = formatMCPParamValue(v)
+			case "body":
+				bodyArgs[binding.WireName] = v
+			default:
+				params[binding.WireName] = formatMCPParamValue(v)
+			}
+		}
 		for _, p := range positionalParams {
 			placeholder := "{" + p + "}"
 			if !strings.Contains(pathTemplate, placeholder) {
@@ -147,112 +325,276 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
 			}
 		}
 
-		params := make(map[string]string)
 		for k, v := range args {
-			if pathParams[k] {
+			if pathParams[k] || knownArgs[k] {
 				continue
 			}
-			params[k] = fmt.Sprintf("%v", v)
+			switch method {
+			case "POST", "PUT", "PATCH":
+				bodyArgs[k] = v
+			default:
+				params[k] = formatMCPParamValue(v)
+			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				if readOnly {
+					data, err = c.GetWithHeaders(ctx, path, params, headers)
+				} else {
+					data, err = c.GetMutatingWithHeaders(ctx, path, params, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, err = c.Get(ctx, path, params)
+			} else {
+				data, err = c.GetMutating(ctx, path, params)
+			}
 		case "POST":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Post(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Put(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Patch(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
 			msg := err.Error()
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
+				return mcpToolTextWithPlatform("already exists (no-op)", platformSession), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export SEATS_AERO_PARTNER_PARTNER_AUTHORIZATION=<your-key>" +
+					"\n      Set your API key with: export SEATS_AERO_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://seats.aero/settings" +
+					"\n      Seats.aero Pro subscribers: Settings -> API -> create a Partner API key (1,000 calls/day; not all regions are eligible)" +
 					"\n      Run 'seats-aero-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
-					"\n      Set it with: export SEATS_AERO_PARTNER_PARTNER_AUTHORIZATION=<your-key>" +
+					"\n      Set your API key with: export SEATS_AERO_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://seats.aero/settings" +
+					"\n      Seats.aero Pro subscribers: Settings -> API -> create a Partner API key (1,000 calls/day; not all regions are eligible)" +
 					"\n      Run 'seats-aero-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export SEATS_AERO_PARTNER_PARTNER_AUTHORIZATION=<your-key>" +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set your API key with: export SEATS_AERO_API_KEY=\"your-token-here\"" +
+					"\n      Get a key at: https://seats.aero/settings" +
+					"\n      Seats.aero Pro subscribers: Settings -> API -> create a Partner API key (1,000 calls/day; not all regions are eligible)" +
 					"\n      Run 'seats-aero-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+					return mcpToolTextWithPlatform("already deleted (no-op)", platformSession), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
+			if len(out) > bound.MaxBytes {
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			result := string(out)
+			if platformSession != nil {
+				result = bound.WithMetadata(result, platformSession.OutputMetadata())
+			}
+			return mcplib.NewToolResultText(result), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
+		}
+		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "seats-aero-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcpToolResultTextWithPlatform(method, data, nil)
+}
+
+func mcpToolTextWithPlatform(result string, platformSession *platform.Session) *mcplib.CallToolResult {
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func mcpToolResultTextWithPlatform(method string, data json.RawMessage, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointResponse(method, data)
+	return mcpToolTextWithPlatform(result, platformSession)
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+}
+
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	})
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	return newMCPClientFromConfig(ctx, cfg)
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(ctx context.Context, cfg *config.Config) (*client.Client, *platform.Session, error) {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := cli.ApplyClientHooks(c); err != nil {
+		if session != nil {
+			session.ZeroCredentials()
+		}
+		return nil, nil, fmt.Errorf("initializing MCP client: %w", err)
+	}
+	return c, session, nil
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "seats-aero-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run seats-aero-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run seats-aero-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run seats-aero-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -266,9 +608,13 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
@@ -276,9 +622,182 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+// validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
+// to the host is ReadOnlyHintAnnotation(true); a false annotation on a
+// mutating tool lets MCP hosts auto-approve writes and is treated as a real
+// bug per the project's agent-native security model.
+//
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
+//
+// SELECT and WITH are the only allowed leading keywords. WITH supports
+// SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
+// caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
+// and every other DDL/DML keyword fail at this gate before reaching SQLite.
+func validateReadOnlyQuery(query string) error {
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+		return fmt.Errorf("only SELECT queries are allowed")
+	}
+	return nil
+}
+
+// stripLeadingSQLNoise removes leading whitespace, SQL line comments
+// (-- to end of line), block comments (/* ... */), and statement
+// separators (;) from query. SQLite skips these before parsing the first
+// keyword, so a security gate that does not strip them mismatches what the
+// driver actually executes.
+func stripLeadingSQLNoise(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n;")
+		switch {
+		case strings.HasPrefix(query, "--"):
+			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
+				query = query[idx+1:]
+				continue
+			}
+			return ""
+		case strings.HasPrefix(query, "/*"):
+			if idx := strings.Index(query[2:], "*/"); idx >= 0 {
+				query = query[2+idx+2:]
+				continue
+			}
+			return ""
+		default:
+			return query
+		}
+	}
+}
+
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -288,65 +807,152 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
-	upper := strings.ToUpper(strings.TrimSpace(query))
-	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
-		if strings.HasPrefix(upper, prefix) {
-			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
-		}
+	if err := validateReadOnlyQuery(query); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
+	defer cancel()
+
+	rows, err := db.DB().QueryContext(queryCtx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
-	var results []map[string]any
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
+	scan := bound.NewSQLScanState(cols)
 	for rows.Next() {
 		values := make([]any, len(cols))
 		ptrs := make([]any, len(cols))
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
-		results = append(results, row)
+		if !scan.Add(row) {
+			break
+		}
+	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(scan.Rows, cols, storeStatus, scan.Truncated))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind, truncated bool) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+		"truncated":    truncated,
+	}
+	if truncated {
+		out["returned_count"] = len(rows)
+		out["max_bytes"] = bound.MaxBytes
+		out["note"] = bound.SQLResultBoundNote
+	}
+	if len(rows) == 0 && !truncated {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(queryCtx context.Context, err error) string {
+	if queryCtx.Err() != nil {
+		return fmt.Sprintf("query cancelled: %v. MCP SQL queries are bounded to %s; narrow the query with WHERE, GROUP BY, or an aggregate.", err, bound.SQLQueryTimeout)
+	}
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='availability', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "seats-aero",
-		"description": "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.",
+		"description": "Every Seats.aero Partner API endpoint, plus a local award-availability store that tells you what is new, what is still live, and where your miles reach nonstop.",
 		"archetype":   "generic",
-		"tool_count":  4,
+		"tool_count":  7,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion seats-aero-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{
 				{
-					"name":        "SEATS_AERO_PARTNER_PARTNER_AUTHORIZATION",
+					"name":        "SEATS_AERO_API_KEY",
 					"kind":        "per_call",
 					"required":    true,
 					"sensitive":   true,
 					"description": "Set to your API credential.",
 				},
 			},
+			"key_url":      "https://seats.aero/settings",
+			"instructions": "Seats.aero Pro subscribers: Settings -> API -> create a Partner API key (1,000 calls/day; not all regions are eligible)",
 		},
 		"resources": []map[string]any{
 			{
@@ -357,16 +963,35 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
-				"name":        "routes",
-				"description": "Manage routes",
+				"name":        "awards",
+				"description": "Manage awards",
+				"endpoints":   []string{"cached-search"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "destinations",
+				"description": "Manage destinations",
 				"endpoints":   []string{"get"},
 				"syncable":    true,
 				"searchable":  true,
 			},
 			{
-				"name":        "seats-aero-partner-search",
-				"description": "Manage seats aero partner search",
-				"endpoints":   []string{"cached-search"},
+				"name":        "live",
+				"description": "Manage live",
+				"endpoints":   []string{"search"},
+				"searchable":  true,
+			},
+			{
+				"name":        "refresh",
+				"description": "Manage refresh",
+				"endpoints":   []string{"availability"},
+				"writable":    true,
+			},
+			{
+				"name":        "routes",
+				"description": "Manage routes",
+				"endpoints":   []string{"get"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -379,14 +1004,30 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass cursor parameter for subsequent pages.",
-			"Control page size with the limit parameter (default 100).",
+			"Control page size with the take parameter (default 100).",
+			"Use start_date for incremental fetches (filter by modification time).",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "New-since award watch", "command": "new-since", "description": "See which award seats appeared on a route since you last looked, from your synced local data.", "rationale": "Requires a first-seen timestamp on every locally synced availability row, which no live API call or wrapper provides.", "via": "mcp-command-mirror"},
+			{"name": "Credit-aware recheck", "command": "recheck", "description": "Re-verify aging award rows are still live right before booking, without blowing the daily refresh quota.", "rationale": "Joins local synced_at ages with the credit-metered refresh endpoint and its quota block, guarding the 1", "via": "mcp-command-mirror"},
+			{"name": "Cross-program direct-only scan", "command": "direct-scan", "description": "Find direct-flight award seats under a mileage ceiling across every synced program at once.", "rationale": "The bulk availability endpoint serves one program per call", "via": "mcp-command-mirror"},
+			{"name": "Cabin/date calendar matrix", "command": "calendar", "description": "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance.", "rationale": "Pivots the flat bulk feed into the calendar shape shortlist-building actually needs, entirely from local rows.", "via": "mcp-command-mirror"},
+			{"name": "Nonstop reach finder", "command": "reach", "description": "Discover where your miles can take you nonstop from one airport", "rationale": "Chains the destinations fan-out with locally synced availability so the cheapest theoretical fares are confirmed", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "New-since award watch", "insight": "Requires a first-seen timestamp on every locally synced availability row, which no live API call or wrapper provides."},
+			{"topic": "Credit-aware recheck", "insight": "Joins local synced_at ages with the credit-metered refresh endpoint and its quota block, guarding the 1,000-call daily budget no wrapper tracks."},
+			{"topic": "Cross-program direct-only scan", "insight": "The bulk availability endpoint serves one program per call; the cross-program direct-only join exists only in the local store."},
+			{"topic": "Cabin/date calendar matrix", "insight": "Pivots the flat bulk feed into the calendar shape shortlist-building actually needs, entirely from local rows."},
+			{"topic": "Nonstop reach finder", "insight": "Chains the destinations fan-out with locally synced availability so the cheapest theoretical fares are confirmed against bookable dates."},
+		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

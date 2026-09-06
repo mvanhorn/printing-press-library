@@ -1,0 +1,373 @@
+{
+  "api_name": "seats-aero",
+  "base_url": "https://seats.aero/partnerapi",
+  "description": "Every Seats.aero Partner API endpoint, plus a local award-availability store that tells you what is new, what is still live, and where your miles reach nonstop.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Partner-Authorization",
+    "in": "header",
+    "env_vars": [
+      "SEATS_AERO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SEATS_AERO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://seats.aero/settings"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "availability_bulk",
+      "description": "Retrieve a large amount of availability objects from one specific mileage program. Required: source. Optional: cabin, start_date, end_date (plus 7 more). Returns array of Availability.",
+      "method": "GET",
+      "path": "/availability",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "The mileage program to retrieve availability from.",
+          "required": true
+        },
+        {
+          "name": "cabin",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns results with this cabin available. Must be one of: [economy, premium, business, first]"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns results between start_date and end_date when specified."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns results between start_date and end_date when specified."
+        },
+        {
+          "name": "origin_region",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns results originating in this region when specified. Must be one of: [North America, South America, Africa, Asia, Europe, Oceania]"
+        },
+        {
+          "name": "destination_region",
+          "type": "string",
+          "location": "query",
+          "description": "Only returns results arriving in this region when specified. Must be one of: [North America, South America, Africa, Asia, Europe, Oceania]"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "How many results to return. Must be \u003e=10 and \u003c= 1000 if specified, otherwise 500."
+        },
+        {
+          "name": "cursor",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor you retrieved from a previous availability response."
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "How many results to skip that you have already retrieved. Use this with the cursor to paginate responses."
+        },
+        {
+          "name": "include_filtered",
+          "type": "bool",
+          "location": "query",
+          "description": "Return results that only have raw (filtered) results. Enable this when using the raw fields to prevent dynamic price filtering."
+        },
+        {
+          "name": "min_cabin_pct",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum percentage of each itinerary's distance that must be flown in its reported Cabin or..."
+        }
+      ]
+    },
+    {
+      "name": "awards_cached-search",
+      "description": "Search Seats.aero cached award availability between one or more origin and destination airports, across one or more mileage programs. This is the flagship cached-search endpoint behind seats.aero's own web app. Required: origin_airport, destination_airport. Optional: start_date, end_date, cursor (plus 11 more). Returns array of Availability.",
+      "method": "GET",
+      "path": "/search",
+      "params": [
+        {
+          "name": "origin_airport",
+          "type": "string",
+          "location": "query",
+          "description": "A list of origin airports. Comma-delimited if multiple, such as 'SFO,LAX'.",
+          "required": true
+        },
+        {
+          "name": "destination_airport",
+          "type": "string",
+          "location": "query",
+          "description": "A list of destination airports. Comma-delimited if multiple, such as 'FRA,LHR'.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Results must depart between start_date and end_date when specified, in YYYY-MM-DD format."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Results must depart between start_date and end_date when specified, in YYYY-MM-DD format."
+        },
+        {
+          "name": "cursor",
+          "type": "int",
+          "location": "query",
+          "description": "A cursor you obtained from a previous search call."
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum amount of results to respond with. Must be \u003e= 10 and \u003c= 1000."
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "How many results to skip."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "By default, results are ordered by departure date and then by available cabins, with available premium cabins ranked above results without them available. You can alternatively specify lowest_mileage in this parameter to return results with the cheapest prices first."
+        },
+        {
+          "name": "include_trips",
+          "type": "bool",
+          "location": "query",
+          "description": "Include trip-level details in the API response. This may degrade response time and sizing."
+        },
+        {
+          "name": "only_direct_flights",
+          "type": "bool",
+          "location": "query",
+          "description": "Only return results that have a direct flight available. Respects the cabin parameter if provided."
+        },
+        {
+          "name": "carriers",
+          "type": "string",
+          "location": "query",
+          "description": "Only return results involving these comma-separated carriers (i.e. 'DL,AA'). Respects the cabin parameter if provided."
+        },
+        {
+          "name": "include_filtered",
+          "type": "bool",
+          "location": "query",
+          "description": "Return results that only have raw (filtered) results. Enable this when using the raw fields to prevent dynamic price filtering."
+        },
+        {
+          "name": "sources",
+          "type": "string",
+          "location": "query",
+          "description": "A list of mileage programs to filter by. Comma-delimited if multiple, such as 'aeroplan,united'."
+        },
+        {
+          "name": "minify_trips",
+          "type": "bool",
+          "location": "query",
+          "description": "When include_trips and minify_trips are both enabled, returns a reduced amount of fields in each trip to improve performance."
+        },
+        {
+          "name": "cabins",
+          "type": "string",
+          "location": "query",
+          "description": "Results must have these cabins available when specified. Comma-delimited if multiple, such as 'economy,business'. Must not be provided if 'cabin' was provided. Replaces the singular `cabin` parameter used on other endpoints: `cabin` is not accepted here."
+        },
+        {
+          "name": "min_cabin_pct",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum percentage of each itinerary's distance that must be flown in its reported Cabin or..."
+        }
+      ]
+    },
+    {
+      "name": "destinations_get",
+      "description": "Returns the airports reachable from (or to) a single airport, along with the cheapest raw nonstop mileage price per cabin, aggregated across every source. Only direct/nonstop itineraries are considered; connecting prices are excluded. Supply exactly one of origin_airport or destination_airport. A cabin with no nonstop availability is returned as null (never 0). Optional: origin_airport, destination_airport.",
+      "method": "GET",
+      "path": "/destinations",
+      "params": [
+        {
+          "name": "origin_airport",
+          "type": "string",
+          "location": "query",
+          "description": "Origin IATA code (3 letters). When supplied, the response lists reachable destinations and their cheapest nonstop price. Provide either this or destination_airport, not both. Metro/alias codes are expanded automatically."
+        },
+        {
+          "name": "destination_airport",
+          "type": "string",
+          "location": "query",
+          "description": "Destination IATA code (3 letters). When supplied, the response lists origin airports from which this airport is reachable nonstop, and their cheapest price. Provide either this or origin_airport, not both. Metro/alias codes are expanded automatically."
+        }
+      ]
+    },
+    {
+      "name": "live_search",
+      "description": "Commercial-agreement API keys only; Pro keys receive 403 -- do not retry. 5-15 s latency. Required: departure_date, destination_airport, origin_airport, source. Optional: disable_filters (default: false), seat_count (default: 1), show_dynamic_pricing (default: false) (plus 1 more). Returns the new LiveSearchResponse.",
+      "method": "POST",
+      "path": "/live",
+      "params": [
+        {
+          "name": "departure_date",
+          "type": "string",
+          "location": "body",
+          "description": "Departure date to search, in YYYY-MM-DD format.",
+          "required": true
+        },
+        {
+          "name": "destination_airport",
+          "type": "string",
+          "location": "body",
+          "description": "The destination airport to search to.",
+          "required": true
+        },
+        {
+          "name": "disable_filters",
+          "type": "bool",
+          "location": "body",
+          "description": "Disables filters for dynamic pricing and mismatched airports. Where supported by the mileage program, this may also return mixed-cabin itineraries. Results with a computed mixed-cabin percentage include MixedCabinPct."
+        },
+        {
+          "name": "origin_airport",
+          "type": "string",
+          "location": "body",
+          "description": "The origin airport to search from.",
+          "required": true
+        },
+        {
+          "name": "seat_count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of adult passengers to search for, between 1-9 seats."
+        },
+        {
+          "name": "show_dynamic_pricing",
+          "type": "bool",
+          "location": "body",
+          "description": "Disables only filters for dynamic pricing, but not for mismatched airports."
+        },
+        {
+          "name": "smart_cache",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, an eligible failed live search can return matching cached availability instead. The fallback preserves the requested source, airports, departure date, seat count, filter settings, and stored result identifiers. Cache-resolved responses do not create live provider billing records. Definitive unsupported-source or unsupported-route responses do not use the fallback. If no matching cached search exists, the original live-search error is returned."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Mileage program source identifier (26 programs tracked by the Partner API).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "refresh_availability",
+      "description": "Use this endpoint to refresh old cached data. Pro API keys only; commercial-agreement keys cannot use /refresh (use /live). Credit-metered -- the response quota block shows remaining refreshes. Required: availability_ids. Returns array of RefreshAvailabilityItem.",
+      "method": "POST",
+      "path": "/refresh",
+      "params": [
+        {
+          "name": "availability_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "1 to 250 availability object IDs, as returned by /search or /availability. Duplicates are ignored.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_get",
+      "description": "Get all origin-destination routes tracked for a mileage program. Required: source. Returns array of Route.",
+      "method": "GET",
+      "path": "/routes",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "The mileage program to list tracked routes for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_get",
+      "description": "Retrieve flight-level information from an Availability object by its revalidation/trip ID from search or availability results. Required: id. Optional: include_filtered (default: false), min_cabin_pct (default: 100). Returns array of Trip.",
+      "method": "GET",
+      "path": "/trips/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the availability object.",
+          "required": true
+        },
+        {
+          "name": "include_filtered",
+          "type": "bool",
+          "location": "query",
+          "description": "Include expensive dynamically-priced results that may have been filtered out."
+        },
+        {
+          "name": "min_cabin_pct",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum percentage of each itinerary's distance that must be flown in its reported Cabin or..."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "New-since award watch",
+      "command": "new-since",
+      "description": "See which award seats appeared on a route since you last looked, from your synced local data."
+    },
+    {
+      "name": "Credit-aware recheck",
+      "command": "recheck",
+      "description": "Re-verify aging award rows are still live right before booking. It performs one live quota probe per run (1 daily call), and --apply is refused when quota is unknown unless --ignore-quota is passed."
+    },
+    {
+      "name": "Cross-program direct-only scan",
+      "command": "direct-scan",
+      "description": "Find direct-flight award seats under a mileage ceiling across every synced program at once."
+    },
+    {
+      "name": "Cabin/date calendar matrix",
+      "command": "calendar",
+      "description": "Turn one route's synced availability into a date-by-cabin matrix you can scan at a glance."
+    },
+    {
+      "name": "Nonstop reach finder",
+      "command": "reach",
+      "description": "Discover where your miles can take you nonstop from one airport, ranked by cost and cross-checked against real dated seats."
+    }
+  ]
+}

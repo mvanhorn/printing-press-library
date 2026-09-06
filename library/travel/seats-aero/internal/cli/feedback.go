@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/seats-aero/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +32,12 @@ type FeedbackEntry struct {
 const feedbackMaxTextLen = 4096
 
 func feedbackFilePath() (string, error) {
-	home, err := os.UserHomeDir()
+	dir, err := cliutil.DataDir()
 	if err != nil {
-		return "", fmt.Errorf("resolving home dir: %w", err)
+		return "", err
 	}
-	dir := filepath.Join(home, ".seats-aero-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
+		return "", fmt.Errorf("creating feedback data dir: %w", err)
 	}
 	return filepath.Join(dir, "feedback.jsonl"), nil
 }
@@ -81,7 +81,7 @@ func postFeedback(url string, entry FeedbackEntry) error {
 		return fmt.Errorf("building feedback request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/travel/seats-aero/feedback")
+	req.Header.Set("User-Agent", "seats-aero-pp-cli/feedback")
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -100,7 +100,7 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.seats-aero-pp-cli/feedback.jsonl.
+		Long: `Feedback is captured locally first in the CLI data directory's feedback.jsonl.
 When ` + "`SEATS_AERO_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`SEATS_AERO_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -108,6 +108,9 @@ POSTed as JSON after the local write.
 Write what surprised you or tripped you up, not a bug report. The
 loop is: agent notices friction -> one invocation -> captured -> the
 maintainer sees it.`,
+		Example: `  seats-aero-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
+  seats-aero-pp-cli feedback --stdin < notes.txt
+  seats-aero-pp-cli feedback list --limit 10`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var text string
 			if useStdin {
@@ -184,6 +187,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  seats-aero-pp-cli feedback list
   seats-aero-pp-cli feedback list --limit 5
   seats-aero-pp-cli feedback list --json`,

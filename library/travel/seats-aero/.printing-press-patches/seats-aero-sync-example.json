@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-sync-example",
+  "applied_at": "2026-09-06",
+  "base_run_id": "20260905-230744-c6d96a39",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Make the generated sync example runnable for Seats.aero availability.",
+  "reason": "Awards cannot be bulk-synced without route parameters, and availability requires a mileage-program source.",
+  "files": ["internal/cli/sync.go"],
+  "markers": ["PATCH(seats-aero-sync-example)"],
+  "validated_outcome": "The sync help example selects availability and supplies availability:source=united; the full Go verification suite passes."
+}

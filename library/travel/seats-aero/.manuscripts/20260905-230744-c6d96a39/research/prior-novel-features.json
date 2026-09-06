@@ -1,0 +1,39 @@
+{
+  "api_name": "seats-aero",
+  "novel_features": [
+    {
+      "name": "Award deal finder",
+      "command": "seats-aero-partner-search",
+      "description": "Find bookable award seats between airports with cabin, direct-flight, carrier, date, and lowest-mileage filters in one agent-safe command."
+    },
+    {
+      "name": "Program route atlas",
+      "command": "routes",
+      "description": "List every route tracked for a mileage program so agents can discover origin-destination coverage before searching availability."
+    },
+    {
+      "name": "Bulk award calendar",
+      "command": "availability",
+      "description": "Pull a mileage program availability feed by cabin, date window, and regions to build award calendars and destination shortlists."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Award deal finder",
+      "command": "seats-aero-partner-search",
+      "description": "Find bookable award seats between airports with cabin, direct-flight, carrier, date, and lowest-mileage filters in one agent-safe command."
+    },
+    {
+      "name": "Program route atlas",
+      "command": "routes",
+      "description": "List every route tracked for a mileage program so agents can discover origin-destination coverage before searching availability."
+    },
+    {
+      "name": "Bulk award calendar",
+      "command": "availability",
+      "description": "Pull a mileage program availability feed by cabin, date window, and regions to build award calendars and destination shortlists."
+    }
+  ],
+  "note": "synthesized from library .printing-press.json for Pass 2(d); no research.json existed for the 3.10.0 print",
+  "researched_at": "2026-05-06T18:59:03Z"
+}

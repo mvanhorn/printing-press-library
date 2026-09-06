@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-which-endpoint-capabilities",
+  "applied_at": "2026-09-06",
+  "base_run_id": "20260905-230744-c6d96a39",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Append the generated endpoint commands (awards, availability, trips, routes, destinations, refresh) to the which capability index so natural-language capability queries resolve the flagship search after the seats-aero-partner-search→awards reprint rename.",
+  "reason": "The generator seeds whichIndex from novel features only; the prior CLI's search was a novel feature, the reprint's is an endpoint command, so `which \"search award availability\"` returned no matches (AQL CDR regression).",
+  "files": [
+    "internal/cli/seats_aero_which_extras.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestWhichFindsEndpointCapabilities; `which \"search award availability\" --agent` returns awards first."
+}
