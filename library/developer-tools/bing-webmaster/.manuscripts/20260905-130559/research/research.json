@@ -1,0 +1,309 @@
+{
+  "api_name": "bing-webmaster",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "isiahw1/mcp-server-bing-webmaster",
+      "url": "https://github.com/isiahw1/mcp-server-bing-webmaster",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zizzfizzix/mcp-server-bwt",
+      "url": "https://github.com/zizzfizzix/mcp-server-bwt",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 70,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "merj/bing-webmaster-tools",
+      "url": "https://github.com/merj/bing-webmaster-tools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "seo-meow/bing-webmaster-api",
+      "url": "https://github.com/seo-meow/bing-webmaster-api",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "NmadeleiDev/bing_webmaster_cli",
+      "url": "https://github.com/NmadeleiDev/bing_webmaster_cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "webjeyros/bing-webmaster-api",
+      "url": "https://github.com/webjeyros/bing-webmaster-api",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-05T11:00:00Z",
+  "novel_features": [
+    {
+      "name": "Query-performance delta review",
+      "command": "review",
+      "description": "See which Bing queries you gained or lost, and how CTR and average position shifted, vs the previous period — not just a raw snapshot.",
+      "rationale": "Requires date-stamped local snapshots of query/traffic stats; no single Bing API call returns period-over-period deltas.",
+      "example": "bing-webmaster-pp-cli review --site https://example.com --days 7 --agent",
+      "why_it_matters": "Reach for this for a weekly SEO standup instead of eyeballing raw GetQueryStats; it tells the agent what actually changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ranking-drift detection",
+      "command": "drift",
+      "description": "Track average-position movement per query and page over time and surface the biggest climbers and droppers.",
+      "rationale": "Position drift is a join across historical query×page snapshots stored locally; the API only ever returns the current window.",
+      "example": "bing-webmaster-pp-cli drift --site https://example.com --top 20 --agent",
+      "why_it_matters": "Use when an agent must explain why traffic moved — drift points at the exact queries/pages that re-ranked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quota-aware bulk submit + publish pipeline",
+      "command": "publish",
+      "description": "Submit many URLs (or a whole sitemap) for indexing, automatically chunked to the 500-per-request cap, paced against your live remaining quota, and deduped against URLs already submitted.",
+      "rationale": "Combines the 500-URL batch cap, live GetUrlSubmissionQuota, and the local record of prior submissions — no tool unifies these.",
+      "example": "bing-webmaster-pp-cli publish --site https://example.com --from-sitemap https://example.com/sitemap.xml --dry-run",
+      "why_it_matters": "Pick this over raw SubmitUrlBatch whenever submitting more than a handful of URLs; it won't blow the daily quota or resubmit.",
+      "group": "Submission at scale"
+    },
+    {
+      "name": "Crawl-error triage",
+      "command": "triage",
+      "description": "Categorize crawl issues by severity, diff them against your last sync, and map each issue to the affected child URLs in one view.",
+      "rationale": "Severity bucketing + snapshot diff + issue→URL mapping is a local join across crawl issues, crawl stats, and children-URL info.",
+      "example": "bing-webmaster-pp-cli triage --site https://example.com --agent",
+      "why_it_matters": "Use to turn a raw GetCrawlIssues dump into a prioritized, what-changed-since-last-time worklist.",
+      "group": "Operational triage"
+    },
+    {
+      "name": "Submission quota intelligence",
+      "command": "quota",
+      "description": "One view of URL and content submission quota — daily and monthly remaining — plus a pacing recommendation.",
+      "rationale": "Unifies GetUrlSubmissionQuota and GetContentSubmissionQuota with submission history to compute a safe rate; nobody surfaces remaining-and-pace.",
+      "example": "bing-webmaster-pp-cli quota --site https://example.com --agent",
+      "why_it_matters": "Check before any bulk submission so the agent knows how many URLs it can push today without hitting the wall.",
+      "group": "Submission at scale"
+    },
+    {
+      "name": "Bing-vs-Google coverage gap",
+      "command": "gap",
+      "description": "Reconcile your Bing query/page performance against a Google Search Console export to find queries and pages you rank for on one engine but not the other.",
+      "rationale": "Cross-engine reconciliation joins Bing stats with an external GSC export locally; no Bing tool does this.",
+      "example": "bing-webmaster-pp-cli gap --site https://example.com --gsc ./gsc-queries.csv --agent",
+      "why_it_matters": "Use to find low-effort wins: pages already strong on Google that are missing from Bing (and vice-versa).",
+      "group": "Cross-engine intelligence"
+    },
+    {
+      "name": "Feed/sitemap health monitor",
+      "command": "feed-health",
+      "description": "Track submitted, discovered, and indexed counts for each feed over time and flag drops.",
+      "rationale": "Trend lines require stored feed snapshots; GetFeeds/GetFeedDetails only return the current state.",
+      "example": "bing-webmaster-pp-cli feed-health --site https://example.com --agent",
+      "why_it_matters": "Use to catch a sitemap that silently stopped being indexed before it tanks traffic.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Indexation watch",
+      "command": "watch",
+      "description": "Diff the latest sync against the previous one and surface indexation, crawl, and impression regressions per site.",
+      "rationale": "Whole-site regression detection is a diff of two stored sync snapshots — impossible without a local history.",
+      "example": "bing-webmaster-pp-cli watch --site https://example.com --agent",
+      "why_it_matters": "Run after each scheduled sync so the agent gets a single 'what regressed' digest instead of re-reading everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Query-performance delta review",
+      "command": "review",
+      "description": "See which Bing queries you gained or lost, and how CTR and average position shifted, vs the previous period — not just a raw snapshot.",
+      "rationale": "Requires date-stamped local snapshots of query/traffic stats; no single Bing API call returns period-over-period deltas.",
+      "example": "bing-webmaster-pp-cli review --site https://example.com --days 7 --agent",
+      "why_it_matters": "Reach for this for a weekly SEO standup instead of eyeballing raw GetQueryStats; it tells the agent what actually changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ranking-drift detection",
+      "command": "drift",
+      "description": "Track average-position movement per query and page over time and surface the biggest climbers and droppers.",
+      "rationale": "Position drift is a join across historical query×page snapshots stored locally; the API only ever returns the current window.",
+      "example": "bing-webmaster-pp-cli drift --site https://example.com --top 20 --agent",
+      "why_it_matters": "Use when an agent must explain why traffic moved — drift points at the exact queries/pages that re-ranked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quota-aware bulk submit + publish pipeline",
+      "command": "publish",
+      "description": "Submit many URLs (or a whole sitemap) for indexing, automatically chunked to the 500-per-request cap, paced against your live remaining quota, and deduped against URLs already submitted.",
+      "rationale": "Combines the 500-URL batch cap, live GetUrlSubmissionQuota, and the local record of prior submissions — no tool unifies these.",
+      "example": "bing-webmaster-pp-cli publish --site https://example.com --from-sitemap https://example.com/sitemap.xml --dry-run",
+      "why_it_matters": "Pick this over raw SubmitUrlBatch whenever submitting more than a handful of URLs; it won't blow the daily quota or resubmit.",
+      "group": "Submission at scale"
+    },
+    {
+      "name": "Crawl-error triage",
+      "command": "triage",
+      "description": "Categorize crawl issues by severity, diff them against your last sync, and map each issue to the affected child URLs in one view.",
+      "rationale": "Severity bucketing + snapshot diff + issue→URL mapping is a local join across crawl issues, crawl stats, and children-URL info.",
+      "example": "bing-webmaster-pp-cli triage --site https://example.com --agent",
+      "why_it_matters": "Use to turn a raw GetCrawlIssues dump into a prioritized, what-changed-since-last-time worklist.",
+      "group": "Operational triage"
+    },
+    {
+      "name": "Submission quota intelligence",
+      "command": "quota",
+      "description": "One view of URL and content submission quota — daily and monthly remaining — plus a pacing recommendation.",
+      "rationale": "Unifies GetUrlSubmissionQuota and GetContentSubmissionQuota with submission history to compute a safe rate; nobody surfaces remaining-and-pace.",
+      "example": "bing-webmaster-pp-cli quota --site https://example.com --agent",
+      "why_it_matters": "Check before any bulk submission so the agent knows how many URLs it can push today without hitting the wall.",
+      "group": "Submission at scale"
+    },
+    {
+      "name": "Bing-vs-Google coverage gap",
+      "command": "gap",
+      "description": "Reconcile your Bing query/page performance against a Google Search Console export to find queries and pages you rank for on one engine but not the other.",
+      "rationale": "Cross-engine reconciliation joins Bing stats with an external GSC export locally; no Bing tool does this.",
+      "example": "bing-webmaster-pp-cli gap --site https://example.com --gsc ./gsc-queries.csv --agent",
+      "why_it_matters": "Use to find low-effort wins: pages already strong on Google that are missing from Bing (and vice-versa).",
+      "group": "Cross-engine intelligence"
+    },
+    {
+      "name": "Feed/sitemap health monitor",
+      "command": "feed-health",
+      "description": "Track submitted, discovered, and indexed counts for each feed over time and flag drops.",
+      "rationale": "Trend lines require stored feed snapshots; GetFeeds/GetFeedDetails only return the current state.",
+      "example": "bing-webmaster-pp-cli feed-health --site https://example.com --agent",
+      "why_it_matters": "Use to catch a sitemap that silently stopped being indexed before it tanks traffic.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Indexation watch",
+      "command": "watch",
+      "description": "Diff the latest sync against the previous one and surface indexation, crawl, and impression regressions per site.",
+      "rationale": "Whole-site regression detection is a diff of two stored sync snapshots — impossible without a local history.",
+      "example": "bing-webmaster-pp-cli watch --site https://example.com --agent",
+      "why_it_matters": "Run after each scheduled sync so the agent gets a single 'what regressed' digest instead of re-reading everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Bing Webmaster Tools",
+    "headline": "Every Bing Webmaster API endpoint, plus the SEO intelligence no other Bing tool ships: period-over-period deltas, ranking drift, quota-aware bulk submission, and Bing-vs-Google reconciliation — all backed by a local SQLite store.",
+    "value_prop": "The most complete Bing Webmaster CLI: all 60 documented API methods as composable commands, with offline FTS search, read-only SQL, and agent-native output. On top of raw endpoints it layers what SEOs actually need — `review` for weekly query deltas, `drift` for ranking movement, `publish` for quota-paced bulk indexing, `triage` for crawl-error prioritization, and `gap` to reconcile Bing against Google Search Console.",
+    "auth_narrative": "Authentication uses a single Bing Webmaster API key passed as the `apikey` query parameter. The key is per-user (it covers every site you've verified), not per-site. Get it at bing.com/webmasters → Settings → API Access → Generate API Key, then set it as the BING_WEBMASTER_API_KEY environment variable. Run `doctor` to confirm the key is valid and the API is reachable.",
+    "quickstart": [
+      {
+        "command": "bing-webmaster-pp-cli doctor",
+        "comment": "Confirm BING_WEBMASTER_API_KEY is set and the API is reachable before anything else."
+      },
+      {
+        "command": "bing-webmaster-pp-cli sites list",
+        "comment": "List the sites your key can manage and pick a default."
+      },
+      {
+        "command": "bing-webmaster-pp-cli traffic queries --site https://example.com",
+        "comment": "Pull current top query stats for a site (may be empty below Bing's data threshold)."
+      },
+      {
+        "command": "bing-webmaster-pp-cli review --site https://example.com --days 7",
+        "comment": "Capture a baseline and see what changed in query performance — run again later to get deltas."
+      },
+      {
+        "command": "bing-webmaster-pp-cli quota --site https://example.com",
+        "comment": "Check remaining submission quota before a bulk push."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports InvalidApiKey",
+        "fix": "Regenerate the key at bing.com/webmasters → Settings → API Access and re-export BING_WEBMASTER_API_KEY; the key is per-user and only one is active at a time."
+      },
+      {
+        "symptom": "Query stats come back empty",
+        "fix": "This is expected when a site is below Bing's data threshold — it is valid, not an error. Verify with a higher-traffic site or wait for more data."
+      },
+      {
+        "symptom": "URL submission returns HTTP 403",
+        "fix": "Usually upstream WAF/Bingbot blocking rather than the API. Confirm Bingbot is allowed in robots.txt and not blocked by your CDN/WAF."
+      },
+      {
+        "symptom": "Submission rejected for quota",
+        "fix": "Run `quota` to see remaining daily/monthly allowance; new sites get far less than the 10,000/day headline. Quota resets at midnight GMT."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or SEO needs to manage Bing indexing programmatically: reviewing weekly query performance, detecting ranking drift, bulk-submitting URLs within quota, triaging crawl errors, monitoring sitemap health, or comparing Bing coverage against Google. It is the right tool whenever the task involves Bing Webmaster data and you want composable JSON output plus local history rather than clicking through the web UI.",
+    "recipes": [
+      {
+        "title": "Weekly query review, agent-friendly",
+        "command": "bing-webmaster-pp-cli review --site https://example.com --days 7 --agent --select gained,lost,position_delta",
+        "explanation": "Returns only the changed-query summary fields so an agent doesn't parse the full stats payload."
+      },
+      {
+        "title": "Quota-paced sitemap submission (dry run first)",
+        "command": "bing-webmaster-pp-cli publish --site https://example.com --from-sitemap https://example.com/sitemap.xml --dry-run",
+        "explanation": "Shows exactly which URLs would be submitted, chunked to 500 and capped at remaining quota, before sending anything."
+      },
+      {
+        "title": "Crawl-error triage since last sync",
+        "command": "bing-webmaster-pp-cli triage --site https://example.com --agent",
+        "explanation": "Prioritized, deduped crawl issues with affected URLs — a worklist, not a raw dump."
+      },
+      {
+        "title": "Find Bing gaps vs Google",
+        "command": "bing-webmaster-pp-cli gap --site https://example.com --gsc ./gsc-queries.csv --agent",
+        "explanation": "Joins a GSC performance export with Bing stats to surface cross-engine ranking gaps."
+      }
+    ],
+    "trigger_phrases": [
+      "check my bing query performance",
+      "submit urls to bing",
+      "bing crawl errors",
+      "how is my sitemap doing on bing",
+      "bing ranking drift",
+      "compare bing and google search console",
+      "use bing webmaster",
+      "run bing-webmaster"
+    ]
+  },
+  "reprint_of": {
+    "run_id": "20260616-212356",
+    "printing_press_version": "4.3.0",
+    "research_mode": "redo",
+    "prior_research_reverified": "done 2026-09-05: /json/* surface unchanged; SOAP/POX retired 2026-08-31 (spec is JSON-only); OAuth2 noted as alternative; 3 deep-link OBSOLETE markers kept"
+  }
+}

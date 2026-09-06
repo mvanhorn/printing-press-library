@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "bing-webmaster-pp-cli"
+display_name = "Bing Webmaster Tools"
+description = "Every Bing Webmaster API endpoint, plus the SEO intelligence no other Bing tool ships: period-over-period deltas, ranking drift, quota-aware bulk submission, and Bing-vs-Google reconciliation — all backed by a local SQLite store."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/bing-webmaster-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BING_WEBMASTER_API_KEY = true

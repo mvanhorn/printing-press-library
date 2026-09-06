@@ -1,0 +1,1124 @@
+name: bing-webmaster
+display_name: "Bing Webmaster Tools"
+description: "The Bing Webmaster Tools API: manage sites, submit URLs, and read query/traffic/crawl/link stats from the Bing search index."
+cli_description: "Manage Bing indexing and read SEO performance from the terminal — all 60 Webmaster API methods plus query deltas, ranking drift, and quota-paced submission."
+version: "1.0.0"
+base_url: "https://ssl.bing.com/webmaster/api.svc"
+# Research redo 2026-09-05: Microsoft retired the SOAP/POX protocol variants on
+# 2026-08-31 — this spec is JSON-only (all /json/* paths) and unaffected.
+spec_source: official
+category: developer-tools
+website_url: "https://www.bing.com/webmasters"
+
+auth:
+  type: api_key
+  in: query
+  header: apikey
+  env_vars:
+    - BING_WEBMASTER_API_KEY
+  key_url: "https://www.bing.com/webmasters"
+  instructions: "Settings -> API Access -> accept terms -> Generate API Key. The key is per-user and covers every verified site. OAuth2 bearer is the Microsoft-recommended alternative for server apps; this CLI ships the api-key path."
+  verify_path: "/json/GetUserSites"
+
+config:
+  format: toml
+  path: "~/.config/bing-webmaster-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  # ----------------------------------------------------------------- sites
+  sites:
+    description: "Manage and inspect the sites your API key controls"
+    endpoints:
+      list:
+        method: GET
+        path: "/json/GetUserSites"
+        description: "List all verified sites for the current user"
+        params: []
+        response:
+          type: array
+      add:
+        method: POST
+        path: "/json/AddSite"
+        description: "Add a new site to your account"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL to add (e.g. https://example.com)"
+        response:
+          type: object
+      verify:
+        method: POST
+        path: "/json/VerifySite"
+        description: "Attempt verification of a site you have added"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL to verify"
+        response:
+          type: object
+      remove:
+        method: POST
+        path: "/json/RemoveSite"
+        description: "Remove a site from your account"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL to remove"
+        response:
+          type: object
+      roles:
+        method: GET
+        path: "/json/GetSiteRoles"
+        description: "Get delegated user roles for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL"
+          - name: isCurrentUserAdmin
+            type: bool
+            description: "Whether the current user is an admin"
+        response:
+          type: object
+      add-role:
+        method: POST
+        path: "/json/AddSiteRoles"
+        description: "Delegate site access to another user"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL"
+          - name: delegatedUrl
+            type: string
+            required: true
+            description: "Delegated site URL scope"
+          - name: email
+            type: string
+            required: true
+            description: "Email of the user to delegate to"
+          - name: businessVerificationCode
+            type: string
+            description: "Business verification code (if required)"
+          - name: canDelegate
+            type: bool
+            description: "Whether the delegate may further delegate"
+          - name: isAdministrator
+            type: bool
+            description: "Grant administrator role"
+        response:
+          type: object
+      remove-role:
+        method: POST
+        path: "/json/RemoveSiteRole"
+        description: "Revoke a user's delegated access to a site"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL"
+          - name: siteRole
+            type: string
+            required: true
+            description: "Site role to remove"
+        response:
+          type: object
+      moves:
+        method: GET
+        path: "/json/GetSiteMoves"
+        description: "List submitted site moves (migrations) for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Site URL"
+        response:
+          type: array
+      submit-move:
+        method: POST
+        path: "/json/SubmitSiteMove"
+        description: "Submit a site migration"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Source site URL"
+          - name: settings
+            type: object
+            description: "Site move settings"
+            fields:
+              - name: TargetUrl
+                type: string
+                description: "Destination site URL"
+              - name: Type
+                type: string
+                description: "Move type (e.g. SiteWide, Directory)"
+              - name: Scope
+                type: string
+                description: "Move scope (e.g. Domain, Subdomain)"
+        response:
+          type: object
+
+  # ------------------------------------------------------------ submission
+  submission:
+    description: "Submit URLs and content to Bing for indexing, and check quotas"
+    endpoints:
+      submit-url:
+        method: POST
+        path: "/json/SubmitUrl"
+        description: "Submit a single URL for indexing"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "URL to submit for indexing"
+        response:
+          type: object
+      submit-batch:
+        method: POST
+        path: "/json/SubmitUrlBatch"
+        description: "Submit up to 500 URLs for indexing in one request"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: urlList
+            type: array
+            required: true
+            description: "List of URLs to submit (max 500)"
+        response:
+          type: object
+      url-quota:
+        method: GET
+        path: "/json/GetUrlSubmissionQuota"
+        description: "Get daily and monthly URL submission quota"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: object
+      submit-content:
+        method: POST
+        path: "/json/SubmitContent"
+        description: "Submit page content directly to Bing"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "URL of the page"
+          - name: httpMessage
+            type: string
+            required: true
+            description: "Base64-encoded HTTP response (headers + body)"
+          - name: structuredData
+            type: string
+            description: "Base64-encoded structured data"
+          - name: httpStatus
+            type: int
+            description: "HTTP status code of the page"
+        response:
+          type: object
+      content-quota:
+        method: GET
+        path: "/json/GetContentSubmissionQuota"
+        description: "Get content submission quota"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: object
+      fetch:
+        method: POST
+        path: "/json/FetchUrl"
+        description: "Request that Bing fetch a single URL"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "URL to fetch"
+        response:
+          type: object
+      fetched:
+        method: GET
+        path: "/json/GetFetchedUrls"
+        description: "List URLs Bing has fetched on request"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      fetched-details:
+        method: GET
+        path: "/json/GetFetchedUrlDetails"
+        description: "Get details of a fetched URL"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Fetched URL"
+        response:
+          type: object
+
+  # ----------------------------------------------------------------- feeds
+  feeds:
+    description: "Manage submitted sitemaps and feeds"
+    endpoints:
+      list:
+        method: GET
+        path: "/json/GetFeeds"
+        description: "List all top-level feeds (sitemaps) for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      submit:
+        method: POST
+        path: "/json/SubmitFeed"
+        description: "Submit a sitemap or feed URL"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: feedUrl
+            type: string
+            required: true
+            description: "Sitemap/feed URL to submit"
+        response:
+          type: object
+      details:
+        method: GET
+        path: "/json/GetFeedDetails"
+        description: "Get details for a feed or sitemap index"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: feedUrl
+            type: string
+            required: true
+            description: "Feed/sitemap URL"
+        response:
+          type: array
+      remove:
+        method: POST
+        path: "/json/RemoveFeed"
+        description: "Remove a submitted feed"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: feedUrl
+            type: string
+            required: true
+            description: "Feed/sitemap URL to remove"
+        response:
+          type: object
+
+  # ----------------------------------------------------------------- crawl
+  crawl:
+    description: "Read crawl stats and issues, and manage crawl settings"
+    endpoints:
+      stats:
+        method: GET
+        path: "/json/GetCrawlStats"
+        description: "Daily crawl statistics for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      issues:
+        method: GET
+        path: "/json/GetCrawlIssues"
+        description: "Crawl issues found for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      settings:
+        method: GET
+        path: "/json/GetCrawlSettings"
+        description: "Get crawl settings for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: object
+      save-settings:
+        method: POST
+        path: "/json/SaveCrawlSettings"
+        description: "Save crawl settings for a site"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: crawlSettings
+            type: object
+            required: true
+            description: "Crawl settings object"
+            fields:
+              - name: CrawlRate
+                type: array
+                description: "24 hourly crawl-rate values (0-10)"
+        response:
+          type: object
+      url-info:
+        method: GET
+        path: "/json/GetUrlInfo"
+        description: "Index details for a single page"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Page URL"
+        response:
+          type: object
+      children-info:
+        method: GET
+        path: "/json/GetChildrenUrlInfo"
+        description: "Index details for the pages under a directory"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Directory URL"
+          - name: page
+            type: int
+            description: "Page number (paged results)"
+        response:
+          type: array
+
+  # --------------------------------------------------------------- traffic
+  traffic:
+    description: "Read query, page, and ranking/traffic statistics"
+    endpoints:
+      rank-traffic:
+        method: GET
+        path: "/json/GetRankAndTrafficStats"
+        description: "Daily impressions and clicks for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      queries:
+        method: GET
+        path: "/json/GetQueryStats"
+        description: "Top query stats for a site (may be empty below Bing's data threshold)"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      query-traffic:
+        method: GET
+        path: "/json/GetQueryTrafficStats"
+        description: "Traffic stats for a single query"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: query
+            type: string
+            required: true
+            description: "Search query"
+        response:
+          type: array
+      query-pages:
+        method: GET
+        path: "/json/GetQueryPageStats"
+        description: "Pages that rank for a given query"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: query
+            type: string
+            required: true
+            description: "Search query"
+        response:
+          type: array
+      query-page-detail:
+        method: GET
+        path: "/json/GetQueryPageDetailStats"
+        description: "Detailed stats for a specific query and page pair"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: query
+            type: string
+            required: true
+            description: "Search query"
+          - name: page
+            type: string
+            required: true
+            description: "Page URL"
+        response:
+          type: array
+      pages:
+        method: GET
+        path: "/json/GetPageStats"
+        description: "Top pages for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      page-queries:
+        method: GET
+        path: "/json/GetPageQueryStats"
+        description: "Queries that lead to a given page"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: page
+            type: string
+            required: true
+            description: "Page URL"
+        response:
+          type: array
+      url-traffic:
+        method: GET
+        path: "/json/GetUrlTrafficInfo"
+        description: "Index and traffic info for a single page"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Page URL"
+        response:
+          type: object
+      children-traffic:
+        method: GET
+        path: "/json/GetChildrenUrlTrafficInfo"
+        description: "Index and traffic info for the pages under a directory"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Directory URL"
+          - name: page
+            type: int
+            description: "Page number (paged results)"
+        response:
+          type: array
+
+  # -------------------------------------------------------------- keywords
+  keywords:
+    description: "Keyword research (Bing-unique; takes query/country/language, not a site)"
+    endpoints:
+      get:
+        method: GET
+        path: "/json/GetKeyword"
+        description: "Keyword impressions for a period"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            required: true
+            description: "Keyword/query text"
+          - name: country
+            type: string
+            description: "Two-letter country code (e.g. us, gb)"
+          - name: language
+            type: string
+            description: "Language code (e.g. en-US)"
+          - name: startDate
+            type: string
+            description: "Start date (ISO, e.g. 2026-01-01)"
+          - name: endDate
+            type: string
+            description: "End date (ISO)"
+        response:
+          type: object
+      stats:
+        method: GET
+        path: "/json/GetKeywordStats"
+        description: "Historical stats for a keyword"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            required: true
+            description: "Keyword/query text"
+          - name: country
+            type: string
+            description: "Two-letter country code"
+          - name: language
+            type: string
+            description: "Language code"
+        response:
+          type: array
+      related:
+        method: GET
+        path: "/json/GetRelatedKeywords"
+        description: "Keywords related to a query for a period"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            required: true
+            description: "Keyword/query text"
+          - name: country
+            type: string
+            description: "Two-letter country code"
+          - name: language
+            type: string
+            description: "Language code"
+          - name: startDate
+            type: string
+            description: "Start date (ISO)"
+          - name: endDate
+            type: string
+            description: "End date (ISO)"
+        response:
+          type: array
+
+  # ----------------------------------------------------------------- links
+  links:
+    description: "Inbound link analytics and connected pages"
+    endpoints:
+      counts:
+        method: GET
+        path: "/json/GetLinkCounts"
+        description: "Pages with inbound link counts (paged)"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: page
+            type: int
+            description: "Page number (paged results)"
+        response:
+          type: object
+      url-links:
+        method: GET
+        path: "/json/GetUrlLinks"
+        description: "Inbound links for a specific URL (paged)"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: link
+            type: string
+            required: true
+            description: "Target URL to get inbound links for"
+          - name: page
+            type: int
+            description: "Page number (paged results)"
+        response:
+          type: object
+      connected:
+        method: GET
+        path: "/json/GetConnectedPages"
+        description: "List pages connected to the site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      add-connected:
+        method: POST
+        path: "/json/AddConnectedPage"
+        description: "Add a connected page to the site"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: masterUrl
+            type: string
+            required: true
+            description: "Master URL to connect"
+        response:
+          type: object
+
+  # ------------------------------------------------------------- deeplinks
+  deeplinks:
+    description: "Deep link blocks (several get/update methods are obsolete in the Bing API)"
+    endpoints:
+      get:
+        method: GET
+        path: "/json/GetDeepLink"
+        description: "[OBSOLETE in Bing API] Get deep links for a URL"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Page URL"
+        response:
+          type: array
+      algo-urls:
+        method: GET
+        path: "/json/GetDeepLinkAlgoUrls"
+        description: "[OBSOLETE in Bing API] Get algorithmic deep link URLs"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      update:
+        method: POST
+        path: "/json/UpdateDeepLink"
+        description: "[OBSOLETE in Bing API] Update a deep link weight"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: market
+            type: string
+            required: true
+            description: "Market (e.g. en-US)"
+          - name: searchUrl
+            type: string
+            required: true
+            description: "Search result URL"
+          - name: weight
+            type: string
+            required: true
+            description: "Deep link weight"
+        response:
+          type: object
+      blocks:
+        method: GET
+        path: "/json/GetDeepLinkBlocks"
+        description: "List deep link blocks for a site"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      add-block:
+        method: POST
+        path: "/json/AddDeepLinkBlock"
+        description: "Block a deep link"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: market
+            type: string
+            required: true
+            description: "Market (e.g. en-US)"
+          - name: searchUrl
+            type: string
+            required: true
+            description: "Search result URL"
+          - name: deepLinkUrl
+            type: string
+            required: true
+            description: "Deep link URL to block"
+        response:
+          type: object
+      remove-block:
+        method: POST
+        path: "/json/RemoveDeepLinkBlock"
+        description: "Remove a deep link block"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: market
+            type: string
+            required: true
+            description: "Market (e.g. en-US)"
+          - name: searchUrl
+            type: string
+            required: true
+            description: "Search result URL"
+          - name: deepLinkUrl
+            type: string
+            required: true
+            description: "Deep link URL to unblock"
+        response:
+          type: object
+
+  # --------------------------------------------------------------- blocked
+  blocked:
+    description: "Block URLs from the index and manage page-preview blocks"
+    endpoints:
+      list:
+        method: GET
+        path: "/json/GetBlockedUrls"
+        description: "List blocked pages and directories"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      add:
+        method: POST
+        path: "/json/AddBlockedUrl"
+        description: "Block a page or directory from the index"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: blockedUrl
+            type: object
+            required: true
+            description: "Blocked URL definition"
+            fields:
+              - name: Url
+                type: string
+                description: "URL or directory to block"
+              - name: EntityType
+                type: string
+                description: "Page or Directory"
+              - name: RequestType
+                type: string
+                description: "Block request type"
+        response:
+          type: object
+      remove:
+        method: POST
+        path: "/json/RemoveBlockedUrl"
+        description: "Unblock a previously blocked page or directory"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: blockedUrl
+            type: object
+            required: true
+            description: "Blocked URL definition to remove"
+            fields:
+              - name: Url
+                type: string
+                description: "URL or directory to unblock"
+              - name: EntityType
+                type: string
+                description: "Page or Directory"
+              - name: RequestType
+                type: string
+                description: "Block request type"
+        response:
+          type: object
+      preview-blocks:
+        method: GET
+        path: "/json/GetActivePagePreviewBlocks"
+        description: "List active page-preview blocks"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      add-preview-block:
+        method: POST
+        path: "/json/AddPagePreviewBlock"
+        description: "Block the page preview for a URL"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Page URL"
+          - name: blockReason
+            type: string
+            required: true
+            description: "Reason for blocking the preview"
+        response:
+          type: object
+      remove-preview-block:
+        method: POST
+        path: "/json/RemovePagePreviewBlock"
+        description: "Remove a page-preview block"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: url
+            type: string
+            required: true
+            description: "Page URL"
+        response:
+          type: object
+
+  # ---------------------------------------------------------------- params
+  params:
+    description: "URL normalization query-parameter rules (a feature Google Search Console removed)"
+    endpoints:
+      list:
+        method: GET
+        path: "/json/GetQueryParameters"
+        description: "List query-parameter normalization rules"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      add:
+        method: POST
+        path: "/json/AddQueryParameter"
+        description: "Add a query-parameter normalization rule"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: queryParameter
+            type: string
+            required: true
+            description: "Query parameter name to normalize"
+        response:
+          type: object
+      toggle:
+        method: POST
+        path: "/json/EnableDisableQueryParameter"
+        description: "Enable or disable a query-parameter rule"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: queryParameter
+            type: string
+            required: true
+            description: "Query parameter name"
+          - name: isEnabled
+            type: bool
+            required: true
+            description: "Enable (true) or disable (false)"
+        response:
+          type: object
+      remove:
+        method: POST
+        path: "/json/RemoveQueryParameter"
+        description: "Remove a query-parameter rule"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: queryParameter
+            type: string
+            required: true
+            description: "Query parameter name to remove"
+        response:
+          type: object
+
+  # ------------------------------------------------------------------- geo
+  geo:
+    description: "Country/region (geo) targeting settings (a feature Google Search Console removed)"
+    endpoints:
+      settings:
+        method: GET
+        path: "/json/GetCountryRegionSettings"
+        description: "List country/region targeting settings"
+        params:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+        response:
+          type: array
+      add:
+        method: POST
+        path: "/json/AddCountryRegionSettings"
+        description: "Add a country/region targeting setting"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: settings
+            type: object
+            required: true
+            description: "Country/region setting"
+            fields:
+              - name: Url
+                type: string
+                description: "URL or directory scope"
+              - name: TwoLetterISOCountryRegionName
+                type: string
+                description: "Two-letter ISO country/region code"
+              - name: Type
+                type: string
+                description: "Setting scope type"
+        response:
+          type: object
+      remove:
+        method: POST
+        path: "/json/RemoveCountryRegionSettings"
+        description: "Remove a country/region targeting setting"
+        body:
+          - name: siteUrl
+            flag_name: site
+            type: string
+            required: true
+            description: "Verified site URL"
+          - name: settings
+            type: object
+            required: true
+            description: "Country/region setting to remove"
+            fields:
+              - name: Url
+                type: string
+                description: "URL or directory scope"
+              - name: TwoLetterISOCountryRegionName
+                type: string
+                description: "Two-letter ISO country/region code"
+              - name: Type
+                type: string
+                description: "Setting scope type"
+        response:
+          type: object
+
+types: {}

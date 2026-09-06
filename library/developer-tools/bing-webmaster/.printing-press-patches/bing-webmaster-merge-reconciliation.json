@@ -1,0 +1,17 @@
+{
+  "applied_at": "2026-09-05",
+  "base_printing_press_version": "4.31.7",
+  "base_run_id": "20260905-104918-633b1430",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/export.go",
+    "internal/cliutil/text.go"
+  ],
+  "id": "bing-webmaster-merge-reconciliation",
+  "reason": "Folding the 4.31.1 machine output into the preserved 4.3.0 tree needed small compat shims: SQLite write-lock helpers the refreshed store candidates.go calls, a no-op MCP profile bind (api-key CLI registers no platform source), ported writeDryRun/parentNoSubcommandRunE/responsePayloadAtPath helpers, EscapePathParam, new rootFlags fields plus --no-learn, and export call-site adaptation to the preserved client signatures. Fresh platform tenant-gating files (platform_client.go, platform_window.go, mcp/platform_gate.go and their tests) were removed as inapplicable to api-key auth; the MCP entry point itself ships. 4.31.7 reprint: the write-lock and profile-bind shims were retired (generator now ships the hardened store locking and the api-key CLI needs no platform bind); remaining ports (helpers, root flags, export call-sites, text utils) carried forward.",
+  "schema_version": 2,
+  "summary": "Compat shims porting template helpers into the preserved tree; inapplicable platform-gating files removed; 4.31.7 reprint retired the write-lock and profile-bind shims.",
+  "validated_outcome": "Merged-tree go build passes; go vet and go test -count=1 ./... re-run at publish time."
+}

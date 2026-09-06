@@ -1,0 +1,54 @@
+{
+  "api_name": "bing-webmaster",
+  "category": "developer-tools",
+  "cli_name": "bing-webmaster-pp-cli",
+  "description": "The Bing Webmaster Tools API: manage sites, submit URLs, and read query/traffic/crawl/link stats from the Bing search index.",
+  "generated_at": "2026-09-05T13:05:59.706289147Z",
+  "novel_features": [
+    {
+      "name": "Query-performance delta review",
+      "command": "review",
+      "description": "See which Bing queries you gained or lost, and how CTR and average position shifted, vs the previous period — not just a raw snapshot."
+    },
+    {
+      "name": "Ranking-drift detection",
+      "command": "drift",
+      "description": "Track average-position movement per query and page over time and surface the biggest climbers and droppers."
+    },
+    {
+      "name": "Quota-aware bulk submit + publish pipeline",
+      "command": "publish",
+      "description": "Submit many URLs (or a whole sitemap) for indexing, automatically chunked to the 500-per-request cap, paced against your live remaining quota, and deduped against URLs already submitted."
+    },
+    {
+      "name": "Crawl-error triage",
+      "command": "triage",
+      "description": "Categorize crawl issues by severity, diff them against your last sync, and map each issue to the affected child URLs in one view."
+    },
+    {
+      "name": "Submission quota intelligence",
+      "command": "quota",
+      "description": "One view of URL and content submission quota — daily and monthly remaining — plus a pacing recommendation."
+    },
+    {
+      "name": "Bing-vs-Google coverage gap",
+      "command": "gap",
+      "description": "Reconcile your Bing query/page performance against a Google Search Console export to find queries and pages you rank for on one engine but not the other."
+    },
+    {
+      "name": "Feed/sitemap health monitor",
+      "command": "feed-health",
+      "description": "Track submitted, discovered, and indexed counts for each feed over time and flag drops."
+    },
+    {
+      "name": "Indexation watch",
+      "command": "watch",
+      "description": "Diff the latest sync against the previous one and surface indexation, crawl, and impression regressions per site."
+    }
+  ],
+  "printer": "Pimmetjeoss",
+  "printer_name": "Pimmetjeoss",
+  "printing_press_version": "4.31.7",
+  "run_id": "20260905-130559",
+  "schema_version": 2
+}
