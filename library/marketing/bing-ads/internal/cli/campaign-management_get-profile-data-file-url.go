@@ -1,0 +1,98 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+func newCampaignManagementGetProfileDataFileUrlCmd(flags *rootFlags) *cobra.Command {
+	var bodyLanguageLocale string
+	var bodyProfileType string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "get-profile-data-file-url",
+		Short:       "get_profile_data_file_url",
+		Example:     "  bing-ads-pp-cli campaign-management get-profile-data-file-url",
+		Annotations: map[string]string{"pp:endpoint": "campaign-management.get-profile-data-file-url", "pp:method": "POST", "pp:path": "/CampaignManagement/v13/ProfileDataFileUrl/Query", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CampaignManagement/v13/ProfileDataFileUrl/Query"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("language-locale") || bodyLanguageLocale != "" {
+					bodyMap["LanguageLocale"] = bodyLanguageLocale
+				}
+				if cmd.Flags().Changed("profile-type") || bodyProfileType != "" {
+					var parsedProfileType any
+					if err := json.Unmarshal([]byte(bodyProfileType), &parsedProfileType); err != nil {
+						return fmt.Errorf("parsing --profile-type JSON: %w", err)
+					}
+					asMap, ok := parsedProfileType.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--profile-type must be a JSON object, got JSON %T", parsedProfileType)
+					}
+					bodyMap["ProfileType"] = asMap
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"FileUrl": true, "FileUrlExpiryTimeUtc": true, "LastModifiedTimeUtc": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"FileUrl": true, "FileUrlExpiryTimeUtc": true, "LastModifiedTimeUtc": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyLanguageLocale, "language-locale", "", "Language locale")
+	cmd.Flags().StringVar(&bodyProfileType, "profile-type", "", "Profile type")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

@@ -1,0 +1,103 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cliutil"
+	"github.com/spf13/cobra"
+)
+
+func newCampaignManagementGetHealthCheckCmd(flags *rootFlags) *cobra.Command {
+	var bodyHealthCheckEntities string
+	var bodyHealthCheckTypes string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "get-health-check",
+		Short:       "get_health_check",
+		Example:     "  bing-ads-pp-cli campaign-management get-health-check",
+		Annotations: map[string]string{"pp:endpoint": "campaign-management.get-health-check", "pp:method": "POST", "pp:path": "/CampaignManagement/v13/HealthCheck/Query", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CampaignManagement/v13/HealthCheck/Query"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("health-check-entities") || bodyHealthCheckEntities != "" {
+					var parsedHealthCheckEntities any
+					if err := json.Unmarshal([]byte(bodyHealthCheckEntities), &parsedHealthCheckEntities); err != nil {
+						return fmt.Errorf("parsing --health-check-entities JSON: %w", err)
+					}
+					asArray, ok := parsedHealthCheckEntities.([]any)
+					if !ok {
+						return fmt.Errorf("--health-check-entities must be a JSON array, got JSON %T", parsedHealthCheckEntities)
+					}
+					bodyMap["HealthCheckEntities"] = asArray
+				}
+				if cmd.Flags().Changed("health-check-types") {
+					parsedHealthCheckTypes, parseErr := cliutil.ParseStringList(bodyHealthCheckTypes)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --health-check-types list: %w", parseErr)
+					}
+					bodyMap["HealthCheckTypes"] = parsedHealthCheckTypes
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"HealthCheckErrors": true, "HealthCheckResults": true, "HealthCheckResultsMetadata": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"HealthCheckErrors": true, "HealthCheckResults": true, "HealthCheckResultsMetadata": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyHealthCheckEntities, "health-check-entities", "", "Health check entities")
+	cmd.Flags().StringVar(&bodyHealthCheckTypes, "health-check-types", "", "Health check types")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

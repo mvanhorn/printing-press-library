@@ -1,0 +1,139 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"time"
+
+	"github.com/spf13/cobra"
+)
+
+func newBulkGetUploadUrlCmd(flags *rootFlags) *cobra.Command {
+	var bodyAccountId string
+	var bodyResponseMode string
+	var stdinBody bool
+	var flagWait bool
+	var flagWaitTimeout time.Duration
+	var flagWaitInterval time.Duration
+
+	cmd := &cobra.Command{
+		Use:         "get-upload-url",
+		Short:       "get_bulk_upload_url",
+		Example:     "  bing-ads-pp-cli bulk get-upload-url",
+		Annotations: map[string]string{"pp:endpoint": "bulk.get-upload-url", "pp:method": "POST", "pp:path": "/Bulk/v13/BulkUploadUrl/Query", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/Bulk/v13/BulkUploadUrl/Query"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("account-id") || bodyAccountId != "" {
+					bodyMap["AccountId"] = bodyAccountId
+				}
+				if cmd.Flags().Changed("response-mode") || bodyResponseMode != "" {
+					bodyMap["ResponseMode"] = bodyResponseMode
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"RequestId": true, "UploadUrl": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			if asyncJobID := ExtractJobID(data, "RequestId"); asyncJobID != "" {
+				_ = RecordJob(JobRow{
+					JobID:          asyncJobID,
+					Resource:       "bulk",
+					Endpoint:       "get-upload-url",
+					Status:         "submitted",
+					StatusResource: "bulk",
+					StatusEndpoint: "get-download-status",
+				})
+				if flagWait {
+					ctx := cmd.Context()
+					if ctx == nil {
+						ctx = context.Background()
+					}
+					final, werr := WaitForJob(ctx, c, "/Bulk/v13/BulkDownloadStatus/Query", asyncJobID, WaitOptions{
+						Interval: flagWaitInterval,
+						Timeout:  flagWaitTimeout,
+					})
+					if werr != nil {
+						_ = RecordJob(JobRow{
+							JobID:    asyncJobID,
+							Resource: "bulk",
+							Endpoint: "get-upload-url",
+							Status:   "errored",
+							Error:    werr.Error(),
+						})
+						return werr
+					}
+					if b, merr := json.Marshal(final); merr == nil {
+						data = b
+					}
+					if st, _ := final["status"].(string); st != "" {
+						_ = RecordJob(JobRow{
+							JobID:    asyncJobID,
+							Resource: "bulk",
+							Endpoint: "get-upload-url",
+							Status:   st,
+						})
+					}
+				}
+			}
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"RequestId": true, "UploadUrl": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyAccountId, "account-id", "", "Account id")
+	cmd.Flags().StringVar(&bodyResponseMode, "response-mode", "", "Response mode")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&flagWait, "wait", false, "Block until the submitted job reaches a terminal status")
+	cmd.Flags().DurationVar(&flagWaitTimeout, "wait-timeout", 10*time.Minute, "Maximum duration to wait when --wait is set (0 = no timeout)")
+	cmd.Flags().DurationVar(&flagWaitInterval, "wait-interval", 2*time.Second, "Initial poll interval when --wait is set")
+
+	return cmd
+}

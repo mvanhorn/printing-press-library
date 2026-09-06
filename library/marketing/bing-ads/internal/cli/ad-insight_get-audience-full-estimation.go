@@ -1,0 +1,410 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cliutil"
+	"github.com/spf13/cobra"
+)
+
+func newAdInsightGetAudienceFullEstimationCmd(flags *rootFlags) *cobra.Command {
+	var bodyAgeExcludes string
+	var bodyAgeIncludes string
+	var bodyAudienceExcludes string
+	var bodyAudienceIncludes string
+	var bodyAutoTargeting bool
+	var bodyBid float64
+	var bodyCampaignBiddingStrategy int
+	var bodyCampaignSubType int
+	var bodyCompanyExcludes string
+	var bodyCompanyIncludes string
+	var bodyCurrency string
+	var bodyDailyBudget float64
+	var bodyDeviceExcludes string
+	var bodyDeviceIncludes string
+	var bodyEndDate string
+	var bodyFeedFeedId string
+	var bodyFeedFeedType string
+	var bodyFeedStoreId string
+	var bodyGenderExcludes string
+	var bodyGenderIncludes string
+	var bodyIncludeImpressionsBreakdown bool
+	var bodyIndustryExcludes string
+	var bodyIndustryIncludes string
+	var bodyJobFunctionExcludes string
+	var bodyJobFunctionIncludes string
+	var bodyLocationExcludes string
+	var bodyLocationIncludes string
+	var bodyMultiAdTypes int
+	var bodyPlacementExcludes string
+	var bodyPlacementIncludes string
+	var bodyRadiusTargets string
+	var bodyStartDate string
+	var bodyTopicExcludes string
+	var bodyTopicIncludes string
+	var bodyTotalBudget float64
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "get-audience-full-estimation",
+		Short:       "get_audience_full_estimation",
+		Example:     "  bing-ads-pp-cli ad-insight get-audience-full-estimation",
+		Annotations: map[string]string{"pp:endpoint": "ad-insight.get-audience-full-estimation", "pp:method": "POST", "pp:path": "/AdInsight/v13/AudienceFullEstimation/query", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/AdInsight/v13/AudienceFullEstimation/query"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedAge := map[string]any{}
+					if cmd.Flags().Changed("age-excludes") {
+						parsedAgeExcludes, parseErr := cliutil.ParseStringList(bodyAgeExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --age-excludes list: %w", parseErr)
+						}
+						nestedAge["Excludes"] = parsedAgeExcludes
+					}
+					if cmd.Flags().Changed("age-includes") {
+						parsedAgeIncludes, parseErr := cliutil.ParseStringList(bodyAgeIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --age-includes list: %w", parseErr)
+						}
+						nestedAge["Includes"] = parsedAgeIncludes
+					}
+					if len(nestedAge) > 0 {
+						bodyMap["Age"] = nestedAge
+					}
+				}
+				{
+					nestedAudience := map[string]any{}
+					if cmd.Flags().Changed("audience-excludes") {
+						parsedAudienceExcludes, parseErr := cliutil.ParseStringList(bodyAudienceExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --audience-excludes list: %w", parseErr)
+						}
+						nestedAudience["Excludes"] = parsedAudienceExcludes
+					}
+					if cmd.Flags().Changed("audience-includes") {
+						parsedAudienceIncludes, parseErr := cliutil.ParseStringList(bodyAudienceIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --audience-includes list: %w", parseErr)
+						}
+						nestedAudience["Includes"] = parsedAudienceIncludes
+					}
+					if len(nestedAudience) > 0 {
+						bodyMap["Audience"] = nestedAudience
+					}
+				}
+				if cmd.Flags().Changed("auto-targeting") {
+					bodyMap["AutoTargeting"] = bodyAutoTargeting
+				}
+				if cmd.Flags().Changed("bid") || bodyBid != 0.0 {
+					bodyMap["Bid"] = bodyBid
+				}
+				if cmd.Flags().Changed("campaign-bidding-strategy") || bodyCampaignBiddingStrategy != 0 {
+					bodyMap["CampaignBiddingStrategy"] = bodyCampaignBiddingStrategy
+				}
+				if cmd.Flags().Changed("campaign-sub-type") || bodyCampaignSubType != 0 {
+					bodyMap["CampaignSubType"] = bodyCampaignSubType
+				}
+				{
+					nestedCompany := map[string]any{}
+					if cmd.Flags().Changed("company-excludes") {
+						parsedCompanyExcludes, parseErr := cliutil.ParseStringList(bodyCompanyExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --company-excludes list: %w", parseErr)
+						}
+						nestedCompany["Excludes"] = parsedCompanyExcludes
+					}
+					if cmd.Flags().Changed("company-includes") {
+						parsedCompanyIncludes, parseErr := cliutil.ParseStringList(bodyCompanyIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --company-includes list: %w", parseErr)
+						}
+						nestedCompany["Includes"] = parsedCompanyIncludes
+					}
+					if len(nestedCompany) > 0 {
+						bodyMap["Company"] = nestedCompany
+					}
+				}
+				if cmd.Flags().Changed("currency") || bodyCurrency != "" {
+					bodyMap["Currency"] = bodyCurrency
+				}
+				if cmd.Flags().Changed("daily-budget") || bodyDailyBudget != 0.0 {
+					bodyMap["DailyBudget"] = bodyDailyBudget
+				}
+				{
+					nestedDevice := map[string]any{}
+					if cmd.Flags().Changed("device-excludes") {
+						parsedDeviceExcludes, parseErr := cliutil.ParseStringList(bodyDeviceExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --device-excludes list: %w", parseErr)
+						}
+						nestedDevice["Excludes"] = parsedDeviceExcludes
+					}
+					if cmd.Flags().Changed("device-includes") {
+						parsedDeviceIncludes, parseErr := cliutil.ParseStringList(bodyDeviceIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --device-includes list: %w", parseErr)
+						}
+						nestedDevice["Includes"] = parsedDeviceIncludes
+					}
+					if len(nestedDevice) > 0 {
+						bodyMap["Device"] = nestedDevice
+					}
+				}
+				if cmd.Flags().Changed("end-date") || bodyEndDate != "" {
+					bodyMap["EndDate"] = bodyEndDate
+				}
+				{
+					nestedFeed := map[string]any{}
+					if cmd.Flags().Changed("feed-feed-id") || bodyFeedFeedId != "" {
+						nestedFeed["FeedId"] = bodyFeedFeedId
+					}
+					if cmd.Flags().Changed("feed-feed-type") || bodyFeedFeedType != "" {
+						nestedFeed["FeedType"] = bodyFeedFeedType
+					}
+					if cmd.Flags().Changed("feed-store-id") || bodyFeedStoreId != "" {
+						nestedFeed["StoreId"] = bodyFeedStoreId
+					}
+					if len(nestedFeed) > 0 {
+						bodyMap["Feed"] = nestedFeed
+					}
+				}
+				{
+					nestedGender := map[string]any{}
+					if cmd.Flags().Changed("gender-excludes") {
+						parsedGenderExcludes, parseErr := cliutil.ParseStringList(bodyGenderExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --gender-excludes list: %w", parseErr)
+						}
+						nestedGender["Excludes"] = parsedGenderExcludes
+					}
+					if cmd.Flags().Changed("gender-includes") {
+						parsedGenderIncludes, parseErr := cliutil.ParseStringList(bodyGenderIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --gender-includes list: %w", parseErr)
+						}
+						nestedGender["Includes"] = parsedGenderIncludes
+					}
+					if len(nestedGender) > 0 {
+						bodyMap["Gender"] = nestedGender
+					}
+				}
+				if cmd.Flags().Changed("include-impressions-breakdown") {
+					bodyMap["IncludeImpressionsBreakdown"] = bodyIncludeImpressionsBreakdown
+				}
+				{
+					nestedIndustry := map[string]any{}
+					if cmd.Flags().Changed("industry-excludes") {
+						parsedIndustryExcludes, parseErr := cliutil.ParseStringList(bodyIndustryExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --industry-excludes list: %w", parseErr)
+						}
+						nestedIndustry["Excludes"] = parsedIndustryExcludes
+					}
+					if cmd.Flags().Changed("industry-includes") {
+						parsedIndustryIncludes, parseErr := cliutil.ParseStringList(bodyIndustryIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --industry-includes list: %w", parseErr)
+						}
+						nestedIndustry["Includes"] = parsedIndustryIncludes
+					}
+					if len(nestedIndustry) > 0 {
+						bodyMap["Industry"] = nestedIndustry
+					}
+				}
+				{
+					nestedJobFunction := map[string]any{}
+					if cmd.Flags().Changed("job-function-excludes") {
+						parsedJobFunctionExcludes, parseErr := cliutil.ParseStringList(bodyJobFunctionExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --job-function-excludes list: %w", parseErr)
+						}
+						nestedJobFunction["Excludes"] = parsedJobFunctionExcludes
+					}
+					if cmd.Flags().Changed("job-function-includes") {
+						parsedJobFunctionIncludes, parseErr := cliutil.ParseStringList(bodyJobFunctionIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --job-function-includes list: %w", parseErr)
+						}
+						nestedJobFunction["Includes"] = parsedJobFunctionIncludes
+					}
+					if len(nestedJobFunction) > 0 {
+						bodyMap["JobFunction"] = nestedJobFunction
+					}
+				}
+				{
+					nestedLocation := map[string]any{}
+					if cmd.Flags().Changed("location-excludes") {
+						parsedLocationExcludes, parseErr := cliutil.ParseStringList(bodyLocationExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --location-excludes list: %w", parseErr)
+						}
+						nestedLocation["Excludes"] = parsedLocationExcludes
+					}
+					if cmd.Flags().Changed("location-includes") {
+						parsedLocationIncludes, parseErr := cliutil.ParseStringList(bodyLocationIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --location-includes list: %w", parseErr)
+						}
+						nestedLocation["Includes"] = parsedLocationIncludes
+					}
+					if len(nestedLocation) > 0 {
+						bodyMap["Location"] = nestedLocation
+					}
+				}
+				if cmd.Flags().Changed("multi-ad-types") || bodyMultiAdTypes != 0 {
+					bodyMap["MultiAdTypes"] = bodyMultiAdTypes
+				}
+				{
+					nestedPlacement := map[string]any{}
+					if cmd.Flags().Changed("placement-excludes") {
+						parsedPlacementExcludes, parseErr := cliutil.ParseStringList(bodyPlacementExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --placement-excludes list: %w", parseErr)
+						}
+						nestedPlacement["Excludes"] = parsedPlacementExcludes
+					}
+					if cmd.Flags().Changed("placement-includes") {
+						parsedPlacementIncludes, parseErr := cliutil.ParseStringList(bodyPlacementIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --placement-includes list: %w", parseErr)
+						}
+						nestedPlacement["Includes"] = parsedPlacementIncludes
+					}
+					if len(nestedPlacement) > 0 {
+						bodyMap["Placement"] = nestedPlacement
+					}
+				}
+				if cmd.Flags().Changed("radius-targets") || bodyRadiusTargets != "" {
+					var parsedRadiusTargets any
+					if err := json.Unmarshal([]byte(bodyRadiusTargets), &parsedRadiusTargets); err != nil {
+						return fmt.Errorf("parsing --radius-targets JSON: %w", err)
+					}
+					asArray, ok := parsedRadiusTargets.([]any)
+					if !ok {
+						return fmt.Errorf("--radius-targets must be a JSON array, got JSON %T", parsedRadiusTargets)
+					}
+					bodyMap["RadiusTargets"] = asArray
+				}
+				if cmd.Flags().Changed("start-date") || bodyStartDate != "" {
+					bodyMap["StartDate"] = bodyStartDate
+				}
+				{
+					nestedTopic := map[string]any{}
+					if cmd.Flags().Changed("topic-excludes") {
+						parsedTopicExcludes, parseErr := cliutil.ParseStringList(bodyTopicExcludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --topic-excludes list: %w", parseErr)
+						}
+						nestedTopic["Excludes"] = parsedTopicExcludes
+					}
+					if cmd.Flags().Changed("topic-includes") {
+						parsedTopicIncludes, parseErr := cliutil.ParseStringList(bodyTopicIncludes)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --topic-includes list: %w", parseErr)
+						}
+						nestedTopic["Includes"] = parsedTopicIncludes
+					}
+					if len(nestedTopic) > 0 {
+						bodyMap["Topic"] = nestedTopic
+					}
+				}
+				if cmd.Flags().Changed("total-budget") || bodyTotalBudget != 0.0 {
+					bodyMap["TotalBudget"] = bodyTotalBudget
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"Currency": true, "EstAudienceSize": true, "EstCPC": true, "EstCPCByType": true, "EstCTR": true, "EstCTRByType": true, "EstClick": true, "EstClickByType": true, "EstCostPerEvent": true, "EstCostPerEventByType": true, "EstImpression": true, "EstImpressionByType": true, "EstReachAudienceSize": true, "EstReachImpression": true, "EstReachImpressionByType": true, "EstSpend": true, "EstSpendByType": true, "EstViewByType": true, "EventsLostToBid": true, "EventsLostToBudget": true, "SuggestedBid": true, "SuggestedBudget": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"Currency": true, "EstAudienceSize": true, "EstCPC": true, "EstCPCByType": true, "EstCTR": true, "EstCTRByType": true, "EstClick": true, "EstClickByType": true, "EstCostPerEvent": true, "EstCostPerEventByType": true, "EstImpression": true, "EstImpressionByType": true, "EstReachAudienceSize": true, "EstReachImpression": true, "EstReachImpressionByType": true, "EstSpend": true, "EstSpendByType": true, "EstViewByType": true, "EventsLostToBid": true, "EventsLostToBudget": true, "SuggestedBid": true, "SuggestedBudget": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyAgeExcludes, "age-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyAgeIncludes, "age-includes", "", "Includes")
+	cmd.Flags().StringVar(&bodyAudienceExcludes, "audience-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyAudienceIncludes, "audience-includes", "", "Includes")
+	cmd.Flags().BoolVar(&bodyAutoTargeting, "auto-targeting", false, "Auto targeting")
+	cmd.Flags().Float64Var(&bodyBid, "bid", 0.0, "Bid")
+	cmd.Flags().IntVar(&bodyCampaignBiddingStrategy, "campaign-bidding-strategy", 0, "Campaign bidding strategy")
+	cmd.Flags().IntVar(&bodyCampaignSubType, "campaign-sub-type", 0, "Campaign sub type")
+	cmd.Flags().StringVar(&bodyCompanyExcludes, "company-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyCompanyIncludes, "company-includes", "", "Includes")
+	cmd.Flags().StringVar(&bodyCurrency, "currency", "", "Currency")
+	cmd.Flags().Float64Var(&bodyDailyBudget, "daily-budget", 0.0, "Daily budget")
+	cmd.Flags().StringVar(&bodyDeviceExcludes, "device-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyDeviceIncludes, "device-includes", "", "Includes")
+	cmd.Flags().StringVar(&bodyEndDate, "end-date", "", "End date")
+	cmd.Flags().StringVar(&bodyFeedFeedId, "feed-feed-id", "", "Feed id")
+	cmd.Flags().StringVar(&bodyFeedFeedType, "feed-feed-type", "", "Feed type")
+	cmd.Flags().StringVar(&bodyFeedStoreId, "feed-store-id", "", "Store id")
+	cmd.Flags().StringVar(&bodyGenderExcludes, "gender-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyGenderIncludes, "gender-includes", "", "Includes")
+	cmd.Flags().BoolVar(&bodyIncludeImpressionsBreakdown, "include-impressions-breakdown", false, "Include impressions breakdown")
+	cmd.Flags().StringVar(&bodyIndustryExcludes, "industry-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyIndustryIncludes, "industry-includes", "", "Includes")
+	cmd.Flags().StringVar(&bodyJobFunctionExcludes, "job-function-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyJobFunctionIncludes, "job-function-includes", "", "Includes")
+	cmd.Flags().StringVar(&bodyLocationExcludes, "location-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyLocationIncludes, "location-includes", "", "Includes")
+	cmd.Flags().IntVar(&bodyMultiAdTypes, "multi-ad-types", 0, "Multi ad types")
+	cmd.Flags().StringVar(&bodyPlacementExcludes, "placement-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyPlacementIncludes, "placement-includes", "", "Includes")
+	cmd.Flags().StringVar(&bodyRadiusTargets, "radius-targets", "", "Radius targets")
+	cmd.Flags().StringVar(&bodyStartDate, "start-date", "", "Start date")
+	cmd.Flags().StringVar(&bodyTopicExcludes, "topic-excludes", "", "Excludes")
+	cmd.Flags().StringVar(&bodyTopicIncludes, "topic-includes", "", "Includes")
+	cmd.Flags().Float64Var(&bodyTotalBudget, "total-budget", 0.0, "Total budget")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

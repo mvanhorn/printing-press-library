@@ -1,0 +1,7 @@
+.env
+/bing-ads
+/bing-ads-pp-cli
+/bing-ads-pp-mcp
+dogfood-results.json
+workflow-verify-report.json
+apify-actor-audit-report.json

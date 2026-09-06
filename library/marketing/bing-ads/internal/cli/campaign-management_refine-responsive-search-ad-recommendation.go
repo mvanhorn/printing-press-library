@@ -1,0 +1,361 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cliutil"
+	"github.com/spf13/cobra"
+)
+
+func newCampaignManagementRefineResponsiveSearchAdRecommendationCmd(flags *rootFlags) *cobra.Command {
+	var bodyResponsiveSearchAdAdFormatPreference string
+	var bodyResponsiveSearchAdDescriptions string
+	var bodyResponsiveSearchAdDevicePreference string
+	var bodyResponsiveSearchAdDomain string
+	var bodyResponsiveSearchAdEditorialStatus string
+	var bodyResponsiveSearchAdFinalAppUrls string
+	var bodyResponsiveSearchAdFinalMobileUrls string
+	var bodyResponsiveSearchAdFinalUrlSuffix string
+	var bodyResponsiveSearchAdFinalUrls string
+	var bodyResponsiveSearchAdForwardCompatibilityMap string
+	var bodyResponsiveSearchAdHeadlines string
+	var bodyResponsiveSearchAdId string
+	var bodyResponsiveSearchAdPath1 string
+	var bodyResponsiveSearchAdPath2 string
+	var bodyResponsiveSearchAdStatus string
+	var bodyResponsiveSearchAdTrackingUrlTemplate string
+	var bodyResponsiveSearchAdType string
+	var bodyResponsiveSearchAdUrlCustomParametersParameters string
+	var bodyTextRefineOperations string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "refine-responsive-search-ad-recommendation",
+		Short:       "refine_responsive_search_ad_recommendation",
+		Example:     "  bing-ads-pp-cli campaign-management refine-responsive-search-ad-recommendation",
+		Annotations: map[string]string{"pp:endpoint": "campaign-management.refine-responsive-search-ad-recommendation", "pp:method": "POST", "pp:path": "/CampaignManagement/v13/ResponsiveSearchAdRecommendation/Refine"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CampaignManagement/v13/ResponsiveSearchAdRecommendation/Refine"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedResponsiveSearchAd := map[string]any{}
+					if cmd.Flags().Changed("responsive-search-ad-ad-format-preference") || bodyResponsiveSearchAdAdFormatPreference != "" {
+						nestedResponsiveSearchAd["AdFormatPreference"] = bodyResponsiveSearchAdAdFormatPreference
+					}
+					if cmd.Flags().Changed("responsive-search-ad-descriptions") || bodyResponsiveSearchAdDescriptions != "" {
+						var parsedResponsiveSearchAdDescriptions any
+						if err := json.Unmarshal([]byte(bodyResponsiveSearchAdDescriptions), &parsedResponsiveSearchAdDescriptions); err != nil {
+							return fmt.Errorf("parsing --responsive-search-ad-descriptions JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveSearchAdDescriptions.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-search-ad-descriptions must be a JSON array, got JSON %T", parsedResponsiveSearchAdDescriptions)
+						}
+						nestedResponsiveSearchAd["Descriptions"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-search-ad-device-preference") || bodyResponsiveSearchAdDevicePreference != "" {
+						nestedResponsiveSearchAd["DevicePreference"] = bodyResponsiveSearchAdDevicePreference
+					}
+					if cmd.Flags().Changed("responsive-search-ad-domain") || bodyResponsiveSearchAdDomain != "" {
+						nestedResponsiveSearchAd["Domain"] = bodyResponsiveSearchAdDomain
+					}
+					if cmd.Flags().Changed("responsive-search-ad-editorial-status") || bodyResponsiveSearchAdEditorialStatus != "" {
+						nestedResponsiveSearchAd["EditorialStatus"] = bodyResponsiveSearchAdEditorialStatus
+					}
+					if cmd.Flags().Changed("responsive-search-ad-final-app-urls") || bodyResponsiveSearchAdFinalAppUrls != "" {
+						var parsedResponsiveSearchAdFinalAppUrls any
+						if err := json.Unmarshal([]byte(bodyResponsiveSearchAdFinalAppUrls), &parsedResponsiveSearchAdFinalAppUrls); err != nil {
+							return fmt.Errorf("parsing --responsive-search-ad-final-app-urls JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveSearchAdFinalAppUrls.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-search-ad-final-app-urls must be a JSON array, got JSON %T", parsedResponsiveSearchAdFinalAppUrls)
+						}
+						nestedResponsiveSearchAd["FinalAppUrls"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-search-ad-final-mobile-urls") {
+						parsedResponsiveSearchAdFinalMobileUrls, parseErr := cliutil.ParseStringList(bodyResponsiveSearchAdFinalMobileUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --responsive-search-ad-final-mobile-urls list: %w", parseErr)
+						}
+						nestedResponsiveSearchAd["FinalMobileUrls"] = parsedResponsiveSearchAdFinalMobileUrls
+					}
+					if cmd.Flags().Changed("responsive-search-ad-final-url-suffix") || bodyResponsiveSearchAdFinalUrlSuffix != "" {
+						nestedResponsiveSearchAd["FinalUrlSuffix"] = bodyResponsiveSearchAdFinalUrlSuffix
+					}
+					if cmd.Flags().Changed("responsive-search-ad-final-urls") {
+						parsedResponsiveSearchAdFinalUrls, parseErr := cliutil.ParseStringList(bodyResponsiveSearchAdFinalUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --responsive-search-ad-final-urls list: %w", parseErr)
+						}
+						nestedResponsiveSearchAd["FinalUrls"] = parsedResponsiveSearchAdFinalUrls
+					}
+					if cmd.Flags().Changed("responsive-search-ad-forward-compatibility-map") || bodyResponsiveSearchAdForwardCompatibilityMap != "" {
+						var parsedResponsiveSearchAdForwardCompatibilityMap any
+						if err := json.Unmarshal([]byte(bodyResponsiveSearchAdForwardCompatibilityMap), &parsedResponsiveSearchAdForwardCompatibilityMap); err != nil {
+							return fmt.Errorf("parsing --responsive-search-ad-forward-compatibility-map JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveSearchAdForwardCompatibilityMap.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-search-ad-forward-compatibility-map must be a JSON array, got JSON %T", parsedResponsiveSearchAdForwardCompatibilityMap)
+						}
+						nestedResponsiveSearchAd["ForwardCompatibilityMap"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-search-ad-headlines") || bodyResponsiveSearchAdHeadlines != "" {
+						var parsedResponsiveSearchAdHeadlines any
+						if err := json.Unmarshal([]byte(bodyResponsiveSearchAdHeadlines), &parsedResponsiveSearchAdHeadlines); err != nil {
+							return fmt.Errorf("parsing --responsive-search-ad-headlines JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveSearchAdHeadlines.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-search-ad-headlines must be a JSON array, got JSON %T", parsedResponsiveSearchAdHeadlines)
+						}
+						nestedResponsiveSearchAd["Headlines"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-search-ad-id") || bodyResponsiveSearchAdId != "" {
+						nestedResponsiveSearchAd["Id"] = bodyResponsiveSearchAdId
+					}
+					if cmd.Flags().Changed("responsive-search-ad-path1") || bodyResponsiveSearchAdPath1 != "" {
+						nestedResponsiveSearchAd["Path1"] = bodyResponsiveSearchAdPath1
+					}
+					if cmd.Flags().Changed("responsive-search-ad-path2") || bodyResponsiveSearchAdPath2 != "" {
+						nestedResponsiveSearchAd["Path2"] = bodyResponsiveSearchAdPath2
+					}
+					if cmd.Flags().Changed("responsive-search-ad-status") || bodyResponsiveSearchAdStatus != "" {
+						nestedResponsiveSearchAd["Status"] = bodyResponsiveSearchAdStatus
+					}
+					if cmd.Flags().Changed("responsive-search-ad-tracking-url-template") || bodyResponsiveSearchAdTrackingUrlTemplate != "" {
+						nestedResponsiveSearchAd["TrackingUrlTemplate"] = bodyResponsiveSearchAdTrackingUrlTemplate
+					}
+					if cmd.Flags().Changed("responsive-search-ad-type") || bodyResponsiveSearchAdType != "" {
+						nestedResponsiveSearchAd["Type"] = bodyResponsiveSearchAdType
+					}
+					{
+						nestedResponsiveSearchAdUrlCustomParameters := map[string]any{}
+						if cmd.Flags().Changed("responsive-search-ad-url-custom-parameters-parameters") || bodyResponsiveSearchAdUrlCustomParametersParameters != "" {
+							var parsedResponsiveSearchAdUrlCustomParametersParameters any
+							if err := json.Unmarshal([]byte(bodyResponsiveSearchAdUrlCustomParametersParameters), &parsedResponsiveSearchAdUrlCustomParametersParameters); err != nil {
+								return fmt.Errorf("parsing --responsive-search-ad-url-custom-parameters-parameters JSON: %w", err)
+							}
+							asArray, ok := parsedResponsiveSearchAdUrlCustomParametersParameters.([]any)
+							if !ok {
+								return fmt.Errorf("--responsive-search-ad-url-custom-parameters-parameters must be a JSON array, got JSON %T", parsedResponsiveSearchAdUrlCustomParametersParameters)
+							}
+							nestedResponsiveSearchAdUrlCustomParameters["Parameters"] = asArray
+						}
+						if len(nestedResponsiveSearchAdUrlCustomParameters) > 0 {
+							nestedResponsiveSearchAd["UrlCustomParameters"] = nestedResponsiveSearchAdUrlCustomParameters
+						}
+					}
+					if len(nestedResponsiveSearchAd) > 0 {
+						bodyMap["ResponsiveSearchAd"] = nestedResponsiveSearchAd
+					}
+				}
+				if cmd.Flags().Changed("text-refine-operations") || bodyTextRefineOperations != "" {
+					var parsedTextRefineOperations any
+					if err := json.Unmarshal([]byte(bodyTextRefineOperations), &parsedTextRefineOperations); err != nil {
+						return fmt.Errorf("parsing --text-refine-operations JSON: %w", err)
+					}
+					asArray, ok := parsedTextRefineOperations.([]any)
+					if !ok {
+						return fmt.Errorf("--text-refine-operations must be a JSON array, got JSON %T", parsedTextRefineOperations)
+					}
+					bodyMap["TextRefineOperations"] = asArray
+				}
+			}
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "campaign-management", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// Check if response contains an array (directly or wrapped in "data")
+				var items []map[string]any
+				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+						}
+						return nil
+					}
+				} else {
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
+					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
+						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
+							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+							}
+							return nil
+						}
+					}
+				}
+			}
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+					}
+					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "campaign-management",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
+				filtered := data
+				if flags.selectFields != "" {
+					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered, map[string]bool{"Errors": true, "TextAssetLinks": true})
+				}
+				if len(filtered) > 0 {
+					var parsed any
+					if err := json.Unmarshal(filtered, &parsed); err == nil {
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
+					}
+				}
+				envelopeJSON, err := json.Marshal(envelope)
+				if err != nil {
+					return err
+				}
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+				}
+				return nil
+			}
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdAdFormatPreference, "responsive-search-ad-ad-format-preference", "", "Ad format preference")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdDescriptions, "responsive-search-ad-descriptions", "", "Descriptions")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdDevicePreference, "responsive-search-ad-device-preference", "", "Device preference")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdDomain, "responsive-search-ad-domain", "", "Domain")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdEditorialStatus, "responsive-search-ad-editorial-status", "", "Editorial status")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdFinalAppUrls, "responsive-search-ad-final-app-urls", "", "Final app urls")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdFinalMobileUrls, "responsive-search-ad-final-mobile-urls", "", "Final mobile urls")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdFinalUrlSuffix, "responsive-search-ad-final-url-suffix", "", "Final url suffix")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdFinalUrls, "responsive-search-ad-final-urls", "", "Final urls")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdForwardCompatibilityMap, "responsive-search-ad-forward-compatibility-map", "", "Forward compatibility map")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdHeadlines, "responsive-search-ad-headlines", "", "Headlines")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdId, "responsive-search-ad-id", "", "Id")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdPath1, "responsive-search-ad-path1", "", "Path1")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdPath2, "responsive-search-ad-path2", "", "Path2")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdStatus, "responsive-search-ad-status", "", "Status")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdTrackingUrlTemplate, "responsive-search-ad-tracking-url-template", "", "Tracking url template")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdType, "responsive-search-ad-type", "", "Type")
+	cmd.Flags().StringVar(&bodyResponsiveSearchAdUrlCustomParametersParameters, "responsive-search-ad-url-custom-parameters-parameters", "", "Parameters")
+	cmd.Flags().StringVar(&bodyTextRefineOperations, "text-refine-operations", "", "Text refine operations")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

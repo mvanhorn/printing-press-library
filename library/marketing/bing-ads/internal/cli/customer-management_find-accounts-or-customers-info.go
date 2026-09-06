@@ -1,0 +1,106 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+func newCustomerManagementFindAccountsOrCustomersInfoCmd(flags *rootFlags) *cobra.Command {
+	var bodyFilter string
+	var bodyReturnAdditionalFields string
+	var bodyTopN int
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "find-accounts-or-customers-info",
+		Short:       "find_accounts_or_customers_info",
+		Example:     "  bing-ads-pp-cli customer-management find-accounts-or-customers-info",
+		Annotations: map[string]string{"pp:endpoint": "customer-management.find-accounts-or-customers-info", "pp:method": "POST", "pp:path": "/CustomerManagement/v13/AccountsOrCustomersInfo/Find", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CustomerManagement/v13/AccountsOrCustomersInfo/Find"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("filter") || bodyFilter != "" {
+					bodyMap["Filter"] = bodyFilter
+				}
+				if cmd.Flags().Changed("return-additional-fields") || bodyReturnAdditionalFields != "" {
+					var parsedReturnAdditionalFields any
+					if err := json.Unmarshal([]byte(bodyReturnAdditionalFields), &parsedReturnAdditionalFields); err != nil {
+						return fmt.Errorf("parsing --return-additional-fields JSON: %w", err)
+					}
+					asMap, ok := parsedReturnAdditionalFields.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--return-additional-fields must be a JSON object, got JSON %T", parsedReturnAdditionalFields)
+					}
+					bodyMap["ReturnAdditionalFields"] = asMap
+				}
+				if cmd.Flags().Changed("top-n") || bodyTopN != 0 {
+					bodyMap["TopN"] = bodyTopN
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"AccountId": true, "AccountLifeCycleStatus": true, "AccountMode": true, "AccountName": true, "AccountNumber": true, "CustomerId": true, "CustomerName": true, "PauseReason": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			if !flags.dryRun {
+				data = applyResponsePath(data, "AccountInfoWithCustomerData")
+			}
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"AccountId": true, "AccountLifeCycleStatus": true, "AccountMode": true, "AccountName": true, "AccountNumber": true, "CustomerId": true, "CustomerName": true, "PauseReason": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyFilter, "filter", "", "Filter")
+	cmd.Flags().StringVar(&bodyReturnAdditionalFields, "return-additional-fields", "", "Return additional fields")
+	cmd.Flags().IntVar(&bodyTopN, "top-n", 0, "Top n")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

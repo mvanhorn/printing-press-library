@@ -1,0 +1,130 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+func newAdInsightGetPerformanceInsightsDetailDataByAccountIdCmd(flags *rootFlags) *cobra.Command {
+	var bodyEndDateDay int
+	var bodyEndDateMonth int
+	var bodyEndDateYear int
+	var bodyEntityType string
+	var bodyStartDateDay int
+	var bodyStartDateMonth int
+	var bodyStartDateYear int
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "get-performance-insights-detail-data-by-account-id",
+		Short:       "get_performance_insights_detail_data_by_account_id",
+		Example:     "  bing-ads-pp-cli ad-insight get-performance-insights-detail-data-by-account-id",
+		Annotations: map[string]string{"pp:endpoint": "ad-insight.get-performance-insights-detail-data-by-account-id", "pp:method": "POST", "pp:path": "/AdInsight/v13/PerformanceInsightsDetailData/queryByAccountId", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/AdInsight/v13/PerformanceInsightsDetailData/queryByAccountId"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedEndDate := map[string]any{}
+					if cmd.Flags().Changed("end-date-day") || bodyEndDateDay != 0 {
+						nestedEndDate["Day"] = bodyEndDateDay
+					}
+					if cmd.Flags().Changed("end-date-month") || bodyEndDateMonth != 0 {
+						nestedEndDate["Month"] = bodyEndDateMonth
+					}
+					if cmd.Flags().Changed("end-date-year") || bodyEndDateYear != 0 {
+						nestedEndDate["Year"] = bodyEndDateYear
+					}
+					if len(nestedEndDate) > 0 {
+						bodyMap["EndDate"] = nestedEndDate
+					}
+				}
+				if cmd.Flags().Changed("entity-type") || bodyEntityType != "" {
+					bodyMap["EntityType"] = bodyEntityType
+				}
+				{
+					nestedStartDate := map[string]any{}
+					if cmd.Flags().Changed("start-date-day") || bodyStartDateDay != 0 {
+						nestedStartDate["Day"] = bodyStartDateDay
+					}
+					if cmd.Flags().Changed("start-date-month") || bodyStartDateMonth != 0 {
+						nestedStartDate["Month"] = bodyStartDateMonth
+					}
+					if cmd.Flags().Changed("start-date-year") || bodyStartDateYear != 0 {
+						nestedStartDate["Year"] = bodyStartDateYear
+					}
+					if len(nestedStartDate) > 0 {
+						bodyMap["StartDate"] = nestedStartDate
+					}
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"Actions": true, "Date": true, "Description": true, "EntityId": true, "EntityType": true, "KPIType": true, "RootCauses": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			if !flags.dryRun {
+				data = applyResponsePath(data, "Result")
+			}
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"Actions": true, "Date": true, "Description": true, "EntityId": true, "EntityType": true, "KPIType": true, "RootCauses": true})
+		},
+	}
+	cmd.Flags().IntVar(&bodyEndDateDay, "end-date-day", 0, "Day")
+	cmd.Flags().IntVar(&bodyEndDateMonth, "end-date-month", 0, "Month")
+	cmd.Flags().IntVar(&bodyEndDateYear, "end-date-year", 0, "Year")
+	cmd.Flags().StringVar(&bodyEntityType, "entity-type", "", "Entity type")
+	cmd.Flags().IntVar(&bodyStartDateDay, "start-date-day", 0, "Day")
+	cmd.Flags().IntVar(&bodyStartDateMonth, "start-date-month", 0, "Month")
+	cmd.Flags().IntVar(&bodyStartDateYear, "start-date-year", 0, "Year")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

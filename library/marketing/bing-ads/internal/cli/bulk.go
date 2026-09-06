@@ -1,0 +1,24 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"github.com/spf13/cobra"
+)
+
+func newBulkCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:         "bulk",
+		Short:       "Get, upload, and download bulk",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
+	}
+
+	cmd.AddCommand(newBulkDownloadCampaignsByAccountIdsCmd(flags))
+	cmd.AddCommand(newBulkDownloadCampaignsByCampaignIdsCmd(flags))
+	cmd.AddCommand(newBulkGetDownloadStatusCmd(flags))
+	cmd.AddCommand(newBulkGetUploadStatusCmd(flags))
+	cmd.AddCommand(newBulkGetUploadUrlCmd(flags))
+	cmd.AddCommand(newBulkUploadEntityRecordsCmd(flags))
+	return cmd
+}

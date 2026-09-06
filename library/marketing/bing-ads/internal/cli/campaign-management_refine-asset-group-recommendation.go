@@ -1,0 +1,481 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cliutil"
+	"github.com/spf13/cobra"
+)
+
+func newCampaignManagementRefineAssetGroupRecommendationCmd(flags *rootFlags) *cobra.Command {
+	var bodyAssetGroupAssetGroupSearchThemes string
+	var bodyAssetGroupAssetGroupUrlTargets string
+	var bodyAssetGroupBusinessName string
+	var bodyAssetGroupCallToAction string
+	var bodyAssetGroupDescriptions string
+	var bodyAssetGroupEditorialStatus string
+	var bodyAssetGroupEndDateDay int
+	var bodyAssetGroupEndDateMonth int
+	var bodyAssetGroupEndDateYear int
+	var bodyAssetGroupFinalMobileUrls string
+	var bodyAssetGroupFinalUrlSuffix string
+	var bodyAssetGroupFinalUrls string
+	var bodyAssetGroupForwardCompatibilityMap string
+	var bodyAssetGroupHeadlines string
+	var bodyAssetGroupId string
+	var bodyAssetGroupImages string
+	var bodyAssetGroupLongHeadlines string
+	var bodyAssetGroupName string
+	var bodyAssetGroupPath1 string
+	var bodyAssetGroupPath2 string
+	var bodyAssetGroupStartDateDay int
+	var bodyAssetGroupStartDateMonth int
+	var bodyAssetGroupStartDateYear int
+	var bodyAssetGroupStatus string
+	var bodyAssetGroupTrackingUrlTemplate string
+	var bodyAssetGroupUrlCustomParametersParameters string
+	var bodyAssetGroupVideos string
+	var bodyImageRefineOperations string
+	var bodyImageSuggestions string
+	var bodyReturnAdditionalFields string
+	var bodyTextRefineOperations string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "refine-asset-group-recommendation",
+		Short:       "refine_asset_group_recommendation",
+		Example:     "  bing-ads-pp-cli campaign-management refine-asset-group-recommendation",
+		Annotations: map[string]string{"pp:endpoint": "campaign-management.refine-asset-group-recommendation", "pp:method": "POST", "pp:path": "/CampaignManagement/v13/AssetGroupRecommendation/Refine"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CampaignManagement/v13/AssetGroupRecommendation/Refine"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedAssetGroup := map[string]any{}
+					if cmd.Flags().Changed("asset-group-asset-group-search-themes") || bodyAssetGroupAssetGroupSearchThemes != "" {
+						var parsedAssetGroupAssetGroupSearchThemes any
+						if err := json.Unmarshal([]byte(bodyAssetGroupAssetGroupSearchThemes), &parsedAssetGroupAssetGroupSearchThemes); err != nil {
+							return fmt.Errorf("parsing --asset-group-asset-group-search-themes JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupAssetGroupSearchThemes.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-asset-group-search-themes must be a JSON array, got JSON %T", parsedAssetGroupAssetGroupSearchThemes)
+						}
+						nestedAssetGroup["AssetGroupSearchThemes"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-asset-group-url-targets") || bodyAssetGroupAssetGroupUrlTargets != "" {
+						var parsedAssetGroupAssetGroupUrlTargets any
+						if err := json.Unmarshal([]byte(bodyAssetGroupAssetGroupUrlTargets), &parsedAssetGroupAssetGroupUrlTargets); err != nil {
+							return fmt.Errorf("parsing --asset-group-asset-group-url-targets JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupAssetGroupUrlTargets.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-asset-group-url-targets must be a JSON array, got JSON %T", parsedAssetGroupAssetGroupUrlTargets)
+						}
+						nestedAssetGroup["AssetGroupUrlTargets"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-business-name") || bodyAssetGroupBusinessName != "" {
+						nestedAssetGroup["BusinessName"] = bodyAssetGroupBusinessName
+					}
+					if cmd.Flags().Changed("asset-group-call-to-action") || bodyAssetGroupCallToAction != "" {
+						nestedAssetGroup["CallToAction"] = bodyAssetGroupCallToAction
+					}
+					if cmd.Flags().Changed("asset-group-descriptions") || bodyAssetGroupDescriptions != "" {
+						var parsedAssetGroupDescriptions any
+						if err := json.Unmarshal([]byte(bodyAssetGroupDescriptions), &parsedAssetGroupDescriptions); err != nil {
+							return fmt.Errorf("parsing --asset-group-descriptions JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupDescriptions.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-descriptions must be a JSON array, got JSON %T", parsedAssetGroupDescriptions)
+						}
+						nestedAssetGroup["Descriptions"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-editorial-status") || bodyAssetGroupEditorialStatus != "" {
+						nestedAssetGroup["EditorialStatus"] = bodyAssetGroupEditorialStatus
+					}
+					{
+						nestedAssetGroupEndDate := map[string]any{}
+						if cmd.Flags().Changed("asset-group-end-date-day") || bodyAssetGroupEndDateDay != 0 {
+							nestedAssetGroupEndDate["Day"] = bodyAssetGroupEndDateDay
+						}
+						if cmd.Flags().Changed("asset-group-end-date-month") || bodyAssetGroupEndDateMonth != 0 {
+							nestedAssetGroupEndDate["Month"] = bodyAssetGroupEndDateMonth
+						}
+						if cmd.Flags().Changed("asset-group-end-date-year") || bodyAssetGroupEndDateYear != 0 {
+							nestedAssetGroupEndDate["Year"] = bodyAssetGroupEndDateYear
+						}
+						if len(nestedAssetGroupEndDate) > 0 {
+							nestedAssetGroup["EndDate"] = nestedAssetGroupEndDate
+						}
+					}
+					if cmd.Flags().Changed("asset-group-final-mobile-urls") {
+						parsedAssetGroupFinalMobileUrls, parseErr := cliutil.ParseStringList(bodyAssetGroupFinalMobileUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --asset-group-final-mobile-urls list: %w", parseErr)
+						}
+						nestedAssetGroup["FinalMobileUrls"] = parsedAssetGroupFinalMobileUrls
+					}
+					if cmd.Flags().Changed("asset-group-final-url-suffix") || bodyAssetGroupFinalUrlSuffix != "" {
+						nestedAssetGroup["FinalUrlSuffix"] = bodyAssetGroupFinalUrlSuffix
+					}
+					if cmd.Flags().Changed("asset-group-final-urls") {
+						parsedAssetGroupFinalUrls, parseErr := cliutil.ParseStringList(bodyAssetGroupFinalUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --asset-group-final-urls list: %w", parseErr)
+						}
+						nestedAssetGroup["FinalUrls"] = parsedAssetGroupFinalUrls
+					}
+					if cmd.Flags().Changed("asset-group-forward-compatibility-map") || bodyAssetGroupForwardCompatibilityMap != "" {
+						var parsedAssetGroupForwardCompatibilityMap any
+						if err := json.Unmarshal([]byte(bodyAssetGroupForwardCompatibilityMap), &parsedAssetGroupForwardCompatibilityMap); err != nil {
+							return fmt.Errorf("parsing --asset-group-forward-compatibility-map JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupForwardCompatibilityMap.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-forward-compatibility-map must be a JSON array, got JSON %T", parsedAssetGroupForwardCompatibilityMap)
+						}
+						nestedAssetGroup["ForwardCompatibilityMap"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-headlines") || bodyAssetGroupHeadlines != "" {
+						var parsedAssetGroupHeadlines any
+						if err := json.Unmarshal([]byte(bodyAssetGroupHeadlines), &parsedAssetGroupHeadlines); err != nil {
+							return fmt.Errorf("parsing --asset-group-headlines JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupHeadlines.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-headlines must be a JSON array, got JSON %T", parsedAssetGroupHeadlines)
+						}
+						nestedAssetGroup["Headlines"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-id") || bodyAssetGroupId != "" {
+						nestedAssetGroup["Id"] = bodyAssetGroupId
+					}
+					if cmd.Flags().Changed("asset-group-images") || bodyAssetGroupImages != "" {
+						var parsedAssetGroupImages any
+						if err := json.Unmarshal([]byte(bodyAssetGroupImages), &parsedAssetGroupImages); err != nil {
+							return fmt.Errorf("parsing --asset-group-images JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupImages.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-images must be a JSON array, got JSON %T", parsedAssetGroupImages)
+						}
+						nestedAssetGroup["Images"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-long-headlines") || bodyAssetGroupLongHeadlines != "" {
+						var parsedAssetGroupLongHeadlines any
+						if err := json.Unmarshal([]byte(bodyAssetGroupLongHeadlines), &parsedAssetGroupLongHeadlines); err != nil {
+							return fmt.Errorf("parsing --asset-group-long-headlines JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupLongHeadlines.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-long-headlines must be a JSON array, got JSON %T", parsedAssetGroupLongHeadlines)
+						}
+						nestedAssetGroup["LongHeadlines"] = asArray
+					}
+					if cmd.Flags().Changed("asset-group-name") || bodyAssetGroupName != "" {
+						nestedAssetGroup["Name"] = bodyAssetGroupName
+					}
+					if cmd.Flags().Changed("asset-group-path1") || bodyAssetGroupPath1 != "" {
+						nestedAssetGroup["Path1"] = bodyAssetGroupPath1
+					}
+					if cmd.Flags().Changed("asset-group-path2") || bodyAssetGroupPath2 != "" {
+						nestedAssetGroup["Path2"] = bodyAssetGroupPath2
+					}
+					{
+						nestedAssetGroupStartDate := map[string]any{}
+						if cmd.Flags().Changed("asset-group-start-date-day") || bodyAssetGroupStartDateDay != 0 {
+							nestedAssetGroupStartDate["Day"] = bodyAssetGroupStartDateDay
+						}
+						if cmd.Flags().Changed("asset-group-start-date-month") || bodyAssetGroupStartDateMonth != 0 {
+							nestedAssetGroupStartDate["Month"] = bodyAssetGroupStartDateMonth
+						}
+						if cmd.Flags().Changed("asset-group-start-date-year") || bodyAssetGroupStartDateYear != 0 {
+							nestedAssetGroupStartDate["Year"] = bodyAssetGroupStartDateYear
+						}
+						if len(nestedAssetGroupStartDate) > 0 {
+							nestedAssetGroup["StartDate"] = nestedAssetGroupStartDate
+						}
+					}
+					if cmd.Flags().Changed("asset-group-status") || bodyAssetGroupStatus != "" {
+						nestedAssetGroup["Status"] = bodyAssetGroupStatus
+					}
+					if cmd.Flags().Changed("asset-group-tracking-url-template") || bodyAssetGroupTrackingUrlTemplate != "" {
+						nestedAssetGroup["TrackingUrlTemplate"] = bodyAssetGroupTrackingUrlTemplate
+					}
+					{
+						nestedAssetGroupUrlCustomParameters := map[string]any{}
+						if cmd.Flags().Changed("asset-group-url-custom-parameters-parameters") || bodyAssetGroupUrlCustomParametersParameters != "" {
+							var parsedAssetGroupUrlCustomParametersParameters any
+							if err := json.Unmarshal([]byte(bodyAssetGroupUrlCustomParametersParameters), &parsedAssetGroupUrlCustomParametersParameters); err != nil {
+								return fmt.Errorf("parsing --asset-group-url-custom-parameters-parameters JSON: %w", err)
+							}
+							asArray, ok := parsedAssetGroupUrlCustomParametersParameters.([]any)
+							if !ok {
+								return fmt.Errorf("--asset-group-url-custom-parameters-parameters must be a JSON array, got JSON %T", parsedAssetGroupUrlCustomParametersParameters)
+							}
+							nestedAssetGroupUrlCustomParameters["Parameters"] = asArray
+						}
+						if len(nestedAssetGroupUrlCustomParameters) > 0 {
+							nestedAssetGroup["UrlCustomParameters"] = nestedAssetGroupUrlCustomParameters
+						}
+					}
+					if cmd.Flags().Changed("asset-group-videos") || bodyAssetGroupVideos != "" {
+						var parsedAssetGroupVideos any
+						if err := json.Unmarshal([]byte(bodyAssetGroupVideos), &parsedAssetGroupVideos); err != nil {
+							return fmt.Errorf("parsing --asset-group-videos JSON: %w", err)
+						}
+						asArray, ok := parsedAssetGroupVideos.([]any)
+						if !ok {
+							return fmt.Errorf("--asset-group-videos must be a JSON array, got JSON %T", parsedAssetGroupVideos)
+						}
+						nestedAssetGroup["Videos"] = asArray
+					}
+					if len(nestedAssetGroup) > 0 {
+						bodyMap["AssetGroup"] = nestedAssetGroup
+					}
+				}
+				if cmd.Flags().Changed("image-refine-operations") || bodyImageRefineOperations != "" {
+					var parsedImageRefineOperations any
+					if err := json.Unmarshal([]byte(bodyImageRefineOperations), &parsedImageRefineOperations); err != nil {
+						return fmt.Errorf("parsing --image-refine-operations JSON: %w", err)
+					}
+					asArray, ok := parsedImageRefineOperations.([]any)
+					if !ok {
+						return fmt.Errorf("--image-refine-operations must be a JSON array, got JSON %T", parsedImageRefineOperations)
+					}
+					bodyMap["ImageRefineOperations"] = asArray
+				}
+				if cmd.Flags().Changed("image-suggestions") || bodyImageSuggestions != "" {
+					var parsedImageSuggestions any
+					if err := json.Unmarshal([]byte(bodyImageSuggestions), &parsedImageSuggestions); err != nil {
+						return fmt.Errorf("parsing --image-suggestions JSON: %w", err)
+					}
+					asArray, ok := parsedImageSuggestions.([]any)
+					if !ok {
+						return fmt.Errorf("--image-suggestions must be a JSON array, got JSON %T", parsedImageSuggestions)
+					}
+					bodyMap["ImageSuggestions"] = asArray
+				}
+				if cmd.Flags().Changed("return-additional-fields") || bodyReturnAdditionalFields != "" {
+					bodyMap["ReturnAdditionalFields"] = bodyReturnAdditionalFields
+				}
+				if cmd.Flags().Changed("text-refine-operations") || bodyTextRefineOperations != "" {
+					var parsedTextRefineOperations any
+					if err := json.Unmarshal([]byte(bodyTextRefineOperations), &parsedTextRefineOperations); err != nil {
+						return fmt.Errorf("parsing --text-refine-operations JSON: %w", err)
+					}
+					asArray, ok := parsedTextRefineOperations.([]any)
+					if !ok {
+						return fmt.Errorf("--text-refine-operations must be a JSON array, got JSON %T", parsedTextRefineOperations)
+					}
+					bodyMap["TextRefineOperations"] = asArray
+				}
+			}
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "campaign-management", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// Check if response contains an array (directly or wrapped in "data")
+				var items []map[string]any
+				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+						}
+						return nil
+					}
+				} else {
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
+					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
+						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
+							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+							}
+							return nil
+						}
+					}
+				}
+			}
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+					}
+					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "campaign-management",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
+				filtered := data
+				if flags.selectFields != "" {
+					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered, map[string]bool{"MediaRefineResults": true, "TextRefineResults": true})
+				}
+				if len(filtered) > 0 {
+					var parsed any
+					if err := json.Unmarshal(filtered, &parsed); err == nil {
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
+					}
+				}
+				envelopeJSON, err := json.Marshal(envelope)
+				if err != nil {
+					return err
+				}
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+				}
+				return nil
+			}
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&bodyAssetGroupAssetGroupSearchThemes, "asset-group-asset-group-search-themes", "", "Asset group search themes")
+	cmd.Flags().StringVar(&bodyAssetGroupAssetGroupUrlTargets, "asset-group-asset-group-url-targets", "", "Asset group url targets")
+	cmd.Flags().StringVar(&bodyAssetGroupBusinessName, "asset-group-business-name", "", "Business name")
+	cmd.Flags().StringVar(&bodyAssetGroupCallToAction, "asset-group-call-to-action", "", "Call to action")
+	cmd.Flags().StringVar(&bodyAssetGroupDescriptions, "asset-group-descriptions", "", "Descriptions")
+	cmd.Flags().StringVar(&bodyAssetGroupEditorialStatus, "asset-group-editorial-status", "", "Editorial status")
+	cmd.Flags().IntVar(&bodyAssetGroupEndDateDay, "asset-group-end-date-day", 0, "Day")
+	cmd.Flags().IntVar(&bodyAssetGroupEndDateMonth, "asset-group-end-date-month", 0, "Month")
+	cmd.Flags().IntVar(&bodyAssetGroupEndDateYear, "asset-group-end-date-year", 0, "Year")
+	cmd.Flags().StringVar(&bodyAssetGroupFinalMobileUrls, "asset-group-final-mobile-urls", "", "Final mobile urls")
+	cmd.Flags().StringVar(&bodyAssetGroupFinalUrlSuffix, "asset-group-final-url-suffix", "", "Final url suffix")
+	cmd.Flags().StringVar(&bodyAssetGroupFinalUrls, "asset-group-final-urls", "", "Final urls")
+	cmd.Flags().StringVar(&bodyAssetGroupForwardCompatibilityMap, "asset-group-forward-compatibility-map", "", "Forward compatibility map")
+	cmd.Flags().StringVar(&bodyAssetGroupHeadlines, "asset-group-headlines", "", "Headlines")
+	cmd.Flags().StringVar(&bodyAssetGroupId, "asset-group-id", "", "Id")
+	cmd.Flags().StringVar(&bodyAssetGroupImages, "asset-group-images", "", "Images")
+	cmd.Flags().StringVar(&bodyAssetGroupLongHeadlines, "asset-group-long-headlines", "", "Long headlines")
+	cmd.Flags().StringVar(&bodyAssetGroupName, "asset-group-name", "", "Name")
+	cmd.Flags().StringVar(&bodyAssetGroupPath1, "asset-group-path1", "", "Path1")
+	cmd.Flags().StringVar(&bodyAssetGroupPath2, "asset-group-path2", "", "Path2")
+	cmd.Flags().IntVar(&bodyAssetGroupStartDateDay, "asset-group-start-date-day", 0, "Day")
+	cmd.Flags().IntVar(&bodyAssetGroupStartDateMonth, "asset-group-start-date-month", 0, "Month")
+	cmd.Flags().IntVar(&bodyAssetGroupStartDateYear, "asset-group-start-date-year", 0, "Year")
+	cmd.Flags().StringVar(&bodyAssetGroupStatus, "asset-group-status", "", "Status")
+	cmd.Flags().StringVar(&bodyAssetGroupTrackingUrlTemplate, "asset-group-tracking-url-template", "", "Tracking url template")
+	cmd.Flags().StringVar(&bodyAssetGroupUrlCustomParametersParameters, "asset-group-url-custom-parameters-parameters", "", "Parameters")
+	cmd.Flags().StringVar(&bodyAssetGroupVideos, "asset-group-videos", "", "Videos")
+	cmd.Flags().StringVar(&bodyImageRefineOperations, "image-refine-operations", "", "Image refine operations")
+	cmd.Flags().StringVar(&bodyImageSuggestions, "image-suggestions", "", "Image suggestions")
+	cmd.Flags().StringVar(&bodyReturnAdditionalFields, "return-additional-fields", "", "Return additional fields")
+	cmd.Flags().StringVar(&bodyTextRefineOperations, "text-refine-operations", "", "Text refine operations")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

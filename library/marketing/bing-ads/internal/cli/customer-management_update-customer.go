@@ -1,0 +1,311 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+func newCustomerManagementUpdateCustomerCmd(flags *rootFlags) *cobra.Command {
+	var bodyCustomerCustomerAddressCityName string
+	var bodyCustomerCustomerAddressCountryCode string
+	var bodyCustomerCustomerAddressPostalCode string
+	var bodyCustomerCustomerAddressProvinceCode string
+	var bodyCustomerCustomerAddressProvinceName string
+	var bodyCustomerCustomerAddressStreetAddress string
+	var bodyCustomerCustomerAddressStreetAddress2 string
+	var bodyCustomerCustomerFinancialStatus string
+	var bodyCustomerCustomerLifeCycleStatus string
+	var bodyCustomerForwardCompatibilityMap string
+	var bodyCustomerId string
+	var bodyCustomerIndustry string
+	var bodyCustomerLastModifiedByUserId string
+	var bodyCustomerLastModifiedTime string
+	var bodyCustomerMarketCountry string
+	var bodyCustomerMarketLanguage string
+	var bodyCustomerName string
+	var bodyCustomerNumber string
+	var bodyCustomerServiceLevel string
+	var bodyCustomerTimeStamp string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "update-customer",
+		Short:       "update_customer",
+		Example:     "  bing-ads-pp-cli customer-management update-customer",
+		Annotations: map[string]string{"pp:endpoint": "customer-management.update-customer", "pp:method": "PUT", "pp:path": "/CustomerManagement/v13/Customer"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CustomerManagement/v13/Customer"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = map[string]any{"Customer": bodyMap}
+				{
+					nestedCustomerCustomerAddress := map[string]any{}
+					if cmd.Flags().Changed("customer-customer-address-city-name") || bodyCustomerCustomerAddressCityName != "" {
+						nestedCustomerCustomerAddress["CityName"] = bodyCustomerCustomerAddressCityName
+					}
+					if cmd.Flags().Changed("customer-customer-address-country-code") || bodyCustomerCustomerAddressCountryCode != "" {
+						nestedCustomerCustomerAddress["CountryCode"] = bodyCustomerCustomerAddressCountryCode
+					}
+					if cmd.Flags().Changed("customer-customer-address-postal-code") || bodyCustomerCustomerAddressPostalCode != "" {
+						nestedCustomerCustomerAddress["PostalCode"] = bodyCustomerCustomerAddressPostalCode
+					}
+					if cmd.Flags().Changed("customer-customer-address-province-code") || bodyCustomerCustomerAddressProvinceCode != "" {
+						nestedCustomerCustomerAddress["ProvinceCode"] = bodyCustomerCustomerAddressProvinceCode
+					}
+					if cmd.Flags().Changed("customer-customer-address-province-name") || bodyCustomerCustomerAddressProvinceName != "" {
+						nestedCustomerCustomerAddress["ProvinceName"] = bodyCustomerCustomerAddressProvinceName
+					}
+					if cmd.Flags().Changed("customer-customer-address-street-address") || bodyCustomerCustomerAddressStreetAddress != "" {
+						nestedCustomerCustomerAddress["StreetAddress"] = bodyCustomerCustomerAddressStreetAddress
+					}
+					if cmd.Flags().Changed("customer-customer-address-street-address2") || bodyCustomerCustomerAddressStreetAddress2 != "" {
+						nestedCustomerCustomerAddress["StreetAddress2"] = bodyCustomerCustomerAddressStreetAddress2
+					}
+					if len(nestedCustomerCustomerAddress) > 0 {
+						bodyMap["CustomerAddress"] = nestedCustomerCustomerAddress
+					}
+				}
+				if cmd.Flags().Changed("customer-customer-financial-status") || bodyCustomerCustomerFinancialStatus != "" {
+					bodyMap["CustomerFinancialStatus"] = bodyCustomerCustomerFinancialStatus
+				}
+				if cmd.Flags().Changed("customer-customer-life-cycle-status") || bodyCustomerCustomerLifeCycleStatus != "" {
+					bodyMap["CustomerLifeCycleStatus"] = bodyCustomerCustomerLifeCycleStatus
+				}
+				if cmd.Flags().Changed("customer-forward-compatibility-map") || bodyCustomerForwardCompatibilityMap != "" {
+					var parsedCustomerForwardCompatibilityMap any
+					if err := json.Unmarshal([]byte(bodyCustomerForwardCompatibilityMap), &parsedCustomerForwardCompatibilityMap); err != nil {
+						return fmt.Errorf("parsing --customer-forward-compatibility-map JSON: %w", err)
+					}
+					asArray, ok := parsedCustomerForwardCompatibilityMap.([]any)
+					if !ok {
+						return fmt.Errorf("--customer-forward-compatibility-map must be a JSON array, got JSON %T", parsedCustomerForwardCompatibilityMap)
+					}
+					bodyMap["ForwardCompatibilityMap"] = asArray
+				}
+				if cmd.Flags().Changed("customer-id") || bodyCustomerId != "" {
+					bodyMap["Id"] = bodyCustomerId
+				}
+				if cmd.Flags().Changed("customer-industry") || bodyCustomerIndustry != "" {
+					bodyMap["Industry"] = bodyCustomerIndustry
+				}
+				if cmd.Flags().Changed("customer-last-modified-by-user-id") || bodyCustomerLastModifiedByUserId != "" {
+					bodyMap["LastModifiedByUserId"] = bodyCustomerLastModifiedByUserId
+				}
+				if cmd.Flags().Changed("customer-last-modified-time") || bodyCustomerLastModifiedTime != "" {
+					bodyMap["LastModifiedTime"] = bodyCustomerLastModifiedTime
+				}
+				if cmd.Flags().Changed("customer-market-country") || bodyCustomerMarketCountry != "" {
+					bodyMap["MarketCountry"] = bodyCustomerMarketCountry
+				}
+				if cmd.Flags().Changed("customer-market-language") || bodyCustomerMarketLanguage != "" {
+					bodyMap["MarketLanguage"] = bodyCustomerMarketLanguage
+				}
+				if cmd.Flags().Changed("customer-name") || bodyCustomerName != "" {
+					bodyMap["Name"] = bodyCustomerName
+				}
+				if cmd.Flags().Changed("customer-number") || bodyCustomerNumber != "" {
+					bodyMap["Number"] = bodyCustomerNumber
+				}
+				if cmd.Flags().Changed("customer-service-level") || bodyCustomerServiceLevel != "" {
+					bodyMap["ServiceLevel"] = bodyCustomerServiceLevel
+				}
+				if cmd.Flags().Changed("customer-time-stamp") || bodyCustomerTimeStamp != "" {
+					bodyMap["TimeStamp"] = bodyCustomerTimeStamp
+				}
+			}
+			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "customer-management", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// Check if response contains an array (directly or wrapped in "data")
+				var items []map[string]any
+				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "customer-management", partialFailure.Message))
+						}
+						return nil
+					}
+				} else {
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
+					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
+						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
+							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "customer-management", partialFailure.Message))
+							}
+							return nil
+						}
+					}
+				}
+			}
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "customer-management", partialFailure.Message))
+					}
+					return nil
+				}
+				envelope := map[string]any{
+					"action":   "put",
+					"resource": "customer-management",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
+				filtered := data
+				if flags.selectFields != "" {
+					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered, map[string]bool{"LastModifiedTime": true})
+				}
+				if len(filtered) > 0 {
+					var parsed any
+					if err := json.Unmarshal(filtered, &parsed); err == nil {
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
+					}
+				}
+				envelopeJSON, err := json.Marshal(envelope)
+				if err != nil {
+					return err
+				}
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "customer-management", partialFailure.Message))
+				}
+				return nil
+			}
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "customer-management", partialFailure.Message))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressCityName, "customer-customer-address-city-name", "", "City name")
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressCountryCode, "customer-customer-address-country-code", "", "Country code")
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressPostalCode, "customer-customer-address-postal-code", "", "Postal code")
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressProvinceCode, "customer-customer-address-province-code", "", "Province code")
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressProvinceName, "customer-customer-address-province-name", "", "Province name")
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressStreetAddress, "customer-customer-address-street-address", "", "Street address")
+	cmd.Flags().StringVar(&bodyCustomerCustomerAddressStreetAddress2, "customer-customer-address-street-address2", "", "Street address2")
+	cmd.Flags().StringVar(&bodyCustomerCustomerFinancialStatus, "customer-customer-financial-status", "", "Customer financial status")
+	cmd.Flags().StringVar(&bodyCustomerCustomerLifeCycleStatus, "customer-customer-life-cycle-status", "", "Customer life cycle status")
+	cmd.Flags().StringVar(&bodyCustomerForwardCompatibilityMap, "customer-forward-compatibility-map", "", "Forward compatibility map")
+	cmd.Flags().StringVar(&bodyCustomerId, "customer-id", "", "Id")
+	cmd.Flags().StringVar(&bodyCustomerIndustry, "customer-industry", "", "Industry")
+	cmd.Flags().StringVar(&bodyCustomerLastModifiedByUserId, "customer-last-modified-by-user-id", "", "Last modified by user id")
+	cmd.Flags().StringVar(&bodyCustomerLastModifiedTime, "customer-last-modified-time", "", "Last modified time")
+	cmd.Flags().StringVar(&bodyCustomerMarketCountry, "customer-market-country", "", "Market country")
+	cmd.Flags().StringVar(&bodyCustomerMarketLanguage, "customer-market-language", "", "Market language")
+	cmd.Flags().StringVar(&bodyCustomerName, "customer-name", "", "Name")
+	cmd.Flags().StringVar(&bodyCustomerNumber, "customer-number", "", "Number")
+	cmd.Flags().StringVar(&bodyCustomerServiceLevel, "customer-service-level", "", "Service level")
+	cmd.Flags().StringVar(&bodyCustomerTimeStamp, "customer-time-stamp", "", "Time stamp")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

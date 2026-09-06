@@ -1,0 +1,74 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "verdict": "HOLD",
+  "reason": "scorecard hold: unverified dimensions: live_api_verification",
+  "started_at": "2026-08-28T09:48:26Z",
+  "elapsed_ms": 20810,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-28T09:48:26Z",
+      "elapsed_ms": 12691,
+      "command": "/home/ubuntu/go/bin/cli-printing-press verify --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads --write-manifest /home/ubuntu/printing-press-library/library/marketing/bing-ads/.printing-press.json --spec printing-press-library/library/marketing/bing-ads/spec.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-28T09:48:39Z",
+      "elapsed_ms": 9,
+      "command": "/home/ubuntu/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /home/ubuntu/printing-press-library/library/marketing/bing-ads/research.json --binary /home/ubuntu/printing-press-library/library/marketing/bing-ads/bing-ads"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-28T09:48:39Z",
+      "elapsed_ms": 3631,
+      "command": "/home/ubuntu/go/bin/cli-printing-press dogfood --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads --spec printing-press-library/library/marketing/bing-ads/spec.json"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-28T09:48:42Z",
+      "elapsed_ms": 14,
+      "command": "/home/ubuntu/go/bin/cli-printing-press workflow-verify --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-28T09:48:42Z",
+      "elapsed_ms": 23,
+      "command": "/home/ubuntu/go/bin/cli-printing-press apify-audit --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-08-28T09:48:42Z",
+      "elapsed_ms": 2632,
+      "command": "/home/ubuntu/go/bin/cli-printing-press verify-skill --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 3,
+      "passed": false,
+      "verdict": "HOLD",
+      "detail": "scorecard hold: unverified dimensions: live_api_verification",
+      "started_at": "2026-08-28T09:48:45Z",
+      "elapsed_ms": 1805,
+      "command": "/home/ubuntu/go/bin/cli-printing-press scorecard --dir /home/ubuntu/printing-press-library/library/marketing/bing-ads --write-manifest /home/ubuntu/printing-press-library/library/marketing/bing-ads/.printing-press.json --spec printing-press-library/library/marketing/bing-ads/spec.json --live-check"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
+
+// version is the printed CLI's version, overridable at build time via ldflags.
+var version = "0.0.0-dev"
+
+// newVersionCmd prints the CLI name and version. Shared by the HTTP and device
+// generators so both printed-CLI shapes carry an identical version command.
+func newVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print version",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("%s %s\n", cmd.Root().Name(), version)
+		},
+	}
+}

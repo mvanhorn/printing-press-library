@@ -1,0 +1,526 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cliutil"
+	"github.com/spf13/cobra"
+)
+
+func newCampaignManagementRefineResponsiveAdRecommendationCmd(flags *rootFlags) *cobra.Command {
+	var bodyImageRefineOperations string
+	var bodyImageSuggestions string
+	var bodyResponsiveAdAdFormatPreference string
+	var bodyResponsiveAdAdSubType string
+	var bodyResponsiveAdBusinessName string
+	var bodyResponsiveAdCallToAction string
+	var bodyResponsiveAdCallToActionLanguage string
+	var bodyResponsiveAdDescriptions string
+	var bodyResponsiveAdDevicePreference string
+	var bodyResponsiveAdEditorialStatus string
+	var bodyResponsiveAdFinalAppUrls string
+	var bodyResponsiveAdFinalMobileUrls string
+	var bodyResponsiveAdFinalUrlSuffix string
+	var bodyResponsiveAdFinalUrls string
+	var bodyResponsiveAdForwardCompatibilityMap string
+	var bodyResponsiveAdHeadline string
+	var bodyResponsiveAdHeadlines string
+	var bodyResponsiveAdId string
+	var bodyResponsiveAdImages string
+	var bodyResponsiveAdImpressionTrackingUrls string
+	var bodyResponsiveAdLongHeadlineAsset string
+	var bodyResponsiveAdLongHeadlineAssetPerformanceLabel string
+	var bodyResponsiveAdLongHeadlineEditorialStatus string
+	var bodyResponsiveAdLongHeadlinePinnedField string
+	var bodyResponsiveAdLongHeadlineString string
+	var bodyResponsiveAdLongHeadlines string
+	var bodyResponsiveAdStatus string
+	var bodyResponsiveAdText string
+	var bodyResponsiveAdTrackingUrlTemplate string
+	var bodyResponsiveAdType string
+	var bodyResponsiveAdUrlCustomParametersParameters string
+	var bodyResponsiveAdVerifiedTrackingSettingsDetails string
+	var bodyResponsiveAdVerifiedTrackingSettingsType string
+	var bodyResponsiveAdVideos string
+	var bodyReturnAdditionalFields string
+	var bodyTextRefineOperations string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "refine-responsive-ad-recommendation",
+		Short:       "refine_responsive_ad_recommendation",
+		Example:     "  bing-ads-pp-cli campaign-management refine-responsive-ad-recommendation",
+		Annotations: map[string]string{"pp:endpoint": "campaign-management.refine-responsive-ad-recommendation", "pp:method": "POST", "pp:path": "/CampaignManagement/v13/ResponsiveAdRecommendation/Refine"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CampaignManagement/v13/ResponsiveAdRecommendation/Refine"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("image-refine-operations") || bodyImageRefineOperations != "" {
+					var parsedImageRefineOperations any
+					if err := json.Unmarshal([]byte(bodyImageRefineOperations), &parsedImageRefineOperations); err != nil {
+						return fmt.Errorf("parsing --image-refine-operations JSON: %w", err)
+					}
+					asArray, ok := parsedImageRefineOperations.([]any)
+					if !ok {
+						return fmt.Errorf("--image-refine-operations must be a JSON array, got JSON %T", parsedImageRefineOperations)
+					}
+					bodyMap["ImageRefineOperations"] = asArray
+				}
+				if cmd.Flags().Changed("image-suggestions") || bodyImageSuggestions != "" {
+					var parsedImageSuggestions any
+					if err := json.Unmarshal([]byte(bodyImageSuggestions), &parsedImageSuggestions); err != nil {
+						return fmt.Errorf("parsing --image-suggestions JSON: %w", err)
+					}
+					asArray, ok := parsedImageSuggestions.([]any)
+					if !ok {
+						return fmt.Errorf("--image-suggestions must be a JSON array, got JSON %T", parsedImageSuggestions)
+					}
+					bodyMap["ImageSuggestions"] = asArray
+				}
+				{
+					nestedResponsiveAd := map[string]any{}
+					if cmd.Flags().Changed("responsive-ad-ad-format-preference") || bodyResponsiveAdAdFormatPreference != "" {
+						nestedResponsiveAd["AdFormatPreference"] = bodyResponsiveAdAdFormatPreference
+					}
+					if cmd.Flags().Changed("responsive-ad-ad-sub-type") || bodyResponsiveAdAdSubType != "" {
+						var parsedResponsiveAdAdSubType any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdAdSubType), &parsedResponsiveAdAdSubType); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-ad-sub-type JSON: %w", err)
+						}
+						asMap, ok := parsedResponsiveAdAdSubType.(map[string]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-ad-sub-type must be a JSON object, got JSON %T", parsedResponsiveAdAdSubType)
+						}
+						nestedResponsiveAd["AdSubType"] = asMap
+					}
+					if cmd.Flags().Changed("responsive-ad-business-name") || bodyResponsiveAdBusinessName != "" {
+						nestedResponsiveAd["BusinessName"] = bodyResponsiveAdBusinessName
+					}
+					if cmd.Flags().Changed("responsive-ad-call-to-action") || bodyResponsiveAdCallToAction != "" {
+						nestedResponsiveAd["CallToAction"] = bodyResponsiveAdCallToAction
+					}
+					if cmd.Flags().Changed("responsive-ad-call-to-action-language") || bodyResponsiveAdCallToActionLanguage != "" {
+						nestedResponsiveAd["CallToActionLanguage"] = bodyResponsiveAdCallToActionLanguage
+					}
+					if cmd.Flags().Changed("responsive-ad-descriptions") || bodyResponsiveAdDescriptions != "" {
+						var parsedResponsiveAdDescriptions any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdDescriptions), &parsedResponsiveAdDescriptions); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-descriptions JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdDescriptions.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-descriptions must be a JSON array, got JSON %T", parsedResponsiveAdDescriptions)
+						}
+						nestedResponsiveAd["Descriptions"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-ad-device-preference") || bodyResponsiveAdDevicePreference != "" {
+						nestedResponsiveAd["DevicePreference"] = bodyResponsiveAdDevicePreference
+					}
+					if cmd.Flags().Changed("responsive-ad-editorial-status") || bodyResponsiveAdEditorialStatus != "" {
+						nestedResponsiveAd["EditorialStatus"] = bodyResponsiveAdEditorialStatus
+					}
+					if cmd.Flags().Changed("responsive-ad-final-app-urls") || bodyResponsiveAdFinalAppUrls != "" {
+						var parsedResponsiveAdFinalAppUrls any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdFinalAppUrls), &parsedResponsiveAdFinalAppUrls); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-final-app-urls JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdFinalAppUrls.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-final-app-urls must be a JSON array, got JSON %T", parsedResponsiveAdFinalAppUrls)
+						}
+						nestedResponsiveAd["FinalAppUrls"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-ad-final-mobile-urls") {
+						parsedResponsiveAdFinalMobileUrls, parseErr := cliutil.ParseStringList(bodyResponsiveAdFinalMobileUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --responsive-ad-final-mobile-urls list: %w", parseErr)
+						}
+						nestedResponsiveAd["FinalMobileUrls"] = parsedResponsiveAdFinalMobileUrls
+					}
+					if cmd.Flags().Changed("responsive-ad-final-url-suffix") || bodyResponsiveAdFinalUrlSuffix != "" {
+						nestedResponsiveAd["FinalUrlSuffix"] = bodyResponsiveAdFinalUrlSuffix
+					}
+					if cmd.Flags().Changed("responsive-ad-final-urls") {
+						parsedResponsiveAdFinalUrls, parseErr := cliutil.ParseStringList(bodyResponsiveAdFinalUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --responsive-ad-final-urls list: %w", parseErr)
+						}
+						nestedResponsiveAd["FinalUrls"] = parsedResponsiveAdFinalUrls
+					}
+					if cmd.Flags().Changed("responsive-ad-forward-compatibility-map") || bodyResponsiveAdForwardCompatibilityMap != "" {
+						var parsedResponsiveAdForwardCompatibilityMap any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdForwardCompatibilityMap), &parsedResponsiveAdForwardCompatibilityMap); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-forward-compatibility-map JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdForwardCompatibilityMap.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-forward-compatibility-map must be a JSON array, got JSON %T", parsedResponsiveAdForwardCompatibilityMap)
+						}
+						nestedResponsiveAd["ForwardCompatibilityMap"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-ad-headline") || bodyResponsiveAdHeadline != "" {
+						nestedResponsiveAd["Headline"] = bodyResponsiveAdHeadline
+					}
+					if cmd.Flags().Changed("responsive-ad-headlines") || bodyResponsiveAdHeadlines != "" {
+						var parsedResponsiveAdHeadlines any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdHeadlines), &parsedResponsiveAdHeadlines); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-headlines JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdHeadlines.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-headlines must be a JSON array, got JSON %T", parsedResponsiveAdHeadlines)
+						}
+						nestedResponsiveAd["Headlines"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-ad-id") || bodyResponsiveAdId != "" {
+						nestedResponsiveAd["Id"] = bodyResponsiveAdId
+					}
+					if cmd.Flags().Changed("responsive-ad-images") || bodyResponsiveAdImages != "" {
+						var parsedResponsiveAdImages any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdImages), &parsedResponsiveAdImages); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-images JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdImages.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-images must be a JSON array, got JSON %T", parsedResponsiveAdImages)
+						}
+						nestedResponsiveAd["Images"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-ad-impression-tracking-urls") {
+						parsedResponsiveAdImpressionTrackingUrls, parseErr := cliutil.ParseStringList(bodyResponsiveAdImpressionTrackingUrls)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --responsive-ad-impression-tracking-urls list: %w", parseErr)
+						}
+						nestedResponsiveAd["ImpressionTrackingUrls"] = parsedResponsiveAdImpressionTrackingUrls
+					}
+					{
+						nestedResponsiveAdLongHeadline := map[string]any{}
+						if cmd.Flags().Changed("responsive-ad-long-headline-asset") || bodyResponsiveAdLongHeadlineAsset != "" {
+							var parsedResponsiveAdLongHeadlineAsset any
+							if err := json.Unmarshal([]byte(bodyResponsiveAdLongHeadlineAsset), &parsedResponsiveAdLongHeadlineAsset); err != nil {
+								return fmt.Errorf("parsing --responsive-ad-long-headline-asset JSON: %w", err)
+							}
+							asMap, ok := parsedResponsiveAdLongHeadlineAsset.(map[string]any)
+							if !ok {
+								return fmt.Errorf("--responsive-ad-long-headline-asset must be a JSON object, got JSON %T", parsedResponsiveAdLongHeadlineAsset)
+							}
+							nestedResponsiveAdLongHeadline["Asset"] = asMap
+						}
+						if cmd.Flags().Changed("responsive-ad-long-headline-asset-performance-label") || bodyResponsiveAdLongHeadlineAssetPerformanceLabel != "" {
+							nestedResponsiveAdLongHeadline["AssetPerformanceLabel"] = bodyResponsiveAdLongHeadlineAssetPerformanceLabel
+						}
+						if cmd.Flags().Changed("responsive-ad-long-headline-editorial-status") || bodyResponsiveAdLongHeadlineEditorialStatus != "" {
+							nestedResponsiveAdLongHeadline["EditorialStatus"] = bodyResponsiveAdLongHeadlineEditorialStatus
+						}
+						if cmd.Flags().Changed("responsive-ad-long-headline-pinned-field") || bodyResponsiveAdLongHeadlinePinnedField != "" {
+							nestedResponsiveAdLongHeadline["PinnedField"] = bodyResponsiveAdLongHeadlinePinnedField
+						}
+						if len(nestedResponsiveAdLongHeadline) > 0 {
+							nestedResponsiveAd["LongHeadline"] = nestedResponsiveAdLongHeadline
+						}
+					}
+					if cmd.Flags().Changed("responsive-ad-long-headline-string") || bodyResponsiveAdLongHeadlineString != "" {
+						nestedResponsiveAd["LongHeadlineString"] = bodyResponsiveAdLongHeadlineString
+					}
+					if cmd.Flags().Changed("responsive-ad-long-headlines") || bodyResponsiveAdLongHeadlines != "" {
+						var parsedResponsiveAdLongHeadlines any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdLongHeadlines), &parsedResponsiveAdLongHeadlines); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-long-headlines JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdLongHeadlines.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-long-headlines must be a JSON array, got JSON %T", parsedResponsiveAdLongHeadlines)
+						}
+						nestedResponsiveAd["LongHeadlines"] = asArray
+					}
+					if cmd.Flags().Changed("responsive-ad-status") || bodyResponsiveAdStatus != "" {
+						nestedResponsiveAd["Status"] = bodyResponsiveAdStatus
+					}
+					if cmd.Flags().Changed("responsive-ad-text") || bodyResponsiveAdText != "" {
+						nestedResponsiveAd["Text"] = bodyResponsiveAdText
+					}
+					if cmd.Flags().Changed("responsive-ad-tracking-url-template") || bodyResponsiveAdTrackingUrlTemplate != "" {
+						nestedResponsiveAd["TrackingUrlTemplate"] = bodyResponsiveAdTrackingUrlTemplate
+					}
+					if cmd.Flags().Changed("responsive-ad-type") || bodyResponsiveAdType != "" {
+						nestedResponsiveAd["Type"] = bodyResponsiveAdType
+					}
+					{
+						nestedResponsiveAdUrlCustomParameters := map[string]any{}
+						if cmd.Flags().Changed("responsive-ad-url-custom-parameters-parameters") || bodyResponsiveAdUrlCustomParametersParameters != "" {
+							var parsedResponsiveAdUrlCustomParametersParameters any
+							if err := json.Unmarshal([]byte(bodyResponsiveAdUrlCustomParametersParameters), &parsedResponsiveAdUrlCustomParametersParameters); err != nil {
+								return fmt.Errorf("parsing --responsive-ad-url-custom-parameters-parameters JSON: %w", err)
+							}
+							asArray, ok := parsedResponsiveAdUrlCustomParametersParameters.([]any)
+							if !ok {
+								return fmt.Errorf("--responsive-ad-url-custom-parameters-parameters must be a JSON array, got JSON %T", parsedResponsiveAdUrlCustomParametersParameters)
+							}
+							nestedResponsiveAdUrlCustomParameters["Parameters"] = asArray
+						}
+						if len(nestedResponsiveAdUrlCustomParameters) > 0 {
+							nestedResponsiveAd["UrlCustomParameters"] = nestedResponsiveAdUrlCustomParameters
+						}
+					}
+					{
+						nestedResponsiveAdVerifiedTrackingSettings := map[string]any{}
+						if cmd.Flags().Changed("responsive-ad-verified-tracking-settings-details") || bodyResponsiveAdVerifiedTrackingSettingsDetails != "" {
+							var parsedResponsiveAdVerifiedTrackingSettingsDetails any
+							if err := json.Unmarshal([]byte(bodyResponsiveAdVerifiedTrackingSettingsDetails), &parsedResponsiveAdVerifiedTrackingSettingsDetails); err != nil {
+								return fmt.Errorf("parsing --responsive-ad-verified-tracking-settings-details JSON: %w", err)
+							}
+							asArray, ok := parsedResponsiveAdVerifiedTrackingSettingsDetails.([]any)
+							if !ok {
+								return fmt.Errorf("--responsive-ad-verified-tracking-settings-details must be a JSON array, got JSON %T", parsedResponsiveAdVerifiedTrackingSettingsDetails)
+							}
+							nestedResponsiveAdVerifiedTrackingSettings["Details"] = asArray
+						}
+						if cmd.Flags().Changed("responsive-ad-verified-tracking-settings-type") || bodyResponsiveAdVerifiedTrackingSettingsType != "" {
+							nestedResponsiveAdVerifiedTrackingSettings["Type"] = bodyResponsiveAdVerifiedTrackingSettingsType
+						}
+						if len(nestedResponsiveAdVerifiedTrackingSettings) > 0 {
+							nestedResponsiveAd["VerifiedTrackingSettings"] = nestedResponsiveAdVerifiedTrackingSettings
+						}
+					}
+					if cmd.Flags().Changed("responsive-ad-videos") || bodyResponsiveAdVideos != "" {
+						var parsedResponsiveAdVideos any
+						if err := json.Unmarshal([]byte(bodyResponsiveAdVideos), &parsedResponsiveAdVideos); err != nil {
+							return fmt.Errorf("parsing --responsive-ad-videos JSON: %w", err)
+						}
+						asArray, ok := parsedResponsiveAdVideos.([]any)
+						if !ok {
+							return fmt.Errorf("--responsive-ad-videos must be a JSON array, got JSON %T", parsedResponsiveAdVideos)
+						}
+						nestedResponsiveAd["Videos"] = asArray
+					}
+					if len(nestedResponsiveAd) > 0 {
+						bodyMap["ResponsiveAd"] = nestedResponsiveAd
+					}
+				}
+				if cmd.Flags().Changed("return-additional-fields") || bodyReturnAdditionalFields != "" {
+					bodyMap["ReturnAdditionalFields"] = bodyReturnAdditionalFields
+				}
+				if cmd.Flags().Changed("text-refine-operations") || bodyTextRefineOperations != "" {
+					var parsedTextRefineOperations any
+					if err := json.Unmarshal([]byte(bodyTextRefineOperations), &parsedTextRefineOperations); err != nil {
+						return fmt.Errorf("parsing --text-refine-operations JSON: %w", err)
+					}
+					asArray, ok := parsedTextRefineOperations.([]any)
+					if !ok {
+						return fmt.Errorf("--text-refine-operations must be a JSON array, got JSON %T", parsedTextRefineOperations)
+					}
+					bodyMap["TextRefineOperations"] = asArray
+				}
+			}
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "campaign-management", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// Check if response contains an array (directly or wrapped in "data")
+				var items []map[string]any
+				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+						}
+						return nil
+					}
+				} else {
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
+					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
+						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
+							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
+						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+							}
+							return nil
+						}
+					}
+				}
+			}
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+					}
+					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "campaign-management",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
+				filtered := data
+				if flags.selectFields != "" {
+					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered, map[string]bool{"MediaRefineResults": true, "TextRefineResults": true})
+				}
+				if len(filtered) > 0 {
+					var parsed any
+					if err := json.Unmarshal(filtered, &parsed); err == nil {
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
+					}
+				}
+				envelopeJSON, err := json.Marshal(envelope)
+				if err != nil {
+					return err
+				}
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+				}
+				return nil
+			}
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "campaign-management", partialFailure.Message))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&bodyImageRefineOperations, "image-refine-operations", "", "Image refine operations")
+	cmd.Flags().StringVar(&bodyImageSuggestions, "image-suggestions", "", "Image suggestions")
+	cmd.Flags().StringVar(&bodyResponsiveAdAdFormatPreference, "responsive-ad-ad-format-preference", "", "Ad format preference")
+	cmd.Flags().StringVar(&bodyResponsiveAdAdSubType, "responsive-ad-ad-sub-type", "", "Ad sub type")
+	cmd.Flags().StringVar(&bodyResponsiveAdBusinessName, "responsive-ad-business-name", "", "Business name")
+	cmd.Flags().StringVar(&bodyResponsiveAdCallToAction, "responsive-ad-call-to-action", "", "Call to action")
+	cmd.Flags().StringVar(&bodyResponsiveAdCallToActionLanguage, "responsive-ad-call-to-action-language", "", "Call to action language")
+	cmd.Flags().StringVar(&bodyResponsiveAdDescriptions, "responsive-ad-descriptions", "", "Descriptions")
+	cmd.Flags().StringVar(&bodyResponsiveAdDevicePreference, "responsive-ad-device-preference", "", "Device preference")
+	cmd.Flags().StringVar(&bodyResponsiveAdEditorialStatus, "responsive-ad-editorial-status", "", "Editorial status")
+	cmd.Flags().StringVar(&bodyResponsiveAdFinalAppUrls, "responsive-ad-final-app-urls", "", "Final app urls")
+	cmd.Flags().StringVar(&bodyResponsiveAdFinalMobileUrls, "responsive-ad-final-mobile-urls", "", "Final mobile urls")
+	cmd.Flags().StringVar(&bodyResponsiveAdFinalUrlSuffix, "responsive-ad-final-url-suffix", "", "Final url suffix")
+	cmd.Flags().StringVar(&bodyResponsiveAdFinalUrls, "responsive-ad-final-urls", "", "Final urls")
+	cmd.Flags().StringVar(&bodyResponsiveAdForwardCompatibilityMap, "responsive-ad-forward-compatibility-map", "", "Forward compatibility map")
+	cmd.Flags().StringVar(&bodyResponsiveAdHeadline, "responsive-ad-headline", "", "Headline")
+	cmd.Flags().StringVar(&bodyResponsiveAdHeadlines, "responsive-ad-headlines", "", "Headlines")
+	cmd.Flags().StringVar(&bodyResponsiveAdId, "responsive-ad-id", "", "Id")
+	cmd.Flags().StringVar(&bodyResponsiveAdImages, "responsive-ad-images", "", "Images")
+	cmd.Flags().StringVar(&bodyResponsiveAdImpressionTrackingUrls, "responsive-ad-impression-tracking-urls", "", "Impression tracking urls")
+	cmd.Flags().StringVar(&bodyResponsiveAdLongHeadlineAsset, "responsive-ad-long-headline-asset", "", "Asset")
+	cmd.Flags().StringVar(&bodyResponsiveAdLongHeadlineAssetPerformanceLabel, "responsive-ad-long-headline-asset-performance-label", "", "Asset performance label")
+	cmd.Flags().StringVar(&bodyResponsiveAdLongHeadlineEditorialStatus, "responsive-ad-long-headline-editorial-status", "", "Editorial status")
+	cmd.Flags().StringVar(&bodyResponsiveAdLongHeadlinePinnedField, "responsive-ad-long-headline-pinned-field", "", "Pinned field")
+	cmd.Flags().StringVar(&bodyResponsiveAdLongHeadlineString, "responsive-ad-long-headline-string", "", "Long headline string")
+	cmd.Flags().StringVar(&bodyResponsiveAdLongHeadlines, "responsive-ad-long-headlines", "", "Long headlines")
+	cmd.Flags().StringVar(&bodyResponsiveAdStatus, "responsive-ad-status", "", "Status")
+	cmd.Flags().StringVar(&bodyResponsiveAdText, "responsive-ad-text", "", "Text")
+	cmd.Flags().StringVar(&bodyResponsiveAdTrackingUrlTemplate, "responsive-ad-tracking-url-template", "", "Tracking url template")
+	cmd.Flags().StringVar(&bodyResponsiveAdType, "responsive-ad-type", "", "Type")
+	cmd.Flags().StringVar(&bodyResponsiveAdUrlCustomParametersParameters, "responsive-ad-url-custom-parameters-parameters", "", "Parameters")
+	cmd.Flags().StringVar(&bodyResponsiveAdVerifiedTrackingSettingsDetails, "responsive-ad-verified-tracking-settings-details", "", "Details")
+	cmd.Flags().StringVar(&bodyResponsiveAdVerifiedTrackingSettingsType, "responsive-ad-verified-tracking-settings-type", "", "Type")
+	cmd.Flags().StringVar(&bodyResponsiveAdVideos, "responsive-ad-videos", "", "Videos")
+	cmd.Flags().StringVar(&bodyReturnAdditionalFields, "return-additional-fields", "", "Return additional fields")
+	cmd.Flags().StringVar(&bodyTextRefineOperations, "text-refine-operations", "", "Text refine operations")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

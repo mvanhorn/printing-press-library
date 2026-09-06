@@ -1,0 +1,135 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+func newCampaignManagementGetDiagnosticsCmd(flags *rootFlags) *cobra.Command {
+	var bodyCallerName string
+	var bodyChecks string
+	var bodyEntities string
+	var bodySettingsEnableCache bool
+	var bodySettingsEnablePilot bool
+	var bodySettingsLastCheckTimeUTC string
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "get-diagnostics",
+		Short:       "get_diagnostics",
+		Example:     "  bing-ads-pp-cli campaign-management get-diagnostics",
+		Annotations: map[string]string{"pp:endpoint": "campaign-management.get-diagnostics", "pp:method": "POST", "pp:path": "/CampaignManagement/v13/Diagnostics/Query", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/CampaignManagement/v13/Diagnostics/Query"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("caller-name") || bodyCallerName != "" {
+					bodyMap["CallerName"] = bodyCallerName
+				}
+				if cmd.Flags().Changed("checks") || bodyChecks != "" {
+					var parsedChecks any
+					if err := json.Unmarshal([]byte(bodyChecks), &parsedChecks); err != nil {
+						return fmt.Errorf("parsing --checks JSON: %w", err)
+					}
+					asArray, ok := parsedChecks.([]any)
+					if !ok {
+						return fmt.Errorf("--checks must be a JSON array, got JSON %T", parsedChecks)
+					}
+					bodyMap["Checks"] = asArray
+				}
+				if cmd.Flags().Changed("entities") || bodyEntities != "" {
+					var parsedEntities any
+					if err := json.Unmarshal([]byte(bodyEntities), &parsedEntities); err != nil {
+						return fmt.Errorf("parsing --entities JSON: %w", err)
+					}
+					asArray, ok := parsedEntities.([]any)
+					if !ok {
+						return fmt.Errorf("--entities must be a JSON array, got JSON %T", parsedEntities)
+					}
+					bodyMap["Entities"] = asArray
+				}
+				{
+					nestedSettings := map[string]any{}
+					if cmd.Flags().Changed("settings-enable-cache") {
+						nestedSettings["EnableCache"] = bodySettingsEnableCache
+					}
+					if cmd.Flags().Changed("settings-enable-pilot") {
+						nestedSettings["EnablePilot"] = bodySettingsEnablePilot
+					}
+					if cmd.Flags().Changed("settings-last-check-time-utc") || bodySettingsLastCheckTimeUTC != "" {
+						nestedSettings["LastCheckTimeUTC"] = bodySettingsLastCheckTimeUTC
+					}
+					if len(nestedSettings) > 0 {
+						bodyMap["Settings"] = nestedSettings
+					}
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"Categories": true, "Id": true, "SubType": true, "Type": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			if !flags.dryRun {
+				data = applyResponsePath(data, "Entities")
+			}
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"Categories": true, "Id": true, "SubType": true, "Type": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyCallerName, "caller-name", "", "Caller name")
+	cmd.Flags().StringVar(&bodyChecks, "checks", "", "Checks")
+	cmd.Flags().StringVar(&bodyEntities, "entities", "", "Entities")
+	cmd.Flags().BoolVar(&bodySettingsEnableCache, "settings-enable-cache", false, "Enable cache")
+	cmd.Flags().BoolVar(&bodySettingsEnablePilot, "settings-enable-pilot", false, "Enable pilot")
+	cmd.Flags().StringVar(&bodySettingsLastCheckTimeUTC, "settings-last-check-time-utc", "", "Last check time utc")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}

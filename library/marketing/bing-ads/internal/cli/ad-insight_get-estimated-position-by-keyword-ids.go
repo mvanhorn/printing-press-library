@@ -1,0 +1,98 @@
+// Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cliutil"
+	"github.com/spf13/cobra"
+)
+
+func newAdInsightGetEstimatedPositionByKeywordIdsCmd(flags *rootFlags) *cobra.Command {
+	var bodyKeywordIds string
+	var bodyMaxBid float64
+	var stdinBody bool
+
+	cmd := &cobra.Command{
+		Use:         "get-estimated-position-by-keyword-ids",
+		Short:       "get_estimated_position_by_keyword_ids",
+		Example:     "  bing-ads-pp-cli ad-insight get-estimated-position-by-keyword-ids",
+		Annotations: map[string]string{"pp:endpoint": "ad-insight.get-estimated-position-by-keyword-ids", "pp:method": "POST", "pp:path": "/AdInsight/v13/EstimatedPosition/queryByKeywordIds", "mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
+			path := "/AdInsight/v13/EstimatedPosition/queryByKeywordIds"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{}
+			var body any
+			if stdinBody {
+				stdinData, err := io.ReadAll(os.Stdin)
+				if err != nil {
+					return fmt.Errorf("reading stdin: %w", err)
+				}
+				var jsonBody map[string]any
+				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+					return fmt.Errorf("parsing stdin JSON: %w", err)
+				}
+				body = jsonBody
+			} else {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("keyword-ids") {
+					parsedKeywordIds, parseErr := cliutil.ParseStringList(bodyKeywordIds)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --keyword-ids list: %w", parseErr)
+					}
+					bodyMap["KeywordIds"] = parsedKeywordIds
+				}
+				if cmd.Flags().Changed("max-bid") || bodyMaxBid != 0.0 {
+					bodyMap["MaxBid"] = bodyMaxBid
+				}
+			}
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			if isDryRunResponse(c.IsDryRun(), data) {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "dry-run"}, map[string]bool{"KeywordEstimatedPosition": true, "KeywordId": true})
+				}
+				return nil
+			}
+			_ = statusCode
+			if !flags.dryRun {
+				data = applyResponsePath(data, "KeywordEstimatedPositions")
+			}
+			outputData := data
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"KeywordEstimatedPosition": true, "KeywordId": true})
+		},
+	}
+	cmd.Flags().StringVar(&bodyKeywordIds, "keyword-ids", "", "Keyword ids")
+	cmd.Flags().Float64Var(&bodyMaxBid, "max-bid", 0.0, "Max bid")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+
+	return cmd
+}
