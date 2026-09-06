@@ -1,0 +1,45 @@
+{
+  "run_id": "20260826-000000-homeclaw",
+  "kind": "acceptance-live-run",
+  "executed_at": "2026-08-26",
+  "binary_build": {
+    "cli": "/tmp/homeclaw-pp-cli-local",
+    "mcp": "/tmp/homeclaw-pp-mcp-local"
+  },
+  "environment": {
+    "cli_path": "/Applications/HomeClaw.app/Contents/MacOS/homeclaw-cli",
+    "mcp_server_path": "/Applications/HomeClaw.app/Contents/Resources/mcp-server.js"
+  },
+  "checks": [
+    {
+      "command": "go test ./...",
+      "exit": 0,
+      "result": "passed"
+    },
+    {
+      "command": "go build ./cmd/homeclaw-pp-cli ./cmd/homeclaw-pp-mcp",
+      "exit": 0,
+      "result": "passed"
+    },
+    {
+      "command": "homeclaw-pp-cli --help",
+      "exit": 0,
+      "result": "delegated to HomeClaw CLI"
+    },
+    {
+      "command": "homeclaw-pp-cli status",
+      "exit": 0,
+      "result": {"ready": true, "homes": 4, "accessories": 161, "cache_stale": true}
+    },
+    {
+      "command": "homeclaw-pp-cli list",
+      "exit": 0,
+      "result": {"accessory_count": 135, "first_three": ["Lock", "Nest", "Car"]}
+    },
+    {
+      "command": "homeclaw-pp-mcp initialize",
+      "exit": 0,
+      "result": {"server": "homeclaw", "version": "1.0.1", "protocol": "2025-03-26", "stderr": ""}
+    }
+  ]
+}

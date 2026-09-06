@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-26T00:00:00Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "homeclaw",
+  "display_name": "HomeClaw",
+  "cli_name": "homeclaw-pp-cli",
+  "creator": {"handle": "keithah", "name": "Keith Herrington"},
+  "owner": "keithah",
+  "printer": "keithah",
+  "printer_name": "Keith Herrington",
+  "spec_format": "internal",
+  "spec_source": "community",
+  "category": "devices",
+  "description": "A safe macOS wrapper for the HomeClaw HomeKit CLI and stdio MCP server.",
+  "mcp_binary": "homeclaw-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "run_id": "20260826-000000-homeclaw",
+  "novel_features": [
+    {"name": "HomeClaw CLI delegation", "command": "<homeclaw-cli args>", "description": "Delegates commands to the installed HomeClaw macOS app without installing, symlinking, or changing HomeKit state."},
+    {"name": "HomeClaw stdio MCP", "command": "mcp", "description": "Runs the installed HomeClaw MCP server through a stable Printing Press command."}
+  ]
+}

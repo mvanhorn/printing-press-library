@@ -1,0 +1,40 @@
+version: 2
+project_name: homeclaw-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: homeclaw-pp-cli
+    main: ./cmd/homeclaw-pp-cli
+    binary: homeclaw-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+  - id: homeclaw-pp-mcp
+    main: ./cmd/homeclaw-pp-mcp
+    binary: homeclaw-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: homeclaw-pp-cli
+    repository:
+      owner: keithah
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A safe macOS wrapper for the HomeClaw HomeKit CLI and stdio MCP server."
+    install: |
+      bin.install "homeclaw-pp-cli"
+      bin.install "homeclaw-pp-mcp"

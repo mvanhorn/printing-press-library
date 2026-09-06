@@ -1,0 +1,24 @@
+{
+  "status": "pass",
+  "run_id": "20260826-000000-homeclaw",
+  "phase": "phase5-acceptance",
+  "executed_at": "2026-08-26",
+  "checks": {
+    "cli_help": "pass",
+    "cli_status": "pass",
+    "cli_list": "pass",
+    "mcp_initialize": "pass",
+    "go_test": "pass",
+    "go_vet": "pass"
+  },
+  "live_observations": {
+    "status_ready": true,
+    "homes": 4,
+    "status_accessories": 161,
+    "list_accessories": 135,
+    "mcp_protocol": "2025-03-26",
+    "mcp_server": "homeclaw",
+    "mcp_version": "1.0.1",
+    "mcp_stderr": ""
+  }
+}

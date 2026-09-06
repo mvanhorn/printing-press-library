@@ -1,0 +1,20 @@
+{
+  "api_name": "homeclaw",
+  "base_url": "",
+  "description": "HomeClaw macOS HomeKit CLI and stdio MCP wrapper.",
+  "mcp_ready": "full",
+  "http_transport": "stdio",
+  "auth": {"type": "none", "env_vars": []},
+  "tools": [
+    {"name":"homeclaw_list","description":"List HomeKit accessories.","command":"list"},
+    {"name":"homeclaw_get","description":"Get detailed accessory information.","command":"get"},
+    {"name":"homeclaw_set","description":"Set an accessory characteristic.","command":"set"},
+    {"name":"homeclaw_scenes","description":"List HomeKit scenes.","command":"scenes"},
+    {"name":"homeclaw_get_scene","description":"Show scene details and actions.","command":"get-scene"},
+    {"name":"homeclaw_trigger","description":"Trigger a HomeKit scene.","command":"trigger"},
+    {"name":"homeclaw_search","description":"Search accessories by name, room, or category.","command":"search"},
+    {"name":"homeclaw_status","description":"Show HomeClaw status.","command":"status"},
+    {"name":"homeclaw_device_map","description":"Show the LLM-optimized device map.","command":"device-map"},
+    {"name":"homeclaw_events","description":"Show recent HomeKit events.","command":"events"}
+  ]
+}

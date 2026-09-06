@@ -1,0 +1,18 @@
+{
+  "manifest_version": "0.3",
+  "name": "homeclaw-pp-mcp",
+  "display_name": "HomeClaw",
+  "version": "0.1.0",
+  "description": "A safe Printing Press wrapper for the HomeClaw macOS CLI and stdio MCP server.",
+  "author": {"name": "Keith Herrington"},
+  "license": "MIT",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/homeclaw-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/homeclaw-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {"platforms": ["darwin"]}
+}
