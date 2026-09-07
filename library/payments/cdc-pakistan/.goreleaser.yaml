@@ -1,0 +1,51 @@
+version: 2
+project_name: cdc-pakistan-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cdc-pakistan-pp-cli
+    main: ./cmd/cdc-pakistan-pp-cli
+    binary: cdc-pakistan-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/cdc-pakistan/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cdc-pakistan-pp-mcp
+    main: ./cmd/cdc-pakistan-pp-mcp
+    binary: cdc-pakistan-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cdc-pakistan-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated."
+    install: |
+      bin.install "cdc-pakistan-pp-cli"
+      bin.install "cdc-pakistan-pp-mcp"

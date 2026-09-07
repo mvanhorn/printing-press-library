@@ -1,0 +1,43 @@
+{
+  "manifest_version": "0.3",
+  "name": "cdc-pakistan-pp-mcp",
+  "display_name": "CDC Pakistan",
+  "version": "4.31.7",
+  "description": "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cdc-pakistan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cdc-pakistan-pp-mcp",
+      "args": [],
+      "env": {
+        "CDC_PAKISTAN_BASE_URL": "${user_config.cdc_pakistan_base_url}",
+        "CDC_PAKISTAN_USER_AGENT": "${user_config.cdc_pakistan_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "cdc_pakistan_base_url": {
+      "type": "string",
+      "title": "CDC_PAKISTAN_BASE_URL",
+      "description": "Optional. Sets CDC_PAKISTAN_BASE_URL for the CDC Pakistan MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "cdc_pakistan_user_agent": {
+      "type": "string",
+      "title": "CDC_PAKISTAN_USER_AGENT",
+      "description": "Optional. Sets CDC_PAKISTAN_USER_AGENT for the CDC Pakistan MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

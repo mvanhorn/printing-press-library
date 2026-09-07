@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-newest-vintage-no-blending",
+  "summary": "Added newestVintage() and made the schema gate vintage-aware so two vintages of the same issuer can never be blended into one result.",
+  "reason": "Unqualified queries across the penetration tables returned 24 rows for 16 issuers because two vintages were being unioned, which would double-count custody for any issuer present in both. newestVintage() pins reads to a single vintage. The schema gate also had to learn that a month legitimately arrives as two parts (A and B): comparing their column sets against each other reported false schema drift on every complete month, so parts are now reconciled within a vintage and a month missing one of its parts is refused outright rather than served short.",
+  "files": ["internal/cli/cdc_vintage.go", "internal/cli/verify_schema.go"],
+  "markers": ["newestVintage"],
+  "validated_outcome": "The 16-issuer repro now returns 16 rows; parts A+B of 2025-11-30 pass the schema gate; a deliberately half-loaded month is refused."
+}

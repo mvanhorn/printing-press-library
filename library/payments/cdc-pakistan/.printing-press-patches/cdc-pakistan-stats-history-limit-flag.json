@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-stats-history-limit-flag",
+  "summary": "Added a real --limit flag to 'stats history' and repointed its pp:happy-args at --snapshot, the actual write path.",
+  "reason": "The feature's pp:happy-args passed --limit=5, which was not a declared flag, so the generated happy path exited 2 on usage error and the feature never executed. The live dogfood then reported coverage_hollow with hollow_features ['stats history'] -- and it was right. Fixed on both sides: --limit is now a genuine IntVar, and happy-args names --snapshot so the exercised path is the one that actually writes an observation. This is the local reproduction of the upstream coverage_hollow issue.",
+  "files": ["internal/cli/stats_history.go"],
+  "markers": ["\"limit\""],
+  "validated_outcome": "coverage_hollow absent from the acceptance marker; 'stats history' executes its write path on the happy args.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4539"
+}

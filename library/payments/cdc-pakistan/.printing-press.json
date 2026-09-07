@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-07T17:48:02.459885Z",
+  "printing_press_version": "4.31.7",
+  "api_name": "cdc-pakistan",
+  "display_name": "CDC Pakistan",
+  "cli_name": "cdc-pakistan-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "cdc-pakistan-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:13bced727eeb2df4630416065b7fa75a1d44cb44cc96dd73c3a8d5e82670e383",
+  "run_id": "20260907-191511-60d154e7",
+  "category": "payments",
+  "description": "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated.",
+  "mcp_binary": "cdc-pakistan-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Coverage map + paginator integrity",
+      "command": "coverage map",
+      "description": "See exactly which document buckets are mirrored, which are genuinely absent at source, and which were never asked for."
+    },
+    {
+      "name": "Identity ledger and point-in-time resolve",
+      "command": "identity ledger",
+      "description": "Reconstruct a security's symbol, name and ISIN history so you never splice two different issuers into one return series."
+    },
+    {
+      "name": "CDS eligibility state machine",
+      "command": "eligibility state",
+      "description": "Get a security's full CDS-eligibility history folded from twenty years of notices into a six-state lifecycle."
+    },
+    {
+      "name": "Row-level extraction audit",
+      "command": "verify rows",
+      "description": "Prove the PDF extraction is trustworthy by asserting the report's own percentage column against its own share and capital columns."
+    },
+    {
+      "name": "Schema and seam gate",
+      "command": "verify schema",
+      "description": "Refuse to blend vintages whose column sets are incompatible, and refuse a month that is missing one of its parts."
+    },
+    {
+      "name": "Three-way float reconciliation",
+      "command": "float triangulate",
+      "description": "Put CDC custody penetration beside PSX free-float shares and NCCPL free-float percent, with each denominator named."
+    },
+    {
+      "name": "Per-symbol Government of Pakistan stake",
+      "command": "gop stake",
+      "description": "Derive state-held capital per security from the difference between the including-GoP and excluding-GoP capital columns."
+    },
+    {
+      "name": "Append-only statistics history",
+      "command": "stats history",
+      "description": "Track the sixteen CDS aggregate metrics forward from your first sync, with archived rows labelled as such."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Coverage map + paginator integrity",
+      "command": "coverage map",
+      "description": "See exactly which document buckets are mirrored, which are genuinely absent at source, and which were never asked for."
+    },
+    {
+      "name": "Identity ledger and point-in-time resolve",
+      "command": "identity ledger",
+      "description": "Reconstruct a security's symbol, name and ISIN history so you never splice two different issuers into one return series."
+    },
+    {
+      "name": "CDS eligibility state machine",
+      "command": "eligibility state",
+      "description": "Get a security's full CDS-eligibility history folded from twenty years of notices into a six-state lifecycle."
+    },
+    {
+      "name": "Row-level extraction audit",
+      "command": "verify rows",
+      "description": "Prove the PDF extraction is trustworthy by asserting the report's own percentage column against its own share and capital columns."
+    },
+    {
+      "name": "Schema and seam gate",
+      "command": "verify schema",
+      "description": "Refuse to blend vintages whose column sets are incompatible, and refuse a month that is missing one of its parts."
+    },
+    {
+      "name": "Three-way float reconciliation",
+      "command": "float triangulate",
+      "description": "Put CDC custody penetration beside PSX free-float shares and NCCPL free-float percent, with each denominator named."
+    },
+    {
+      "name": "Per-symbol Government of Pakistan stake",
+      "command": "gop stake",
+      "description": "Derive state-held capital per security from the difference between the including-GoP and excluding-GoP capital columns."
+    },
+    {
+      "name": "Append-only statistics history",
+      "command": "stats history",
+      "description": "Track the sixteen CDS aggregate metrics forward from your first sync, with archived rows labelled as such."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 34,
+    "total": 34,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A (1 of 24 dimensions unverified: live_api_verification)",
+      "total": 80
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

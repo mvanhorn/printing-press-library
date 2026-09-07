@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-mirror-table-presence-check",
+  "summary": "Local-mirror readiness is decided by querying sqlite_master for the required table, not by checking that the database file exists.",
+  "reason": "A file-existence check is not sufficient: the generated store creates the SQLite file on its first open, so every local-read command found a database present, ran its query and surfaced a raw 'no such table: cdc_documents' driver error on a cold install. Probing sqlite_master for the specific table each command needs turns that into an honest 'no local mirror yet' result naming the sync command to run.",
+  "files": ["internal/cli/cdc_mirror.go"],
+  "markers": ["sqlite_master"],
+  "validated_outcome": "Cold-start run of every local-read command returns a typed empty result with a sync hint instead of a driver error."
+}

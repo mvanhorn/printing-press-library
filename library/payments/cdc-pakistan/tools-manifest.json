@@ -1,0 +1,59 @@
+{
+  "api_name": "cdc-pakistan",
+  "base_url": "https://www.cdcpakistan.com",
+  "description": "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "in": "header",
+    "cookie_domain": "www.cdcpakistan.com",
+    "cookies": [
+      "cf_clearance"
+    ]
+  },
+  "required_headers": [],
+  "tools": [],
+  "novel_features": [
+    {
+      "name": "Coverage map + paginator integrity",
+      "command": "coverage map",
+      "description": "See exactly which document buckets are mirrored, which are genuinely absent at source, and which were never asked for."
+    },
+    {
+      "name": "Identity ledger and point-in-time resolve",
+      "command": "identity ledger",
+      "description": "Reconstruct a security's symbol, name and ISIN history so you never splice two different issuers into one return series."
+    },
+    {
+      "name": "CDS eligibility state machine",
+      "command": "eligibility state",
+      "description": "Get a security's full CDS-eligibility history folded from twenty years of notices into a six-state lifecycle."
+    },
+    {
+      "name": "Row-level extraction audit",
+      "command": "verify rows",
+      "description": "Prove the PDF extraction is trustworthy by asserting the report's own percentage column against its own share and capital columns."
+    },
+    {
+      "name": "Schema and seam gate",
+      "command": "verify schema",
+      "description": "Refuse to blend vintages whose column sets are incompatible, and refuse a month that is missing one of its parts."
+    },
+    {
+      "name": "Three-way float reconciliation",
+      "command": "float triangulate",
+      "description": "Put CDC custody penetration beside PSX free-float shares and NCCPL free-float percent, with each denominator named."
+    },
+    {
+      "name": "Per-symbol Government of Pakistan stake",
+      "command": "gop stake",
+      "description": "Derive state-held capital per security from the difference between the including-GoP and excluding-GoP capital columns."
+    },
+    {
+      "name": "Append-only statistics history",
+      "command": "stats history",
+      "description": "Track the sixteen CDS aggregate metrics forward from your first sync, with archived rows labelled as such."
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "api_name": "cdc-pakistan",
+  "novelty_score": 10,
+  "alternatives": [],
+  "gaps": [
+    "Free-float penetration report has ONE live vintage (2025-11-30); prior months are removed from the live site.",
+    "Statistics history is ~42 non-contiguous archived months (2015-09..2024-06) and stops there.",
+    "Part A covers 29,350 securities against the statistics page's 732 listed + 59,217 unlisted; residual flagged, unexplained.",
+    "1,150 of 7,956 documents have no date-bearing URL path; 1,950 were bulk-uploaded in 2015.",
+    "Holder-level positions and the 9-class investor taxonomy are not published by CDC.",
+    "cdcsrsl.com (CDC Share Registrar Services) is separately Cloudflare-challenged and not mapped."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-07T16:15:00Z",
+  "novel_features": [
+    {
+      "name": "Coverage map + paginator integrity",
+      "command": "coverage map",
+      "description": "See exactly which document buckets are mirrored, which are genuinely absent at source, and which were never asked for.",
+      "rationale": "Duplicate detection is cross-request by definition, and a coverage map without persisted negatives cannot distinguish 'CDC never published this' from 'we never asked'.",
+      "example": "cdc-pakistan-pp-cli coverage map --category notices --agent",
+      "why_it_matters": "Run this before trusting any other command's completeness; it is the only command that writes the document index.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Identity ledger and point-in-time resolve",
+      "command": "identity ledger",
+      "description": "Reconstruct a security's symbol, name and ISIN history so you never splice two different issuers into one return series.",
+      "rationale": "Requires diffing retained security-list vintages against dated symbol-change notices; CDC publishes snapshots and never a diff.",
+      "example": "cdc-pakistan-pp-cli identity ledger --symbol LOTCHEM --agent",
+      "why_it_matters": "Reach for this before joining CDC data to any symbol-keyed price series; symbol recycling silently corrupts factor research.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CDS eligibility state machine",
+      "command": "eligibility state",
+      "description": "Get a security's full CDS-eligibility history folded from twenty years of notices into a six-state lifecycle.",
+      "rationale": "No state endpoint exists; eligibility state is only the fold of a complete 7,639-document crawl spanning 2007 to 2026.",
+      "example": "cdc-pakistan-pp-cli eligibility state --isin PK0069501016 --agent",
+      "why_it_matters": "Use for CDS-eligibility history, but note CDS eligibility is not the same as PSX trading suspension and is not a tradability gate.",
+      "group": "Twenty years of regulatory events"
+    },
+    {
+      "name": "Row-level extraction audit",
+      "command": "verify rows",
+      "description": "Prove the PDF extraction is trustworthy by asserting the report's own percentage column against its own share and capital columns.",
+      "rationale": "No reference parser for these split PDFs exists anywhere, so an internal-consistency audit is the only available correctness bar.",
+      "example": "cdc-pakistan-pp-cli verify rows --vintage 2025-11-30 --agent",
+      "why_it_matters": "Run this before any analysis that depends on the penetration numbers; residual signatures tell you which column drifted.",
+      "group": "Extraction you can trust"
+    },
+    {
+      "name": "Schema and seam gate",
+      "command": "verify schema",
+      "description": "Refuse to blend vintages whose column sets are incompatible, and refuse a month that is missing one of its parts.",
+      "rationale": "Proven necessary: the two comparable vintages differ by a dropped Market Value column, two added columns, and a twenty-four-fold universe change.",
+      "example": "cdc-pakistan-pp-cli verify schema --vintage 2025-11-30 --agent",
+      "why_it_matters": "Run this whenever a new vintage lands; it blocks silently-incompatible data instead of averaging it.",
+      "group": "Extraction you can trust"
+    },
+    {
+      "name": "Three-way float reconciliation",
+      "command": "float triangulate",
+      "description": "Put CDC custody penetration beside PSX free-float shares and NCCPL free-float percent, with each denominator named.",
+      "rationale": "The CDC leg exists in no package or dataset anywhere; the other two legs are already in your local store.",
+      "example": "cdc-pakistan-pp-cli float triangulate --symbol OGDC --agent",
+      "why_it_matters": "Use this to see where the three float definitions disagree; it deliberately never blends them into one number.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Per-symbol Government of Pakistan stake",
+      "command": "gop stake",
+      "description": "Derive state-held capital per security from the difference between the including-GoP and excluding-GoP capital columns.",
+      "rationale": "No Pakistani source publishes per-symbol state ownership in machine-readable form, and the exchange carries heavy state-owned-enterprise weight.",
+      "example": "cdc-pakistan-pp-cli gop stake --min-pct 25 --agent",
+      "why_it_matters": "Use for a current cross-section of state ownership; there is only one vintage, so no time series exists.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Append-only statistics history",
+      "command": "stats history",
+      "description": "Track the sixteen CDS aggregate metrics forward from your first sync, with archived rows labelled as such.",
+      "rationale": "The statistics page is overwritten monthly, so a given month's figures cease to exist once the next month lands unless you snapshotted them.",
+      "example": "cdc-pakistan-pp-cli stats history --metric sub_accounts_individual --agent",
+      "why_it_matters": "Use to measure retail-participation growth; archived rows are non-contiguous and must never be read as a continuous series.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Coverage map + paginator integrity",
+      "command": "coverage map",
+      "description": "See exactly which document buckets are mirrored, which are genuinely absent at source, and which were never asked for.",
+      "rationale": "Duplicate detection is cross-request by definition, and a coverage map without persisted negatives cannot distinguish 'CDC never published this' from 'we never asked'.",
+      "example": "cdc-pakistan-pp-cli coverage map --category notices --agent",
+      "why_it_matters": "Run this before trusting any other command's completeness; it is the only command that writes the document index.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Identity ledger and point-in-time resolve",
+      "command": "identity ledger",
+      "description": "Reconstruct a security's symbol, name and ISIN history so you never splice two different issuers into one return series.",
+      "rationale": "Requires diffing retained security-list vintages against dated symbol-change notices; CDC publishes snapshots and never a diff.",
+      "example": "cdc-pakistan-pp-cli identity ledger --symbol LOTCHEM --agent",
+      "why_it_matters": "Reach for this before joining CDC data to any symbol-keyed price series; symbol recycling silently corrupts factor research.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CDS eligibility state machine",
+      "command": "eligibility state",
+      "description": "Get a security's full CDS-eligibility history folded from twenty years of notices into a six-state lifecycle.",
+      "rationale": "No state endpoint exists; eligibility state is only the fold of a complete 7,639-document crawl spanning 2007 to 2026.",
+      "example": "cdc-pakistan-pp-cli eligibility state --isin PK0069501016 --agent",
+      "why_it_matters": "Use for CDS-eligibility history, but note CDS eligibility is not the same as PSX trading suspension and is not a tradability gate.",
+      "group": "Twenty years of regulatory events"
+    },
+    {
+      "name": "Row-level extraction audit",
+      "command": "verify rows",
+      "description": "Prove the PDF extraction is trustworthy by asserting the report's own percentage column against its own share and capital columns.",
+      "rationale": "No reference parser for these split PDFs exists anywhere, so an internal-consistency audit is the only available correctness bar.",
+      "example": "cdc-pakistan-pp-cli verify rows --vintage 2025-11-30 --agent",
+      "why_it_matters": "Run this before any analysis that depends on the penetration numbers; residual signatures tell you which column drifted.",
+      "group": "Extraction you can trust"
+    },
+    {
+      "name": "Schema and seam gate",
+      "command": "verify schema",
+      "description": "Refuse to blend vintages whose column sets are incompatible, and refuse a month that is missing one of its parts.",
+      "rationale": "Proven necessary: the two comparable vintages differ by a dropped Market Value column, two added columns, and a twenty-four-fold universe change.",
+      "example": "cdc-pakistan-pp-cli verify schema --vintage 2025-11-30 --agent",
+      "why_it_matters": "Run this whenever a new vintage lands; it blocks silently-incompatible data instead of averaging it.",
+      "group": "Extraction you can trust"
+    },
+    {
+      "name": "Three-way float reconciliation",
+      "command": "float triangulate",
+      "description": "Put CDC custody penetration beside PSX free-float shares and NCCPL free-float percent, with each denominator named.",
+      "rationale": "The CDC leg exists in no package or dataset anywhere; the other two legs are already in your local store.",
+      "example": "cdc-pakistan-pp-cli float triangulate --symbol OGDC --agent",
+      "why_it_matters": "Use this to see where the three float definitions disagree; it deliberately never blends them into one number.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Per-symbol Government of Pakistan stake",
+      "command": "gop stake",
+      "description": "Derive state-held capital per security from the difference between the including-GoP and excluding-GoP capital columns.",
+      "rationale": "No Pakistani source publishes per-symbol state ownership in machine-readable form, and the exchange carries heavy state-owned-enterprise weight.",
+      "example": "cdc-pakistan-pp-cli gop stake --min-pct 25 --agent",
+      "why_it_matters": "Use for a current cross-section of state ownership; there is only one vintage, so no time series exists.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Append-only statistics history",
+      "command": "stats history",
+      "description": "Track the sixteen CDS aggregate metrics forward from your first sync, with archived rows labelled as such.",
+      "rationale": "The statistics page is overwritten monthly, so a given month's figures cease to exist once the next month lands unless you snapshotted them.",
+      "example": "cdc-pakistan-pp-cli stats history --metric sub_accounts_individual --agent",
+      "why_it_matters": "Use to measure retail-participation growth; archived rows are non-contiguous and must never be read as a continuous series.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "CDC Pakistan",
+    "headline": "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated.",
+    "value_prop": "CDC publishes the sole per-security custody-penetration figures in the Pakistani market as split PDFs behind a bot challenge, with no API and no history endpoint. This CLI mints a browser clearance once, replays it over plain HTTP, and turns the downloads corpus into a queryable local store. `coverage map` proves what is mirrored, `identity ledger` stops symbol recycling from corrupting your return series, and `eligibility state` folds two decades of notices into a per-security lifecycle.",
+    "auth_narrative": "CDC sits behind a Cloudflare JS challenge on every path. Run `auth login --chrome` once: it opens a real browser, clears the challenge, and stores the clearance cookie together with the exact User-Agent that minted it, because the cookie is bound to that User-Agent. The clearance has a measured hard lifetime of roughly thirty minutes regardless of traffic — the cookie's own expiry field claims a year and is not to be trusted. Every command checks the remaining margin before starting work and refuses early rather than dying midway through a fan-out.",
+    "quickstart": [
+      {
+        "command": "cdc-pakistan-pp-cli doctor --dry-run",
+        "comment": "confirm the binary, config path and store are healthy before touching the network"
+      },
+      {
+        "command": "cdc-pakistan-pp-cli coverage map --category notices --timeout 30m",
+        "comment": "build the document index first; nothing else can be trusted as complete until this runs"
+      },
+      {
+        "command": "cdc-pakistan-pp-cli eligibility state --isin PK0069501016 --agent",
+        "comment": "read one security's CDS-eligibility lifecycle out of the local store"
+      },
+      {
+        "command": "cdc-pakistan-pp-cli identity ledger --symbol LOTCHEM --agent",
+        "comment": "check whether this symbol was ever reused by a different issuer"
+      },
+      {
+        "command": "cdc-pakistan-pp-cli verify rows --vintage 2025-11-30 --agent",
+        "comment": "prove the penetration extraction before using the numbers"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every command returns a clearance-expired error",
+        "fix": "Run `auth login --chrome` again; the clearance has a hard ~30-minute lifetime and cannot be renewed without a browser."
+      },
+      {
+        "symptom": "A command refuses immediately with 'clearance margin too small'",
+        "fix": "That is deliberate — re-mint with `auth login --chrome` rather than starting work that cannot finish."
+      },
+      {
+        "symptom": "coverage map stopped partway with chunks remaining",
+        "fix": "Re-run `auth login --chrome` then re-run the same command; it re-derives what is missing from the store and resumes."
+      },
+      {
+        "symptom": "A vintage load is refused for schema drift",
+        "fix": "Inspect with `verify schema --vintage \u003cdate\u003e`; CDC has changed columns before, so acknowledge the new fingerprint deliberately rather than blending."
+      },
+      {
+        "symptom": "float triangulate returns rows with an empty CDC leg",
+        "fix": "Part B of the report covers mutual-fund units and carries no paid-up capital, so no penetration percentage exists for those ISINs."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need Pakistani custody-layer facts that exist nowhere else in machine-readable form: what share of a security's capital sits in the central depository, whether a symbol has been reused by a different issuer, or when a security entered or left CDS eligibility. It is also the right tool when you need to prove a local mirror is complete before running research on it.",
+    "anti_triggers": [
+      "Do not use this CLI for holder-level or sub-account positions — CDC does not publish them, they require an individual investor's own login.",
+      "Do not use it for the nine-class investor taxonomy that NCCPL and MUFAP publish — CDC exposes only Individual versus Corporate, at aggregate level.",
+      "Do not use it for daily prices, volumes or index data — that is the PSX CLI's surface.",
+      "Do not use it to determine whether a security is tradable today — CDS eligibility is a custody status, not a trading suspension.",
+      "Do not ask it for a free-float time series — only one live vintage of the penetration report exists."
+    ],
+    "recipes": [
+      {
+        "title": "Prove the mirror before trusting it",
+        "command": "cdc-pakistan-pp-cli coverage map --agent --select buckets.category,buckets.year,buckets.state",
+        "explanation": "Returns the tri-state coverage per bucket so you can tell a genuine source gap from an unasked question."
+      },
+      {
+        "title": "Narrow a wide eligibility history for an agent",
+        "command": "cdc-pakistan-pp-cli eligibility state --isin PK0069501016 --agent --select events.effective_date,events.state,events.notice_url",
+        "explanation": "The full event payload is large; selecting three dotted paths keeps an agent's context small while preserving the audit trail."
+      },
+      {
+        "title": "Find state-owned concentration",
+        "command": "cdc-pakistan-pp-cli gop stake --min-pct 25 --agent --select rows.symbol,rows.gop_shares,rows.gop_pct",
+        "explanation": "Lists securities where the Government of Pakistan holds at least a quarter of paid-up capital."
+      },
+      {
+        "title": "Catch a symbol collision before a join",
+        "command": "cdc-pakistan-pp-cli identity resolve --symbol LOTCHEM --as-of 2019-06-30 --agent",
+        "explanation": "Returns the identity in force on that date, or NOT_IN_VINTAGE rather than guessing."
+      },
+      {
+        "title": "Audit an extraction end to end",
+        "command": "cdc-pakistan-pp-cli verify rows --vintage 2025-11-30 --agent --select findings.check_name,findings.severity,findings.isin",
+        "explanation": "Surfaces only the failing checks and the ISINs they belong to."
+      }
+    ],
+    "trigger_phrases": [
+      "how much of this symbol is in CDS",
+      "CDS eligibility history for",
+      "has this PSX symbol been reused",
+      "government stake in this Pakistani company",
+      "CDC statistics",
+      "use cdc-pakistan",
+      "run cdc-pakistan"
+    ]
+  }
+}

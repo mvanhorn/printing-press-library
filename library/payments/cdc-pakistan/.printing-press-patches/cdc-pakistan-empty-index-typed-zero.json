@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-empty-index-typed-zero",
+  "summary": "'verify rows' returns an empty typed result at exit 0 on an unpopulated index instead of exit 3 notFound.",
+  "reason": "An empty local index is a fresh install, not a missing resource, and the other six local-read commands already treated it that way. Exiting 3 made 'nothing synced yet' indistinguishable from 'this vintage does not exist', which matters because the CLI is scripted. It now emits the empty typed result plus a stderr hint naming the command that populates the index. --strict still exits 3, which is the case where a caller has explicitly asked for a failure on incomplete coverage.",
+  "files": ["internal/cli/verify_rows.go"],
+  "validated_outcome": "Empty index exits 0 with a typed empty payload; --strict still exits 3 on real failing checks."
+}

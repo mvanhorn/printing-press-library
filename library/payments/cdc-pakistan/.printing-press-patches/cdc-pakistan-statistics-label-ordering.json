@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-statistics-label-ordering",
+  "summary": "Made the aggregate-statistics label matcher order-dependent and added explicit excludes[] guards.",
+  "reason": "Substring matching on CDC's statistics labels silently mis-keyed two of the sixteen metrics. 'Securities-Unlisted' contains 'listed', so it collapsed onto securities_listed and 59,217 securities were lost with no error. 'Number of Securities under Share Registrar' contains 'number of securities', so it was keyed as securities_total. Both are silent wrong-number bugs, not parse failures, so only an assertion on the label set could catch them. The rule table is now explicitly ordered (unlisted before listed, share registrar before number of securities) with excludes[] as a second guard, and the ordering requirement is stated in a comment so a future alphabetical sort does not reintroduce it.",
+  "files": ["internal/cdcparse/statistics.go", "internal/cdcparse/cdcparse_test.go"],
+  "markers": ["share registrar"],
+  "validated_outcome": "Dedicated regression tests pin both label pairs; all 16 metric keys resolve distinctly on the live page."
+}

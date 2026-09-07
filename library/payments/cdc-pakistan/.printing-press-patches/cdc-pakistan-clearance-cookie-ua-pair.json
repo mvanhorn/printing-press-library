@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-clearance-cookie-ua-pair",
+  "summary": "Modelled the Cloudflare clearance as one indivisible Cookie+UserAgent+MintedAt unit with a measured lifetime and up-front margin refusal.",
+  "reason": "cf_clearance is bound to the User-Agent that minted it and is useless without it, so the two cannot be configured independently; LoadClearance refuses a cookie supplied without its UA. The cookie's own expires field advertises 365 days and is untrustworthy: measurement (manuscripts discovery/cf-ttl-measurement.log) shows HTTP 200 at t+1500s and 403 at t+1800s under continuous use, so the real window is a HARD ~30 minutes from mint and is not an idle timeout. CheckMargin therefore refuses UP FRONT when a command cannot finish inside the remaining window, rather than dying mid-fan-out -- that mid-fan-out failure mode is what silently stored 33 of 131 dates on an earlier sibling CLI. The interstitial is classified at the transport boundary in do() so no caller can mistake a challenge page for an empty result, and the per-request timeout is capped at 45s because an unbounded timeout turns a dead TCP connection into a multi-hour hang.",
+  "files": ["internal/cli/cdc_clearance.go", "internal/cli/cdc_auth.go"],
+  "markers": ["clearanceLifetime"],
+  "validated_outcome": "Expiry and missing-clearance are distinct typed errors (re-mint vs first-time setup); challenge HTML is reported as a transport error, never as zero rows."
+}

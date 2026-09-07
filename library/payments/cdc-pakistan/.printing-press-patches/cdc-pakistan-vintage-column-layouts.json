@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-vintage-column-layouts",
+  "summary": "Hand-authored column-aware row parser covering the four distinct report layouts, with per-layout numeric-field arity.",
+  "reason": "CDC changed the report's column set across vintages: equity 2025 carries 4 numeric columns, equity 2024 carries 6, the funds part carries 1, and the debt part is variable at 1-3 and can only be validated by range. A single positional parser silently mis-assigns columns across vintages, which is the exact failure that would put a percentage into a capital field. splitRowTokens also repairs the 'LISTED-' concatenation the PDF text layer produces, normStatus folds UN-LISTED onto UNLISTED, parseCell treats a bare '-' as ZERO (it is a real zero in these reports, not a missing value) and decodes parenthesised negatives defensively, and dateAmbiguous FLAGS rather than guesses numeric dates that are valid as both DD/MM and MM/DD.",
+  "files": ["internal/cdcpdf/rows.go", "internal/cdcpdf/rows_test.go"],
+  "markers": ["numericFields"],
+  "validated_outcome": "0 invariant violations across 29,060 rows once the audit compared the report's own percentage column against its own share and capital columns (an earlier hand-written regex had compared capital against percentage and produced 154 false violations)."
+}

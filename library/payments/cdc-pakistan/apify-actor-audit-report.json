@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/cdc-pakistan-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260907-191511-60d154e7",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

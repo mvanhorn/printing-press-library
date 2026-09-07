@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-09-07T17:42:43.780566Z",
+  "cli_dir": "\u003ccli-dir\u003e/cdc-pakistan-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Accurate and complete as written: the command is Args=cobra.NoArgs with zero flags and returns a bare name array, so there are no parameters or filters a longer Short could name. Also a DO-NOT-EDIT generated file (platform_client.go carries the generator header); already carries mcp:read-only=true."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Genuinely under-sells the command -- it exposes eight filters (--query, --source, --resource, --action, --min-confidence, --limit, --db, --warnings) that the Short never mentions, so an agent cannot tell from the catalog that filtering is supported. Not fixable here: teach.go is a DO-NOT-EDIT generated file, so this needs a generator-template fix (retro candidate), not a hand-edit that the next regen wipes."
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:692"
+  }
+}

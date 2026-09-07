@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-store-migrations",
+  "summary": "Hand-authored the eight CDC tables, including a tri-state coverage CHECK and deliberately NULLABLE capital columns.",
+  "reason": "Coverage has to distinguish three genuinely different states that a boolean cannot express: found, not-found-at-source (asked, and the source really has nothing), and not-probed (never asked). Collapsing the last two is what makes a coverage map lie about completeness, so the state is a CHECK-constrained column with transport-error as a fourth, explicitly separate value. cdc_penetration_rows keeps capital and percentage NULLABLE because the funds part of the report genuinely has no capital column -- storing 0 there would be fabricating an observation, and a missing observation recorded as missing is the correct outcome.",
+  "files": ["internal/store/cdc_migrations.go"],
+  "markers": ["not-found-at-source"],
+  "validated_outcome": "1,217 coverage buckets carry all four states; 29,966 penetration rows load with NULL capital preserved for part-B funds rather than zero-filled."
+}

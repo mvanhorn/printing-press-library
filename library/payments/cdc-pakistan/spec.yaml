@@ -1,0 +1,169 @@
+name: cdc-pakistan
+base_url: "https://www.cdcpakistan.com"
+spec_format: internal
+# NOTE: single-endpoint resources get their command path COLLAPSED by the generator
+# (`downloads`, not `downloads list`). Each endpoint's `example:` is echoed VERBATIM into the
+# Cobra Example, so it MUST use the collapsed path AND the post-rename flag_name spellings.
+# Upstream #4614 is the detect-and-refuse fix; until it lands this is the author's job.
+category: payments
+cli_description: "The only machine-readable view of Pakistani custody data — per-security CDS penetration and a twenty-year eligibility record, from a source no tool has ever automated."
+
+# VERIFIED, not assumed: cf_clearance minted by one real-Chrome visit replays over PLAIN Go
+# stdlib HTTP (LibreSSL curl -> 200 on HTML and PDF alike). probe-reachability reported
+# browser_clearance_http and its surf-chrome probe ALSO 403s, so Surf is neither sufficient
+# nor necessary — the cookie is what matters. Do NOT "upgrade" this to browser-chrome.
+http_transport: standard
+
+# CDC serves HTML at "/" and every other path, so the generated doctor's plain JSON probe
+# reports a healthy 200 as "unreachable" (upstream #4612). Worked around by a hand-written
+# internal/cli/cdc_health.go using GetWithHeaders + client.HTMLResponseHeader, copying the
+# MUFAP mufapHealthGet pattern verbatim.
+health_check_path: "/"
+
+auth:
+  type: cookie
+  cookie_domain: "www.cdcpakistan.com"
+  cookies:
+    - cf_clearance
+  in: header
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/cdc-pakistan-pp-cli/config.toml"
+
+# Deliberately NO `cache:` block. Auto-refresh-before-read would fire an upstream fetch that
+# requires a live browser clearance; with a measured hard ~30-min clearance lifetime that
+# would turn ordinary local reads into surprise auth failures. Freshness is reported by
+# `doctor` and refreshed explicitly by `coverage map`, never implicitly.
+
+mcp:
+  transport: [stdio, http]
+  # No mcp.intents declared. The press publishes no schema for it (`schema` exposes only
+  # phase5-marker / phase5-skip / traffic-analysis) and mcp-audit reports intent_count 0 for
+  # all nine library CLIs, so there is no worked example on disk. Declaring it blind risks
+  # failing spec validation and burning a verify+promote cycle. Revisit when the shape is known.
+
+learn:
+  # ticker_patterns is DELIBERATELY EMPTY, inheriting the NCCPL lesson verbatim: PSX/CDC
+  # symbols are ALL-CAPS (OGDC, LOTCHEM, SMML, FAEL, SGABL) and entities.Extract already
+  # classifies ALL-CAPS alphanumeric tokens as entities. A lowercase pattern is INVERTED —
+  # matchesTicker runs on the RAW token before lowercasing, so "^[a-z0-9]{2,12}$" never
+  # matches a real symbol and matches every ordinary word instead, emptying QueryFamily and
+  # making seeded playbooks unreachable at recall time.
+  ticker_patterns: []
+  synonyms:
+    "free float": "penetration"
+    "in cds": "penetration"
+    "government stake": "gop"
+    "state owned": "gop"
+    "most recent": "latest"
+    "eligibility history": "eligibility"
+  entity_lookup_seeds:
+    download_category:
+      - canonical: "notices"
+        aliases: [notice, cds notices, eligibility notices]
+      - canonical: "circulars"
+        aliases: [circular, w-cir, weekly circular]
+      - canonical: "miscellaneous"
+        aliases: [misc, other, reports]
+      - canonical: "list-of-securities"
+        aliases: [security list, securities list, isin list]
+      - canonical: "disciplinary-registers"
+        aliases: [disciplinary, disciplinary register]
+      - canonical: "tariff-fee-structure"
+        aliases: [tariff, fees, fee structure]
+      - canonical: "quarterly-accounts"
+        aliases: [quarterly, quarterly accounts]
+      - canonical: "annual-reports"
+        aliases: [annual report, annual reports]
+    eligibility_state:
+      - canonical: "declared"
+        aliases: [eligible, declaration, admitted]
+      - canonical: "intention-to-suspend"
+        aliases: [intention, notice of intention, pre-suspension]
+      - canonical: "suspended"
+        aliases: [suspension, suspend]
+      - canonical: "extension"
+        aliases: [extended, extension of suspension]
+      - canonical: "removal-of-suspension"
+        aliases: [restored, removal of suspension, reinstated]
+      - canonical: "revoked"
+        aliases: [revocation, revoke]
+      - canonical: "admission-terminated"
+        aliases: [termination of admission, terminated]
+
+resources:
+  downloads:
+    description: "CDC downloads corpus — 7,956 documents across 15 categories, 2007-2026."
+    endpoints:
+      list:
+        method: POST
+        path: /wp-admin/admin-ajax.php
+        description: "List download items for one (category, year, page). THE ONLY VALID ENUMERATOR — the /downloads-category/<cat>/page/N/ URL pagination is decorative and returns an identical block for every N."
+        response_format: html
+        content_type: application/x-www-form-urlencoded
+        no_auth: false
+        mutation: false
+        example: "cdc-pakistan-pp-cli downloads --category notices --year 2024 --page 1"
+        params:
+          - name: action
+            required: true
+            default: "update_posts_by_year"
+            description: "WordPress AJAX action. Fixed value."
+          - name: term
+            flag_name: category
+            aliases: [term]
+            required: true
+            description: "Download category slug, e.g. notices, circulars, miscellaneous."
+          - name: year
+            required: true
+            description: "Filter year 2007-2026. NOTE: keys on the UPLOAD/POST date, not the document's own as-of date."
+          - name: paged
+            flag_name: page
+            aliases: [paged]
+            required: false
+            default: "1"
+            description: "1-based page number. 10 items per page. Terminates on an empty block."
+          - name: cpt
+            required: true
+            default: "downloads"
+            description: "Custom post type. Fixed value."
+          - name: taxonomy
+            required: true
+            default: "downloads_category"
+            description: "Taxonomy name. Fixed value."
+
+  statistics:
+    description: "CDS aggregate statistics — a 16-row HTML table, overwritten monthly. Current-state only."
+    endpoints:
+      get:
+        method: GET
+        path: /about-us/statistics/
+        description: "Fetch the current CDS aggregate statistics table. Row labels DRIFT between vintages (Sahulat row deleted; Securities split into Listed/Unlisted), so key on normalised label with an explicit unknown bucket."
+        response_format: html
+        no_auth: false
+        mutation: false
+        example: "cdc-pakistan-pp-cli statistics"
+
+  assets:
+    description: "Static PDF report files under /assets/uploads/YYYY/MM/."
+    endpoints:
+      fetch:
+        method: GET
+        path: /assets/uploads/{year}/{month}/{filename}
+        description: "Fetch one report PDF. Also challenged by Cloudflare, so the same clearance cookie is required."
+        response_format: binary
+        no_auth: false
+        mutation: false
+        example: "cdc-pakistan-pp-cli assets --year 2025 --month 12 --filename Share-Percentage-in-CDS-with-respect-to-paid-up-Capital-as-of-30-November-2025-A.pdf"
+        params:
+          - name: year
+            required: true
+            description: "Upload year from the asset path, e.g. 2025."
+          - name: month
+            required: true
+            description: "Two-digit upload month from the asset path, e.g. 12."
+          - name: filename
+            required: true
+            description: "Exact file name including extension."

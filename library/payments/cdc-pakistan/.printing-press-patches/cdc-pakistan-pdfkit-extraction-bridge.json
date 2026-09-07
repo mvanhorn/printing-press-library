@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-pdfkit-extraction-bridge",
+  "summary": "Hand-authored internal/cdcpdf two-backend PDF text extractor with a macOS PDFKit subprocess bridge and a pure-Go fallback.",
+  "reason": "CDC's penetration reports are the only per-security custody figures published in this market and they exist solely as PDFs. Three pure-Go PDF libraries were tried against the live 2025-11-30 vintage: all three either returned empty text or panicked on its xref stream. PDFKit via 'swift -e' reads it correctly, so the primary backend shells out and the pure-Go path stays as a fallback for non-Darwin hosts. extractPureGo wraps its call in recover() because the pure-Go library panics rather than erroring on a malformed xref. The reported page count is framed in \\x01 delimiters so report text cannot spoof it, and readProducer decodes UTF-16BE BOMs.",
+  "files": ["internal/cdcpdf/extract.go"],
+  "markers": ["PDFDocument"],
+  "validated_outcome": "PDFKit backend extracts all four report layouts on the live vintage; Available() reports false off Darwin so the pure-Go path is exercised there. This is a genuine platform constraint and is stated in the README and PR."
+}
