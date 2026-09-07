@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"slices"
 	"strings"
 	"testing"
@@ -25,6 +26,9 @@ func TestReaderIsSyncableResource(t *testing.T) {
 	}
 	if !slices.Contains(knownSyncResourceNames(), "reader") {
 		t.Fatal("knownSyncResourceNames must include reader")
+	}
+	if !resourceSupportsPagination("reader") {
+		t.Fatal("resourceSupportsPagination(reader) must be true so sync pages past the first response")
 	}
 	got, ok := readCommandResources["substack-pp-cli reader subscriptions"]
 	if !ok || !slices.Equal(got, []string{"reader"}) {
@@ -48,5 +52,41 @@ func TestReaderSubscriptionsLimitRejectsNonInteger(t *testing.T) {
 	}
 	if !isCobraUsageError(err) {
 		t.Fatalf("isCobraUsageError(%v) = false, want true", err)
+	}
+}
+
+func TestReaderSyncUsesOpaqueCursorNotOffset(t *testing.T) {
+	t.Parallel()
+
+	pageSize := paginationForResource("reader")
+	if pageSize.cursorParam != "cursor" {
+		t.Fatalf("reader cursorParam = %q, want cursor so later pages send the opaque token", pageSize.cursorParam)
+	}
+	if pageSize.cursorType != "cursor" {
+		t.Fatalf("reader cursorType = %q, want cursor (not offset stride)", pageSize.cursorType)
+	}
+	if pageSize.limitParam != "limit" {
+		t.Fatalf("reader limitParam = %q, want limit", pageSize.limitParam)
+	}
+
+	posts := paginationForResource("posts")
+	if posts.cursorParam != "offset" {
+		t.Fatalf("posts cursorParam = %q, want offset so reader override does not leak", posts.cursorParam)
+	}
+}
+
+func TestExtractPageItemsReaderSubscriptionsCursor(t *testing.T) {
+	t.Parallel()
+
+	data := json.RawMessage(`{"subscriptions":[{"subscription_id":"a"},{"subscription_id":"b"}],"cursor":"next-token"}`)
+	items, next, hasMore := extractPageItems(data, "cursor")
+	if len(items) != 2 {
+		t.Fatalf("items = %d, want 2", len(items))
+	}
+	if next != "next-token" {
+		t.Fatalf("next cursor = %q, want next-token", next)
+	}
+	if !hasMore {
+		t.Fatal("hasMore = false, want true when a cursor is present")
 	}
 }

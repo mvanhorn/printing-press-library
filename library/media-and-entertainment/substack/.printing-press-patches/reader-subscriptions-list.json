@@ -4,16 +4,18 @@
   "applied_at": "2026-07-22",
   "base_run_id": "20260531-014452",
   "base_printing_press_version": "4.19.0",
-  "summary": "Add 'reader subscriptions' as a list command whose local cache is the syncable 'reader' resource (GET /reader/subscriptions), with integer --limit validation matching sibling list commands.",
-  "reason": "The spec and generated CLI cover only the writer-side subscriber surface. GET /reader/subscriptions is the global API endpoint for the signed-in user's followed publications. Offline/local reads must use a resource that sync (and auto-refresh) populate; an unsyncable cache name leaves --data-source local and network fallback empty after sync.",
+  "summary": "Add 'reader subscriptions' as a list command whose local cache is the syncable 'reader' resource (GET /reader/subscriptions), with integer --limit validation and opaque-cursor pagination on sync matching sibling list resources.",
+  "reason": "The spec and generated CLI cover only the writer-side subscriber surface. GET /reader/subscriptions is the global API endpoint for the signed-in user's followed publications. Offline/local reads must use a resource that sync (and auto-refresh) populate; an unsyncable cache name leaves --data-source local and network fallback empty after sync. Sync must page through the opaque cursor; stopping after the first response omits later subscriptions from that cache.",
   "files": [
     "internal/cli/auto_refresh.go",
     "internal/cli/channel_workflow.go",
     "internal/cli/promoted_discover.go",
     "internal/cli/reader.go",
     "internal/cli/reader_subscriptions.go",
+    "internal/cli/reader_subscriptions_test.go",
     "internal/cli/root.go",
     "internal/cli/sync.go",
-    "internal/store/store.go"
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
   ]
 }
