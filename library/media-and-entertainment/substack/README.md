@@ -639,6 +639,8 @@ Covered command paths:
 - `substack-pp-cli profiles get`
 - `substack-pp-cli profiles list`
 - `substack-pp-cli profiles search`
+- `substack-pp-cli reader`
+- `substack-pp-cli reader subscriptions`
 - `substack-pp-cli sections`
 - `substack-pp-cli sections get`
 - `substack-pp-cli sections list`

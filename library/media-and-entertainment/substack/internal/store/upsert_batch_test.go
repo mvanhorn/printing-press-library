@@ -171,6 +171,16 @@ func TestUpsertBatch_TemplatedIDFieldOverrideWins(t *testing.T) {
 	}
 }
 
+func TestExtractResourceID_ReaderUsesSubscriptionID(t *testing.T) {
+	obj := map[string]any{
+		"subscription_id": "sub-9",
+		"name":            "should-not-win",
+	}
+	if got, want := ExtractResourceID("reader", obj), "sub-9"; got != want {
+		t.Fatalf("ExtractResourceID(reader) = %q, want %q", got, want)
+	}
+}
+
 // TestUpsertBatch_GenericFallbackList covers each name in the reduced
 // fallback list. The kalshi-accreted names (ticker/event_ticker/series_ticker)
 // were dropped because the user owns kalshi and will regenerate

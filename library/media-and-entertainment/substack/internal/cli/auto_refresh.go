@@ -53,6 +53,8 @@ var readCommandResources = map[string][]string{
 	"substack-pp-cli profiles list":          {"profiles"},
 	"substack-pp-cli profiles get":           {"profiles"},
 	"substack-pp-cli profiles search":        {"profiles"},
+	"substack-pp-cli reader":                 {"reader"},
+	"substack-pp-cli reader subscriptions":   {"reader"},
 	"substack-pp-cli sections":               {"sections"},
 	"substack-pp-cli sections list":          {"sections"},
 	"substack-pp-cli sections get":           {"sections"},

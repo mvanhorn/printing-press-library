@@ -805,7 +805,10 @@ func ResourceIDString(v any) string {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	// PATCH(reader-subscriptions-list): GET /reader/subscriptions rows key on subscription_id.
+	"reader": "subscription_id",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

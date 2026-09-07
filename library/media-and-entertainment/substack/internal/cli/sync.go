@@ -1345,6 +1345,7 @@ func defaultSyncResources() []string {
 		"posts-published",
 		"posts-ranked",
 		"profiles",
+		"reader",
 		"sections",
 		"subs",
 		"tags",
@@ -1364,6 +1365,7 @@ func knownSyncResourceNames() []string {
 		"posts-published",
 		"posts-ranked",
 		"profiles",
+		"reader",
 		"sections",
 		"subs",
 		"tags",
@@ -1384,6 +1386,7 @@ func syncResourcePath(resource string) (string, error) {
 		"posts-published": publicationAPIPath("/post_management/published"),
 		"posts-ranked":    publicationAPIPath("/publication/users/ranked"),
 		"profiles":        "/handle/options",
+		"reader":          "/reader/subscriptions",
 		"sections":        publicationAPIPath("/subscriptions"),
 		"subs":            publicationAPIPath("/publication/users"),
 		"tags":            publicationAPIPath("/publication/post-tag"),
@@ -1403,7 +1406,10 @@ func syncResourcePath(resource string) (string, error) {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	// PATCH(reader-subscriptions-list): GET /reader/subscriptions rows key on subscription_id.
+	"reader": "subscription_id",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

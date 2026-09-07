@@ -14,7 +14,7 @@ import (
 func newReaderSubscriptionsCmd(flags *rootFlags) *cobra.Command {
 	var flagFilter string
 	var flagCursor string
-	var flagLimit string
+	var flagLimit int
 
 	cmd := &cobra.Command{
 		Use:   "subscriptions",
@@ -52,14 +52,16 @@ Auth is via your session cookie (substack.sid). Run 'substack-pp-cli auth login 
 			if flagCursor != "" {
 				params["cursor"] = flagCursor
 			}
-			if flagLimit != "" {
-				params["limit"] = flagLimit
+			if flagLimit != 0 {
+				params["limit"] = fmt.Sprintf("%v", flagLimit)
 			}
 
 			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "reader", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// Honor --limit when the API accepts but ignores ?limit=N.
+			data = truncateJSONArray(data, flagLimit)
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
@@ -99,7 +101,7 @@ Auth is via your session cookie (substack.sid). Run 'substack-pp-cli auth login 
 
 	cmd.Flags().StringVar(&flagFilter, "filter", "", "Filter by subscription tier: 'paid', 'free', or leave empty for all")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque pagination cursor from prior response")
-	cmd.Flags().StringVar(&flagLimit, "limit", "", "Maximum number of subscriptions to return")
+	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Max subscriptions to return")
 
 	return cmd
 }
