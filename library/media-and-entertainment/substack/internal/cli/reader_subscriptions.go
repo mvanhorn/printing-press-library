@@ -56,7 +56,7 @@ Auth is via your session cookie (substack.sid). Run 'substack-pp-cli auth login 
 				params["limit"] = flagLimit
 			}
 
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "reader", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "reader", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

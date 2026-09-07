@@ -7,6 +7,7 @@
   "summary": "Add 'reader subscriptions' command that lists all publications the authenticated user subscribes to as a reader via GET /reader/subscriptions.",
   "reason": "The spec and generated CLI cover only the writer-side subscriber surface. GET /reader/subscriptions is the global API endpoint that returns the signed-in user's followed/subscribed publications — a distinct reader-side concept with no generated counterpart.",
   "files": [
+    "internal/cli/promoted_discover.go",
     "internal/cli/reader.go",
     "internal/cli/reader_subscriptions.go",
     "internal/cli/root.go"
