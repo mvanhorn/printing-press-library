@@ -12,10 +12,26 @@ import (
 )
 
 type resolveView struct {
-	Query      string `json:"query"`
-	AsOf       string `json:"as_of"`
-	Outcome    string `json:"outcome"`
-	NameThen   string `json:"name_in_force,omitempty"`
+	Query   string `json:"query"`
+	AsOf    string `json:"as_of"`
+	Outcome string `json:"outcome"`
+	// NameThen is the identity the notice put IN FORCE -- the "to" side of the
+	// change -- not the notice's prose title. Assigning the whole title here
+	// was a real defect: callers asked for an identity to join on and received
+	// "Change of Security Name and Symbol - X to Y", which joins to nothing and
+	// therefore cannot do the one job this command exists for (stopping symbol
+	// recycling from splicing two issuers into one series).
+	NameThen string `json:"name_in_force,omitempty"`
+	// NoticeTitle keeps the raw title so nothing is dropped, and so an
+	// unparseable notice is still inspectable.
+	NoticeTitle string `json:"source_notice_title,omitempty"`
+	// Parsed says whether NameThen was actually extracted. Deliberately
+	// WITHOUT omitempty: NameThen already has omitempty, so on an unparseable
+	// title that key vanishes, and a false-but-omitted flag would leave the
+	// caller unable to tell "unparsed" from "key absent for another reason".
+	// identity ledger sets the same precedent -- unparsed events are returned
+	// with parsed=false, never dropped.
+	Parsed     bool   `json:"identity_parsed"`
 	Renames    int    `json:"renames_known"`
 	NextChange string `json:"next_change_after_as_of,omitempty"`
 	PrevChange string `json:"last_change_before_as_of,omitempty"`
@@ -154,11 +170,24 @@ Requires a document index; run 'coverage map --probe' first.
 				} else {
 					view.Outcome = outcomeResolved
 					for _, c := range changes {
-						if c.ym == prev {
-							view.NameThen = c.title
+						if c.ym != prev {
+							continue
+						}
+						// Keep the provenance regardless of whether the title
+						// parses, then extract the identity the notice put in
+						// force. changeRe is the same expression identity
+						// ledger uses, so both surfaces agree on what a
+						// rename notice means.
+						view.NoticeTitle = c.title
+						if m := changeRe.FindStringSubmatch(c.title); m != nil {
+							view.NameThen = strings.TrimSpace(m[2])
+							view.Parsed = true
 						}
 					}
 					view.Note = fmt.Sprintf("identity in force resolved to UPLOAD-MONTH precision (%s). The next known change is %s.", prev, orNone(next))
+					if !view.Parsed {
+						view.Note += " The notice title did not match the change-of-name/symbol shape, so no identity could be extracted from it: source_notice_title carries the raw title and identity_parsed is false. Do NOT join on this result."
+					}
 				}
 			}
 
@@ -167,8 +196,13 @@ Requires a document index; run 'coverage map --probe' first.
 			}
 			w := cmd.OutOrStdout()
 			fmt.Fprintf(w, "%s as of %s -> %s\n", view.Query, view.AsOf, view.Outcome)
-			if view.NameThen != "" {
-				fmt.Fprintf(w, "  notice in force: %s\n", truncStr(view.NameThen, 72))
+			if view.Parsed {
+				fmt.Fprintf(w, "  identity in force: %s\n", truncStr(view.NameThen, 72))
+			} else if view.NoticeTitle != "" {
+				fmt.Fprintf(w, "  identity in force: UNPARSED (do not join)\n")
+			}
+			if view.NoticeTitle != "" {
+				fmt.Fprintf(w, "  source notice:     %s\n", truncStr(view.NoticeTitle, 72))
 			}
 			fmt.Fprintf(w, "  renames known: %d  last before: %s  next after: %s\n",
 				view.Renames, orNone(view.PrevChange), orNone(view.NextChange))

@@ -15,7 +15,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"github.com/mvanhorn/printing-press-library/library/payments/cdc-pakistan/internal/cdcparse"
+	"github.com/mvanhorn/printing-press-library/library/payments/cdc-pakistan/internal/client"
 )
 
 // Clearance is a Cloudflare clearance cookie together with the browser identity
@@ -245,4 +248,92 @@ func (f *clearanceFetcher) PostDownloads(ctx context.Context, category string, y
 	req.Header.Set("Accept", "*/*")
 	code, body, err := f.do(ctx, req)
 	return code, string(body), err
+}
+
+// --- Bridging the clearance store to the generated client ---------------
+//
+// THE DEFECT THIS CLOSES. The promoted `downloads`, `statistics` and `assets`
+// commands are generated: they build the generated client, which reads its
+// credentials from config/credentials.toml and the cookie jar. LoadClearance
+// reads a different file (cdc-clearance.json) written by `auth clearance set`,
+// and nothing joined the two. The consequence was not a warning but SILENCE:
+// a user could store a clearance successfully and those three commands would
+// still send NO Cookie header at all, get the Cloudflare interstitial, and
+// report it as an ordinary failure. It is also visible in the publish-time
+// live gate, where exactly those three commands are the ones recorded
+// `unverified-needs-access`.
+//
+// WHY A CLIENT HOOK, AND WHY APPLY-ONLY. The promoted command files carry
+// "DO NOT EDIT" and would lose any edit on regeneration, so the bridge lives
+// here, in a preserved file, on the hook seam root.go already provides.
+// The hook only ever ADDS the pair to a live client:
+//
+//   - It never persists. Writing the cookie through to credentials.toml or
+//     cookies.json would be actively harmful: this file's own
+//     `auth clearance set` declares `pp:happy-args` containing
+//     `--cookie=example-clearance-value`, which the verify and shipcheck
+//     harnesses EXECUTE. That placeholder is not the `<your-token>` shape the
+//     client screens for, so a write-through would permanently install a junk
+//     clearance, after which `doctor` would cheerfully report auth as
+//     configured while every request shipped garbage.
+//   - It never fails. Returning an error here would break `doctor`, `api`,
+//     `import`, `--dry-run` and every MCP tool, all of which construct a
+//     client whether or not a clearance exists. A missing or unreadable
+//     clearance must leave those commands diagnosing the problem, not dying
+//     before they start.
+//   - It skips dry-run, so `--dry-run` never needs a credential to print a
+//     request. root.go sets c.DryRun before it applies the hooks, so this is
+//     reliable.
+//
+// The margin refusal deliberately stays where it already is, at the novel
+// commands that do long fan-outs. A refusal inside client construction would
+// turn "your clearance is old" into "client init error" in doctor's output.
+
+// activeClearanceFlags is the live root flag set, captured at root-build time.
+//
+// The hook signature is func(*client.Client) error and carries no flags, but
+// clearancePath needs them: with --home set it resolves to
+// <home>/cdc-clearance.json, and with a nil receiver to the data directory
+// instead. Using nil here would read a different file than the one
+// `auth clearance set --home ...` just wrote.
+var activeClearanceFlags *rootFlags
+
+func init() {
+	registerNovelCommand(func(_ *cobra.Command, flags *rootFlags) {
+		activeClearanceFlags = flags
+	})
+	registerClientHook(applyClearanceToClient)
+}
+
+// applyClearanceToClient puts the stored cookie and its minting User-Agent on
+// a newly constructed client, in memory only.
+//
+// The two travel together or not at all: cf_clearance is bound to the
+// User-Agent that minted it, so sending the cookie under the generated
+// client's default UA is as useless as sending no cookie, and would fail in a
+// way that looks like a bad cookie rather than a mismatched one.
+func applyClearanceToClient(c *client.Client) error {
+	if c == nil || c.DryRun {
+		return nil
+	}
+	cl, err := LoadClearance(activeClearanceFlags)
+	if err != nil || cl == nil || cl.Cookie == "" || cl.UserAgent == "" {
+		// Apply-only: no clearance configured is a normal state here.
+		return nil
+	}
+	if c.Config != nil {
+		if c.Config.Headers == nil {
+			c.Config.Headers = map[string]string{}
+		}
+		// Config.Headers are applied ahead of the client's hardcoded UA
+		// default, so this wins.
+		c.Config.Headers["User-Agent"] = cl.UserAgent
+	}
+	if c.HTTPClient != nil {
+		// Seeds the in-memory jar only and never writes cookies.json, so a
+		// stale value cannot be left behind on disk for the next run.
+		client.SeedCookieJarForDomain(c.HTTPClient.Jar,
+			"https://www.cdcpakistan.com", "cf_clearance="+cl.Cookie, "www.cdcpakistan.com")
+	}
+	return nil
 }

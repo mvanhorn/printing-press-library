@@ -56,9 +56,14 @@ type coverageView struct {
 	PairsSettled   int              `json:"pairs_settled"`
 	PairsTotal     int              `json:"pairs_total"`
 	PairsRemaining int              `json:"pairs_remaining"`
-	RepeatBlocks   int              `json:"repeat_block_terminators"`
-	Stopped        string           `json:"stopped_reason,omitempty"`
-	Note           string           `json:"note,omitempty"`
+	// PairsPartiallyWalked are pairs that were started but never reached a
+	// terminator. They are a subset of PairsRemaining and are the dangerous
+	// case: unlike a never-asked pair they already have documents stored, so a
+	// consumer sees data and cannot tell it is truncated.
+	PairsPartiallyWalked int    `json:"pairs_partially_walked"`
+	RepeatBlocks         int    `json:"repeat_block_terminators"`
+	Stopped              string `json:"stopped_reason,omitempty"`
+	Note                 string `json:"note,omitempty"`
 }
 
 func newNovelCoverageMapCmd(flags *rootFlags) *cobra.Command {
@@ -254,6 +259,9 @@ func probeCoverage(ctx context.Context, cmd *cobra.Command, db *store.Store, fla
 					if err := upsertBucket(ctx, db, cat, year, paged, "not-found-at-source", code, 0, "", now); err != nil {
 						return err
 					}
+					if err := truncatePairBeyond(ctx, db, cat, year, paged); err != nil {
+						return err
+					}
 					break
 				}
 				h := cdcparse.BlockHash(docs)
@@ -261,6 +269,9 @@ func probeCoverage(ctx context.Context, cmd *cobra.Command, db *store.Store, fla
 					// The enumerator echoed a previous page. Record it so a
 					// future paginator regression is caught mechanically.
 					if err := upsertBucket(ctx, db, cat, year, paged, "not-found-at-source", code, len(docs), h, now); err != nil {
+						return err
+					}
+					if err := truncatePairBeyond(ctx, db, cat, year, paged); err != nil {
 						return err
 					}
 					view.RepeatBlocks++
@@ -280,6 +291,20 @@ func probeCoverage(ctx context.Context, cmd *cobra.Command, db *store.Store, fla
 		}
 	}
 	view.Requests = f.reqs
+	return nil
+}
+
+// truncatePairBeyond deletes any stored pages for one pair past the page the
+// current walk terminated on, so the table describes THIS walk rather than the
+// union of every walk ever run. Without it a stale row from an earlier, longer
+// walk (in particular a 'transport-error' at a high page) would outlive the
+// walk that superseded it and keep the pair permanently unsettled.
+func truncatePairBeyond(ctx context.Context, db *store.Store, cat string, year, paged int) error {
+	const q = `DELETE FROM cdc_coverage_buckets
+	            WHERE category = ? AND year_param = ? AND paged > ?`
+	if _, err := db.DB().ExecContext(ctx, q, cat, year, paged); err != nil {
+		return fmt.Errorf("truncating coverage rows past the terminator: %w", err)
+	}
 	return nil
 }
 
@@ -335,10 +360,36 @@ func nullIfEmpty(s string) any {
 	return s
 }
 
+// settledPairs returns the (category, year) pairs that were walked all the way
+// to a real terminator with nothing failing on the way.
+//
+// It deliberately does NOT mean "some page of this pair succeeded". An earlier
+// version selected any pair having a 'found' page, which made a partially
+// walked pair indistinguishable from a complete one: a mid-pair transport
+// error (or exhausting --max-scan-pages) left page 1 'found', and every later
+// run then SKIPPED the pair entirely -- printing "nothing to probe" and
+// permanently omitting the rest of the corpus, while --strict still exited 0
+// because loadCoverage used the same predicate. Both terminator paths write
+// 'not-found-at-source' (the empty page and the repeated-block echo), so
+// requiring one of those is what distinguishes a finished walk from an
+// abandoned one.
+//
+// Re-walking an unsettled pair is safe and cheap to reason about: upsertBucket
+// and upsertDocuments are idempotent upserts keyed on
+// (category, year_param, paged) and url.
+//
+// The failure test is bounded to the walk that actually happened. A terminator
+// write deletes any rows for that pair beyond its own page, so the table only
+// ever holds the current walk's shape; without that, a stale 'transport-error'
+// row left at a page beyond where a later walk terminated would keep the pair
+// unsettled forever, re-walking it on every run and failing --strict
+// permanently.
 func settledPairs(ctx context.Context, db *store.Store) (map[string]bool, error) {
 	rows, err := db.DB().QueryContext(ctx,
-		`SELECT DISTINCT category, year_param FROM cdc_coverage_buckets
-		  WHERE state IN ('found','not-found-at-source')`)
+		`SELECT category, year_param FROM cdc_coverage_buckets
+		  GROUP BY category, year_param
+		 HAVING SUM(CASE WHEN state = 'not-found-at-source' THEN 1 ELSE 0 END) > 0
+		    AND SUM(CASE WHEN state = 'transport-error'      THEN 1 ELSE 0 END) = 0`)
 	if err != nil {
 		return nil, fmt.Errorf("reading settled pairs: %w", err)
 	}
@@ -375,7 +426,6 @@ func loadCoverage(ctx context.Context, db *store.Store, cats []string, years []i
 			want[pairKey(c, y)] = true
 		}
 	}
-	settled := map[string]bool{}
 	for rows.Next() {
 		var b coverageBucket
 		var hash, at string
@@ -387,9 +437,6 @@ func loadCoverage(ctx context.Context, db *store.Store, cats []string, years []i
 		b.BlockHash, b.ProbedAt = hash, at
 		if !want[pairKey(b.Category, b.Year)] {
 			continue
-		}
-		if b.State == "found" || b.State == "not-found-at-source" {
-			settled[pairKey(b.Category, b.Year)] = true
 		}
 		view.Buckets = append(view.Buckets, b)
 	}
@@ -408,12 +455,38 @@ func loadCoverage(ctx context.Context, db *store.Store, cats []string, years []i
 	if view.Mode == "report" {
 		view.DocumentsSeen = docs
 	}
+	// Settled is computed by settledPairs so this report can never disagree
+	// with the skip logic in the probe path. When the two used different
+	// predicates, --strict exited 0 on a corpus the probe path was silently
+	// refusing to finish.
+	allSettled, err := settledPairs(ctx, db)
+	if err != nil {
+		return err
+	}
+	settled := map[string]bool{}
+	touched := map[string]bool{}
+	for _, b := range view.Buckets {
+		touched[pairKey(b.Category, b.Year)] = true
+	}
+	for k := range want {
+		if allSettled[k] {
+			settled[k] = true
+		}
+	}
+	var partial int
+	for k := range want {
+		if !settled[k] && touched[k] {
+			partial++
+		}
+	}
 	view.PairsSettled = len(settled)
 	view.PairsTotal = len(want)
 	view.PairsRemaining = len(want) - len(settled)
+	view.PairsPartiallyWalked = partial
 	if view.PairsRemaining > 0 && view.Note == "" {
-		view.Note = fmt.Sprintf("%d of %d (category,year) pairs are NOT-PROBED -- absence here means 'never asked', not 'CDC published nothing'. Re-run with --probe.",
-			view.PairsRemaining, view.PairsTotal)
+		never := view.PairsRemaining - partial
+		view.Note = fmt.Sprintf("%d of %d (category,year) pairs are not settled: %d never asked and %d PARTIALLY WALKED (a page failed, or --max-scan-pages was hit, so the walk never reached a terminator). Absence here means 'not fetched', never 'CDC published nothing'. Re-run with --probe to finish them.",
+			view.PairsRemaining, view.PairsTotal, never, partial)
 	}
 	return nil
 }

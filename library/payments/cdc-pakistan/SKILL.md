@@ -189,7 +189,19 @@ Surfaces only the failing checks and the ISINs they belong to.
 
 ## Auth Setup
 
-CDC sits behind a Cloudflare JS challenge on every path. Run `auth login --chrome` once: it opens a real browser, clears the challenge, and stores the clearance cookie together with the exact User-Agent that minted it, because the cookie is bound to that User-Agent. The clearance has a measured hard lifetime of roughly thirty minutes regardless of traffic — the cookie's own expiry field claims a year and is not to be trusted. Every command checks the remaining margin before starting work and refuses early rather than dying midway through a fan-out.
+CDC sits behind a Cloudflare JS challenge on every path. The authoritative gesture is `auth clearance set`, which stores three things as one unit: the `cf_clearance` cookie, the **exact User-Agent that minted it** (the cookie is bound to that User-Agent and is useless without it), and the mint time. Clear the challenge once in a real browser, then pass the cookie and that browser's User-Agent:
+
+```bash
+# The cookie is read from stdin so it never reaches your shell history.
+printf '%s' "$CF_CLEARANCE" | cdc-pakistan-pp-cli auth clearance set --user-agent "$UA"
+cdc-pakistan-pp-cli auth clearance status
+```
+
+`$UA` must be the exact User-Agent of the browser you cleared the challenge in.
+
+The clearance has a **measured hard lifetime of roughly thirty minutes from mint**, regardless of traffic — the cookie's own expiry field claims a year and is not to be trusted. The long-running commands (`coverage map`, `verify rows`, `stats history --snapshot`) check the remaining margin before starting and refuse early rather than dying midway through a fan-out; the thin single-request commands (`downloads`, `statistics`, `assets`) send the stored pair but do not pre-check the margin, so past the window they simply return a challenge error.
+
+`auth login --chrome` is the framework's generic cookie import. It populates the generated credential store and is enough for the thin fetchers, but it captures neither the minting User-Agent nor a mint time, so it cannot support the margin guard and does not satisfy the commands that read the clearance store. Prefer `auth clearance set`.
 
 Run `cdc-pakistan-pp-cli doctor` to verify setup.
 

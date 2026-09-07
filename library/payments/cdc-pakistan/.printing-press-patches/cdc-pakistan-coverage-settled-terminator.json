@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-coverage-settled-terminator",
+  "summary": "A (category, year) pair counts as settled only once its walk reached a terminator with nothing failing, and a terminator write now truncates stale rows past it.",
+  "reason": "settledPairs selected any pair having a 'found' page, so a pair whose walk was cut short -- by a mid-page transport error, or by exhausting --max-scan-pages -- was indistinguishable from a completed one. Every later run then SKIPPED it, printing 'every requested (category, year) pair is already settled; nothing to probe' and making zero requests, so the rest of that category/year was permanently absent from the corpus. --strict could not catch it because loadCoverage accumulated 'settled' with the same predicate, making PairsRemaining 0 and exiting 0 on an incomplete corpus. Downstream has no completeness gate, so a rename or suspension notice on an unfetched page reads as 'does not exist' rather than 'not fetched' -- the exact liar-map this command exists to prevent. Both terminator paths already wrote 'not-found-at-source', so requiring one is what separates a finished walk from an abandoned one. The truncation is required to avoid trading the skip bug for a permanent-RESCAN bug: upsertBucket can only overwrite a row at the same page, so a stale error row at a page beyond a later, shorter walk's terminator would keep the pair unsettled forever.",
+  "files": ["internal/cli/coverage_map.go", "internal/cli/coverage_settled_test.go"],
+  "markers": ["truncatePairBeyond", "not-found-at-source"],
+  "validated_outcome": "Four regression tests reproduce the original defect mechanically: a pair with a failed page 2 and a pair truncated at the scan bound are both refused as settled, a clean terminator still settles, a stale error row past a terminator no longer blocks settling, and loadCoverage now reports the same settled set as the probe path plus a separate pairs_partially_walked counter.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/1959"
+}

@@ -86,7 +86,7 @@ This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle �
 The bundle reuses your local browser session — set it up first if you haven't:
 
 ```bash
-cdc-pakistan-pp-cli auth login --chrome
+printf '%s' "$CF_CLEARANCE" | cdc-pakistan-pp-cli auth clearance set --user-agent "$UA"
 ```
 
 To install:
@@ -122,7 +122,19 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-CDC sits behind a Cloudflare JS challenge on every path. Run `auth login --chrome` once: it opens a real browser, clears the challenge, and stores the clearance cookie together with the exact User-Agent that minted it, because the cookie is bound to that User-Agent. The clearance has a measured hard lifetime of roughly thirty minutes regardless of traffic — the cookie's own expiry field claims a year and is not to be trusted. Every command checks the remaining margin before starting work and refuses early rather than dying midway through a fan-out.
+CDC sits behind a Cloudflare JS challenge on every path. The authoritative gesture is `auth clearance set`, which stores three things as one unit: the `cf_clearance` cookie, the **exact User-Agent that minted it** (the cookie is bound to that User-Agent and is useless without it), and the mint time. Clear the challenge once in a real browser, then pass the cookie and that browser's User-Agent:
+
+```bash
+# The cookie is read from stdin so it never reaches your shell history.
+printf '%s' "$CF_CLEARANCE" | cdc-pakistan-pp-cli auth clearance set --user-agent "$UA"
+cdc-pakistan-pp-cli auth clearance status
+```
+
+`$UA` must be the exact User-Agent of the browser you cleared the challenge in.
+
+The clearance has a **measured hard lifetime of roughly thirty minutes from mint**, regardless of traffic — the cookie's own expiry field claims a year and is not to be trusted. The long-running commands (`coverage map`, `verify rows`, `stats history --snapshot`) check the remaining margin before starting and refuse early rather than dying midway through a fan-out; the thin single-request commands (`downloads`, `statistics`, `assets`) send the stored pair but do not pre-check the margin, so past the window they simply return a challenge error.
+
+`auth login --chrome` is the framework's generic cookie import. It populates the generated credential store and is enough for the thin fetchers, but it captures neither the minting User-Agent nor a mint time, so it cannot support the margin guard and does not satisfy the commands that read the clearance store. Prefer `auth clearance set`.
 
 ## Quick Start
 
@@ -432,8 +444,8 @@ Static request headers can be configured under `headers`; per-command header ove
 - Run the `list` command to see available items
 
 ### API-specific
-- **Every command returns a clearance-expired error** — Run `auth login --chrome` again; the clearance has a hard ~30-minute lifetime and cannot be renewed without a browser.
-- **A command refuses immediately with 'clearance margin too small'** — That is deliberate — re-mint with `auth login --chrome` rather than starting work that cannot finish.
-- **coverage map stopped partway with chunks remaining** — Re-run `auth login --chrome` then re-run the same command; it re-derives what is missing from the store and resumes.
+- **Every command returns a clearance-expired error** — Re-mint in a browser and re-run `auth clearance set`; the clearance has a hard ~30-minute lifetime from mint and cannot be renewed without a browser.
+- **A command refuses immediately with 'clearance margin too small'** — That is deliberate — re-mint and re-run `auth clearance set` rather than starting work that cannot finish.
+- **coverage map stopped partway with chunks remaining** — Re-mint, re-run `auth clearance set`, then re-run the same command. A (category, year) pair only counts as settled once its walk reaches a terminator with nothing failing, so an interrupted pair is re-walked rather than skipped, and `coverage map` reports it under `pairs_partially_walked`.
 - **A vintage load is refused for schema drift** — Inspect with `verify schema --vintage <date>`; CDC has changed columns before, so acknowledge the new fingerprint deliberately rather than blending.
 - **float triangulate returns rows with an empty CDC leg** — Part B of the report covers mutual-fund units and carries no paid-up capital, so no penetration percentage exists for those ISINs.

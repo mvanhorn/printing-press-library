@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260907-191511-60d154e7",
+  "base_printing_press_version": "4.31.7",
+  "id": "cdc-pakistan-clearance-client-bridge",
+  "summary": "Bridged the clearance store to the generated client with an apply-only client hook, so the promoted downloads/statistics/assets commands actually send the stored cookie and its minting User-Agent.",
+  "reason": "The promoted commands are generated: they build the generated client, which reads credentials.toml and the cookie jar. LoadClearance reads cdc-clearance.json, written by 'auth clearance set'. Nothing joined the two, so a successfully stored clearance authenticated NOTHING on those three commands -- they sent no Cookie header at all, took the Cloudflare interstitial, and reported it as an ordinary failure. The hook lives in this preserved file because the promoted command files carry DO NOT EDIT. It is deliberately apply-only: it never persists (this file's own 'auth clearance set' declares pp:happy-args containing --cookie=example-clearance-value, which the verify and shipcheck harnesses EXECUTE, and that placeholder is not the shape the client screens for -- a write-through would permanently install a junk clearance while doctor reported auth as configured), it never returns an error (doctor, api, import and every MCP tool construct a client with or without a clearance), and it skips dry-run. The cookie and User-Agent are applied together or not at all, because cf_clearance is UA-bound and the cookie under the wrong UA fails in a way that looks like a bad cookie rather than a mismatched one.",
+  "files": ["internal/cli/cdc_clearance.go", "internal/cli/cdc_clearance_bridge_test.go", "README.md", "SKILL.md"],
+  "markers": ["applyClearanceToClient", "activeClearanceFlags"],
+  "validated_outcome": "Four tests pin the contract: the pair is applied to a live client, a missing/corrupt/UA-less clearance and a nil client all return no error and send nothing, dry-run applies neither, and nothing is written to disk. README and SKILL.md corrected: they told users to run 'auth login --chrome', which populates only the generated store and captures neither the minting UA nor a mint time."
+}
