@@ -12,7 +12,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -31,7 +30,7 @@ func newPlaylistsMergeCmd(flags *rootFlags) *cobra.Command {
 		Short: "Merge multiple playlists into one with dedupe",
 		Long: `Reads source playlists' tracks (paginated), dedupes across sources via
 --dedupe-by, orders them per --order, and writes the result to --into.
-The first chunk uses PUT /playlists/{id}/tracks which REPLACES the
+The first chunk uses PUT /playlists/{id}/items which REPLACES the
 destination's current contents; subsequent chunks (for merges > 100
 tracks) append. Re-running with the same sources produces the same
 destination state (idempotent); switching sources cleanly replaces.
@@ -78,7 +77,7 @@ Pass the global --dry-run flag to preview without writing.`,
 				Name    string
 			}
 			// PATCH (fix-playlist-track-pagination, fix-merge-replace-and-paginate):
-			// Paginate each source via /playlists/{id}/tracks so playlists
+			// Paginate each source via /playlists/{id}/items so playlists
 			// with more than 100 tracks contribute their full contents to
 			// the merge (the embedded tracks field on GET /playlists/{id}
 			// caps at 100 and would silently drop the tail).
@@ -137,38 +136,15 @@ Pass the global --dry-run flag to preview without writing.`,
 
 			// PATCH (fix-merge-replace-and-paginate):
 			// Write to destination in 100-track chunks. The first chunk uses
-			// PUT /playlists/{id}/tracks which REPLACES the destination's
+			// PUT /playlists/{id}/items which REPLACES the destination's
 			// existing contents — otherwise re-running merge silently doubles
 			// the destination because POST only appends. Subsequent chunks
 			// use POST to append. Net effect: re-running with the same sources
 			// produces the same destination state (idempotent), and switching
 			// sources cleanly replaces.
-			const chunkSize = 100
-			added := 0
-			if len(uris) == 0 {
-				// Nothing to write; explicit empty PUT clears the destination
-				// so re-running with empty sources also stays idempotent.
-				_, _, err := c.Put(context.Background(), "/playlists/"+destPlaylist+"/items", map[string]any{"uris": []string{}})
-				if err != nil {
-					return classifyAPIError(err, flags)
-				}
-			}
-			for i := 0; i < len(uris); i += chunkSize {
-				end := i + chunkSize
-				if end > len(uris) {
-					end = len(uris)
-				}
-				body := map[string]any{"uris": uris[i:end]}
-				var err error
-				if i == 0 {
-					_, _, err = c.Put(context.Background(), "/playlists/"+destPlaylist+"/items", body)
-				} else {
-					_, _, err = c.Post(context.Background(), "/playlists/"+destPlaylist+"/items", body)
-				}
-				if err != nil {
-					return classifyAPIError(err, flags)
-				}
-				added += end - i
+			added, err := replacePlaylistItems(c, destPlaylist, uris)
+			if err != nil {
+				return classifyAPIError(err, flags)
 			}
 
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{

@@ -11,7 +11,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -30,7 +29,7 @@ func newPlaylistsDedupeCmd(flags *rootFlags) *cobra.Command {
 album/single/EP/deluxe-reissue dupe class that bare-ID dedupe misses.
 
 Without --apply, only reports the dupe sets — no API mutation is made.
-With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
+With --apply, calls Spotify's remove-playlist-items endpoint with a snapshot guard.`,
 		Example: "  spotify-pp-cli playlists dedupe 37i9dQZF1DXcBWIGoYBM5M --by isrc",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -63,7 +62,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 				return err
 			}
 			// PATCH (fix-playlist-track-pagination):
-			// Paginate /playlists/{id}/tracks to avoid the 100-item embed cap
+			// Paginate /playlists/{id}/items to avoid the 100-item embed cap
 			// on GET /playlists/{id}; otherwise we silently dedupe only the
 			// first 100 tracks of any larger playlist.
 			plID, _, snapshotID, items, err := fetchFullPlaylist(c, playlistID)
@@ -139,17 +138,12 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 			}
 
 			// PATCH (fix-dedupe-snapshot-aware-delete):
-			// Apply: snapshot-aware DELETE /playlists/{id}/tracks. The
-			// tracks + snapshot_id payload is required by Spotify and goes
+			// Apply: snapshot-aware DELETE /playlists/{id}/items. The
+			// items + snapshot_id payload is required by Spotify and goes
 			// in the JSON body (not the URL). The original c.Delete call
 			// silently dropped the body, leaving every --apply as a no-op
 			// against the API.
-			body := map[string]any{
-				"tracks":      toRemove,
-				"snapshot_id": snapshotID,
-			}
-			_, _, err = c.DeleteWithBody(context.Background(), "/playlists/"+playlistID+"/items", body)
-			if err != nil {
+			if err := removePlaylistItems(c, playlistID, snapshotID, toRemove); err != nil {
 				return classifyAPIError(err, flags)
 			}
 			out["removed"] = len(toRemove)

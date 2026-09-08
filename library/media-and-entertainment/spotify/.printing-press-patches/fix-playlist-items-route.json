@@ -4,16 +4,19 @@
   "applied_at": "2026-09-08",
   "base_run_id": "20260707-145126",
   "base_printing_press_version": "4.27.1",
-  "summary": "Route the shared fetchFullPlaylist helper and the dedupe/merge write paths through /playlists/{id}/items instead of the deprecated /playlists/{id}/tracks; the items rows carry the track under `item`, so playlistTrackItem's json tag moves from `track` to `item`.",
+  "summary": "Route the shared fetchFullPlaylist helper and the dedupe/merge write paths through /playlists/{id}/items instead of the deprecated /playlists/{id}/tracks; the items rows carry the track under `item`, so playlistTrackItem's json tag moves from `track` to `item`. The DELETE body key moves from `tracks` to `items` (Spotify returns 400 \"No uris provided\" on the old key); the dedupe and merge write paths are lifted into removePlaylistItems/replacePlaylistItems so the route contract is unit-tested.",
   "reason": "Spotify returns HTTP 403 on /playlists/{id}/tracks for apps in development mode created after the 2025 API changes, which broke playlists diff, dedupe, merge, and every snapshot-backed command (tracks where) for new users. Verified live against 51 playlists: 43 succeeded end-to-end on the new route; the remaining 7 are other users' public playlists, which Spotify now blocks for dev-mode apps regardless of route.",
   "files": [
     "internal/cli/transcendence_helpers.go",
     "internal/cli/transcendence_t2_dedupe.go",
-    "internal/cli/transcendence_t3_merge.go"
+    "internal/cli/transcendence_t3_merge.go",
+    "internal/cli/transcendence_items_route_test.go"
   ],
   "call_sites": [
     "playlistID+\"/items\"",
     "destPlaylist+\"/items\"",
-    "json:\"item\""
+    "json:\"item\"",
+    "removePlaylistItems(",
+    "replacePlaylistItems("
   ]
 }

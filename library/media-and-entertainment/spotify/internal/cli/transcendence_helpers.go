@@ -71,9 +71,9 @@ type playlistTrackItem struct {
 
 // PATCH (fix-playlist-track-pagination):
 // fetchFullPlaylist returns a playlist's metadata + every track row,
-// paginating /playlists/{id}/tracks to bypass the 100-item embed cap on
+// paginating /playlists/{id}/items to bypass the 100-item embed cap on
 // GET /playlists/{id}. Calls one metadata fetch (with ?fields= to keep
-// the payload small) and one paginated /tracks fetch. Both commands
+// the payload small) and one paginated /items fetch. Both commands
 // that snapshot a playlist (T1, T2) and the source-walking pass in T3
 // route through here so the truncation cannot recur per call-site.
 func fetchFullPlaylist(c *client.Client, playlistID string) (id, name, snapshotID string, items []playlistTrackItem, err error) {
@@ -102,6 +102,52 @@ func fetchFullPlaylist(c *client.Client, playlistID string) (id, name, snapshotI
 		}
 	}
 	return meta.ID, meta.Name, meta.SnapshotID, items, nil
+}
+
+// PATCH (fix-playlist-items-route):
+// removePlaylistItems issues the snapshot-guarded DELETE against
+// /playlists/{id}/items. The body key is `items` (the /tracks route took
+// `tracks`); Spotify answers 400 "No uris provided" if the old key is sent.
+func removePlaylistItems(c *client.Client, playlistID, snapshotID string, items []map[string]any) error {
+	body := map[string]any{
+		"items":       items,
+		"snapshot_id": snapshotID,
+	}
+	_, _, err := c.DeleteWithBody(context.Background(), "/playlists/"+playlistID+"/items", body)
+	return err
+}
+
+// PATCH (fix-playlist-items-route):
+// replacePlaylistItems writes uris to a destination playlist in 100-item
+// chunks via /playlists/{id}/items: the first chunk is a PUT (replaces the
+// destination), later chunks POST (append). An empty uris slice sends an
+// explicit empty PUT so the destination is cleared. Returns the count written.
+func replacePlaylistItems(c *client.Client, playlistID string, uris []string) (int, error) {
+	const chunkSize = 100
+	path := "/playlists/" + playlistID + "/items"
+	if len(uris) == 0 {
+		_, _, err := c.Put(context.Background(), path, map[string]any{"uris": []string{}})
+		return 0, err
+	}
+	added := 0
+	for i := 0; i < len(uris); i += chunkSize {
+		end := i + chunkSize
+		if end > len(uris) {
+			end = len(uris)
+		}
+		body := map[string]any{"uris": uris[i:end]}
+		var err error
+		if i == 0 {
+			_, _, err = c.Put(context.Background(), path, body)
+		} else {
+			_, _, err = c.Post(context.Background(), path, body)
+		}
+		if err != nil {
+			return added, err
+		}
+		added += end - i
+	}
+	return added, nil
 }
 
 // fetchAllPaged repeatedly hits a Spotify list endpoint following `next`
