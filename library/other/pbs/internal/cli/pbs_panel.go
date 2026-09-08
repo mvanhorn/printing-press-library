@@ -235,23 +235,35 @@ func nullableNum(v pbsparse.Value) any {
 // input, so they are safe to interpolate — SQLite does not accept a bound
 // parameter in place of a table name. The as_of value is still bound.
 //
-// COLLIDING DATES ARE SKIPPED ON PURPOSE. The observation tables key on as_of
-// and do NOT carry `kind`, unlike pbs_release_file and pbs_coverage. PBS does
-// publish a weekly and a monthly release on the same date — 2024-02-01,
-// 2024-08-01 and 2026-01-01 in the live index — and on those dates an
-// as_of-scoped delete cannot tell one series' rows from the other's, so it
-// would silently destroy the series that is not being synced. There the delete
-// is declined and the upsert alone applies, which is exactly the behavior that
-// shipped before replace-semantics existed: stale rows may survive a shrinking
-// rewrite on three dates, which is strictly better than deleting a whole
-// parallel series. Carrying `kind` on the observation tables is the real fix
-// and is a schema change, not a review fix.
-func deleteReleaseRows(ctx context.Context, tx *sql.Tx, asOf, kind string, tables ...string) error {
+// COLLIDING DATES ARE SKIPPED ON PURPOSE, BUT ONLY PER ROLE. The observation
+// tables key on as_of and do NOT carry `kind`, unlike pbs_release_file and
+// pbs_coverage. PBS does publish a weekly and a monthly release on the same
+// date — 2024-02-01, 2024-08-01 and 2026-01-01 in the live index — and on those
+// dates an as_of-scoped delete cannot tell one series' rows from the other's,
+// so it would silently destroy the series that is not being synced.
+//
+// The collision is checked for the ROLE being replaced, not for the release as
+// a whole, because the two roles write disjoint tables. Only an annexure writes
+// pbs_price and pbs_national; only a report writes pbs_weight, pbs_weight_total
+// and pbs_index. Today no CPI month publishes a report file at all — measured
+// from the index, cpi-monthly carries annexure, construction and unknown roles
+// and zero report rows — so the report tables hold weekly data exclusively and
+// their cleanup must NOT be skipped just because a monthly annexure shares the
+// date. Keying the check on role means this stays correct on its own if PBS
+// ever starts publishing a monthly report.
+//
+// Where a genuine same-role collision exists the delete is declined and the
+// upsert alone applies, which is the behavior that shipped before
+// replace-semantics existed: stale rows may survive a shrinking rewrite on
+// those dates, which is strictly better than deleting a whole parallel series.
+// Carrying `kind` on the observation tables is the real fix and is a schema
+// change, not a review fix.
+func deleteReleaseRows(ctx context.Context, tx *sql.Tx, asOf, kind, role string, tables ...string) error {
 	var otherSeries int
 	if err := tx.QueryRowContext(ctx,
-		`SELECT COUNT(DISTINCT kind) FROM pbs_release_file WHERE as_of = ? AND kind <> ?`,
-		asOf, kind).Scan(&otherSeries); err != nil {
-		return fmt.Errorf("check series collision at %s: %w", asOf, err)
+		`SELECT COUNT(*) FROM pbs_release_file WHERE as_of = ? AND kind <> ? AND role = ?`,
+		asOf, kind, role).Scan(&otherSeries); err != nil {
+		return fmt.Errorf("check series collision at %s for role %s: %w", asOf, role, err)
 	}
 	if otherSeries > 0 {
 		return nil
@@ -279,7 +291,7 @@ func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, sour
 	// DROPPED an item kept that item alive and a later basket or national
 	// average silently summed a mixture of two vintages. The delete is inside
 	// this transaction so a crash cannot leave the release empty.
-	if err := deleteReleaseRows(ctx, tx, a.AsOf, kind, "pbs_price", "pbs_national"); err != nil {
+	if err := deleteReleaseRows(ctx, tx, a.AsOf, kind, "annexure", "pbs_price", "pbs_national"); err != nil {
 		return 0, err
 	}
 	st, err := tx.PrepareContext(ctx, `INSERT INTO pbs_price
@@ -346,7 +358,7 @@ func persistReport(ctx context.Context, db *sql.DB, rep *pbsparse.Report, kind s
 	// fewer items or fewer quintile series must not leave the dropped ones
 	// behind, or `weights --check-total` would be asserting 100.0000 over a
 	// mixture of two vintages.
-	if err := deleteReleaseRows(ctx, tx, rep.AsOf, kind, "pbs_weight", "pbs_weight_total", "pbs_index"); err != nil {
+	if err := deleteReleaseRows(ctx, tx, rep.AsOf, kind, "report", "pbs_weight", "pbs_weight_total", "pbs_index"); err != nil {
 		return 0, err
 	}
 

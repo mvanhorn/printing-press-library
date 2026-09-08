@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "da2d1989f352bdee7d919ef7cb31dc3afb544bc746dffba3abb4db244eb25c07",
+  "source_fingerprint": "db8fc904d3bc5eeff335bb4db8e66ebf27cea2fd5fd1866cc19aafc92fe2024e",
   "source_files": {
     "cmd/pbs-pp-cli/main.go": "3eab0dd11dd7511d4349f171d7cd51caaf2c91ec358d81e0749639bda8f07a30",
     "cmd/pbs-pp-mcp/http_auth_test.go": "03799a097250137cd418c3f11d955418d7a96986e74abdbbae4ca48196729bc4",
@@ -42,12 +42,12 @@
     "internal/cli/learnings_stats_test.go": "a950dee9a6c64c5c3a3236bfe64ebd0912c8889a0a4e9930b529ac8bedcc8e91",
     "internal/cli/movers.go": "79b928a6e99bae12a98d879d8394faa1875cfcc5155eaa6eee8d88cb6496680d",
     "internal/cli/movers_test.go": "607223cb1f3b0528dc0b2972238ffb70c0d971dafcbdf2962593a5125f349a7a",
-    "internal/cli/pbs_panel.go": "5bb8c2c7a89cff7b6f99dc54256f6a411de40de2f9854d42ac3560b026247483",
+    "internal/cli/pbs_panel.go": "f7fb106574facce11f22c79c19f622ee45b76d6660b93fbe6eeb7efd518ce201",
     "internal/cli/pbs_query.go": "c8c2eb7df96bfad9e10dde2da0c6c59f4b17a16f615f408f48a4719e4e9f3dbf",
     "internal/cli/pbs_query_regression_test.go": "cb073ec1f51db231c4f659b69b903e7a095c676775faf8c9ba1fc2591e7f3538",
     "internal/cli/pbs_register.go": "bab3ac7a8ba7ead9eb38c4d2d97e02ca7c90a60f586e2a71b03609e2462ca23b",
     "internal/cli/pbs_releases.go": "9084ccb785acb3fafc9afb0c2dbb0bd3e2686ceb6cac651d863a5636d8854e9b",
-    "internal/cli/pbs_resume_regression_test.go": "e36c62a91f7ff39aa1285ccc86875b41075d0994e2fe25e2e86460528f177a79",
+    "internal/cli/pbs_resume_regression_test.go": "6cc8bbfa3a0a1e8d1e51a54340b1cea8fc7c598737e6f49cebd2b923038e0080",
     "internal/cli/pbs_sync.go": "e0ab9df0b7ab85b7037821ec1b852557c5be2ad0ad4e2312503d415ce84a7d02",
     "internal/cli/platform_cli_test.go": "2a04c9dfc2c38316578d93ea1c9e28d3f502856458038f9c6aec7ba5ee2edd6e",
     "internal/cli/platform_client.go": "06f5d685bc372523f92c4cf23a76c1497b6d270ceed0bcb0bbe6b6cf8fbec913",

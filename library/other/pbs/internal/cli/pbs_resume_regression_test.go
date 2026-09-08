@@ -183,7 +183,7 @@ func TestDeleteReleaseRowsDropsStaleObservations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("begin: %v", err)
 	}
-	if err := deleteReleaseRows(context.Background(), tx, "2026-09-03", "spi", "pbs_price", "pbs_national"); err != nil {
+	if err := deleteReleaseRows(context.Background(), tx, "2026-09-03", "spi", "annexure", "pbs_price", "pbs_national"); err != nil {
 		t.Fatalf("deleteReleaseRows: %v", err)
 	}
 	if err := tx.Commit(); err != nil {
@@ -236,7 +236,7 @@ func TestDeleteReleaseRowsDeclinesOnSeriesCollision(t *testing.T) {
 	if err != nil {
 		t.Fatalf("begin: %v", err)
 	}
-	if err := deleteReleaseRows(context.Background(), tx, "2026-01-01", "spi", "pbs_price", "pbs_national"); err != nil {
+	if err := deleteReleaseRows(context.Background(), tx, "2026-01-01", "spi", "annexure", "pbs_price", "pbs_national"); err != nil {
 		t.Fatalf("deleteReleaseRows: %v", err)
 	}
 	if err := tx.Commit(); err != nil {
@@ -249,5 +249,50 @@ func TestDeleteReleaseRowsDeclinesOnSeriesCollision(t *testing.T) {
 	}
 	if n != 1 {
 		t.Errorf("rows at a colliding date = %d, want 1 — the other series must not be deleted", n)
+	}
+}
+
+// TestDeleteReleaseRowsCleansReportTablesOnCollidingDate pins the other half of
+// the collision guard: it must be scoped to the ROLE being replaced.
+//
+// The two roles write disjoint tables — only an annexure writes pbs_price and
+// pbs_national, only a report writes pbs_weight, pbs_weight_total and
+// pbs_index. No CPI month publishes a report file, so the report tables hold
+// weekly data exclusively, and a monthly ANNEXURE sharing the date must not
+// stop the report tables from being cleaned.
+func TestDeleteReleaseRowsCleansReportTablesOnCollidingDate(t *testing.T) {
+	db := newCoverageDB(t)
+	if _, err := db.Exec(`CREATE TABLE pbs_weight (as_of TEXT NOT NULL, item_desc TEXT NOT NULL)`); err != nil {
+		t.Fatalf("ddl: %v", err)
+	}
+	if _, err := db.Exec(`INSERT INTO pbs_weight (as_of, item_desc) VALUES ('2026-01-01','Stale Item')`); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	// Both series publish an ANNEXURE on this date; neither publishes a report.
+	putIndexFile(t, db, "2026-01-01", "annexure")
+	if _, err := db.Exec(
+		`INSERT INTO pbs_release_file (as_of, kind, role, url) VALUES (?,?,?,?)`,
+		"2026-01-01", "cpi", "annexure", "https://example.invalid/cpi"); err != nil {
+		t.Fatalf("insert cpi index row: %v", err)
+	}
+
+	tx, err := db.BeginTx(context.Background(), nil)
+	if err != nil {
+		t.Fatalf("begin: %v", err)
+	}
+	if err := deleteReleaseRows(context.Background(), tx, "2026-01-01", "spi", "report", "pbs_weight"); err != nil {
+		t.Fatalf("deleteReleaseRows: %v", err)
+	}
+	if err := tx.Commit(); err != nil {
+		t.Fatalf("commit: %v", err)
+	}
+
+	var n int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM pbs_weight WHERE as_of = '2026-01-01'`).Scan(&n); err != nil {
+		t.Fatalf("count: %v", err)
+	}
+	if n != 0 {
+		t.Errorf("report tables must still be cleaned when only the ANNEXURE role collides; %d stale rows survived", n)
 	}
 }
