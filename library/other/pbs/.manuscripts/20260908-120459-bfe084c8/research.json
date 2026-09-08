@@ -1,0 +1,251 @@
+{
+  "api_name": "pbs",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-08T07:22:29Z",
+  "novel_features": [
+    {
+      "name": "Cross-city price spread",
+      "command": "spread",
+      "description": "See the cheapest and dearest city for any essential item in any week, and how that gap has moved over time.",
+      "rationale": "Requires every weekly release held at once; PBS publishes each week as a standalone file and no dispersion measure at all.",
+      "example": "pbs-pp-cli spread \"Onions\" --as-of 2026-09-03 --agent",
+      "why_it_matters": "Reach for this when the question is about geography rather than time — which city is an outlier on this item right now.",
+      "group": "Panel joins the source cannot answer"
+    },
+    {
+      "name": "Single-item multi-city series",
+      "command": "drift",
+      "description": "Follow one item's price across named cities and weeks, with missing weeks shown as gaps rather than filled.",
+      "rationale": "Keyed on item description because the source's own Sr. column restarts inside each of three weekly re-ranked sections; only a local store holds the series.",
+      "example": "pbs-pp-cli drift \"Wheat Flour Bag\" --city lahore --city quetta --agent",
+      "why_it_matters": "Reach for this when the question is about time for a known item and known cities.",
+      "group": "Panel joins the source cannot answer"
+    },
+    {
+      "name": "Custom re-weighted basket",
+      "command": "basket",
+      "description": "Build your own price index over any subset of items using the weight vector PBS republishes every week.",
+      "rationale": "Joins stored weights against stored levels; PBS publishes only its own aggregation and no way to re-weight.",
+      "example": "pbs-pp-cli basket --item \"Wheat Flour Bag\" --item \"Sugar Refined\" --weight lowest --agent",
+      "why_it_matters": "Reach for this to build a food-only or fuel-only index the Bureau never computes.",
+      "group": "Panel joins the source cannot answer"
+    },
+    {
+      "name": "Weight-vector drift",
+      "command": "weights",
+      "description": "Read the item weight vector for any release, diff two releases, and check the totals sum to 100.",
+      "rationale": "The vector is republished weekly with no upstream change log, so a re-weighting is invisible unless the prior week was stored.",
+      "example": "pbs-pp-cli weights --check-total --agent",
+      "why_it_matters": "Reach for this before trusting a long index series — a silent re-weighting breaks comparability.",
+      "group": "Only the accrued store knows"
+    },
+    {
+      "name": "Extraction verification",
+      "command": "verify",
+      "description": "Audit parsed cell values against the source's own arithmetic invariants, including the weight totals and min-avg-max ordering.",
+      "rationale": "Measures the parser from outside the parser; a broken invariant is treated as a parse failure, never as data.",
+      "example": "pbs-pp-cli verify --all --agent",
+      "why_it_matters": "Reach for this before quoting any figure — it distinguishes a real price move from a parse bug.",
+      "group": "Honesty instrumentation"
+    },
+    {
+      "name": "Coverage and gap map",
+      "command": "coverage",
+      "description": "Show which releases exist upstream, which the local store holds, and every hole named as a hole.",
+      "rationale": "Gap detection is cadence-based with tolerance rather than weekday-based, because releases land on six different weekdays.",
+      "example": "pbs-pp-cli coverage --gaps --agent",
+      "why_it_matters": "Reach for this whenever a result looks clean — a silently short series is the classic false positive.",
+      "group": "Honesty instrumentation"
+    },
+    {
+      "name": "Upstream revision detector",
+      "command": "revisions",
+      "description": "Detect releases the Bureau has rewritten, re-pointed, or deleted since you captured them.",
+      "rationale": "Only meaningful because the store accrues what the site overwrites; the site has already lost months of its own history.",
+      "example": "pbs-pp-cli revisions --all --agent",
+      "why_it_matters": "Reach for this to prove your local copy is the surviving record, and to catch a silent restatement.",
+      "group": "Only the accrued store knows"
+    },
+    {
+      "name": "Top movers from levels",
+      "command": "movers",
+      "description": "Rank every item in a release by percent change recomputed from price levels, nationally or per city, with outliers flagged.",
+      "rationale": "The published percent and impact columns are genuinely zero while levels are correct, so this ranking does not exist in the source file.",
+      "example": "pbs-pp-cli movers --as-of 2026-09-03 --top 10 --flag-outliers --agent",
+      "why_it_matters": "Reach for this when the question is which items moved this week, rather than one known item.",
+      "group": "Panel joins the source cannot answer"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-city price spread",
+      "command": "spread",
+      "description": "See the cheapest and dearest city for any essential item in any week, and how that gap has moved over time.",
+      "rationale": "Requires every weekly release held at once; PBS publishes each week as a standalone file and no dispersion measure at all.",
+      "example": "pbs-pp-cli spread \"Onions\" --as-of 2026-09-03 --agent",
+      "why_it_matters": "Reach for this when the question is about geography rather than time — which city is an outlier on this item right now.",
+      "group": "Panel joins the source cannot answer"
+    },
+    {
+      "name": "Single-item multi-city series",
+      "command": "drift",
+      "description": "Follow one item's price across named cities and weeks, with missing weeks shown as gaps rather than filled.",
+      "rationale": "Keyed on item description because the source's own Sr. column restarts inside each of three weekly re-ranked sections; only a local store holds the series.",
+      "example": "pbs-pp-cli drift \"Wheat Flour Bag\" --city lahore --city quetta --agent",
+      "why_it_matters": "Reach for this when the question is about time for a known item and known cities.",
+      "group": "Panel joins the source cannot answer"
+    },
+    {
+      "name": "Custom re-weighted basket",
+      "command": "basket",
+      "description": "Build your own price index over any subset of items using the weight vector PBS republishes every week.",
+      "rationale": "Joins stored weights against stored levels; PBS publishes only its own aggregation and no way to re-weight.",
+      "example": "pbs-pp-cli basket --item \"Wheat Flour Bag\" --item \"Sugar Refined\" --weight lowest --agent",
+      "why_it_matters": "Reach for this to build a food-only or fuel-only index the Bureau never computes.",
+      "group": "Panel joins the source cannot answer"
+    },
+    {
+      "name": "Weight-vector drift",
+      "command": "weights",
+      "description": "Read the item weight vector for any release, diff two releases, and check the totals sum to 100.",
+      "rationale": "The vector is republished weekly with no upstream change log, so a re-weighting is invisible unless the prior week was stored.",
+      "example": "pbs-pp-cli weights --check-total --agent",
+      "why_it_matters": "Reach for this before trusting a long index series — a silent re-weighting breaks comparability.",
+      "group": "Only the accrued store knows"
+    },
+    {
+      "name": "Extraction verification",
+      "command": "verify",
+      "description": "Audit parsed cell values against the source's own arithmetic invariants, including the weight totals and min-avg-max ordering.",
+      "rationale": "Measures the parser from outside the parser; a broken invariant is treated as a parse failure, never as data.",
+      "example": "pbs-pp-cli verify --all --agent",
+      "why_it_matters": "Reach for this before quoting any figure — it distinguishes a real price move from a parse bug.",
+      "group": "Honesty instrumentation"
+    },
+    {
+      "name": "Coverage and gap map",
+      "command": "coverage",
+      "description": "Show which releases exist upstream, which the local store holds, and every hole named as a hole.",
+      "rationale": "Gap detection is cadence-based with tolerance rather than weekday-based, because releases land on six different weekdays.",
+      "example": "pbs-pp-cli coverage --gaps --agent",
+      "why_it_matters": "Reach for this whenever a result looks clean — a silently short series is the classic false positive.",
+      "group": "Honesty instrumentation"
+    },
+    {
+      "name": "Upstream revision detector",
+      "command": "revisions",
+      "description": "Detect releases the Bureau has rewritten, re-pointed, or deleted since you captured them.",
+      "rationale": "Only meaningful because the store accrues what the site overwrites; the site has already lost months of its own history.",
+      "example": "pbs-pp-cli revisions --all --agent",
+      "why_it_matters": "Reach for this to prove your local copy is the surviving record, and to catch a silent restatement.",
+      "group": "Only the accrued store knows"
+    },
+    {
+      "name": "Top movers from levels",
+      "command": "movers",
+      "description": "Rank every item in a release by percent change recomputed from price levels, nationally or per city, with outliers flagged.",
+      "rationale": "The published percent and impact columns are genuinely zero while levels are correct, so this ranking does not exist in the source file.",
+      "example": "pbs-pp-cli movers --as-of 2026-09-03 --top 10 --flag-outliers --agent",
+      "why_it_matters": "Reach for this when the question is which items moved this week, rather than one known item.",
+      "group": "Panel joins the source cannot answer"
+    }
+  ],
+  "narrative": {
+    "display_name": "Pakistan Bureau of Statistics",
+    "headline": "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, accrued locally because the Bureau itself does not keep the series.",
+    "value_prop": "Pakistan Bureau of Statistics publishes the richest sub-national price data in the country one machine-hostile weekly file at a time, indexes those files in a hand-edited JavaScript array, and deletes its own history: its live index reaches further back than the Internet Archive does, and one monthly annex is already served under two different months so one of them is lost. This CLI turns those scattered releases into one queryable panel and records every gap as a gap. Use spread and drift for questions the source cannot answer at all, coverage and verify to audit what you have, and revisions to catch what the Bureau quietly changed.",
+    "quickstart": [
+      {
+        "command": "pbs-pp-cli doctor",
+        "comment": "confirm the site is reachable before fetching anything"
+      },
+      {
+        "command": "pbs-pp-cli releases --limit 5",
+        "comment": "list the newest releases from the scraped index, sorted by real date"
+      },
+      {
+        "command": "pbs-pp-cli sync --full",
+        "comment": "fetch and parse every release into the local store; resumable and checkpointed"
+      },
+      {
+        "command": "pbs-pp-cli coverage --gaps",
+        "comment": "see exactly which weeks are missing before trusting any series"
+      },
+      {
+        "command": "pbs-pp-cli drift \"Wheat Flour Bag\" --city lahore --city quetta",
+        "comment": "the question the source cannot answer: one item, two cities, over time"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A series looks shorter than expected, or a trend has a suspicious flat stretch.",
+        "fix": "Run 'pbs-pp-cli coverage --gaps'. Seventeen weeks are absent from the upstream index itself, including a seven-week hole in autumn 2024."
+      },
+      {
+        "symptom": "A city average looks far too low for an item.",
+        "fix": "Run 'pbs-pp-cli coverage --state-census'. A numeric zero, a blank cell and the string N.A. are three different kinds of no-price and must not be averaged as zero."
+      },
+      {
+        "symptom": "A percent-change figure reads as exactly zero.",
+        "fix": "That is the source's own column, which is genuinely zero. Use 'pbs-pp-cli movers', which recomputes change from price levels."
+      },
+      {
+        "symptom": "A rebuilt national average does not match the published one.",
+        "fix": "Expected. The Bureau weights cities and does not publish the city weight vector, so 'pbs-pp-cli verify --check national-average' reports the divergence rather than failing."
+      },
+      {
+        "symptom": "A release fetch returns HTTP 404.",
+        "fix": "Release URLs are not constructible and the Bureau does rewrite them. Re-run 'pbs-pp-cli releases' to refresh the index, then 'pbs-pp-cli revisions' to see what moved."
+      }
+    ],
+    "when_to_use": "Use this CLI for any question about Pakistani consumer prices that spans more than one release file: comparing an item across cities, following an item over weeks, building a custom weighted index, or auditing how complete a price series actually is. It is also the right tool when you need to prove what the Bureau published at a point in time, because it stores what the site later overwrites. Prefer it over reading the source files by hand whenever the answer needs more than one week.",
+    "anti_triggers": [
+      "Do not use this CLI to fill in a missing week or estimate a price the Bureau did not publish; it reports gaps and will not interpolate.",
+      "Do not use it for a provincial or regional average; the Bureau does not publish the city weight vector, so any such figure would look official and be wrong.",
+      "Do not use it for Pakistani price history before July 2023; the older base series is no longer served and returns HTTP 404.",
+      "Do not use it for national headline inflation commentary alone, where the Bureau's own published index is the citable figure.",
+      "Do not use it for wage, fertilizer, cement or CNG series in this version; those sub-tables cover a different city set and are not yet parsed."
+    ],
+    "recipes": [
+      {
+        "title": "Which city is gouging on onions this week",
+        "command": "pbs-pp-cli spread \"Onions\" --as-of 2026-09-03 --agent --select summary.min_city,summary.max_city,summary.range,summary.contributing_cities",
+        "explanation": "Narrows a wide cross-city payload to just the extremes and the count of cities that actually reported, so an agent does not spend context on all the per-city rows."
+      },
+      {
+        "title": "Food inflation for the poorest quintile",
+        "command": "pbs-pp-cli basket --item \"Wheat Flour Bag\" --item \"Sugar Refined\" --item \"Pulse Gram\" --weight lowest --json",
+        "explanation": "Rebuilds an index over a chosen food subset using the Bureau's own lowest-quintile weights, which it republishes every week but never applies to a custom basket."
+      },
+      {
+        "title": "Audit a series before quoting it",
+        "command": "pbs-pp-cli coverage --gaps --state-census --json",
+        "explanation": "Prints missing releases and the per-release census of zero, blank and N.A. cells, so a clean-looking result can be checked for a silently short sample."
+      },
+      {
+        "title": "Catch what the Bureau changed under you",
+        "command": "pbs-pp-cli revisions --all --json",
+        "explanation": "Compares stored file hashes and index rows against the live site to surface rewritten bytes, re-pointed filenames, and releases that now return 404."
+      },
+      {
+        "title": "Track how the basket itself was re-weighted",
+        "command": "pbs-pp-cli weights --diff 2023-07-13..2026-09-03 --json",
+        "explanation": "The weight vector ships in every release with no change log upstream, so this diff exists only because the local store kept both editions."
+      }
+    ],
+    "trigger_phrases": [
+      "pakistan spi",
+      "weekly sensitive price indicator",
+      "pakistani food prices by city",
+      "price of wheat flour in lahore",
+      "pakistan cpi city prices",
+      "cost of living pakistan by city",
+      "use pbs",
+      "run pbs"
+    ]
+  }
+}

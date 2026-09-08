@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/pbs-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260908-120459-bfe084c8",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: pbs-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: pbs-pp-cli
+    main: ./cmd/pbs-pp-cli
+    binary: pbs-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/pbs/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: pbs-pp-mcp
+    main: ./cmd/pbs-pp-mcp
+    binary: pbs-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: pbs-pp-cli
+    repository:
+      owner: qazmataz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, accrued locally because the Bureau itself does not keep the series."
+    install: |
+      bin.install "pbs-pp-cli"
+      bin.install "pbs-pp-mcp"

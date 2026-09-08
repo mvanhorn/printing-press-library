@@ -1,0 +1,79 @@
+{
+  "api_name": "pbs",
+  "base_url": "https://www.pbs.gov.pk",
+  "description": "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, accrued locally because the Bureau itself does not keep the series.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "file_get",
+      "description": "Fetch one annexure, report, or CPI annex file by exact filename. Formats: .xlsx for the 44 most recent weekly releases (2025-10-23 onward) and .pdf for the other 104 -- so the text-layer PDF path covers 70% of the panel and is not optional. Never construct this filename; take it from `releases`. Required: filename.",
+      "method": "GET",
+      "path": "/wp-content/uploads/2020/07/{filename}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "path",
+          "description": "Exact file name including extension, taken verbatim from the release index. Two rows carry a filename whose embedded date DISAGREES with the index `date` field (date=21-08-2025 -\u003e Annex_13.08.2025.pdf, an 8-day discrepancy; date=04-06-2025 -\u003e Annex.pdf), so the index date is authoritative and the filename is opaque.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "index_get",
+      "description": "Fetch the release-index page. THE ONLY ENUMERATOR -- release URLs are UNCONSTRUCTIBLE: 35 distinct annexure filename shapes across 148 rows (top shape covers only 53), including one `Annex.pdf` with no date at all, plus load-bearing typos (SumarySPI, SummaryReport, USCCP, Annexture). A guessed URL returns a clean HTTP 404, never a soft 200. This endpoint's html_extract returns the raw file-link list; the authoritative date-paired index comes from the hand-written JS-literal parser in `releases`.",
+      "method": "GET",
+      "path": "/price-statistics/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-city price spread",
+      "command": "spread",
+      "description": "See the cheapest and dearest city for any essential item in any week, and how that gap has moved over time."
+    },
+    {
+      "name": "Single-item multi-city series",
+      "command": "drift",
+      "description": "Follow one item's price across named cities and weeks, with missing weeks shown as gaps rather than filled."
+    },
+    {
+      "name": "Custom re-weighted basket",
+      "command": "basket",
+      "description": "Build your own price index over any subset of items using the weight vector PBS republishes every week."
+    },
+    {
+      "name": "Weight-vector drift",
+      "command": "weights",
+      "description": "Read the item weight vector for any release, diff two releases, and check the totals sum to 100."
+    },
+    {
+      "name": "Extraction verification",
+      "command": "verify",
+      "description": "Audit parsed cell values against the source's own arithmetic invariants, including the weight totals and min-avg-max ordering."
+    },
+    {
+      "name": "Coverage and gap map",
+      "command": "coverage",
+      "description": "Show which releases exist upstream, which the local store holds, and every hole named as a hole."
+    },
+    {
+      "name": "Upstream revision detector",
+      "command": "revisions",
+      "description": "Detect releases the Bureau has rewritten, re-pointed, or deleted since you captured them."
+    },
+    {
+      "name": "Top movers from levels",
+      "command": "movers",
+      "description": "Rank every item in a release by percent change recomputed from price levels, nationally or per city, with outliers flagged."
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-08T10:17:04.034606Z",
+  "printing_press_version": "4.31.7",
+  "api_name": "pbs",
+  "display_name": "Pakistan Bureau of Statistics",
+  "cli_name": "pbs-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:9a4be0a125438d55fed419688de70279d055d65a4a608aad97ad967b67339e06",
+  "run_id": "20260908-120459-bfe084c8",
+  "category": "other",
+  "description": "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, accrued locally because the Bureau itself does not keep the series.",
+  "mcp_binary": "pbs-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-city price spread",
+      "command": "spread",
+      "description": "See the cheapest and dearest city for any essential item in any week, and how that gap has moved over time."
+    },
+    {
+      "name": "Single-item multi-city series",
+      "command": "drift",
+      "description": "Follow one item's price across named cities and weeks, with missing weeks shown as gaps rather than filled."
+    },
+    {
+      "name": "Custom re-weighted basket",
+      "command": "basket",
+      "description": "Build your own price index over any subset of items using the weight vector PBS republishes every week."
+    },
+    {
+      "name": "Weight-vector drift",
+      "command": "weights",
+      "description": "Read the item weight vector for any release, diff two releases, and check the totals sum to 100."
+    },
+    {
+      "name": "Extraction verification",
+      "command": "verify",
+      "description": "Audit parsed cell values against the source's own arithmetic invariants, including the weight totals and min-avg-max ordering."
+    },
+    {
+      "name": "Coverage and gap map",
+      "command": "coverage",
+      "description": "Show which releases exist upstream, which the local store holds, and every hole named as a hole."
+    },
+    {
+      "name": "Upstream revision detector",
+      "command": "revisions",
+      "description": "Detect releases the Bureau has rewritten, re-pointed, or deleted since you captured them."
+    },
+    {
+      "name": "Top movers from levels",
+      "command": "movers",
+      "description": "Rank every item in a release by percent change recomputed from price levels, nationally or per city, with outliers flagged."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-city price spread",
+      "command": "spread",
+      "description": "See the cheapest and dearest city for any essential item in any week, and how that gap has moved over time."
+    },
+    {
+      "name": "Single-item multi-city series",
+      "command": "drift",
+      "description": "Follow one item's price across named cities and weeks, with missing weeks shown as gaps rather than filled."
+    },
+    {
+      "name": "Custom re-weighted basket",
+      "command": "basket",
+      "description": "Build your own price index over any subset of items using the weight vector PBS republishes every week."
+    },
+    {
+      "name": "Weight-vector drift",
+      "command": "weights",
+      "description": "Read the item weight vector for any release, diff two releases, and check the totals sum to 100."
+    },
+    {
+      "name": "Extraction verification",
+      "command": "verify",
+      "description": "Audit parsed cell values against the source's own arithmetic invariants, including the weight totals and min-avg-max ordering."
+    },
+    {
+      "name": "Coverage and gap map",
+      "command": "coverage",
+      "description": "Show which releases exist upstream, which the local store holds, and every hole named as a hole."
+    },
+    {
+      "name": "Upstream revision detector",
+      "command": "revisions",
+      "description": "Detect releases the Bureau has rewritten, re-pointed, or deleted since you captured them."
+    },
+    {
+      "name": "Top movers from levels",
+      "command": "movers",
+      "description": "Rank every item in a release by percent change recomputed from price levels, nationally or per city, with outliers flagged."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 33,
+    "total": 33,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 84
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

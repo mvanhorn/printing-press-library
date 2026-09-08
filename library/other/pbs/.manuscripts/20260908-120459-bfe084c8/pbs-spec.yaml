@@ -1,0 +1,269 @@
+name: pbs
+base_url: "https://www.pbs.gov.pk"
+spec_format: internal
+category: other
+cli_description: "The only machine-readable Pakistani price panel — every urban centre and essential item the Bureau prices weekly, min/avg/max, accrued from the scattered release files it indexes in a hand-edited JavaScript array and never publishes as a series."
+
+# ---------------------------------------------------------------------------------------------
+# TRANSPORT: MEASURED, not assumed. ~60 probes, every content URL HTTP 200 via plain Go
+# net/http, 30-900ms, ZERO Cloudflare challenges, no auth, no cookies, no JS execution.
+# Confirmed with BOTH the Go prober and macOS LibreSSL curl -- unlike SBP (LibreSSL 403s) and
+# unlike MUFAP (curl 403 / Go 200). PBS needs neither a modern TLS stack nor a browser.
+# Do NOT "upgrade" this to browser-http or browser-chrome.
+http_transport: standard
+
+# The whole 148-entry release index ships INSIDE the served HTML as two JavaScript literals.
+# There is no XHR data API. The only JSON surface (wp-json/wp/v2/posts, x-wp-total 17) serves
+# WordPress announcement posts, not prices.
+
+# robots.txt is text/plain and 172 bytes -- the cheapest stable probe on the host, chosen
+# deliberately to try to dodge upstream #4612 (doctor calls an HTML-serving 200 "unreachable").
+# If doctor still reports unreachable, apply the mufapHealthGet / cdc_health workaround:
+# a hand-written internal/cli/pbs_health.go using GetWithHeaders + client.HTMLResponseHeader.
+health_check_path: "/robots.txt"
+
+auth:
+  # robots.txt VERBATIM: "# START YOAST BLOCK" / "User-agent: *" / "Disallow:" (empty = allow
+  # all) / "Sitemap: https://www.pbs.gov.pk/sitemap_index.xml". NO AI-crawler directives of any
+  # kind -- no ClaudeBot/GPTBot/CCBot rule, no Content-Signal. The Pakistan Official Statistics
+  # & Data Dissemination Policy grants an open government licence permitting commercial and
+  # non-commercial reuse with attribution. This is the only source in the candidate pool with
+  # affirmative written permission rather than silence or prohibition.
+  type: none
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/pbs-pp-cli/config.toml"
+
+# Deliberately NO `cache:` block, inheriting the CDC decision. Auto-refresh-before-read would
+# re-fetch the index and an annexure file (55KB-4.4MB) on ordinary local queries. The panel is
+# an archival weekly series, not live inventory, so pre-read refresh buys nothing and turns
+# cheap local reads into slow network calls. Freshness is reported by `doctor` and `coverage`,
+# and advanced explicitly by `sync`, never implicitly.
+
+mcp:
+  transport: [stdio, http]
+  # No mcp.intents. The press publishes no schema for it and mcp-audit reports intent_count 0
+  # across the library, so declaring it blind risks failing spec validation. Same call as CDC.
+
+learn:
+  # ticker_patterns DELIBERATELY EMPTY, inheriting the NCCPL/CDC lesson verbatim. PBS has no
+  # ticker-like identifiers at all: item keys are the integers 1-51 and city keys are the
+  # two-digit codes 01-17. A lowercase ID regex would be INVERTED -- matchesTicker runs on the
+  # RAW token before lowercasing, so it would match every ordinary English word ("wheat",
+  # "sugar", "onions") and empty QueryFamily, making seeded playbooks unreachable at recall.
+  ticker_patterns: []
+  synonyms:
+    "sensitive price indicator": "spi"
+    "essential items": "spi"
+    "cost of living": "spi"
+    "most recent": "latest"
+    "week over week": "wow"
+    "year over year": "yoy"
+    "price spread": "dispersion"
+    "cross city": "dispersion"
+    "basket weights": "weights"
+  entity_lookup_seeds:
+    # All 17 cities VERIFIED from xl/sharedStrings.xml of Annex_03.09.2026.xlsx. `canonical`
+    # is the Appendix-A spelling WITH the PBS city code, because that is what the upstream file
+    # emits. Aliases carry (a) the bare name, (b) the SOFT-HYPHEN spelling that Appendix-B of
+    # the SAME FILE uses, and (c) the bare two-digit code.
+    city:
+      - canonical: "Islamabad (01)"
+        aliases: [islamabad, "islam-abad", "01", isb]
+      - canonical: "Rawalpindi (02)"
+        aliases: [rawalpindi, "rawal-pindi", "02", pindi]
+      - canonical: "Gujranwala (03)"
+        aliases: [gujranwala, "gujran-wala", "03"]
+      - canonical: "Sialkot (04)"
+        aliases: [sialkot, "04"]
+      - canonical: "Lahore (05)"
+        aliases: [lahore, "05", lhr]
+      - canonical: "Faisalabad (06)"
+        aliases: [faisalabad, "faisal-abad", "06", lyallpur]
+      - canonical: "Sargodha (07)"
+        aliases: [sargodha, "sar-godha", "07"]
+      - canonical: "Multan (08)"
+        aliases: [multan, "08"]
+      - canonical: "Bahawalpur (09)"
+        aliases: [bahawalpur, "baha-walpur", "09"]
+      - canonical: "Karachi (10)"
+        aliases: [karachi, "10", khi]
+      - canonical: "Hyderabad (11)"
+        aliases: [hyderabad, "hyder-abad", "11"]
+      - canonical: "Sukkur (12)"
+        aliases: [sukkur, "12"]
+      - canonical: "Larkana (13)"
+        aliases: [larkana, "13"]
+      - canonical: "Peshawar (14)"
+        aliases: [peshawar, "pesha-war", "14"]
+      - canonical: "Bannu (15)"
+        aliases: [bannu, "15"]
+      - canonical: "Quetta (16)"
+        aliases: [quetta, "16"]
+      - canonical: "Khuzdar (17)"
+        aliases: [khuzdar, "khuz-dar", "17"]
+    # The 51 Appendix-A items, VERIFIED from the same sharedStrings read. `canonical` matches
+    # the upstream DESCRIPTION string exactly, because item description is the only stable join
+    # key: the `Sr.` column restarts at 1 in each of the three ranked sections and the sections
+    # are re-ranked every week.
+    spi_item:
+      - canonical: "Wheat Flour Bag"
+        aliases: [wheat flour, atta, flour]
+      - canonical: "Rice Basmati Broken (Average Quality)"
+        aliases: [basmati, broken basmati, rice basmati]
+      - canonical: "Rice IRRI-6/9 (Sindh/Punjab)"
+        aliases: [irri, "irri-6", irri rice]
+      - canonical: "Bread plain (Small Size)"
+        aliases: [bread, double roti]
+      - canonical: "Beef with Bone (Average Quality)"
+        aliases: [beef]
+      - canonical: "Mutton (Average Quality)"
+        aliases: [mutton, goat meat]
+      - canonical: "Chicken Farm Broiler (Live)"
+        aliases: [chicken, broiler, live chicken]
+      - canonical: "Milk fresh (Un-boiled)"
+        aliases: [milk, fresh milk, doodh]
+      - canonical: "Curd (Dahi) Loose"
+        aliases: [curd, dahi, yogurt]
+      - canonical: "Powdered Milk NIDO 390 gm Polybag"
+        aliases: [nido, powdered milk, milk powder]
+      - canonical: "Eggs Hen (Farm)"
+        aliases: [eggs, anday]
+      - canonical: "Mustard Oil (Average Quality)"
+        aliases: [mustard oil, sarson oil]
+      - canonical: "Cooking Oil DALDA or Other Similar Brand (SN), 5 Litre Tin"
+        aliases: [cooking oil, dalda oil, oil tin]
+      - canonical: "Vegetable Ghee DALDA/HABIB 2.5 kg Tin"
+        aliases: [ghee tin, vegetable ghee 2.5]
+      - canonical: "Vegetable Ghee DALDA/HABIB or Other superior Quality 1 kg Pouch"
+        aliases: [ghee pouch, vegetable ghee 1kg, banaspati]
+      - canonical: "Bananas (Kela) Local"
+        aliases: [bananas, kela]
+      - canonical: "Pulse Masoor (Washed)"
+        aliases: [masoor, red lentil, daal masoor]
+      - canonical: "Pulse Moong (Washed)"
+        aliases: [moong, daal moong]
+      - canonical: "Pulse Mash (Washed)"
+        aliases: [mash, daal mash, urad]
+      - canonical: "Pulse Gram"
+        aliases: [gram, chana daal, channa]
+      - canonical: "Potatoes"
+        aliases: [potato, aloo]
+      - canonical: "Onions"
+        aliases: [onion, pyaz]
+      - canonical: "Tomatoes"
+        aliases: [tomato, tamatar]
+      - canonical: "Sugar Refined"
+        aliases: [sugar, cheeni]
+      - canonical: "Gur (Average Quality)"
+        aliases: [gur, jaggery]
+      - canonical: "Salt Powdered (NATIONAL/SHAN) 800 gm Packet"
+        aliases: [salt, namak]
+      - canonical: "Chilies Powder NATIONAL 200 gm Packet"
+        aliases: [chilies, chilli powder, mirch]
+      - canonical: "Garlic (Lehsun)"
+        aliases: [garlic, lehsun]
+      - canonical: "Tea Lipton Yellow Label 190 gm Packet"
+        aliases: [tea, lipton, chai patti]
+      - canonical: "Cooked Beef at Average Hotel"
+        aliases: [cooked beef, hotel beef]
+      - canonical: "Cooked Daal at Average Hotel"
+        aliases: [cooked daal, hotel daal]
+      - canonical: "Tea Prepared Ordinary"
+        aliases: [prepared tea, cup of tea, chai]
+      - canonical: "Cigarettes Capstan 20'S Packet"
+        aliases: [cigarettes, capstan]
+      - canonical: "Long Cloth 57\" Gul Ahmed/Al Karam"
+        aliases: [long cloth, latha]
+      - canonical: "Shirting (Average Quality)"
+        aliases: [shirting]
+      - canonical: "Lawn Printed Gul Ahmed/Al Karam"
+        aliases: [lawn, printed lawn]
+      - canonical: "Georgette (Average Quality)"
+        aliases: [georgette]
+      - canonical: "Gents Sandal Bata"
+        aliases: [gents sandal, bata sandal]
+      - canonical: "Gents Sponge Chappal Bata"
+        aliases: [sponge chappal, chappal]
+      - canonical: "Ladies Sandal Bata"
+        aliases: [ladies sandal]
+      - canonical: "Electricity Charges for Q1*"
+        aliases: [electricity, bijli, power tariff]
+      - canonical: "Gas Charges for Q1"
+        aliases: [gas, sui gas, gas charges]
+      - canonical: "Firewood Whole"
+        aliases: [firewood, lakri]
+      - canonical: "Energy Saver Philips 14 Watt"
+        aliases: [energy saver, philips bulb]
+      - canonical: "Sufi Washing Soap 250 gm Cake"
+        aliases: [washing soap, sufi soap]
+      - canonical: "Match Box"
+        aliases: [matches, matchbox]
+      - canonical: "Petrol Super"
+        aliases: [petrol, super petrol]
+      - canonical: "Hi-Speed Diesel"
+        aliases: [diesel, hsd]
+      - canonical: "LPG 11.67 kg Cylinder"
+        aliases: [lpg, gas cylinder]
+      - canonical: "Telephone Call Charges"
+        aliases: [telephone, phone charges]
+      - canonical: "Toilet Soap LIFEBUOY 115 gm"
+        aliases: [toilet soap, lifebuoy]
+    # Appendix-B is FIVE sub-tables, not one. Seeded so a query about wages or fertilizer
+    # reaches the right surface instead of falling through to Appendix-A.
+    appendix_b_table:
+      - canonical: "fertilizers"
+        aliases: [fertilizer, urea, dap, "sona urea", npk]
+      - canonical: "cement"
+        aliases: [cement bag]
+      - canonical: "cng"
+        aliases: [compressed natural gas]
+      - canonical: "wages"
+        aliases: [wage rates, wage, labour rate, mason, painter, plumber, electrician, labourer]
+      - canonical: "wheat"
+        aliases: [wheat rates, wheat flour fine]
+
+resources:
+  # NOTE: single-endpoint resources get their command path COLLAPSED by the generator
+  # (`index`, not `index get`). Each `example:` below therefore uses the COLLAPSED path and the
+  # post-rename flag_name spellings. Upstream #4614 is the detect-and-refuse fix; until it
+  # lands this is the author's job. Learned the hard way on MUFAP -- all five promoted commands
+  # shipped a broken example that only "worked" because Cobra swallowed the stray positional.
+  index:
+    description: "The PBS price-statistics release index. Carries TWO JavaScript literal arrays in the served HTML: `data` (148 weekly SPI releases, 2023-07-13..2026-09-03) and `cpidata1` (50 CPI months, July 2022..August 2026)."
+    endpoints:
+      get:
+        method: GET
+        path: /price-statistics/
+        description: "Fetch the release-index page. THE ONLY ENUMERATOR -- release URLs are UNCONSTRUCTIBLE: 35 distinct annexure filename shapes across 148 rows (top shape covers only 53), including one `Annex.pdf` with no date at all, plus load-bearing typos (SumarySPI, SummaryReport, USCCP, Annexture). A guessed URL returns a clean HTTP 404, never a soft 200. This endpoint's html_extract returns the raw file-link list; the authoritative date-paired index comes from the hand-written JS-literal parser in `releases`."
+        response_format: html
+        html_extract:
+          mode: links
+          # Path-segment anchored. Every one of the 202 files on this page sits in the SINGLE
+          # constant directory /wp-content/uploads/2020/07/ -- the upload path carries ZERO date
+          # information, unlike CDC's informative /assets/uploads/YYYY/MM/. So the parent
+          # directory is the correct prefix and there is no dated tree to walk.
+          link_prefixes: ["/wp-content/uploads"]
+        no_auth: true
+        mutation: false
+        example: "  pbs-pp-cli index --json"
+
+  file:
+    description: "Static annexure/report files. All 202 live in one flat directory; the filename is the only variable."
+    endpoints:
+      get:
+        method: GET
+        path: /wp-content/uploads/2020/07/{filename}
+        description: "Fetch one annexure, report, or CPI annex file by exact filename. Formats: .xlsx for the 44 most recent weekly releases (2025-10-23 onward) and .pdf for the other 104 -- so the text-layer PDF path covers 70% of the panel and is not optional. Never construct this filename; take it from `releases`."
+        response_format: binary
+        no_auth: true
+        mutation: false
+        example: "  pbs-pp-cli file Annex_03.09.2026.xlsx"
+        params:
+          - name: filename
+            type: string
+            required: true
+            positional: true
+            description: "Exact file name including extension, taken verbatim from the release index. Two rows carry a filename whose embedded date DISAGREES with the index `date` field (date=21-08-2025 -> Annex_13.08.2025.pdf, an 8-day discrepancy; date=04-06-2025 -> Annex.pdf), so the index date is authoritative and the filename is opaque."
