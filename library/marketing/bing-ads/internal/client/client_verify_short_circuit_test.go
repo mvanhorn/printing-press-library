@@ -15,15 +15,18 @@ import (
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is
-// invoked and returns an empty 200 response. Used by the verify-mode
-// short-circuit tests to assert that the transport layer never dials
-// when the gate fires.
+// invoked, records the last request's URL, and returns an empty 200
+// response. Used by the verify-mode short-circuit tests to assert that the
+// transport layer never dials when the gate fires, and by the per-service
+// base URL routing tests to assert what URL doInternal actually dispatched.
 type recordingRoundTripper struct {
-	calls int
+	calls  int
+	gotURL string
 }
 
 func (r *recordingRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	r.calls++
+	r.gotURL = req.URL.String()
 	return &http.Response{
 		StatusCode: 200,
 		Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),

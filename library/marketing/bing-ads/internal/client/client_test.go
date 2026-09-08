@@ -104,6 +104,61 @@ func TestCacheKeyDelimitsSortedQueryParams(t *testing.T) {
 	}
 }
 
+func TestServiceBaseURLRoutesEachServiceToItsOwnHost(t *testing.T) {
+	t.Parallel()
+
+	c := &Client{BaseURL: "https://campaign.api.bingads.microsoft.com"}
+
+	cases := []struct {
+		path string
+		want string
+	}{
+		{"/CampaignManagement/v13/AdGroups/QueryByIds", "https://campaign.api.bingads.microsoft.com"},
+		{"/CustomerManagement/v13/AccountsInfo/Query", "https://clientcenter.api.bingads.microsoft.com"},
+		{"/CustomerBilling/v13/UngroupedAccounts/Query", "https://clientcenter.api.bingads.microsoft.com"},
+		{"/AdInsight/v13/AuctionInsight/Query", "https://adinsight.api.bingads.microsoft.com"},
+		{"/Bulk/v13/BulkDownload/Submit", "https://bulk.api.bingads.microsoft.com"},
+		{"/Reporting/v13/GenerateReport/Submit", "https://reporting.api.bingads.microsoft.com"},
+		// Unmapped prefix falls back to the configured c.BaseURL, not a hardcoded host.
+		{"/SomeFutureService/v13/Widgets/Query", "https://campaign.api.bingads.microsoft.com"},
+	}
+
+	for _, tc := range cases {
+		if got := c.serviceBaseURL(tc.path); got != tc.want {
+			t.Errorf("serviceBaseURL(%q) = %q, want %q", tc.path, got, tc.want)
+		}
+	}
+}
+
+func TestDoInternalRoutesMappedServicePathToItsOwnHost(t *testing.T) {
+	c, rec := newClientWithRecorder(t)
+	c.BaseURL = "https://campaign.api.bingads.microsoft.com"
+
+	if _, err := c.Get(context.Background(), "/CustomerManagement/v13/AccountsInfo/Query", nil); err != nil {
+		t.Fatalf("Get returned error: %v", err)
+	}
+
+	want := "https://clientcenter.api.bingads.microsoft.com/CustomerManagement/v13/AccountsInfo/Query"
+	if rec.gotURL != want {
+		t.Fatalf("request URL = %q, want %q -- doInternal is not routing through serviceBaseURL", rec.gotURL, want)
+	}
+}
+
+func TestDoInternalHonorsExplicitBaseURLOverrideForMockServers(t *testing.T) {
+	t.Setenv("BING_ADS_BASE_URL", "https://mock.test")
+	c, rec := newClientWithRecorder(t)
+	c.BaseURL = "https://mock.test"
+
+	if _, err := c.Get(context.Background(), "/CustomerManagement/v13/AccountsInfo/Query", nil); err != nil {
+		t.Fatalf("Get returned error: %v", err)
+	}
+
+	want := "https://mock.test/CustomerManagement/v13/AccountsInfo/Query"
+	if rec.gotURL != want {
+		t.Fatalf("request URL = %q, want %q -- BING_ADS_BASE_URL override was bypassed by the per-service host map", rec.gotURL, want)
+	}
+}
+
 func TestPlatformCacheKeyContract(t *testing.T) {
 	newClient := func() *Client {
 		c := &Client{BaseURL: "https://api.example.test"}

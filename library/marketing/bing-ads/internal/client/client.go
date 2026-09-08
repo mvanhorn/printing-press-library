@@ -151,6 +151,44 @@ func (c *Client) RequestBaseURL() string {
 	return c.BaseURL
 }
 
+// bingAdsServiceHosts maps each Microsoft Advertising REST service's URL path
+// prefix to its own dedicated host. Microsoft splits the API across per-service
+// hostnames (confirmed against the official BingAds-Python-SDK's
+// service_client.py ENVIRONMENTS table) rather than serving every service from
+// one host -- c.BaseURL alone is only correct for Campaign Management, which is
+// why Customer Management calls (e.g. AccountsInfo/Query) 404 against it.
+// Prefixes not listed here (there is currently no known live-account path in
+// this printed engine outside the six top-level services) fall back to
+// c.BaseURL in serviceBaseURL below.
+var bingAdsServiceHosts = map[string]string{
+	"/CampaignManagement/": "https://campaign.api.bingads.microsoft.com",
+	"/CustomerManagement/": "https://clientcenter.api.bingads.microsoft.com",
+	"/CustomerBilling/":    "https://clientcenter.api.bingads.microsoft.com",
+	"/AdInsight/":          "https://adinsight.api.bingads.microsoft.com",
+	"/Bulk/":               "https://bulk.api.bingads.microsoft.com",
+	"/Reporting/":          "https://reporting.api.bingads.microsoft.com",
+}
+
+// serviceBaseURL resolves the correct Microsoft Advertising host for path,
+// overriding the single generic c.BaseURL. See bingAdsServiceHosts.
+//
+// BING_ADS_BASE_URL (see internal/config.Load) is printing-press verify's
+// mock/test-server escape hatch: when set, every request must reach that
+// server regardless of path, or the mock never sees the traffic it exists
+// to receive. The per-service map only applies when no such override is
+// configured.
+func (c *Client) serviceBaseURL(path string) string {
+	if os.Getenv("BING_ADS_BASE_URL") != "" {
+		return c.BaseURL
+	}
+	for prefix, host := range bingAdsServiceHosts {
+		if strings.HasPrefix(path, prefix) {
+			return host
+		}
+	}
+	return c.BaseURL
+}
+
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
 	Method     string
@@ -918,7 +956,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	if err := rejectUnresolvedPathParams(path, nil); err != nil {
 		return nil, 0, err
 	}
-	targetURL := c.BaseURL + path
+	targetURL := c.serviceBaseURL(path) + path
 
 	var bodyBytes []byte
 	if body != nil {
