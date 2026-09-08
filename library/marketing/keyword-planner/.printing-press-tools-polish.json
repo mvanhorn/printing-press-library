@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-09-08T00:04:00.725002Z",
+  "cli_dir": "\u003ccli-dir\u003e/keyword-planner-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; this list command already states its local profile action precisely, and durable wording belongs in the generator template."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 849,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; this list command already identifies the learning records it returns, and durable wording belongs in the generator template."
+    }
+  ]
+}

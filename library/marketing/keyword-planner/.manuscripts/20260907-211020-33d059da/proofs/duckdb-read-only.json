@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "database": "USER_HOME/.local/share/keyword-planner/snapshots.db",
+  "sql_source": "PRINTING_PRESS_HOME/.runstate/printing-press-78a1e835/publish/keyword-planner-20260908/publish-home/library/keyword-planner/sql/keyword_monthly.sql",
+  "database_sha256_unchanged": true,
+  "exit_code": 0,
+  "stats": {
+    "evidence_rows": 546790,
+    "compatibility_rows": 546790,
+    "safe_rows": 546790,
+    "null_monthly_rows": 0,
+    "null_cpc_rows": 175472,
+    "blind_rows": 0,
+    "short_window_rows": 546790,
+    "snapshots": 32,
+    "month_type": "DATE",
+    "volume_type": "BIGINT",
+    "fetched_type": "TIMESTAMP",
+    "attached_readonly": true
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "api_name": "keyword-planner",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Google Ads Printing Press",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/60351630b3d94c016faa7bfb65102e109da086c9/library/marketing/google-ads",
+      "language": "Go",
+      "install_method": "source",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "google-ads-python",
+      "url": "https://github.com/googleads/google-ads-python",
+      "language": "Python",
+      "install_method": "source",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "No existing candidate supplies an append-only local portfolio with immutable raw receipts, coverage accounting, and safe DuckDB consumption.",
+    "No existing candidate supplies the six local evidence views that join request scope, variants, monthly rows, completeness, and raw receipts."
+  ],
+  "patterns": [
+    "The official v25 REST surface separates keyword ideas from historical metrics and preserves monthly demand and bid fields.",
+    "The direct Google Ads press contributes focused read-only keyword command and Google Ads header patterns.",
+    "The official google-ads-python client contributes request and response behavior reference for the two Planner methods."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-07T19:26:51Z",
+  "novel_features": [
+    {
+      "name": "Evidence trace",
+      "command": "portfolio trace",
+      "description": "Trace one stored monthly value back to the exact request and raw receipt that produced it.",
+      "rationale": "Only the local portfolio can join a normalized monthly row to its immutable receipt, body hash, request scope, and eligibility state after the remote call is over.",
+      "example": "keyword-planner portfolio trace 2c2f465c-6253-430a-a533-aa30fabbfbff --keyword \"beef steak\" --month 2026-07 --agent",
+      "why_it_matters": "Reach for this when a number needs a receipt-backed explanation that a direct Planner call cannot provide.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Coverage accountability",
+      "command": "portfolio coverage",
+      "description": "See requested, returned, missing, unavailable, raw-only, and incomplete coverage for a saved collection.",
+      "rationale": "Only the local portfolio retains requested bounds beside returned months, submitted batches, page receipts, and completeness status without fabricating gaps.",
+      "example": "keyword-planner portfolio coverage latest --agent",
+      "why_it_matters": "Use this before consuming a collection when the API response alone cannot explain what was absent or incomplete.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Variant-aware lineage",
+      "command": "portfolio variants",
+      "description": "Follow submitted keywords through returned terms and close variants without double-counting demand.",
+      "rationale": "Only the local portfolio can preserve submitted order, returned text, variant groups, and monthly rows together while keeping combined geographies scoped.",
+      "example": "keyword-planner portfolio variants latest --limit 10 --agent --json",
+      "why_it_matters": "Pick this when a Planner result must be interpreted with its returned-term and close-variant relationships intact.",
+      "group": "Safe warehouse handoff"
+    },
+    {
+      "name": "Immutable snapshot diff",
+      "command": "portfolio diff",
+      "description": "Compare two preserved collections to see changed terms, monthly values, flags, and coverage.",
+      "rationale": "Only the append-only portfolio keeps two identical requests as distinct evidence trees that can be compared without an API history endpoint.",
+      "example": "keyword-planner portfolio diff 2c2f465c-6253-430a-a533-aa30fabbfbff c6ea4780-190b-42f4-8f4d-a8b7207a2395 --agent",
+      "why_it_matters": "Use this when the question is what changed between saved collections rather than what one live call returns.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Portfolio integrity check",
+      "command": "portfolio integrity",
+      "description": "Verify that raw receipts, hashes, normalized rows, and coverage still reconcile.",
+      "rationale": "Only the local portfolio has both immutable raw bytes and normalized evidence links needed to turn storage drift into a visible failure.",
+      "example": "keyword-planner portfolio integrity latest --agent",
+      "why_it_matters": "Run this before a warehouse handoff when evidence integrity matters more than a fresh remote request.",
+      "group": "Safe warehouse handoff"
+    },
+    {
+      "name": "Policy-safe local statistics",
+      "command": "portfolio safe-stats",
+      "description": "Compute descriptive monthly aggregates while excluding unavailable, ambiguous, anomalous, and incomplete rows.",
+      "rationale": "Only the local portfolio can apply the approved eligibility, ambiguity, month, geography, variant, and completeness policy before aggregation.",
+      "example": "keyword-planner portfolio safe-stats --snapshot latest --agent",
+      "why_it_matters": "Choose this for mechanical local summaries that must preserve warnings and avoid turning Planner signals into forecasts.",
+      "group": "Safe warehouse handoff"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Evidence trace",
+      "command": "portfolio trace",
+      "description": "Trace one stored monthly value back to the exact request and raw receipt that produced it.",
+      "rationale": "Only the local portfolio can join a normalized monthly row to its immutable receipt, body hash, request scope, and eligibility state after the remote call is over.",
+      "example": "keyword-planner portfolio trace 2c2f465c-6253-430a-a533-aa30fabbfbff --keyword \"beef steak\" --month 2026-07 --agent",
+      "why_it_matters": "Reach for this when a number needs a receipt-backed explanation that a direct Planner call cannot provide.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Coverage accountability",
+      "command": "portfolio coverage",
+      "description": "See requested, returned, missing, unavailable, raw-only, and incomplete coverage for a saved collection.",
+      "rationale": "Only the local portfolio retains requested bounds beside returned months, submitted batches, page receipts, and completeness status without fabricating gaps.",
+      "example": "keyword-planner portfolio coverage latest --agent",
+      "why_it_matters": "Use this before consuming a collection when the API response alone cannot explain what was absent or incomplete.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Variant-aware lineage",
+      "command": "portfolio variants",
+      "description": "Follow submitted keywords through returned terms and close variants without double-counting demand.",
+      "rationale": "Only the local portfolio can preserve submitted order, returned text, variant groups, and monthly rows together while keeping combined geographies scoped.",
+      "example": "keyword-planner portfolio variants latest --limit 10 --agent --json",
+      "why_it_matters": "Pick this when a Planner result must be interpreted with its returned-term and close-variant relationships intact.",
+      "group": "Safe warehouse handoff"
+    },
+    {
+      "name": "Immutable snapshot diff",
+      "command": "portfolio diff",
+      "description": "Compare two preserved collections to see changed terms, monthly values, flags, and coverage.",
+      "rationale": "Only the append-only portfolio keeps two identical requests as distinct evidence trees that can be compared without an API history endpoint.",
+      "example": "keyword-planner portfolio diff 2c2f465c-6253-430a-a533-aa30fabbfbff c6ea4780-190b-42f4-8f4d-a8b7207a2395 --agent",
+      "why_it_matters": "Use this when the question is what changed between saved collections rather than what one live call returns.",
+      "group": "Evidence that compounds"
+    },
+    {
+      "name": "Portfolio integrity check",
+      "command": "portfolio integrity",
+      "description": "Verify that raw receipts, hashes, normalized rows, and coverage still reconcile.",
+      "rationale": "Only the local portfolio has both immutable raw bytes and normalized evidence links needed to turn storage drift into a visible failure.",
+      "example": "keyword-planner portfolio integrity latest --agent",
+      "why_it_matters": "Run this before a warehouse handoff when evidence integrity matters more than a fresh remote request.",
+      "group": "Safe warehouse handoff"
+    },
+    {
+      "name": "Policy-safe local statistics",
+      "command": "portfolio safe-stats",
+      "description": "Compute descriptive monthly aggregates while excluding unavailable, ambiguous, anomalous, and incomplete rows.",
+      "rationale": "Only the local portfolio can apply the approved eligibility, ambiguity, month, geography, variant, and completeness policy before aggregation.",
+      "example": "keyword-planner portfolio safe-stats --snapshot latest --agent",
+      "why_it_matters": "Choose this for mechanical local summaries that must preserve warnings and avoid turning Planner signals into forecasts.",
+      "group": "Safe warehouse handoff"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Google Keyword Planner",
+    "headline": "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff.",
+    "value_prop": "The CLI collects keyword ideas and historical monthly metrics through Google's read-only v25 REST methods, preserving every raw response, request scope, coverage state, and supplied bid field in SQLite. Use the portfolio commands to trace a number to its receipt, compare preserved snapshots, keep close-variant lineage visible, and calculate policy-safe descriptive statistics offline. Planner search-volume and advertiser-bid fields are vendor estimates for subject research, not measured YouTube demand, YouTube RPM, or a revenue forecast.",
+    "auth_narrative": "Authentication uses the OAuth refresh-token flow with GOOGLE_ADS_CLIENT_ID, GOOGLE_ADS_CLIENT_SECRET, GOOGLE_ADS_REFRESH_TOKEN, and GOOGLE_ADS_DEVELOPER_TOKEN loaded from ~/.env. GOOGLE_ADS_LOGIN_CUSTOMER_ID is the optional manager login header, while GOOGLE_ADS_CUSTOMER_ID is the separately resolved operating account; the approved OAuth grant carries the required AdWords scope, the CLI refreshes a short-lived access token in memory, and sends Authorization: Bearer plus developer-token and, when applicable, login-customer-id. Token responses are never stored in the portfolio, and an invalid grant, permission or developer-token error, or customer routing failure is an account-setup problem rather than a reason to loop retries.",
+    "quickstart": [
+      {
+        "command": "keyword-planner doctor --json",
+        "comment": "Verify the local configuration and portfolio schema without network activity or credentials."
+      },
+      {
+        "command": "keyword-planner ideas --seed \"beef steak\" --seed \"ribeye steak\" --seed \"beef brisket\" --seed \"pork chops\" --seed \"meat cutting\" --seed \"butchery\" --language languageConstants/1000 --geo geoTargetConstants/2840 --agent",
+        "comment": "Collect subject-level ideas with explicit language and geography while preserving every result page."
+      },
+      {
+        "command": "keyword-planner historical --keyword \"beef steak\" --keyword \"beef brisket\" --language languageConstants/1000 --geo geoTargetConstants/2840 --agent",
+        "comment": "Retrieve the chosen wording's monthly history and keep submitted, returned, and variant relationships."
+      },
+      {
+        "command": "keyword-planner portfolio coverage latest --agent",
+        "comment": "Check returned and missing coverage before using a saved collection."
+      },
+      {
+        "command": "keyword-planner portfolio export --snapshot latest --agent --select keyword,month,monthly_searches",
+        "comment": "Export a narrow, traceable relation for the read-only DuckDB consumer."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "OAuth returns invalid_grant",
+        "fix": "Inspect the approved OAuth grant and protected bindings in `~/.env`; after correcting the grant, run `keyword-planner doctor --live`. Do not retry the same invalid grant."
+      },
+      {
+        "symptom": "USER_PERMISSION_DENIED or CUSTOMER_NOT_ENABLED",
+        "fix": "Verify that GOOGLE_ADS_CUSTOMER_ID names the operating account and GOOGLE_ADS_LOGIN_CUSTOMER_ID is only the manager context, then rerun `keyword-planner doctor --live` after access is corrected."
+      },
+      {
+        "symptom": "DEVELOPER_TOKEN_NOT_APPROVED or DEVELOPER_TOKEN_PROHIBITED",
+        "fix": "Use a developer token approved for the operating account and rerun `keyword-planner doctor --live`; do not switch providers or retry a permanently rejected token."
+      },
+      {
+        "symptom": "A request uses an invalid language or geo resource name",
+        "fix": "Pass a verified `languageConstants/<id>` and `geoTargetConstants/<id>` value; resolve labels before the live call."
+      },
+      {
+        "symptom": "The Planner request is rate-limited or daily quota is exhausted",
+        "fix": "Keep Planner calls at no more than one request per second per operating customer, allow bounded transient backoff, and stop on persistent daily-quota errors."
+      },
+      {
+        "symptom": "The requested range ends in the current or a future month",
+        "fix": "Set the end month to a closed UTC calendar month; the CLI rejects open and future ranges before network activity."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs Google Keyword Planner ideas or historical monthly metrics with explicit language, geography, range, and network context. Use the local portfolio commands to reopen evidence offline, trace a value to its raw receipt, compare saved collections, preserve variant lineage, or prepare a safe DuckDB handoff. Treat the returned volumes and bids as Planner signals for YouTube subject research, not as measured YouTube demand, RPM, or revenue. For snapshot examples, first run `keyword-planner portfolio list --agent` and choose IDs with the same endpoint and request scope; do not assume `latest` and `previous` are comparable.",
+    "anti_triggers": [
+      "Do not use this CLI for Google Ads campaign creation, bid changes, or any other mutation.",
+      "Do not use this CLI for Google Trends, forecasting, predictions, or schedules.",
+      "Do not use this CLI as proof of measured YouTube demand, YouTube RPM, or revenue.",
+      "Do not use this CLI to assert values for the current or a future month.",
+      "Do not use this CLI for account administration that belongs in the Google Ads UI or an official management SDK."
+    ],
+    "recipes": [
+      {
+        "title": "Check local readiness",
+        "command": "keyword-planner doctor --json",
+        "explanation": "Confirm local setup and portfolio schema without a network call."
+      },
+      {
+        "title": "Collect subject-level ideas",
+        "command": "keyword-planner ideas --seed \"beef steak\" --seed \"ribeye steak\" --seed \"beef brisket\" --seed \"pork chops\" --seed \"meat cutting\" --seed \"butchery\" --language languageConstants/1000 --geo geoTargetConstants/2840 --agent",
+        "explanation": "Use explicit resource names and preserve all pages for the six-to-eight-seed research pass."
+      },
+      {
+        "title": "Retrieve historical wording",
+        "command": "keyword-planner historical --keyword \"beef steak\" --keyword \"beef brisket\" --language languageConstants/1000 --geo geoTargetConstants/2840 --agent",
+        "explanation": "Keep the submitted terms, returned terms, variant links, and every monthly value."
+      },
+      {
+        "title": "Compare preserved collections",
+        "command": "keyword-planner portfolio diff 2c2f465c-6253-430a-a533-aa30fabbfbff c6ea4780-190b-42f4-8f4d-a8b7207a2395 --agent",
+        "explanation": "Compare two compatible snapshots selected from `portfolio list` without replacing either or calling Google again."
+      },
+      {
+        "title": "Export a DuckDB-ready slice",
+        "command": "keyword-planner portfolio export --snapshot latest --agent --select keyword,month,monthly_searches",
+        "explanation": "Emit a narrow, traceable local relation for the read-only warehouse consumer."
+      },
+      {
+        "title": "Preview a complete collection request",
+        "command": "keyword-planner historical --keyword \"beef steak\" --keyword \"beef brisket\" --language languageConstants/1000 --geo geoTargetConstants/2840 --dry-run --json",
+        "explanation": "Inspect resolved targeting and the closed-month range without reading credentials, contacting Google, or writing the portfolio."
+      },
+      {
+        "title": "Export one closed month as CSV",
+        "command": "keyword-planner portfolio export --snapshot 2c2f465c-6253-430a-a533-aa30fabbfbff --start 2026-07 --end 2026-07 --format csv",
+        "explanation": "Keep the month bound explicit and export local evidence for a spreadsheet."
+      },
+      {
+        "title": "Inspect a small available search slice",
+        "command": "keyword-planner portfolio search \"beef steak\" --snapshot 2c2f465c-6253-430a-a533-aa30fabbfbff --available-only --limit 10 --json",
+        "explanation": "Show available saved monthly values with their flags and provenance; availability alone is not the safe-aggregate policy."
+      }
+    ],
+    "trigger_phrases": [
+      "collect Google Keyword Planner ideas for a YouTube subject",
+      "get historical monthly keyword metrics",
+      "trace a keyword volume to its raw receipt",
+      "compare two Keyword Planner snapshots",
+      "export keyword evidence for DuckDB",
+      "use Google Keyword Planner",
+      "run keyword-planner"
+    ]
+  }
+}

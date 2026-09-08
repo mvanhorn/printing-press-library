@@ -1,0 +1,16 @@
+# This runner covers the credential-free portfolio inspection workflow.
+# Collection, raw reconciliation, and repeat-fetch behavior have separate live
+# acceptance receipts; these local steps do not claim to perform a Google fetch.
+workflows:
+  - name: Inspect and export the saved keyword portfolio offline
+    primary: true
+    steps:
+      - command: doctor
+        mode: local
+        auth_required: false
+      - command: portfolio list
+        mode: local
+        auth_required: false
+      - command: portfolio export
+        mode: local
+        auth_required: false

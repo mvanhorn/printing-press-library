@@ -1,0 +1,3569 @@
+{
+  "api_name": "keyword-planner",
+  "base_url": "https://googleads.googleapis.com",
+  "description": "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "oauth2_refresh",
+    "credential_file": "~/.env",
+    "credential_file_env": "KEYWORD_PLANNER_ENV_FILE",
+    "header": "Authorization",
+    "format": "Bearer <in-memory access token>",
+    "env_vars": [
+      "GOOGLE_ADS_CLIENT_ID",
+      "GOOGLE_ADS_CLIENT_SECRET",
+      "GOOGLE_ADS_REFRESH_TOKEN",
+      "GOOGLE_ADS_DEVELOPER_TOKEN",
+      "GOOGLE_ADS_CUSTOMER_ID",
+      "GOOGLE_ADS_LOGIN_CUSTOMER_ID"
+    ],
+    "access_tokens_persisted": false
+  },
+  "required_headers": [
+    "Authorization",
+    "developer-token"
+  ],
+  "tools": [
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Confirm local setup and portfolio schema without a network call.",
+      "inputSchema": {
+        "properties": {
+          "dry_run": {
+            "description": "Preview the local check without opening the portfolio.",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "check_local_readiness",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "inputSchema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "context",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Check local portfolio health; use --live for an explicit Google Ads read",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "customer-id": {
+            "description": "Operating customer ID for --live (otherwise use the approved binding)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "env-file": {
+            "description": "Google Ads env file (env KEYWORD_PLANNER_ENV_FILE is used when omitted)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "live": {
+            "description": "Perform an explicit read-only Google Ads account check (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "doctor",
+      "no_auth": false,
+      "auth_policy": "offline by default; --live requires credentials"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Collect Google Keyword Planner historical metrics in ordered batches. Submitted terms, returned terms, close-variant linkage, nullable monthly values, and every raw response attempt are preserved for offline evidence queries.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "all-geographies": {
+            "description": "Explicitly acknowledge an all-geographies request (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "batch-size": {
+            "description": "Keywords per historical-metrics request (default: 10000)",
+            "type": "number"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "customer-id": {
+            "description": "Operating Google Ads customer ID (hyphens are accepted)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "Last closed month, YYYY-MM",
+            "type": "string"
+          },
+          "env-file": {
+            "description": "Google Ads env file (env KEYWORD_PLANNER_ENV_FILE is used when omitted)",
+            "type": "string"
+          },
+          "geo": {
+            "description": "Geo target resource; repeat for multiple targets",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "include-adult-keywords": {
+            "description": "Include adult keyword ideas when supported (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Keyword to measure; repeat for multiple keywords",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "keyword-file": {
+            "description": "File containing one keyword per line",
+            "type": "string"
+          },
+          "language": {
+            "description": "Language resource, for example languageConstants/1000",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum rows to render after collection; zero means all rows (default: 0)",
+            "type": "number"
+          },
+          "max-batches": {
+            "description": "Maximum API batches to collect; zero means all batches (default: 0)",
+            "type": "number"
+          },
+          "network": {
+            "description": "Google Ads network (GOOGLE_SEARCH) (default: GOOGLE_SEARCH)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "start": {
+            "description": "First closed month, YYYY-MM",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "historical",
+      "no_auth": false,
+      "auth_policy": "required for live API collection; dry-run needs no credentials"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Collect Google Keyword Planner ideas with explicit targeting and a closed monthly range. Every response attempt is saved before decoding, and the normalised result is available offline through the portfolio commands. Use --limit only to reduce rendered rows; it never truncates collection.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "all-geographies": {
+            "description": "Explicitly acknowledge an all-geographies request (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "customer-id": {
+            "description": "Operating Google Ads customer ID (hyphens are accepted)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "Last closed month, YYYY-MM",
+            "type": "string"
+          },
+          "env-file": {
+            "description": "Google Ads env file (env KEYWORD_PLANNER_ENV_FILE is used when omitted)",
+            "type": "string"
+          },
+          "geo": {
+            "description": "Geo target resource; repeat for multiple targets",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "include-adult-keywords": {
+            "description": "Include adult keyword ideas when supported (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "language": {
+            "description": "Language resource, for example languageConstants/1000",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum rows to render after collection; zero means all rows (default: 0)",
+            "type": "number"
+          },
+          "max-pages": {
+            "description": "Maximum API pages to collect; zero means all pages (default: 0)",
+            "type": "number"
+          },
+          "network": {
+            "description": "Google Ads network (GOOGLE_SEARCH) (default: GOOGLE_SEARCH)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "page-size": {
+            "description": "Maximum results requested per API page (default: 10000)",
+            "type": "number"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "seed": {
+            "description": "Seed keyword; repeat for multiple seeds",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "seed-file": {
+            "description": "File containing one seed keyword per line",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "start": {
+            "description": "First closed month, YYYY-MM",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "ideas",
+      "no_auth": false,
+      "auth_policy": "required for live API collection; dry-run needs no credentials"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm <id>' materializes them; they never\nalter command behavior or recall's verified results on their own.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "class": {
+            "description": "Filter by class (flag_alias | playbook_candidate)",
+            "type": "string"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum rows to return (default: capped) (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "status": {
+            "description": "Filter by status (open | confirmed | rejected | expired; empty for all) (default: open)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "learnings_candidates",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Positional argument <id>",
+            "type": "string"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "name": "learnings_confirm",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.",
+      "inputSchema": {
+        "properties": {
+          "action": {
+            "description": "Delete only rules with this action (boost | hide | alias_of)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "all": {
+            "description": "Delete every rule for the supplied query (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Positional argument <query>",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Delete only the rule for this resource_id",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "learnings_forget",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List recorded learnings",
+      "inputSchema": {
+        "properties": {
+          "action": {
+            "description": "Filter by action (boost | hide | alias_of)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum rows to return (default: 200)",
+            "type": "number"
+          },
+          "min-confidence": {
+            "description": "Filter by minimum confidence (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Filter by normalized query substring",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Filter by resource_id",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "source": {
+            "description": "Filter by source (taught | manual-forget)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "warnings": {
+            "description": "Return teach-time warnings from teach.log instead of stored learning rows (default: false)",
+            "type": "boolean"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "learnings_list",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Positional argument <id>",
+            "type": "string"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "name": "learnings_reject",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "learnings_stats",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with &.\n\nDisabling: pass --no-learn or set KEYWORD_PLANNER_NO_LEARN=true.",
+      "inputSchema": {
+        "properties": {
+          "add-note": {
+            "description": "The note text to append to the family's playbook (required)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Database path (default: standard cache location)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "The exact recall query whose family should be amended (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "playbook_amend",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List stored playbooks (query_family, content presence, last observed)",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Database path (default: standard cache location)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "playbook_list",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Use this command to inspect requested and returned coverage for one snapshot. Do NOT use it to trace an individual metric to its raw body; use portfolio trace instead.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Optional literal keyword filter for coverage",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum coverage keywords and pages to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "snapshot-id": {
+            "description": "Positional argument [snapshot-id]",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_coverage",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Use this command to compare two immutable snapshots. Do NOT use it to inspect one snapshot's missing months or page completeness; use portfolio coverage instead.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "left-snapshot-id": {
+            "description": "Positional argument [left-snapshot-id]",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum row and coverage changes to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "right-snapshot-id": {
+            "description": "Positional argument [right-snapshot-id]",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_diff",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Export saved Planner rows offline as JSON or CSV with keyword, endpoint, snapshot, month, geo, and field filters",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "available-only": {
+            "description": "Return only rows with an available monthly value (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "Last month filter, YYYY-MM",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Collection endpoint filter: ideas or historical",
+            "type": "string"
+          },
+          "format": {
+            "description": "Export format: json or csv (default: json)",
+            "type": "string"
+          },
+          "geo": {
+            "description": "Exact geo target resource filter; repeat for multiple targets",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "include-incomplete": {
+            "description": "Include snapshots that were not collected completely (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Case-insensitive keyword filter",
+            "type": "string"
+          },
+          "language": {
+            "description": "Language resource filter, for example languageConstants/1000",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum rows or snapshots to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "start": {
+            "description": "First month filter, YYYY-MM",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_export",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Use this command to verify receipt hashes and normalized-row links for one immutable snapshot. Do NOT use it to inspect request coverage; use portfolio coverage instead.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum integrity issues to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "snapshot-id": {
+            "description": "Positional argument [snapshot-id]",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_integrity",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List local Planner snapshots, including incomplete attempts",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "available-only": {
+            "description": "Return only rows with an available monthly value (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "Last month filter, YYYY-MM",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Collection endpoint filter: ideas or historical",
+            "type": "string"
+          },
+          "geo": {
+            "description": "Exact geo target resource filter; repeat for multiple targets",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "include-incomplete": {
+            "description": "Include snapshots that were not collected completely (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Case-insensitive keyword filter",
+            "type": "string"
+          },
+          "language": {
+            "description": "Language resource filter, for example languageConstants/1000",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum rows or snapshots to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "start": {
+            "description": "First month filter, YYYY-MM",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_list",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Use this command to calculate policy-safe aggregates from eligible local monthly rows. Do NOT use it to trace a displayed value to raw evidence; use portfolio trace instead.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "Last month filter, YYYY-MM",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Collection endpoint filter: ideas or historical",
+            "type": "string"
+          },
+          "geo": {
+            "description": "Exact geo target resource filter; repeat for multiple targets",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Literal keyword filter for eligible rows",
+            "type": "string"
+          },
+          "language": {
+            "description": "Language resource filter, for example languageConstants/1000",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum metric groups to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "start": {
+            "description": "First month filter, YYYY-MM",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_safe_stats",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Search saved Planner rows offline by keyword, endpoint, snapshot, month, geo, or availability",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "available-only": {
+            "description": "Return only rows with an available monthly value (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "Last month filter, YYYY-MM",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Collection endpoint filter: ideas or historical",
+            "type": "string"
+          },
+          "geo": {
+            "description": "Exact geo target resource filter; repeat for multiple targets",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "include-incomplete": {
+            "description": "Include snapshots that were not collected completely (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Case-insensitive keyword filter",
+            "type": "string"
+          },
+          "language": {
+            "description": "Language resource filter, for example languageConstants/1000",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum rows or snapshots to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Search term when no positional term is used",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "start": {
+            "description": "First month filter, YYYY-MM",
+            "type": "string"
+          },
+          "term": {
+            "description": "Positional argument [term]",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_search",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Show one local snapshot with raw receipts and normalized rows",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "snapshot-id": {
+            "description": "Positional argument [snapshot-id]",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_show",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Use this command to trace one stored monthly value to its immutable raw response receipt. Do NOT use it to compare two collections; use portfolio diff instead.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Exact returned or submitted keyword to trace",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum matching values to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "month": {
+            "description": "Closed month to trace, in YYYY-MM form",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "snapshot-id": {
+            "description": "Positional argument [snapshot-id]",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_trace",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Use this command to inspect submitted-to-returned keyword and close-variant linkage. Do NOT use it to compare snapshots; use portfolio diff instead.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Portfolio SQLite path (env KEYWORD_PLANNER_DB is used when omitted)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "keyword": {
+            "description": "Literal keyword filter for lineage",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum metric and link records to render; zero means all (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "snapshot": {
+            "description": "Snapshot ID or alias latest/previous",
+            "type": "string"
+          },
+          "snapshot-id": {
+            "description": "Positional argument [snapshot-id]",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "portfolio_variants",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard >= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence >= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 \u2014 this\nis an information query, not a not-found error.\n\nDisabling: KEYWORD_PLANNER_NO_LEARN=true returns the empty shape even\nwhen learnings exist.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "debug-mismatches": {
+            "description": "Include cross-entity mismatches in the envelope under mismatches[] (default: false)",
+            "type": "boolean"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum number of learnings to return (default: 10)",
+            "type": "number"
+          },
+          "min-confidence": {
+            "description": "Minimum confidence to include in results (default: 1)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Positional argument <query>",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "recall",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Record one or more \"this query -> this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set KEYWORD_PLANNER_NO_LEARN=true.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "no-validate": {
+            "description": "Suppress teach-time resource-shape validation (warnings to teach.log) (default: false)",
+            "type": "boolean"
+          },
+          "notes": {
+            "description": "Optional free-form note recorded in the audit log",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "playbook-file": {
+            "description": "Optional path to a JSON playbook recording the CLI choreography for this query family",
+            "type": "string"
+          },
+          "playbook-json": {
+            "description": "Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)",
+            "type": "string"
+          },
+          "playbook-notes": {
+            "description": "Optional inline gotchas/workarounds for this query family (stored alongside the playbook)",
+            "type": "string"
+          },
+          "playbook-notes-file": {
+            "description": "Optional path to a markdown file with playbook notes",
+            "type": "string"
+          },
+          "query": {
+            "description": "User's original natural-language question (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Silent on success (default true \u2014 designed for background invocation) (default: true)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Resource ID \u2014 repeat for multiple (required)",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "resource-type": {
+            "description": "Resource type (required; e.g. matches a row in the local resources table)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "venue": {
+            "description": "Optional venue scope tag stored with the learning",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught \u2014 they are derived from the canonical input.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "canonical": {
+            "description": "Canonical entity name (required)",
+            "type": "string"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "kind": {
+            "description": "Entity kind, e.g. country, team (required, must not be a computed kind)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "value": {
+            "description": "Value/alias that should resolve to the canonical (required)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach_lookup",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "SQLite database file path (default: resolved data directory data.db)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "entity-kind": {
+            "description": "Entity kind name registered in entity_lookups (required)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query-template": {
+            "description": "Query template with {entity} placeholder (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource-template": {
+            "description": "Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)",
+            "type": "string"
+          },
+          "resource-type": {
+            "description": "Resource type for substituted IDs (required)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "strategy": {
+            "description": "Substitution strategy: substitute | substitute-then-search-prefix (default substitute)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "venue": {
+            "description": "Optional venue scope tag",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach_pattern",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    },
+    {
+      "_meta": {
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "allow-partial-failure": {
+            "description": "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "db": {
+            "description": "Database path (default: standard cache location)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "notes": {
+            "description": "Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file",
+            "type": "string"
+          },
+          "notes-file": {
+            "description": "Path to a markdown file with the notes",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "playbook-file": {
+            "description": "Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)",
+            "type": "string"
+          },
+          "playbook-json": {
+            "description": "Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file",
+            "type": "string"
+          },
+          "query": {
+            "description": "Example query that anchors the family (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Planner requests per second: default auto is 1; positive values up to 1 are allowed; disabling is rejected (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach_playbook",
+      "no_auth": true,
+      "auth_policy": "local operation; no Google credentials required"
+    }
+  ],
+  "optional_headers": [
+    "login-customer-id"
+  ],
+  "runtime_surface": "Curated runtime Cobra mirror and local recipe/context tools; raw endpoint references are not registered.",
+  "upstream_reference_tools": [
+    {
+      "name": "customers_generate_keyword_historical_metrics",
+      "description": "Returns a list of keyword historical metrics. List of thrown errors: [AuthenticationError]() [AuthorizationError]() [CollectionSizeError]() [HeaderError]() [InternalError]() [QuotaError]() [RequestError](). Required: customerId. Optional: access_token, historicalMetricsOptions, language (plus 5 more).",
+      "method": "POST",
+      "path": "/v25/customers/{customerId}:generateKeywordHistoricalMetrics",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the customer with the recommendation.",
+          "required": true
+        },
+        {
+          "name": "access_token",
+          "type": "string",
+          "location": "query",
+          "description": "OAuth access token."
+        },
+        {
+          "name": "historicalMetricsOptions",
+          "type": "object",
+          "location": "body",
+          "description": "The options for historical metrics data."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The resource name of the language to target. Each keyword belongs to some set of languages; a keyword is included if language is one of its languages. If not set, all keywords will be included."
+        },
+        {
+          "name": "includeAdultKeywords",
+          "type": "boolean",
+          "location": "body",
+          "description": "If true, adult keywords will be included in response. The default value is false."
+        },
+        {
+          "name": "geoTargetConstants",
+          "type": "array",
+          "location": "body",
+          "description": "The resource names of the location to target. Maximum is 10. An empty list MAY be used to specify all targeting geos."
+        },
+        {
+          "name": "keywordPlanNetwork",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting network. If not set, Google Search And Partners Network will be used."
+        },
+        {
+          "name": "keywords",
+          "type": "array",
+          "location": "body",
+          "description": "A list of keywords to get historical metrics. Not all inputs will be returned as a result of near-exact deduplication. For example, if stats for 'car' and 'cars' are requested, only 'car' will be returned. A maximum of 10,000 keywords can be used."
+        },
+        {
+          "name": "aggregateMetrics",
+          "type": "object",
+          "location": "body",
+          "description": "The aggregate fields to include in response."
+        }
+      ],
+      "exposure": "hidden upstream reference; use the curated ideas or historical command",
+      "runtime_exposed": false
+    },
+    {
+      "name": "customers_generate_keyword_ideas",
+      "description": "Returns a list of keyword ideas. List of thrown errors: [AuthenticationError]() [AuthorizationError]() [CollectionSizeError]() [HeaderError]() [InternalError]() [KeywordPlanIdeaError]() [QuotaError]() [RequestError](). Required: customerId. Optional: access_token, includeAdultKeywords, geoTargetConstants (plus 11 more).",
+      "method": "POST",
+      "path": "/v25/customers/{customerId}:generateKeywordIdeas",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the customer with the recommendation.",
+          "required": true
+        },
+        {
+          "name": "access_token",
+          "type": "string",
+          "location": "query",
+          "description": "OAuth access token."
+        },
+        {
+          "name": "includeAdultKeywords",
+          "type": "boolean",
+          "location": "body",
+          "description": "If true, adult keywords will be included in response. The default value is false."
+        },
+        {
+          "name": "geoTargetConstants",
+          "type": "array",
+          "location": "body",
+          "description": "The resource names of the location to target. Maximum is 10. An empty list MAY be used to specify all targeting geos."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "body",
+          "description": "Token of the page to retrieve. If not specified, the first page of results will be returned. To request next page of results use the value obtained from `next_page_token` in the previous response. The request fields must match across pages."
+        },
+        {
+          "name": "keywordSeed",
+          "type": "object",
+          "location": "body",
+          "description": "A Keyword or phrase to generate ideas from, for example, cars."
+        },
+        {
+          "name": "keywordAndUrlSeed",
+          "type": "object",
+          "location": "body",
+          "description": "A Keyword and a specific Url to generate ideas from for example, cars, www.example.com/cars."
+        },
+        {
+          "name": "urlSeed",
+          "type": "object",
+          "location": "body",
+          "description": "A specific url to generate ideas from, for example, www.example.com/cars."
+        },
+        {
+          "name": "aggregateMetrics",
+          "type": "object",
+          "location": "body",
+          "description": "The aggregate fields to include in response."
+        },
+        {
+          "name": "siteSeed",
+          "type": "object",
+          "location": "body",
+          "description": "The site to generate ideas from, for example, www.example.com."
+        },
+        {
+          "name": "keywordPlanNetwork",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting network. If not set, Google Search And Partners Network will be used."
+        },
+        {
+          "name": "historicalMetricsOptions",
+          "type": "object",
+          "location": "body",
+          "description": "The options for historical metrics data."
+        },
+        {
+          "name": "keywordAnnotation",
+          "type": "array",
+          "location": "body",
+          "description": "The keyword annotations to include in response."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The resource name of the language to target. Each keyword belongs to some set of languages; a keyword is included if language is one of its languages. If not set, all keywords will be included."
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "body",
+          "description": "Number of results to retrieve in a single page. A maximum of 10,000 results may be returned, if the page_size exceeds this, it is ignored. If unspecified, at most 10,000 results will be returned. The server may decide to further limit the number of returned resources. If the response contains fewer than 10,000 results it may not be assumed as last page of results."
+        }
+      ],
+      "exposure": "hidden upstream reference; use the curated ideas or historical command",
+      "runtime_exposed": false
+    }
+  ],
+  "tool_schema": "MCP tools/list",
+  "mcp_tool_count": 28,
+  "inventory_source": "Installed stdio tools/list",
+  "inventory_verified_at": "2026-09-08T00:07:24.323371+00:00",
+  "inventory_receipt_sha256": "782a4f9d66ee1eb51920dac23e715f0d7b5f4728d0a6f58fd417a3e422c764a9"
+}

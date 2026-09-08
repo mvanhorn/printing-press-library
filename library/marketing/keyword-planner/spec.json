@@ -1,0 +1,783 @@
+{
+  "title": "Google Ads API",
+  "name": "googleads",
+  "rootUrl": "https://googleads.googleapis.com/",
+  "documentationLink": "https://developers.google.com/google-ads/api/",
+  "fullyEncodeReservedExpansion": true,
+  "auth": {
+    "oauth2": {
+      "scopes": {
+        "https://www.googleapis.com/auth/adwords": {
+          "description": "See, edit, create, and delete your Google Ads accounts and data."
+        }
+      }
+    }
+  },
+  "kind": "discovery#restDescription",
+  "basePath": "",
+  "icons": {
+    "x16": "http://www.google.com/images/icons/product/search-16.gif",
+    "x32": "http://www.google.com/images/icons/product/search-32.gif"
+  },
+  "revision": "20260831",
+  "description": "Manage your Google Ads accounts, campaigns, and reports with this API.",
+  "batchPath": "batch",
+  "parameters": {
+    "callback": {
+      "location": "query",
+      "type": "string",
+      "description": "JSONP"
+    },
+    "uploadType": {
+      "description": "Legacy upload protocol for media (e.g. \"media\", \"multipart\").",
+      "location": "query",
+      "type": "string"
+    },
+    "quotaUser": {
+      "location": "query",
+      "type": "string",
+      "description": "Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters."
+    },
+    "access_token": {
+      "description": "OAuth access token.",
+      "location": "query",
+      "type": "string"
+    },
+    "alt": {
+      "enumDescriptions": [
+        "Responses with Content-Type of application/json",
+        "Media download with context-dependent Content-Type",
+        "Responses with Content-Type of application/x-protobuf"
+      ],
+      "enum": [
+        "json",
+        "media",
+        "proto"
+      ],
+      "type": "string",
+      "default": "json",
+      "location": "query",
+      "description": "Data format for response."
+    },
+    "fields": {
+      "description": "Selector specifying which fields to include in a partial response.",
+      "type": "string",
+      "location": "query"
+    },
+    "prettyPrint": {
+      "location": "query",
+      "type": "boolean",
+      "description": "Returns response with indentations and line breaks.",
+      "default": "true"
+    },
+    "key": {
+      "type": "string",
+      "description": "API key. Your API key identifies your project and provides you with API access, quota, and reports. Required unless you provide an OAuth 2.0 token.",
+      "location": "query"
+    },
+    "upload_protocol": {
+      "location": "query",
+      "description": "Upload protocol for media (e.g. \"raw\", \"multipart\").",
+      "type": "string"
+    },
+    "$.xgafv": {
+      "location": "query",
+      "description": "V1 error format.",
+      "enumDescriptions": [
+        "v1 error format",
+        "v2 error format"
+      ],
+      "type": "string",
+      "enum": [
+        "1",
+        "2"
+      ]
+    },
+    "oauth_token": {
+      "type": "string",
+      "location": "query",
+      "description": "OAuth 2.0 token for the current user."
+    }
+  },
+  "discoveryVersion": "v1",
+  "mtlsRootUrl": "https://googleads.mtls.googleapis.com/",
+  "servicePath": "",
+  "version": "v25",
+  "ownerDomain": "google.com",
+  "ownerName": "Google",
+  "canonicalName": "GoogleAds",
+  "protocol": "rest",
+  "baseUrl": "https://googleads.googleapis.com/",
+  "id": "googleads:v25",
+  "version_module": true,
+  "resources": {
+    "customers": {
+      "methods": {
+        "generateKeywordIdeas": {
+          "scopes": [
+            "https://www.googleapis.com/auth/adwords"
+          ],
+          "response": {
+            "$ref": "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeaResponse"
+          },
+          "parameters": {
+            "customerId": {
+              "description": "The ID of the customer with the recommendation.",
+              "required": true,
+              "type": "string",
+              "location": "path",
+              "pattern": "^[^/]+$"
+            }
+          },
+          "id": "googleads.customers.generateKeywordIdeas",
+          "httpMethod": "POST",
+          "description": "Returns a list of keyword ideas. List of thrown errors: [AuthenticationError]() [AuthorizationError]() [CollectionSizeError]() [HeaderError]() [InternalError]() [KeywordPlanIdeaError]() [QuotaError]() [RequestError]()",
+          "flatPath": "v25/customers/{customerId}:generateKeywordIdeas",
+          "parameterOrder": [
+            "customerId"
+          ],
+          "request": {
+            "$ref": "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeasRequest"
+          },
+          "path": "v25/customers/{+customerId}:generateKeywordIdeas"
+        },
+        "generateKeywordHistoricalMetrics": {
+          "flatPath": "v25/customers/{customerId}:generateKeywordHistoricalMetrics",
+          "description": "Returns a list of keyword historical metrics. List of thrown errors: [AuthenticationError]() [AuthorizationError]() [CollectionSizeError]() [HeaderError]() [InternalError]() [QuotaError]() [RequestError]()",
+          "parameterOrder": [
+            "customerId"
+          ],
+          "request": {
+            "$ref": "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsRequest"
+          },
+          "id": "googleads.customers.generateKeywordHistoricalMetrics",
+          "httpMethod": "POST",
+          "parameters": {
+            "customerId": {
+              "pattern": "^[^/]+$",
+              "type": "string",
+              "required": true,
+              "description": "The ID of the customer with the recommendation.",
+              "location": "path"
+            }
+          },
+          "path": "v25/customers/{+customerId}:generateKeywordHistoricalMetrics",
+          "scopes": [
+            "https://www.googleapis.com/auth/adwords"
+          ],
+          "response": {
+            "$ref": "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsResponse"
+          }
+        }
+      }
+    }
+  },
+  "schemas": {
+    "GoogleAdsGoogleadsV25Common__ConceptGroup": {
+      "properties": {
+        "name": {
+          "description": "The concept group name.",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "The concept group type.",
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "BRAND",
+            "OTHER_BRANDS",
+            "NON_BRAND"
+          ],
+          "enumDescriptions": [
+            "The concept group classification different from brand/non-brand. This is a catch all bucket for all classifications that are none of the below.",
+            "The value is unknown in this version.",
+            "The concept group classification is based on BRAND.",
+            "The concept group classification based on BRAND, that didn't fit well with the BRAND classifications. These are generally outliers and can have very few keywords in this type of classification.",
+            "These concept group classification is not based on BRAND. This is returned for generic keywords that don't have a brand association."
+          ]
+        }
+      },
+      "description": "The concept group for the keyword concept.",
+      "type": "object",
+      "id": "GoogleAdsGoogleadsV25Common__ConceptGroup"
+    },
+    "GoogleAdsGoogleadsV25Common__HistoricalMetricsOptions": {
+      "description": "Historical metrics options.",
+      "properties": {
+        "includeAverageCpc": {
+          "description": "Indicates whether to include average cost per click value. Average CPC is provided only for legacy support.",
+          "type": "boolean"
+        },
+        "yearMonthRange": {
+          "$ref": "GoogleAdsGoogleadsV25Common__YearMonthRange",
+          "description": "The year month range for historical metrics. If not specified, metrics for the past 12 months are returned. Search metrics are available for the past 4 years. If the search volume is not available for the entire year_month_range provided, the subset of the year month range for which search volume is available are returned."
+        }
+      },
+      "id": "GoogleAdsGoogleadsV25Common__HistoricalMetricsOptions",
+      "type": "object"
+    },
+    "GoogleAdsGoogleadsV25Common__KeywordAnnotations": {
+      "id": "GoogleAdsGoogleadsV25Common__KeywordAnnotations",
+      "type": "object",
+      "properties": {
+        "concepts": {
+          "description": "The list of concepts for the keyword.",
+          "items": {
+            "$ref": "GoogleAdsGoogleadsV25Common__KeywordConcept"
+          },
+          "type": "array"
+        }
+      },
+      "description": "The annotations for the keyword plan keywords."
+    },
+    "GoogleAdsGoogleadsV25Common__KeywordConcept": {
+      "id": "GoogleAdsGoogleadsV25Common__KeywordConcept",
+      "type": "object",
+      "description": "The concept for the keyword.",
+      "properties": {
+        "conceptGroup": {
+          "description": "The concept group of the concept details.",
+          "$ref": "GoogleAdsGoogleadsV25Common__ConceptGroup"
+        },
+        "name": {
+          "description": "The concept name for the keyword in the concept_group.",
+          "type": "string"
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetricResults": {
+      "id": "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetricResults",
+      "type": "object",
+      "properties": {
+        "deviceSearches": {
+          "description": "The aggregate searches for all the keywords segmented by device for the specified time. Supports the following device types: MOBILE, TABLET, DESKTOP. This is only set when KeywordPlanAggregateMetricTypeEnum.DEVICE is set in the KeywordPlanAggregateMetrics field in the request.",
+          "items": {
+            "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanDeviceSearches"
+          },
+          "type": "array"
+        }
+      },
+      "description": "The aggregated historical metrics for keyword plan keywords."
+    },
+    "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetrics": {
+      "properties": {
+        "aggregateMetricTypes": {
+          "type": "array",
+          "description": "The list of aggregate metrics to fetch data.",
+          "items": {
+            "enumDescriptions": [
+              "Not specified.",
+              "The value is unknown in this version.",
+              "The device breakdown of aggregate search volume."
+            ],
+            "enum": [
+              "UNSPECIFIED",
+              "UNKNOWN",
+              "DEVICE"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "id": "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetrics",
+      "type": "object",
+      "description": "The aggregate metrics specification of the request."
+    },
+    "GoogleAdsGoogleadsV25Common__KeywordPlanDeviceSearches": {
+      "id": "GoogleAdsGoogleadsV25Common__KeywordPlanDeviceSearches",
+      "description": "The total searches for the device type during the specified time period.",
+      "properties": {
+        "searchCount": {
+          "description": "The total searches for the device.",
+          "type": "string",
+          "format": "int64"
+        },
+        "device": {
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "MOBILE",
+            "TABLET",
+            "DESKTOP",
+            "CONNECTED_TV",
+            "OTHER"
+          ],
+          "description": "The device type.",
+          "type": "string",
+          "enumDescriptions": [
+            "Not specified.",
+            "The value is unknown in this version.",
+            "Mobile devices with full browsers.",
+            "Tablets with full browsers.",
+            "Computers.",
+            "Smart TVs and game consoles.",
+            "Other device types."
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "GoogleAdsGoogleadsV25Common__KeywordPlanHistoricalMetrics": {
+      "properties": {
+        "highTopOfPageBidMicros": {
+          "format": "int64",
+          "type": "string",
+          "description": "Top of page bid high range (80th percentile) in micros for the keyword."
+        },
+        "avgMonthlySearches": {
+          "format": "int64",
+          "description": "Approximate number of monthly searches on this query, averaged for the past 12 months.",
+          "type": "string"
+        },
+        "monthlySearchVolumes": {
+          "type": "array",
+          "items": {
+            "$ref": "GoogleAdsGoogleadsV25Common__MonthlySearchVolume"
+          },
+          "description": "Approximate number of searches on this query for the past twelve months."
+        },
+        "competitionIndex": {
+          "description": "The competition index for the query in the range [0, 100]. Shows how competitive ad placement is for a keyword. The level of competition from 0-100 is determined by the number of ad slots filled divided by the total number of ad slots available. If not enough data is available, null is returned.",
+          "type": "string",
+          "format": "int64"
+        },
+        "averageCpcMicros": {
+          "format": "int64",
+          "description": "Average Cost Per Click in micros for the keyword.",
+          "type": "string"
+        },
+        "competition": {
+          "description": "The competition level for the query.",
+          "type": "string",
+          "enumDescriptions": [
+            "Not specified.",
+            "The value is unknown in this version.",
+            "Low competition. The Competition Index range for this is [0, 33].",
+            "Medium competition. The Competition Index range for this is [34, 66].",
+            "High competition. The Competition Index range for this is [67, 100]."
+          ],
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "lowTopOfPageBidMicros": {
+          "type": "string",
+          "description": "Top of page bid low range (20th percentile) in micros for the keyword.",
+          "format": "int64"
+        }
+      },
+      "description": "Historical metrics specific to the targeting options selected. Targeting options include geographies, network, and so on. Refer to https://support.google.com/google-ads/answer/3022575 for more details.",
+      "id": "GoogleAdsGoogleadsV25Common__KeywordPlanHistoricalMetrics",
+      "type": "object"
+    },
+    "GoogleAdsGoogleadsV25Common__MonthlySearchVolume": {
+      "type": "object",
+      "id": "GoogleAdsGoogleadsV25Common__MonthlySearchVolume",
+      "properties": {
+        "year": {
+          "format": "int64",
+          "description": "The year of the search volume (for example, 2020).",
+          "type": "string"
+        },
+        "month": {
+          "type": "string",
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "JANUARY",
+            "FEBRUARY",
+            "MARCH",
+            "APRIL",
+            "MAY",
+            "JUNE",
+            "JULY",
+            "AUGUST",
+            "SEPTEMBER",
+            "OCTOBER",
+            "NOVEMBER",
+            "DECEMBER"
+          ],
+          "description": "The month of the search volume.",
+          "enumDescriptions": [
+            "Not specified.",
+            "The value is unknown in this version.",
+            "January.",
+            "February.",
+            "March.",
+            "April.",
+            "May.",
+            "June.",
+            "July.",
+            "August.",
+            "September.",
+            "October.",
+            "November.",
+            "December."
+          ]
+        },
+        "monthlySearches": {
+          "type": "string",
+          "description": "Approximate number of searches for the month. A null value indicates the search volume is unavailable for that month.",
+          "format": "int64"
+        }
+      },
+      "description": "Monthly search volume."
+    },
+    "GoogleAdsGoogleadsV25Common__YearMonth": {
+      "description": "Year month.",
+      "type": "object",
+      "properties": {
+        "year": {
+          "type": "string",
+          "description": "The year (for example, 2020).",
+          "format": "int64"
+        },
+        "month": {
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "JANUARY",
+            "FEBRUARY",
+            "MARCH",
+            "APRIL",
+            "MAY",
+            "JUNE",
+            "JULY",
+            "AUGUST",
+            "SEPTEMBER",
+            "OCTOBER",
+            "NOVEMBER",
+            "DECEMBER"
+          ],
+          "type": "string",
+          "enumDescriptions": [
+            "Not specified.",
+            "The value is unknown in this version.",
+            "January.",
+            "February.",
+            "March.",
+            "April.",
+            "May.",
+            "June.",
+            "July.",
+            "August.",
+            "September.",
+            "October.",
+            "November.",
+            "December."
+          ],
+          "description": "The month of the year. (for example, FEBRUARY)."
+        }
+      },
+      "id": "GoogleAdsGoogleadsV25Common__YearMonth"
+    },
+    "GoogleAdsGoogleadsV25Common__YearMonthRange": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "GoogleAdsGoogleadsV25Common__YearMonth",
+          "description": "The inclusive start year month."
+        },
+        "end": {
+          "description": "The inclusive end year month.",
+          "$ref": "GoogleAdsGoogleadsV25Common__YearMonth"
+        }
+      },
+      "description": "The year month range inclusive of the start and end months. Eg: A year month range to represent Jan 2020 would be: (Jan 2020, Jan 2020).",
+      "id": "GoogleAdsGoogleadsV25Common__YearMonthRange"
+    },
+    "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsRequest": {
+      "properties": {
+        "language": {
+          "description": "The resource name of the language to target. Each keyword belongs to some set of languages; a keyword is included if language is one of its languages. If not set, all keywords will be included.",
+          "type": "string"
+        },
+        "includeAdultKeywords": {
+          "description": "If true, adult keywords will be included in response. The default value is false.",
+          "type": "boolean"
+        },
+        "geoTargetConstants": {
+          "description": "The resource names of the location to target. Maximum is 10. An empty list MAY be used to specify all targeting geos.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keywordPlanNetwork": {
+          "type": "string",
+          "description": "Targeting network. If not set, Google Search And Partners Network will be used.",
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "GOOGLE_SEARCH",
+            "GOOGLE_SEARCH_AND_PARTNERS"
+          ],
+          "enumDescriptions": [
+            "Not specified.",
+            "The value is unknown in this version.",
+            "Google Search.",
+            "Google Search + Search partners."
+          ]
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of keywords to get historical metrics. Not all inputs will be returned as a result of near-exact deduplication. For example, if stats for \"car\" and \"cars\" are requested, only \"car\" will be returned. A maximum of 10,000 keywords can be used."
+        },
+        "aggregateMetrics": {
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetrics",
+          "description": "The aggregate fields to include in response."
+        },
+        "historicalMetricsOptions": {
+          "$ref": "GoogleAdsGoogleadsV25Common__HistoricalMetricsOptions",
+          "description": "The options for historical metrics data."
+        }
+      },
+      "description": "Request message for KeywordPlanIdeaService.GenerateKeywordHistoricalMetrics.",
+      "id": "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsRequest",
+      "type": "object"
+    },
+    "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsResponse": {
+      "description": "Response message for KeywordPlanIdeaService.GenerateKeywordHistoricalMetrics.",
+      "id": "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsResponse",
+      "type": "object",
+      "properties": {
+        "results": {
+          "items": {
+            "$ref": "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsResult"
+          },
+          "type": "array",
+          "description": "List of keywords and their historical metrics."
+        },
+        "aggregateMetricResults": {
+          "description": "The aggregate metrics for all keywords.",
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetricResults"
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsResult": {
+      "description": "The result of generating keyword historical metrics.",
+      "type": "object",
+      "id": "GoogleAdsGoogleadsV25Services__GenerateKeywordHistoricalMetricsResult",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The text of the query associated with one or more keywords. Note that we de-dupe your keywords list, eliminating close variants before returning the keywords as text. For example, if your request originally contained the keywords \"car\" and \"cars\", the returned search query will only contain \"cars\". The list of de-duped queries will be included in close_variants field."
+        },
+        "closeVariants": {
+          "description": "The list of close variants from the requested keywords whose stats are combined into this GenerateKeywordHistoricalMetricsResult.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "keywordMetrics": {
+          "description": "The historical metrics for text and its close variants",
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanHistoricalMetrics"
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeaResponse": {
+      "description": "Response message for KeywordPlanIdeaService.GenerateKeywordIdeas.",
+      "id": "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeaResponse",
+      "type": "object",
+      "properties": {
+        "totalSize": {
+          "description": "Total number of results available.",
+          "format": "int64",
+          "type": "string"
+        },
+        "results": {
+          "description": "Results of generating keyword ideas.",
+          "items": {
+            "$ref": "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeaResult"
+          },
+          "type": "array"
+        },
+        "aggregateMetricResults": {
+          "description": "The aggregate metrics for all keyword ideas.",
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetricResults"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results. Pass the content of this string as the `page_token` attribute of the next request. `next_page_token` is not returned for the last page."
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeaResult": {
+      "id": "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeaResult",
+      "type": "object",
+      "description": "The result of generating keyword ideas.",
+      "properties": {
+        "keywordIdeaMetrics": {
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanHistoricalMetrics",
+          "description": "The historical metrics for the keyword."
+        },
+        "text": {
+          "description": "Text of the keyword idea. As in Keyword Plan historical metrics, this text may not be an actual keyword, but the canonical form of multiple keywords. See KeywordPlanKeywordHistoricalMetrics message in KeywordPlanService.",
+          "type": "string"
+        },
+        "closeVariants": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "The list of close variants from the requested keywords that are combined into this GenerateKeywordIdeaResult. See https://support.google.com/google-ads/answer/9342105 for the definition of \"close variants\"."
+        },
+        "keywordAnnotations": {
+          "description": "The annotations for the keyword. The annotation data is only provided if requested.",
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordAnnotations"
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeasRequest": {
+      "type": "object",
+      "id": "GoogleAdsGoogleadsV25Services__GenerateKeywordIdeasRequest",
+      "description": "Request message for KeywordPlanIdeaService.GenerateKeywordIdeas.",
+      "properties": {
+        "includeAdultKeywords": {
+          "type": "boolean",
+          "description": "If true, adult keywords will be included in response. The default value is false."
+        },
+        "geoTargetConstants": {
+          "description": "The resource names of the location to target. Maximum is 10. An empty list MAY be used to specify all targeting geos.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "pageToken": {
+          "type": "string",
+          "description": "Token of the page to retrieve. If not specified, the first page of results will be returned. To request next page of results use the value obtained from `next_page_token` in the previous response. The request fields must match across pages."
+        },
+        "keywordSeed": {
+          "description": "A Keyword or phrase to generate ideas from, for example, cars.",
+          "$ref": "GoogleAdsGoogleadsV25Services__KeywordSeed"
+        },
+        "keywordAndUrlSeed": {
+          "$ref": "GoogleAdsGoogleadsV25Services__KeywordAndUrlSeed",
+          "description": "A Keyword and a specific Url to generate ideas from for example, cars, www.example.com/cars."
+        },
+        "urlSeed": {
+          "$ref": "GoogleAdsGoogleadsV25Services__UrlSeed",
+          "description": "A specific url to generate ideas from, for example, www.example.com/cars."
+        },
+        "keywordPlanNetwork": {
+          "enumDescriptions": [
+            "Not specified.",
+            "The value is unknown in this version.",
+            "Google Search.",
+            "Google Search + Search partners."
+          ],
+          "description": "Targeting network. If not set, Google Search And Partners Network will be used.",
+          "enum": [
+            "UNSPECIFIED",
+            "UNKNOWN",
+            "GOOGLE_SEARCH",
+            "GOOGLE_SEARCH_AND_PARTNERS"
+          ],
+          "type": "string"
+        },
+        "aggregateMetrics": {
+          "$ref": "GoogleAdsGoogleadsV25Common__KeywordPlanAggregateMetrics",
+          "description": "The aggregate fields to include in response."
+        },
+        "siteSeed": {
+          "$ref": "GoogleAdsGoogleadsV25Services__SiteSeed",
+          "description": "The site to generate ideas from, for example, www.example.com."
+        },
+        "historicalMetricsOptions": {
+          "description": "The options for historical metrics data.",
+          "$ref": "GoogleAdsGoogleadsV25Common__HistoricalMetricsOptions"
+        },
+        "keywordAnnotation": {
+          "type": "array",
+          "description": "The keyword annotations to include in response.",
+          "items": {
+            "enumDescriptions": [
+              "Not specified.",
+              "The value is unknown in this version.",
+              "Return the keyword concept and concept group data."
+            ],
+            "enum": [
+              "UNSPECIFIED",
+              "UNKNOWN",
+              "KEYWORD_CONCEPT"
+            ],
+            "type": "string"
+          }
+        },
+        "language": {
+          "description": "The resource name of the language to target. Each keyword belongs to some set of languages; a keyword is included if language is one of its languages. If not set, all keywords will be included.",
+          "type": "string"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of results to retrieve in a single page. A maximum of 10,000 results may be returned, if the page_size exceeds this, it is ignored. If unspecified, at most 10,000 results will be returned. The server may decide to further limit the number of returned resources. If the response contains fewer than 10,000 results it may not be assumed as last page of results."
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Services__KeywordAndUrlSeed": {
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The URL to crawl in order to generate keyword ideas."
+        },
+        "keywords": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Requires at least one keyword and no more than 20 keywords."
+        }
+      },
+      "type": "object",
+      "id": "GoogleAdsGoogleadsV25Services__KeywordAndUrlSeed",
+      "description": "Keyword And Url Seed"
+    },
+    "GoogleAdsGoogleadsV25Services__KeywordSeed": {
+      "id": "GoogleAdsGoogleadsV25Services__KeywordSeed",
+      "type": "object",
+      "description": "Keyword Seed",
+      "properties": {
+        "keywords": {
+          "items": {
+            "type": "string"
+          },
+          "description": "Requires at least one keyword and no more than 20 keywords.",
+          "type": "array"
+        }
+      }
+    },
+    "GoogleAdsGoogleadsV25Services__SiteSeed": {
+      "type": "object",
+      "properties": {
+        "site": {
+          "type": "string",
+          "description": "The domain name of the site. If the customer requesting the ideas doesn't own the site provided only public information is returned."
+        }
+      },
+      "id": "GoogleAdsGoogleadsV25Services__SiteSeed",
+      "description": "Site Seed"
+    },
+    "GoogleAdsGoogleadsV25Services__UrlSeed": {
+      "properties": {
+        "url": {
+          "description": "The URL to crawl in order to generate keyword ideas.",
+          "type": "string"
+        }
+      },
+      "id": "GoogleAdsGoogleadsV25Services__UrlSeed",
+      "description": "Url Seed",
+      "type": "object"
+    }
+  }
+}

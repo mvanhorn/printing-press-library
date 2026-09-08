@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "keyword-planner-pp-cli"
+display_name = "Google Keyword Planner"
+description = "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/keyword-planner-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+KEYWORD_PLANNER_ACCESS_TOKEN = true

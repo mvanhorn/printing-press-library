@@ -1,0 +1,91 @@
+{
+  "manifest_version": "0.3",
+  "name": "keyword-planner-pp-mcp",
+  "display_name": "Google Keyword Planner",
+  "version": "4.32.0",
+  "description": "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/keyword-planner-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/keyword-planner-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_ADS_CLIENT_ID": "${user_config.google_ads_client_id}",
+        "GOOGLE_ADS_CLIENT_SECRET": "${user_config.google_ads_client_secret}",
+        "GOOGLE_ADS_CUSTOMER_ID": "${user_config.google_ads_customer_id}",
+        "GOOGLE_ADS_DEVELOPER_TOKEN": "${user_config.google_ads_developer_token}",
+        "GOOGLE_ADS_LOGIN_CUSTOMER_ID": "${user_config.google_ads_login_customer_id}",
+        "GOOGLE_ADS_REFRESH_TOKEN": "${user_config.google_ads_refresh_token}",
+        "KEYWORD_PLANNER_BASE_URL": "${user_config.keyword_planner_base_url}",
+        "KEYWORD_PLANNER_USER_AGENT": "${user_config.keyword_planner_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "google_ads_client_id": {
+      "type": "string",
+      "title": "GOOGLE_ADS_CLIENT_ID",
+      "description": "Sets GOOGLE_ADS_CLIENT_ID for the Google Keyword Planner MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "google_ads_client_secret": {
+      "type": "string",
+      "title": "GOOGLE_ADS_CLIENT_SECRET",
+      "description": "Sets GOOGLE_ADS_CLIENT_SECRET for the Google Keyword Planner MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "google_ads_customer_id": {
+      "type": "string",
+      "title": "GOOGLE_ADS_CUSTOMER_ID",
+      "description": "Sets GOOGLE_ADS_CUSTOMER_ID for the Google Keyword Planner MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "google_ads_developer_token": {
+      "type": "string",
+      "title": "GOOGLE_ADS_DEVELOPER_TOKEN",
+      "description": "Sets GOOGLE_ADS_DEVELOPER_TOKEN for the Google Keyword Planner MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "google_ads_login_customer_id": {
+      "type": "string",
+      "title": "GOOGLE_ADS_LOGIN_CUSTOMER_ID",
+      "description": "Optional manager login context. The operating target is configured separately with GOOGLE_ADS_CUSTOMER_ID.",
+      "sensitive": true,
+      "required": false
+    },
+    "google_ads_refresh_token": {
+      "type": "string",
+      "title": "GOOGLE_ADS_REFRESH_TOKEN",
+      "description": "Sets GOOGLE_ADS_REFRESH_TOKEN for the Google Keyword Planner MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "keyword_planner_base_url": {
+      "type": "string",
+      "title": "KEYWORD_PLANNER_BASE_URL",
+      "description": "Optional. Sets KEYWORD_PLANNER_BASE_URL for the Google Keyword Planner MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "keyword_planner_user_agent": {
+      "type": "string",
+      "title": "KEYWORD_PLANNER_USER_AGENT",
+      "description": "Optional. Sets KEYWORD_PLANNER_USER_AGENT for the Google Keyword Planner MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

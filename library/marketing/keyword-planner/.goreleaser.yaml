@@ -1,0 +1,51 @@
+version: 2
+project_name: keyword-planner-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: keyword-planner-pp-cli
+    main: ./cmd/keyword-planner-pp-cli
+    binary: keyword-planner-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X keyword-planner-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: keyword-planner-pp-mcp
+    main: ./cmd/keyword-planner-pp-mcp
+    binary: keyword-planner-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: keyword-planner-pp-cli
+    repository:
+      owner: viegpt
+      name: homebrew-tap
+    homepage: "https://github.com/viegpt/keyword-planner-pp-cli"
+    description: "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff."
+    install: |
+      bin.install "keyword-planner-pp-cli"
+      bin.install "keyword-planner-pp-mcp"

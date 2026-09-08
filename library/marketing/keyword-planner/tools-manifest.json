@@ -1,0 +1,220 @@
+{
+  "api_name": "keyword-planner",
+  "base_url": "https://googleads.googleapis.com",
+  "description": "Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "oauth2_refresh",
+    "header": "Authorization",
+    "format": "Bearer \u003cin-memory access token\u003e",
+    "env_vars": [
+      "GOOGLE_ADS_CLIENT_ID",
+      "GOOGLE_ADS_CLIENT_SECRET",
+      "GOOGLE_ADS_REFRESH_TOKEN",
+      "GOOGLE_ADS_DEVELOPER_TOKEN",
+      "GOOGLE_ADS_CUSTOMER_ID",
+      "GOOGLE_ADS_LOGIN_CUSTOMER_ID"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "customers_generate_keyword_historical_metrics",
+      "description": "Returns a list of keyword historical metrics. List of thrown errors: [AuthenticationError]() [AuthorizationError]() [CollectionSizeError]() [HeaderError]() [InternalError]() [QuotaError]() [RequestError](). Required: customerId. Optional: access_token, historicalMetricsOptions, language (plus 5 more).",
+      "method": "POST",
+      "path": "/v25/customers/{customerId}:generateKeywordHistoricalMetrics",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the customer with the recommendation.",
+          "required": true
+        },
+        {
+          "name": "access_token",
+          "type": "string",
+          "location": "query",
+          "description": "OAuth access token."
+        },
+        {
+          "name": "historicalMetricsOptions",
+          "type": "object",
+          "location": "body",
+          "description": "The options for historical metrics data."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The resource name of the language to target. Each keyword belongs to some set of languages; a keyword is included if language is one of its languages. If not set, all keywords will be included."
+        },
+        {
+          "name": "includeAdultKeywords",
+          "type": "boolean",
+          "location": "body",
+          "description": "If true, adult keywords will be included in response. The default value is false."
+        },
+        {
+          "name": "geoTargetConstants",
+          "type": "array",
+          "location": "body",
+          "description": "The resource names of the location to target. Maximum is 10. An empty list MAY be used to specify all targeting geos."
+        },
+        {
+          "name": "keywordPlanNetwork",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting network. If not set, Google Search And Partners Network will be used."
+        },
+        {
+          "name": "keywords",
+          "type": "array",
+          "location": "body",
+          "description": "A list of keywords to get historical metrics. Not all inputs will be returned as a result of near-exact deduplication. For example, if stats for 'car' and 'cars' are requested, only 'car' will be returned. A maximum of 10,000 keywords can be used."
+        },
+        {
+          "name": "aggregateMetrics",
+          "type": "object",
+          "location": "body",
+          "description": "The aggregate fields to include in response."
+        }
+      ]
+    },
+    {
+      "name": "customers_generate_keyword_ideas",
+      "description": "Returns a list of keyword ideas. List of thrown errors: [AuthenticationError]() [AuthorizationError]() [CollectionSizeError]() [HeaderError]() [InternalError]() [KeywordPlanIdeaError]() [QuotaError]() [RequestError](). Required: customerId. Optional: access_token, includeAdultKeywords, geoTargetConstants (plus 11 more).",
+      "method": "POST",
+      "path": "/v25/customers/{customerId}:generateKeywordIdeas",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the customer with the recommendation.",
+          "required": true
+        },
+        {
+          "name": "access_token",
+          "type": "string",
+          "location": "query",
+          "description": "OAuth access token."
+        },
+        {
+          "name": "includeAdultKeywords",
+          "type": "boolean",
+          "location": "body",
+          "description": "If true, adult keywords will be included in response. The default value is false."
+        },
+        {
+          "name": "geoTargetConstants",
+          "type": "array",
+          "location": "body",
+          "description": "The resource names of the location to target. Maximum is 10. An empty list MAY be used to specify all targeting geos."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "body",
+          "description": "Token of the page to retrieve. If not specified, the first page of results will be returned. To request next page of results use the value obtained from `next_page_token` in the previous response. The request fields must match across pages."
+        },
+        {
+          "name": "keywordSeed",
+          "type": "object",
+          "location": "body",
+          "description": "A Keyword or phrase to generate ideas from, for example, cars."
+        },
+        {
+          "name": "keywordAndUrlSeed",
+          "type": "object",
+          "location": "body",
+          "description": "A Keyword and a specific Url to generate ideas from for example, cars, www.example.com/cars."
+        },
+        {
+          "name": "urlSeed",
+          "type": "object",
+          "location": "body",
+          "description": "A specific url to generate ideas from, for example, www.example.com/cars."
+        },
+        {
+          "name": "aggregateMetrics",
+          "type": "object",
+          "location": "body",
+          "description": "The aggregate fields to include in response."
+        },
+        {
+          "name": "siteSeed",
+          "type": "object",
+          "location": "body",
+          "description": "The site to generate ideas from, for example, www.example.com."
+        },
+        {
+          "name": "keywordPlanNetwork",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting network. If not set, Google Search And Partners Network will be used."
+        },
+        {
+          "name": "historicalMetricsOptions",
+          "type": "object",
+          "location": "body",
+          "description": "The options for historical metrics data."
+        },
+        {
+          "name": "keywordAnnotation",
+          "type": "array",
+          "location": "body",
+          "description": "The keyword annotations to include in response."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The resource name of the language to target. Each keyword belongs to some set of languages; a keyword is included if language is one of its languages. If not set, all keywords will be included."
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "body",
+          "description": "Number of results to retrieve in a single page. A maximum of 10,000 results may be returned, if the page_size exceeds this, it is ignored. If unspecified, at most 10,000 results will be returned. The server may decide to further limit the number of returned resources. If the response contains fewer than 10,000 results it may not be assumed as last page of results."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Evidence trace",
+      "command": "portfolio trace",
+      "description": "Trace one stored monthly value back to the exact request and raw receipt that produced it."
+    },
+    {
+      "name": "Coverage accountability",
+      "command": "portfolio coverage",
+      "description": "See requested, returned, missing, unavailable, raw-only, and incomplete coverage for a saved collection."
+    },
+    {
+      "name": "Variant-aware lineage",
+      "command": "portfolio variants",
+      "description": "Follow submitted keywords through returned terms and close variants without double-counting demand."
+    },
+    {
+      "name": "Immutable snapshot diff",
+      "command": "portfolio diff",
+      "description": "Compare two preserved collections to see changed terms, monthly values, flags, and coverage."
+    },
+    {
+      "name": "Portfolio integrity check",
+      "command": "portfolio integrity",
+      "description": "Verify that raw receipts, hashes, normalized rows, and coverage still reconcile."
+    },
+    {
+      "name": "Policy-safe local statistics",
+      "command": "portfolio safe-stats",
+      "description": "Compute descriptive monthly aggregates while excluding unavailable, ambiguous, anomalous, and incomplete rows."
+    }
+  ]
+}
