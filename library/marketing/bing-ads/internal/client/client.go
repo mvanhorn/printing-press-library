@@ -171,7 +171,16 @@ var bingAdsServiceHosts = map[string]string{
 
 // serviceBaseURL resolves the correct Microsoft Advertising host for path,
 // overriding the single generic c.BaseURL. See bingAdsServiceHosts.
+//
+// BING_ADS_BASE_URL (see internal/config.Load) is printing-press verify's
+// mock/test-server escape hatch: when set, every request must reach that
+// server regardless of path, or the mock never sees the traffic it exists
+// to receive. The per-service map only applies when no such override is
+// configured.
 func (c *Client) serviceBaseURL(path string) string {
+	if os.Getenv("BING_ADS_BASE_URL") != "" {
+		return c.BaseURL
+	}
 	for prefix, host := range bingAdsServiceHosts {
 		if strings.HasPrefix(path, prefix) {
 			return host
