@@ -299,6 +299,13 @@ func opSelect(ctx context.Context, c *client.Client, args map[string]any) (resul
 	if verifyPolicy != "" && verifyPolicy != "none" && verifyPolicy != "frame_change" && verifyPolicy != "ocr_identity" && verifyPolicy != "prompt_pattern" {
 		return results.Operation{}, fmt.Errorf("unsupported verify_policy")
 	}
+	var settleS float64 = 5
+	if v, ok := floatArg(args, "settle_s"); ok {
+		if v < 0 || v > 60 {
+			return results.Operation{}, fmt.Errorf("settle_s out of range")
+		}
+		settleS = v
+	}
 	if err := c.KVMDRearmOTG(ctx); err != nil {
 		return results.Operation{}, err
 	}
@@ -306,13 +313,15 @@ func opSelect(ctx context.Context, c *client.Client, args map[string]any) (resul
 		return results.Operation{}, fmt.Errorf("nudge streamer: %w", err)
 	}
 	hid := clientHID{c: c}
-	events, err := switcher.Execute(ctx, hid, switcher.TH413Held, port, nil)
+	profile := switcher.TH413Held
+	profile.SettleDelay = time.Duration(settleS * float64(time.Second))
+	events, err := switcher.Execute(ctx, hid, profile, port, nil)
 	if err != nil {
 		return results.Operation{}, err
 	}
-	return results.Build("select", "kvm", true, "", false, true, "accepted", map[string]any{
-		"machine": machine, "port": port, "profile": switcher.TH413Held.Name,
-		"event_count": len(events), "verify_policy": verifyPolicy,
+	return results.Build("select", "kvm", false, "", true, true, "accepted", map[string]any{
+		"machine": machine, "port": port, "profile": profile.Name,
+		"event_count": len(events), "verify_policy": verifyPolicy, "settle_s": settleS,
 	}, nil), nil
 }
 
@@ -322,7 +331,7 @@ func machinePort(machine string) (int, bool) {
 		return 1, true
 	case "pve2", "port2", "2":
 		return 2, true
-	case "kodi", "port3", "3":
+	case "kodi", "kodi-build", "port3", "3":
 		return 3, true
 	case "pve3", "port4", "4":
 		return 4, true

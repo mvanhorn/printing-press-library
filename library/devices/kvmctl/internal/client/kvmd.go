@@ -71,6 +71,9 @@ func (c *Client) KVMDRearmOTG(ctx context.Context) error {
 	case <-time.After(8 * time.Second):
 	}
 	if err := c.KVMDOtgFunctions(ctx, true, true, true, false, false); err != nil {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		_ = c.KVMDOtgFunctions(cleanupCtx, true, true, true, false, false)
 		return fmt.Errorf("disable virtual storage: %w", err)
 	}
 	select {

@@ -131,11 +131,15 @@ func requiredFreshObservation(ctx context.Context, c *client.Client, args map[st
 	if id == "" {
 		return ocr.Observation{}, fmt.Errorf("observation_id is required")
 	}
+	stored, ok := observations.Get(id)
+	if !ok {
+		return ocr.Observation{}, fmt.Errorf("observation_id is stale: observation expired or is not local")
+	}
 	observation, unavailable := captureObservation(ctx, c)
 	if unavailable != nil {
 		return ocr.Observation{}, unavailable
 	}
-	if observation.ID != id {
+	if stored.ID != id || observation.ID != id {
 		return ocr.Observation{}, fmt.Errorf("observation_id is stale: screen changed")
 	}
 	return observation, nil
