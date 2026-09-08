@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/mufap-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260906-153304-50daea87",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

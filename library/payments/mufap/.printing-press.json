@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-07T14:05:54.258797Z",
+  "printing_press_version": "4.31.7",
+  "api_name": "mufap",
+  "display_name": "MUFAP",
+  "cli_name": "mufap-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:15dfa867fa8957b1f9e2d34592cb60bedc910fce108c1ebc3039a1483df5847c",
+  "run_id": "20260906-153304-50daea87",
+  "category": "payments",
+  "description": "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives.",
+  "mcp_binary": "mufap-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Market-implied PKR short rate",
+      "command": "rates",
+      "description": "Derive a daily short-term interest rate series from the cross-section of money-market fund yields."
+    },
+    {
+      "name": "Mutual fund equity exposure",
+      "command": "exposure",
+      "description": "Total PKR the mutual fund industry holds in listed equities, by month, from per-fund asset allocation."
+    },
+    {
+      "name": "Dated panel backfill",
+      "command": "backfill daily",
+      "description": "Fetch the daily fund panel or monthly allocation across a date range into the local store."
+    },
+    {
+      "name": "Panel query",
+      "command": "panel",
+      "description": "Query the stored daily NAV and return panel by date, fund, category or sector."
+    },
+    {
+      "name": "Coverage ledger",
+      "command": "coverage",
+      "description": "Show which dates were fetched, which returned zero rows, and which were never attempted."
+    },
+    {
+      "name": "Arithmetic invariant check",
+      "command": "verify allocation",
+      "description": "Check that fund asset-class percentages net to 100 and flag months whose percent columns are unpopulated."
+    },
+    {
+      "name": "Universe width",
+      "command": "universe",
+      "description": "Report how many funds reported on each date, by sector and category."
+    },
+    {
+      "name": "Return dispersion",
+      "command": "dispersion",
+      "description": "Cross-sectional spread of fund returns within a category on each date."
+    },
+    {
+      "name": "Validity freshness audit",
+      "command": "freshness",
+      "description": "Detect funds whose published NAV validity date lags the requested date."
+    },
+    {
+      "name": "Bulk dump",
+      "command": "dump",
+      "description": "Dump the stored panel, allocation or coverage tables as JSONL for piping, a single JSON array for agents, or CSV."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.43589743589743,
+    "passed": 38,
+    "total": 39,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 85,
+      "grade": "A (1 of 24 dimensions unverified: live_api_verification)",
+      "total": 85
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

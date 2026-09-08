@@ -1,0 +1,286 @@
+{
+  "api_name": "mufap",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-06T10:45:00Z",
+  "novel_features": [
+    {
+      "name": "Market-implied PKR short rate",
+      "command": "rates",
+      "description": "Derive a daily short-term interest rate series from the cross-section of money-market fund yields.",
+      "rationale": "Requires holding every money-market fund's annualized return for every date in one local table and taking a cross-sectional median; no MUFAP page shows this and the SBP policy-rate source is Cloudflare-blocked.",
+      "example": "mufap-pp-cli rates --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "This is the only daily, backfillable PKR short-rate proxy obtainable without a blocked government source.",
+      "group": "Series only a local panel can produce"
+    },
+    {
+      "name": "Mutual fund equity exposure",
+      "command": "exposure",
+      "description": "Total PKR the mutual fund industry holds in listed equities, by month, from per-fund asset allocation.",
+      "rationale": "Requires fanning out per-fund allocation calls across every AMC and summing the PKR amount column, because the percentage column is zero for everything before 2024.",
+      "example": "mufap-pp-cli exposure --from 2026-07 --to 2026-07 --max-amcs 1 --agent",
+      "why_it_matters": "It is the asset-side counterpart to a mutual-fund net-flow series, enabling a cross-source join no single publisher offers.",
+      "group": "Series only a local panel can produce"
+    },
+    {
+      "name": "Dated panel backfill",
+      "command": "backfill daily",
+      "description": "Fetch the daily fund panel or monthly allocation across a date range into the local store.",
+      "rationale": "Every MUFAP data path is date-driven, so the generator emits no resource mirror; the panel has to be walked date by date and stored with an observed_at stamp.",
+      "example": "mufap-pp-cli backfill daily --from 2026-09-03 --to 2026-09-03",
+      "why_it_matters": "Publication timing is what makes a variable admissible as ex-ante, so every row records when it was actually observed.",
+      "group": "Local panel construction"
+    },
+    {
+      "name": "Panel query",
+      "command": "panel",
+      "description": "Query the stored daily NAV and return panel by date, fund, category or sector.",
+      "rationale": "Requires the local SQLite mirror; the upstream site can only render one date at a time.",
+      "example": "mufap-pp-cli panel --category Equity --from 2026-09-01 --to 2026-09-04 --agent --select date,fund,nav",
+      "why_it_matters": "Turns 21 years of single-date HTML pages into one queryable table.",
+      "group": "Local panel construction"
+    },
+    {
+      "name": "Coverage ledger",
+      "command": "coverage",
+      "description": "Show which dates were fetched, which returned zero rows, and which were never attempted.",
+      "rationale": "Requires a coverage table that records a date even when it legitimately holds no rows, which a date-set diff alone cannot see.",
+      "example": "mufap-pp-cli coverage --resource daily-returns --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "Distinguishes fetched-and-empty from never-fetched, so a gap is never mistaken for a zero.",
+      "group": "Local panel construction"
+    },
+    {
+      "name": "Arithmetic invariant check",
+      "command": "verify allocation",
+      "description": "Check that fund asset-class percentages net to 100 and flag months whose percent columns are unpopulated.",
+      "rationale": "Requires comparing the amount columns against the percent columns across a whole month of funds; the site reports a hardcoded 100% label that does not reflect the actual sum.",
+      "example": "mufap-pp-cli verify allocation --month 2026-07 --max-amcs 1 --agent",
+      "why_it_matters": "A month that fails the invariant is corrupt input, not a weak signal, and must be excluded before modelling.",
+      "group": "Trust the numbers"
+    },
+    {
+      "name": "Universe width",
+      "command": "universe",
+      "description": "Report how many funds reported on each date, by sector and category.",
+      "rationale": "Requires the coverage ledger plus the stored panel; universe width moves from 17 funds in 2005 to 526 in 2026 and is itself a regime marker.",
+      "example": "mufap-pp-cli universe --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "A silently narrowing universe fakes verdicts, so width is printed alongside every cross-sectional result.",
+      "group": "Trust the numbers"
+    },
+    {
+      "name": "Return dispersion",
+      "command": "dispersion",
+      "description": "Cross-sectional spread of fund returns within a category on each date.",
+      "rationale": "Requires every fund's return for a date in one table to compute a percentile spread.",
+      "example": "mufap-pp-cli dispersion --category Equity --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "Dispersion is a daily breadth measure that a single-fund page cannot express.",
+      "group": "Series only a local panel can produce"
+    },
+    {
+      "name": "Validity freshness audit",
+      "command": "freshness",
+      "description": "Detect funds whose published NAV validity date lags the requested date.",
+      "rationale": "Requires comparing each row's own validity date against the fetch date; the live view mixes 14 different validity dates including stale and forward-priced rows.",
+      "example": "mufap-pp-cli freshness --agent",
+      "why_it_matters": "Differencing the live view without this check manufactures returns that never happened.",
+      "group": "Trust the numbers"
+    },
+    {
+      "name": "Bulk dump",
+      "command": "dump",
+      "description": "Dump the stored panel, allocation or coverage tables as JSONL for piping, a single JSON array for agents, or CSV.",
+      "rationale": "Requires the local store; lets an external research database load two decades of panel without re-fetching, and names the local mirror rather than implying an API round-trip the way a command sitting next to `import` would.",
+      "example": "mufap-pp-cli dump daily-returns --from 2026-09-01 --to 2026-09-04 --format json --agent",
+      "why_it_matters": "Lets an analysis pipeline consume the panel directly instead of scraping.",
+      "group": "Local panel construction"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Market-implied PKR short rate",
+      "command": "rates",
+      "description": "Derive a daily short-term interest rate series from the cross-section of money-market fund yields.",
+      "rationale": "Requires holding every money-market fund's annualized return for every date in one local table and taking a cross-sectional median; no MUFAP page shows this and the SBP policy-rate source is Cloudflare-blocked.",
+      "example": "mufap-pp-cli rates --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "This is the only daily, backfillable PKR short-rate proxy obtainable without a blocked government source.",
+      "group": "Series only a local panel can produce"
+    },
+    {
+      "name": "Mutual fund equity exposure",
+      "command": "exposure",
+      "description": "Total PKR the mutual fund industry holds in listed equities, by month, from per-fund asset allocation.",
+      "rationale": "Requires fanning out per-fund allocation calls across every AMC and summing the PKR amount column, because the percentage column is zero for everything before 2024.",
+      "example": "mufap-pp-cli exposure --from 2026-07 --to 2026-07 --max-amcs 1 --agent",
+      "why_it_matters": "It is the asset-side counterpart to a mutual-fund net-flow series, enabling a cross-source join no single publisher offers.",
+      "group": "Series only a local panel can produce"
+    },
+    {
+      "name": "Dated panel backfill",
+      "command": "backfill daily",
+      "description": "Fetch the daily fund panel or monthly allocation across a date range into the local store.",
+      "rationale": "Every MUFAP data path is date-driven, so the generator emits no resource mirror; the panel has to be walked date by date and stored with an observed_at stamp.",
+      "example": "mufap-pp-cli backfill daily --from 2026-09-03 --to 2026-09-03",
+      "why_it_matters": "Publication timing is what makes a variable admissible as ex-ante, so every row records when it was actually observed.",
+      "group": "Local panel construction"
+    },
+    {
+      "name": "Panel query",
+      "command": "panel",
+      "description": "Query the stored daily NAV and return panel by date, fund, category or sector.",
+      "rationale": "Requires the local SQLite mirror; the upstream site can only render one date at a time.",
+      "example": "mufap-pp-cli panel --category Equity --from 2026-09-01 --to 2026-09-04 --agent --select date,fund,nav",
+      "why_it_matters": "Turns 21 years of single-date HTML pages into one queryable table.",
+      "group": "Local panel construction"
+    },
+    {
+      "name": "Coverage ledger",
+      "command": "coverage",
+      "description": "Show which dates were fetched, which returned zero rows, and which were never attempted.",
+      "rationale": "Requires a coverage table that records a date even when it legitimately holds no rows, which a date-set diff alone cannot see.",
+      "example": "mufap-pp-cli coverage --resource daily-returns --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "Distinguishes fetched-and-empty from never-fetched, so a gap is never mistaken for a zero.",
+      "group": "Local panel construction"
+    },
+    {
+      "name": "Arithmetic invariant check",
+      "command": "verify allocation",
+      "description": "Check that fund asset-class percentages net to 100 and flag months whose percent columns are unpopulated.",
+      "rationale": "Requires comparing the amount columns against the percent columns across a whole month of funds; the site reports a hardcoded 100% label that does not reflect the actual sum.",
+      "example": "mufap-pp-cli verify allocation --month 2026-07 --max-amcs 1 --agent",
+      "why_it_matters": "A month that fails the invariant is corrupt input, not a weak signal, and must be excluded before modelling.",
+      "group": "Trust the numbers"
+    },
+    {
+      "name": "Universe width",
+      "command": "universe",
+      "description": "Report how many funds reported on each date, by sector and category.",
+      "rationale": "Requires the coverage ledger plus the stored panel; universe width moves from 17 funds in 2005 to 526 in 2026 and is itself a regime marker.",
+      "example": "mufap-pp-cli universe --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "A silently narrowing universe fakes verdicts, so width is printed alongside every cross-sectional result.",
+      "group": "Trust the numbers"
+    },
+    {
+      "name": "Return dispersion",
+      "command": "dispersion",
+      "description": "Cross-sectional spread of fund returns within a category on each date.",
+      "rationale": "Requires every fund's return for a date in one table to compute a percentile spread.",
+      "example": "mufap-pp-cli dispersion --category Equity --from 2026-09-01 --to 2026-09-04 --agent",
+      "why_it_matters": "Dispersion is a daily breadth measure that a single-fund page cannot express.",
+      "group": "Series only a local panel can produce"
+    },
+    {
+      "name": "Validity freshness audit",
+      "command": "freshness",
+      "description": "Detect funds whose published NAV validity date lags the requested date.",
+      "rationale": "Requires comparing each row's own validity date against the fetch date; the live view mixes 14 different validity dates including stale and forward-priced rows.",
+      "example": "mufap-pp-cli freshness --agent",
+      "why_it_matters": "Differencing the live view without this check manufactures returns that never happened.",
+      "group": "Trust the numbers"
+    },
+    {
+      "name": "Bulk dump",
+      "command": "dump",
+      "description": "Dump the stored panel, allocation or coverage tables as JSONL for piping, a single JSON array for agents, or CSV.",
+      "rationale": "Requires the local store; lets an external research database load two decades of panel without re-fetching, and names the local mirror rather than implying an API round-trip the way a command sitting next to `import` would.",
+      "example": "mufap-pp-cli dump daily-returns --from 2026-09-01 --to 2026-09-04 --format json --agent",
+      "why_it_matters": "Lets an analysis pipeline consume the panel directly instead of scraping.",
+      "group": "Local panel construction"
+    }
+  ],
+  "narrative": {
+    "display_name": "MUFAP",
+    "headline": "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives.",
+    "value_prop": "MUFAP publishes one HTML page per date and nothing else. This CLI walks those dates into a local SQLite panel with an observed_at stamp on every row, then derives series the site never shows: a daily short-rate proxy from money-market fund yields, industry equity exposure in rupees, and cross-sectional return dispersion. It records which dates returned zero rows, so a gap is never mistaken for a zero.",
+    "auth_narrative": "No credentials. MUFAP sits behind Cloudflare, so the CLI ships a Chrome-fingerprint HTTP transport that clears the challenge without a browser, a clearance cookie, or any login.",
+    "quickstart": [
+      {
+        "command": "mufap-pp-cli doctor --dry-run",
+        "comment": "Confirm the Chrome-fingerprint transport reaches MUFAP before fetching anything"
+      },
+      {
+        "command": "mufap-pp-cli amcs --json",
+        "comment": "27 asset managers; their GUIDs key every fund lookup"
+      },
+      {
+        "command": "mufap-pp-cli backfill daily --from 2026-09-03 --to 2026-09-04",
+        "comment": "Walk four dates into the local panel, one request per date"
+      },
+      {
+        "command": "mufap-pp-cli coverage --resource daily-returns --from 2026-09-03 --to 2026-09-04",
+        "comment": "Confirm what was actually stored, including any zero-row dates"
+      },
+      {
+        "command": "mufap-pp-cli rates --from 2026-09-03 --to 2026-09-04 --agent",
+        "comment": "Derive the market-implied short rate from the stored panel"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every command returns an empty result and doctor reports a challenge page",
+        "fix": "MUFAP requires the Chrome-fingerprint transport; confirm http_transport is browser-http and retry, as plain HTTP always returns HTTP 403."
+      },
+      {
+        "symptom": "A historical month of allocation data shows every percentage as zero",
+        "fix": "Percent columns are unpopulated before roughly 2024; use the PKR amount columns and divide by Total, which is what `exposure` does."
+      },
+      {
+        "symptom": "allocation get returns HTTP 500",
+        "fix": "Pass the integer fund code from `funds by-amc` to --fund-code, not the FundID GUID, and format --month as M-YYYY such as 7-2026."
+      },
+      {
+        "symptom": "A fetched date holds fewer funds than expected",
+        "fix": "Run `universe` for that date; weekends and holidays legitimately return a small or empty panel, and `coverage` distinguishes that from a failed fetch."
+      },
+      {
+        "symptom": "Today's panel mixes several different validity dates",
+        "fix": "The current-day view is a latest-available-per-fund fallback; run `freshness` to see the lag, and prefer an explicit historical date, which returns a clean single-date panel."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need Pakistani mutual fund data as a time series rather than a single lookup: building a dated panel of fund NAVs, deriving a short-rate proxy, measuring industry asset allocation in rupees, or checking how many funds actually reported on a given date. It is built for research pipelines that care about publication timing and about telling a real zero apart from a missing observation.",
+    "anti_triggers": [
+      "Do not use this CLI for live PSX equity prices or index levels; it holds fund NAVs, not stock quotes.",
+      "Do not use it to buy, sell, or redeem fund units; MUFAP is an industry association site and exposes no transaction surface.",
+      "Do not use it for daily fund AUM; net assets and asset allocation are published monthly, and only NAV and returns are daily.",
+      "Do not use it as an official policy-rate source; the rates command is a market-implied proxy derived from fund yields, not a State Bank publication."
+    ],
+    "recipes": [
+      {
+        "title": "Build the short-rate series",
+        "command": "mufap-pp-cli rates --from 2026-09-01 --to 2026-09-04 --agent --select date,median_yield,fund_count",
+        "explanation": "Returns one row per date with the cross-sectional median money-market yield and the number of funds behind it, so a thin date is visible rather than silently averaged."
+      },
+      {
+        "title": "Industry equity exposure by month",
+        "command": "mufap-pp-cli exposure --from 2026-07 --to 2026-07 --max-amcs 1 --agent",
+        "explanation": "Sums the PKR stocks-and-equities column across every fund, giving the asset-side series to pair against mutual-fund net flows."
+      },
+      {
+        "title": "Audit a month before trusting it",
+        "command": "mufap-pp-cli verify allocation --month 2026-07 --max-amcs 1 --agent",
+        "explanation": "Flags funds whose asset-class percentages do not net to 100 after subtracting liabilities, which the site's own 100% label hides."
+      },
+      {
+        "title": "Check universe width before any cross-section",
+        "command": "mufap-pp-cli universe --from 2026-09-01 --to 2026-09-04 --agent --select date,fund_count",
+        "explanation": "Prints how many funds reported per date so a narrowing universe cannot fake a result."
+      },
+      {
+        "title": "Export the panel for external analysis",
+        "command": "mufap-pp-cli dump daily-returns --from 2026-09-01 --to 2026-09-04 --format jsonl",
+        "explanation": "Streams the stored panel as newline-delimited JSON for loading into a research database without re-fetching."
+      }
+    ],
+    "trigger_phrases": [
+      "pakistan mutual fund nav",
+      "mufap fund returns",
+      "money market fund yields pakistan",
+      "mutual fund asset allocation pakistan",
+      "pakistan fund industry aum",
+      "use mufap",
+      "run mufap"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260906-153304-50daea87",
+  "base_printing_press_version": "4.31.7",
+  "id": "mufap-netsales-html-table-parser",
+  "summary": "Hand-authored parser for MUFAP's two monthly net-sales HTML tables, plus novel commands that replace the generated leaves (which returned {} at exit 0).",
+  "reason": "Both endpoints are declared response_format: html, but the generator's HTML support has only links/page/embedded-json modes -- no table mode -- so the generated 'netsales monthly' and 'netsales investor' issued the correct request and then returned an empty object AT EXIT 0. For a flow series that is the worst failure shape available, because an empty month is a REAL and common observation here (79 of the 104 months from 2018-01 to 2026-08 are genuinely empty), so a caller cannot distinguish the two. The package's existing ParseTable could not be reused either: these pages carry a spanning title row inside <thead> (and the investor page a class-group row), so ParseTable's flattened header list is 7 and 32 cells against data rows of 6 and 21, and it returns ZERO ROWS AND NO ERROR on all eight fixtures. The new parser resolves the header by matching the <thead> row whose cell count equals the data rows' and fails loudly when none matches. Traps encoded: the SectorId 100 Total row is the invariant, never data; the same VPS figures are rendered under both pension sector labels (about 13% of rows) and are de-duplicated; a dash means MISSING not zero, the opposite of CDC, so figures are pointers; parentheses mean negative. The reconciliation bound is ROUNDING-AWARE: MUFAP renders whole PKR millions so the residual is bounded by 0.5*(n+1), and an earlier fixed 1.5 tolerance produced three false failures (2025-12, 2026-01, 2026-04) -- with the correct bound all 25 months reconcile. Both residuals are checked because 2026-04 is exact on sales and off by 2.0 on redemptions. The commands are attached via a novel command hook that removes the generated leaves rather than editing them, because those files carry DO NOT EDIT; the Cloudflare challenge on these paths is intermittent (3 of 8 sequential requests, one month needing three attempts) so fetches retry with backoff and a challenge is never converted into an empty month.",
+  "files": [
+    "internal/mufap/netsales.go",
+    "internal/mufap/netsales_test.go",
+    "internal/cli/netsales_parsed.go",
+    "internal/cli/netsales_parsed_test.go",
+    "internal/cli/root.go",
+    "spec.yaml"
+  ],
+  "markers": ["ParseNetSales", "netsalesChallengeAttempts", "newNetsalesCmd(flags)", "WebMonthlyNetAssetsInvestor"],
+  "validated_outcome": "Reproduces an independent acquisition stored in research.db EXACTLY: row counts 39/39 and 40/40 and reporting counts 14/14, 8/8, 7/7 across five monthly fixtures, and the 2026-05 headline total 9458/8873/585. 19 tests (14 parser, 5 command). Live: 'netsales monthly --month 5 --year 2026' returns 40 rows / 7 reporting with 8 VPS duplicates dropped and a reconciling invariant; 'netsales investor' returns the nine investor classes with the partial-slice warning attached. Typed exit codes verified without a pipe: 2 for usage errors, 0 for success."
+}

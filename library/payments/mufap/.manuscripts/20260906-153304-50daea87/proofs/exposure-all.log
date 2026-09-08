@@ -1,0 +1,97 @@
+=== 2016 (2016-08 .. 2016-12) start 02:04:16 ===
+mufap_exposure  5 month(s)   amcs 27/27, funds listed 551, source live
+  2016-08  stocks=       201,839 net=       468,046 share=0.4312 funds=195/551 absent=356 failed=0
+  2016-09  stocks=       205,440 net=       449,104 share=0.4574 funds=186/551 absent=331 failed=34
+  2016-10  stocks=       217,532 net=       476,995 share=0.4560 funds=197/551 absent=353 failed=1
+  2016-11  stocks=       243,598 net=       520,426 share=0.4681 funds=199/551 absent=352 failed=0
+  2016-12  stocks=       280,819 net=       543,557 share=0.5166 funds=201/551 absent=350 failed=0
+  2 month(s) had failed fetches; those funds are EXCLUDED from the
+  sums and the count is stored, so a short month cannot read as a complete one.
+
+WROTE mufap_exposure 5 row(s); 0 month(s) withheld.
+  end 03:05:44
+=== 2017 (2017-01 .. 2017-12) start 03:05:44 ===
+mufap_exposure  12 month(s)   amcs 27/27, funds listed 551, source live
+  2017-01  stocks=       280,064 net=       534,054 share=0.5244 funds=207/551 absent=340 failed=4
+  2017-02  stocks=       288,645 net=       560,714 share=0.5148 funds=201/551 absent=348 failed=2
+  2017-03  stocks=       318,519 net=       622,289 share=0.5119 funds=216/551 absent=335 failed=0
+  2017-04  stocks=       314,273 net=       580,885 share=0.5410 funds=206/551 absent=341 failed=4
+  2017-05  stocks=       310,323 net=       553,708 share=0.5604 funds=210/551 absent=341 failed=0
+  2017-06  stocks=       303,318 net=       533,394 share=0.5687 funds=205/551 absent=340 failed=6
+  2017-07  stocks=       299,483 net=       541,685 share=0.5529 funds=219/551 absent=328 failed=4
+  2017-08  stocks=       202,073 net=       462,435 share=0.4370 funds=201/551 absent=346 failed=4
+  2017-09  stocks=       250,572 net=       504,085 share=0.4971 funds=212/551 absent=339 failed=0
+  2017-10  stocks=       270,423 net=       514,609 share=0.5255 funds=216/551 absent=333 failed=2
+  2017-11  stocks=       250,522 net=       516,313 share=0.4852 funds=214/551 absent=337 failed=0
+  2017-12  stocks=       266,701 net=       538,519 share=0.4952 funds=219/551 absent=330 failed=2
+  8 month(s) had failed fetches; those funds are EXCLUDED from the
+  sums and the count is stored, so a short month cannot read as a complete one.
+
+WROTE mufap_exposure 12 row(s); 0 month(s) withheld.
+  end 04:33:15
+=== 2018 (2018-01 .. 2018-12) start 04:33:15 ===
+mufap_exposure  12 month(s)   amcs 27/27, funds listed 551, source live
+  2018-01  stocks=       295,168 net=       541,271 share=0.5453 funds=216/551 absent=335 failed=0
+  2018-02  stocks=       274,616 net=       536,021 share=0.5123 funds=213/551 absent=334 failed=4
+  2018-03  stocks=       274,668 net=       515,790 share=0.5325 funds=219/551 absent=332 failed=0
+  2018-04  stocks=       297,628 net=       545,940 share=0.5452 funds=212/551 absent=337 failed=2
+  2018-05  stocks=       259,118 net=       582,449 share=0.4449 funds=218/551 absent=331 failed=2
+  2018-06  stocks=       226,190 net=       461,273 share=0.4904 funds=215/551 absent=334 failed=2
+  2018-07  stocks=       287,423 net=       549,796 share=0.5228 funds=224/551 absent=327 failed=0
+  2018-08  stocks=       236,228 net=       481,716 share=0.4904 funds=217/551 absent=334 failed=0
+  2018-09  stocks=       319,326 net=       576,539 share=0.5539 funds=219/551 absent=332 failed=0
+  2018-10  stocks=       299,257 net=       626,304 share=0.4778 funds=230/551 absent=321 failed=0
+  2018-11  stocks=       271,354 net=       534,228 share=0.5079 funds=230/551 absent=321 failed=0
+  2018-12  stocks=       226,446 net=       481,222 share=0.4706 funds=226/551 absent=323 failed=2
+  5 month(s) had failed fetches; those funds are EXCLUDED from the
+  sums and the count is stored, so a short month cannot read as a complete one.
+
+WROTE mufap_exposure 12 row(s); 0 month(s) withheld.
+  end 05:30:37
+=== 2019 (2019-01 .. 2019-12) start 05:30:37 ===
+mufap_exposure  12 month(s)   amcs 27/27, funds listed 551, source live
+  2019-01  stocks=       329,066 net=       582,291 share=0.5651 funds=235/551 absent=316 failed=0
+  2019-02  stocks=       260,771 net=       533,344 share=0.4889 funds=226/551 absent=325 failed=0
+  2019-03  stocks=       233,508 net=       547,191 share=0.4267 funds=232/551 absent=319 failed=0
+  2019-04  stocks=       235,174 net=       527,312 share=0.4460 funds=238/551 absent=313 failed=0
+  2019-05  stocks=       221,679 net=       513,320 share=0.4319 funds=231/551 absent=320 failed=0
+  2019-06  stocks=       189,882 net=       484,364 share=0.3920 funds=228/551 absent=315 failed=8
+  2019-07  stocks=       184,889 net=       478,761 share=0.3862 funds=229/551 absent=322 failed=0
+  2019-08  stocks=       161,043 net=       460,572 share=0.3497 funds=201/551 absent=305 failed=45
+  2019-09  stocks=       171,354 net=       477,121 share=0.3591 funds=203/551 absent=290 failed=58
+  2019-10  stocks=       191,858 net=       567,321 share=0.3382 funds=239/551 absent=312 failed=0
+  2019-11  stocks=       223,124 net=       615,862 share=0.3623 funds=240/551 absent=311 failed=0
+  2019-12  stocks=       232,779 net=       630,939 share=0.3689 funds=242/551 absent=309 failed=0
+  3 month(s) had failed fetches; those funds are EXCLUDED from the
+  sums and the count is stored, so a short month cannot read as a complete one.
+
+WROTE mufap_exposure 12 row(s); 0 month(s) withheld.
+  end 06:58:24
+=== 2020 (2020-01 .. 2020-12) start 06:58:24 ===
+mufap_exposure  12 month(s)   amcs 27/27, funds listed 551, source live
+  2020-01  stocks=       221,414 net=       629,796 share=0.3516 funds=238/551 absent=305 failed=8
+  2020-02  stocks=       213,623 net=       681,561 share=0.3134 funds=247/551 absent=304 failed=0
+  2020-03  stocks=       161,471 net=       627,004 share=0.2575 funds=242/551 absent=305 failed=4
+  2020-04  stocks=       219,549 net=       713,478 share=0.3077 funds=245/551 absent=306 failed=0
+  2020-05  stocks=       190,966 net=       724,473 share=0.2636 funds=249/551 absent=302 failed=0
+  2020-06  stocks=       166,448 net=       694,361 share=0.2397 funds=246/551 absent=305 failed=0
+  2020-07  stocks=       255,622 net=       793,021 share=0.3223 funds=247/551 absent=300 failed=4
+  2020-08  stocks=       205,813 net=       703,280 share=0.2926 funds=239/551 absent=268 failed=44
+  2020-09  stocks=       225,192 net=       780,456 share=0.2885 funds=254/551 absent=297 failed=0
+  2020-10  stocks=       146,197 net=       596,563 share=0.2451 funds=209/551 absent=246 failed=96
+  2020-11  stocks=       242,792 net=       852,245 share=0.2849 funds=257/551 absent=291 failed=3
+  2020-12  stocks=       261,835 net=       901,184 share=0.2905 funds=258/551 absent=292 failed=1
+  7 month(s) had failed fetches; those funds are EXCLUDED from the
+  sums and the count is stored, so a short month cannot read as a complete one.
+
+WROTE mufap_exposure 12 row(s); 0 month(s) withheld.
+  end 08:04:44
+=== 2021 (2021-01 .. 2021-12) start 08:04:44 ===
+CLI failed: exposure --from 2021-01 --to 2021-12 --timeout 12h --json
+exit 4
+Error: amc list: POST /AMC/GetAMCList returned HTTP 403: HTML error page (5875 bytes): Just a moment...
+hint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.
+      Run 'mufap-pp-cli doctor' to check connectivity.
+
+  end 08:04:44
+=== 2022 (2022-01 .. 2022-12) start 08:04:44 ===

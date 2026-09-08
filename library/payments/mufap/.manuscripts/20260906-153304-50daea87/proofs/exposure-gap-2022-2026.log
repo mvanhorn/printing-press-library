@@ -1,0 +1,12 @@
+=== RUN START 2026-09-07 13:46:45 — target 2022-01..2026-05 (53 months) ===
+=== 2022-01 .. 2022-03  start 13:46:45 ===
+mufap_exposure  3 month(s)   amcs 27/27, funds listed 550, source live
+  2022-01  stocks=       255,716 net=     1,027,206 share=0.2489 funds=275/550 absent=271 failed=4
+  2022-02  stocks=       248,074 net=       957,531 share=0.2591 funds=279/550 absent=271 failed=0
+  2022-03  stocks=       236,292 net=     1,095,756 share=0.2156 funds=271/550 absent=279 failed=0
+  1 month(s) had failed fetches; those funds are EXCLUDED from the
+  sums and the count is stored, so a short month cannot read as a complete one.
+
+WROTE mufap_exposure 3 row(s); 0 month(s) withheld.
+  end 13:52:22
+=== 2022-04 .. 2022-06  start 13:53:07 ===

@@ -1,0 +1,187 @@
+name: mufap
+description: "Mutual Funds Association of Pakistan — daily fund NAV panel, monthly asset allocation, and industry flows"
+cli_description: "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives."
+version: "0.1.0"
+base_url: "https://www.mufap.com.pk"
+http_transport: standard
+health_check_path: "/"
+category: payments
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+  - name: Origin
+    value: "https://www.mufap.com.pk"
+  - name: Referer
+    value: "https://www.mufap.com.pk/"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/mufap-pp-cli/config.toml"
+
+cache:
+  enabled: false
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{3,6}$"
+  stopwords:
+    - fund
+    - mufap
+  synonyms:
+    "most recent": "latest"
+    "asset mix": "allocation"
+    "aum": "net assets"
+    "mm": "money market"
+  entity_lookup_seeds:
+    fund_category:
+      - canonical: Money Market
+        aliases: [mm, money-market, cash funds, liquidity]
+      - canonical: Income
+        aliases: [debt, fixed income, bond]
+      - canonical: Equity
+        aliases: [stock, stocks, equities]
+      - canonical: Shariah Compliant Money Market
+        aliases: [islamic money market, shariah mm]
+      - canonical: Shariah Compliant Equity
+        aliases: [islamic equity, shariah stock]
+      - canonical: Fixed Rate / Return
+        aliases: [fixed rate, fixed return]
+      - canonical: Asset Allocation
+        aliases: [balanced, multi asset]
+    amc:
+      - canonical: ABL Asset Management Company Limited
+        aliases: [abl, abl amc]
+      - canonical: AKD Investment Management Limited
+        aliases: [akd]
+      - canonical: AL Habib Asset Management Limited
+        aliases: [al habib, alhabib]
+      - canonical: MCB Investment Management Limited
+        aliases: [mcb, mcb arif habib]
+      - canonical: UBL Fund Managers Limited
+        aliases: [ubl, ubl funds]
+    sector:
+      - canonical: Open-End Funds
+        aliases: [open end, openend, mutual funds]
+      - canonical: Voluntary Pension Scheme (VPS)
+        aliases: [vps, pension]
+      - canonical: Exchange Traded Fund (ETF)
+        aliases: [etf, etfs, listed funds]
+
+resources:
+  amcs:
+    description: "Asset management companies (AMCs) registered with MUFAP"
+    endpoints:
+      list:
+        method: POST
+        path: "/AMC/GetAMCList"
+        mutation: false
+        description: "List the 27 asset management companies MUFAP tracks. Returns each AMC's GUID, which every fund lookup keys on, plus its display name. Start here: `funds by-amc` needs the GUID, not the name."
+        example: "  mufap-pp-cli amcs --json"
+
+  funds:
+    description: "Funds managed by an AMC, with category and pricing mechanism"
+    endpoints:
+      by-amc:
+        method: POST
+        path: "/TopHolding/GetFundNameByAMC"
+        mutation: false
+        description: "List funds for one AMC (AMCId is the GUID from `amcs list`)"
+        example: "  mufap-pp-cli funds by-amc --amc-id c4f54d48-7c96-4619-acd9-fc2ea1752d53 --json"
+        happy_args: "--amc-id=c4f54d48-7c96-4619-acd9-fc2ea1752d53"
+        body:
+          - name: AMCId
+            flag_name: amc-id
+            type: string
+            required: true
+            description: "AMC GUID from `amcs list` (not a name or an integer)"
+
+  allocation:
+    description: "Per-fund monthly asset allocation in PKR millions and percent"
+    endpoints:
+      get:
+        method: POST
+        path: "/Industry/GetAssetAllDetailbyId"
+        mutation: false
+        description: "Asset allocation for one fund in one month. ID is the INTEGER fund code; Date is M-YYYY."
+        example: "  mufap-pp-cli allocation --fund-code 12766 --month 7-2026 --json"
+        happy_args: "--fund-code=12766;--month=7-2026"
+        body:
+          - name: ID
+            flag_name: fund-code
+            type: string
+            required: true
+            description: "Integer fund code (the `fund` field from `funds by-amc`), NOT the FundID GUID"
+          - name: Date
+            flag_name: month
+            type: string
+            required: true
+            description: "Month as M-YYYY, e.g. 7-2026. Not zero-padded, not ISO."
+
+  unitholders:
+    description: "Unit-holder pattern by investor type and sector"
+    endpoints:
+      get:
+        method: POST
+        path: "/Industry/GetUnitPatternHolder"
+        mutation: false
+        description: "Unit-holder pattern for one calendar year (Date is YYYY)"
+        example: "  mufap-pp-cli unitholders --year 2025 --json"
+        happy_args: "--year=2025"
+        body:
+          - name: Date
+            flag_name: year
+            type: string
+            required: true
+            description: "Calendar year as YYYY"
+
+  dates:
+    description: "Reporting periods MUFAP has published"
+    endpoints:
+      list:
+        method: POST
+        path: "/Industry/GetDateList"
+        mutation: false
+        description: "List the Year/Month periods MUFAP has published industry statistics for. Use it to plan a monthly backfill window instead of guessing which months exist. Note the envelope's message field reads 'No data found' even when periods are returned; trust the row count."
+        example: "  mufap-pp-cli dates --json"
+
+  payouts:
+    description: "Announced fund payouts and distributions"
+    endpoints:
+      list:
+        method: POST
+        path: "/WebPost/GetAnnouncementPayoutData"
+        mutation: false
+        description: "List announced fund payouts and distributions, with the per-unit amount and the ex-NAV the payout is struck against. Use it to separate a NAV fall caused by a distribution from a genuine loss."
+        example: "  mufap-pp-cli payouts --json"
+
+  vps:
+    description: "Voluntary Pension Scheme breakdowns"
+    endpoints:
+      age-wise:
+        method: POST
+        path: "/VoluntarilyPensionSch/WebBreakUpAgeJson"
+        mutation: false
+        description: "VPS allocation broken down by contributor age band"
+        example: "  mufap-pp-cli vps age-wise --json"
+      retired-cash:
+        method: POST
+        path: "/VoluntarilyPensionSch/WebBreakUpCashJson"
+        mutation: false
+        description: "Break down Voluntary Pension Scheme assets held as retired cash. Shows how much pension money has been moved out of market exposure into cash on retirement, which the headline VPS allocation does not separate."
+        example: "  mufap-pp-cli vps retired-cash --json"
+      withdrawals:
+        method: POST
+        path: "/VoluntarilyPensionSch/WebWithDrawalCashJson"
+        mutation: false
+        description: "Report cash withdrawn from Voluntary Pension Scheme funds. Pairs with `vps retired-cash` to show whether pension outflows are being drawn down or merely reallocated to cash."
+        example: "  mufap-pp-cli vps withdrawals --json"

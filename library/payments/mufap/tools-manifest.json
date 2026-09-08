@@ -1,0 +1,197 @@
+{
+  "api_name": "mufap",
+  "base_url": "https://www.mufap.com.pk",
+  "description": "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-US,en;q=0.9"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Origin",
+      "value": "https://www.mufap.com.pk"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.mufap.com.pk/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "allocation_get",
+      "description": "Asset allocation for one fund in one month. ID is the INTEGER fund code; Date is M-YYYY. Required: fund-code, month.",
+      "method": "POST",
+      "path": "/Industry/GetAssetAllDetailbyId",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "fund-code",
+          "wire_name": "ID",
+          "type": "string",
+          "location": "body",
+          "description": "Integer fund code (the `fund` field from `funds by-amc`), NOT the FundID GUID",
+          "required": true
+        },
+        {
+          "name": "month",
+          "wire_name": "Date",
+          "type": "string",
+          "location": "body",
+          "description": "Month as M-YYYY, e.g. 7-2026. Not zero-padded, not ISO.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "amcs_list",
+      "description": "List the 27 asset management companies MUFAP tracks. Returns each AMC's GUID, which every fund lookup keys on, plus its display name. Start here: `funds by-amc` needs the GUID, not the name.",
+      "method": "POST",
+      "path": "/AMC/GetAMCList",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "dates_list",
+      "description": "List the Year/Month periods MUFAP has published industry statistics for. Use it to plan a monthly backfill window instead of guessing which months exist. Note the envelope's message field reads 'No data found' even when periods are returned; trust the row count.",
+      "method": "POST",
+      "path": "/Industry/GetDateList",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "funds_by-amc",
+      "description": "List funds for one AMC (AMCId is the GUID from `amcs list`). Required: amc-id.",
+      "method": "POST",
+      "path": "/TopHolding/GetFundNameByAMC",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "amc-id",
+          "wire_name": "AMCId",
+          "type": "string",
+          "location": "body",
+          "description": "AMC GUID from `amcs list` (not a name or an integer)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payouts_list",
+      "description": "List announced fund payouts and distributions, with the per-unit amount and the ex-NAV the payout is struck against. Use it to separate a NAV fall caused by a distribution from a genuine loss.",
+      "method": "POST",
+      "path": "/WebPost/GetAnnouncementPayoutData",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "unitholders_get",
+      "description": "Unit-holder pattern for one calendar year (Date is YYYY). Required: year.",
+      "method": "POST",
+      "path": "/Industry/GetUnitPatternHolder",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "wire_name": "Date",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar year as YYYY",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vps_age-wise",
+      "description": "VPS allocation broken down by contributor age band.",
+      "method": "POST",
+      "path": "/VoluntarilyPensionSch/WebBreakUpAgeJson",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "vps_retired-cash",
+      "description": "Break down Voluntary Pension Scheme assets held as retired cash. Shows how much pension money has been moved out of market exposure into cash on retirement, which the headline VPS allocation does not separate.",
+      "method": "POST",
+      "path": "/VoluntarilyPensionSch/WebBreakUpCashJson",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "vps_withdrawals",
+      "description": "Report cash withdrawn from Voluntary Pension Scheme funds. Pairs with `vps retired-cash` to show whether pension outflows are being drawn down or merely reallocated to cash.",
+      "method": "POST",
+      "path": "/VoluntarilyPensionSch/WebWithDrawalCashJson",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Market-implied PKR short rate",
+      "command": "rates",
+      "description": "Derive a daily short-term interest rate series from the cross-section of money-market fund yields."
+    },
+    {
+      "name": "Mutual fund equity exposure",
+      "command": "exposure",
+      "description": "Total PKR the mutual fund industry holds in listed equities, by month, from per-fund asset allocation."
+    },
+    {
+      "name": "Dated panel backfill",
+      "command": "backfill daily",
+      "description": "Fetch the daily fund panel or monthly allocation across a date range into the local store."
+    },
+    {
+      "name": "Panel query",
+      "command": "panel",
+      "description": "Query the stored daily NAV and return panel by date, fund, category or sector."
+    },
+    {
+      "name": "Coverage ledger",
+      "command": "coverage",
+      "description": "Show which dates were fetched, which returned zero rows, and which were never attempted."
+    },
+    {
+      "name": "Arithmetic invariant check",
+      "command": "verify allocation",
+      "description": "Check that fund asset-class percentages net to 100 and flag months whose percent columns are unpopulated."
+    },
+    {
+      "name": "Universe width",
+      "command": "universe",
+      "description": "Report how many funds reported on each date, by sector and category."
+    },
+    {
+      "name": "Return dispersion",
+      "command": "dispersion",
+      "description": "Cross-sectional spread of fund returns within a category on each date."
+    },
+    {
+      "name": "Validity freshness audit",
+      "command": "freshness",
+      "description": "Detect funds whose published NAV validity date lags the requested date."
+    },
+    {
+      "name": "Bulk dump",
+      "command": "dump",
+      "description": "Dump the stored panel, allocation or coverage tables as JSONL for piping, a single JSON array for agents, or CSV."
+    }
+  ]
+}

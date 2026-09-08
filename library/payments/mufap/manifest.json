@@ -1,0 +1,43 @@
+{
+  "manifest_version": "0.3",
+  "name": "mufap-pp-mcp",
+  "display_name": "MUFAP",
+  "version": "0.1.0",
+  "description": "Pakistan's mutual fund industry as a dated local panel: two decades of daily NAVs, monthly PKR asset allocation, and a market-implied short rate no other tool derives.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mufap-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mufap-pp-mcp",
+      "args": [],
+      "env": {
+        "MUFAP_BASE_URL": "${user_config.mufap_base_url}",
+        "MUFAP_USER_AGENT": "${user_config.mufap_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "mufap_base_url": {
+      "type": "string",
+      "title": "MUFAP_BASE_URL",
+      "description": "Optional. Sets MUFAP_BASE_URL for the MUFAP MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "mufap_user_agent": {
+      "type": "string",
+      "title": "MUFAP_USER_AGENT",
+      "description": "Optional. Sets MUFAP_USER_AGENT for the MUFAP MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
