@@ -245,19 +245,26 @@ invocation, which the root --timeout will otherwise cut short. Pass a generous
 					// weight totals and no quintile indices — and `coverage`
 					// could not name the hole either, because there was nothing
 					// to name it with. Record the hole explicitly.
-					o := syncOutcome{AsOf: r.AsOfKey(), Kind: string(r.Kind), Role: "report"}
-					url, note, state := "", "index carries no report file", covRot
+					// Record a row only when the report FILE EXISTS but cannot
+					// be read. When the index lists no report file at all —
+					// which is every CPI month, whose review key classifies as
+					// unknown rather than report — there is no observation to
+					// record, and inventing one would claim an upstream 404 for
+					// a file that never existed. loadCompleted consults
+					// pbs_release_file for that case instead.
 					if found {
 						ext := strings.ToLower(f.Ext)
-						url = f.URL
-						note = "report published only as ." + ext + "; no non-xlsx report parser"
-						state = covUnparsed
-						o.Parser = ext
+						note := "report published only as ." + ext + "; no non-xlsx report parser"
+						// covNotFetched, not covUnparsed: nothing was fetched and
+						// no parse was attempted, so claiming a parse failure
+						// would overstate what we know. These states are
+						// deliberately never collapsed.
+						o := syncOutcome{AsOf: r.AsOfKey(), Kind: string(r.Kind), Role: "report", Parser: ext}
+						o.State, o.Note = covNotFetched, note
+						coverageErr = orFirst(coverageErr, recordCoverage(ctx, db.DB(), r.AsOfKey(), string(r.Kind), "report", f.URL,
+							covNotFetched, 0, "", 0, 0, pbsparse.StateCensus{}, ext, note))
+						env.Outcomes = append(env.Outcomes, o)
 					}
-					o.State, o.Note = state, note
-					coverageErr = orFirst(coverageErr, recordCoverage(ctx, db.DB(), r.AsOfKey(), string(r.Kind), "report", url,
-						state, 0, "", 0, 0, pbsparse.StateCensus{}, o.Parser, note))
-					env.Outcomes = append(env.Outcomes, o)
 				}
 
 				if ok {
@@ -380,19 +387,31 @@ func pickFile(r pbsparse.Release, role pbsparse.FileRole, prefer string) (pbspar
 // because the next ordinary sync skipped it and only --refetch would revisit
 // it.
 //
-// Only terminal states count. A transport error, an empty read, or no report
-// row at all — the shape left behind when a run dies between the two files —
-// stays deliberately eligible for another attempt, because treating those as
-// complete is how a partial panel becomes permanent.
+// Only terminal states count: fetched, gone upstream, unparseable, or a
+// report we deliberately did not fetch because no parser accepts its format.
+// A transport error, an empty read, or no report row at all — the shape left
+// behind when a run dies between the two files — stays deliberately eligible
+// for another attempt, because treating those as complete is how a partial
+// panel becomes permanent.
+//
+// A release whose INDEX lists no report file needs no report row at all. That
+// is every CPI month, and requiring a placeholder row would mean recording an
+// observation about a file that does not exist.
 func loadCompleted(ctx context.Context, db *sql.DB) (map[string]bool, error) {
 	rows, err := db.QueryContext(ctx,
 		`SELECT a.as_of, a.kind
 		   FROM pbs_coverage a
-		   JOIN pbs_coverage r
+		   LEFT JOIN pbs_coverage r
 		     ON r.as_of = a.as_of AND r.kind = a.kind AND r.role = 'report'
 		  WHERE a.role = 'annexure' AND a.state = ?
-		    AND r.state IN (?, ?, ?)`,
-		covFetched, covFetched, covRot, covUnparsed)
+		    AND (
+		          r.state IN (?, ?, ?, ?)
+		          OR NOT EXISTS (
+		               SELECT 1 FROM pbs_release_file f
+		                WHERE f.as_of = a.as_of AND f.kind = a.kind AND f.role = 'report'
+		             )
+		        )`,
+		covFetched, covFetched, covRot, covUnparsed, covNotFetched)
 	if err != nil {
 		return nil, fmt.Errorf("load coverage: %w", err)
 	}

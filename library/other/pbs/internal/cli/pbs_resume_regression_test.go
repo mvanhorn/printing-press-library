@@ -38,12 +38,25 @@ func newCoverageDB(t *testing.T) *sql.DB {
 			value_state TEXT NOT NULL, source TEXT NOT NULL,
 			PRIMARY KEY (as_of, surface, city, item_desc, stat))`,
 		`CREATE TABLE pbs_national (as_of TEXT NOT NULL, item_desc TEXT NOT NULL)`,
+		`CREATE TABLE pbs_release_file (
+			as_of TEXT NOT NULL, kind TEXT NOT NULL, role TEXT NOT NULL, url TEXT)`,
 	} {
 		if _, err := db.Exec(stmt); err != nil {
 			t.Fatalf("ddl: %v", err)
 		}
 	}
 	return db
+}
+
+// putIndexFile records that the scraped index lists a file of this role, which
+// is what tells resume whether a report row is owed at all.
+func putIndexFile(t *testing.T, db *sql.DB, asOf, role string) {
+	t.Helper()
+	if _, err := db.Exec(
+		`INSERT INTO pbs_release_file (as_of, kind, role, url) VALUES (?,?,?,?)`,
+		asOf, "spi", role, "https://example.invalid/"+asOf+"-"+role); err != nil {
+		t.Fatalf("insert release file: %v", err)
+	}
 }
 
 func putCoverage(t *testing.T, db *sql.DB, asOf, role, state string) {
@@ -65,6 +78,13 @@ func putCoverage(t *testing.T, db *sql.DB, asOf, role, state string) {
 // via --refetch.
 func TestLoadCompletedRequiresTerminalReport(t *testing.T) {
 	db := newCoverageDB(t)
+
+	// Every release below lists BOTH files in the scraped index, except the
+	// no-report-file case added at the end.
+	for _, asOf := range []string{"2026-09-03", "2026-08-27", "2026-08-20", "2026-08-13", "2026-08-06", "2026-07-30"} {
+		putIndexFile(t, db, asOf, "annexure")
+		putIndexFile(t, db, asOf, "report")
+	}
 
 	// Complete: both files terminal.
 	putCoverage(t, db, "2026-09-03", "annexure", covFetched)
@@ -91,6 +111,20 @@ func TestLoadCompletedRequiresTerminalReport(t *testing.T) {
 	putCoverage(t, db, "2026-07-30", "annexure", covEmpty)
 	putCoverage(t, db, "2026-07-30", "report", covFetched)
 
+	// Report present upstream but in a format no parser accepts, so it was
+	// deliberately never fetched. Terminal: re-running cannot help.
+	putIndexFile(t, db, "2026-07-23", "annexure")
+	putIndexFile(t, db, "2026-07-23", "report")
+	putCoverage(t, db, "2026-07-23", "annexure", covFetched)
+	putCoverage(t, db, "2026-07-23", "report", covNotFetched)
+
+	// The index lists NO report file for this release — the shape of every CPI
+	// month. No report row is owed, so a fetched annexure alone completes it.
+	// Requiring a placeholder row here would mean recording an observation
+	// about a file that does not exist.
+	putIndexFile(t, db, "2026-07-16", "annexure")
+	putCoverage(t, db, "2026-07-16", "annexure", covFetched)
+
 	got, err := loadCompleted(context.Background(), db)
 	if err != nil {
 		t.Fatalf("loadCompleted: %v", err)
@@ -102,7 +136,7 @@ func TestLoadCompletedRequiresTerminalReport(t *testing.T) {
 	}
 	sort.Strings(keys)
 
-	want := []string{"2026-08-20|spi", "2026-08-27|spi", "2026-09-03|spi"}
+	want := []string{"2026-07-16|spi", "2026-07-23|spi", "2026-08-20|spi", "2026-08-27|spi", "2026-09-03|spi"}
 	if len(keys) != len(want) {
 		t.Fatalf("completed = %v, want %v", keys, want)
 	}

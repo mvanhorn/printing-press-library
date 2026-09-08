@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "5dd963fedb411add1fce91dfb34df8a82e8348a56fedfa95fadca766f8012666",
+  "source_fingerprint": "aad5e1d7644047b8378ffbe2bb688f6cc8c9a510768b8262894a2f81fb4a0c30",
   "source_files": {
     "cmd/pbs-pp-cli/main.go": "3eab0dd11dd7511d4349f171d7cd51caaf2c91ec358d81e0749639bda8f07a30",
     "cmd/pbs-pp-mcp/http_auth_test.go": "03799a097250137cd418c3f11d955418d7a96986e74abdbbae4ca48196729bc4",
@@ -47,8 +47,8 @@
     "internal/cli/pbs_query_regression_test.go": "cb073ec1f51db231c4f659b69b903e7a095c676775faf8c9ba1fc2591e7f3538",
     "internal/cli/pbs_register.go": "bab3ac7a8ba7ead9eb38c4d2d97e02ca7c90a60f586e2a71b03609e2462ca23b",
     "internal/cli/pbs_releases.go": "9084ccb785acb3fafc9afb0c2dbb0bd3e2686ceb6cac651d863a5636d8854e9b",
-    "internal/cli/pbs_resume_regression_test.go": "16500deff5c4d914084a24db5e50f97fd1f50673720f7ef15251c397fe059058",
-    "internal/cli/pbs_sync.go": "f06cd36207fb6ebcf9e76065cdf0d3bc4fccc986d36c998e6bb5c65574e3584b",
+    "internal/cli/pbs_resume_regression_test.go": "c3531ab5e7d14a62f7ef3f12de11d491aa94ccd9a055d6c3742a0fb251af5397",
+    "internal/cli/pbs_sync.go": "a34b5415d5b8b15e310aa8586fee40e7a3531fde0d44ec4c7fd5d55e2a696024",
     "internal/cli/platform_cli_test.go": "2a04c9dfc2c38316578d93ea1c9e28d3f502856458038f9c6aec7ba5ee2edd6e",
     "internal/cli/platform_client.go": "06f5d685bc372523f92c4cf23a76c1497b6d270ceed0bcb0bbe6b6cf8fbec913",
     "internal/cli/platform_window.go": "030dd56bb7a0e45ead52033ff0969a5085684ef9ad8fdbc273e0436546679925",
