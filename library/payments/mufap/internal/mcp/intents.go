@@ -35,6 +35,9 @@ func RegisterIntents(s *server.MCPServer) {
 		mcplib.NewTool("amc_fund_roster",
 			mcplib.WithDescription("List an AMC's funds together with the full AMC roster, so the caller never has to resolve a display name to a GUID in a separate call. This is the stitch the README warns about: `funds by-amc` requires the AMC's GUID, not its name."),
 			mcplib.WithString("amc_id", mcplib.Required(), mcplib.Description("AMC GUID from the AMC roster (not a display name, not an integer)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		handleAmcFundRoster,
 	)
@@ -43,6 +46,9 @@ func RegisterIntents(s *server.MCPServer) {
 			mcplib.WithDescription("Asset allocation for one fund in one month, returned alongside the list of reporting periods MUFAP has actually published, so the caller can tell a genuinely empty month from a month that was never reported. Percent fields read 0.0 before ~2024 while the amount fields stay correct."),
 			mcplib.WithNumber("fund_code", mcplib.Required(), mcplib.Description("Integer fund code (the `fund` field from the AMC fund roster), NOT the FundID GUID")),
 			mcplib.WithString("month", mcplib.Required(), mcplib.Description("Month as M-YYYY, e.g. 7-2026. Not zero-padded, not ISO.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		handleFundAllocation,
 	)
@@ -50,6 +56,9 @@ func RegisterIntents(s *server.MCPServer) {
 		mcplib.NewTool("holder_pattern_year",
 			mcplib.WithDescription("Unit-holder pattern for one calendar year together with announced payouts, so a change in holder accounts can be read against the distributions paid in the same period rather than mistaken for investors leaving."),
 			mcplib.WithString("year", mcplib.Required(), mcplib.Description("Calendar year as YYYY")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		handleHolderPatternYear,
 	)

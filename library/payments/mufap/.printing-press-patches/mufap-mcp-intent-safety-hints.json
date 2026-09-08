@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260906-153304-50daea87",
+  "base_printing_press_version": "4.31.7",
+  "id": "mufap-mcp-intent-safety-hints",
+  "summary": "Added readOnly/non-destructive/open-world MCP annotations to the three intent tools, which the generator emits for endpoint tools but not for intent tools.",
+  "reason": "internal/mcp/tools.go carries WithReadOnlyHintAnnotation(true) and WithDestructiveHintAnnotation(false) on every read-only endpoint tool, while internal/mcp/intents.go carried none. MCP hosts therefore had to treat the roster, allocation and holder-pattern intents as potentially mutating, which triggers approval prompts or is blocked outright under a read-only policy -- for three tools that only compose reads. All six composed endpoints declare mutation: false in the spec, so the annotations are factually correct rather than asserted. This is a GENERATOR-side omission, not something this CLI did: a freshly generated tree from the same spec emits 12 hints in tools.go and 0 in intents.go, so every printed CLI with spec intents is affected. Fixed here because intents.go is generated and marked DO NOT EDIT, so the markers below make a regeneration that drops the fix detectable rather than silent.",
+  "files": ["internal/mcp/intents.go"],
+  "markers": ["WithReadOnlyHintAnnotation(true)", "WithDestructiveHintAnnotation(false)"],
+  "validated_outcome": "Verified over the wire with a real tools/list call against the built MCP server: amc_fund_roster, fund_allocation and holder_pattern_year all now report readOnlyHint=true and destructiveHint=false. The tools that still lack readOnlyHint are exactly the mutating ones (backfill_*, import, learnings_confirm, learnings_forget), which is correct."
+}

@@ -73,6 +73,13 @@ type backfillSummary struct {
 	// fetch or the fan-out behind them was incomplete. Re-running retries
 	// them; nothing in the ledger claims they were ever mirrored.
 	DatesIncomplete []string `json:"dates_incomplete"`
+	// Truncated records that the run STOPPED EARLY with dates still to go,
+	// because the run budget (--timeout) expired. The remaining dates are not
+	// listed in DatesIncomplete -- the loop simply breaks -- so without this
+	// flag a truncated run is indistinguishable from a complete one in the
+	// machine-readable summary, and the only trace is an advisory string in
+	// Errors.
+	Truncated bool `json:"truncated"`
 	// Dates this run saw ONLY as ragged rows carried inside another date's
 	// response, and therefore refused to write. MEASURED 2026-09-06: asked
 	// for a date it has no panel for, MUFAP answers with a
@@ -152,6 +159,45 @@ func backfillSortedDates(set map[string]bool) []string {
 	return out
 }
 
+// backfillIncompleteErr converts a run that did not deliver what it was asked
+// for into a typed non-zero exit, AFTER the resumable summary has been printed.
+//
+// Exiting 0 on an incomplete backfill is the failure mode this whole command is
+// built to avoid: a script sees success, accepts a partially populated mirror,
+// and every later cross-section is computed on a panel with holes in it. This
+// CLI's sibling records the same shape -- a backfill that stored 33 of 131
+// dates and said nothing.
+//
+// The condition is deliberately NARROW, and gating on len(Errors) > 0 would be
+// wrong. Errors also carries ADVISORY entries that do not mean anything failed:
+// "this tab is current reference data, not a dated panel" and "tab has no
+// validity-date column" are both recorded there on runs that stored every row
+// they were asked for. Only two things count:
+//
+//   - DatesIncomplete: dates this run asked for, attempted, and did not store.
+//     Nothing was written for them, so they stay retryable.
+//   - Truncated: the run budget expired with dates still to go.
+//
+// Deliberately NOT failures: ZeroRowDates (MUFAP publishes nothing on weekends
+// and holidays, and the ledger records that on purpose), DatesForwardDated (no
+// panel can exist yet, so it is unfetchable rather than missed), and dates
+// refused because the tab is not date-filtered.
+func backfillIncompleteErr(sum backfillSummary) error {
+	if len(sum.DatesIncomplete) == 0 && !sum.Truncated {
+		return nil
+	}
+	switch {
+	case len(sum.DatesIncomplete) > 0 && sum.Truncated:
+		return apiErr(fmt.Errorf("incomplete: %d requested date(s) were not stored and the run budget expired early; the summary above lists them and the mirror is resumable -- re-run the same command to retry",
+			len(sum.DatesIncomplete)))
+	case sum.Truncated:
+		return apiErr(fmt.Errorf("incomplete: the run budget expired before every requested date was reached; the summary above names where to resume -- re-run the same command"))
+	default:
+		return apiErr(fmt.Errorf("incomplete: %d requested date(s) were not stored; the summary above lists them and nothing was written for them, so re-running the same command retries exactly those",
+			len(sum.DatesIncomplete)))
+	}
+}
+
 func backfillEmit(cmd *cobra.Command, flags *rootFlags, sum backfillSummary) error {
 	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 		// printJSONFiltered would be the shorter call, but it pins the agent
@@ -168,7 +214,10 @@ func backfillEmit(cmd *cobra.Command, flags *rootFlags, sum backfillSummary) err
 		if err != nil {
 			return err
 		}
-		return printOutputWithFlagsMeta(cmd.OutOrStdout(), json.RawMessage(raw), flags, map[string]any{"source": source})
+		if err := printOutputWithFlagsMeta(cmd.OutOrStdout(), json.RawMessage(raw), flags, map[string]any{"source": source}); err != nil {
+			return err
+		}
+		return backfillIncompleteErr(sum)
 	}
 	out := cmd.OutOrStdout()
 	fmt.Fprintf(out, "%s  %s..%s\n", sum.Resource, sum.From, sum.To)
@@ -221,7 +270,7 @@ func backfillEmit(cmd *cobra.Command, flags *rootFlags, sum backfillSummary) err
 		fmt.Fprintln(out, "  every date in range was already mirrored; pass --force to re-fetch")
 	}
 	fmt.Fprintf(out, "  mirror: %s\n", sum.DBPath)
-	return nil
+	return backfillIncompleteErr(sum)
 }
 
 func backfillParseDay(s, flag string) (time.Time, error) {
@@ -356,10 +405,11 @@ budget stops cleanly with what it stored intact; re-run to continue, or raise
 			"  mufap-pp-cli backfill monthly --from 2026-06 --to 2026-08\n" +
 			"  mufap-pp-cli backfill allocation --from 2026-07 --to 2026-07 --json",
 		Annotations: map[string]string{
-			"mcp:read-only":   "false",
-			"mcp:local-write": "true",
-			"pp:parent-group": "true",
-			"pp:happy-args":   "--from=2026-09-03;--to=2026-09-03",
+			"mcp:read-only":       "false",
+			"mcp:local-write":     "true",
+			"pp:parent-group":     "true",
+			"pp:happy-args":       "--from=2026-09-03;--to=2026-09-03",
+			"pp:typed-exit-codes": "0,2,5",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -414,9 +464,10 @@ not be read as per-date universe widths.`,
 		Example: "  mufap-pp-cli backfill daily --from 2026-09-03 --to 2026-09-03\n" +
 			"  mufap-pp-cli backfill daily --tab payout --from 2026-08-01 --to 2026-08-31",
 		Annotations: map[string]string{
-			"mcp:read-only":   "false",
-			"mcp:local-write": "true",
-			"pp:happy-args":   "--from=2026-09-03;--to=2026-09-03",
+			"mcp:read-only":       "false",
+			"mcp:local-write":     "true",
+			"pp:happy-args":       "--from=2026-09-03;--to=2026-09-03",
+			"pp:typed-exit-codes": "0,2,5",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -518,6 +569,7 @@ not be read as per-date universe widths.`,
 			warnedNoDateColumn := false
 			for _, date := range dates {
 				if ctx.Err() != nil {
+					sum.Truncated = true
 					backfillAddErr(&sum, "run budget expired at %s; re-run to resume from here", date)
 					break
 				}
@@ -698,7 +750,8 @@ month-end is the observation date.`,
 			// a month that has not happened yet. That returns an empty panel
 			// and writes a fetched-and-empty coverage row for a future month,
 			// which every later run then skips. 2026-07-31 is a complete month.
-			"pp:happy-args": "--from=2026-07-31;--to=2026-07-31",
+			"pp:happy-args":       "--from=2026-07-31;--to=2026-07-31",
+			"pp:typed-exit-codes": "0,2,5",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -750,6 +803,7 @@ month-end is the observation date.`,
 
 			for _, monthEnd := range months {
 				if ctx.Err() != nil {
+					sum.Truncated = true
 					backfillAddErr(&sum, "run budget expired at %s; re-run to resume from here", monthEnd)
 					break
 				}
@@ -828,7 +882,8 @@ correct, so downstream readers must derive shares from amount/Total.`,
 			// a month that has not happened yet. That returns an empty panel
 			// and writes a fetched-and-empty coverage row for a future month,
 			// which every later run then skips. 2026-07-31 is a complete month.
-			"pp:happy-args": "--from=2026-07-31;--to=2026-07-31;--timeout=30m",
+			"pp:happy-args":       "--from=2026-07-31;--to=2026-07-31;--timeout=30m",
+			"pp:typed-exit-codes": "0,2,5",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -913,6 +968,7 @@ correct, so downstream readers must derive shares from amount/Total.`,
 
 			for _, monthEnd := range todo {
 				if ctx.Err() != nil {
+					sum.Truncated = true
 					backfillAddErr(&sum, "run budget expired at %s; re-run to resume from here", monthEnd)
 					break
 				}

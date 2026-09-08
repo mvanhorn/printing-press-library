@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "25ee40c8ef3454f510b0d86fa4c3dcf54677f5f8cd7eb219b98babe5918f86cf",
+  "source_fingerprint": "ccb0f55d3a8dab144a7bccc4d5c7cb4c417b46149226f8d0bfcba9905283bc8c",
   "source_files": {
     "cmd/mufap-pp-cli/main.go": "ec020e7f9887399c200353a8373bc05a32d8b5fa3977f3d9a5dbad37aacdd315",
     "cmd/mufap-pp-mcp/http_auth_test.go": "03799a097250137cd418c3f11d955418d7a96986e74abdbbae4ca48196729bc4",
@@ -21,7 +21,8 @@
     "internal/cache/cache.go": "ff162da8a64ae6b4c3b67a3174b41a8d5b7124b0784c256372e763e582edac70",
     "internal/cli/agent_context.go": "150b725fea8ebe4c500de3d276c5aeffefc715d261570fd61d64663d11aae7f2",
     "internal/cli/api_discovery.go": "28e770168eb14c23e2e1a20bb92c1983c78479ddf6afe285fe6b18835e550e75",
-    "internal/cli/backfill.go": "7e8d285d31791cb8aca4e977a98e1705ae0efcbc156125d584446981e45b9e1a",
+    "internal/cli/backfill.go": "c3437362d00d70e2696eabfa4e8627d8a38ad0efc9b766b0686dbe8f1b1c92a2",
+    "internal/cli/backfill_exit_test.go": "6b3fa30ccf1cc7f7b9e7a524f109e0a300ed284ac65fb038e7a8ce9b7c267726",
     "internal/cli/backfill_test.go": "8e2a59bd29f7ab08e45d2115c330b450251686e287e0b7ebf2ab9de365f35c47",
     "internal/cli/coverage.go": "065a7be4ac4c9cea501259ad3cafb43b47fe10c59e409911838dbfc2c42a5731",
     "internal/cli/coverage_test.go": "13c316c1db9340b557c0f1af38f51a20ed10cf3682bbddb7fca296f025dc4ce4",
@@ -162,7 +163,7 @@
     "internal/mcp/cobratree/shellout_test.go": "af2abe632cd81dd11f08ac375f9244e58702416d555595425225f8b5a95c8954",
     "internal/mcp/cobratree/typemap.go": "f095954039e52ae46d7f9e9f59d44e2e505f035a50f5b36ecb776f19693a2c7a",
     "internal/mcp/cobratree/walker.go": "dc54f637078a9b315609c4937d11cc777aed7cec47c4ce74c53cb050fb26e748",
-    "internal/mcp/intents.go": "29d44454921227e99da19829fab18bac0d163cc106a2e36bfdb7599a2895abbc",
+    "internal/mcp/intents.go": "719220fb5a4297996062bd187f26b2183f2f33921236851be9dd2ed1837529d6",
     "internal/mcp/platform_gate.go": "e5c753a5c989fc6c0ffb366c833790fc62631d5541d064b2d3e75d83a7e373d1",
     "internal/mcp/platform_gate_test.go": "066beafd4c9bac262dd647cba95b8184feb3efa8029ff4945abc5307dfae6e72",
     "internal/mcp/tools.go": "be5243706eb5f5a3d9d5e5fc63de769bf5fe98eaf7f714ddd97aca2e280c5621",

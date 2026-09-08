@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260906-153304-50daea87",
+  "base_printing_press_version": "4.31.7",
+  "id": "mufap-backfill-incomplete-exit-status",
+  "summary": "An incomplete backfill now exits 5 instead of 0, after the resumable summary is printed.",
+  "reason": "backfillEmit was the single exit point for all four backfill leaves and returned nil regardless of the run's outcome: a date whose fetch or save failed was appended to DatesIncomplete and the loop continued, and an expired run budget simply broke out of the loop. Scripts therefore received exit 0 on a partially populated mirror, and every later cross-section would be computed over a panel with holes in it. This is the exact failure shape a sibling CLI records as having stored 33 of 131 dates while reporting success. The gate is deliberately NARROW: gating on len(Errors) > 0 -- the obvious reading -- would be WRONG, because Errors also carries advisory entries recorded on fully successful runs ('tab pricing is current reference data, not a dated panel', 'tab payout has no validity-date column'), so a clean --tab pricing run would have started failing. Only two conditions count: DatesIncomplete (dates asked for, attempted, and not stored, so nothing was written and they stay retryable) and a new Truncated flag (the run budget expired with dates still to go -- the remaining dates were never recorded anywhere, so the machine-readable summary previously could not distinguish a truncated run from a complete one). Zero-row dates, forward-dated dates, and dates refused because the tab is not date-filtered are explicitly NOT failures. The summary is always emitted first so the run stays resumable.",
+  "files": ["internal/cli/backfill.go", "internal/cli/backfill_exit_test.go"],
+  "markers": ["backfillIncompleteErr", "Truncated bool"],
+  "validated_outcome": "12 tests: exit 5 for not-stored dates, for a truncated run, and for both together; exit 0 for a clean run, published-nothing days, each of the two advisory-only error strings, forward-dated dates, and an already-mirrored range. All four backfill leaves now declare pp:typed-exit-codes 0,2,5 so the dogfood matrix scores an honest typed failure as honest, and a test asserts that declaration.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/1962"
+}
