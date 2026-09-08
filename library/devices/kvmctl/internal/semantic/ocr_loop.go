@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -37,7 +38,7 @@ func opClickText(ctx context.Context, c *client.Client, args map[string]any) (re
 	if outcome != "match" {
 		return results.Build("click-text", "kvm", false, "", false, false, "refused", map[string]any{"observation_id": observation.ID, "text": text, "outcome": outcome}, &results.Error{Code: "text " + outcome}), nil
 	}
-	if err := c.KVMDMouseMove(ctx, region.Pixel[0], region.Pixel[1]); err != nil {
+	if err := c.KVMDMouseMove(ctx, pixelToKVMD(region.Pixel[0], observation.Width), pixelToKVMD(region.Pixel[1], observation.Height)); err != nil {
 		return unavailableOperation("click-text", false, map[string]any{"observation_id": observation.ID, "region": region}, err), nil
 	}
 	if err := c.KVMDMouseButton(ctx, "left", true); err != nil {
@@ -98,7 +99,7 @@ func opVerifyText(ctx context.Context, c *client.Client, args map[string]any) (r
 }
 
 func captureObservation(ctx context.Context, c *client.Client) (ocr.Observation, error) {
-	imageBytes, err := c.GetWithHeadersNoCache(ctx, "/api/streamer/snapshot", nil, map[string]string{"Accept": "image/jpeg", client.BinaryResponseHeader: "true"})
+	imageBytes, err := c.KVMDSnapshot(ctx)
 	if err != nil || len(imageBytes) == 0 {
 		if err == nil {
 			err = errors.New("empty snapshot")
@@ -158,16 +159,33 @@ func exactHighConfidenceRegion(observation ocr.Observation, text string) (ocr.Re
 	}
 }
 
+func pixelToKVMD(pixel, dimension int) int {
+	if dimension <= 1 {
+		return 0
+	}
+	if pixel < 0 {
+		pixel = 0
+	}
+	if pixel >= dimension {
+		pixel = dimension - 1
+	}
+	return int(math.Round((float64(pixel)/float64(dimension-1))*65535.0 - 32768.0))
+}
+
 func normalizeText(text string) string {
 	return strings.ToLower(strings.Join(strings.Fields(text), " "))
 }
 
 func unavailableOperation(operation string, readOnly bool, evidence map[string]any, err error) results.Operation {
+	return unavailableTransport(operation, "kvm", readOnly, evidence, err)
+}
+
+func unavailableTransport(operation, transport string, readOnly bool, evidence map[string]any, err error) results.Operation {
 	if evidence == nil {
 		evidence = map[string]any{}
 	}
 	evidence["unavailable"] = true
-	return results.Build(operation, "kvm", readOnly, "", false, false, "unavailable", evidence, &results.Error{Code: err.Error(), Retryable: true})
+	return results.Build(operation, transport, readOnly, "", false, false, "unavailable", evidence, &results.Error{Code: err.Error(), Retryable: true})
 }
 
 func allowedKey(key string) bool {

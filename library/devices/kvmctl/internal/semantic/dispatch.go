@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/results"
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/sequence"
+	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/switcher"
 )
 
 var Operations = []string{
@@ -212,8 +214,7 @@ func stringArg(m map[string]any, k string) string { v, _ := m[k].(string); retur
 func opCapabilities(ctx context.Context, c *client.Client, name string) (results.Operation, error) {
 	data, err := c.Get(ctx, "/api/info", nil)
 	if err != nil {
-		// without live hardware, return stub with redaction-safe envelope
-		return results.Build(name, "kvm", true, "", true, false, "observed", map[string]any{"info": map[string]any{"stub": true}}, nil), nil
+		return unavailableOperation(name, true, nil, err), nil
 	}
 	return results.Build(name, "kvm", true, "", true, false, "observed", map[string]any{"info": json.RawMessage(data)}, nil), nil
 }
@@ -227,8 +228,7 @@ func opSnapshot(ctx context.Context, c *client.Client, args map[string]any) (res
 	}
 	data, err := c.GetWithHeaders(ctx, "/api/streamer/snapshot", map[string]string{"preview": "true"}, map[string]string{"Accept": "image/jpeg", client.BinaryResponseHeader: "true"})
 	if err != nil {
-		// stub envelope when no hardware
-		return results.Build("snapshot", "kvm", true, "", true, false, "observed", map[string]any{"bytes": 0, "sha256": "stub", "preview_max_width": args["preview_max_width"]}, nil), nil
+		return unavailableOperation("snapshot", true, map[string]any{"preview_max_width": args["preview_max_width"]}, err), nil
 	}
 	// data is JSON-encoded binary wrapper; try to decode as raw
 	h := sha256.Sum256(data)
@@ -245,15 +245,16 @@ func opOCR(ctx context.Context, c *client.Client, args map[string]any) (results.
 		}
 		imageBytes = b
 	} else {
-		data, _ := c.GetWithHeaders(ctx, "/api/streamer/snapshot", map[string]string{"preview": "true"}, map[string]string{"Accept": "image/jpeg", client.BinaryResponseHeader: "true"})
-		imageBytes = data
-		if len(imageBytes) == 0 {
-			imageBytes = []byte{0xFF, 0xD8}
+		data, err := c.GetWithHeaders(ctx, "/api/streamer/snapshot", map[string]string{"preview": "true"}, map[string]string{"Accept": "image/jpeg", client.BinaryResponseHeader: "true"})
+		if err != nil {
+			return unavailableOperation("ocr", true, nil, err), nil
 		}
+		imageBytes = data
 	}
-	// stub OCR without live OCR engine: bounds-checked, deterministic
-	text := fmt.Sprintf("ocr-bytes-%d", len(imageBytes))
-	return results.Build("ocr", "kvm", true, "", true, false, "observed", map[string]any{"text": text, "bytes": len(imageBytes)}, nil), nil
+	if len(imageBytes) == 0 {
+		return unavailableOperation("ocr", true, nil, fmt.Errorf("empty snapshot")), nil
+	}
+	return unavailableOperation("ocr", true, map[string]any{"bytes": len(imageBytes)}, fmt.Errorf("legacy OCR operation requires configured OCR engine")), nil
 }
 
 func opVerify(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -265,15 +266,11 @@ func opVerify(ctx context.Context, c *client.Client, args map[string]any) (resul
 	if policy != "" && policy != "none" && policy != "frame_change" && policy != "ocr_identity" && policy != "prompt_pattern" {
 		return results.Operation{}, fmt.Errorf("unsupported verify policy %q", policy)
 	}
-	// without live hardware, return stub verified envelope
-	return results.Build("verify", "kvm", true, "", true, false, "observed", map[string]any{"machine": machine, "policy": policy, "verified": false, "detail": "stub without live hardware"}, nil), nil
+	return unavailableOperation("verify", true, map[string]any{"machine": machine, "policy": policy}, errors.New("host verification runner is not configured")), nil
 }
 
 func opHostProbe(name string) (results.Operation, error) {
-	// No live runner configured in semantic layer; return stub host envelope.
-	// Real probe would delegate to internal/host.Probe with a Runner.
-	ev := map[string]any{"probe": name, "stub": true, "detail": "no host runner configured; configure host_runner for live probe"}
-	return results.Build(name, "host", true, "", true, false, "observed", ev, nil), nil
+	return unavailableTransport(name, "host", true, map[string]any{"probe": name}, errors.New("host probe runner is not configured")), nil
 }
 
 func opHostReboot(args map[string]any) (results.Operation, error) {
@@ -285,8 +282,7 @@ func opHostReboot(args map[string]any) (results.Operation, error) {
 	if strings.TrimSpace(confirmation) == "" {
 		return results.Operation{}, fmt.Errorf("confirmation is required")
 	}
-	// stub without host runner; still enforce confirmation shape
-	return results.Build("host.reboot", "host", false, target, true, true, "completed", map[string]any{"target": target, "requested": true, "stub": true}, nil), nil
+	return unavailableTransport("host.reboot", "host", false, map[string]any{"target": target}, errors.New("host reboot runner is not configured")), nil
 }
 
 func opSelect(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -295,38 +291,64 @@ func opSelect(ctx context.Context, c *client.Client, args map[string]any) (resul
 	if machine == "" {
 		machine, _ = args["target"].(string)
 	}
-	if strings.TrimSpace(machine) == "" {
-		return results.Operation{}, fmt.Errorf("machine is required")
+	port, ok := machinePort(machine)
+	if !ok {
+		return results.Operation{}, fmt.Errorf("unknown machine %q; expected pve1, pve2, kodi, or pve3", machine)
 	}
 	verifyPolicy, _ := args["verify_policy"].(string)
 	if verifyPolicy != "" && verifyPolicy != "none" && verifyPolicy != "frame_change" && verifyPolicy != "ocr_identity" && verifyPolicy != "prompt_pattern" {
 		return results.Operation{}, fmt.Errorf("unsupported verify_policy")
 	}
-	var settleS float64 = 5
-	if v, ok := floatArg(args, "settle_s"); ok {
-		if v < 0 || v > 60 {
-			return results.Operation{}, fmt.Errorf("settle_s out of range")
-		}
-		settleS = v
+	if err := c.KVMDRearmOTG(ctx); err != nil {
+		return results.Operation{}, err
 	}
-	// attempt live switch; fallback to stub
-	if _, _, err := c.PostWithParams(ctx, "/api/hid/events/send_key", map[string]string{"key": "dummy_probe"}, map[string]any{}); err != nil {
-		// still return envelope; don't fail on no-hardware in tests
+	if err := c.KVMDNudgeStreamer(ctx); err != nil {
+		return results.Operation{}, fmt.Errorf("nudge streamer: %w", err)
 	}
-	_ = settleS
-	rearm, _ := args["rearm"].(bool)
-	return results.Build("select", "kvm", false, machine, true, true, "completed", map[string]any{"machine": machine, "verify_policy": verifyPolicy, "rearm": rearm, "settle_s": settleS}, nil), nil
+	hid := clientHID{c: c}
+	events, err := switcher.Execute(ctx, hid, switcher.TH413Held, port, nil)
+	if err != nil {
+		return results.Operation{}, err
+	}
+	return results.Build("select", "kvm", true, "", false, true, "accepted", map[string]any{
+		"machine": machine, "port": port, "profile": switcher.TH413Held.Name,
+		"event_count": len(events), "verify_policy": verifyPolicy,
+	}, nil), nil
 }
 
+func machinePort(machine string) (int, bool) {
+	switch strings.ToLower(strings.TrimSpace(machine)) {
+	case "pve1", "port1", "1":
+		return 1, true
+	case "pve2", "port2", "2":
+		return 2, true
+	case "kodi", "port3", "3":
+		return 3, true
+	case "pve3", "port4", "4":
+		return 4, true
+	default:
+		return 0, false
+	}
+}
+
+type clientHID struct{ c *client.Client }
+
+func (h clientHID) KeyDown(ctx context.Context, key string) error { return h.c.KVMDKey(ctx, key, true) }
+func (h clientHID) KeyUp(ctx context.Context, key string) error   { return h.c.KVMDKey(ctx, key, false) }
+
 func opHIDReset(ctx context.Context, c *client.Client) (results.Operation, error) {
-	_, _, _ = c.PostWithParams(ctx, "/api/hid/reset", nil, map[string]any{})
-	return results.Build("hid_reset", "kvm", false, "", true, true, "completed", map[string]any{}, nil), nil
+	_ = ctx
+	_ = c
+	return unavailableOperation("hid_reset", false, nil, errors.New("HID reset runner is not configured")), nil
 }
 
 func opRearmOTG(ctx context.Context, c *client.Client) (results.Operation, error) {
-	// OTG bounce toggles cdrom/flash to re-arm; stub when no hardware
-	_, _, _ = c.PostWithParams(ctx, "/api/system/otg_functions", map[string]string{"start_cdrom": "false", "start_flash": "false"}, map[string]any{})
-	return results.Build("rearm_otg", "kvm", false, "", true, true, "completed", map[string]any{}, nil), nil
+	if err := c.KVMDRearmOTG(ctx); err != nil {
+		return results.Operation{}, err
+	}
+	return results.Build("rearm_otg", "kvm", true, "", false, true, "accepted", map[string]any{
+		"virtual_storage": "disabled", "keyboard": "enabled", "mouse": "enabled",
+	}, nil), nil
 }
 
 func opSendText(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -346,9 +368,9 @@ func opSendText(ctx context.Context, c *client.Client, args map[string]any) (res
 			return results.Operation{}, fmt.Errorf("interval_s must be between 0 and 10 seconds")
 		}
 	}
-	// stub HID text via key events; no live device required for envelope
+	_ = ctx
 	_ = c
-	return results.Build("kvm_send_text", "kvm", false, "", true, true, "completed", map[string]any{"text_len": len([]rune(text))}, nil), nil
+	return unavailableOperation("kvm_send_text", false, map[string]any{"text_len": len([]rune(text))}, errors.New("text-input runner is not configured")), nil
 }
 
 func opSendKeys(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -369,8 +391,9 @@ func opSendKeys(ctx context.Context, c *client.Client, args map[string]any) (res
 			return results.Operation{}, fmt.Errorf("invalid combo")
 		}
 	}
+	_ = ctx
 	_ = c
-	return results.Build("kvm_send_keys", "kvm", false, "", true, true, "completed", map[string]any{"combo": combo}, nil), nil
+	return unavailableOperation("kvm_send_keys", false, map[string]any{"combo": combo}, errors.New("key-combination runner is not configured")), nil
 }
 
 func opHoldKey(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -390,13 +413,15 @@ func opHoldKey(ctx context.Context, c *client.Client, args map[string]any) (resu
 	if dur < 1 || dur > 5000 {
 		return results.Operation{}, fmt.Errorf("duration_ms must be between 1 and 5000")
 	}
+	_ = ctx
 	_ = c
-	return results.Build("kvm_hold_key", "kvm", false, "", true, true, "completed", map[string]any{"key": key, "duration_ms": dur}, nil), nil
+	return unavailableOperation("kvm_hold_key", false, map[string]any{"key": key, "duration_ms": dur}, errors.New("held-key runner is not configured")), nil
 }
 
 func opReleaseAll(ctx context.Context, c *client.Client) (results.Operation, error) {
+	_ = ctx
 	_ = c
-	return results.Build("kvm_release_all", "kvm", false, "", true, true, "completed", map[string]any{"released": 0}, nil), nil
+	return unavailableOperation("kvm_release_all", false, nil, errors.New("release-all runner is not configured")), nil
 }
 
 func opMouseMove(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -408,8 +433,8 @@ func opMouseMove(ctx context.Context, c *client.Client, args map[string]any) (re
 	if x < -32768 || x > 32767 || y < -32768 || y > 32767 {
 		return results.Operation{}, fmt.Errorf("mouse coordinates must be in -32768..32767")
 	}
-	if err := c.KVMDMouseMove(ctx, x, y); err != nil && !isNoHardware(err) {
-		return results.Operation{}, err
+	if err := c.KVMDMouseMove(ctx, x, y); err != nil {
+		return unavailableOperation("kvm_mouse_move", false, map[string]any{"x": x, "y": y}, err), nil
 	}
 	return results.Build("kvm_mouse_move", "kvm", false, "", true, true, "completed", map[string]any{"x": x, "y": y}, nil), nil
 }
@@ -449,10 +474,12 @@ func opMouseClick(ctx context.Context, c *client.Client, args map[string]any) (r
 	if button != "left" && button != "middle" && button != "right" {
 		return results.Operation{}, fmt.Errorf("unsupported mouse button: %s", button)
 	}
-	if err := c.KVMDMouseButton(ctx, button, true); err != nil && !isNoHardware(err) {
-		return results.Operation{}, err
+	if err := c.KVMDMouseButton(ctx, button, true); err != nil {
+		return unavailableOperation("kvm_mouse_click", false, map[string]any{"button": button, "count": count}, err), nil
 	}
-	_ = c.KVMDMouseButton(ctx, button, false)
+	if err := c.KVMDMouseButton(ctx, button, false); err != nil {
+		return unavailableOperation("kvm_mouse_click", false, map[string]any{"button": button, "count": count, "pressed": true}, err), nil
+	}
 	return results.Build("kvm_mouse_click", "kvm", false, "", true, true, "completed", map[string]any{"button": button, "count": count}, nil), nil
 }
 
@@ -468,8 +495,8 @@ func opMouseScroll(ctx context.Context, c *client.Client, args map[string]any) (
 	if dx < -127 || dx > 127 || dy < -127 || dy > 127 {
 		return results.Operation{}, fmt.Errorf("mouse wheel deltas must be in -127..127")
 	}
-	if err := c.KVMDMouseWheel(ctx, dx, dy); err != nil && !isNoHardware(err) {
-		return results.Operation{}, err
+	if err := c.KVMDMouseWheel(ctx, dx, dy); err != nil {
+		return unavailableOperation("kvm_mouse_scroll", false, map[string]any{"dx": dx, "dy": dy}, err), nil
 	}
 	return results.Build("kvm_mouse_scroll", "kvm", false, "", true, true, "completed", map[string]any{"dx": dx, "dy": dy}, nil), nil
 }
@@ -509,11 +536,13 @@ func opScreenshotToFile(ctx context.Context, c *client.Client, args map[string]a
 	}
 	data, err := c.GetWithHeaders(ctx, "/api/streamer/snapshot", map[string]string{"preview": "true"}, map[string]string{"Accept": "image/jpeg", client.BinaryResponseHeader: "true"})
 	if err != nil || len(data) == 0 {
-		data = []byte{0xFF, 0xD8, 0xFF, 0xD9}
+		if err == nil {
+			err = errors.New("empty snapshot")
+		}
+		return unavailableOperation("kvm_screenshot_to_file", true, map[string]any{"path": path, "max_width": maxW}, fmt.Errorf("snapshot unavailable: %w", err)), nil
 	}
 	if err := os.WriteFile(path, data, 0o600); err != nil {
-		// for test stub, don't require filesystem write; return stub envelope
-		return results.Build("kvm_screenshot_to_file", "kvm", true, "", true, false, "observed", map[string]any{"path": path, "bytes": len(data), "max_width": maxW, "stub_write": true}, nil), nil
+		return results.Operation{}, fmt.Errorf("write screenshot: %w", err)
 	}
 	return results.Build("kvm_screenshot_to_file", "kvm", true, "", true, false, "observed", map[string]any{"path": path, "bytes": len(data), "max_width": maxW}, nil), nil
 }
@@ -523,16 +552,16 @@ func opOCRScreenshot(ctx context.Context, c *client.Client, args map[string]any)
 	if len([]rune(searchText)) > 500 {
 		return results.Operation{}, fmt.Errorf("search_text too long")
 	}
-	data, _ := c.GetWithHeaders(ctx, "/api/streamer/snapshot", map[string]string{"preview": "true"}, map[string]string{"Accept": "image/jpeg", client.BinaryResponseHeader: "true"})
-	if len(data) == 0 {
-		data = []byte{0xFF, 0xD8}
+	observation, unavailable := captureObservation(ctx, c)
+	if unavailable != nil {
+		return unavailableOperation("kvm_ocr_screenshot", true, map[string]any{"search_text": searchText}, unavailable), nil
 	}
-	// stub elements
-	elements := []map[string]any{}
-	if searchText != "" {
-		elements = append(elements, map[string]any{"text": searchText, "confidence": 90.0, "pixel": []int{640, 360}, "x_pct": 50.0, "y_pct": 50.0})
+	evidence := map[string]any{"search_text": searchText, "observation": observation}
+	if strings.TrimSpace(searchText) != "" {
+		_, outcome := exactHighConfidenceRegion(observation, searchText)
+		evidence["outcome"] = outcome
 	}
-	return results.Build("kvm_ocr_screenshot", "kvm", true, "", true, false, "observed", map[string]any{"search_text": searchText, "elements": elements, "bytes": len(data)}, nil), nil
+	return results.Build("kvm_ocr_screenshot", "kvm", true, "", true, false, "observed", evidence, nil), nil
 }
 
 func opOCRClick(ctx context.Context, c *client.Client, args map[string]any) (results.Operation, error) {
@@ -557,9 +586,9 @@ func opOCRClick(ctx context.Context, c *client.Client, args map[string]any) (res
 	if button != "left" && button != "middle" && button != "right" {
 		return results.Operation{}, fmt.Errorf("unsupported mouse button")
 	}
-	// stub: pretend we found it and clicked
+	_ = ctx
 	_ = c
-	return results.Build("kvm_ocr_click", "kvm", false, "", true, true, "completed", map[string]any{"text": text, "button": button, "count": count, "found": true, "x_pct": 50.0, "y_pct": 50.0}, nil), nil
+	return unavailableOperation("kvm_ocr_click", false, map[string]any{"text": text, "button": button, "count": count}, errors.New("use click-text with a fresh OCR observation")), nil
 }
 
 func opExecCommand(args map[string]any) (results.Operation, error) {
@@ -586,7 +615,7 @@ func opExecCommand(args map[string]any) (results.Operation, error) {
 	if strings.TrimSpace(allowlistRaw) == "" {
 		return results.Build("exec_command", "ssh", false, "", false, false, "aborted", map[string]any{"command_base": strings.Fields(cmd)[0]}, &results.Error{Code: "policy refused"}), nil
 	}
-	return results.Build("exec_command", "ssh", false, "", true, true, "completed", map[string]any{"command_base": strings.Fields(cmd)[0], "rc": 0, "stdout": "", "stderr": ""}, nil), nil
+	return unavailableTransport("exec_command", "ssh", false, map[string]any{"command_base": strings.Fields(cmd)[0]}, errors.New("SSH execution runner is not configured")), nil
 }
 
 func opSequencePlan(args map[string]any) (results.Operation, error) {
@@ -684,7 +713,7 @@ func opSequenceExecute(args map[string]any) (results.Operation, error) {
 	if target == "" {
 		target = "unknown"
 	}
-	return results.Build("kvm_sequence_execute", "kvm", false, target, true, true, "completed", map[string]any{"approval_token": token, "completed_steps": 1, "elapsed_ms": 10, "cleanup_ok": true}, nil), nil
+	return unavailableOperation("kvm_sequence_execute", false, map[string]any{"approval_token": token, "target": target}, errors.New("sequence execution runner is not configured")), nil
 }
 
 func opWorkflowList(args map[string]any) (results.Operation, error) {
@@ -713,7 +742,7 @@ func opWorkflowInspect(args map[string]any) (results.Operation, error) {
 		repoPath = os.Getenv("KVMCTL_WORKFLOW_REPOSITORY")
 	}
 	if strings.TrimSpace(repoPath) == "" {
-		return results.Build("kvm_workflow_inspect", "kvm", true, "", true, false, "observed", map[string]any{"name": name, "stub": true}, nil), nil
+		return unavailableOperation("kvm_workflow_inspect", true, map[string]any{"name": name}, errors.New("workflow repository is not configured")), nil
 	}
 	repo, err := sequence.LoadWorkflowRepository(repoPath)
 	if err != nil {
@@ -767,7 +796,7 @@ func opWorkflowExecute(args map[string]any) (results.Operation, error) {
 	if target == "" {
 		target = "unknown"
 	}
-	return results.Build("kvm_workflow_execute", "kvm", false, target, true, true, "completed", map[string]any{"name": name, "revision": rev, "completed_steps": 1, "cleanup_ok": true}, nil), nil
+	return unavailableOperation("kvm_workflow_execute", false, map[string]any{"name": name, "revision": rev, "target": target}, errors.New("workflow execution runner is not configured")), nil
 }
 
 func sequenceHash(target string, actions any, maxMS int) string {
