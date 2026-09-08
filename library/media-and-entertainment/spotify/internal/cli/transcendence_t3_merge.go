@@ -148,7 +148,7 @@ Pass the global --dry-run flag to preview without writing.`,
 			if len(uris) == 0 {
 				// Nothing to write; explicit empty PUT clears the destination
 				// so re-running with empty sources also stays idempotent.
-				_, _, err := c.Put(context.Background(), "/playlists/"+destPlaylist+"/tracks", map[string]any{"uris": []string{}})
+				_, _, err := c.Put(context.Background(), "/playlists/"+destPlaylist+"/items", map[string]any{"uris": []string{}})
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -161,9 +161,9 @@ Pass the global --dry-run flag to preview without writing.`,
 				body := map[string]any{"uris": uris[i:end]}
 				var err error
 				if i == 0 {
-					_, _, err = c.Put(context.Background(), "/playlists/"+destPlaylist+"/tracks", body)
+					_, _, err = c.Put(context.Background(), "/playlists/"+destPlaylist+"/items", body)
 				} else {
-					_, _, err = c.Post(context.Background(), "/playlists/"+destPlaylist+"/tracks", body)
+					_, _, err = c.Post(context.Background(), "/playlists/"+destPlaylist+"/items", body)
 				}
 				if err != nil {
 					return classifyAPIError(err, flags)

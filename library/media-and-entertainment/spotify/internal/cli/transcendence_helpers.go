@@ -47,7 +47,8 @@ func openTranscendenceStore(ctx context.Context) (*store.Store, error) {
 	return db, nil
 }
 
-// playlistTrackItem mirrors a row from /playlists/{id}/tracks. Defined once
+// playlistTrackItem mirrors a row from /playlists/{id}/items (the /tracks
+// route is deprecated and returns 403 for apps created after 2025). Defined once
 // so the three commands that consume full playlist contents (T1 diff,
 // T2 dedupe, T3 merge) share a single track shape.
 type playlistTrackItem struct {
@@ -65,7 +66,7 @@ type playlistTrackItem struct {
 		ExternalIDs struct {
 			ISRC string `json:"isrc"`
 		} `json:"external_ids"`
-	} `json:"track"`
+	} `json:"item"`
 }
 
 // PATCH (fix-playlist-track-pagination):
@@ -89,9 +90,9 @@ func fetchFullPlaylist(c *client.Client, playlistID string) (id, name, snapshotI
 		return "", "", "", nil, fmt.Errorf("decoding playlist metadata: %w", err)
 	}
 
-	raw, err := fetchAllPaged(c, "/playlists/"+playlistID+"/tracks", map[string]string{"limit": "50"}, 0)
+	raw, err := fetchAllPaged(c, "/playlists/"+playlistID+"/items", map[string]string{"limit": "50"}, 0)
 	if err != nil {
-		return meta.ID, meta.Name, meta.SnapshotID, nil, fmt.Errorf("paginating /playlists/%s/tracks: %w", playlistID, err)
+		return meta.ID, meta.Name, meta.SnapshotID, nil, fmt.Errorf("paginating /playlists/%s/items: %w", playlistID, err)
 	}
 	items = make([]playlistTrackItem, 0, len(raw))
 	for _, r := range raw {
