@@ -20,6 +20,9 @@ func TestKeywordPlannerRegistrationRemovesGenericBypassCommands(t *testing.T) {
 	if doctor == nil || doctor.Annotations["pp:data-source"] != "local" {
 		t.Fatalf("curated local doctor missing or incorrectly annotated: %#v", doctor)
 	}
+	if doctor.Flags().Lookup("live") == nil {
+		t.Fatal("curated doctor is missing --live")
+	}
 	portfolio := findKeywordRootCommand(root, "portfolio")
 	if portfolio == nil {
 		t.Fatal("portfolio group is not reachable")

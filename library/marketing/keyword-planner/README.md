@@ -170,7 +170,7 @@ keyword-planner-pp-cli portfolio export --snapshot latest --json --select keywor
 
 The generated MCP command mirror uses the same curated CLI paths and evidence policy. Raw endpoint mirrors are disabled. The local validation does not deploy an MCP server. `tools-manifest.json` retains two hidden upstream endpoint references in the Printing Press schema; `mcp-runtime-tools.json` preserves the 28-tool runtime inventory and full input schemas. The running stdio server is authoritative for tool discovery.
 
-The verified MCP transport is stdio. The optional generated HTTP server still needs an upstream header-read timeout before a later HTTP deployment; this generator issue is recorded in the archived review.
+The verified MCP transport is stdio. The optional HTTP server has a five-second header-read timeout and preserves the bearer-authentication, TLS, and bind restrictions. Its configuration is regression-tested; a hosted HTTP deployment remains outside the verified surface.
 
 ## Health Check
 

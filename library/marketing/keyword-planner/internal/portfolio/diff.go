@@ -243,8 +243,7 @@ type diffRowRef struct {
 }
 
 func diffRows(leftRows, rightRows []Row, left, right Snapshot, summary *DiffSummary) []DiffChange {
-	leftRefs := buildDiffRowRefs(leftRows)
-	rightRefs := buildDiffRowRefs(rightRows)
+	leftRefs, rightRefs := buildDiffRowRefs(leftRows, rightRows)
 	leftByKey := make(map[string]diffRowRef, len(leftRefs))
 	rightByKey := make(map[string]diffRowRef, len(rightRefs))
 	keys := make(map[string]struct{}, len(leftRefs)+len(rightRefs))
@@ -296,36 +295,308 @@ func diffRows(leftRows, rightRows []Row, left, right Snapshot, summary *DiffSumm
 	return changes
 }
 
-func buildDiffRowRefs(rows []Row) []diffRowRef {
-	series := make(map[string][]Row)
+type diffMetricSeries struct {
+	rows       []Row
+	contentKey string
+}
+
+type diffMetricPair struct {
+	left     diffMetricSeries
+	right    diffMetricSeries
+	hasLeft  bool
+	hasRight bool
+}
+
+type diffRowPair struct {
+	left     Row
+	right    Row
+	hasLeft  bool
+	hasRight bool
+}
+
+type diffSeriesBuilder struct {
+	metrics    []diffMetricSeries
+	byMetricID map[string]int
+}
+
+// buildDiffRowRefs pairs duplicate metric series by their persisted content.
+// IDs are generated per response and therefore cannot establish identity
+// across snapshots. Exact series contents are paired first; residual series
+// are paired in content order so real changes and count deltas remain visible.
+func buildDiffRowRefs(leftRows, rightRows []Row) ([]diffRowRef, []diffRowRef) {
+	leftSeries := groupDiffMetricSeries(leftRows)
+	rightSeries := groupDiffMetricSeries(rightRows)
+	seriesKeys := make(map[string]struct{}, len(leftSeries)+len(rightSeries))
+	for key := range leftSeries {
+		seriesKeys[key] = struct{}{}
+	}
+	for key := range rightSeries {
+		seriesKeys[key] = struct{}{}
+	}
+	orderedSeries := make([]string, 0, len(seriesKeys))
+	for key := range seriesKeys {
+		orderedSeries = append(orderedSeries, key)
+	}
+	sort.Strings(orderedSeries)
+
+	leftRefs := make([]diffRowRef, 0, len(leftRows))
+	rightRefs := make([]diffRowRef, 0, len(rightRows))
+	for _, seriesKey := range orderedSeries {
+		pairs := pairDiffMetricSeries(leftSeries[seriesKey], rightSeries[seriesKey])
+		for ordinal, pair := range pairs {
+			appendDiffMetricPairRefs(&leftRefs, &rightRefs, seriesKey, ordinal, pair)
+		}
+	}
+	return leftRefs, rightRefs
+}
+
+func groupDiffMetricSeries(rows []Row) map[string][]diffMetricSeries {
+	builders := make(map[string]*diffSeriesBuilder)
 	for _, row := range rows {
-		series[diffSeriesKey(row)] = append(series[diffSeriesKey(row)], row)
+		seriesKey := diffSeriesKey(row)
+		builder := builders[seriesKey]
+		if builder == nil {
+			builder = &diffSeriesBuilder{byMetricID: make(map[string]int)}
+			builders[seriesKey] = builder
+		}
+		metricIndex, ok := builder.byMetricID[row.MetricID]
+		if !ok {
+			metricIndex = len(builder.metrics)
+			builder.byMetricID[row.MetricID] = metricIndex
+			builder.metrics = append(builder.metrics, diffMetricSeries{})
+		}
+		builder.metrics[metricIndex].rows = append(builder.metrics[metricIndex].rows, row)
 	}
-	refs := make([]diffRowRef, 0, len(rows))
-	for seriesKey, values := range series {
-		sort.SliceStable(values, func(i, j int) bool {
-			if values[i].MetricID != values[j].MetricID {
-				return values[i].MetricID < values[j].MetricID
-			}
-			return values[i].Month < values[j].Month
+
+	grouped := make(map[string][]diffMetricSeries, len(builders))
+	for seriesKey, builder := range builders {
+		for index := range builder.metrics {
+			builder.metrics[index].contentKey = diffMetricContentKey(builder.metrics[index].rows)
+		}
+		sort.SliceStable(builder.metrics, func(i, j int) bool {
+			return builder.metrics[i].contentKey < builder.metrics[j].contentKey
 		})
-		ordinalByMetric := make(map[string]int)
-		metricOrder := make([]string, 0, len(values))
-		for _, row := range values {
-			if _, ok := ordinalByMetric[row.MetricID]; !ok {
-				ordinalByMetric[row.MetricID] = len(metricOrder)
-				metricOrder = append(metricOrder, row.MetricID)
+		grouped[seriesKey] = builder.metrics
+	}
+	return grouped
+}
+
+func pairDiffMetricSeries(left, right []diffMetricSeries) []diffMetricPair {
+	leftByContent := make(map[string][]diffMetricSeries)
+	rightByContent := make(map[string][]diffMetricSeries)
+	contentKeys := make(map[string]struct{}, len(left)+len(right))
+	for _, series := range left {
+		leftByContent[series.contentKey] = append(leftByContent[series.contentKey], series)
+		contentKeys[series.contentKey] = struct{}{}
+	}
+	for _, series := range right {
+		rightByContent[series.contentKey] = append(rightByContent[series.contentKey], series)
+		contentKeys[series.contentKey] = struct{}{}
+	}
+	orderedContent := make([]string, 0, len(contentKeys))
+	for key := range contentKeys {
+		orderedContent = append(orderedContent, key)
+	}
+	sort.Strings(orderedContent)
+
+	pairs := make([]diffMetricPair, 0, maxInt(len(left), len(right)))
+	remainingLeft := make([]diffMetricSeries, 0, len(left))
+	remainingRight := make([]diffMetricSeries, 0, len(right))
+	for _, contentKey := range orderedContent {
+		leftMatches := leftByContent[contentKey]
+		rightMatches := rightByContent[contentKey]
+		paired := minInt(len(leftMatches), len(rightMatches))
+		for index := 0; index < paired; index++ {
+			pairs = append(pairs, diffMetricPair{left: leftMatches[index], right: rightMatches[index], hasLeft: true, hasRight: true})
+		}
+		remainingLeft = append(remainingLeft, leftMatches[paired:]...)
+		remainingRight = append(remainingRight, rightMatches[paired:]...)
+	}
+
+	sort.SliceStable(remainingLeft, func(i, j int) bool {
+		return remainingLeft[i].contentKey < remainingLeft[j].contentKey
+	})
+	sort.SliceStable(remainingRight, func(i, j int) bool {
+		return remainingRight[i].contentKey < remainingRight[j].contentKey
+	})
+	paired := minInt(len(remainingLeft), len(remainingRight))
+	for index := 0; index < paired; index++ {
+		pairs = append(pairs, diffMetricPair{left: remainingLeft[index], right: remainingRight[index], hasLeft: true, hasRight: true})
+	}
+	for _, series := range remainingLeft[paired:] {
+		pairs = append(pairs, diffMetricPair{left: series, hasLeft: true})
+	}
+	for _, series := range remainingRight[paired:] {
+		pairs = append(pairs, diffMetricPair{right: series, hasRight: true})
+	}
+	return pairs
+}
+
+func appendDiffMetricPairRefs(leftRefs, rightRefs *[]diffRowRef, seriesKey string, ordinal int, pair diffMetricPair) {
+	leftByMonth := make(map[string][]Row)
+	rightByMonth := make(map[string][]Row)
+	if pair.hasLeft {
+		leftByMonth = groupDiffRowsByMonth(pair.left.rows)
+	}
+	if pair.hasRight {
+		rightByMonth = groupDiffRowsByMonth(pair.right.rows)
+	}
+	months := make(map[string]struct{}, len(leftByMonth)+len(rightByMonth))
+	for month := range leftByMonth {
+		months[month] = struct{}{}
+	}
+	for month := range rightByMonth {
+		months[month] = struct{}{}
+	}
+	orderedMonths := make([]string, 0, len(months))
+	for month := range months {
+		orderedMonths = append(orderedMonths, month)
+	}
+	sort.Strings(orderedMonths)
+
+	for _, month := range orderedMonths {
+		rowPairs := pairDiffRowsByContent(leftByMonth[month], rightByMonth[month])
+		for duplicateOrdinal, rowPair := range rowPairs {
+			keyRow := rowPair.right
+			if !rowPair.hasRight {
+				keyRow = rowPair.left
+			}
+			key := DiffObservationKey{
+				Keyword:            keyRow.Keyword,
+				SubmittedKeyword:   keyRow.SubmittedKeyword,
+				SubmittedIndex:     cloneInt(keyRow.SubmittedIndex),
+				VariantGroup:       keyRow.VariantGroup,
+				Month:              month,
+				ObservationOrdinal: ordinal,
+				DuplicateOrdinal:   duplicateOrdinal,
+			}
+			mapKey := diffObservationMapKey(seriesKey, key)
+			if rowPair.hasLeft {
+				*leftRefs = append(*leftRefs, diffRowRef{row: rowPair.left, key: key, mapKey: mapKey})
+			}
+			if rowPair.hasRight {
+				*rightRefs = append(*rightRefs, diffRowRef{row: rowPair.right, key: key, mapKey: mapKey})
 			}
 		}
-		duplicateByMonth := make(map[string]int)
-		for _, row := range values {
-			duplicateOrdinal := duplicateByMonth[row.Month]
-			duplicateByMonth[row.Month] = duplicateOrdinal + 1
-			key := DiffObservationKey{Keyword: row.Keyword, SubmittedKeyword: row.SubmittedKeyword, SubmittedIndex: cloneInt(row.SubmittedIndex), VariantGroup: row.VariantGroup, Month: row.Month, ObservationOrdinal: ordinalByMetric[row.MetricID], DuplicateOrdinal: duplicateOrdinal}
-			refs = append(refs, diffRowRef{row: row, key: key, mapKey: diffObservationMapKey(seriesKey, key)})
-		}
 	}
-	return refs
+}
+
+func groupDiffRowsByMonth(rows []Row) map[string][]Row {
+	grouped := make(map[string][]Row)
+	for _, row := range rows {
+		grouped[row.Month] = append(grouped[row.Month], row)
+	}
+	return grouped
+}
+
+func pairDiffRowsByContent(left, right []Row) []diffRowPair {
+	leftByContent := make(map[string][]Row)
+	rightByContent := make(map[string][]Row)
+	contentKeys := make(map[string]struct{}, len(left)+len(right))
+	for _, row := range left {
+		contentKey := diffRowContentKey(row)
+		leftByContent[contentKey] = append(leftByContent[contentKey], row)
+		contentKeys[contentKey] = struct{}{}
+	}
+	for _, row := range right {
+		contentKey := diffRowContentKey(row)
+		rightByContent[contentKey] = append(rightByContent[contentKey], row)
+		contentKeys[contentKey] = struct{}{}
+	}
+	orderedContent := make([]string, 0, len(contentKeys))
+	for key := range contentKeys {
+		orderedContent = append(orderedContent, key)
+	}
+	sort.Strings(orderedContent)
+
+	pairs := make([]diffRowPair, 0, maxInt(len(left), len(right)))
+	remainingLeft := make([]Row, 0, len(left))
+	remainingRight := make([]Row, 0, len(right))
+	for _, contentKey := range orderedContent {
+		leftMatches := leftByContent[contentKey]
+		rightMatches := rightByContent[contentKey]
+		paired := minInt(len(leftMatches), len(rightMatches))
+		for index := 0; index < paired; index++ {
+			pairs = append(pairs, diffRowPair{left: leftMatches[index], right: rightMatches[index], hasLeft: true, hasRight: true})
+		}
+		remainingLeft = append(remainingLeft, leftMatches[paired:]...)
+		remainingRight = append(remainingRight, rightMatches[paired:]...)
+	}
+
+	sort.SliceStable(remainingLeft, func(i, j int) bool {
+		return diffRowContentKey(remainingLeft[i]) < diffRowContentKey(remainingLeft[j])
+	})
+	sort.SliceStable(remainingRight, func(i, j int) bool {
+		return diffRowContentKey(remainingRight[i]) < diffRowContentKey(remainingRight[j])
+	})
+	paired := minInt(len(remainingLeft), len(remainingRight))
+	for index := 0; index < paired; index++ {
+		pairs = append(pairs, diffRowPair{left: remainingLeft[index], right: remainingRight[index], hasLeft: true, hasRight: true})
+	}
+	for _, row := range remainingLeft[paired:] {
+		pairs = append(pairs, diffRowPair{left: row, hasLeft: true})
+	}
+	for _, row := range remainingRight[paired:] {
+		pairs = append(pairs, diffRowPair{right: row, hasRight: true})
+	}
+	return pairs
+}
+
+func diffMetricContentKey(rows []Row) string {
+	contentKeys := make([]string, 0, len(rows))
+	for _, row := range rows {
+		contentKeys = append(contentKeys, diffRowContentKey(row))
+	}
+	sort.Strings(contentKeys)
+	return jsonText(contentKeys)
+}
+
+type diffRowContent struct {
+	Month                  string   `json:"month"`
+	RawMonth               string   `json:"raw_month"`
+	RawYear                string   `json:"raw_year"`
+	MonthlySearches        *int64   `json:"monthly_searches"`
+	ValueState             string   `json:"value_state"`
+	Flags                  []string `json:"flags"`
+	LowBidMicros           *int64   `json:"low_bid_micros"`
+	HighBidMicros          *int64   `json:"high_bid_micros"`
+	AverageCPCMicros       *int64   `json:"average_cpc_micros"`
+	AverageMonthlySearches *int64   `json:"average_monthly_searches"`
+	Competition            string   `json:"competition"`
+	CompetitionIndex       *int64   `json:"competition_index"`
+	Status                 string   `json:"status"`
+}
+
+func diffRowContentKey(row Row) string {
+	return jsonText(diffRowContent{
+		Month:                  row.Month,
+		RawMonth:               row.RawMonth,
+		RawYear:                row.RawYear,
+		MonthlySearches:        row.MonthlySearches,
+		ValueState:             row.ValueState,
+		Flags:                  append([]string(nil), row.Flags...),
+		LowBidMicros:           row.LowBidMicros,
+		HighBidMicros:          row.HighBidMicros,
+		AverageCPCMicros:       row.AverageCPCMicros,
+		AverageMonthlySearches: row.AverageMonthlySearches,
+		Competition:            row.Competition,
+		CompetitionIndex:       row.CompetitionIndex,
+		Status:                 row.Status,
+	})
+}
+
+func minInt(left, right int) int {
+	if left < right {
+		return left
+	}
+	return right
+}
+
+func maxInt(left, right int) int {
+	if left > right {
+		return left
+	}
+	return right
 }
 
 func diffSeriesKey(row Row) string {

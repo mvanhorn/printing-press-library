@@ -27,8 +27,6 @@ func registerKeywordPlannerCommands(rootCmd *cobra.Command, flags *rootFlags) {
 	}
 	removeKeywordRootCommand(rootCmd, "customers")
 	removeKeywordRootCommand(rootCmd, "auth")
-	removeKeywordRootCommand(rootCmd, "doctor")
-	rootCmd.AddCommand(newPlannerDoctorCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newPlannerIdeasCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newPlannerHistoricalCmd(flags))
 

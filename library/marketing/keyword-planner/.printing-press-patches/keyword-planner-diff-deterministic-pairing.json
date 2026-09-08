@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "keyword-planner-diff-deterministic-pairing",
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260907-211020-33d059da",
+  "base_printing_press_version": "4.32.0",
+  "summary": "Pair duplicate portfolio metric series by deterministic persisted content before comparing snapshots.",
+  "reason": "Per-response metric IDs can be regenerated or reordered, so ID-based ordinals create false monthly changes. Exact content matches must pair first while residual changes and duplicate count deltas remain visible.",
+  "files": [
+    "internal/portfolio/diff.go",
+    "internal/portfolio/diff_regression_test.go",
+    ".printing-press-patches/keyword-planner-diff-deterministic-pairing.json"
+  ],
+  "validation": "The focused duplicate-diff regression, complete internal/portfolio tests, and go vet ./internal/portfolio all pass."
+}

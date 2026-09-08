@@ -313,7 +313,7 @@ Highlights (not in the official API docs):
   • portfolio safe-stats   Compute descriptive monthly aggregates while excluding unavailable, ambiguous, anomalous, and incomplete rows.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'keyword-planner doctor' for offline readiness; add --live to check Google.
+Health check: run 'keyword-planner-pp-cli doctor' for offline readiness; add --live to check Google.
 See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
@@ -443,7 +443,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 		return nil
 	}
 	rootCmd.AddCommand(newCustomersCmd(flags))
-	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newPlannerDoctorCmd(flags))
 	if registeredPlatformSource != nil {
 		attachPlatformClientCommands(rootCmd, flags)
 	}
