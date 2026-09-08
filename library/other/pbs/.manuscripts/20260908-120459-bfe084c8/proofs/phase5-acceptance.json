@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "db19669a710bcb73cecea769b466d819d41feb686d8ec42b4b70b3effc028ff4",
+  "source_fingerprint": "f52d4370fb53b69eb3d9efd6d8fabb6be0f95b21f59cead5b4fe7aa17e65d90a",
   "source_files": {
     "cmd/pbs-pp-cli/main.go": "3eab0dd11dd7511d4349f171d7cd51caaf2c91ec358d81e0749639bda8f07a30",
     "cmd/pbs-pp-mcp/http_auth_test.go": "03799a097250137cd418c3f11d955418d7a96986e74abdbbae4ca48196729bc4",
@@ -158,14 +158,15 @@
     "internal/pbsfetch/fetch.go": "44f7f6293738f14f9c5a573990c48b80bb98db680f1be0c47bec66a7fbda9e56",
     "internal/pbsfetch/fetch_test.go": "d89edfff85a3c4f56b628dfe39b524fc06a5b648bfdb092efc80d9ad55a2187f",
     "internal/pbsparse/annexure.go": "53ba241401dae6bd84e91a1839b929731647846a1bcabbda028fd629b783ffec",
-    "internal/pbsparse/annexure_test.go": "2e9851ea6e8109176871b70e8af101e0a2ebba4dffda6cff3eb44a153f416255",
+    "internal/pbsparse/annexure_test.go": "fbdb35d1f41b75afe436bf24ef5c2b9d79904af8df5725411d23f11ab404f81a",
+    "internal/pbsparse/fixture_test.go": "3cd563223b708d74ad7306552ad8cd0529f444d5741ad19f332fafafd001600b",
     "internal/pbsparse/index.go": "2c15ce7ccffb24df3f931f863a8bab5382f713e7df877b7997c4787131da7f7f",
     "internal/pbsparse/index_test.go": "95c290e143d20d30e127eaa3ba946898d1aa4d9add2d0ef79f0bf69ded6e7e50",
     "internal/pbsparse/pdf.go": "a7b65cfb75efa4f94fea2d4f00256fd9d67780fa41c15dfe3c991410686fbfab",
-    "internal/pbsparse/pdf_test.go": "2e1c6ef24240108bd1326daf2f2a10a072ac2a57823c70e2c271df94b428421b",
+    "internal/pbsparse/pdf_test.go": "a91733f363c47ef82cdcdb6b1611b94d6b53827ca325be7eebbbcfbd87c39c02",
     "internal/pbsparse/pdfgrid.go": "9a16f1896eae630c05a7b10f97fa5a0224d085b8011d95bec9a9b3b2221ddaa7",
     "internal/pbsparse/report.go": "6093e83dbefff4ca44f45f86b3181edba921ff3fed1f95e3130022de9f2f8b80",
-    "internal/pbsparse/report_test.go": "85cc9998b2ef9afadd3ab5298d000293188f0cf78300bbd8208729283a56b9d0",
+    "internal/pbsparse/report_test.go": "9f5d0fd05484c168d5ea511846cde215089ad604367390363e73937bd64a7477",
     "internal/pbsparse/values.go": "9be9ee9741a0ad5aa7a767bca3d4a36f5f1f8359e4020f1adc701c86a57ae5b4",
     "internal/pbsparse/xlsx.go": "40efcf76e15877e45c09816863123c9ce65e60af97907dd5b524a52047231e67",
     "internal/platform/conformance_test.go": "00e5c0a8de610fa9ab5d2025499f0a2eced4bbd55d973e6982dfd0e94144f961",

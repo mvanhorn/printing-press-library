@@ -4,17 +4,13 @@ package pbsparse
 
 import (
 	"math"
-	"os"
 	"sort"
 	"testing"
 )
 
 func loadAnnexure(t *testing.T) *Annexure {
 	t.Helper()
-	b, err := os.ReadFile("testdata/Annex_03.09.2026.xlsx")
-	if err != nil {
-		t.Fatalf("read fixture: %v", err)
-	}
+	b := readFixture(t, "Annex_03.09.2026.xlsx")
 	a, err := ParseAnnexureXLSX(b, "2026-09-03")
 	if err != nil {
 		t.Fatalf("ParseAnnexureXLSX: %v", err)

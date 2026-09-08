@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "pbs-base64-xlsx-fixtures",
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260908-120459-bfe084c8",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Carry the two .xlsx parser fixtures as base64 text sidecars and decode them in a readFixture test helper, instead of committing the raw ZIP-container spreadsheets.",
+  "reason": "The public printing-press-library CI job 'Block committed MCPB/native binary payloads' (.github/scripts/verify-binary-payload/verify_binary_payload.py) rejects any newly added file under library/ whose first bytes are the ZIP magic PK\\x03\\x04, and it has no exemption for testdata. .xlsx is a ZIP container, so both fixtures failed the Verify check. The guard's stated rationale is that MCPB and native release binaries must be built from source in Actions rather than committed; these files are neither, they are upstream source spreadsheets used as parser fixtures. Dropping them instead would have deleted the PDF-vs-XLSX cross-encoding assertion, which is the CLI's only measurement of extraction quality taken from outside the extractor, so they are base64-encoded rather than removed. readFixture still prefers a raw fixture when one is present, so a local tree holding the original binaries behaves identically.",
+  "files": [
+    "internal/pbsparse/fixture_test.go",
+    "internal/pbsparse/annexure_test.go",
+    "internal/pbsparse/report_test.go",
+    "internal/pbsparse/pdf_test.go",
+    "internal/pbsparse/testdata/Annex_03.09.2026.xlsx.b64",
+    "internal/pbsparse/testdata/3.-SPI-Report-03.09.2026.xlsx.b64"
+  ],
+  "validated_outcome": "base64 round-trip verified byte-identical against the raw .xlsx before the raw files were deleted. go test -race ./... passes with zero failures, and TestPDFAgreesWithXLSX still runs (not skipped) and reproduces the pre-change numbers exactly: compared=2601 value-agree=2580 value-disagree=0 flagged-overflow-loss=21 missing=0 coverage=100.00%, description fidelity exact=2142 flagged-suspect=459 silent-bad=0 (82.4%). gofmt clean, go vet exit 0."
+}

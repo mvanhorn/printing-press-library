@@ -52,10 +52,7 @@ func contains(hay, needle string) bool {
 // A disagreement means at least one parser is wrong, and neither could be
 // caught by eyeballing plausible prices.
 func TestPDFAgreesWithXLSX(t *testing.T) {
-	xb, err := os.ReadFile("testdata/Annex_03.09.2026.xlsx")
-	if err != nil {
-		t.Fatalf("read xlsx: %v", err)
-	}
+	xb := readFixture(t, "Annex_03.09.2026.xlsx")
 	pb, err := os.ReadFile("testdata/Annex_03.09.2026.pdf")
 	if err != nil {
 		t.Fatalf("read pdf: %v", err)

@@ -4,16 +4,12 @@ package pbsparse
 
 import (
 	"math"
-	"os"
 	"testing"
 )
 
 func loadReport(t *testing.T) *Report {
 	t.Helper()
-	b, err := os.ReadFile("testdata/3.-SPI-Report-03.09.2026.xlsx")
-	if err != nil {
-		t.Fatalf("read fixture: %v", err)
-	}
+	b := readFixture(t, "3.-SPI-Report-03.09.2026.xlsx")
 	rep, err := ParseReportXLSX(b, "2026-09-03")
 	if err != nil {
 		t.Fatalf("ParseReportXLSX: %v", err)
@@ -123,10 +119,7 @@ func TestReportSectionCountsAgree(t *testing.T) {
 // — a plausible price, a different variable.
 func TestReportNationalPriceMatchesAnnexure(t *testing.T) {
 	rep := loadReport(t)
-	ab, err := os.ReadFile("testdata/Annex_03.09.2026.xlsx")
-	if err != nil {
-		t.Fatalf("read annexure: %v", err)
-	}
+	ab := readFixture(t, "Annex_03.09.2026.xlsx")
 	ax, err := ParseAnnexureXLSX(ab, "2026-09-03")
 	if err != nil {
 		t.Fatalf("annexure: %v", err)
