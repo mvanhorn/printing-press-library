@@ -229,6 +229,20 @@ func nullableNum(v pbsparse.Value) any {
 	return nil
 }
 
+// deleteReleaseRows clears one release's rows from the named tables.
+//
+// Table names are package-local literals from the callers below, never user
+// input, so they are safe to interpolate — SQLite does not accept a bound
+// parameter in place of a table name. The as_of value is still bound.
+func deleteReleaseRows(ctx context.Context, tx *sql.Tx, asOf string, tables ...string) error {
+	for _, t := range tables {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM `+t+` WHERE as_of = ?`, asOf); err != nil {
+			return fmt.Errorf("clear %s for %s: %w", t, asOf, err)
+		}
+	}
+	return nil
+}
+
 // persistAnnexure writes one parsed annexure.
 func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, source string) (int, error) {
 	tx, err := db.BeginTx(ctx, nil)
@@ -236,6 +250,17 @@ func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, sour
 		return 0, err
 	}
 	defer func() { _ = tx.Rollback() }()
+	// Replace the release rather than merely upserting over it.
+	//
+	// The item basket is NOT constant upstream and PBS does rewrite releases
+	// (which is what `revisions` exists to detect). Upserting alone left rows
+	// from the previous vintage sitting at the same as_of, so a rewrite that
+	// DROPPED an item kept that item alive and a later basket or national
+	// average silently summed a mixture of two vintages. The delete is inside
+	// this transaction so a crash cannot leave the release empty.
+	if err := deleteReleaseRows(ctx, tx, a.AsOf, "pbs_price", "pbs_national"); err != nil {
+		return 0, err
+	}
 	st, err := tx.PrepareContext(ctx, `INSERT INTO pbs_price
 		(as_of, surface, city, city_code, item_desc, item_no, unit, stat, value, value_state, block, desc_suspect, source)
 		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -296,6 +321,13 @@ func persistReport(ctx context.Context, db *sql.DB, rep *pbsparse.Report) (int, 
 		return 0, err
 	}
 	defer func() { _ = tx.Rollback() }()
+	// Same replace-semantics as persistAnnexure: a rewritten report with
+	// fewer items or fewer quintile series must not leave the dropped ones
+	// behind, or `weights --check-total` would be asserting 100.0000 over a
+	// mixture of two vintages.
+	if err := deleteReleaseRows(ctx, tx, rep.AsOf, "pbs_weight", "pbs_weight_total", "pbs_index"); err != nil {
+		return 0, err
+	}
 
 	wSt, err := tx.PrepareContext(ctx, `INSERT INTO pbs_weight
 		(as_of, item_desc, section, sr, unit, national_price, price_prev_week, price_cor_week,

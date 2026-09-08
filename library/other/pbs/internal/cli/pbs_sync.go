@@ -236,6 +236,28 @@ invocation, which the root --timeout will otherwise cut short. Pass a generous
 							covError, 0, "", 0, 0, pbsparse.StateCensus{}, "", ferr.Error()))
 					}
 					env.Outcomes = append(env.Outcomes, o)
+				} else {
+					// A release is TWO files, and only the .xlsx report is
+					// parseable today (there is no ParseReportPDF). Falling
+					// through this branch silently left `ok` true AND wrote no
+					// report row at all, so a release whose report is a PDF was
+					// recorded as complete while holding no weight vector, no
+					// weight totals and no quintile indices — and `coverage`
+					// could not name the hole either, because there was nothing
+					// to name it with. Record the hole explicitly.
+					o := syncOutcome{AsOf: r.AsOfKey(), Kind: string(r.Kind), Role: "report"}
+					url, note, state := "", "index carries no report file", covRot
+					if found {
+						ext := strings.ToLower(f.Ext)
+						url = f.URL
+						note = "report published only as ." + ext + "; no non-xlsx report parser"
+						state = covUnparsed
+						o.Parser = ext
+					}
+					o.State, o.Note = state, note
+					coverageErr = orFirst(coverageErr, recordCoverage(ctx, db.DB(), r.AsOfKey(), string(r.Kind), "report", url,
+						state, 0, "", 0, 0, pbsparse.StateCensus{}, o.Parser, note))
+					env.Outcomes = append(env.Outcomes, o)
 				}
 
 				if ok {
@@ -347,15 +369,30 @@ func pickFile(r pbsparse.Release, role pbsparse.FileRole, prefer string) (pbspar
 	return r.File(role, "")
 }
 
-// loadCompleted returns the releases whose annexure is already recorded as
-// successfully fetched, so a re-run resumes instead of starting over.
+// loadCompleted returns the releases that are already fully recorded, so a
+// re-run resumes instead of starting over.
 //
-// Only the `fetched` state counts as done. A release recorded as empty,
-// unparsed, rotted or errored is deliberately eligible for another attempt —
-// treating those as complete is how a partial panel becomes permanent.
+// A release is TWO files, so a fetched annexure ALONE is not proof it is done.
+// Resume must also see a terminal report row: fetched, gone upstream, or
+// present-but-unparseable. Keying on the annexure alone meant a release whose
+// annexure committed but whose report then failed to fetch, parse, or persist
+// kept its prices and lost its weight vector and quintile indices for good,
+// because the next ordinary sync skipped it and only --refetch would revisit
+// it.
+//
+// Only terminal states count. A transport error, an empty read, or no report
+// row at all — the shape left behind when a run dies between the two files —
+// stays deliberately eligible for another attempt, because treating those as
+// complete is how a partial panel becomes permanent.
 func loadCompleted(ctx context.Context, db *sql.DB) (map[string]bool, error) {
 	rows, err := db.QueryContext(ctx,
-		`SELECT as_of, kind FROM pbs_coverage WHERE role = 'annexure' AND state = ?`, covFetched)
+		`SELECT a.as_of, a.kind
+		   FROM pbs_coverage a
+		   JOIN pbs_coverage r
+		     ON r.as_of = a.as_of AND r.kind = a.kind AND r.role = 'report'
+		  WHERE a.role = 'annexure' AND a.state = ?
+		    AND r.state IN (?, ?, ?)`,
+		covFetched, covFetched, covRot, covUnparsed)
 	if err != nil {
 		return nil, fmt.Errorf("load coverage: %w", err)
 	}

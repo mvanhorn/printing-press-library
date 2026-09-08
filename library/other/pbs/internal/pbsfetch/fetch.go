@@ -52,6 +52,20 @@ type Client struct {
 	// could point the CLI at an arbitrary host and its bytes would be stored
 	// as if they were PBS data.
 	AllowedHosts []string
+	// MaxBody caps one response body. Zero means MaxBodyBytes.
+	//
+	// This is a field for the same reason AllowedHosts is: the real cap is
+	// far larger than any legitimate PBS artifact, so a test can only reach
+	// it by lowering it here.
+	MaxBody int64
+}
+
+// maxBody returns the effective body cap.
+func (c *Client) maxBody() int64 {
+	if c.MaxBody > 0 {
+		return c.MaxBody
+	}
+	return MaxBodyBytes
 }
 
 // New returns a Client paced at ratePerSec requests per second.
@@ -62,17 +76,48 @@ func New(timeout time.Duration, ratePerSec float64) *Client {
 	if ratePerSec <= 0 {
 		ratePerSec = 2
 	}
-	return &Client{
+	c := &Client{
 		HTTP:         &http.Client{Timeout: timeout},
 		Limiter:      cliutil.NewAdaptiveLimiter(ratePerSec),
 		UA:           DefaultUserAgent,
 		MaxAttempts:  4,
 		AllowedHosts: DefaultAllowedHosts,
+		MaxBody:      MaxBodyBytes,
 	}
+	// The allowlist has to be re-applied to EVERY hop, not just the URL we
+	// were handed. Go's default policy follows up to 10 redirects without
+	// consulting checkOrigin again, so an allowed PBS URL could bounce the
+	// fetch to loopback or a cloud metadata address and those bytes would be
+	// stored as if they were PBS data. Closing over c rather than over the
+	// slice keeps a test that narrows AllowedHosts authoritative on redirects
+	// too.
+	c.HTTP.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= MaxRedirects {
+			return fmt.Errorf("%s: %w (over %d)", req.URL.String(), ErrTooManyRedirects, MaxRedirects)
+		}
+		return c.checkOrigin(req.URL.String())
+	}
+	return c
 }
 
 // MaxBodyBytes caps a single response body.
 const MaxBodyBytes = 128 << 20
+
+// MaxRedirects bounds one redirect chain.
+//
+// PBS serves every content URL directly, so a long chain means something other
+// than a release file is being handed back.
+const MaxRedirects = 5
+
+// ErrBodyTooLarge reports a response body over MaxBodyBytes.
+//
+// The largest legitimate artifact this CLI fetches is a ~4 MB PDF annexure, so
+// the cap cannot be reached by real PBS content. It exists so a hostile or
+// broken upstream cannot exhaust memory before any parsing begins.
+var ErrBodyTooLarge = errors.New("response body exceeds the maximum size")
+
+// ErrTooManyRedirects reports a redirect chain longer than MaxRedirects.
+var ErrTooManyRedirects = errors.New("too many redirects")
 
 // ErrOffOrigin reports a URL that does not belong to the expected origin.
 //
@@ -151,12 +196,20 @@ func (c *Client) Get(ctx context.Context, url string) (*Result, error) {
 		resp, err := c.HTTP.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("fetch %s: %w", url, err)
+			// A redirect the policy refused is a decision, not a transient
+			// fault. Retrying it re-walks the same chain and only burns the
+			// backoff budget, so surface it immediately.
+			if errors.Is(err, ErrOffOrigin) || errors.Is(err, ErrTooManyRedirects) {
+				return nil, lastErr
+			}
 			if !sleepBackoff(ctx, attempt) {
 				return nil, lastErr
 			}
 			continue
 		}
-		body, readErr := io.ReadAll(resp.Body)
+		// Read one byte past the cap so an oversized body is detectable
+		// rather than silently truncated into the panel.
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, c.maxBody()+1))
 		_ = resp.Body.Close()
 		elapsed := time.Since(t0)
 
@@ -196,6 +249,11 @@ func (c *Client) Get(ctx context.Context, url string) (*Result, error) {
 				return nil, lastErr
 			}
 			continue
+		}
+		// Not retryable: a second attempt returns the same oversized body,
+		// and a truncated artifact must never reach the parser.
+		if int64(len(body)) > c.maxBody() {
+			return nil, fmt.Errorf("%s: %w (over %d bytes)", url, ErrBodyTooLarge, c.maxBody())
 		}
 		c.Limiter.OnSuccess()
 		sum := sha256.Sum256(body)

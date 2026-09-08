@@ -1,0 +1,168 @@
+// Copyright 2026 qazmataz and contributors. Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"context"
+	"database/sql"
+	"path/filepath"
+	"sort"
+	"testing"
+
+	_ "modernc.org/sqlite"
+)
+
+// newCoverageDB builds just the tables these regressions touch.
+//
+// store.EnsurePBSSchema guards its migrations with a package-level sync.Once,
+// so it applies the schema to whichever *sql.DB is passed first in a process
+// and is a no-op afterwards. That is fine for the CLI, which opens one panel
+// per process, but it means a test that wants a fresh database has to issue
+// the DDL itself.
+func newCoverageDB(t *testing.T) *sql.DB {
+	t.Helper()
+	db, err := sql.Open("sqlite", filepath.Join(t.TempDir(), "panel.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+
+	for _, stmt := range []string{
+		`CREATE TABLE pbs_coverage (
+			as_of TEXT NOT NULL, kind TEXT NOT NULL, role TEXT NOT NULL,
+			url TEXT, state TEXT NOT NULL,
+			PRIMARY KEY (as_of, kind, role))`,
+		`CREATE TABLE pbs_price (
+			as_of TEXT NOT NULL, surface TEXT NOT NULL, city TEXT NOT NULL,
+			item_desc TEXT NOT NULL, stat TEXT NOT NULL, value REAL,
+			value_state TEXT NOT NULL, source TEXT NOT NULL,
+			PRIMARY KEY (as_of, surface, city, item_desc, stat))`,
+		`CREATE TABLE pbs_national (as_of TEXT NOT NULL, item_desc TEXT NOT NULL)`,
+	} {
+		if _, err := db.Exec(stmt); err != nil {
+			t.Fatalf("ddl: %v", err)
+		}
+	}
+	return db
+}
+
+func putCoverage(t *testing.T, db *sql.DB, asOf, role, state string) {
+	t.Helper()
+	if _, err := db.Exec(
+		`INSERT INTO pbs_coverage (as_of, kind, role, state) VALUES (?,?,?,?)`,
+		asOf, "spi", role, state); err != nil {
+		t.Fatalf("insert coverage: %v", err)
+	}
+}
+
+// TestLoadCompletedRequiresTerminalReport pins the resume contract.
+//
+// A release is TWO files: the annexure carries the city x item price grid, the
+// report carries the weight vector, weight totals and quintile indices. Resume
+// previously keyed on the annexure row alone, so a release whose annexure
+// committed and whose report then failed was skipped by every later ordinary
+// sync — it kept its prices and lost its weights permanently, reachable only
+// via --refetch.
+func TestLoadCompletedRequiresTerminalReport(t *testing.T) {
+	db := newCoverageDB(t)
+
+	// Complete: both files terminal.
+	putCoverage(t, db, "2026-09-03", "annexure", covFetched)
+	putCoverage(t, db, "2026-09-03", "report", covFetched)
+
+	// Report gone upstream. Terminal — re-running cannot bring it back.
+	putCoverage(t, db, "2026-08-27", "annexure", covFetched)
+	putCoverage(t, db, "2026-08-27", "report", covRot)
+
+	// Report present but unparseable (the PDF-only case). Terminal: re-fetching
+	// the same bytes cannot make them parse.
+	putCoverage(t, db, "2026-08-20", "annexure", covFetched)
+	putCoverage(t, db, "2026-08-20", "report", covUnparsed)
+
+	// Report failed in transport. NOT terminal — must be retried.
+	putCoverage(t, db, "2026-08-13", "annexure", covFetched)
+	putCoverage(t, db, "2026-08-13", "report", covError)
+
+	// No report row at all — the shape a run leaves when it dies between the
+	// two files. Must be retried.
+	putCoverage(t, db, "2026-08-06", "annexure", covFetched)
+
+	// Annexure itself incomplete. Must be retried regardless of the report.
+	putCoverage(t, db, "2026-07-30", "annexure", covEmpty)
+	putCoverage(t, db, "2026-07-30", "report", covFetched)
+
+	got, err := loadCompleted(context.Background(), db)
+	if err != nil {
+		t.Fatalf("loadCompleted: %v", err)
+	}
+
+	var keys []string
+	for k := range got {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	want := []string{"2026-08-20|spi", "2026-08-27|spi", "2026-09-03|spi"}
+	if len(keys) != len(want) {
+		t.Fatalf("completed = %v, want %v", keys, want)
+	}
+	for i := range want {
+		if keys[i] != want[i] {
+			t.Fatalf("completed = %v, want %v", keys, want)
+		}
+	}
+
+	for _, mustRetry := range []string{"2026-08-13|spi", "2026-08-06|spi", "2026-07-30|spi"} {
+		if got[mustRetry] {
+			t.Errorf("%s must stay eligible for another attempt", mustRetry)
+		}
+	}
+}
+
+// TestDeleteReleaseRowsDropsStaleObservations pins replace-semantics. PBS
+// rewrites releases, and the item basket is not constant, so a rewrite that
+// drops an item must not leave that item alive at the same as_of to be summed
+// into a later basket or national average.
+func TestDeleteReleaseRowsDropsStaleObservations(t *testing.T) {
+	db := newCoverageDB(t)
+
+	ins := func(asOf, item string) {
+		t.Helper()
+		if _, err := db.Exec(
+			`INSERT INTO pbs_price (as_of, surface, city, item_desc, stat, value, value_state, source)
+			 VALUES (?,?,?,?,?,?,?,?)`,
+			asOf, "urban", "Lahore", item, "avg", 100.0, "present", "xlsx"); err != nil {
+			t.Fatalf("insert price: %v", err)
+		}
+	}
+	// The release being rewritten, plus a neighbour that must survive.
+	ins("2026-09-03", "Wheat Flour")
+	ins("2026-09-03", "Gas Charges for Q1")
+	ins("2026-08-27", "Wheat Flour")
+
+	tx, err := db.BeginTx(context.Background(), nil)
+	if err != nil {
+		t.Fatalf("begin: %v", err)
+	}
+	if err := deleteReleaseRows(context.Background(), tx, "2026-09-03", "pbs_price", "pbs_national"); err != nil {
+		t.Fatalf("deleteReleaseRows: %v", err)
+	}
+	if err := tx.Commit(); err != nil {
+		t.Fatalf("commit: %v", err)
+	}
+
+	var n int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM pbs_price WHERE as_of = '2026-09-03'`).Scan(&n); err != nil {
+		t.Fatalf("count rewritten: %v", err)
+	}
+	if n != 0 {
+		t.Errorf("rewritten release still holds %d stale rows", n)
+	}
+
+	if err := db.QueryRow(`SELECT COUNT(*) FROM pbs_price WHERE as_of = '2026-08-27'`).Scan(&n); err != nil {
+		t.Fatalf("count neighbour: %v", err)
+	}
+	if n != 1 {
+		t.Errorf("neighbouring release rows = %d, want 1 — the delete must be scoped to one as_of", n)
+	}
+}

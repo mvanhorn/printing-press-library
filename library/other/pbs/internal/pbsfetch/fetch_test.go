@@ -253,3 +253,104 @@ func TestNewAppliesSaneDefaults(t *testing.T) {
 		t.Error("MaxAttempts must be at least 1")
 	}
 }
+
+// TestGetRefusesRedirectToDisallowedHost pins the gap that the original
+// allowlist left open: checkOrigin ran once on the URL we were handed, while
+// the client followed redirects without re-checking. An allowed PBS URL could
+// therefore bounce the fetch to loopback or a metadata address.
+//
+// The redirect target is deliberately non-resolvable, so a pass proves the
+// refusal happens BEFORE the request is issued rather than because the host
+// was unreachable.
+func TestGetRefusesRedirectToDisallowedHost(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "http://metadata.invalid/latest/meta-data/", http.StatusFound)
+	}))
+	defer srv.Close()
+
+	c := newTestClient()
+	if _, err := c.Get(context.Background(), srv.URL+"/spi"); !errors.Is(err, ErrOffOrigin) {
+		t.Fatalf("redirect to a disallowed host must fail with ErrOffOrigin, got %v", err)
+	}
+}
+
+// TestGetFollowsRedirectWithinAllowedHost keeps the previous test honest: the
+// redirect guard must refuse off-origin hops without breaking an ordinary
+// same-host redirect, which PBS does use.
+func TestGetFollowsRedirectWithinAllowedHost(t *testing.T) {
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/moved" {
+			http.Redirect(w, r, srv.URL+"/final", http.StatusFound)
+			return
+		}
+		_, _ = w.Write([]byte("landed"))
+	}))
+	defer srv.Close()
+
+	c := newTestClient()
+	res, err := c.Get(context.Background(), srv.URL+"/moved")
+	if err != nil {
+		t.Fatalf("same-host redirect must be followed: %v", err)
+	}
+	if string(res.Body) != "landed" {
+		t.Errorf("body = %q, want %q", res.Body, "landed")
+	}
+}
+
+// TestGetStopsAfterTooManyRedirects bounds a redirect loop on an otherwise
+// allowed host, which the per-hop origin check alone would happily follow.
+func TestGetStopsAfterTooManyRedirects(t *testing.T) {
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, srv.URL+"/loop", http.StatusFound)
+	}))
+	defer srv.Close()
+
+	c := newTestClient()
+	_, err := c.Get(context.Background(), srv.URL+"/loop")
+	if err == nil {
+		t.Fatal("a redirect loop must not be followed indefinitely")
+	}
+	if !errors.Is(err, ErrTooManyRedirects) {
+		t.Errorf("error should be ErrTooManyRedirects, got %v", err)
+	}
+}
+
+// TestGetRefusesOversizedBody pins MaxBodyBytes to real behavior. Before this,
+// the constant was declared and never used: the body was consumed with an
+// unrestricted io.ReadAll, so the documented cap did not exist.
+func TestGetRefusesOversizedBody(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(make([]byte, 4096))
+	}))
+	defer srv.Close()
+
+	c := newTestClient()
+	c.MaxBody = 1024
+
+	_, err := c.Get(context.Background(), srv.URL+"/big")
+	if !errors.Is(err, ErrBodyTooLarge) {
+		t.Fatalf("oversized body must fail with ErrBodyTooLarge, got %v", err)
+	}
+}
+
+// TestGetAcceptsBodyAtExactlyTheCap proves the check is not off by one: a body
+// of exactly MaxBody is legitimate and must be returned whole.
+func TestGetAcceptsBodyAtExactlyTheCap(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(make([]byte, 1024))
+	}))
+	defer srv.Close()
+
+	c := newTestClient()
+	c.MaxBody = 1024
+
+	res, err := c.Get(context.Background(), srv.URL+"/exact")
+	if err != nil {
+		t.Fatalf("a body at exactly the cap must be accepted: %v", err)
+	}
+	if len(res.Body) != 1024 {
+		t.Errorf("body length = %d, want 1024", len(res.Body))
+	}
+}
