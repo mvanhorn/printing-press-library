@@ -172,7 +172,7 @@ invocation, which the root --timeout will otherwise cut short. Pass a generous
 							coverageErr = orFirst(coverageErr, recordCoverage(ctx, db.DB(), r.AsOfKey(), string(r.Kind), "annexure", f.URL,
 								covUnparsed, res.Status, res.SHA256, len(res.Body), 0, pbsparse.StateCensus{}, o.Parser, perr.Error()))
 						} else {
-							n, werr := persistAnnexure(ctx, db.DB(), a, o.Parser)
+							n, werr := persistAnnexure(ctx, db.DB(), a, o.Parser, string(r.Kind))
 							if werr != nil {
 								return fmt.Errorf("persist annexure %s: %w", r.AsOfKey(), werr)
 							}
@@ -214,7 +214,7 @@ invocation, which the root --timeout will otherwise cut short. Pass a generous
 							coverageErr = orFirst(coverageErr, recordCoverage(ctx, db.DB(), r.AsOfKey(), string(r.Kind), "report", f.URL,
 								covUnparsed, res.Status, res.SHA256, len(res.Body), 0, pbsparse.StateCensus{}, "xlsx", perr.Error()))
 						} else {
-							n, werr := persistReport(ctx, db.DB(), rep)
+							n, werr := persistReport(ctx, db.DB(), rep, string(r.Kind))
 							if werr != nil {
 								return fmt.Errorf("persist report %s: %w", r.AsOfKey(), werr)
 							}

@@ -169,6 +169,11 @@ func TestDeleteReleaseRowsDropsStaleObservations(t *testing.T) {
 			t.Fatalf("insert price: %v", err)
 		}
 	}
+	// Only the weekly series publishes on these dates, so the delete is
+	// unambiguous and must run.
+	putIndexFile(t, db, "2026-09-03", "annexure")
+	putIndexFile(t, db, "2026-08-27", "annexure")
+
 	// The release being rewritten, plus a neighbour that must survive.
 	ins("2026-09-03", "Wheat Flour")
 	ins("2026-09-03", "Gas Charges for Q1")
@@ -178,7 +183,7 @@ func TestDeleteReleaseRowsDropsStaleObservations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("begin: %v", err)
 	}
-	if err := deleteReleaseRows(context.Background(), tx, "2026-09-03", "pbs_price", "pbs_national"); err != nil {
+	if err := deleteReleaseRows(context.Background(), tx, "2026-09-03", "spi", "pbs_price", "pbs_national"); err != nil {
 		t.Fatalf("deleteReleaseRows: %v", err)
 	}
 	if err := tx.Commit(); err != nil {
@@ -198,5 +203,51 @@ func TestDeleteReleaseRowsDropsStaleObservations(t *testing.T) {
 	}
 	if n != 1 {
 		t.Errorf("neighbouring release rows = %d, want 1 — the delete must be scoped to one as_of", n)
+	}
+}
+
+// TestDeleteReleaseRowsDeclinesOnSeriesCollision pins the case that makes an
+// as_of-scoped delete unsafe.
+//
+// The observation tables key on as_of and carry no `kind`, but PBS publishes a
+// weekly AND a monthly release on the same date three times in the live index
+// (2024-02-01, 2024-08-01, 2026-01-01). Deleting by as_of alone on such a date
+// would destroy whichever series is not being synced, so the delete must
+// decline and leave the upsert to do the work.
+func TestDeleteReleaseRowsDeclinesOnSeriesCollision(t *testing.T) {
+	db := newCoverageDB(t)
+
+	if _, err := db.Exec(
+		`INSERT INTO pbs_price (as_of, surface, city, item_desc, stat, value, value_state, source)
+		 VALUES (?,?,?,?,?,?,?,?)`,
+		"2026-01-01", "appendix-a", "Lahore", "Wheat Flour", "avg", 100.0, "present", "pdf"); err != nil {
+		t.Fatalf("insert price: %v", err)
+	}
+
+	// Both series publish on this date, exactly as the live index does.
+	putIndexFile(t, db, "2026-01-01", "annexure")
+	if _, err := db.Exec(
+		`INSERT INTO pbs_release_file (as_of, kind, role, url) VALUES (?,?,?,?)`,
+		"2026-01-01", "cpi", "annexure", "https://example.invalid/cpi"); err != nil {
+		t.Fatalf("insert cpi index row: %v", err)
+	}
+
+	tx, err := db.BeginTx(context.Background(), nil)
+	if err != nil {
+		t.Fatalf("begin: %v", err)
+	}
+	if err := deleteReleaseRows(context.Background(), tx, "2026-01-01", "spi", "pbs_price", "pbs_national"); err != nil {
+		t.Fatalf("deleteReleaseRows: %v", err)
+	}
+	if err := tx.Commit(); err != nil {
+		t.Fatalf("commit: %v", err)
+	}
+
+	var n int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM pbs_price WHERE as_of = '2026-01-01'`).Scan(&n); err != nil {
+		t.Fatalf("count: %v", err)
+	}
+	if n != 1 {
+		t.Errorf("rows at a colliding date = %d, want 1 — the other series must not be deleted", n)
 	}
 }

@@ -234,7 +234,28 @@ func nullableNum(v pbsparse.Value) any {
 // Table names are package-local literals from the callers below, never user
 // input, so they are safe to interpolate — SQLite does not accept a bound
 // parameter in place of a table name. The as_of value is still bound.
-func deleteReleaseRows(ctx context.Context, tx *sql.Tx, asOf string, tables ...string) error {
+//
+// COLLIDING DATES ARE SKIPPED ON PURPOSE. The observation tables key on as_of
+// and do NOT carry `kind`, unlike pbs_release_file and pbs_coverage. PBS does
+// publish a weekly and a monthly release on the same date — 2024-02-01,
+// 2024-08-01 and 2026-01-01 in the live index — and on those dates an
+// as_of-scoped delete cannot tell one series' rows from the other's, so it
+// would silently destroy the series that is not being synced. There the delete
+// is declined and the upsert alone applies, which is exactly the behavior that
+// shipped before replace-semantics existed: stale rows may survive a shrinking
+// rewrite on three dates, which is strictly better than deleting a whole
+// parallel series. Carrying `kind` on the observation tables is the real fix
+// and is a schema change, not a review fix.
+func deleteReleaseRows(ctx context.Context, tx *sql.Tx, asOf, kind string, tables ...string) error {
+	var otherSeries int
+	if err := tx.QueryRowContext(ctx,
+		`SELECT COUNT(DISTINCT kind) FROM pbs_release_file WHERE as_of = ? AND kind <> ?`,
+		asOf, kind).Scan(&otherSeries); err != nil {
+		return fmt.Errorf("check series collision at %s: %w", asOf, err)
+	}
+	if otherSeries > 0 {
+		return nil
+	}
 	for _, t := range tables {
 		if _, err := tx.ExecContext(ctx, `DELETE FROM `+t+` WHERE as_of = ?`, asOf); err != nil {
 			return fmt.Errorf("clear %s for %s: %w", t, asOf, err)
@@ -244,7 +265,7 @@ func deleteReleaseRows(ctx context.Context, tx *sql.Tx, asOf string, tables ...s
 }
 
 // persistAnnexure writes one parsed annexure.
-func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, source string) (int, error) {
+func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, source, kind string) (int, error) {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -258,7 +279,7 @@ func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, sour
 	// DROPPED an item kept that item alive and a later basket or national
 	// average silently summed a mixture of two vintages. The delete is inside
 	// this transaction so a crash cannot leave the release empty.
-	if err := deleteReleaseRows(ctx, tx, a.AsOf, "pbs_price", "pbs_national"); err != nil {
+	if err := deleteReleaseRows(ctx, tx, a.AsOf, kind, "pbs_price", "pbs_national"); err != nil {
 		return 0, err
 	}
 	st, err := tx.PrepareContext(ctx, `INSERT INTO pbs_price
@@ -315,7 +336,7 @@ func persistAnnexure(ctx context.Context, db *sql.DB, a *pbsparse.Annexure, sour
 }
 
 // persistReport writes one parsed executive summary.
-func persistReport(ctx context.Context, db *sql.DB, rep *pbsparse.Report) (int, error) {
+func persistReport(ctx context.Context, db *sql.DB, rep *pbsparse.Report, kind string) (int, error) {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -325,7 +346,7 @@ func persistReport(ctx context.Context, db *sql.DB, rep *pbsparse.Report) (int, 
 	// fewer items or fewer quintile series must not leave the dropped ones
 	// behind, or `weights --check-total` would be asserting 100.0000 over a
 	// mixture of two vintages.
-	if err := deleteReleaseRows(ctx, tx, rep.AsOf, "pbs_weight", "pbs_weight_total", "pbs_index"); err != nil {
+	if err := deleteReleaseRows(ctx, tx, rep.AsOf, kind, "pbs_weight", "pbs_weight_total", "pbs_index"); err != nil {
 		return 0, err
 	}
 
