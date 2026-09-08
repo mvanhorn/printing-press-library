@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "receipts-fetch-must-use-receiptswithcounts-documenttype-all",
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260624-120327-512a630c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Every receipts fetch must send Costco's receiptsWithCounts(startDate, endDate, documentType: \"all\") and read data.receiptsWithCounts.receipts; the plain receipts(startDate, endDate) query returns in-warehouse receipts only.",
+  "reason": "sync, receipts, spend, savings and the search commands silently omitted every gas-station receipt because the rows never arrived; client-side --type filtering and channel() cannot recover them. documentType is the switch: \"all\" returns in-warehouse and gas receipts together, \"warehouse\" returns in-warehouse only, and \"gas\" is HTTP 400. Costco's live documentType spellings are WarehouseReceiptDetail and FuelReceipts; a regen must re-discover the current names rather than assume the short ones.",
+  "files": [
+    "internal/cli/api.go",
+    "internal/cli/costco_graphql.go",
+    "internal/cli/costco_test.go"
+  ],
+  "validated_outcome": "Same three-day window, same token: receipts returned one in-warehouse receipt; receiptsWithCounts(documentType: \"all\") returned it plus a FuelReceipts receipt, and documentType \"warehouse\" returned the in-warehouse one only. A 3-year sync on two memberships added 132 gas receipts that the previous query never fetched; the in-warehouse rows were unchanged."
+}

@@ -7,6 +7,7 @@ Costco's site shows receipts in 6-month chunks up to 2 years, but the backend se
 Learn more at [Costco](https://ecom-api.costco.com).
 
 Created by [@richie305](https://github.com/richie305) (David Richie).
+Contributors: [@prashantkamani](https://github.com/prashantkamani) (Prashant Kamani).
 
 ## Install
 
