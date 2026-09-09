@@ -1,7 +1,10 @@
 package ocr
 
 import (
+	"path/filepath"
+	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -70,6 +73,39 @@ func TestObservationStorePersistsAcrossInstances(t *testing.T) {
 	got, ok := second.Get(observation.ID)
 	if !ok || got.ID != observation.ID || got.OCR.Regions[0].Text != "Save Changes" {
 		t.Fatalf("persisted observation = %#v ok=%v", got, ok)
+	}
+}
+
+func TestObservationStoreConcurrentPutsKeepBothEntries(t *testing.T) {
+	now := time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC)
+	path := filepath.Join(t.TempDir(), "ocr-observations.json")
+	ids := make([]string, 2)
+	var wg sync.WaitGroup
+	for i := range ids {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			store := NewObservationStore(time.Minute, 8, func() time.Time { return now })
+			store.SetPersistPath(path)
+			observation, err := NewObservation([]byte("snapshot-"+strconv.Itoa(i)), now, "test", 100, 50, []Region{{Text: "Ready", Confidence: 90, Box: [4]int{1, 2, 3, 4}, Pixel: [2]int{2, 4}}})
+			if err != nil {
+				t.Errorf("observation %d: %v", i, err)
+				return
+			}
+			ids[i] = observation.ID
+			store.Put(observation)
+		}(i)
+	}
+	wg.Wait()
+	reader := NewObservationStore(time.Minute, 8, func() time.Time { return now })
+	reader.SetPersistPath(path)
+	for i, id := range ids {
+		if id == "" {
+			t.Fatalf("observation %d was not stored", i)
+		}
+		if _, ok := reader.Get(id); !ok {
+			t.Fatalf("missing observation %d %s after concurrent puts", i, id)
+		}
 	}
 }
 

@@ -138,7 +138,11 @@ func (s *ObservationStore) Put(observation Observation) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.loadLocked()
+	unlock, canIO := s.withPersistLock()
+	defer unlock()
+	if canIO {
+		s.loadLocked()
+	}
 	now := s.now()
 	s.purgeExpired(now)
 	expiresAt := observation.CapturedAt.Add(s.ttl)
@@ -156,7 +160,9 @@ func (s *ObservationStore) Put(observation Observation) {
 			delete(s.entries, oldestID)
 		}
 	}
-	s.saveLocked()
+	if canIO {
+		s.saveLocked()
+	}
 }
 
 // Get returns a defensive copy only while the observation remains valid.
@@ -166,10 +172,16 @@ func (s *ObservationStore) Get(id string) (Observation, bool) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.loadLocked()
+	unlock, canIO := s.withPersistLock()
+	defer unlock()
+	if canIO {
+		s.loadLocked()
+	}
 	now := s.now()
 	s.purgeExpired(now)
-	s.saveLocked()
+	if canIO {
+		s.saveLocked()
+	}
 	entry, ok := s.entries[id]
 	if !ok {
 		return Observation{}, false
@@ -256,14 +268,53 @@ func (s *ObservationStore) saveLocked() {
 	if err != nil {
 		return
 	}
+	dir := filepath.Dir(s.path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return
+	}
+	tmp, err := os.CreateTemp(dir, ".ocr-observations-*.tmp")
+	if err != nil {
+		return
+	}
+	tmpName := tmp.Name()
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
+		return
+	}
+	if err := tmp.Chmod(0o600); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
+		return
+	}
+	if err := tmp.Close(); err != nil {
+		_ = os.Remove(tmpName)
+		return
+	}
+	if err := os.Rename(tmpName, s.path); err != nil {
+		_ = os.Remove(tmpName)
+	}
+}
+
+func (s *ObservationStore) withPersistLock() (unlock func(), canIO bool) {
+	if s.path == "" {
+		return func() {}, true
+	}
 	if err := os.MkdirAll(filepath.Dir(s.path), 0o700); err != nil {
-		return
+		return func() {}, false
 	}
-	tmp := s.path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
-		return
+	lockPath := s.path + ".lock"
+	f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return func() {}, false
 	}
-	if err := os.Rename(tmp, s.path); err != nil {
-		_ = os.Remove(tmp)
+	_ = os.Chmod(lockPath, 0o600)
+	if err := lockExclusive(f); err != nil {
+		_ = f.Close()
+		return func() {}, false
 	}
+	return func() {
+		_ = unlockExclusive(f)
+		_ = f.Close()
+	}, true
 }

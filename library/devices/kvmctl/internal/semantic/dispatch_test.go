@@ -4,14 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/config"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/ocr"
 )
 
 func TestDispatchStatusReturnsStableEnvelope(t *testing.T) {
@@ -259,6 +261,37 @@ func TestClickTextRetriesMouseUpAfterFailedRelease(t *testing.T) {
 	out := dispatchObject(t, c, "click-text", map[string]any{"write_enabled": true, "observation_id": id, "text": "Proceed"})
 	if out["ok"] != false || downs != 1 || ups != 2 {
 		t.Fatalf("output=%#v downs=%d ups=%d", out, downs, ups)
+	}
+}
+
+func TestExactHighConfidenceRegionTreatsDuplicatePhrasesAsAmbiguous(t *testing.T) {
+	observation := ocr.Observation{
+		Width:  200,
+		Height: 50,
+		OCR: ocr.OCRObservation{Regions: []ocr.Region{
+			{Text: "Save", Confidence: 95, Box: [4]int{10, 10, 20, 10}, Pixel: [2]int{20, 15}},
+			{Text: "Changes", Confidence: 94, Box: [4]int{32, 10, 30, 10}, Pixel: [2]int{47, 15}},
+			{Text: "Save", Confidence: 95, Box: [4]int{100, 10, 20, 10}, Pixel: [2]int{110, 15}},
+			{Text: "Changes", Confidence: 94, Box: [4]int{122, 10, 30, 10}, Pixel: [2]int{137, 15}},
+		}},
+	}
+	if _, outcome := exactHighConfidenceRegion(observation, "Save Changes"); outcome != "ambiguous" {
+		t.Fatalf("outcome=%s, want ambiguous", outcome)
+	}
+}
+
+func TestExactHighConfidenceRegionMatchesUniquePhraseDespiteWordRegions(t *testing.T) {
+	observation := ocr.Observation{
+		Width:  100,
+		Height: 50,
+		OCR: ocr.OCRObservation{Regions: []ocr.Region{
+			{Text: "Save", Confidence: 95, Box: [4]int{10, 10, 20, 10}, Pixel: [2]int{20, 15}},
+			{Text: "Changes", Confidence: 94, Box: [4]int{32, 10, 30, 10}, Pixel: [2]int{47, 15}},
+			{Text: "Save Changes", Confidence: 94, Box: [4]int{10, 10, 52, 10}, Pixel: [2]int{36, 15}},
+		}},
+	}
+	if _, outcome := exactHighConfidenceRegion(observation, "Save Changes"); outcome != "match" {
+		t.Fatalf("outcome=%s, want match", outcome)
 	}
 }
 

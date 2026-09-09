@@ -208,22 +208,35 @@ func releaseHeldInput(ctx context.Context, release func(context.Context) error) 
 
 func matchRegions(regions []ocr.Region) []ocr.Region {
 	out := append([]ocr.Region(nil), regions...)
-	existing := map[string]struct{}{}
-	for _, region := range regions {
-		existing[normalizeText(region.Text)] = struct{}{}
-	}
 	for _, extra := range phraseRegions(regions) {
-		key := normalizeText(extra.Text)
-		if key == "" {
+		if normalizeText(extra.Text) == "" {
 			continue
 		}
-		if _, ok := existing[key]; ok {
+		if hasOverlappingSameText(out, extra) {
 			continue
 		}
-		existing[key] = struct{}{}
 		out = append(out, extra)
 	}
 	return out
+}
+
+func hasOverlappingSameText(regions []ocr.Region, extra ocr.Region) bool {
+	key := normalizeText(extra.Text)
+	for _, region := range regions {
+		if normalizeText(region.Text) != key {
+			continue
+		}
+		if boxesOverlap(region.Box, extra.Box) {
+			return true
+		}
+	}
+	return false
+}
+
+func boxesOverlap(a, b [4]int) bool {
+	aRight, aBottom := a[0]+a[2], a[1]+a[3]
+	bRight, bBottom := b[0]+b[2], b[1]+b[3]
+	return a[0] < bRight && b[0] < aRight && a[1] < bBottom && b[1] < aBottom
 }
 
 func phraseRegions(regions []ocr.Region) []ocr.Region {
