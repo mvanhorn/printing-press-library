@@ -192,7 +192,7 @@ func parseTesseractTSV(data []byte) (int, int, []Word, error) {
 		}
 	}
 	width, height := 0, 0
-	words := make([]Word, 0)
+	rows := make([]tsvWordRow, 0)
 	for _, record := range records[1:] {
 		if len(record) != len(header) {
 			return 0, 0, nil, fmt.Errorf("%w: invalid Tesseract TSV row", ErrOCRFailed)
@@ -219,12 +219,75 @@ func parseTesseractTSV(data []byte) (int, int, []Word, error) {
 		if err != nil {
 			return 0, 0, nil, fmt.Errorf("%w: invalid Tesseract TSV confidence", ErrOCRFailed)
 		}
-		words = append(words, Word{Text: record[11], Confidence: confidence, X: x, Y: y, Width: w, Height: h})
+		block, blockErr := strconv.Atoi(record[2])
+		par, parErr := strconv.Atoi(record[3])
+		line, lineErr := strconv.Atoi(record[4])
+		if blockErr != nil || parErr != nil || lineErr != nil {
+			return 0, 0, nil, fmt.Errorf("%w: invalid Tesseract TSV line identity", ErrOCRFailed)
+		}
+		rows = append(rows, tsvWordRow{
+			word:  Word{Text: record[11], Confidence: confidence, X: x, Y: y, Width: w, Height: h},
+			block: block, par: par, line: line,
+		})
 	}
+	words := wordsFromTSVRows(rows)
 	if err := validateWords(words, width, height); err != nil {
 		return 0, 0, nil, err
 	}
 	return width, height, words, nil
+}
+
+type tsvWordRow struct {
+	word             Word
+	block, par, line int
+}
+
+func wordsFromTSVRows(rows []tsvWordRow) []Word {
+	words := make([]Word, 0, len(rows)*2)
+	groups := map[[3]int][]Word{}
+	order := make([][3]int, 0)
+	for _, row := range rows {
+		words = append(words, row.word)
+		key := [3]int{row.block, row.par, row.line}
+		if _, ok := groups[key]; !ok {
+			order = append(order, key)
+		}
+		groups[key] = append(groups[key], row.word)
+	}
+	for _, key := range order {
+		line := groups[key]
+		if len(line) < 2 {
+			continue
+		}
+		words = append(words, concatWords(line))
+	}
+	return words
+}
+
+func concatWords(words []Word) Word {
+	left, top := words[0].X, words[0].Y
+	right, bottom := words[0].X+words[0].Width, words[0].Y+words[0].Height
+	conf := words[0].Confidence
+	parts := make([]string, 0, len(words))
+	for _, word := range words {
+		if word.X < left {
+			left = word.X
+		}
+		if word.Y < top {
+			top = word.Y
+		}
+		if word.X+word.Width > right {
+			right = word.X + word.Width
+		}
+		if word.Y+word.Height > bottom {
+			bottom = word.Y + word.Height
+		}
+		if word.Confidence < conf {
+			conf = word.Confidence
+		}
+		parts = append(parts, strings.TrimSpace(word.Text))
+	}
+	return Word{Text: strings.Join(parts, " "), Confidence: conf, X: left, Y: top, Width: right - left, Height: bottom - top}
 }
 
 func validateWords(words []Word, width, height int) error {

@@ -53,6 +53,26 @@ func TestObservationStoreExpiresEntriesAndDefensivelyCopies(t *testing.T) {
 	}
 }
 
+func TestObservationStorePersistsAcrossInstances(t *testing.T) {
+	now := time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC)
+	path := t.TempDir() + "/ocr-observations.json"
+	clock := func() time.Time { return now }
+	first := NewObservationStore(time.Minute, 8, clock)
+	first.SetPersistPath(path)
+	observation, err := NewObservation([]byte("snapshot"), now, "test", 100, 50, []Region{{Text: "Save Changes", Confidence: 90, Box: [4]int{1, 2, 3, 4}, Pixel: [2]int{2, 4}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	first.Put(observation)
+
+	second := NewObservationStore(time.Minute, 8, clock)
+	second.SetPersistPath(path)
+	got, ok := second.Get(observation.ID)
+	if !ok || got.ID != observation.ID || got.OCR.Regions[0].Text != "Save Changes" {
+		t.Fatalf("persisted observation = %#v ok=%v", got, ok)
+	}
+}
+
 func TestObservationStoreEvictsOldestAtCapacity(t *testing.T) {
 	now := time.Date(2026, 9, 2, 12, 0, 0, 0, time.UTC)
 	store := NewObservationStore(time.Minute, 2, func() time.Time { return now })

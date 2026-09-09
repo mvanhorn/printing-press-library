@@ -148,7 +148,7 @@ kvmctl-pp-cli act press-key F10 --observation <observation-id> --yes --agent
 kvmctl-pp-cli verify --expect-text "Save Changes" --agent
 ```
 
-`observe` returns the OCR observation ID. Both actions require that exact `--observation` value and explicit `--yes`; the semantic core captures the screen again and refuses a stale, unavailable, ambiguous, or non-matching observation. `verify` always captures a new observation and checks one exact high-confidence text match. `KVMCTL_OCR_PROTOCOL=json` selects the strict JSON OCR protocol expected by a custom configured command. These commands have automated HTTP/OCR fixtures only; no live BIOS interaction is claimed.
+`observe` returns the OCR observation ID and stores it in the CLI cache directory for up to 60 seconds so a later `act` invocation can use it. Both actions require that exact `--observation` value and explicit `--yes`; the semantic core captures the screen again and refuses a stale, unavailable, ambiguous, or non-matching observation. `verify` always captures a new observation and checks one exact high-confidence text match, including multi-word labels. `KVMCTL_OCR_PROTOCOL=json` selects the strict JSON OCR protocol expected by a custom configured command. These commands have automated HTTP/OCR fixtures only; no live BIOS interaction is claimed.
 
 For MCP, call `semantic_dispatch` with `operation: "observe"`, `"verify-text"`, `"click-text"`, or `"press-key"`. The tool schema describes the required arguments; mutating operations additionally need `arguments.write_enabled: true` and the MCP host must permit writes with `KVMCTL_WRITE_ENABLED=1`.
 

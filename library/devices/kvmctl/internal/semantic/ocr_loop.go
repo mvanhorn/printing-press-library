@@ -5,17 +5,37 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"path/filepath"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/ocr"
 	"github.com/mvanhorn/printing-press-library/library/devices/kvmctl/internal/results"
 )
 
-const highConfidence = 80.0
+const (
+	highConfidence    = 80.0
+	hidReleaseTimeout = 15 * time.Second
+)
 
-var observations = ocr.NewObservationStore(60*time.Second, 64, time.Now)
+var (
+	observationStoreOnce sync.Once
+	observationStoreInst *ocr.ObservationStore
+)
+
+func observationStore() *ocr.ObservationStore {
+	observationStoreOnce.Do(func() {
+		observationStoreInst = ocr.NewObservationStore(60*time.Second, 64, time.Now)
+		if dir, err := cliutil.CacheDir(); err == nil && dir != "" {
+			observationStoreInst.SetPersistPath(filepath.Join(dir, "ocr-observations.json"))
+		}
+	})
+	return observationStoreInst
+}
 
 func opObserve(ctx context.Context, c *client.Client) (results.Operation, error) {
 	observation, unavailable := captureObservation(ctx, c)
@@ -44,7 +64,7 @@ func opClickText(ctx context.Context, c *client.Client, args map[string]any) (re
 	if err := c.KVMDMouseButton(ctx, "left", true); err != nil {
 		return unavailableOperation("click-text", false, map[string]any{"observation_id": observation.ID, "region": region}, err), nil
 	}
-	if err := c.KVMDMouseButton(ctx, "left", false); err != nil {
+	if err := releaseMouseButton(ctx, c, "left"); err != nil {
 		return unavailableOperation("click-text", false, map[string]any{"observation_id": observation.ID, "region": region}, err), nil
 	}
 	post, unavailable := captureObservation(ctx, c)
@@ -66,7 +86,7 @@ func opPressKey(ctx context.Context, c *client.Client, args map[string]any) (res
 	if err := c.KVMDKey(ctx, key, true); err != nil {
 		return unavailableOperation("press-key", false, map[string]any{"observation_id": observation.ID, "key": key}, err), nil
 	}
-	if err := c.KVMDKey(ctx, key, false); err != nil {
+	if err := releaseKey(ctx, c, key); err != nil {
 		return unavailableOperation("press-key", false, map[string]any{"observation_id": observation.ID, "key": key}, err), nil
 	}
 	post, unavailable := captureObservation(ctx, c)
@@ -122,7 +142,7 @@ func captureObservation(ctx context.Context, c *client.Client) (ocr.Observation,
 	if err != nil {
 		return ocr.Observation{}, fmt.Errorf("ocr unavailable: %w", err)
 	}
-	observations.Put(observation)
+	observationStore().Put(observation)
 	return observation, nil
 }
 
@@ -131,7 +151,7 @@ func requiredFreshObservation(ctx context.Context, c *client.Client, args map[st
 	if id == "" {
 		return ocr.Observation{}, fmt.Errorf("observation_id is required")
 	}
-	stored, ok := observations.Get(id)
+	stored, ok := observationStore().Get(id)
 	if !ok {
 		return ocr.Observation{}, fmt.Errorf("observation_id is stale: observation expired or is not local")
 	}
@@ -148,7 +168,7 @@ func requiredFreshObservation(ctx context.Context, c *client.Client, args map[st
 func exactHighConfidenceRegion(observation ocr.Observation, text string) (ocr.Region, string) {
 	wanted := normalizeText(text)
 	matches := make([]ocr.Region, 0, 1)
-	for _, region := range observation.OCR.Regions {
+	for _, region := range matchRegions(observation.OCR.Regions) {
 		if region.Confidence >= highConfidence && normalizeText(region.Text) == wanted {
 			matches = append(matches, region)
 		}
@@ -160,6 +180,137 @@ func exactHighConfidenceRegion(observation ocr.Observation, text string) (ocr.Re
 		return matches[0], "match"
 	default:
 		return ocr.Region{}, "ambiguous"
+	}
+}
+
+func releaseMouseButton(ctx context.Context, c *client.Client, button string) error {
+	return releaseHeldInput(ctx, func(callCtx context.Context) error {
+		return c.KVMDMouseButton(callCtx, button, false)
+	})
+}
+
+func releaseKey(ctx context.Context, c *client.Client, key string) error {
+	return releaseHeldInput(ctx, func(callCtx context.Context) error {
+		return c.KVMDKey(callCtx, key, false)
+	})
+}
+
+func releaseHeldInput(ctx context.Context, release func(context.Context) error) error {
+	err := release(ctx)
+	if err == nil {
+		return nil
+	}
+	cleanupCtx, cancel := context.WithTimeout(context.Background(), hidReleaseTimeout)
+	defer cancel()
+	_ = release(cleanupCtx)
+	return err
+}
+
+func matchRegions(regions []ocr.Region) []ocr.Region {
+	out := append([]ocr.Region(nil), regions...)
+	existing := map[string]struct{}{}
+	for _, region := range regions {
+		existing[normalizeText(region.Text)] = struct{}{}
+	}
+	for _, extra := range phraseRegions(regions) {
+		key := normalizeText(extra.Text)
+		if key == "" {
+			continue
+		}
+		if _, ok := existing[key]; ok {
+			continue
+		}
+		existing[key] = struct{}{}
+		out = append(out, extra)
+	}
+	return out
+}
+
+func phraseRegions(regions []ocr.Region) []ocr.Region {
+	words := make([]ocr.Region, 0, len(regions))
+	for _, region := range regions {
+		if strings.Contains(strings.TrimSpace(region.Text), " ") {
+			continue
+		}
+		words = append(words, region)
+	}
+	groups := sameLineGroups(words)
+	extra := make([]ocr.Region, 0)
+	for _, group := range groups {
+		if len(group) < 2 {
+			continue
+		}
+		for i := 0; i < len(group); i++ {
+			for j := i + 1; j < len(group); j++ {
+				extra = append(extra, concatRegions(group[i:j+1]))
+			}
+		}
+	}
+	return extra
+}
+
+func sameLineGroups(regions []ocr.Region) [][]ocr.Region {
+	sorted := append([]ocr.Region(nil), regions...)
+	sort.Slice(sorted, func(i, j int) bool {
+		if sorted[i].Box[1] == sorted[j].Box[1] {
+			return sorted[i].Box[0] < sorted[j].Box[0]
+		}
+		return sorted[i].Box[1] < sorted[j].Box[1]
+	})
+	groups := make([][]ocr.Region, 0)
+	for _, region := range sorted {
+		if normalizeText(region.Text) == "" {
+			continue
+		}
+		placed := false
+		for i := range groups {
+			if verticallyOverlaps(groups[i][len(groups[i])-1], region) {
+				groups[i] = append(groups[i], region)
+				placed = true
+				break
+			}
+		}
+		if !placed {
+			groups = append(groups, []ocr.Region{region})
+		}
+	}
+	return groups
+}
+
+func verticallyOverlaps(a, b ocr.Region) bool {
+	aBottom := a.Box[1] + a.Box[3]
+	bBottom := b.Box[1] + b.Box[3]
+	return a.Box[1] < bBottom && b.Box[1] < aBottom
+}
+
+func concatRegions(regions []ocr.Region) ocr.Region {
+	left, top := regions[0].Box[0], regions[0].Box[1]
+	right, bottom := regions[0].Box[0]+regions[0].Box[2], regions[0].Box[1]+regions[0].Box[3]
+	conf := regions[0].Confidence
+	parts := make([]string, 0, len(regions))
+	for _, region := range regions {
+		if region.Box[0] < left {
+			left = region.Box[0]
+		}
+		if region.Box[1] < top {
+			top = region.Box[1]
+		}
+		if region.Box[0]+region.Box[2] > right {
+			right = region.Box[0] + region.Box[2]
+		}
+		if region.Box[1]+region.Box[3] > bottom {
+			bottom = region.Box[1] + region.Box[3]
+		}
+		if region.Confidence < conf {
+			conf = region.Confidence
+		}
+		parts = append(parts, strings.TrimSpace(region.Text))
+	}
+	return ocr.Region{
+		Text:       strings.Join(parts, " "),
+		Confidence: conf,
+		Box:        [4]int{left, top, right - left, bottom - top},
+		Pixel:      [2]int{left + (right-left)/2, top + (bottom-top)/2},
 	}
 }
 

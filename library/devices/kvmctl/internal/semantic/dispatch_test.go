@@ -225,3 +225,98 @@ func writeFakeOCR(t *testing.T, response string) string {
 	}
 	return path
 }
+
+func TestClickTextRetriesMouseUpAfterFailedRelease(t *testing.T) {
+	t.Setenv("KVMCTL_OCR_PROTOCOL", "json")
+	t.Setenv("KVMCTL_OCR_COMMAND", writeFakeOCR(t, `{"width":100,"height":50,"words":[{"text":"Proceed","confidence":95,"x":10,"y":10,"width":40,"height":10}]}`))
+	var downs, ups int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/streamer/snapshot":
+			_, _ = w.Write([]byte("snapshot"))
+		case "/api/hid/events/send_mouse_move":
+			_, _ = w.Write([]byte(`{"result":{}}`))
+		case "/api/hid/events/send_mouse_button":
+			if r.URL.Query().Get("state") == "true" {
+				downs++
+				_, _ = w.Write([]byte(`{"result":{}}`))
+				return
+			}
+			ups++
+			if ups == 1 {
+				http.Error(w, "canceled", http.StatusServiceUnavailable)
+				return
+			}
+			_, _ = w.Write([]byte(`{"result":{}}`))
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+	c := client.New(&config.Config{BaseURL: srv.URL}, 0, 0)
+	observed := dispatchObject(t, c, "observe", nil)
+	id := observed["evidence"].(map[string]any)["observation"].(map[string]any)["observation_id"].(string)
+	out := dispatchObject(t, c, "click-text", map[string]any{"write_enabled": true, "observation_id": id, "text": "Proceed"})
+	if out["ok"] != false || downs != 1 || ups != 2 {
+		t.Fatalf("output=%#v downs=%d ups=%d", out, downs, ups)
+	}
+}
+
+func TestClickTextMatchesMultiWordLabel(t *testing.T) {
+	t.Setenv("KVMCTL_OCR_PROTOCOL", "json")
+	t.Setenv("KVMCTL_OCR_COMMAND", writeFakeOCR(t, `{"width":100,"height":50,"words":[{"text":"Save","confidence":95,"x":10,"y":10,"width":20,"height":10},{"text":"Changes","confidence":94,"x":32,"y":10,"width":30,"height":10}]}`))
+	var clicks int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/streamer/snapshot":
+			_, _ = w.Write([]byte("snapshot"))
+		case "/api/hid/events/send_mouse_move", "/api/hid/events/send_mouse_button":
+			clicks++
+			_, _ = w.Write([]byte(`{"result":{}}`))
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+	c := client.New(&config.Config{BaseURL: srv.URL}, 0, 0)
+	observed := dispatchObject(t, c, "observe", nil)
+	id := observed["evidence"].(map[string]any)["observation"].(map[string]any)["observation_id"].(string)
+	out := dispatchObject(t, c, "click-text", map[string]any{"write_enabled": true, "observation_id": id, "text": "Save Changes"})
+	if out["ok"] != true || clicks != 3 {
+		t.Fatalf("output=%#v clicks=%d", out, clicks)
+	}
+}
+
+func TestPressKeyRetriesKeyUpAfterFailedRelease(t *testing.T) {
+	t.Setenv("KVMCTL_OCR_PROTOCOL", "json")
+	t.Setenv("KVMCTL_OCR_COMMAND", writeFakeOCR(t, `{"width":100,"height":50,"words":[{"text":"Ready","confidence":95,"x":10,"y":10,"width":20,"height":10}]}`))
+	var downs, ups int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/api/streamer/snapshot":
+			_, _ = w.Write([]byte("snapshot"))
+		case "/api/hid/events/send_key":
+			if r.URL.Query().Get("state") == "true" {
+				downs++
+				_, _ = w.Write([]byte(`{"result":{}}`))
+				return
+			}
+			ups++
+			if ups == 1 {
+				http.Error(w, "canceled", http.StatusServiceUnavailable)
+				return
+			}
+			_, _ = w.Write([]byte(`{"result":{}}`))
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+	c := client.New(&config.Config{BaseURL: srv.URL}, 0, 0)
+	observed := dispatchObject(t, c, "observe", nil)
+	id := observed["evidence"].(map[string]any)["observation"].(map[string]any)["observation_id"].(string)
+	out := dispatchObject(t, c, "press-key", map[string]any{"write_enabled": true, "observation_id": id, "key": "Enter"})
+	if out["ok"] != false || downs != 1 || ups != 2 {
+		t.Fatalf("output=%#v downs=%d ups=%d", out, downs, ups)
+	}
+}

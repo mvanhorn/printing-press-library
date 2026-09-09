@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ocr-loop-cli-cache-hid-release-phrases",
+  "applied_at": "2026-09-09",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "summary": "OCR observe/act must share TTL-bounded cache-dir evidence across CLI processes, retry HID releases after a failed up, and match multi-word Tesseract labels.",
+  "reason": "The documented observe then act recipe is two process invocations, a canceled mouse-up or key-up can leave the target held, and default TSV word rows cannot match labels such as Save Changes.",
+  "files": [
+    "internal/ocr/engine.go",
+    "internal/ocr/observation.go",
+    "internal/semantic/ocr_loop.go"
+  ],
+  "validated_outcome": "go test ./internal/ocr ./internal/semantic covers persisted observation IDs, TSV line phrases, JSON multi-word click-text, and a second HID release after a failed up."
+}

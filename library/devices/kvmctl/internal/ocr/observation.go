@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -94,6 +96,7 @@ type ObservationStore struct {
 	now      func() time.Time
 	entries  map[string]storedObservation
 	sequence uint64
+	path     string
 }
 
 type storedObservation struct {
@@ -117,6 +120,17 @@ func NewObservationStore(ttl time.Duration, capacity int, now func() time.Time) 
 	return &ObservationStore{ttl: ttl, capacity: capacity, now: now, entries: make(map[string]storedObservation)}
 }
 
+// SetPersistPath stores observations in path so a later CLI process can reuse
+// an ID within the TTL. An empty path keeps the store process-local.
+func (s *ObservationStore) SetPersistPath(path string) {
+	if s == nil {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.path = path
+}
+
 // Put stores a defensive copy unless the observation is already expired.
 func (s *ObservationStore) Put(observation Observation) {
 	if s == nil || observation.ID == "" {
@@ -124,24 +138,25 @@ func (s *ObservationStore) Put(observation Observation) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	s.loadLocked()
 	now := s.now()
 	s.purgeExpired(now)
 	expiresAt := observation.CapturedAt.Add(s.ttl)
-	if !expiresAt.After(now) {
-		return
-	}
-	s.sequence++
-	s.entries[observation.ID] = storedObservation{observation: cloneObservation(observation), expiresAt: expiresAt, sequence: s.sequence}
-	for len(s.entries) > s.capacity {
-		var oldestID string
-		var oldest uint64
-		for id, entry := range s.entries {
-			if oldestID == "" || entry.sequence < oldest {
-				oldestID, oldest = id, entry.sequence
+	if expiresAt.After(now) {
+		s.sequence++
+		s.entries[observation.ID] = storedObservation{observation: cloneObservation(observation), expiresAt: expiresAt, sequence: s.sequence}
+		for len(s.entries) > s.capacity {
+			var oldestID string
+			var oldest uint64
+			for id, entry := range s.entries {
+				if oldestID == "" || entry.sequence < oldest {
+					oldestID, oldest = id, entry.sequence
+				}
 			}
+			delete(s.entries, oldestID)
 		}
-		delete(s.entries, oldestID)
 	}
+	s.saveLocked()
 }
 
 // Get returns a defensive copy only while the observation remains valid.
@@ -151,8 +166,10 @@ func (s *ObservationStore) Get(id string) (Observation, bool) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	s.loadLocked()
 	now := s.now()
 	s.purgeExpired(now)
+	s.saveLocked()
 	entry, ok := s.entries[id]
 	if !ok {
 		return Observation{}, false
@@ -178,4 +195,75 @@ func cloneRegions(regions []Region) []Region {
 		return nil
 	}
 	return append([]Region(nil), regions...)
+}
+
+type persistedStore struct {
+	Entries []persistedEntry `json:"entries"`
+}
+
+type persistedEntry struct {
+	Observation Observation `json:"observation"`
+	ExpiresAt   time.Time   `json:"expires_at"`
+	Sequence    uint64      `json:"sequence"`
+}
+
+func (s *ObservationStore) loadLocked() {
+	if s.path == "" {
+		return
+	}
+	data, err := os.ReadFile(s.path)
+	if err != nil || len(data) == 0 {
+		return
+	}
+	var dumped persistedStore
+	if json.Unmarshal(data, &dumped) != nil {
+		return
+	}
+	entries := make(map[string]storedObservation, len(dumped.Entries))
+	var sequence uint64
+	for _, entry := range dumped.Entries {
+		if entry.Observation.ID == "" {
+			continue
+		}
+		entries[entry.Observation.ID] = storedObservation{
+			observation: cloneObservation(entry.Observation),
+			expiresAt:   entry.ExpiresAt,
+			sequence:    entry.Sequence,
+		}
+		if entry.Sequence > sequence {
+			sequence = entry.Sequence
+		}
+	}
+	s.entries = entries
+	if sequence > s.sequence {
+		s.sequence = sequence
+	}
+}
+
+func (s *ObservationStore) saveLocked() {
+	if s.path == "" {
+		return
+	}
+	dumped := persistedStore{Entries: make([]persistedEntry, 0, len(s.entries))}
+	for _, entry := range s.entries {
+		dumped.Entries = append(dumped.Entries, persistedEntry{
+			Observation: cloneObservation(entry.observation),
+			ExpiresAt:   entry.expiresAt,
+			Sequence:    entry.sequence,
+		})
+	}
+	data, err := json.Marshal(dumped)
+	if err != nil {
+		return
+	}
+	if err := os.MkdirAll(filepath.Dir(s.path), 0o700); err != nil {
+		return
+	}
+	tmp := s.path + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+		return
+	}
+	if err := os.Rename(tmp, s.path); err != nil {
+		_ = os.Remove(tmp)
+	}
 }
