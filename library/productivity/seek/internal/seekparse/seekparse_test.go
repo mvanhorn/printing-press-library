@@ -24,6 +24,11 @@ func TestParseSalary(t *testing.T) {
 		{"Competitive salary", false, 0, 0},
 		{"Attractive package + car", false, 0, 0},
 		{"", false, 0, 0},
+		// Superannuation percentages must not be read as salary figures.
+		{"$55 per hour + 11% super", true, 100000, 120000},
+		{"$90k + 11% super", true, 85000, 95000},
+		{"$120,000 – $140,000 + 11.5% superannuation", true, 110000, 150000},
+		{"$110,000 package incl. 11% super", true, 100000, 120000},
 	}
 	for _, c := range cases {
 		got := ParseSalary(c.in)
@@ -125,5 +130,31 @@ func TestParseSavedSearchQuery(t *testing.T) {
 	}
 	if got := ParseSavedSearchQuery("keywords=x&classification=6281&worktype=242"); got.Classification != "6281" || got.Worktype != "242" {
 		t.Errorf("ParseSavedSearchQuery lost filters: %+v", got)
+	}
+}
+
+func TestSavedSearchParamsRunnable(t *testing.T) {
+	cases := []struct {
+		in   string
+		want bool
+	}{
+		{"?keywords=nurse", true},
+		{"?where=Sydney NSW", true},
+		{"?classification=6281", true},
+		// Filter-only saved searches are still runnable — regression for the
+		// "Filter-Only Searches Are Skipped" review finding.
+		{"?worktype=242", true},
+		{"?salaryrange=100000-120000", true},
+		{"?workarrangement=2", true},
+		{"?subclassification=6290", true},
+		// SiteKey alone only selects the marketplace; not a real constraint.
+		{"?siteKey=seek-au", false},
+		{"", false},
+		{"totally unknown shape", false},
+	}
+	for _, c := range cases {
+		if got := ParseSavedSearchQuery(c.in).Runnable(); got != c.want {
+			t.Errorf("ParseSavedSearchQuery(%q).Runnable() = %v, want %v", c.in, got, c.want)
+		}
 	}
 }

@@ -43,11 +43,11 @@ After both loops: matrix 95/95, no hollow features.
 | Command | Result |
 |---|---|
 | `listings search --keywords nurse --where "Melbourne VIC" --posted-within-days 14` | real result rows |
-| `listings get 94483533` | Graduate Software Engineer @ Arturia AI, full HTML description, apply URL, company-search URL |
-| `listings count --keywords "data analyst" --where "Brisbane QLD"` | `{"count": 439}` |
-| `salary "registered nurse" --where "Melbourne VIC"` | 128/300 disclosed, p10 $73k / p50 $119k / p90 $263k (winsorised) |
-| `listings facets --keywords "software engineer" --where "Sydney NSW" --group-by classification` | ICT 182, Engineering 10, … |
-| `company "Woolworths"` | advertiser 23240035, 126 openings, companyProfile attached |
+| `listings get <id>` | full job: title, employer, HTML description, apply URL, company-search URL |
+| `listings count --keywords "data analyst" --where "Brisbane QLD"` | a plausible non-zero `{"count": N}` |
+| `salary "registered nurse" --where "Melbourne VIC"` | ~40% disclosed; p10/p50/p90 in a sane RN band (winsorised) |
+| `listings facets --keywords "software engineer" --where "Sydney NSW" --group-by classification` | ICT dominates, other classifications trail |
+| `company "<large public retailer>"` | single advertiser resolved, dozens of openings, companyProfile attached |
 | `trends --by classification` | monthly buckets from the local listings cache |
 | `classifications software` | subclass 6290 Engineering - Software under 6281 ICT |
 | `me new-jobs --since 7d` | exit 4 "SEEK session required" (correct — no session in the sandbox) |

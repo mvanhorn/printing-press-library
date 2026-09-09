@@ -102,7 +102,7 @@ func newNovelMeNewJobsCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				p := seekparse.ParseSavedSearchQuery(ss.Query.SearchQueryString)
-				if p.Keywords == "" && p.Where == "" && p.Classification == "" {
+				if !p.Runnable() {
 					view.Skipped = append(view.Skipped, ss.Name)
 					continue
 				}

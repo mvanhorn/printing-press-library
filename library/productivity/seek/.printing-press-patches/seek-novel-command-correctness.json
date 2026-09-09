@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "seek-novel-command-correctness",
+  "applied_at": "2026-09-09",
+  "base_run_id": "20260908-143250-21abe609",
+  "base_printing_press_version": "4.32.0",
+  "summary": "SEEK salary text carries superannuation percentages that are not pay; a name query can match several advertisers; a saved search may be defined only by secondary filters; and hiring-volume deltas must compare adjacent calendar periods, not adjacent populated buckets.",
+  "reason": "Review of the initial hand-authored novel commands surfaced four domain-shape bugs: ParseSalary read '11%' in '$55/hr + 11% super' as a rate; `company` blended distinct advertisers under one substring match; `me new-jobs` skipped filter-only saved searches; `trends` omitted empty months/weeks before differencing. Each is a property of the SEEK data, so a regen must re-apply the same guards.",
+  "files": [
+    "internal/seekparse/seekparse.go",
+    "internal/seekparse/seekparse_test.go",
+    "internal/cli/company.go",
+    "internal/cli/me_new_jobs.go",
+    "internal/cli/trends.go",
+    "internal/cli/trends_test.go"
+  ],
+  "validated_outcome": "go test ./... passes; ParseSalary('$90k + 11% super') -> ~$90k (was rejected); bucketRange materialises every period across the window."
+}

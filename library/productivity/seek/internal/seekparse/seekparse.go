@@ -26,7 +26,14 @@ type SalaryRange struct {
 }
 
 var (
-	moneyRe    = regexp.MustCompile(`(?i)\$?\s*([0-9][0-9.,]*)\s*(k|m)?`)
+	// dollarMoneyRe matches only $-anchored figures ("$120,000", "$90k").
+	dollarMoneyRe = regexp.MustCompile(`(?i)\$\s*([0-9][0-9.,]*)\s*(k|m)?`)
+	// bareMoneyRe is the fallback for labels with no "$" at all
+	// ("120000 - 140000 per annum").
+	bareMoneyRe = regexp.MustCompile(`(?i)([0-9][0-9.,]*)\s*(k|m)?`)
+	// percentRe strips superannuation and other percentages ("+ 11% super",
+	// "9.5%") so a rate figure is never mistaken for a salary figure.
+	percentRe  = regexp.MustCompile(`[0-9]+(?:\.[0-9]+)?\s*%`)
 	perHourRe  = regexp.MustCompile(`(?i)per\s*hour|/\s*h(ou)?r|p\.?h\.?|hourly|/hr`)
 	perDayRe   = regexp.MustCompile(`(?i)per\s*day|/\s*day|daily`)
 	perMonthRe = regexp.MustCompile(`(?i)per\s*month|/\s*month|monthly|p\.?m\.?`)
@@ -54,6 +61,11 @@ func ParseSalary(label string) SalaryRange {
 		return out
 	}
 
+	// Remove percentage tokens ("+ 11% super", "9.5% superannuation") before
+	// reading any figures — otherwise the "11" is parsed as an hourly/annual
+	// rate and drags the whole distribution down.
+	s = percentRe.ReplaceAllString(s, " ")
+
 	switch {
 	case perHourRe.MatchString(s):
 		out.Period = "hour"
@@ -63,8 +75,15 @@ func ParseSalary(label string) SalaryRange {
 		out.Period = "month"
 	}
 
+	// Prefer $-anchored figures. Fall back to bare numbers only when the label
+	// carries no "$" at all, so "$55 per hour" never picks up a stray "11".
+	matches := dollarMoneyRe.FindAllStringSubmatch(s, -1)
+	if len(matches) == 0 && !strings.Contains(s, "$") {
+		matches = bareMoneyRe.FindAllStringSubmatch(s, -1)
+	}
+
 	var nums []float64
-	for _, m := range moneyRe.FindAllStringSubmatch(s, -1) {
+	for _, m := range matches {
 		raw := strings.ReplaceAll(m[1], ",", "")
 		raw = strings.TrimRight(raw, ".")
 		v, err := strconv.ParseFloat(raw, 64)
@@ -102,8 +121,8 @@ func ParseSalary(label string) SalaryRange {
 	out.Min = math.Round(lo * factor)
 	out.Max = math.Round(hi * factor)
 	out.Period = "year"
-	// Guard against a stray superannuation percentage ("+ 11%") sneaking in
-	// as a tiny number next to a real salary.
+	// A single figure ("$55 per hour", "Up to $90k") lands as Min==Max; if the
+	// low end still collapsed to near-zero from a malformed label, fold it up.
 	if out.Min < 5000 {
 		out.Min = out.Max
 	}
@@ -216,6 +235,17 @@ type SavedSearchParams struct {
 	Salarytype        string `json:"salarytype,omitempty"`
 	Workarrangement   string `json:"workarrangement,omitempty"`
 	SiteKey           string `json:"siteKey,omitempty"`
+}
+
+// Runnable reports whether the saved search carries at least one real search
+// constraint. SEEK lets a saved search be defined entirely by secondary filters
+// (work type, salary band, work arrangement) with no keywords, location, or
+// classification, and `me new-jobs` must still run those. SiteKey alone is not a
+// constraint — it only picks the AU/NZ marketplace.
+func (p SavedSearchParams) Runnable() bool {
+	return p.Keywords != "" || p.Where != "" || p.Classification != "" ||
+		p.Subclassification != "" || p.Worktype != "" || p.Salaryrange != "" ||
+		p.Salarytype != "" || p.Workarrangement != ""
 }
 
 // ParseSavedSearchQuery accepts the `query` value SEEK stores on a saved

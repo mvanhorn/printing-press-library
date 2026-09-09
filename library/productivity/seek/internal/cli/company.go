@@ -36,6 +36,7 @@ type companyView struct {
 	Openings         []companyOpening `json:"openings"`
 	Profile          json.RawMessage  `json:"company_profile,omitempty"`
 	CompanySearchURL string           `json:"company_search_url,omitempty"`
+	OtherMatches     []string         `json:"other_advertisers_matched,omitempty"`
 	Note             string           `json:"note,omitempty"`
 }
 
@@ -95,32 +96,88 @@ func newNovelCompanyCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			ql := strings.ToLower(query)
-			var openings []companyOpening
-			advID, advName := "", ""
+
+			// Group every advertiser the query could refer to, keyed by their
+			// SEEK advertiser ID. A substring query like "acme" must not blend
+			// "Acme Corp" and "Acme Logistics" into one result set under one
+			// company's profile — resolve to a single advertiser first.
+			type advGroup struct {
+				id, name string
+				jobs     []seekJob
+				exact    bool
+			}
+			groups := map[string]*advGroup{}
 			for _, j := range jobs {
-				match := false
-				if wantID {
-					match = j.Advertiser.ID == query
-				} else {
-					name := strings.ToLower(j.Advertiser.Description)
-					match = name == ql || strings.Contains(name, ql)
-				}
-				if !match {
+				id := j.Advertiser.ID
+				if id == "" {
 					continue
 				}
-				if advID == "" {
-					advID, advName = j.Advertiser.ID, j.Advertiser.Description
+				name := strings.ToLower(j.Advertiser.Description)
+				var hit, exact bool
+				if wantID {
+					hit = id == query
+					exact = hit
+				} else {
+					exact = name == ql
+					hit = exact || strings.Contains(name, ql)
 				}
-				if flagActive {
-					if listed, ok := parseSeekDate(j.ListingDate); ok && time.Since(listed) > 28*24*time.Hour {
-						continue
+				if !hit {
+					continue
+				}
+				g := groups[id]
+				if g == nil {
+					g = &advGroup{id: id, name: j.Advertiser.Description}
+					groups[id] = g
+				}
+				g.exact = g.exact || exact
+				g.jobs = append(g.jobs, j)
+			}
+
+			// Pick one advertiser: an exact name/ID match wins; otherwise the
+			// one with the most matched openings on the scanned pages, with the
+			// lower ID breaking a tie for a deterministic result.
+			var target *advGroup
+			for _, g := range groups {
+				switch {
+				case target == nil:
+					target = g
+				case g.exact != target.exact:
+					if g.exact {
+						target = g
 					}
+				case len(g.jobs) != len(target.jobs):
+					if len(g.jobs) > len(target.jobs) {
+						target = g
+					}
+				case g.id < target.id:
+					target = g
 				}
-				_, cn := j.topClassification()
-				openings = append(openings, companyOpening{
-					ID: j.ID, Title: j.Title, Location: locationLabel(j),
-					SalaryLabel: j.SalaryLabel, ListingDate: j.ListingDate, Classification: cn,
-				})
+			}
+
+			var otherMatches []string
+			for _, g := range groups {
+				if target != nil && g.id != target.id {
+					otherMatches = append(otherMatches, fmt.Sprintf("%s (%s, %d opening(s))", g.name, g.id, len(g.jobs)))
+				}
+			}
+			sort.Strings(otherMatches)
+
+			advID, advName := "", ""
+			var openings []companyOpening
+			if target != nil {
+				advID, advName = target.id, target.name
+				for _, j := range target.jobs {
+					if flagActive {
+						if listed, ok := parseSeekDate(j.ListingDate); ok && time.Since(listed) > 28*24*time.Hour {
+							continue
+						}
+					}
+					_, cn := j.topClassification()
+					openings = append(openings, companyOpening{
+						ID: j.ID, Title: j.Title, Location: locationLabel(j),
+						SalaryLabel: j.SalaryLabel, ListingDate: j.ListingDate, Classification: cn,
+					})
+				}
 			}
 			sort.Slice(openings, func(i, k int) bool { return openings[i].ListingDate > openings[k].ListingDate })
 
@@ -128,6 +185,7 @@ func newNovelCompanyCmd(flags *rootFlags) *cobra.Command {
 				Query: query, AdvertiserID: advID, AdvertiserName: advName,
 				Site:          firstNonEmpty(flagSite, "AU-Main"),
 				OpeningsCount: len(openings), ScannedListings: len(jobs), MaxScanPages: maxPages,
+				OtherMatches:  otherMatches,
 			}
 			if flagLimit > 0 && len(openings) > flagLimit {
 				view.Openings = openings[:flagLimit]
@@ -148,6 +206,14 @@ func newNovelCompanyCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				view.Note = fmt.Sprintf("no openings from %q matched advertiser %q on the scanned pages; try the numeric advertiser ID or raise --max-scan-pages.", firstNonEmpty(opts.Keywords, "(broad scan)"), query)
 			}
+			if len(otherMatches) > 0 {
+				more := fmt.Sprintf("%q also matched %d other advertiser(s); showing only %q (%s). Pass the numeric advertiser ID to target a different one.", query, len(otherMatches), advName, advID)
+				if view.Note == "" {
+					view.Note = more
+				} else {
+					view.Note += " " + more
+				}
+			}
 
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
@@ -159,6 +225,9 @@ func newNovelCompanyCmd(flags *rootFlags) *cobra.Command {
 			}
 			for _, o := range view.Openings {
 				fmt.Fprintf(w, "  %-10s  %s — %s\n", o.ID, o.Title, o.Location)
+			}
+			for _, om := range view.OtherMatches {
+				fmt.Fprintf(w, "  other match (not shown): %s\n", om)
 			}
 			if view.Note != "" {
 				fmt.Fprintf(w, "  note: %s\n", view.Note)

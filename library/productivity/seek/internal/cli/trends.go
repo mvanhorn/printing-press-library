@@ -131,6 +131,7 @@ func newNovelTrendsCmd(flags *rootFlags) *cobra.Command {
 			where := strings.ToLower(strings.TrimSpace(flagWhere))
 			perBucket := map[string]map[string]int{}
 			inScope := 0
+			var minListed time.Time
 			for _, raw := range raws {
 				var j seekJob
 				if json.Unmarshal(raw, &j) != nil {
@@ -159,11 +160,35 @@ func newNovelTrendsCmd(flags *rootFlags) *cobra.Command {
 				}
 				perBucket[bkt][dim]++
 				inScope++
+				if minListed.IsZero() || listed.Before(minListed) {
+					minListed = listed
+				}
 			}
 
-			keys := make([]string, 0, len(perBucket))
+			// Materialise every calendar period across the window — an explicit
+			// --since, or the earliest in-scope listing, through today — so a
+			// month/week with zero cached listings still gets a bucket and the
+			// period-over-period delta compares adjacent periods, not the two
+			// nearest populated ones.
+			keySet := map[string]bool{}
+			var keys []string
+			if inScope > 0 {
+				windowStart := since
+				if windowStart.IsZero() {
+					windowStart = minListed
+				}
+				for _, k := range bucketRange(windowStart, time.Now(), gran) {
+					if !keySet[k] {
+						keySet[k] = true
+						keys = append(keys, k)
+					}
+				}
+			}
 			for k := range perBucket {
-				keys = append(keys, k)
+				if !keySet[k] {
+					keySet[k] = true
+					keys = append(keys, k)
+				}
 			}
 			sort.Strings(keys)
 
@@ -259,4 +284,34 @@ func bucketKey(t time.Time, gran string) string {
 		return fmt.Sprintf("%04d-W%02d", y, w)
 	}
 	return t.Format("2006-01")
+}
+
+// bucketRange returns every period key between start and end inclusive, so the
+// caller can fill zero buckets for periods that have no cached listings and keep
+// period-over-period deltas comparing adjacent calendar periods. It is bounded
+// to a few thousand iterations so a pathological window can't spin.
+func bucketRange(start, end time.Time, gran string) []string {
+	if start.IsZero() || end.Before(start) {
+		return nil
+	}
+	const maxBuckets = 4000
+	var keys []string
+	if gran == "week" {
+		seen := map[string]bool{}
+		for cur := start; !cur.After(end) && len(keys) < maxBuckets; cur = cur.AddDate(0, 0, 1) {
+			k := bucketKey(cur, gran)
+			if !seen[k] {
+				seen[k] = true
+				keys = append(keys, k)
+			}
+		}
+		return keys
+	}
+	cur := time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, time.UTC)
+	last := time.Date(end.Year(), end.Month(), 1, 0, 0, 0, 0, time.UTC)
+	for !cur.After(last) && len(keys) < maxBuckets {
+		keys = append(keys, bucketKey(cur, gran))
+		cur = cur.AddDate(0, 1, 0)
+	}
+	return keys
 }
