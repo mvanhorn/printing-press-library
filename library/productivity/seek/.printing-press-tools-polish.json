@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-08T08:29:59.06768Z",
+  "cli_dir": "\u003ccli-dir\u003e/seek-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/cli/platform_client.go); 'list' subcommand of the tenant client-profile grouper. Short is verb-led and precise (lists saved client-profile names, no args, read-only). Generator-template fix needed to emit a richer default; retro candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 847,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/cli/teach.go); 'learnings list' leaf already carries an Example block and mcp:read-only. Short is verb-led and precise (lists rows from the local search_learnings table with query/source/action/confidence filters). Generator-template fix needed for a fuller default; retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-08T08:23:55.823835Z"
+  }
+}

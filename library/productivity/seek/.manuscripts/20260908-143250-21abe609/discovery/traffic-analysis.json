@@ -1,0 +1,155 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://au.seek.com/",
+    "captured_at": "2026-09-08T05:40:00Z",
+    "entry_count": 60,
+    "api_entry_count": 12,
+    "noise_entry_count": 48,
+    "host_distribution": {
+      "au.seek.com": 10,
+      "www.seek.com.au": 2,
+      "login.seek.com": 12,
+      "browser-intake-datadoghq.com": 4,
+      "lcto.aips-sol.com": 2,
+      "seek-metrics-forwarder.cloud.seek.com.au": 2,
+      "bx-branding-gateway.cloud.seek.com.au": 2,
+      "image-service-cdn.seek.com.au": 4
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.9,
+    "reasons": [
+      "GET au.seek.com/api/jobsearch/v5/search returns 200 application/json to stdlib and surf-chrome (probe-reachability confidence 0.95)",
+      "POST au.seek.com/graphql returns 200 application/json to plain curl with a Chrome UA, no cookie, for the jobDetails and jobSearchV7 operations",
+      "GET au.seek.com/job/{id} returns 200 HTML (226KB) with embedded Apollo state; only the legacy www.seek.com.au/job/{id} HTML path is Cloudflare-gated (403)"
+    ],
+    "impersonation_safe": true
+  },
+  "protocols": [
+    { "label": "rest_json", "confidence": 0.95, "evidence": ["GET au.seek.com/api/jobsearch/v5/search -> {data[], totalCount, sortModes, suggestions, location, searchParams, info}"] },
+    { "label": "graphql", "confidence": 0.95, "evidence": ["POST au.seek.com/graphql operations: jobDetails, jobDetailsPersonalised, jobSearchV7/JobCountV7, JobDetailsRecommendedJobs, GetMatchedQualities, SearchSavedAndAppliedJobs, GetSalaryNudge, GetBanner"] },
+    { "label": "ssr_embedded_data", "confidence": 0.8, "evidence": ["au.seek.com is Next.js/RSC; search results pages and /my-activity/* pages are server-rendered; window.__APOLLO_CLIENT__ cache present on the client"] }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "cookie",
+        "confidence": 0.85,
+        "cookie_names": ["SEEK_SESSION"],
+        "domain_hints": [".seek.com", "au.seek.com", "login.seek.com"],
+        "header_names": []
+      },
+      {
+        "type": "none",
+        "confidence": 0.95,
+        "domain_hints": ["au.seek.com", "www.seek.com.au"]
+      }
+    ],
+    "captcha_preflight": false
+  },
+  "protections": [
+    { "label": "cloudflare", "confidence": 0.6, "notes": ["Legacy www.seek.com.au/job/{id} HTML page returns Cloudflare 403 to non-browser clients; the JSON API paths (/api/jobsearch/v5/*, /graphql) and the au.seek.com/job/{id} HTML page are NOT gated"] }
+  ],
+  "secondary_hosts": [
+    { "host": "www.seek.com.au", "count": 2, "reason": "non-primary host" },
+    { "host": "login.seek.com", "count": 12, "reason": "non-primary host" },
+    { "host": "browser-intake-datadoghq.com", "count": 4, "reason": "telemetry host" },
+    { "host": "lcto.aips-sol.com", "count": 2, "reason": "telemetry host" },
+    { "host": "seek-metrics-forwarder.cloud.seek.com.au", "count": 2, "reason": "telemetry host" },
+    { "host": "bx-branding-gateway.cloud.seek.com.au", "count": 2, "reason": "non-primary host" },
+    { "host": "image-service-cdn.seek.com.au", "count": 4, "reason": "non-primary host" }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "au.seek.com",
+      "method": "GET",
+      "path": "/api/jobsearch/v5/search",
+      "count": 4,
+      "statuses": [200],
+      "content_types": ["application/json"],
+      "size_class": "large",
+      "request_shape": { "kind": "query", "fields": [
+        {"name": "siteKey", "type": "string", "required": true},
+        {"name": "sourcesystem", "type": "string"},
+        {"name": "keywords", "type": "string"},
+        {"name": "where", "type": "string"},
+        {"name": "page", "type": "int"},
+        {"name": "pageSize", "type": "int"},
+        {"name": "classification", "type": "string"},
+        {"name": "subclassification", "type": "string"},
+        {"name": "worktype", "type": "string"},
+        {"name": "salaryrange", "type": "string"},
+        {"name": "salarytype", "type": "string"},
+        {"name": "daterange", "type": "int"},
+        {"name": "sortmode", "type": "string"},
+        {"name": "workarrangement", "type": "string"},
+        {"name": "distance", "type": "int"},
+        {"name": "locale", "type": "string"}
+      ]},
+      "response_shape": { "kind": "object", "fields": [
+        {"name": "data", "type": "array"},
+        {"name": "totalCount", "type": "int"},
+        {"name": "sortModes", "type": "array"},
+        {"name": "suggestions", "type": "array"},
+        {"name": "location", "type": "object"},
+        {"name": "searchParams", "type": "object"},
+        {"name": "info", "type": "object"}
+      ]}
+    },
+    {
+      "host": "au.seek.com",
+      "method": "POST",
+      "path": "/graphql",
+      "count": 8,
+      "statuses": [200],
+      "content_types": ["application/json"],
+      "size_class": "medium",
+      "request_shape": { "kind": "object", "fields": [
+        {"name": "operationName", "type": "string"},
+        {"name": "query", "type": "string", "required": true},
+        {"name": "variables", "type": "object"}
+      ]},
+      "response_shape": { "kind": "object", "fields": [
+        {"name": "data", "type": "object"},
+        {"name": "errors", "type": "array"}
+      ]}
+    },
+    {
+      "host": "au.seek.com",
+      "method": "GET",
+      "path": "/job/{id}",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "large",
+      "response_shape": { "kind": "html", "fields": [{"name": "__APOLLO_CLIENT__", "type": "object"}] }
+    }
+  ],
+  "pagination": [
+    { "location": "query", "name": "page", "confidence": 0.95 },
+    { "location": "response", "name": "totalCount", "confidence": 0.9 }
+  ],
+  "candidate_commands": [
+    { "name": "search", "resource": "jobs", "confidence": 0.98, "rationale": "GET /api/jobsearch/v5/search — keyword+location+filter job search, the primary workflow" },
+    { "name": "get", "resource": "jobs", "confidence": 0.95, "rationale": "POST /graphql jobDetails(id) — full job description, salary, apply link" },
+    { "name": "count", "resource": "jobs", "confidence": 0.7, "rationale": "POST /graphql jobSearchV7 JobCountV7 — result count for a filter combination without fetching rows" },
+    { "name": "recommended", "resource": "jobs", "confidence": 0.6, "rationale": "POST /graphql JobDetailsRecommendedJobs(jobDetailsId) — similar jobs" },
+    { "name": "saved-searches", "resource": "me", "confidence": 0.7, "rationale": "viewer -> ApacSavedSearch{id,name,query,createdDate,newToYouCountLabel,subscribeToNewJobs} (cookie auth)" },
+    { "name": "saved-jobs", "resource": "me", "confidence": 0.7, "rationale": "viewer.savedJobs(first) (cookie auth)" },
+    { "name": "applied-jobs", "resource": "me", "confidence": 0.65, "rationale": "viewer.searchAppliedJobs / applied job history (cookie auth)" }
+  ],
+  "generation_hints": [
+    "primary transport: standard_http against https://au.seek.com",
+    "search surface is REST JSON at /api/jobsearch/v5/search; job-detail and account surfaces are GraphQL at POST /graphql",
+    "graphql endpoint rejects introspection and enforces a real schema; jobDetails(id: ID!) and jobSearchV7(params: JobSearchV7QueryInput!) verified working with hand-written queries",
+    "AU and NZ share the au.seek.com host; switch via siteKey=AU-Main|NZ-Main and locale=en-AU|en-NZ",
+    "authenticated surface uses same-origin session cookies on .seek.com (no Authorization header, no CSRF token on read queries); emit auth login --chrome / press-auth cookie companion",
+    "requires_browser_auth for the me/* commands only; all jobs/* commands are unauthenticated"
+  ],
+  "warnings": [
+    { "type": "hand_written_queries", "message": "GraphQL operation bodies were reconstructed by the agent and verified against the live endpoint (HTTP 200); they are leaner than the SPA's persisted queries. jobDetailsPersonalised/GetMatchedQualities field selections were observed but not fully transcribed.", "confidence": 0.8 },
+    { "type": "cookie_replay_unverified", "message": "Cookie auth confirmed working in-browser (viewer queries returned data). Replay outside the browser was not validated this run because session cookie values were deliberately not extracted; Phase 5 live smoke or first auth login --chrome will confirm.", "confidence": 0.7 }
+  ]
+}

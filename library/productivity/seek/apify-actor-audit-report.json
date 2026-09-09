@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/seek-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260908-143250-21abe609",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

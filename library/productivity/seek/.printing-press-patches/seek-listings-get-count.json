@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "seek-listings-get-count",
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260908-143250-21abe609",
+  "base_printing_press_version": "4.32.0",
+  "summary": "Hand-built `listings get <id>` and `listings count` as novel commands wired under the generated `listings` parent via a registerNovelCommand hook; removed the corresponding spec endpoints.",
+  "reason": "The generator's GraphQL-endpoint path (graphqlPayloadParams) emits only operationName/query/variables and cannot bind a positional (job id) or filter flags into the query variables, so the spec-emitted `listings get`/`count` returned HTTP 400 / unknown-flag at runtime.",
+  "files": [
+    "internal/cli/listings_get.go",
+    "internal/cli/listings_count.go",
+    "internal/cli/seek_listings_hooks.go"
+  ],
+  "validated_outcome": "listings get 94483533 and listings count --keywords ... --where ... both return real data live; covered by the Phase 5 matrix.",
+  "upstream_issue": ""
+}

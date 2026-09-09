@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-08T08:33:25.653764Z",
+  "printing_press_version": "4.32.0",
+  "api_name": "seek",
+  "display_name": "SEEK",
+  "cli_name": "seek-pp-cli",
+  "creator": {
+    "handle": "polsiola-dot",
+    "name": "Paul Siola"
+  },
+  "owner": "polsiola-dot",
+  "printer": "polsiola-dot",
+  "printer_name": "Paul Siola",
+  "spec_path": "seek-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:22597c8a8c8edbe9e9b89de5fed033c6aee4a78b04d707bcb502ab8d21236047",
+  "run_id": "20260908-143250-21abe609",
+  "category": "productivity",
+  "description": "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has.",
+  "mcp_binary": "seek-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "SEEK_COOKIE"
+  ],
+  "novel_features": [
+    {
+      "name": "Salary distribution over live listings",
+      "command": "salary",
+      "description": "Get salary percentiles, a histogram, and the pay-disclosure rate for a role and location by sampling matching listings (which it also caches locally)."
+    },
+    {
+      "name": "Hiring-volume trend series",
+      "command": "trends",
+      "description": "See how job-listing volume for a classification, region, or work arrangement changes over time, bucketed from the listing dates of every job the CLI has cached, with period-over-period deltas."
+    },
+    {
+      "name": "Company hiring scan",
+      "command": "company",
+      "description": "Profile one advertiser: their company details and review ratings plus every current opening and a local history of how many roles they've posted."
+    },
+    {
+      "name": "Live facet breakdown",
+      "command": "listings facets",
+      "description": "Break a live query down by classification, work type, pay band, or region by tallying the sampled result pages — no local store needed."
+    },
+    {
+      "name": "Classification taxonomy resolver",
+      "command": "classifications",
+      "description": "Browse or resolve SEEK's numeric classification and subclassification IDs so filtered searches can target them precisely."
+    },
+    {
+      "name": "New listings across every saved search",
+      "command": "me new-jobs",
+      "description": "Run every one of your SEEK saved searches and return only the postings that aren't already in your local store, tagged by which search matched."
+    }
+  ]
+}

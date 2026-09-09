@@ -1,0 +1,184 @@
+{
+  "api_name": "seek",
+  "base_url": "https://au.seek.com",
+  "description": "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie",
+    "env_vars": [
+      "SEEK_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SEEK_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".seek.com",
+    "cookies": [
+      "SEEK_SESSION"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "listings_search",
+      "description": "Search job listings by keyword, location, and filters. Optional: keywords, where, site (default: AU-Main) (plus 13 more). Returns array of JobSummary.",
+      "method": "GET",
+      "path": "/api/jobsearch/v5/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text keyword query (job title, skills, company)"
+        },
+        {
+          "name": "where",
+          "type": "string",
+          "location": "query",
+          "description": "Location: suburb, city, state, or 'All Australia' / 'All New Zealand'"
+        },
+        {
+          "name": "site",
+          "wire_name": "siteKey",
+          "type": "string",
+          "location": "query",
+          "description": "Marketplace: AU-Main (Australia) or NZ-Main (New Zealand)"
+        },
+        {
+          "name": "sourcesystem",
+          "type": "string",
+          "location": "query",
+          "description": "SEEK internal source-system tag (leave default)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page number (1-based)"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max ~100)"
+        },
+        {
+          "name": "classification",
+          "type": "string",
+          "location": "query",
+          "description": "Classification ID(s), comma-separated (e.g. 6281 = Information \u0026 Communication Technology)"
+        },
+        {
+          "name": "subclassification",
+          "type": "string",
+          "location": "query",
+          "description": "Subclassification ID(s), comma-separated"
+        },
+        {
+          "name": "work-type",
+          "wire_name": "worktype",
+          "type": "string",
+          "location": "query",
+          "description": "Work-type ID(s), comma-separated: 242 full-time, 243 part-time, 244 contract, 245 casual"
+        },
+        {
+          "name": "salary-range",
+          "wire_name": "salaryrange",
+          "type": "string",
+          "location": "query",
+          "description": "Salary band as 'min-max' (e.g. 80000-120000)"
+        },
+        {
+          "name": "salary-type",
+          "wire_name": "salarytype",
+          "type": "string",
+          "location": "query",
+          "description": "Salary period the --salary-range is expressed in"
+        },
+        {
+          "name": "posted-within-days",
+          "wire_name": "daterange",
+          "type": "int",
+          "location": "query",
+          "description": "Only jobs listed within the last N days (1, 3, 7, 14, 31)"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sortmode",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: KeywordRelevance or ListedDate"
+        },
+        {
+          "name": "work-arrangement",
+          "wire_name": "workarrangement",
+          "type": "string",
+          "location": "query",
+          "description": "Work-arrangement ID(s): 1 on-site, 2 remote, 3 hybrid (comma-separated)"
+        },
+        {
+          "name": "distance",
+          "type": "int",
+          "location": "query",
+          "description": "Radius in km around --where (default 50 for granular locations)"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Response locale (pair with --site: en-AU/AU-Main, en-NZ/NZ-Main)"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Salary distribution over live listings",
+      "command": "salary",
+      "description": "Get salary percentiles, a histogram, and the pay-disclosure rate for a role and location by sampling matching listings (which it also caches locally)."
+    },
+    {
+      "name": "Hiring-volume trend series",
+      "command": "trends",
+      "description": "See how job-listing volume for a classification, region, or work arrangement changes over time, bucketed from the listing dates of every job the CLI has cached, with period-over-period deltas."
+    },
+    {
+      "name": "Company hiring scan",
+      "command": "company",
+      "description": "Profile one advertiser: their company details and review ratings plus every current opening and a local history of how many roles they've posted."
+    },
+    {
+      "name": "Live facet breakdown",
+      "command": "listings facets",
+      "description": "Break a live query down by classification, work type, pay band, or region by tallying the sampled result pages — no local store needed."
+    },
+    {
+      "name": "Classification taxonomy resolver",
+      "command": "classifications",
+      "description": "Browse or resolve SEEK's numeric classification and subclassification IDs so filtered searches can target them precisely."
+    },
+    {
+      "name": "New listings across every saved search",
+      "command": "me new-jobs",
+      "description": "Run every one of your SEEK saved searches and return only the postings that aren't already in your local store, tagged by which search matched."
+    }
+  ]
+}

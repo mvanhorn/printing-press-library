@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "seek-pp-cli"
+display_name = "SEEK"
+description = "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/seek-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SEEK_COOKIE = true

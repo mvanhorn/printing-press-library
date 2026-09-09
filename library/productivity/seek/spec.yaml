@@ -1,0 +1,339 @@
+name: seek
+description: "SEEK (au.seek.com) job search CLI — search Australian & NZ job listings, pull full job details, salary bands, company info, and your saved searches / applied jobs"
+version: "0.1.0"
+base_url: "https://au.seek.com"
+http_transport: standard
+health_check_path: "/api/jobsearch/v5/search"
+spec_source: browser-sniffed
+category: productivity
+
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "application/json"
+
+# SEEK's public job-search + job-detail surface needs no auth. The `me` resource
+# (saved searches, saved/applied jobs) uses the same-origin session cookie set by
+# login.seek.com — no API key, no Authorization header, no CSRF token on reads.
+auth:
+  type: cookie
+  in: cookie
+  cookie_domain: ".seek.com"
+  login_url: "https://login.seek.com/"
+  login_complete_selector: "a[href*=sign-out], [data-automation=account-menu]"
+  cookies:
+    - SEEK_SESSION
+  env_vars:
+    - SEEK_COOKIE
+
+auth_warnings:
+  - "Cookie replay outside the browser was not validated during discovery (session cookie values were deliberately not extracted). auth login --chrome / press-auth captures them on first use; only the me commands need it."
+
+config:
+  format: toml
+  path: "~/.config/seek-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{6,10}$"
+  stopwords:
+    - job
+    - jobs
+    - role
+    - position
+    - hiring
+  synonyms:
+    "most recent": "latest"
+    "newest": "latest"
+    "work from home": "remote"
+    "wfh": "remote"
+  entity_lookup_seeds:
+    work_type:
+      - canonical: "242"
+        aliases: [full-time, "full time", fulltime]
+      - canonical: "243"
+        aliases: [part-time, "part time", parttime]
+      - canonical: "244"
+        aliases: [contract, "contract/temp", temp, "fixed term"]
+      - canonical: "245"
+        aliases: [casual, "casual/vacation", vacation]
+    sort_mode:
+      - canonical: KeywordRelevance
+        aliases: [relevance, relevant, best]
+      - canonical: ListedDate
+        aliases: [date, newest, recent]
+
+resources:
+  listings:
+    description: "Search and inspect SEEK job listings"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/jobsearch/v5/search"
+        no_auth: true
+        description: "Search job listings by keyword, location, and filters"
+        example: "  seek-pp-cli listings search --keywords \"software engineer\" --where \"Sydney NSW\" --posted-within-days 7"
+        happy_args: "--keywords=nurse;--where=Melbourne VIC;--posted-within-days=14"
+        params:
+          - name: keywords
+            type: string
+            description: "Free-text keyword query (job title, skills, company)"
+          - name: where
+            type: string
+            description: "Location: suburb, city, state, or 'All Australia' / 'All New Zealand'"
+          - name: siteKey
+            flag_name: site
+            type: string
+            default: "AU-Main"
+            enum: ["AU-Main", "NZ-Main"]
+            description: "Marketplace: AU-Main (Australia) or NZ-Main (New Zealand)"
+          - name: sourcesystem
+            type: string
+            default: "houston"
+            description: "SEEK internal source-system tag (leave default)"
+          - name: page
+            type: int
+            default: 1
+            description: "Result page number (1-based)"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 22
+            description: "Results per page (max ~100)"
+          - name: classification
+            type: string
+            description: "Classification ID(s), comma-separated (e.g. 6281 = Information & Communication Technology)"
+          - name: subclassification
+            type: string
+            description: "Subclassification ID(s), comma-separated"
+          - name: worktype
+            flag_name: work-type
+            type: string
+            description: "Work-type ID(s), comma-separated: 242 full-time, 243 part-time, 244 contract, 245 casual"
+          - name: salaryrange
+            flag_name: salary-range
+            type: string
+            description: "Salary band as 'min-max' (e.g. 80000-120000)"
+          - name: salarytype
+            flag_name: salary-type
+            type: string
+            default: "annual"
+            enum: ["annual", "hourly", "monthly"]
+            description: "Salary period the --salary-range is expressed in"
+          - name: daterange
+            flag_name: posted-within-days
+            type: int
+            description: "Only jobs listed within the last N days (1, 3, 7, 14, 31)"
+          - name: sortmode
+            flag_name: sort
+            type: string
+            default: "KeywordRelevance"
+            enum: ["KeywordRelevance", "ListedDate"]
+            description: "Sort order: KeywordRelevance or ListedDate"
+          - name: workarrangement
+            flag_name: work-arrangement
+            type: string
+            description: "Work-arrangement ID(s): 1 on-site, 2 remote, 3 hybrid (comma-separated)"
+          - name: distance
+            type: int
+            description: "Radius in km around --where (default 50 for granular locations)"
+          - name: locale
+            type: string
+            default: "en-AU"
+            enum: ["en-AU", "en-NZ"]
+            description: "Response locale (pair with --site: en-AU/AU-Main, en-NZ/NZ-Main)"
+        response:
+          type: array
+          item: JobSummary
+        response_path: data
+        pagination:
+          type: offset
+          has_more_field: totalCount
+
+  me:
+    description: "Your SEEK account: saved searches, saved jobs, applied jobs (needs `auth login --chrome`)"
+    endpoints:
+      saved-searches:
+        method: POST
+        path: "/graphql"
+        description: "List your saved searches / job alerts"
+        example: "  seek-pp-cli me saved-searches"
+        params:
+          - name: operationName
+            flag_name: operation-name
+            type: string
+            default: "GetSavedSearches"
+            description: "GraphQL operation name (leave default)"
+          - name: query
+            type: string
+            default: "query GetSavedSearches($languageCode: LanguageCodeIso!) { viewer { apacSavedSearches { id name(languageCode: $languageCode) countryCode createdDate { dateTimeUtc } query(languageCode: $languageCode) { searchQueryString } newToYouCountLabel subscribeToNewJobs } } }"
+            description: "GraphQL query document (leave default)"
+          - name: variables
+            type: object
+            default:
+              languageCode: "en"
+            description: "GraphQL variables JSON"
+        response:
+          type: array
+          item: SavedSearch
+        response_path: data.viewer.apacSavedSearches
+
+      saved-jobs:
+        method: POST
+        path: "/graphql"
+        description: "List jobs you've saved on SEEK"
+        example: "  seek-pp-cli me saved-jobs"
+        params:
+          - name: operationName
+            flag_name: operation-name
+            type: string
+            default: "GetSavedJobs"
+            description: "GraphQL operation name (leave default)"
+          - name: query
+            type: string
+            default: "query GetSavedJobs($first: Int!) { viewer { savedJobs(first: $first) { edges { node { id isActive notes job { id title advertiser { name } location { label } } } } } } }"
+            description: "GraphQL query document (leave default)"
+          - name: first
+            type: int
+            default: 100
+            description: "Max saved jobs to return"
+          - name: variables
+            type: object
+            default:
+              first: 100
+            description: "GraphQL variables JSON"
+        response:
+          type: array
+          item: SavedJob
+        response_path: data.viewer.savedJobs.edges
+
+      job-status:
+        method: POST
+        path: "/graphql"
+        description: "Check which of the given job IDs you've saved or already applied to"
+        example: "  seek-pp-cli me job-status --variables '{\"jobIds\":[\"94483533\"]}'"
+        params:
+          - name: operationName
+            flag_name: operation-name
+            type: string
+            default: "SearchSavedAndAppliedJobs"
+            description: "GraphQL operation name (leave default)"
+          - name: query
+            type: string
+            default: "query SearchSavedAndAppliedJobs($jobIds: [String!]!) { viewer { searchSavedJobs(jobIds: $jobIds) { jobId } searchAppliedJobs(jobIds: $jobIds) { jobId } } }"
+            description: "GraphQL query document (leave default)"
+          - name: variables
+            type: object
+            default:
+              jobIds: []
+            description: "GraphQL variables JSON: {\"jobIds\": [\"...\"]}"
+        response:
+          type: object
+          item: JobStatus
+
+types:
+  JobSummary:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: teaser
+        type: string
+      - name: companyName
+        type: string
+      - name: salaryLabel
+        type: string
+      - name: listingDate
+        type: string
+      - name: listingDateDisplay
+        type: string
+      - name: roleId
+        type: string
+      - name: isFeatured
+        type: bool
+      - name: bulletPoints
+        type: string
+      - name: advertiser
+        type: string
+      - name: classifications
+        type: string
+      - name: locations
+        type: string
+      - name: workTypes
+        type: string
+      - name: workArrangements
+        type: string
+
+  JobDetails:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: abstract
+        type: string
+      - name: content
+        type: string
+      - name: status
+        type: string
+      - name: phoneNumber
+        type: string
+      - name: shareLink
+        type: string
+      - name: salary
+        type: string
+      - name: listedAt
+        type: string
+      - name: advertiser
+        type: string
+      - name: location
+        type: string
+      - name: classifications
+        type: string
+      - name: workTypes
+        type: string
+
+  JobCount:
+    fields:
+      - name: resultCount
+        type: int
+
+  SavedSearch:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: query
+        type: string
+      - name: countryCode
+        type: string
+      - name: createdDate
+        type: string
+      - name: newToYouCountLabel
+        type: string
+      - name: subscribeToNewJobs
+        type: bool
+
+  SavedJob:
+    fields:
+      - name: id
+        type: string
+      - name: isActive
+        type: bool
+      - name: notes
+        type: string
+
+  JobStatus:
+    fields:
+      - name: searchSavedJobs
+        type: string
+      - name: searchAppliedJobs
+        type: string

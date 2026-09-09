@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "seek-novel-features",
+  "applied_at": "2026-09-08",
+  "base_run_id": "20260908-143250-21abe609",
+  "base_printing_press_version": "4.32.0",
+  "summary": "Hand-implemented the six approved transcendence commands (salary, trends, company, listings facets, classifications, me new-jobs) plus their shared SEEK client/parse helpers.",
+  "reason": "Phase 3 transcendence commands are always hand-built; the generator only emits TODO scaffolds. seek_novel.go and internal/seekparse/ are whole hand-authored support files a reprint must preserve.",
+  "files": [
+    "internal/cli/salary.go",
+    "internal/cli/trends.go",
+    "internal/cli/company.go",
+    "internal/cli/classifications.go",
+    "internal/cli/listings_facets.go",
+    "internal/cli/me_new_jobs.go",
+    "internal/cli/seek_novel.go",
+    "internal/cli/seek_classifications_data.go",
+    "internal/seekparse/seekparse.go",
+    "internal/seekparse/seekparse_test.go"
+  ],
+  "validated_outcome": "Phase 5 full live dogfood 95/95 PASS; salary/trends/company/listings facets/classifications verified against the real au.seek.com API."
+}

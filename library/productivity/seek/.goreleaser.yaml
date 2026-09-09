@@ -1,0 +1,51 @@
+version: 2
+project_name: seek-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: seek-pp-cli
+    main: ./cmd/seek-pp-cli
+    binary: seek-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/seek/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: seek-pp-mcp
+    main: ./cmd/seek-pp-mcp
+    binary: seek-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: seek-pp-cli
+    repository:
+      owner: polsiola-dot
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has."
+    install: |
+      bin.install "seek-pp-cli"
+      bin.install "seek-pp-mcp"

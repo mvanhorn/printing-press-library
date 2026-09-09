@@ -1,0 +1,266 @@
+{
+  "api_name": "seek",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "seek-scraper (BlackFalconData)",
+      "url": "https://github.com/BlackFalconData-org/seek-scraper",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SeekSpider",
+      "url": "https://github.com/qinscode/SeekSpider",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "seek-com-au-api",
+      "url": "https://github.com/tomquirk/seek-com-au-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "job-hunter-mcp",
+      "url": "https://github.com/patrickvicente/job-hunter-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jobapply-mcp-server",
+      "url": "https://github.com/Sakshee5/jobapply-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-08T06:05:00Z",
+  "novel_features": [
+    {
+      "name": "Salary distribution over live listings",
+      "command": "salary",
+      "description": "Get salary percentiles, a histogram, and the pay-disclosure rate for a role and location by sampling matching listings (which it also caches locally).",
+      "rationale": "Requires aggregating salary ranges parsed from many listings — SEEK exposes no salary-aggregation endpoint, and every scraper stops at per-listing fields.",
+      "example": "seek-pp-cli salary \"registered nurse\" --where \"Melbourne VIC\" --agent",
+      "why_it_matters": "Reach for this instead of fetching hundreds of listings and computing pay statistics yourself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Hiring-volume trend series",
+      "command": "trends",
+      "description": "See how job-listing volume for a classification, region, or work arrangement changes over time, bucketed from the listing dates of every job the CLI has cached, with period-over-period deltas.",
+      "rationale": "Needs the listing-date history the CLI accumulates locally across runs; the API only ever returns a point-in-time count.",
+      "example": "seek-pp-cli trends --by classification --since 90d --agent",
+      "why_it_matters": "Use this when the question is 'is hiring up or down', not 'what is open right now'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Company hiring scan",
+      "command": "company",
+      "description": "Profile one advertiser: their company details and review ratings plus every current opening and a local history of how many roles they've posted.",
+      "rationale": "Combines a filtered search, the GraphQL company profile, and a local advertiser-to-jobs join that no single SEEK call returns.",
+      "example": "seek-pp-cli company \"Atlassian\" --active --agent",
+      "why_it_matters": "Reach for this for 'who is hiring for X' market scans and interview prep instead of scrolling a company's SEEK page.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Live facet breakdown",
+      "command": "listings facets",
+      "description": "Break a live query down by classification, work type, pay band, or region by tallying the sampled result pages — no local store needed.",
+      "rationale": "SEEK's own facet counts come back empty on the API; this samples the result rows and tallies the chosen dimension in one pass.",
+      "example": "seek-pp-cli listings facets --keywords \"data analyst\" --where \"Brisbane QLD\" --group-by classification --agent",
+      "why_it_matters": "Use this for a fast shape-of-the-market answer before committing to a full search or a sync.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Classification taxonomy resolver",
+      "command": "classifications",
+      "description": "Browse or resolve SEEK's numeric classification and subclassification IDs so filtered searches can target them precisely.",
+      "rationale": "SEEK's classification tree is a large numeric taxonomy with no public lookup; this ships it as a curated, facet-refreshed reference.",
+      "example": "seek-pp-cli classifications software",
+      "why_it_matters": "Call this first when you need a --classification value for listings search.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "New listings across every saved search",
+      "command": "me new-jobs",
+      "description": "Run every one of your SEEK saved searches and return only the postings that aren't already in your local store, tagged by which search matched.",
+      "rationale": "Orchestrates your authenticated saved searches, a per-search query, and a local anti-join against everything you've already seen — no endpoint does this.",
+      "example": "seek-pp-cli me new-jobs --since 7d --agent",
+      "why_it_matters": "This is the daily-driver command for an active job hunt; use it instead of re-scrolling the SEEK site.",
+      "group": "Cross-entity joins"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Salary distribution over live listings",
+      "command": "salary",
+      "description": "Get salary percentiles, a histogram, and the pay-disclosure rate for a role and location by sampling matching listings (which it also caches locally).",
+      "rationale": "Requires aggregating salary ranges parsed from many listings — SEEK exposes no salary-aggregation endpoint, and every scraper stops at per-listing fields.",
+      "example": "seek-pp-cli salary \"registered nurse\" --where \"Melbourne VIC\" --agent",
+      "why_it_matters": "Reach for this instead of fetching hundreds of listings and computing pay statistics yourself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Hiring-volume trend series",
+      "command": "trends",
+      "description": "See how job-listing volume for a classification, region, or work arrangement changes over time, bucketed from the listing dates of every job the CLI has cached, with period-over-period deltas.",
+      "rationale": "Needs the listing-date history the CLI accumulates locally across runs; the API only ever returns a point-in-time count.",
+      "example": "seek-pp-cli trends --by classification --since 90d --agent",
+      "why_it_matters": "Use this when the question is 'is hiring up or down', not 'what is open right now'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Company hiring scan",
+      "command": "company",
+      "description": "Profile one advertiser: their company details and review ratings plus every current opening and a local history of how many roles they've posted.",
+      "rationale": "Combines a filtered search, the GraphQL company profile, and a local advertiser-to-jobs join that no single SEEK call returns.",
+      "example": "seek-pp-cli company \"Atlassian\" --active --agent",
+      "why_it_matters": "Reach for this for 'who is hiring for X' market scans and interview prep instead of scrolling a company's SEEK page.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Live facet breakdown",
+      "command": "listings facets",
+      "description": "Break a live query down by classification, work type, pay band, or region by tallying the sampled result pages — no local store needed.",
+      "rationale": "SEEK's own facet counts come back empty on the API; this samples the result rows and tallies the chosen dimension in one pass.",
+      "example": "seek-pp-cli listings facets --keywords \"data analyst\" --where \"Brisbane QLD\" --group-by classification --agent",
+      "why_it_matters": "Use this for a fast shape-of-the-market answer before committing to a full search or a sync.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Classification taxonomy resolver",
+      "command": "classifications",
+      "description": "Browse or resolve SEEK's numeric classification and subclassification IDs so filtered searches can target them precisely.",
+      "rationale": "SEEK's classification tree is a large numeric taxonomy with no public lookup; this ships it as a curated, facet-refreshed reference.",
+      "example": "seek-pp-cli classifications software",
+      "why_it_matters": "Call this first when you need a --classification value for listings search.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "New listings across every saved search",
+      "command": "me new-jobs",
+      "description": "Run every one of your SEEK saved searches and return only the postings that aren't already in your local store, tagged by which search matched.",
+      "rationale": "Orchestrates your authenticated saved searches, a per-search query, and a local anti-join against everything you've already seen — no endpoint does this.",
+      "example": "seek-pp-cli me new-jobs --since 7d --agent",
+      "why_it_matters": "This is the daily-driver command for an active job hunt; use it instead of re-scrolling the SEEK site.",
+      "group": "Cross-entity joins"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "SEEK",
+    "headline": "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has.",
+    "value_prop": "seek-pp-cli searches Australian and New Zealand job listings, pulls full job details through SEEK's own JSON endpoints (never the bot-gated HTML), and keeps every job it has seen in a local SQLite store. On top of that it computes salary percentiles (salary), hiring-volume trends over time (trends), per-company hiring scans (company), and runs all your saved searches for new postings in one command (me new-jobs). No API key; no hosted scraper.",
+    "auth_narrative": "Job search, job details, salary data, and company profiles need no authentication. The me commands (saved searches, saved jobs, applied status) read your SEEK session: run `seek-pp-cli auth login --chrome` once while logged in to au.seek.com in Chrome and the CLI imports the session cookie. Nothing is written to your SEEK account.",
+    "quickstart": [
+      {
+        "command": "seek-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI can reach SEEK before anything else"
+      },
+      {
+        "command": "seek-pp-cli listings search --keywords \"software engineer\" --where \"Sydney NSW\" --posted-within-days 7",
+        "comment": "the core workflow: keyword + location + recency"
+      },
+      {
+        "command": "seek-pp-cli listings get 94483533",
+        "comment": "full description, salary, apply link and company for one job"
+      },
+      {
+        "command": "seek-pp-cli listings facets --keywords \"software engineer\" --where \"Sydney NSW\" --group-by classification",
+        "comment": "shape of the market with zero rows fetched"
+      },
+      {
+        "command": "seek-pp-cli salary \"software engineer\" --where \"Sydney NSW\" --agent",
+        "comment": "salary percentiles — the command fetches and caches listings itself"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "listings get or a company scan returns nothing for a valid job ID",
+        "fix": "SEEK's GraphQL schema may have shifted; re-run with --json to see the raw error, then trim the query fields the error names."
+      },
+      {
+        "symptom": "me new-jobs or me saved-searches says you are not authenticated",
+        "fix": "run `seek-pp-cli auth login --chrome` while logged in to au.seek.com in Chrome; only the me commands need this."
+      },
+      {
+        "symptom": "salary or trends shows a thin distribution or no history",
+        "fix": "these commands accumulate listings locally on each run; run the same query a few times over days, or widen --where / drop filters for a bigger sample."
+      },
+      {
+        "symptom": "search returns AU jobs when you wanted NZ",
+        "fix": "pass --site NZ-Main --locale en-NZ (both are needed)."
+      }
+    ],
+    "when_to_use": "Use seek-pp-cli when an agent needs to search or monitor Australian/NZ job listings, pull structured job details, compute salary statistics, or track hiring volume over time. It caches every job it fetches to a local SQLite store, so salary and trends answer aggregate questions the SEEK site and every scraper cannot.",
+    "anti_triggers": [
+      "Do not use this CLI to submit a job application or edit a SEEK profile/resume — it is read-only against your account.",
+      "Do not use it for job boards other than SEEK (Indeed, LinkedIn, JobStreet non-AU/NZ) — it only speaks to au.seek.com.",
+      "Do not use it for the SEEK partner/hirer Job Posting API (developer.seek.com) — that is a different, credentialed product."
+    ],
+    "recipes": [
+      {
+        "title": "Daily new-jobs digest",
+        "command": "seek-pp-cli me new-jobs --since 24h --agent",
+        "explanation": "Runs every saved search and returns only postings not already in the local store."
+      },
+      {
+        "title": "Salary benchmark for a role",
+        "command": "seek-pp-cli salary \"data engineer\" --where \"All Australia\" --agent",
+        "explanation": "Percentiles and disclosure rate over the listings the command samples and caches for that role and location."
+      },
+      {
+        "title": "Competitor hiring snapshot",
+        "command": "seek-pp-cli company \"Canva\" --agent --select openings.title,openings.location,openings.listingDate",
+        "explanation": "All current openings for one advertiser with just the fields an agent needs from a large nested response."
+      },
+      {
+        "title": "Is ICT hiring cooling?",
+        "command": "seek-pp-cli trends --by classification --since 180d --agent",
+        "explanation": "Period-over-period listing counts bucketed from the listing dates of jobs cached locally."
+      },
+      {
+        "title": "Shape of a market before a full search",
+        "command": "seek-pp-cli listings facets --keywords \"registered nurse\" --where \"Perth WA\" --group-by salary --agent",
+        "explanation": "Per-facet counts tallied from the sampled result pages, zero extra rows fetched."
+      }
+    ],
+    "trigger_phrases": [
+      "search seek for \u003crole\u003e jobs in \u003ccity\u003e",
+      "what's the salary range for \u003crole\u003e on seek",
+      "any new jobs matching my saved searches",
+      "who is hiring \u003crole\u003e in \u003ccity\u003e",
+      "seek hiring trends for \u003cclassification\u003e",
+      "use seek",
+      "run seek"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "manifest_version": "0.3",
+  "name": "seek-pp-mcp",
+  "display_name": "SEEK",
+  "version": "0.1.0",
+  "description": "Every SEEK search and job-detail feature, plus a local job history, salary distributions, and hiring trends no other SEEK tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/seek-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/seek-pp-mcp",
+      "args": [],
+      "env": {
+        "SEEK_BASE_URL": "${user_config.seek_base_url}",
+        "SEEK_COOKIE": "${user_config.seek_cookie}",
+        "SEEK_USER_AGENT": "${user_config.seek_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "seek_base_url": {
+      "type": "string",
+      "title": "SEEK_BASE_URL",
+      "description": "Optional. Sets SEEK_BASE_URL for the SEEK MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "seek_cookie": {
+      "type": "string",
+      "title": "SEEK_COOKIE",
+      "description": "Optional. Sets SEEK_COOKIE for the SEEK MCP server.",
+      "sensitive": true
+    },
+    "seek_user_agent": {
+      "type": "string",
+      "title": "SEEK_USER_AGENT",
+      "description": "Optional. Sets SEEK_USER_AGENT for the SEEK MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
