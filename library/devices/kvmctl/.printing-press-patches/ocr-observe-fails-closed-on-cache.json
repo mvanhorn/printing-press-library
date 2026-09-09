@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ocr-observe-fails-closed-on-cache",
+  "applied_at": "2026-09-09",
+  "base_run_id": "20260831-161927",
+  "base_printing_press_version": "4.31.3",
+  "summary": "When OCR observation cache lock or write fails, observe must fail closed instead of returning an ID that only exists in this process.",
+  "reason": "A later act CLI process cannot load a memory-only ID and would report it stale, breaking the documented observe-then-act flow.",
+  "files": [
+    "internal/ocr/observation.go",
+    "internal/semantic/ocr_loop.go",
+    "internal/cli/ocr_loop_novel.go"
+  ],
+  "validated_outcome": "Put returns an error when the cache parent cannot be created; package tests cover fail-closed persist and existing observe/act fixtures."
+}

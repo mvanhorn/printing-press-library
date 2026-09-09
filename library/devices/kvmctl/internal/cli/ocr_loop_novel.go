@@ -12,8 +12,8 @@ import (
 
 func init() { registerNovelCommand(registerOCRLoopCommands) }
 
-// pp:data-source live
 func registerOCRLoopCommands(root *cobra.Command, flags *rootFlags) {
+	// pp:data-source live
 	observe := &cobra.Command{
 		Use:         "observe",
 		Short:       "Capture a fresh screenshot and OCR observation",
@@ -25,6 +25,7 @@ func registerOCRLoopCommands(root *cobra.Command, flags *rootFlags) {
 	}
 
 	var expectedText string
+	// pp:data-source live
 	verify := &cobra.Command{
 		Use:         "verify",
 		Short:       "Verify exact high-confidence text in a fresh observation",
@@ -37,6 +38,7 @@ func registerOCRLoopCommands(root *cobra.Command, flags *rootFlags) {
 	verify.Flags().StringVar(&expectedText, "expect-text", "", "exact text expected in the fresh OCR observation")
 	_ = verify.MarkFlagRequired("expect-text")
 
+	// pp:data-source live
 	act := &cobra.Command{
 		Use:         "act",
 		Short:       "Perform an OCR-observation-gated KVM action",
@@ -51,6 +53,7 @@ func registerOCRLoopCommands(root *cobra.Command, flags *rootFlags) {
 
 func newOCRClickTextCommand(flags *rootFlags) *cobra.Command {
 	var observation string
+	// pp:data-source live
 	cmd := &cobra.Command{
 		Use:         "click-text <text>",
 		Short:       "Click one exact high-confidence OCR text match",
@@ -71,6 +74,7 @@ func newOCRClickTextCommand(flags *rootFlags) *cobra.Command {
 
 func newOCRPressKeyCommand(flags *rootFlags) *cobra.Command {
 	var observation string
+	// pp:data-source live
 	cmd := &cobra.Command{
 		Use:         "press-key <key>",
 		Short:       "Press an allowed key against one fresh OCR observation",

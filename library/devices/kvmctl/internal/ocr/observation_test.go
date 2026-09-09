@@ -1,6 +1,7 @@
 package ocr
 
 import (
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -128,5 +129,26 @@ func TestObservationStoreEvictsOldestAtCapacity(t *testing.T) {
 	}
 	if _, ok := store.Get(third.ID); !ok {
 		t.Fatal("third observation was not stored")
+	}
+}
+
+func TestObservationStorePutFailsClosedWhenCacheLockUnavailable(t *testing.T) {
+	now := time.Date(2026, 9, 9, 12, 0, 0, 0, time.UTC)
+	parent := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(parent, []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	store := NewObservationStore(time.Minute, 8, func() time.Time { return now })
+	store.SetPersistPath(filepath.Join(parent, "ocr-observations.json"))
+	observation, err := NewObservation([]byte("snapshot"), now, "test", 100, 50, []Region{{Text: "Ready", Confidence: 90, Box: [4]int{1, 2, 3, 4}, Pixel: [2]int{2, 4}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Put(observation); err == nil {
+		t.Fatal("Put succeeded without a usable cache path")
+	}
+	store.SetPersistPath("")
+	if _, ok := store.Get(observation.ID); ok {
+		t.Fatal("failed persist still kept the observation in memory")
 	}
 }

@@ -132,37 +132,44 @@ func (s *ObservationStore) SetPersistPath(path string) {
 }
 
 // Put stores a defensive copy unless the observation is already expired.
-func (s *ObservationStore) Put(observation Observation) {
+// When a persist path is configured, a cache lock or write failure is returned
+// and the observation is not kept in memory, so observe cannot hand out an ID
+// that a later CLI process cannot load.
+func (s *ObservationStore) Put(observation Observation) error {
 	if s == nil || observation.ID == "" {
-		return
+		return nil
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	unlock, canIO := s.withPersistLock()
-	defer unlock()
-	if canIO {
-		s.loadLocked()
+	unlock, err := s.withPersistLock()
+	if err != nil {
+		return err
 	}
+	defer unlock()
+	s.loadLocked()
 	now := s.now()
 	s.purgeExpired(now)
 	expiresAt := observation.CapturedAt.Add(s.ttl)
-	if expiresAt.After(now) {
-		s.sequence++
-		s.entries[observation.ID] = storedObservation{observation: cloneObservation(observation), expiresAt: expiresAt, sequence: s.sequence}
-		for len(s.entries) > s.capacity {
-			var oldestID string
-			var oldest uint64
-			for id, entry := range s.entries {
-				if oldestID == "" || entry.sequence < oldest {
-					oldestID, oldest = id, entry.sequence
-				}
+	if !expiresAt.After(now) {
+		return s.saveLocked()
+	}
+	s.sequence++
+	s.entries[observation.ID] = storedObservation{observation: cloneObservation(observation), expiresAt: expiresAt, sequence: s.sequence}
+	for len(s.entries) > s.capacity {
+		var oldestID string
+		var oldest uint64
+		for id, entry := range s.entries {
+			if oldestID == "" || entry.sequence < oldest {
+				oldestID, oldest = id, entry.sequence
 			}
-			delete(s.entries, oldestID)
 		}
+		delete(s.entries, oldestID)
 	}
-	if canIO {
-		s.saveLocked()
+	if err := s.saveLocked(); err != nil {
+		delete(s.entries, observation.ID)
+		return err
 	}
+	return nil
 }
 
 // Get returns a defensive copy only while the observation remains valid.
@@ -172,16 +179,15 @@ func (s *ObservationStore) Get(id string) (Observation, bool) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	unlock, canIO := s.withPersistLock()
-	defer unlock()
-	if canIO {
-		s.loadLocked()
+	unlock, err := s.withPersistLock()
+	if err != nil {
+		return Observation{}, false
 	}
+	defer unlock()
+	s.loadLocked()
 	now := s.now()
 	s.purgeExpired(now)
-	if canIO {
-		s.saveLocked()
-	}
+	_ = s.saveLocked()
 	entry, ok := s.entries[id]
 	if !ok {
 		return Observation{}, false
@@ -252,9 +258,9 @@ func (s *ObservationStore) loadLocked() {
 	}
 }
 
-func (s *ObservationStore) saveLocked() {
+func (s *ObservationStore) saveLocked() error {
 	if s.path == "" {
-		return
+		return nil
 	}
 	dumped := persistedStore{Entries: make([]persistedEntry, 0, len(s.entries))}
 	for _, entry := range s.entries {
@@ -266,55 +272,57 @@ func (s *ObservationStore) saveLocked() {
 	}
 	data, err := json.Marshal(dumped)
 	if err != nil {
-		return
+		return err
 	}
 	dir := filepath.Dir(s.path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return
+		return err
 	}
 	tmp, err := os.CreateTemp(dir, ".ocr-observations-*.tmp")
 	if err != nil {
-		return
+		return err
 	}
 	tmpName := tmp.Name()
 	if _, err := tmp.Write(data); err != nil {
 		_ = tmp.Close()
 		_ = os.Remove(tmpName)
-		return
+		return err
 	}
 	if err := tmp.Chmod(0o600); err != nil {
 		_ = tmp.Close()
 		_ = os.Remove(tmpName)
-		return
+		return err
 	}
 	if err := tmp.Close(); err != nil {
 		_ = os.Remove(tmpName)
-		return
+		return err
 	}
 	if err := os.Rename(tmpName, s.path); err != nil {
 		_ = os.Remove(tmpName)
+		return err
 	}
+	return nil
 }
 
-func (s *ObservationStore) withPersistLock() (unlock func(), canIO bool) {
+func (s *ObservationStore) withPersistLock() (func(), error) {
 	if s.path == "" {
-		return func() {}, true
+		return func() {}, nil
 	}
 	if err := os.MkdirAll(filepath.Dir(s.path), 0o700); err != nil {
-		return func() {}, false
+		return nil, err
 	}
 	lockPath := s.path + ".lock"
 	f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
-		return func() {}, false
+		return nil, err
 	}
 	_ = os.Chmod(lockPath, 0o600)
 	if err := lockExclusive(f); err != nil {
 		_ = f.Close()
-		return func() {}, false
+		return nil, err
 	}
 	return func() {
 		_ = unlockExclusive(f)
 		_ = f.Close()
-	}, true
+	}, nil
 }

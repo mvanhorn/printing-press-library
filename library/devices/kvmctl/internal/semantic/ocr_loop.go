@@ -142,7 +142,9 @@ func captureObservation(ctx context.Context, c *client.Client) (ocr.Observation,
 	if err != nil {
 		return ocr.Observation{}, fmt.Errorf("ocr unavailable: %w", err)
 	}
-	observationStore().Put(observation)
+	if err := observationStore().Put(observation); err != nil {
+		return ocr.Observation{}, fmt.Errorf("ocr unavailable: persist observation: %w", err)
+	}
 	return observation, nil
 }
 
