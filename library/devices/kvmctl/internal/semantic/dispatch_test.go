@@ -187,6 +187,22 @@ func TestObserveCapturesFreshSnapshotAndConfiguredOCREvidence(t *testing.T) {
 	}
 }
 
+func TestRearmOTGResultEnvelopeMatchesSelectMutationFlags(t *testing.T) {
+	src, err := os.ReadFile("dispatch.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(src)
+	const selectBuild = `results.Build("select", "kvm", false, "", true, true, "accepted"`
+	const rearmBuild = `results.Build("rearm_otg", "kvm", false, "", true, true, "accepted"`
+	if !strings.Contains(text, selectBuild) {
+		t.Fatalf("select envelope is not a mutating accepted result: want %s", selectBuild)
+	}
+	if !strings.Contains(text, rearmBuild) {
+		t.Fatalf("rearm_otg envelope must match select (readOnly=false, ok=true): want %s", rearmBuild)
+	}
+}
+
 func dispatchObject(t *testing.T, c *client.Client, operation string, args map[string]any) map[string]any {
 	t.Helper()
 	raw, err := Dispatch(context.Background(), c, operation, args)

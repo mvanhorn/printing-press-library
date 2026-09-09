@@ -355,7 +355,7 @@ func opRearmOTG(ctx context.Context, c *client.Client) (results.Operation, error
 	if err := c.KVMDRearmOTG(ctx); err != nil {
 		return results.Operation{}, err
 	}
-	return results.Build("rearm_otg", "kvm", true, "", false, true, "accepted", map[string]any{
+	return results.Build("rearm_otg", "kvm", false, "", true, true, "accepted", map[string]any{
 		"virtual_storage": "disabled", "keyboard": "enabled", "mouse": "enabled",
 	}, nil), nil
 }
