@@ -3,7 +3,7 @@
 **Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.**
 
 Created by [@maxswinguy](https://github.com/maxswinguy) (Maxime Delavergne).
-Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
+Contributors: [@lagiosv](https://github.com/lagiosv) (Vasileios Lagios), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 Substack Reader archives whole publications into a local SQLite mirror you can search, SQL-query, and read offline. Free posts need no login; paid posts you're entitled to unlock with your own session cookie — never redistributed, always opt-in. Unlike every other Substack tool it builds a corpus that compounds instead of fetching live per call.
 
