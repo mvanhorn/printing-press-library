@@ -1,5 +1,5 @@
 // Copyright 2026 Som Samantray and contributors. Licensed under Apache-2.0. See LICENSE.
-// pp:data-source local
+// pp:data-source auto
 
 package cli
 

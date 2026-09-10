@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "d8e3415e0d41308f752dd4bf28ce94d0239df0c8695b11edc7ecfbe2a7d0338e",
+  "source_fingerprint": "40a10b1cfceb6696d8182790f278412ee34bb0269a46c730d0cf778e6e1af7cf",
   "source_files": {
     "cmd/myanimelist-pp-cli/main.go": "978b50726c13814f6c2a464205ead9a5bb0d535b7da99f2869485089d06b1175",
     "cmd/myanimelist-pp-mcp/http_auth_test.go": "3b957bd7886aa0966de7989b3319ad01951bc672797adc91699978f5dd23680b",
@@ -19,9 +19,9 @@
     "go.mod": "7b16be0022a036029c1281b1b4eaf7447137a07ee9db2a869d114b7ebf9e6972",
     "go.sum": "f2352a4e375e57b3de0a343aaa79db682c1a17006372b4f65c5c2682de291f77",
     "internal/cache/cache.go": "e24c190931078115e2ba2b4c5ef9dc7e8eb184018ff35c612c65b183753a4dde",
-    "internal/cli/adaptation.go": "b0b4accb5f87547ad182bdbf131929529b665979ff738c0af1110e7fd39f63b3",
+    "internal/cli/adaptation.go": "570f0fb537f215cc28f5bcb280723b4a97079551a251d6c6b6fb18db0989500d",
     "internal/cli/adaptation_band_test.go": "30dde4c1e4833aeb245464194bac3347277ff699fa190ef14733ffe30866ea83",
-    "internal/cli/adaptation_command_test.go": "ed265f029ea6b674da969e3fbd8981719302b5fe7cc0d064205b8d54dbcdfb56",
+    "internal/cli/adaptation_command_test.go": "92319489b59c20c061bbaf1b7e10e5c4aefc1be5739da0812d734ffa6b4a67f9",
     "internal/cli/adaptation_test.go": "d7d612b34d0b63cfe3ea1b0a7ee82c6125c55b104af7af264c075deba1bc6886",
     "internal/cli/agent_context.go": "f1889881f6b993c51afdb6fc983be0af58a9c34701921767639a646270fa4086",
     "internal/cli/airing.go": "6eb632e3d9741ddcce26728e2cf6d6d4416a8f4677bba6049c65a06b89c3268b",
@@ -53,7 +53,7 @@
     "internal/cli/deliver.go": "27fe654ee6a40b97fcffe178c1bb786590e496c170deefa719b44c1cac845822",
     "internal/cli/deliver_dry_run_test.go": "ee1b07a2eab80b02e4bbb05e8b12ee38c66cabbd29c7150b6cfe1bb4733b965e",
     "internal/cli/doctor.go": "38d6f63715708f0bc66f6d32cce49342c9edeb6602402c7c5b0f482cf97ca46e",
-    "internal/cli/drift.go": "02cda01844352227773df5eabe620a5d5a81b7064d30f83db641153fb1227b7d",
+    "internal/cli/drift.go": "babf2699c7184f9b7619c04bdcf4f7623f084280018dc2a4a216400f70e6612a",
     "internal/cli/drift_test.go": "ec281a5a177e8201ec59b8aac74087dfa6ce6d0a77a54335b09c23125c249aa2",
     "internal/cli/export.go": "ee0bf4c9ed1e24c466383f7ca1965386ecfd1b5eef07fd2a51d8cf4f8a22bb49",
     "internal/cli/feedback.go": "b31fd84d0e092fadca1d8df0366ea8015f50649167e3e86afccc62289cf682b2",

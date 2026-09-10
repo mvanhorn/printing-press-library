@@ -59,7 +59,7 @@ func adaptationNote(mangaChapters int, bandComputed, stillAiring, sourceOngoing 
 	}
 	note := "estimate derived from episode and chapter counts; MyAnimeList does not record where the adaptation stopped"
 	if !bandComputed {
-		note = "no chapter band could be estimated because the anime's announced episode total is unknown; MyAnimeList does not record where the adaptation stopped"
+		note = "no chapter band could be estimated because the episode counts it needs are unknown; MyAnimeList does not record where the adaptation stopped"
 	}
 	if stillAiring {
 		note += "; the anime is still airing, so the source may not yet be fully covered"
@@ -162,9 +162,15 @@ func newNovelAdaptationCmd(flags *rootFlags) *cobra.Command {
 			stillAiring := anime.Status != "Finished Airing"
 			reachedEpisodes := anime.Episodes
 			if stillAiring || reachedEpisodes <= 0 {
+				// The announced total is not evidence of how far the adaptation
+				// reached. A failed or empty episode-table read therefore leaves
+				// the reached count unknown: falling back to the announced total
+				// here would restore the ~80-100% overstatement this command
+				// exists to avoid, so no band is estimated at all.
+				reachedEpisodes = 0
 				eps, eerr := malEpisodesWith(ctx, c, id)
 				if eerr != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not read the episode table (%v); falling back to the announced episode total\n", eerr)
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not read the episode table (%v); the chapter band cannot be estimated\n", eerr)
 				} else if aired := airedEpisodeCount(eps); aired > 0 {
 					reachedEpisodes = aired
 				}

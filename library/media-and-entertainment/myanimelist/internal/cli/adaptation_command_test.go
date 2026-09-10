@@ -104,3 +104,54 @@ func TestAdaptationUsesAiredEpisodeCountNotAnnouncedTotal(t *testing.T) {
 		t.Fatalf("note = %q, want the still-airing caveat", view.Note)
 	}
 }
+
+// TestAdaptationLeavesCoverageUnknownWhenEpisodeTableFails is the guard for the
+// failure path: if the episode table cannot be read for a still-airing title,
+// falling back to the announced episode total would restore the same ~80-100%
+// coverage overstatement the reached-count fix removed. The band must stay
+// unknown instead.
+func TestAdaptationLeavesCoverageUnknownWhenEpisodeTableFails(t *testing.T) {
+	testenv.Isolate(t)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/anime/52991/_/episode" {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, `<html><body>not found</body></html>`)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		switch r.URL.Path {
+		case "/anime/52991":
+			fmt.Fprint(w, adaptationAnimeFixture)
+		case "/manga/2":
+			fmt.Fprint(w, adaptationMangaFixture)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, `<html><body>not found</body></html>`)
+		}
+	}))
+	defer srv.Close()
+	t.Setenv("MYANIMELIST_BASE_URL", srv.URL)
+
+	stdout, stderr, err := runRootArgs(t, "adaptation", "52991", "--json")
+	if err != nil {
+		t.Fatalf("adaptation 52991 with an unreadable episode table: %v (stderr=%s)", err, stderr)
+	}
+
+	var view adaptationView
+	if err := json.Unmarshal([]byte(stdout), &view); err != nil {
+		t.Fatalf("decoding adaptation output %q: %v", stdout, err)
+	}
+	if view.ReachedEpisodes != 0 {
+		t.Fatalf("reached_episodes = %d, want 0 (unknown) after an episode-table failure", view.ReachedEpisodes)
+	}
+	if view.CoveredLow != 0 || view.CoveredHigh != 0 {
+		t.Fatalf("coverage band = %d-%d, want no band when the reached count is unknown", view.CoveredLow, view.CoveredHigh)
+	}
+	if strings.Contains(view.Note, "estimate derived") {
+		t.Fatalf("note = %q still claims an estimate over an unreadable episode table", view.Note)
+	}
+	if !strings.Contains(view.Note, "could be estimated") {
+		t.Fatalf("note = %q, want it to say no band could be estimated", view.Note)
+	}
+}
