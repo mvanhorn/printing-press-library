@@ -1726,6 +1726,19 @@ func commandDataSourceAnnotation(cmd *cobra.Command) string {
 	return strings.ToLower(strings.TrimSpace(cmd.Annotations["pp:data-source"]))
 }
 
+// validateDeclaredDataSource enforces the command's declared pp:data-source
+// strategy against an explicit --data-source request, so a declaration and the
+// data actually served cannot disagree. It is called once from the root
+// persistent pre-run hook, which means every command carrying the annotation is
+// covered without a per-command call:
+//
+//   - a "local" command rejects --data-source live ("no live equivalent")
+//   - a "live" command rejects --data-source local ("no local data source")
+//   - "auto" (and no annotation at all) accepts either
+func validateDeclaredDataSource(flags *rootFlags, cmd *cobra.Command) error {
+	return validateDataSourceStrategy(flags, commandDataSourceAnnotation(cmd))
+}
+
 func declaredAgentSource(cmd *cobra.Command, flags *rootFlags) string {
 	if flags != nil && flags.dryRun {
 		return "dry-run"

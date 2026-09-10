@@ -69,6 +69,12 @@ not declare temporal sync filters, so sync performs full pagination unless an
 explicit resource declares its own incremental filter.
 Once synced, use the 'search' command for instant full-text search.
 
+Ranking pagination:
+  topanime.php and topmanga.php address the ranking by rank offset, published
+  in the 'limit' parameter (limit=50 starts at rank 51). Sync therefore walks
+  them with limit=0, 50, 100, ... — the first request starts at rank 1 rather
+  than skipping the top 50.
+
 Exit codes & warnings:
   Resources the API denies access to (HTTP 403, or HTTP 400 with an
   access-policy body) are reported as warnings rather than failing the
@@ -554,11 +560,8 @@ func syncResource(ctx context.Context, c interface {
 		}
 
 		if resourceSupportsPagination(resource) {
-			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
-			if cursor != "" {
-				if pageSize.cursorParam != "" {
-					params[pageSize.cursorParam] = cursor
-				}
+			for key, value := range syncPaginationParams(pageSize, cursor) {
+				params[key] = value
 			}
 		}
 
@@ -656,8 +659,7 @@ func syncResource(ctx context.Context, c interface {
 			hasMore = true
 		}
 		if pageSize.cursorParam != "" && pageSize.cursorType == "offset" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
-			currentOffset, _ := strconv.Atoi(cursor)
-			nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+			nextCursor = syncAdvanceOffset(cursor, pageSize.limit)
 			hasMore = true
 		}
 		if hasMore && previousPageItemsSet && syncPageItemsEqual(previousPageItems, items) && syncPaginationPageIsStuck(pageSize.cursorType, cursor, nextCursor) {
@@ -821,8 +823,7 @@ func syncResource(ctx context.Context, c interface {
 			}
 			if truncatedByCap && capExitCursor == "" {
 				if pageSize.cursorParam != "" && pageSize.cursorType == "offset" {
-					currentOffset, _ := strconv.Atoi(cursor)
-					capExitCursor = strconv.Itoa(currentOffset + pageSize.limit)
+					capExitCursor = syncAdvanceOffset(cursor, pageSize.limit)
 				} else {
 					truncatedByCap = false
 				}
@@ -896,8 +897,7 @@ func syncResource(ctx context.Context, c interface {
 			if pageSize.cursorParam != "" && pageSize.cursorType == "offset" {
 				// Cursor-based APIs return the next cursor in the envelope.
 				// Offset-based APIs carry their pagination position client-side.
-				currentOffset, _ := strconv.Atoi(cursor)
-				nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+				nextCursor = syncAdvanceOffset(cursor, pageSize.limit)
 			} else {
 				// A cursor-based API reporting has_more without a next cursor
 				// cannot advance safely; stop instead of looping silently.
@@ -1100,21 +1100,9 @@ func cursorPageHasContinuation(cursorType string, hasMore bool, nextCursor strin
 func determinePaginationDefaults(resource string) paginationDefaults {
 	switch resource {
 	case "ranking":
-		return paginationDefaults{
-			cursorParam:    "page",
-			cursorType:     "page",
-			nextCursorPath: "",
-			limitParam:     "limit",
-			limit:          50,
-		}
+		return rankOffsetPaginationDefaults()
 	case "ranking-topmanga-php":
-		return paginationDefaults{
-			cursorParam:    "page",
-			cursorType:     "page",
-			nextCursorPath: "",
-			limitParam:     "limit",
-			limit:          50,
-		}
+		return rankOffsetPaginationDefaults()
 	}
 	return paginationDefaults{
 		cursorParam:    "page",
@@ -1123,6 +1111,54 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 		limitParam:     "limit",
 		limit:          100,
 	}
+}
+
+// rankOffsetPaginationDefaults describes topanime.php / topmanga.php, which
+// address the ranking by rank offset published in the `limit` parameter:
+// limit=0 is rank 1, limit=50 starts at rank 51. `limit` is therefore not a
+// page size, and there is no separate offset parameter, so the offset travels
+// in cursorParam and limitParam is intentionally empty (syncPaginationParams
+// sends offset 0 for the first page instead of the stride).
+func rankOffsetPaginationDefaults() paginationDefaults {
+	return paginationDefaults{
+		cursorParam:    "limit",
+		cursorType:     "offset",
+		nextCursorPath: "",
+		limitParam:     "",
+		limit:          50,
+	}
+}
+
+// syncPaginationParams builds the pagination query parameters for one page of a
+// resource sync.
+//
+// The usual shape is "page size in limitParam, position in cursorParam". Rank
+// offset resources (see rankOffsetPaginationDefaults) are the exception: the
+// position is the limit parameter itself, so the first page must send offset 0
+// — leaving the parameter out is not equivalent, because the endpoint command's
+// spec default is 50 and would skip ranks 1-50.
+func syncPaginationParams(pageSize paginationDefaults, cursor string) map[string]string {
+	params := map[string]string{}
+	if pageSize.limitParam != "" {
+		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+	}
+	if pageSize.cursorParam == "" {
+		return params
+	}
+	switch {
+	case cursor != "":
+		params[pageSize.cursorParam] = cursor
+	case pageSize.cursorType == "offset" && pageSize.limitParam == "":
+		params[pageSize.cursorParam] = "0"
+	}
+	return params
+}
+
+// syncAdvanceOffset returns the position parameter for the page after cursor
+// when the paginator is offset-based and the offset travels in cursorParam.
+func syncAdvanceOffset(cursor string, stride int) string {
+	currentOffset, _ := strconv.Atoi(cursor)
+	return strconv.Itoa(currentOffset + stride)
 }
 
 func resourceSupportsPagination(resource string) bool {

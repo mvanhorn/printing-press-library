@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "episode-consistency-needs-non-overlapping-windows",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "Episode reception reports a direction only when the first-3 and last-3 windows do not overlap (>= 6 rated episodes); below that it returns an explicit insufficient-data verdict with slope_computed=false.",
+  "reason": "With one or two rated episodes both windows contained the same episodes, so their means were identical by construction, the slope was forced to zero, and the verdict claimed the show 'holds steady' regardless of episode order. That is an artifact of the sample size, not a finding. Slope is left at 0 and marked not computed so consumers cannot mistake it for a measured zero.",
+  "files": [
+    "internal/malhtml/analytics.go"
+  ],
+  "validated_outcome": "go test ./internal/malhtml/ -run TestConsistencySmallSamplesAreInsufficient covers 1, 2, 3 and 6+ rated episodes; the 6-episode cases still report improves/falls off with slope_computed=true."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "cache-writes-are-atomic",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "Response-cache writes go to a same-directory temporary file and are renamed into place, so a concurrent reader never observes a partial body.",
+  "reason": "Cache refresh removed the old file and wrote the replacement directly to the final path, so a second CLI process refreshing or reading the same uncached resource could read a truncated body and treat malformed JSON as a successful cache hit. Rename is atomic within a filesystem; os.CreateTemp already creates 0600, matching the previous permissions.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go test ./internal/client/ -run TestWriteCacheIsAtomic hammers concurrent reads and writes and asserts every successful read is complete valid JSON with no .tmp- leftovers."
+}

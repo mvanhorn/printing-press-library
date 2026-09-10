@@ -119,6 +119,15 @@ func (s *Stats) DropRisk(episodes int) (DropRisk, error) {
 	return d, nil
 }
 
+// consistencyWindow is the number of episodes in each comparison window, and
+// minTrendEpisodes is the smallest sample whose first and last windows do not
+// overlap. Below it the two windows contain the same episodes, their means are
+// identical by construction, and any slope would be a fabricated zero.
+const (
+	consistencyWindow = 3
+	minTrendEpisodes  = 2 * consistencyWindow
+)
+
 // ReceptionCurve describes how episode-level reception moves across a season.
 type ReceptionCurve struct {
 	Kind          string    `json:"kind"`
@@ -129,6 +138,7 @@ type ReceptionCurve struct {
 	First3Mean    float64   `json:"first_three_mean"`
 	Last3Mean     float64   `json:"last_three_mean"`
 	Slope         float64   `json:"slope"`
+	SlopeComputed bool      `json:"slope_computed"`
 	WorstEpisode  int       `json:"worst_episode,omitempty"`
 	WorstPoll     float64   `json:"worst_poll_average,omitempty"`
 	BestEpisode   int       `json:"best_episode,omitempty"`
@@ -171,7 +181,7 @@ func Consistency(id int, eps []Episode) (ReceptionCurve, error) {
 		variance += math.Pow(e.PollAverage-c.MeanPoll, 2)
 	}
 	c.StdDevPoll = math.Sqrt(variance / float64(len(rated)))
-	first, last := 3, 3
+	first, last := consistencyWindow, consistencyWindow
 	if len(rated) < first {
 		first = len(rated)
 	}
@@ -180,14 +190,24 @@ func Consistency(id int, eps []Episode) (ReceptionCurve, error) {
 	}
 	c.First3Mean = meanPoll(rated[:first])
 	c.Last3Mean = meanPoll(rated[len(rated)-last:])
-	c.Slope = math.Round((c.Last3Mean-c.First3Mean)*100) / 100
-	switch {
-	case c.Slope > 0.3:
-		c.Verdict = "improves"
-	case c.Slope < -0.3:
-		c.Verdict = "falls off"
-	default:
-		c.Verdict = "holds steady"
+	// Only report a direction when the two windows do not overlap. With one or
+	// two rated episodes they cover the same episodes, so the means match no
+	// matter what order the episodes are in — "holds steady" there would be an
+	// artifact of the sample size, not a finding. Slope is left at zero and
+	// slope_computed=false marks it as not computed.
+	c.SlopeComputed = len(rated) >= minTrendEpisodes && first <= len(rated)-last
+	if c.SlopeComputed {
+		c.Slope = math.Round((c.Last3Mean-c.First3Mean)*100) / 100
+		switch {
+		case c.Slope > 0.3:
+			c.Verdict = "improves"
+		case c.Slope < -0.3:
+			c.Verdict = "falls off"
+		default:
+			c.Verdict = "holds steady"
+		}
+	} else {
+		c.Verdict = fmt.Sprintf("insufficient data for a trend (%d rated episode(s); %d non-overlapping are needed)", len(rated), minTrendEpisodes)
 	}
 	c.MeanPoll = math.Round(c.MeanPoll*100) / 100
 	c.StdDevPoll = math.Round(c.StdDevPoll*100) / 100

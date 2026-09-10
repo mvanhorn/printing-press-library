@@ -1,5 +1,5 @@
 // Copyright 2026 Som Samantray and contributors. Licensed under Apache-2.0. See LICENSE.
-// pp:data-source local
+// pp:data-source live
 
 package cli
 
@@ -38,8 +38,12 @@ func newNovelFranchiseGapCmd(flags *rootFlags) *cobra.Command {
 			"Do NOT use this command for anime-to-manga source coverage; use 'adaptation' instead.",
 		Example: "  myanimelist-pp-cli franchise gap --json",
 		Annotations: map[string]string{
-			"mcp:read-only":       "true",
-			"pp:data-source":      "local",
+			"mcp:read-only": "true",
+			// Every gap in the report comes from a live related-entry page; the
+			// local library only decides which franchises to walk. There is no
+			// local equivalent, so this is "live", not "local": a local-only
+			// request is refused rather than answered with a false empty list.
+			"pp:data-source":      "live",
 			"pp:happy-args":       "--kind=anime",
 			"pp:typed-exit-codes": "0,3",
 			"pp:novel-scaffold":   "false",
@@ -79,9 +83,11 @@ func newNovelFranchiseGapCmd(flags *rootFlags) *cobra.Command {
 			}
 			gaps := make([]franchiseGapRow, 0, 8)
 			seen := map[string]bool{}
+			fetchFailures := 0
 			for _, e := range entries {
 				detail, derr := malDetail(ctx, flags, e.Kind, e.ID)
 				if derr != nil {
+					fetchFailures++
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not read %s %d: %v\n", e.Kind, e.ID, derr)
 					continue
 				}
@@ -103,9 +109,19 @@ func newNovelFranchiseGapCmd(flags *rootFlags) *cobra.Command {
 			if limit > 0 && len(gaps) > limit {
 				gaps = gaps[:limit]
 			}
+			// An empty gap list is only meaningful when the related-entry pages
+			// were actually read. If every read failed, reporting "nothing is
+			// missing" would be a false complete result.
+			if len(entries) > 0 && fetchFailures == len(entries) {
+				return fmt.Errorf("could not read the related entries of any of the %d tracked title(s); the gap list cannot be enumerated (see the warnings above)", len(entries))
+			}
 			view := franchiseGapView{Gaps: gaps, Scanned: len(entries)}
 			if len(gaps) == 0 {
-				view.Note = "every related entry for your tracked titles is already in the local library"
+				if fetchFailures > 0 {
+					view.Note = fmt.Sprintf("%d of %d tracked title(s) could not be read, so this gap list is incomplete; every related entry found so far is already in the local library", fetchFailures, len(entries))
+				} else {
+					view.Note = "every related entry for your tracked titles is already in the local library"
+				}
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "track-remove-reports-not-found",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "track remove reads sql.Result.RowsAffected and reports an accurate not-found (exit 3, removed:false in --json) when no row matched.",
+  "reason": "The delete result was discarded and the command always reported removed:true, so a wrong id or a wrong --kind claimed a removal that never happened while the database was unchanged. The row count is the only evidence the delete matched anything. Exit 3 matches the command's declared pp:typed-exit-codes 0,2,3.",
+  "files": [
+    "internal/cli/track.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run TestTrackRemoveReportsNotFound asserts exit 3 on an absent id, that the row is still absent, and that a real removal still reports removed:true."
+}

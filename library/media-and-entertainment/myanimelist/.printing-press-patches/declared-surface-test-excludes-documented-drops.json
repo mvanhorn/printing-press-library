@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "declared-surface-test-excludes-documented-drops",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "The declared-API-surface reachability test names the endpoints deliberately dropped from this print (RSS feed, sitemap, anime streaming) instead of expecting them, so go test ./... is green without hiding the divergence.",
+  "reason": "TestDeclaredAPISurfaceReachable asserted the spec-declared surface, but Phase 5 deliberately dropped three surfaces with a recorded cause in the acceptance report's Known Gaps: MyAnimeList serves the RSS feeds and sitemap as XML, which this client's JSON guard refuses, and /anime/{id}/streaming answers an invalid id with anime 1 rather than an error. The test therefore failed on a green print. The dropped paths stay in the expected list and in an explicit droppedSurfaces map with their reasons; the map is also used in reverse so a surface that starts shipping again fails the test as stale bookkeeping. Do not re-add the dropped endpoints to silence this, and do not delete the expectations.",
+  "files": [
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run TestDeclaredAPISurfaceReachable passes; restoring any dropped endpoint turns the test red until it is removed from droppedSurfaces."
+}

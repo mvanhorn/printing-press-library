@@ -7,18 +7,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
-	"os"
-	"strings"
-	"text/tabwriter"
-	"time"
-
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/store"
+	"io"
+	"os"
+	"strings"
+	"text/tabwriter"
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -205,9 +205,11 @@ func Execute() (retErr error) {
 			}
 		}
 	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+	// --dry-run promises "show the request without sending". --deliver is an
+	// external side effect (a file write or an HTTP POST), so it has to obey
+	// the same promise: deliverCapturedOutput is a no-op when dryRun is set.
+	if err == nil {
+		if derr := deliverCapturedOutput(&flags); derr != nil {
 			return derr
 		}
 	}
@@ -336,7 +338,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 				return err
 			}
 			flags.deliverSink = sink
-			if sink.Scheme != "stdout" && sink.Scheme != "" {
+			// A dry run never delivers (see deliverCapturedOutput), so it also
+			// skips capturing the output that would have been delivered.
+			if sink.Scheme != "stdout" && sink.Scheme != "" && !flags.dryRun {
 				flags.deliverBuf = &bytes.Buffer{}
 				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
 			}
@@ -400,6 +404,16 @@ See README.md or the bundled SKILL.md for recipes.`,
 			// valid
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
+		}
+		// Enforce the command's declared pp:data-source strategy (see
+		// commandDataSourceAnnotation). The enum check above only proves the
+		// value is spellable; this proves the command can actually serve it.
+		// Without it a live-only command told --data-source local still hits
+		// the network, and a local-only command told --data-source live still
+		// reads local snapshots, while the reported provenance claims
+		// otherwise. Hands-off for commands that declare "auto" or nothing.
+		if err := validateDeclaredDataSource(flags, cmd); err != nil {
+			return err
 		}
 		// Auto-refresh stale local caches before serving read commands.
 		// Looks up the current command path in readCommandResources and

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ranking-limit-is-a-rank-offset",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "Ranking sync treats limit as the rank offset topanime.php/topmanga.php actually implement: the first request sends offset 0 and each subsequent request advances it by 50.",
+  "reason": "topanime.php and topmanga.php address the list by rank offset published in limit (limit=50 starts at rank 51). Sync used limit as a page size and advanced a separate page parameter, so the first request skipped ranks 1-50 and later requests repeated the same window. There is no separate offset parameter, so the offset travels in cursorParam (limit), limitParam stays empty, and syncPaginationParams must send 0 rather than the stride on the first page — the endpoint command's spec default is 50, so omitting the parameter is not offset 0.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run 'TestRankingPaginationUsesRankOffset|TestRankingSyncSendsRankOffsetZero' asserts the helper parameter sequence and drives the real sync command against a local server, where the first ranking request must carry limit=0 and each later request must advance the offset by 50 without repeating a window."
+}

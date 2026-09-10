@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "declared-data-source-strategy-is-enforced",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "Each command's pp:data-source declaration must match what it actually reads: the root pre-run hook enforces it, every command that touches the network declares live or auto, and an auto command handed --data-source local stays offline.",
+  "reason": "--data-source was only validated against its enum, so the hand-written novel commands accepted any value and served whatever they were coded to fetch: 'anime consistency --data-source local' and 'suggest --data-source local' still hit the network, and 'drift --data-source live' still read local snapshots. Enforcement lives in the root persistent pre-run hook and reads cmd.Annotations[pp:data-source], so a new novel command is covered by declaring its strategy rather than by remembering a per-command call. Enforcement alone is not enough — a declaration that lies is worse than none, so the declarations were corrected too: suggest is live (no local candidate pool), franchise gap is live (its gap list comes from live related-entry pages), track add is auto and skips its optional title fetch under an explicit local, and drift is auto and refuses --record under an explicit local. Commands that genuinely need live data must not claim local.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/helpers.go",
+    "internal/cli/week.go",
+    "internal/cli/suggest.go",
+    "internal/cli/franchise_gap.go",
+    "internal/cli/drift.go",
+    "internal/cli/track.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run 'TestDeclaredDataSourceStrategyEnforced|TestDataSourceRejectionEndToEnd|TestLocalDeclaredCommandsDeclareTheSourceTheyActuallyUse|TestWeekLocalOnlyDoesNotFetchLive' walks every annotation, rejects the wrong source end to end, and proves franchise gap refuses local, track add stays offline under local, and drift --record refuses local."
+}

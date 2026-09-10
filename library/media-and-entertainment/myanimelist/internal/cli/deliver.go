@@ -76,6 +76,22 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 	}
 }
 
+// deliverCapturedOutput performs the post-run --deliver side effect for a
+// successful invocation. It is a no-op when nothing was captured and —
+// critically — when the invocation was a dry run: --dry-run promises to show
+// the request without sending, and a file write or webhook POST is exactly the
+// external side effect that promise covers.
+func deliverCapturedOutput(flags *rootFlags) error {
+	if flags == nil || flags.dryRun || flags.deliverBuf == nil {
+		return nil
+	}
+	if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+		fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+		return derr
+	}
+	return nil
+}
+
 func unwrapBinaryDeliverBody(body []byte) (raw []byte, contentType string, ok bool) {
 	return client.UnwrapBinaryResponse(body)
 }

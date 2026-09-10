@@ -93,25 +93,54 @@ func newNovelWeekCmd(flags *rootFlags) *cobra.Command {
 			if isDogfoodEnv() && len(entries) > 2 {
 				entries = entries[:2]
 			}
+			// A broadcast slot is published only on the live title page. Under
+			// an explicit --data-source local the command must stay offline, so
+			// entries are reported without a schedule instead of silently
+			// fetching live data the user asked it not to fetch.
+			localOnly := flags != nil && flags.dataSource == "local"
 			slots := make([]weekSlot, 0, len(entries))
-			for _, e := range entries {
-				detail, derr := malDetail(ctx, flags, e.Kind, e.ID)
-				if derr != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not read %s %d: %v\n", e.Kind, e.ID, derr)
-					continue
+			if localOnly {
+				for _, e := range entries {
+					slots = append(slots, weekSlot{
+						Kind: e.Kind, ID: e.ID, Title: e.Title,
+						Progress: e.Progress, Next: e.Progress + 1,
+						LocalDay: "unscheduled",
+					})
 				}
-				slot := weekSlot{Kind: e.Kind, ID: e.ID, Title: detail.Title, Progress: e.Progress, Next: e.Progress + 1}
-				if day, clock, ok := convertBroadcast(detail.Broadcast, time.Now()); ok {
-					slot.LocalDay, slot.LocalTime, slot.JSTSlot = day, clock, detail.Broadcast
-				} else {
-					slot.LocalDay = "unscheduled"
-					slot.JSTSlot = detail.Broadcast
+			} else {
+				// One client for the whole grid: newClient reads the config file
+				// and builds a fresh rate limiter on every call, so creating it
+				// inside the loop would re-read config and reset the pacer once
+				// per tracked title.
+				c, cerr := flags.newClient()
+				if cerr != nil {
+					return cerr
 				}
-				slots = append(slots, slot)
+				for _, e := range entries {
+					detail, derr := malDetailWith(ctx, c, e.Kind, e.ID)
+					if derr != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not read %s %d: %v\n", e.Kind, e.ID, derr)
+						continue
+					}
+					slot := weekSlot{Kind: e.Kind, ID: e.ID, Title: detail.Title, Progress: e.Progress, Next: e.Progress + 1}
+					if day, clock, ok := convertBroadcast(detail.Broadcast, time.Now()); ok {
+						slot.LocalDay, slot.LocalTime, slot.JSTSlot = day, clock, detail.Broadcast
+					} else {
+						slot.LocalDay = "unscheduled"
+						slot.JSTSlot = detail.Broadcast
+					}
+					slots = append(slots, slot)
+				}
 			}
-			// Collisions: two tracked shows in the same local day and hour.
+			// Collisions: two tracked shows in the same local day and hour. A
+			// slot without a local time has no schedule to collide with, so it is
+			// excluded; otherwise every unscheduled entry would share the same
+			// empty key and be falsely flagged against the others.
 			counts := map[string]int{}
 			for _, s := range slots {
+				if s.LocalTime == "" {
+					continue
+				}
 				counts[s.LocalDay+" "+s.LocalTime]++
 			}
 			for i := range slots {
@@ -126,7 +155,10 @@ func newNovelWeekCmd(flags *rootFlags) *cobra.Command {
 				return slots[i].LocalTime < slots[j].LocalTime
 			})
 			view := weekView{Slots: slots, Timezone: localZone(), Entries: len(entries)}
-			if len(slots) == 0 {
+			switch {
+			case localOnly && len(slots) > 0:
+				view.Note = "--data-source local: broadcast times are only published on the live title page, so no local schedule is available; drop the flag for the live grid"
+			case len(slots) == 0:
 				view.Note = "no locally tracked shows matched; add one with `myanimelist-pp-cli track add <id> --status watching`"
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
@@ -135,6 +167,9 @@ func newNovelWeekCmd(flags *rootFlags) *cobra.Command {
 			if len(slots) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), view.Note)
 				return nil
+			}
+			if localOnly {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %s\n", view.Note)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Weekly grid (%s)\n", view.Timezone)
 			table := make([]map[string]any, 0, len(slots))

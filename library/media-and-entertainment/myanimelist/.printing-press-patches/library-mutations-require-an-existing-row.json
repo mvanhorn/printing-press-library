@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "library-mutations-require-an-existing-row",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "track rate/note/drop/progress resolve a title only if it is already in the local library: a missing row is a usage error with the add-this-first hint (exit 2), while a store failure stays a plain error (exit 1) and never prints usage.",
+  "reason": "Unlike track progress, rate/note/drop built a synthetic entry when the id was absent and upserted it, so a typo silently created a title-less library row that polluted listings, exports, and analytics. Two follow-on invariants matter as much as the guard itself: (1) the not-found case must be distinguishable from a store failure, or a locked/corrupt database is reported as bad arguments with a usage dump; the sentinel errMalNotInLibrary carries that distinction; (2) (kind,id) is the table's primary key, so the guard reads that one row instead of scanning and sorting the whole kind.",
+  "files": [
+    "internal/cli/track.go",
+    "internal/cli/mal.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run 'TestTrackMutationsRejectAbsentIDs|TestTrackMutationStoreFailureIsNotAUsageError|TestTrackMutationAdvancesUpdatedAt' asserts exit 2 with the add hint and a zero-row library for an unadded id, a non-2 exit with no usage text when the store is broken, and a freshly stamped updated_at after a mutation."
+}

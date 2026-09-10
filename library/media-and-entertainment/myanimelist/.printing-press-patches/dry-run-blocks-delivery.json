@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-blocks-delivery",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260910-215529-36659c2f",
+  "base_printing_press_version": "4.32.1",
+  "summary": "A dry run must not perform the --deliver side effect (file write or webhook POST); delivery is gated on !flags.dryRun and the delivery buffer is not even allocated.",
+  "reason": "The post-run hook delivered the captured output buffer after every successful command, so '--dry-run --deliver file:...' wrote a file and '--dry-run --deliver webhook:...' sent a POST. --dry-run promises to show the request without sending, and --deliver is exactly the kind of external side effect that promise covers. A dry run also no longer captures an output buffer that would only be discarded.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/deliver.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run TestDeliverCapturedOutputRespectsDryRun passes (file sink not written, webhook sink not dialed, real run still delivers byte-for-byte)."
+}

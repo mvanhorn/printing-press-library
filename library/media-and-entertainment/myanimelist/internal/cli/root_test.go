@@ -80,6 +80,24 @@ func TestDeclaredAPISurfaceReachable(t *testing.T) {
 		"sitemap shard",
 		"studio",
 	}
+	// droppedSurfaces are the spec-declared endpoints this print deliberately
+	// does not ship, each dropped during Phase 5 with a recorded cause in the
+	// run's acceptance report ("Known Gaps"): MyAnimeList serves the RSS feeds
+	// and the sitemap as XML, which this client's JSON guard refuses, and
+	// /anime/{id}/streaming answers an invalid id with anime 1 instead of an
+	// error, so it cannot satisfy the matrix's error-path contract. Listing them
+	// explicitly keeps the reachability check meaningful for every surface that
+	// IS supposed to ship, instead of quietly deleting the expectations.
+	droppedSurfaces := map[string]string{
+		"anime streaming": "upstream answers an invalid id with anime 1, so no error path exists",
+		"feed":            "RSS/XML response has no JSON representation in this client",
+		"feed featured":   "RSS/XML response has no JSON representation in this client",
+		"feed news":       "RSS/XML response has no JSON representation in this client",
+		"feed user":       "RSS/XML response has no JSON representation in this client",
+		"sitemap":         "sitemap is XML, which this client's JSON guard refuses",
+		"sitemap index":   "sitemap is XML, which this client's JSON guard refuses",
+		"sitemap shard":   "sitemap is XML, which this client's JSON guard refuses",
+	}
 	actual := make(map[string]struct{}, len(expected))
 	type pendingCommand struct {
 		command *cobra.Command
@@ -103,12 +121,23 @@ func TestDeclaredAPISurfaceReachable(t *testing.T) {
 
 	var missing []string
 	for _, commandPath := range expected {
-		if _, ok := actual[commandPath]; !ok {
-			missing = append(missing, commandPath)
+		if _, ok := actual[commandPath]; ok {
+			continue
 		}
+		if _, dropped := droppedSurfaces[commandPath]; dropped {
+			continue
+		}
+		missing = append(missing, commandPath)
 	}
 	if len(missing) > 0 {
 		t.Fatalf("declared API command paths missing from generated Cobra tree: %s", strings.Join(missing, ", "))
+	}
+	// A documented drop that is in fact reachable is stale bookkeeping: the
+	// surface shipped, so it must go back into the reachability set.
+	for commandPath, reason := range droppedSurfaces {
+		if _, ok := actual[commandPath]; ok {
+			t.Fatalf("%q is reachable but still listed as dropped (%s); remove it from droppedSurfaces", commandPath, reason)
+		}
 	}
 }
 

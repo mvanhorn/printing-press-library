@@ -58,7 +58,7 @@ func newTrackAddCmd(flags *rootFlags) *cobra.Command {
 		Use:         "add <id>",
 		Short:       "Add a title to the local library",
 		Example:     "  myanimelist-pp-cli track add 52991 --status watching --progress 3",
-		Annotations: map[string]string{"pp:data-source": "local", "pp:happy-args": "id=52991;--status=plan-to-watch", "pp:typed-exit-codes": "0,2,3"},
+		Annotations: map[string]string{"pp:data-source": "auto", "pp:happy-args": "id=52991;--status=plan-to-watch", "pp:typed-exit-codes": "0,2,3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -84,7 +84,13 @@ func newTrackAddCmd(flags *rootFlags) *cobra.Command {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			entry := malLibraryEntry{Kind: o.kind, ID: id, Title: o.title, Status: o.status, Progress: o.progress, Total: o.total, Score: o.score, Notes: o.notes}
-			if entry.Title == "" {
+			// The row itself is local; the title/total enrichment is a live read,
+			// so the command declares "auto" and skips the fetch (storing the id
+			// only) when the caller asked for local data explicitly.
+			localOnly := flags != nil && flags.dataSource == "local"
+			if entry.Title == "" && localOnly {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: --data-source local: storing the id only; drop the flag to fetch the title from the live page\n")
+			} else if entry.Title == "" {
 				if detail, derr := malDetail(ctx, flags, o.kind, id); derr == nil {
 					entry.Title = detail.Title
 					if entry.Total == 0 {
@@ -156,20 +162,9 @@ func newTrackProgressCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			entries, err := malLoadLibrary(ctx, db, o.kind)
+			found, err := malRequireTrackedEntry(cmd, ctx, db, o.kind, id)
 			if err != nil {
 				return err
-			}
-			var found *malLibraryEntry
-			for i := range entries {
-				if entries[i].ID == id {
-					found = &entries[i]
-					break
-				}
-			}
-			if found == nil {
-				_ = cmd.Usage()
-				return usageErr(fmt.Errorf("%s %d is not in the local library; add it first with `myanimelist-pp-cli track add %d --status watching`", o.kind, id, id))
 			}
 			if delta {
 				found.Progress += o.episodes
@@ -231,23 +226,16 @@ func newTrackRateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			entry := malLibraryEntry{Kind: o.kind, ID: id, Status: "completed", Score: o.score}
-			entries, err := malLoadLibrary(ctx, db, o.kind)
+			entry, err := malRequireTrackedEntry(cmd, ctx, db, o.kind, id)
 			if err != nil {
 				return err
 			}
-			for _, e := range entries {
-				if e.ID == id {
-					entry = e
-					entry.Score = o.score
-					break
-				}
-			}
-			if err := malWriteLibrary(ctx, db, &entry); err != nil {
+			entry.Score = o.score
+			if err := malWriteLibrary(ctx, db, entry); err != nil {
 				return err
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), entry, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), *entry, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%s rated %d/10\n", entry.Title, entry.Score)
 			return nil
@@ -290,23 +278,16 @@ func newTrackNoteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			entry := malLibraryEntry{Kind: o.kind, ID: id, Status: "plan-to-watch", Notes: o.notes}
-			entries, err := malLoadLibrary(ctx, db, o.kind)
+			entry, err := malRequireTrackedEntry(cmd, ctx, db, o.kind, id)
 			if err != nil {
 				return err
 			}
-			for _, e := range entries {
-				if e.ID == id {
-					entry = e
-					entry.Notes = o.notes
-					break
-				}
-			}
-			if err := malWriteLibrary(ctx, db, &entry); err != nil {
+			entry.Notes = o.notes
+			if err := malWriteLibrary(ctx, db, entry); err != nil {
 				return err
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), entry, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), *entry, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "note saved for %s\n", entry.Title)
 			return nil
@@ -415,23 +396,16 @@ func newTrackDropCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			entry := malLibraryEntry{Kind: o.kind, ID: id, Status: "dropped"}
-			entries, err := malLoadLibrary(ctx, db, o.kind)
+			entry, err := malRequireTrackedEntry(cmd, ctx, db, o.kind, id)
 			if err != nil {
 				return err
 			}
-			for _, e := range entries {
-				if e.ID == id {
-					entry = e
-					entry.Status = "dropped"
-					break
-				}
-			}
-			if err := malWriteLibrary(ctx, db, &entry); err != nil {
+			entry.Status = "dropped"
+			if err := malWriteLibrary(ctx, db, entry); err != nil {
 				return err
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), entry, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), *entry, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%s marked dropped\n", entry.Title)
 			return nil
@@ -473,10 +447,26 @@ func newTrackRemoveCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			if _, err := db.DB().ExecContext(ctx, `DELETE FROM mal_library WHERE kind = ? AND id = ?`, o.kind, id); err != nil {
+			res, err := db.DB().ExecContext(ctx, `DELETE FROM mal_library WHERE kind = ? AND id = ?`, o.kind, id)
+			if err != nil {
 				return fmt.Errorf("removing library row: %w", err)
 			}
-			result := map[string]any{"kind": o.kind, "id": id, "removed": true}
+			// The row count is the only proof the delete matched anything: a
+			// typo, or the wrong --kind, otherwise reports a removal that never
+			// happened. Zero rows is a not-found (exit 3), not a silent success.
+			removed, err := res.RowsAffected()
+			if err != nil {
+				return fmt.Errorf("checking the removal result: %w", err)
+			}
+			if removed == 0 {
+				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+					_ = printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"kind": o.kind, "id": id, "removed": false, "found": false,
+					}, flags)
+				}
+				return notFoundErr(fmt.Errorf("%s %d is not in the local library; nothing to remove", o.kind, id))
+			}
+			result := map[string]any{"kind": o.kind, "id": id, "removed": true, "found": true}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}

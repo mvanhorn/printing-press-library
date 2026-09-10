@@ -1,5 +1,5 @@
 // Copyright 2026 Som Samantray and contributors. Licensed under Apache-2.0. See LICENSE.
-// pp:data-source auto
+// pp:data-source live
 
 package cli
 
@@ -31,7 +31,11 @@ type suggestView struct {
 
 // newNovelSuggestCmd proposes titles from the current season chart that your
 // local library has not already recorded. The eligibility filter is local; the
-// candidate pool and the quality signal are public MyAnimeList data.
+// candidate pool and the quality signal are public MyAnimeList data, and the
+// local library only holds the titles the user already tracks — never the
+// season chart — so the declared source is "live" rather than "auto". Declaring
+// "auto" would let `--data-source local` be accepted and then silently hit the
+// network for the candidate pool.
 func newNovelSuggestCmd(flags *rootFlags) *cobra.Command {
 	var dbPath, seasonPath string
 	var limit, minScore int
@@ -43,7 +47,7 @@ func newNovelSuggestCmd(flags *rootFlags) *cobra.Command {
 		Example: "  myanimelist-pp-cli suggest --min-score 8 --limit 5 --json",
 		Annotations: map[string]string{
 			"mcp:read-only":       "true",
-			"pp:data-source":      "auto",
+			"pp:data-source":      "live",
 			"pp:happy-args":       "--min-score=0;--limit=1",
 			"pp:typed-exit-codes": "0,3",
 		},

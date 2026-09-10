@@ -675,12 +675,13 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 
 func (c *Client) writeCacheWithHeaders(path string, params map[string]string, headers map[string]string, data json.RawMessage, contentType string) {
 	resourceDir := c.cacheResourceDir(path)
-	_ = os.MkdirAll(resourceDir, 0o700)
 	cacheFile := filepath.Join(resourceDir, c.cacheKeyFor(http.MethodGet, path, params, headers, nil)+".json")
-	ensureCachePerms(resourceDir, cacheFile)
-	// Drop the leftover inode so an already-open 0644 FD keeps the old body.
-	_ = os.Remove(cacheFile)
-	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
+	// Publish atomically: a concurrent reader (another CLI process refreshing
+	// the same resource) must see either the old body or the complete new one,
+	// never a truncated body it would accept as a cache hit.
+	// AtomicWritePrivateFile creates the resource dir 0700, writes a temp file
+	// it chmods 0600, and renames it into place.
+	_ = cliutil.AtomicWritePrivateFile(cacheFile, data, 0o600, 0o700)
 	ensureCachePerms(resourceDir, cacheFile)
 	if c.platformSession != nil {
 		c.writePlatformCacheMetadata(cacheFile)

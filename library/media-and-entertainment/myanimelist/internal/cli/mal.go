@@ -6,15 +6,18 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/malhtml"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/store"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/malhtml"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // malURL builds a site path. MyAnimeList ignores the slug segment but requires
@@ -105,6 +108,24 @@ func malEpisodesWith(ctx context.Context, c *client.Client, id int) ([]malhtml.E
 		return nil, fmt.Errorf("fetching anime %d episodes: %w", id, err)
 	}
 	return malhtml.ParseEpisodes(id, string(data))
+}
+
+// airedEpisodeCount reports how many episodes of an anime have actually aired,
+// read from the episode table. MyAnimeList's detail page publishes the
+// *announced* episode total, which for a show that is still airing (or whose
+// total is unknown) overstates how far the adaptation has reached. The highest
+// episode number is used rather than the row count so a table with gaps or
+// specials still reports the furthest episode reached; the row count is the
+// fallback when no row carries a usable number.
+func airedEpisodeCount(eps []malhtml.Episode) int {
+	highest := 0
+	for _, e := range eps {
+		highest = max(highest, e.Number)
+	}
+	if highest > 0 {
+		return highest
+	}
+	return len(eps)
 }
 
 // malIntArg parses a positive integer positional argument.
@@ -261,11 +282,52 @@ func malLibraryIDs(ctx context.Context, db *store.Store) (map[string]bool, error
 	return set, nil
 }
 
-// malWriteLibrary upserts one library row.
-func malWriteLibrary(ctx context.Context, db *store.Store, e *malLibraryEntry) error {
-	if e.UpdatedAt == "" {
-		e.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+// errMalNotInLibrary marks the "the user has not added this title" case so a
+// mutating subcommand can tell it apart from a real store failure: the first is
+// a usage error (exit 2), the second must stay a plain error (exit 1) — a
+// locked or corrupt database is not bad arguments.
+var errMalNotInLibrary = errors.New("is not in the local library")
+
+// malRequireLibraryEntry returns the existing library row for kind/id. (kind,id)
+// is the table's primary key, so this reads the one row instead of scanning and
+// sorting the whole kind. A missing row is wrapped in errMalNotInLibrary;
+// anything else is a store failure.
+func malRequireLibraryEntry(ctx context.Context, db *store.Store, kind string, id int) (*malLibraryEntry, error) {
+	row := db.DB().QueryRowContext(ctx,
+		`SELECT kind, id, COALESCE(title,''), status, progress, total, score, COALESCE(notes,''), updated_at
+		   FROM mal_library WHERE kind = ? AND id = ?`, kind, id)
+	var e malLibraryEntry
+	if err := row.Scan(&e.Kind, &e.ID, &e.Title, &e.Status, &e.Progress, &e.Total, &e.Score, &e.Notes, &e.UpdatedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s %d %w; add it first with `myanimelist-pp-cli track add %d --status watching`", kind, id, errMalNotInLibrary, id)
+		}
+		return nil, fmt.Errorf("reading local library: %w", err)
 	}
+	return &e, nil
+}
+
+// malRequireTrackedEntry is malRequireLibraryEntry for a mutating subcommand:
+// a title that was never added is reported as a usage error (with the command's
+// usage and exit code 2), while a store failure propagates unchanged.
+func malRequireTrackedEntry(cmd *cobra.Command, ctx context.Context, db *store.Store, kind string, id int) (*malLibraryEntry, error) {
+	entry, err := malRequireLibraryEntry(ctx, db, kind, id)
+	if err == nil {
+		return entry, nil
+	}
+	if errors.Is(err, errMalNotInLibrary) {
+		_ = cmd.Usage()
+		return nil, usageErr(err)
+	}
+	return nil, err
+}
+
+// malWriteLibrary upserts one library row. updated_at is always stamped now:
+// every caller is a mutation, and a row loaded back for an update already
+// carries its previous timestamp, so leaving it untouched would persist a stale
+// "last changed" time and pin the row in place under the updated_at DESC
+// ordering that track list and export rely on.
+func malWriteLibrary(ctx context.Context, db *store.Store, e *malLibraryEntry) error {
+	e.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 	_, err := db.DB().ExecContext(ctx, `
 		INSERT INTO mal_library (kind, id, title, status, progress, total, score, notes, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)

@@ -52,8 +52,8 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 		Example: "  myanimelist-pp-cli drift --since 30d --json",
 		Annotations: map[string]string{
 			"mcp:read-only":       "true",
-			"pp:data-source":      "local",
-			"pp:happy-args":       "--since=30d",
+			"pp:data-source":      "auto",
+			"pp:happy-args":       "id=52991;--db=:memory:;--since=30d",
 			"pp:typed-exit-codes": "0,3",
 			"pp:novel-scaffold":   "false",
 		},
@@ -88,6 +88,14 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 				if len(args) < 1 {
 					_ = cmd.Usage()
 					return usageErr(fmt.Errorf("recording a snapshot needs an id, e.g. myanimelist-pp-cli drift 52991 --record"))
+				}
+				// Reporting is local-only, but recording a snapshot reads the
+				// live title page. The command therefore declares "auto" and
+				// refuses the one combination that cannot work offline instead
+				// of silently hitting the network under --data-source local.
+				if flags != nil && flags.dataSource == "local" {
+					_ = cmd.Usage()
+					return usageErr(fmt.Errorf("--record needs the live title page, which --data-source local forbids; drop the flag or use --data-source auto"))
 				}
 				id, err := malIntArg(args[0], "id")
 				if err != nil {

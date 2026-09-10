@@ -14,6 +14,7 @@ type adaptationView struct {
 	AnimeID            int     `json:"anime_id"`
 	AnimeTitle         string  `json:"anime_title,omitempty"`
 	AnimeEpisodes      int     `json:"anime_episodes,omitempty"`
+	ReachedEpisodes    int     `json:"reached_episodes,omitempty"`
 	AnimeStatus        string  `json:"anime_status,omitempty"`
 	MangaID            int     `json:"manga_id,omitempty"`
 	MangaTitle         string  `json:"manga_title,omitempty"`
@@ -28,6 +29,60 @@ type adaptationView struct {
 	RemainingHigh      int     `json:"estimated_chapters_remaining_high,omitempty"`
 	SourceOngoing      bool    `json:"source_still_publishing"`
 	Note               string  `json:"note"`
+}
+
+// adaptationBand converts an episode reach into a chapter band. MyAnimeList
+// records no stopping point, so the band is deliberately wide. What it must not
+// do is assume the adaptation finished: chaptersPerEpisode is derived from the
+// announced episode total (the only denominator MyAnimeList publishes) and then
+// scaled by how many episodes have actually been reached, and the band is capped
+// at the source's chapter count. ok is false when any count is unknown.
+func adaptationBand(mangaChapters, announcedEpisodes, reachedEpisodes int) (chaptersPerEpisode float64, low, high int, ok bool) {
+	if mangaChapters <= 0 || announcedEpisodes <= 0 || reachedEpisodes <= 0 {
+		return 0, 0, 0, false
+	}
+	perEpisode := float64(mangaChapters) / float64(announcedEpisodes)
+	chaptersPerEpisode = math.Round(perEpisode*100) / 100
+	mid := min(perEpisode*float64(reachedEpisodes), float64(mangaChapters))
+	low = int(math.Floor(mid * 0.8))
+	high = min(int(math.Ceil(mid*1.2)), mangaChapters)
+	high = max(high, low)
+	return chaptersPerEpisode, low, high, true
+}
+
+// adaptationNote explains how the coverage band was derived, says plainly when
+// no band could be produced, and flags the two ways the estimate can understate
+// the source: the anime has not finished airing, or the manga is still running.
+func adaptationNote(mangaChapters int, bandComputed, stillAiring, sourceOngoing bool) string {
+	if mangaChapters <= 0 {
+		return "the manga entry publishes no chapter count, so only the link between the two entries is known"
+	}
+	note := "estimate derived from episode and chapter counts; MyAnimeList does not record where the adaptation stopped"
+	if !bandComputed {
+		note = "no chapter band could be estimated because the anime's announced episode total is unknown; MyAnimeList does not record where the adaptation stopped"
+	}
+	if stillAiring {
+		note += "; the anime is still airing, so the source may not yet be fully covered"
+	}
+	if sourceOngoing {
+		note += "; the source manga is still publishing"
+	}
+	return note
+}
+
+// airedSummary describes how far the adaptation has aired, or "" when there is
+// nothing worth saying. It never claims a fraction of an unknown total.
+func airedSummary(announcedEpisodes, reachedEpisodes int) string {
+	switch {
+	case reachedEpisodes <= 0:
+		return ""
+	case announcedEpisodes <= 0:
+		return fmt.Sprintf("aired so far: %d episodes (announced total unknown)", reachedEpisodes)
+	case reachedEpisodes != announcedEpisodes:
+		return fmt.Sprintf("aired so far: %d of %d announced episodes", reachedEpisodes, announcedEpisodes)
+	default:
+		return ""
+	}
 }
 
 // newNovelAdaptationCmd joins a cached anime entry with its related manga entry
@@ -100,18 +155,25 @@ func newNovelAdaptationCmd(flags *rootFlags) *cobra.Command {
 			view.MangaChapters, view.MangaVolumes, view.MangaStatus = manga.Chapters, manga.Volumes, manga.Status
 			view.Relation = relation
 			view.SourceOngoing = manga.Status == "Publishing"
-			if manga.Chapters > 0 && anime.Episodes > 0 {
-				cpe := float64(manga.Chapters) / float64(anime.Episodes)
-				view.ChaptersPerEpisode = math.Round(cpe*100) / 100
-				mid := float64(manga.Chapters)
-				if anime.Status != "Finished Airing" {
-					mid = cpe * float64(anime.Episodes)
+			// anime.Episodes is the announced total, not the reached total. For
+			// a show that is still airing (or whose total is unknown) it
+			// overstates how far the adaptation got, so the reached count comes
+			// from the episode table instead.
+			stillAiring := anime.Status != "Finished Airing"
+			reachedEpisodes := anime.Episodes
+			if stillAiring || reachedEpisodes <= 0 {
+				eps, eerr := malEpisodesWith(ctx, c, id)
+				if eerr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not read the episode table (%v); falling back to the announced episode total\n", eerr)
+				} else if aired := airedEpisodeCount(eps); aired > 0 {
+					reachedEpisodes = aired
 				}
-				low := int(math.Floor(mid * 0.8))
-				high := int(math.Ceil(mid * 1.2))
-				if high > manga.Chapters {
-					high = manga.Chapters
-				}
+			}
+			view.ReachedEpisodes = reachedEpisodes
+			bandComputed := false
+			if cpe, low, high, ok := adaptationBand(manga.Chapters, anime.Episodes, reachedEpisodes); ok {
+				bandComputed = true
+				view.ChaptersPerEpisode = cpe
 				view.CoveredLow, view.CoveredHigh = low, high
 				if rem := manga.Chapters - high; rem > 0 {
 					view.RemainingLow = rem
@@ -120,13 +182,7 @@ func newNovelAdaptationCmd(flags *rootFlags) *cobra.Command {
 					view.RemainingHigh = rem
 				}
 			}
-			note := "estimate derived from episode and chapter counts; MyAnimeList does not record where the adaptation stopped"
-			if view.SourceOngoing {
-				note += "; the source manga is still publishing"
-			}
-			if view.MangaChapters == 0 {
-				note = "the manga entry publishes no chapter count, so only the link between the two entries is known"
-			}
+			note := adaptationNote(manga.Chapters, bandComputed, stillAiring, view.SourceOngoing)
 			return printAdaptation(cmd, flags, view, note)
 		},
 	}
@@ -139,6 +195,9 @@ func printAdaptation(cmd *cobra.Command, flags *rootFlags, view adaptationView, 
 		return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "%s (%d eps, %s)\n", view.AnimeTitle, view.AnimeEpisodes, view.AnimeStatus)
+	if line := airedSummary(view.AnimeEpisodes, view.ReachedEpisodes); line != "" {
+		fmt.Fprintln(cmd.OutOrStdout(), line)
+	}
 	if view.MangaID == 0 {
 		fmt.Fprintf(cmd.OutOrStdout(), "source: %s\n", note)
 		return nil

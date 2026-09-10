@@ -116,7 +116,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-No credentials, ever. The CLI reads MyAnimeList's public pages, its own suggest endpoint, its RSS feeds, and its advertised sitemap over plain HTTP. There is no API key to set, no OAuth flow to complete, and no session cookie to keep alive. Requests are polite by default: a descriptive User-Agent, one request per second, and a 24-hour cache so repeat reads cost nothing.
+No credentials, ever. The CLI reads MyAnimeList's public pages and its own suggest endpoint over plain HTTP. There is no API key to set, no OAuth flow to complete, and no session cookie to keep alive. Requests are polite by default: a descriptive User-Agent, one request per second, and a 24-hour cache so repeat reads cost nothing.
 
 ## Quick Start
 
@@ -311,7 +311,6 @@ Browse, search, and inspect anime titles
 - **`myanimelist-pp-cli anime recommendations`** - Community recommendations for an anime, with recommendation counts
 - **`myanimelist-pp-cli anime reviews`** - Community reviews with scores, helpful counts, and spoiler flags
 - **`myanimelist-pp-cli anime stats`** - Score distribution (1-10 with vote counts) and status distribution for an anime
-- **``** - Streaming episodes and promos for an anime (the site's own video JSON, no auth) with a real pager
 - **`myanimelist-pp-cli anime videos`** - Promotional videos and trailers for an anime
 
 ### character
@@ -319,14 +318,6 @@ Browse, search, and inspect anime titles
 Characters
 
 - **`myanimelist-pp-cli character <id>`** - A character's profile with appearances and voice actors
-
-### feed
-
-RSS feeds published by MyAnimeList
-
-- **``** - Featured-article RSS feed (XML)
-- **``** - News RSS feed (XML)
-- **``** - A member's public activity feed (needs ?u=; without it the endpoint 404s)
 
 ### forum
 
@@ -406,13 +397,6 @@ Seasonal anime charts
 - **`myanimelist-pp-cli season later`** - Upcoming seasons announced but not yet airing (the `upcoming` path 404s; `later` is the real route)
 - **`myanimelist-pp-cli season list`** - Full seasonal chart for a year and season, grouped by format
 - **`myanimelist-pp-cli season schedule`** - The weekly airing schedule, optionally shifted to a timezone the site understands
-
-### sitemap
-
-The robots-advertised sitemap, for explicit id enumeration
-
-- **``** - Sitemap index listing every catalog shard (XML)
-- **``** - One sitemap shard, e.g. anime-001, manga-001, character-001, people-001, news-001 (XML)
 
 ### studio
 
