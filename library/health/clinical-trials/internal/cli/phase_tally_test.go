@@ -1,13 +1,17 @@
 // Copyright 2026 laci141 and contributors. Licensed under Apache-2.0. See LICENSE.
 
-// Guards the phase tally against dropping trials that carry no phase.
+// Guards what the phase tally counts: one entry per phase a trial is posted
+// under, including a synthetic N/A entry for trials posted under none.
 package cli
 
 import "testing"
 
-// phaseTallyCorpus is a ten-trial sample shaped like a real registry page:
-// six interventional trials with a phase, two interventional with phase NA,
-// and two observational studies whose Phases array is absent entirely.
+// phaseTallyCorpus is a twelve-trial sample shaped like a real registry page.
+// The multiplicities matter more than the labels: two trials carry no phase,
+// eight carry exactly one, and two carry two. A corpus where every trial has
+// exactly one phase cannot tell a per-trial tally from a per-entry one — they
+// give the same number — which is how the multi-phase behaviour went unnoticed
+// when this file was first written.
 func phaseTallyCorpus() []Trial {
 	return []Trial{
 		{NCTID: "NCT00000001", Phases: []string{"PHASE1"}},
@@ -18,9 +22,25 @@ func phaseTallyCorpus() []Trial {
 		{NCTID: "NCT00000006", Phases: []string{"EARLY_PHASE1"}},
 		{NCTID: "NCT00000007", Phases: []string{"NA"}},
 		{NCTID: "NCT00000008", Phases: []string{"NA"}},
-		{NCTID: "NCT00000009"}, // observational: no Phases key
-		{NCTID: "NCT00000010"}, // observational: no Phases key
+		{NCTID: "NCT00000009", Phases: []string{"PHASE1", "PHASE2"}},
+		{NCTID: "NCT00000010", Phases: []string{"PHASE2", "PHASE3"}},
+		{NCTID: "NCT00000011"}, // observational: no Phases key
+		{NCTID: "NCT00000012"}, // observational: no Phases key
 	}
+}
+
+// phaseEntries is what the tally is expected to sum to: one per posted phase,
+// plus one for each trial posted under no phase at all.
+func phaseEntries(trials []Trial) int {
+	n := 0
+	for _, t := range trials {
+		if len(t.Phases) == 0 {
+			n++
+			continue
+		}
+		n += len(t.Phases)
+	}
+	return n
 }
 
 func tallyTotal(entries []rankedEntry) int {
@@ -31,18 +51,50 @@ func tallyTotal(entries []rankedEntry) int {
 	return total
 }
 
-// The tally must account for every trial in the corpus. Before the fix the
-// range loop skipped phaseless trials entirely, so a distribution printed
-// beside "sample size 10" summed to 8 and the two missing trials appeared
-// nowhere — a reader could not tell they existed.
-func TestPhaseTallyCoversEveryTrial(t *testing.T) {
+// The tally counts phase entries, not trials, and the two differ in both
+// directions. A trial with no phase contributed nothing until the N/A guard
+// landed; a trial posted under two phases contributes twice and always has.
+// On this corpus that is 14 entries from 12 trials, so a distribution printed
+// beside "12 trials" legitimately sums to more than 12.
+func TestPhaseTallyCountsEveryPhaseEntry(t *testing.T) {
 	corpus := phaseTallyCorpus()
+	want := phaseEntries(corpus)
+	if want != 14 {
+		t.Fatalf("fixture drifted: phaseEntries = %d, want 14", want)
+	}
 	view := buildTrialListView("q", "RECRUITING", len(corpus), corpus)
-	if got := tallyTotal(view.PhaseDistribution); got != len(corpus) {
-		t.Errorf("phase distribution sums to %d, want %d (the whole corpus)", got, len(corpus))
+	if got := tallyTotal(view.PhaseDistribution); got != want {
+		t.Errorf("phase distribution sums to %d, want %d (one entry per posted phase, one for each phaseless trial)", got, want)
+	}
+	if got := tallyTotal(view.PhaseDistribution); got <= len(corpus) {
+		t.Errorf("sum %d does not exceed the %d trials — the multi-phase trials are not being counted twice", got, len(corpus))
 	}
 	if view.Returned != len(corpus) {
 		t.Errorf("returned = %d, want %d", view.Returned, len(corpus))
+	}
+}
+
+// A trial posted under two phases lands in both buckets. Phase 1 holds the
+// single-phase NCT00000001 plus the two-phase NCT00000009; Phase 3 holds the
+// two single-phase trials plus the two-phase NCT00000010.
+func TestMultiPhaseTrialCountsInEveryBucket(t *testing.T) {
+	view := buildTrialListView("q", "RECRUITING", 12, phaseTallyCorpus())
+	got := map[string]int{}
+	for _, e := range view.PhaseDistribution {
+		got[e.Label] = e.Count
+	}
+	for _, tc := range []struct {
+		label string
+		want  int
+	}{
+		{"Phase 1", 2},
+		{"Phase 2", 3},
+		{"Phase 3", 3},
+		{"N/A", 4},
+	} {
+		if got[tc.label] != tc.want {
+			t.Errorf("%s bucket = %d, want %d", tc.label, got[tc.label], tc.want)
+		}
 	}
 }
 
@@ -51,8 +103,7 @@ func TestPhaseTallyCoversEveryTrial(t *testing.T) {
 // phaseDisplay gives a phaseless trial for the Phase column, which is why the
 // summary and the printed rows agree.
 func TestPhaselessTrialsCountAsNA(t *testing.T) {
-	corpus := phaseTallyCorpus()
-	view := buildTrialListView("q", "RECRUITING", len(corpus), corpus)
+	view := buildTrialListView("q", "RECRUITING", 12, phaseTallyCorpus())
 	found := false
 	for _, e := range view.PhaseDistribution {
 		if e.Label != "N/A" {
@@ -72,9 +123,9 @@ func TestPhaselessTrialsCountAsNA(t *testing.T) {
 }
 
 // A corpus of nothing but observational studies must still produce a
-// distribution. Before the fix this returned zero buckets, so the caller's
-// `len(PhaseDistribution) == 0` branch reported "no distribution computed"
-// for a sample that was in fact fully described by one.
+// distribution. Before the N/A guard this returned zero buckets, so the
+// caller's `len(PhaseDistribution) == 0` branch reported "no distribution
+// computed" for a sample that was in fact fully described by one.
 func TestAllPhaselessCorpusStillTallies(t *testing.T) {
 	corpus := []Trial{{NCTID: "NCT1"}, {NCTID: "NCT2"}, {NCTID: "NCT3"}}
 	view := buildTrialListView("q", "RECRUITING", len(corpus), corpus)
