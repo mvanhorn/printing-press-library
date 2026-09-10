@@ -115,11 +115,55 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
+To unlock paid posts you subscribe to, add your own session cookie under `env`. This is optional — saving the cookie file described in [Authentication](#authentication) works with no `env` block at all:
+
+```json
+{
+  "mcpServers": {
+    "substack-reader": {
+      "command": "substack-reader-pp-mcp",
+      "env": {
+        "SUBSTACK_SESSION": "s%3A..."
+      }
+    }
+  }
+}
+```
+
 </details>
 
 ## Authentication
 
-Free/public posts are keyless — zero setup. To read paid posts you already subscribe to, provide your own Substack session cookie (substack.sid); this reads only what you are already entitled to and is never required for free content.
+**Free and public posts are keyless — zero setup.** Every command works the moment the CLI is installed: no account, no API key, nothing to configure. Authentication only ever matters for paid posts.
+
+There is one **optional** layer: your own Substack **session cookie** (`substack.sid`). Substack decides entitlement server-side from the session you present, so handing the reader your own cookie unlocks exactly the paid posts you already subscribe to — and nothing else. This is **your own cookie, never an API key**, it is never required for free content, and one cookie covers every subscription on your account (entitlement is account-level, not per-publication).
+
+Provide it any of these three ways (first hit wins):
+
+```bash
+# 1. Environment variable — the bare substack.sid value...
+export SUBSTACK_SESSION="s%3A..."
+# ...or the whole cookie fragment, if that is what you copied
+export SUBSTACK_SESSION="substack.sid=s%3A..."
+
+# 2. A JSON cookie file at the default config-dir path
+#    (~/.config/substack-reader-pp-cli/cookie.json on the platform default)
+echo '{"substack.sid":"s%3A..."}' > ~/.config/substack-reader-pp-cli/cookie.json
+chmod 600 ~/.config/substack-reader-pp-cli/cookie.json
+
+# 3. The same JSON cookie file, kept anywhere on disk
+export SUBSTACK_COOKIE_FILE=/path/to/substack-cookie.json
+```
+
+Precedence is `SUBSTACK_SESSION`, then `SUBSTACK_COOKIE_FILE`, then the default config-dir file. `SUBSTACK_COOKIE_FILE` is **authoritative** once set: a missing, unreadable, unparseable or `substack.sid`-less file there is a hard error, never a silent fall-through to a stale default. The default config-dir file is **best-effort**: absent, empty or corrupt all degrade to anonymous with a warning. The config directory itself is relocatable with `SUBSTACK_READER_CONFIG_DIR` or `SUBSTACK_READER_HOME`.
+
+**Getting the cookie out of your browser.** Open DevTools → Application → Cookies → `https://substack.com`, and copy the value of `substack.sid`. Only `substack.sid` is needed — `connect.sid` is not. Copy it rather than retyping it: a single capital-`I`/lowercase-`l` slip yields a cookie that silently reads as anonymous.
+
+**With the MCP server.** The MCP server resolves the session exactly as the CLI does, so the cookie file in the config directory needs **no `env` block at all** — save `cookie.json` and the server picks it up. If you would rather configure it explicitly, set either variable under `env` in your Claude Desktop config (the MCPB bundle prompts for it as an optional field).
+
+**Your cookie stays yours.** It never leaves your machine except to Substack itself, is masked in every output path so scripted runs cannot leak it, and is never redistributed. Any copy the CLI persists is written `0600` under a `0700` parent, and a group/other-readable cookie file earns a warning.
+
+**Failure is honest, never silent.** With no session, a paid post returns Substack's public preview and says so: `access: preview`, `authenticated: false`, `full: false`, plus a `preview only (N of ~M words) — no session configured` line on stderr. A downgrade is always visible; it never passes itself off as a full read.
 
 ## Quick Start
 
@@ -270,6 +314,15 @@ Precedence matters in fleets: an ambient per-kind variable such as `SUBSTACK_REA
 Relocation is one-way. Unsetting `SUBSTACK_READER_HOME` does not move files back to platform defaults, and `doctor` cannot find files left under a former root. Move the files manually before unsetting relocation variables.
 
 Existing installs keep working because the platform-default rung matches the legacy layout. Run `substack-reader-pp-cli doctor --fail-on warn` to check path warnings in automation.
+
+### Session environment variables
+
+Two further variables carry the **optional** Tier-1 session cookie (see [Authentication](#authentication)). Neither is required, and free or public posts never need them:
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `SUBSTACK_SESSION` | env | No | Your own Substack session cookie — the bare `substack.sid` value, or a `substack.sid=<value>` cookie fragment. Unlocks paid posts you already subscribe to. |
+| `SUBSTACK_COOKIE_FILE` | env | No | Path to a flat-JSON cookie file `{"substack.sid":"s%3A.."}`, anywhere on disk. Authoritative when set; otherwise the default `<config>/cookie.json` is used. |
 
 ## Commands
 

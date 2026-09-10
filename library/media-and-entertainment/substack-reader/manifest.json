@@ -13,7 +13,19 @@
     "entry_point": "bin/substack-reader-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/substack-reader-pp-mcp",
-      "args": []
+      "args": [],
+      "env": {
+        "SUBSTACK_SESSION": "${user_config.substack_session}"
+      }
+    }
+  },
+  "user_config": {
+    "substack_session": {
+      "type": "string",
+      "title": "SUBSTACK_SESSION (optional)",
+      "description": "Optional. Your own Substack session cookie (substack.sid) to unlock paid posts you already subscribe to. Leave blank to run anonymously — free and public posts need no credential.",
+      "sensitive": true,
+      "required": false
     }
   },
   "compatibility": {
