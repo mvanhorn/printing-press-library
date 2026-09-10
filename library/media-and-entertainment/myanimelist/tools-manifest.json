@@ -1,0 +1,1065 @@
+{
+  "api_name": "myanimelist",
+  "base_url": "https://myanimelist.net",
+  "description": "Every public MyAnimeList surface in one binary, plus offline analytics the site itself cannot answer",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "myanimelist-pp-cli/0.1 (+https://github.com/mvanhorn/myanimelist-pp-cli; user-invoked, rate-limited)"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-US,en;q=0.9"
+    }
+  ],
+  "tools": [
+    {
+      "name": "anime_characters",
+      "description": "Characters and their Japanese/English voice actors for an anime. Required: id. Returns array of CharacterRole.",
+      "method": "GET",
+      "path": "/anime/{id}/_/characters",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "anime_episodes",
+      "description": "Episode table with titles, air dates, poll averages, and reply counts. Required: id. Optional: page (default: 1). Returns array of Episode.",
+      "method": "GET",
+      "path": "/anime/{id}/_/episode",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Episode page number (100 episodes per page)"
+        }
+      ]
+    },
+    {
+      "name": "anime_forum",
+      "description": "Discussion boards attached to an anime title. Required: id. Returns array of ForumBoard.",
+      "method": "GET",
+      "path": "/anime/{id}/_/forum",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "anime_get",
+      "description": "Fetch one anime title's full detail page by MyAnimeList id. Required: id. Returns the AnimeDetail.",
+      "method": "GET",
+      "path": "/anime/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "anime_list",
+      "description": "Search anime with the site's full advanced filters (query, format, score, airing status, rating, year range, genre, sort). Optional: query, format, min-score (plus 7 more). Returns array of AnimeSummary.",
+      "method": "GET",
+      "path": "/anime.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Title text to search for"
+        },
+        {
+          "name": "format",
+          "wire_name": "type",
+          "type": "int",
+          "location": "query",
+          "description": "Anime format id (1 TV, 2 OVA, 3 Movie, 4 Special, 5 ONA, 6 Music, 7 CM, 8 PV, 9 TV Special)"
+        },
+        {
+          "name": "min-score",
+          "wire_name": "score",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum user score (1-10)"
+        },
+        {
+          "name": "airing-status",
+          "wire_name": "status",
+          "type": "int",
+          "location": "query",
+          "description": "Airing status filter (1 airing, 2 finished, 3 not yet aired)"
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Result page number"
+        },
+        {
+          "name": "rating",
+          "wire_name": "r",
+          "type": "int",
+          "location": "query",
+          "description": "Content rating filter (1 G, 2 PG, 3 PG-13, 4 R-17+, 5 R+, 6 Rx)"
+        },
+        {
+          "name": "start-year",
+          "wire_name": "sy",
+          "type": "int",
+          "location": "query",
+          "description": "Only titles that began airing in this year or later"
+        },
+        {
+          "name": "end-year",
+          "wire_name": "ey",
+          "type": "int",
+          "location": "query",
+          "description": "Only titles that began airing in this year or earlier"
+        },
+        {
+          "name": "genre",
+          "type": "int",
+          "location": "query",
+          "description": "Genre/theme/demographic id (see `myanimelist-pp-cli genre anime`)"
+        },
+        {
+          "name": "sort",
+          "wire_name": "order",
+          "type": "int",
+          "location": "query",
+          "description": "Sort order id (1 title, 2 score, 3 type, 4 start date, 5 members, 6 rated)"
+        }
+      ]
+    },
+    {
+      "name": "anime_moreinfo",
+      "description": "Extended credits, external links, and full theme-song credits. Required: id. Returns the AnimeDetail.",
+      "method": "GET",
+      "path": "/anime/{id}/_/moreinfo",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "anime_pictures",
+      "description": "Image gallery (posters, key visuals, screenshots) for an anime. Required: id. Returns array of Picture.",
+      "method": "GET",
+      "path": "/anime/{id}/_/pics",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "anime_recommendations",
+      "description": "Community recommendations for an anime, with recommendation counts. Required: id. Optional: page (default: 1). Returns array of Recommendation.",
+      "method": "GET",
+      "path": "/anime/{id}/_/userrecs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Recommendation page number"
+        }
+      ]
+    },
+    {
+      "name": "anime_reviews",
+      "description": "Community reviews with scores, helpful counts, and spoiler flags. Required: id. Optional: page (default: 1), include-spoilers. Returns array of Review.",
+      "method": "GET",
+      "path": "/anime/{id}/_/reviews",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Review page number"
+        },
+        {
+          "name": "include-spoilers",
+          "wire_name": "spoiler",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'on' to include spoiler-tagged reviews"
+        }
+      ]
+    },
+    {
+      "name": "anime_stats",
+      "description": "Score distribution (1-10 with vote counts) and status distribution for an anime. Required: id. Returns the TitleStats.",
+      "method": "GET",
+      "path": "/anime/{id}/_/stats",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "anime_streaming",
+      "description": "Streaming episodes and promos for an anime (the site's own video JSON, no auth) with a real pager. Required: id. Optional: page (default: 1). Returns array of StreamingVideo.",
+      "method": "GET",
+      "path": "/anime/api/video/around.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id (the upstream key is `id`, not `anime_id`)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Video page number (20 per page)"
+        }
+      ]
+    },
+    {
+      "name": "anime_videos",
+      "description": "Promotional videos and trailers for an anime. Required: id. Returns array of Video.",
+      "method": "GET",
+      "path": "/anime/{id}/_/video",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList anime id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "character_get",
+      "description": "A character's profile with appearances and voice actors. Required: id. Returns the CharacterDetail.",
+      "method": "GET",
+      "path": "/character/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Character id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "feed_featured",
+      "description": "Featured-article RSS feed (XML). Returns array of NewsItem.",
+      "method": "GET",
+      "path": "/rss/featured.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "feed_news",
+      "description": "News RSS feed (XML). Returns array of NewsItem.",
+      "method": "GET",
+      "path": "/rss/news.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "feed_user",
+      "description": "A member's public activity feed (needs ?u=; without it the endpoint 404s). Required: feed-type, username. Returns array of NewsItem.",
+      "method": "GET",
+      "path": "/rss.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "feed-type",
+          "wire_name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Feed kind: rw recent anime updates, rm recent manga updates, rwe recently watched episodes, rrm recently read chapters",
+          "required": true
+        },
+        {
+          "name": "username",
+          "wire_name": "u",
+          "type": "string",
+          "location": "query",
+          "description": "MyAnimeList username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forum_boards",
+      "description": "All forum boards with their current topic counts. Returns array of ForumBoard.",
+      "method": "GET",
+      "path": "/forum/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "forum_topic",
+      "description": "One forum topic and its posts. Required: topic-id. Returns the ForumTopicDetail.",
+      "method": "GET",
+      "path": "/forum/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "topic-id",
+          "wire_name": "topicid",
+          "type": "int",
+          "location": "query",
+          "description": "Topic id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forum_topics",
+      "description": "Topics in one forum board. Required: board. Optional: page (default: 1). Returns array of ForumTopic.",
+      "method": "GET",
+      "path": "/forum/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "board",
+          "type": "int",
+          "location": "query",
+          "description": "Forum board id (see `forum boards`)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "genre_anime",
+      "description": "Anime in a genre, theme, or demographic. Required: id. Optional: page (default: 1). Returns array of RankedTitle.",
+      "method": "GET",
+      "path": "/anime/genre/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Genre id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "genre_manga",
+      "description": "Manga in a genre, theme, or demographic. Required: id. Optional: page (default: 1). Returns array of RankedTitle.",
+      "method": "GET",
+      "path": "/manga/genre/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Genre id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "instant_search",
+      "description": "Instant search across anime, manga, characters, and people (the site's own suggest API, JSON). Required: query, entity-type. Returns the SuggestResult.",
+      "method": "GET",
+      "path": "/search/prefix.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Text to search for",
+          "required": true
+        },
+        {
+          "name": "entity-type",
+          "wire_name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Entity kind to search",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "magazine_get",
+      "description": "A magazine's page with every serialized title. Required: id. Optional: page (default: 1). Returns array of RankedTitle.",
+      "method": "GET",
+      "path": "/manga/magazine/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Magazine id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "manga_characters",
+      "description": "Characters credited in a manga. Required: id. Returns array of CharacterRole.",
+      "method": "GET",
+      "path": "/manga/{id}/_/characters",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "manga_get",
+      "description": "Fetch one manga title's full detail page by MyAnimeList id. Required: id. Returns the MangaDetail.",
+      "method": "GET",
+      "path": "/manga/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "manga_list",
+      "description": "Search manga with the site's advanced filters. Optional: query, format, min-score (plus 7 more). Returns array of MangaSummary.",
+      "method": "GET",
+      "path": "/manga.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Title text to search for"
+        },
+        {
+          "name": "format",
+          "wire_name": "type",
+          "type": "int",
+          "location": "query",
+          "description": "Manga format id (1 Manga, 2 Novel, 3 One-shot, 4 Doujin, 5 Manhwa, 6 Manhua)"
+        },
+        {
+          "name": "min-score",
+          "wire_name": "score",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum user score (1-10)"
+        },
+        {
+          "name": "publish-status",
+          "wire_name": "status",
+          "type": "int",
+          "location": "query",
+          "description": "Publication status filter (1 publishing, 2 finished, 3 not yet published)"
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Result page number"
+        },
+        {
+          "name": "rating",
+          "wire_name": "r",
+          "type": "int",
+          "location": "query",
+          "description": "Content rating filter"
+        },
+        {
+          "name": "start-year",
+          "wire_name": "sy",
+          "type": "int",
+          "location": "query",
+          "description": "Only titles that began publishing in this year or later"
+        },
+        {
+          "name": "end-year",
+          "wire_name": "ey",
+          "type": "int",
+          "location": "query",
+          "description": "Only titles that began publishing in this year or earlier"
+        },
+        {
+          "name": "genre",
+          "type": "int",
+          "location": "query",
+          "description": "Genre/theme/demographic id"
+        },
+        {
+          "name": "sort",
+          "wire_name": "order",
+          "type": "int",
+          "location": "query",
+          "description": "Sort order id"
+        }
+      ]
+    },
+    {
+      "name": "manga_moreinfo",
+      "description": "Extended credits and external links for a manga. Required: id. Returns the MangaDetail.",
+      "method": "GET",
+      "path": "/manga/{id}/_/moreinfo",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "manga_pictures",
+      "description": "Image gallery for a manga. Required: id. Returns array of Picture.",
+      "method": "GET",
+      "path": "/manga/{id}/_/pics",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "manga_recommendations",
+      "description": "Community recommendations for a manga. Required: id. Optional: page (default: 1). Returns array of Recommendation.",
+      "method": "GET",
+      "path": "/manga/{id}/_/userrecs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Recommendation page number"
+        }
+      ]
+    },
+    {
+      "name": "manga_reviews",
+      "description": "Community reviews for a manga. Required: id. Optional: page (default: 1). Returns array of Review.",
+      "method": "GET",
+      "path": "/manga/{id}/_/reviews",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Review page number"
+        }
+      ]
+    },
+    {
+      "name": "manga_stats",
+      "description": "Score distribution and status distribution for a manga. Required: id. Returns the TitleStats.",
+      "method": "GET",
+      "path": "/manga/{id}/_/stats",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "MyAnimeList manga id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "member_anime-list",
+      "description": "A public anime list as JSON rows (status, score, progress, tags); no credential required. Required: username. Optional: offset (default: 0), list-status. Returns array of ListRow.",
+      "method": "GET",
+      "path": "/animelist/{username}/load.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "MyAnimeList username",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset into the list"
+        },
+        {
+          "name": "list-status",
+          "wire_name": "status",
+          "type": "int",
+          "location": "query",
+          "description": "Only rows with this list status (1 watching, 2 completed, 3 on-hold, 4 dropped, 6 plan-to-watch, 7 all)"
+        }
+      ]
+    },
+    {
+      "name": "member_get",
+      "description": "A public member profile: statistics, favorites, and recent activity (no credential required). Required: username. Returns the UserProfile.",
+      "method": "GET",
+      "path": "/profile/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "MyAnimeList username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "member_manga-list",
+      "description": "A public manga list as JSON rows; no credential required. Required: username. Optional: offset (default: 0), list-status. Returns array of ListRow.",
+      "method": "GET",
+      "path": "/mangalist/{username}/load.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "MyAnimeList username",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset into the list"
+        },
+        {
+          "name": "list-status",
+          "wire_name": "status",
+          "type": "int",
+          "location": "query",
+          "description": "Only rows with this list status"
+        }
+      ]
+    },
+    {
+      "name": "member_statistics",
+      "description": "A member's public aggregate statistics. Required: username. Returns the UserProfile.",
+      "method": "GET",
+      "path": "/profile/{username}/statistics",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "MyAnimeList username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "news_get",
+      "description": "A single news article, body included. Required: id. Returns the NewsArticle.",
+      "method": "GET",
+      "path": "/news/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "News article id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "news_list",
+      "description": "Latest news headlines with pagination. Optional: page (default: 1). Returns array of NewsItem.",
+      "method": "GET",
+      "path": "/news",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "person_get",
+      "description": "A person's page: animeography, voice roles, and staff credits. Required: id. Returns the PersonDetail.",
+      "method": "GET",
+      "path": "/people/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Person id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ranking_anime",
+      "description": "Top anime by type: all, airing, upcoming, tv, movie, ova, ona, special, bypopularity, favorite. Optional: list, page (default: 1), limit (default: 50). Returns array of RankedTitle.",
+      "method": "GET",
+      "path": "/topanime.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Ranking variant"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Rank offset into the list (an offset, not a page size: limit=50 starts at rank 51)"
+        }
+      ]
+    },
+    {
+      "name": "ranking_manga",
+      "description": "Top manga by type: all, manga, novels, lightnovels, oneshots, doujin, manhwa, manhua, bypopularity, favorite. Optional: list, page (default: 1), limit (default: 50). Returns array of RankedTitle.",
+      "method": "GET",
+      "path": "/topmanga.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Ranking variant"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Rank offset into the list (an offset, not a page size: limit=50 starts at rank 51)"
+        }
+      ]
+    },
+    {
+      "name": "season_archive",
+      "description": "Index of every past season. Returns array of SeasonArchiveEntry.",
+      "method": "GET",
+      "path": "/anime/season/archive",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "season_current",
+      "description": "The season airing right now. Returns array of SeasonEntry.",
+      "method": "GET",
+      "path": "/anime/season",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "season_later",
+      "description": "Upcoming seasons announced but not yet airing (the `upcoming` path 404s; `later` is the real route). Returns array of SeasonEntry.",
+      "method": "GET",
+      "path": "/anime/season/later",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "season_list",
+      "description": "Full seasonal chart for a year and season, grouped by format. Required: year, season. Optional: page (default: 1). Returns array of SeasonEntry.",
+      "method": "GET",
+      "path": "/anime/season/{year}/{season}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "path",
+          "description": "Four-digit year",
+          "required": true
+        },
+        {
+          "name": "season",
+          "type": "string",
+          "location": "path",
+          "description": "Season name",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Chart page number"
+        }
+      ]
+    },
+    {
+      "name": "season_schedule",
+      "description": "The weekly airing schedule, optionally shifted to a timezone the site understands. Optional: timezone. Returns array of ScheduleEntry.",
+      "method": "GET",
+      "path": "/anime/season/schedule",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "timezone",
+          "wire_name": "tz",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone the site should render the schedule in (e.g. America/Phoenix)"
+        }
+      ]
+    },
+    {
+      "name": "sitemap_index",
+      "description": "Sitemap index listing every catalog shard (XML). Returns array of SitemapRef.",
+      "method": "GET",
+      "path": "/sitemap/index.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sitemap_shard",
+      "description": "One sitemap shard, e.g. anime-001, manga-001, character-001, people-001, news-001 (XML). Required: shard. Returns array of SitemapRef.",
+      "method": "GET",
+      "path": "/sitemap/{shard}.xml",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shard",
+          "type": "string",
+          "location": "path",
+          "description": "Shard name from `sitemap index`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "studio_get",
+      "description": "A studio's or licensor's page with its full production list. Required: id. Optional: page (default: 1). Returns array of RankedTitle.",
+      "method": "GET",
+      "path": "/anime/producer/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Producer/studio id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "wire_name": "p",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Divisiveness index",
+      "command": "anime divisive",
+      "description": "See whether a title is universally loved or bitterly split, instead of reading one average score."
+    },
+    {
+      "name": "Reception drift and movers",
+      "command": "drift",
+      "description": "See how a title's score, member count, favorites, and rank have moved since you last looked."
+    },
+    {
+      "name": "Weekly viewing grid",
+      "command": "week",
+      "description": "Get a timezone-correct seven-day grid of just the shows you track, with same-hour collisions flagged."
+    },
+    {
+      "name": "Drop-risk score",
+      "command": "anime drop-risk",
+      "description": "Judge how likely a title is to be abandoned before you commit dozens of episodes to it."
+    },
+    {
+      "name": "Episode reception curve",
+      "command": "anime consistency",
+      "description": "See whether a show improves, holds, or falls apart across its episodes using per-episode poll data."
+    },
+    {
+      "name": "Anime-to-manga source coverage",
+      "command": "adaptation",
+      "description": "Learn whether an anime covered its source manga and how much source material is left."
+    },
+    {
+      "name": "Franchise gap finder",
+      "command": "franchise gap",
+      "description": "Find the sequel, movie, or side story you skipped in every franchise you have already started."
+    }
+  ]
+}

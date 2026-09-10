@@ -1,0 +1,51 @@
+version: 2
+project_name: myanimelist-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: myanimelist-pp-cli
+    main: ./cmd/myanimelist-pp-cli
+    binary: myanimelist-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/myanimelist/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: myanimelist-pp-mcp
+    main: ./cmd/myanimelist-pp-mcp
+    binary: myanimelist-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: myanimelist-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The entire public MyAnimeList in one binary, plus offline analytics the site itself cannot answer."
+    install: |
+      bin.install "myanimelist-pp-cli"
+      bin.install "myanimelist-pp-mcp"

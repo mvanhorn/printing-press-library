@@ -1,0 +1,1586 @@
+name: myanimelist
+description: "MyAnimeList from the terminal — the whole public site as a cached, offline-searchable dataset"
+cli_description: "Every public MyAnimeList surface in one binary, plus offline analytics the site itself cannot answer"
+version: "0.1.0"
+category: media-and-entertainment
+
+# The public website. No official anonymous API exists for MyAnimeList;
+# this CLI replays the site's own server-rendered HTML, its prefix-search
+# JSON, its RSS feeds, and its advertised sitemap — with no credentials.
+base_url: "https://myanimelist.net"
+
+# Verified standard_http: stdlib + Chrome UA returns full content on every
+# read route. The probe-reachability "browser_clearance_http" verdict is a
+# reCAPTCHA-widget false positive (the string appears in the login form).
+http_transport: standard
+health_check_path: "/anime/1"
+
+required_headers:
+  - name: User-Agent
+    value: "myanimelist-pp-cli/0.1 (+https://github.com/mvanhorn/myanimelist-pp-cli; user-invoked, rate-limited)"
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/myanimelist-pp-cli/config.toml"
+
+# Auto-refresh a single cached page before a read when it is older than the
+# TTL. Bounded to one polite upstream request per read at ~1 req/s.
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+
+# Domain vocabulary for the default-on learn loop. Canonical values match
+# MyAnimeList's own title/studio naming so recall resolves to real entities.
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+learn:
+  entity_lookup_seeds:
+    anime:
+      - canonical: Sousou no Frieren
+        aliases: [frieren, frieren beyond journeys end, sousou no frieren]
+      - canonical: "Fullmetal Alchemist: Brotherhood"
+        aliases: [fmab, fullmetal alchemist brotherhood, fma brotherhood]
+      - canonical: Cowboy Bebop
+        aliases: [bebop, cowboy bebop]
+      - canonical: One Piece
+        aliases: [onepiece, op]
+      - canonical: Attack on Titan
+        aliases: [aot, shingeki no kyojin, snk]
+      - canonical: Steins;Gate
+        aliases: [steins gate, s;g]
+      - canonical: Monster
+        aliases: [monster naoki urasawa]
+      - canonical: Vinland Saga
+        aliases: [vinland]
+      - canonical: Mushishi
+        aliases: [mushi-shi]
+      - canonical: Kimetsu no Yaiba
+        aliases: [demon slayer, kimetsu]
+      - canonical: Jujutsu Kaisen
+        aliases: [jjk, jujutsu]
+      - canonical: Chainsaw Man
+        aliases: [csm, chainsawman]
+      - canonical: Boku no Hero Academia
+        aliases: [mha, my hero academia]
+      - canonical: Hunter x Hunter
+        aliases: [hxh, hunter hunter]
+      - canonical: "Code Geass: Hangyaku no Lelouch"
+        aliases: [code geass, cg]
+      - canonical: Death Note
+        aliases: [dn]
+      - canonical: Gintama
+        aliases: [gin tama]
+      - canonical: "Clannad: After Story"
+        aliases: [clannad after story]
+      - canonical: Koe no Katachi
+        aliases: [a silent voice, koe no katachi]
+      - canonical: "Kimi no Na wa."
+        aliases: [your name, kimi no na wa]
+    manga:
+      - canonical: Berserk
+        aliases: [berserk]
+      - canonical: Vagabond
+        aliases: [vagabond]
+      - canonical: One Piece
+        aliases: [onepiece manga]
+      - canonical: Monster
+        aliases: [monster manga]
+      - canonical: Oyasumi Punpun
+        aliases: [goodnight punpun, punpun]
+      - canonical: Vinland Saga
+        aliases: [vinland saga manga]
+    studio:
+      - canonical: Studio Ghibli
+        aliases: [ghibli]
+      - canonical: Sunrise
+        aliases: [sunrise studio]
+      - canonical: Kyoto Animation
+        aliases: [kyoani, kyo ani, kyoani]
+      - canonical: ufotable
+        aliases: [ufo table]
+      - canonical: Madhouse
+        aliases: [mad house]
+      - canonical: Wit Studio
+        aliases: [wit]
+      - canonical: MAPPA
+        aliases: [mappa studio]
+      - canonical: Production I.G
+        aliases: [production ig, production i.g.]
+      - canonical: Trigger
+        aliases: [studio trigger]
+      - canonical: Bones
+        aliases: [studio bones]
+  synonyms:
+    "currently airing": "airing"
+    "watch order": "watch-order"
+    "where to start": "watch-order"
+    "how many episodes": "episodes"
+    "next episode": "airing"
+  ticker_patterns:
+    - "^mal-(?:anime|manga|character|person)-[0-9]+$"
+  stopwords:
+    - anime
+    - manga
+
+resources:
+  anime:
+    description: "Browse, search, and inspect anime titles"
+    endpoints:
+      list:
+        method: GET
+        path: "/anime.php"
+        description: "Search anime with the site's full advanced filters (query, format, score, airing status, rating, year range, genre, sort)"
+        example: "  myanimelist-pp-cli anime list --query frieren --min-score 8 --format 1"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            description: "Title text to search for"
+          - name: type
+            flag_name: format
+            type: int
+            description: "Anime format id (1 TV, 2 OVA, 3 Movie, 4 Special, 5 ONA, 6 Music, 7 CM, 8 PV, 9 TV Special)"
+            enum: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+          - name: score
+            flag_name: min-score
+            type: int
+            description: "Minimum user score (1-10)"
+            enum: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+          - name: status
+            flag_name: airing-status
+            type: int
+            description: "Airing status filter (1 airing, 2 finished, 3 not yet aired)"
+            enum: ["1", "2", "3"]
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Result page number"
+          - name: r
+            flag_name: rating
+            type: int
+            description: "Content rating filter (1 G, 2 PG, 3 PG-13, 4 R-17+, 5 R+, 6 Rx)"
+            enum: ["1", "2", "3", "4", "5", "6"]
+          - name: sy
+            flag_name: start-year
+            type: int
+            description: "Only titles that began airing in this year or later"
+          - name: ey
+            flag_name: end-year
+            type: int
+            description: "Only titles that began airing in this year or earlier"
+          - name: genre
+            flag_name: genre
+            type: int
+            description: "Genre/theme/demographic id (see `myanimelist-pp-cli genre anime`)"
+          - name: order
+            flag_name: sort
+            type: int
+            description: "Sort order id (1 title, 2 score, 3 type, 4 start date, 5 members, 6 rated)"
+            enum: ["1", "2", "3", "4", "5", "6"]
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: AnimeSummary
+
+      get:
+        method: GET
+        path: "/anime/{id}"
+        description: "Fetch one anime title's full detail page by MyAnimeList id"
+        example: "  myanimelist-pp-cli anime get 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: AnimeDetail
+
+      stats:
+        method: GET
+        path: "/anime/{id}/_/stats"
+        description: "Score distribution (1-10 with vote counts) and status distribution for an anime"
+        example: "  myanimelist-pp-cli anime stats 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: TitleStats
+
+      characters:
+        method: GET
+        path: "/anime/{id}/_/characters"
+        description: "Characters and their Japanese/English voice actors for an anime"
+        example: "  myanimelist-pp-cli anime characters 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: CharacterRole
+
+      episodes:
+        method: GET
+        path: "/anime/{id}/_/episode"
+        description: "Episode table with titles, air dates, poll averages, and reply counts"
+        example: "  myanimelist-pp-cli anime episodes 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Episode page number (100 episodes per page)"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Episode
+
+      reviews:
+        method: GET
+        path: "/anime/{id}/_/reviews"
+        description: "Community reviews with scores, helpful counts, and spoiler flags"
+        example: "  myanimelist-pp-cli anime reviews 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Review page number"
+          - name: spoiler
+            flag_name: include-spoilers
+            type: string
+            description: "Set to 'on' to include spoiler-tagged reviews"
+            enum: ["on", "off"]
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Review
+
+      recommendations:
+        method: GET
+        path: "/anime/{id}/_/userrecs"
+        description: "Community recommendations for an anime, with recommendation counts"
+        example: "  myanimelist-pp-cli anime recommendations 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Recommendation page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Recommendation
+
+      moreinfo:
+        method: GET
+        path: "/anime/{id}/_/moreinfo"
+        description: "Extended credits, external links, and full theme-song credits"
+        example: "  myanimelist-pp-cli anime moreinfo 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: AnimeDetail
+
+      pictures:
+        method: GET
+        path: "/anime/{id}/_/pics"
+        description: "Image gallery (posters, key visuals, screenshots) for an anime"
+        example: "  myanimelist-pp-cli anime pictures 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Picture
+
+      videos:
+        method: GET
+        path: "/anime/{id}/_/video"
+        description: "Promotional videos and trailers for an anime"
+        example: "  myanimelist-pp-cli anime videos 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Video
+
+      forum:
+        method: GET
+        path: "/anime/{id}/_/forum"
+        description: "Discussion boards attached to an anime title"
+        example: "  myanimelist-pp-cli anime forum 52991"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList anime id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: ForumBoard
+
+  manga:
+    description: "Browse, search, and inspect manga, novels, and one-shots"
+    endpoints:
+      list:
+        method: GET
+        path: "/manga.php"
+        description: "Search manga with the site's advanced filters"
+        example: "  myanimelist-pp-cli manga list --query berserk --min-score 8"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            description: "Title text to search for"
+          - name: type
+            flag_name: format
+            type: int
+            description: "Manga format id (1 Manga, 2 Novel, 3 One-shot, 4 Doujin, 5 Manhwa, 6 Manhua)"
+            enum: ["1", "2", "3", "4", "5", "6"]
+          - name: score
+            flag_name: min-score
+            type: int
+            description: "Minimum user score (1-10)"
+            enum: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+          - name: status
+            flag_name: publish-status
+            type: int
+            description: "Publication status filter (1 publishing, 2 finished, 3 not yet published)"
+            enum: ["1", "2", "3"]
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Result page number"
+          - name: r
+            flag_name: rating
+            type: int
+            description: "Content rating filter"
+          - name: sy
+            flag_name: start-year
+            type: int
+            description: "Only titles that began publishing in this year or later"
+          - name: ey
+            flag_name: end-year
+            type: int
+            description: "Only titles that began publishing in this year or earlier"
+          - name: genre
+            flag_name: genre
+            type: int
+            description: "Genre/theme/demographic id"
+          - name: order
+            flag_name: sort
+            type: int
+            description: "Sort order id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: MangaSummary
+
+      get:
+        method: GET
+        path: "/manga/{id}"
+        description: "Fetch one manga title's full detail page by MyAnimeList id"
+        example: "  myanimelist-pp-cli manga get 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: MangaDetail
+
+      stats:
+        method: GET
+        path: "/manga/{id}/_/stats"
+        description: "Score distribution and status distribution for a manga"
+        example: "  myanimelist-pp-cli manga stats 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: TitleStats
+
+      characters:
+        method: GET
+        path: "/manga/{id}/_/characters"
+        description: "Characters credited in a manga"
+        example: "  myanimelist-pp-cli manga characters 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: CharacterRole
+
+      reviews:
+        method: GET
+        path: "/manga/{id}/_/reviews"
+        description: "Community reviews for a manga"
+        example: "  myanimelist-pp-cli manga reviews 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Review page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Review
+
+      pictures:
+        method: GET
+        path: "/manga/{id}/_/pics"
+        description: "Image gallery for a manga"
+        example: "  myanimelist-pp-cli manga pictures 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Picture
+
+      moreinfo:
+        method: GET
+        path: "/manga/{id}/_/moreinfo"
+        description: "Extended credits and external links for a manga"
+        example: "  myanimelist-pp-cli manga moreinfo 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: MangaDetail
+
+      recommendations:
+        method: GET
+        path: "/manga/{id}/_/userrecs"
+        description: "Community recommendations for a manga"
+        example: "  myanimelist-pp-cli manga recommendations 2"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "MyAnimeList manga id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Recommendation page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: Recommendation
+
+  instant:
+    description: "Instant cross-entity search"
+    endpoints:
+      search:
+        method: GET
+        path: "/search/prefix.json"
+        description: "Instant search across anime, manga, characters, and people (the site's own suggest API, JSON)"
+        example: "  myanimelist-pp-cli instant --query frieren --entity-type anime"
+        params:
+          - name: keyword
+            flag_name: query
+            type: string
+            required: true
+            description: "Text to search for"
+          - name: type
+            flag_name: entity-type
+            type: string
+            required: true
+            description: "Entity kind to search"
+            enum: ["anime", "manga", "character", "person", "company", "club", "user", "news", "featured"]
+        response_format: json
+        response:
+          type: object
+          item: SuggestResult
+
+  season:
+    description: "Seasonal anime charts"
+    endpoints:
+      list:
+        method: GET
+        path: "/anime/season/{year}/{season}"
+        description: "Full seasonal chart for a year and season, grouped by format"
+        example: "  myanimelist-pp-cli season list 2026 fall"
+        params:
+          - name: year
+            type: int
+            required: true
+            positional: true
+            description: "Four-digit year"
+          - name: season
+            type: string
+            required: true
+            positional: true
+            description: "Season name"
+            enum: ["winter", "spring", "summer", "fall"]
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Chart page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: SeasonEntry
+
+      current:
+        method: GET
+        path: "/anime/season"
+        description: "The season airing right now"
+        example: "  myanimelist-pp-cli season current"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: SeasonEntry
+
+      later:
+        method: GET
+        path: "/anime/season/later"
+        description: "Upcoming seasons announced but not yet airing (the `upcoming` path 404s; `later` is the real route)"
+        example: "  myanimelist-pp-cli season later"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: SeasonEntry
+
+      schedule:
+        method: GET
+        path: "/anime/season/schedule"
+        description: "The weekly airing schedule, optionally shifted to a timezone the site understands"
+        example: "  myanimelist-pp-cli season schedule --tz America/Phoenix"
+        params:
+          - name: tz
+            flag_name: timezone
+            type: string
+            description: "IANA timezone the site should render the schedule in (e.g. America/Phoenix)"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: ScheduleEntry
+
+      archive:
+        method: GET
+        path: "/anime/season/archive"
+        description: "Index of every past season"
+        example: "  myanimelist-pp-cli season archive"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: SeasonArchiveEntry
+
+  ranking:
+    description: "Top anime and manga rankings"
+    endpoints:
+      anime:
+        method: GET
+        path: "/topanime.php"
+        description: "Top anime by type: all, airing, upcoming, tv, movie, ova, ona, special, bypopularity, favorite"
+        example: "  myanimelist-pp-cli ranking anime --type airing --limit 25"
+        params:
+          - name: type
+            flag_name: list
+            type: string
+            description: "Ranking variant"
+            enum: ["all", "airing", "upcoming", "tv", "movie", "ova", "ona", "special", "bypopularity", "favorite"]
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: limit
+            type: int
+            default: 50
+            description: "Rank offset into the list (an offset, not a page size: limit=50 starts at rank 51)"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: RankedTitle
+
+      manga:
+        method: GET
+        path: "/topmanga.php"
+        description: "Top manga by type: all, manga, novels, lightnovels, oneshots, doujin, manhwa, manhua, bypopularity, favorite"
+        example: "  myanimelist-pp-cli ranking manga --type lightnovels --limit 25"
+        params:
+          - name: type
+            flag_name: list
+            type: string
+            description: "Ranking variant"
+            enum: ["all", "manga", "novels", "lightnovels", "oneshots", "doujin", "manhwa", "manhua", "bypopularity", "favorite"]
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: limit
+            type: int
+            default: 50
+            description: "Rank offset into the list (an offset, not a page size: limit=50 starts at rank 51)"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: RankedTitle
+
+  genre:
+    description: "Browse by genre, theme, or demographic"
+    endpoints:
+      anime:
+        method: GET
+        path: "/anime/genre/{id}"
+        description: "Anime in a genre, theme, or demographic"
+        example: "  myanimelist-pp-cli genre anime 1"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Genre id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: RankedTitle
+
+      manga:
+        method: GET
+        path: "/manga/genre/{id}"
+        description: "Manga in a genre, theme, or demographic"
+        example: "  myanimelist-pp-cli genre manga 1"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Genre id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: RankedTitle
+
+  studio:
+    description: "Animation studios and licensors"
+    endpoints:
+      get:
+        method: GET
+        path: "/anime/producer/{id}"
+        description: "A studio's or licensor's page with its full production list"
+        example: "  myanimelist-pp-cli studio 43"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Producer/studio id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: RankedTitle
+
+  magazine:
+    description: "Manga serialization magazines"
+    endpoints:
+      get:
+        method: GET
+        path: "/manga/magazine/{id}"
+        description: "A magazine's page with every serialized title"
+        example: "  myanimelist-pp-cli magazine 1"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Magazine id"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: RankedTitle
+
+  character:
+    description: "Characters"
+    endpoints:
+      get:
+        method: GET
+        path: "/character/{id}"
+        description: "A character's profile with appearances and voice actors"
+        example: "  myanimelist-pp-cli character 184947"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Character id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: CharacterDetail
+
+  person:
+    description: "Voice actors and staff"
+    endpoints:
+      get:
+        method: GET
+        path: "/people/{id}"
+        description: "A person's page: animeography, voice roles, and staff credits"
+        example: "  myanimelist-pp-cli person 81"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Person id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: PersonDetail
+
+  member:
+    description: "Public MyAnimeList user profiles and lists"
+    endpoints:
+      get:
+        method: GET
+        path: "/profile/{username}"
+        description: "A public member profile: statistics, favorites, and recent activity (no credential required)"
+        example: "  myanimelist-pp-cli member get Xinil"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "MyAnimeList username"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: UserProfile
+
+      statistics:
+        method: GET
+        path: "/profile/{username}/statistics"
+        description: "A member's public aggregate statistics"
+        example: "  myanimelist-pp-cli member statistics Xinil"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "MyAnimeList username"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: UserProfile
+
+      anime-list:
+        method: GET
+        path: "/animelist/{username}/load.json"
+        description: "A public anime list as JSON rows (status, score, progress, tags); no credential required"
+        example: "  myanimelist-pp-cli member anime-list Xinil --offset 0"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "MyAnimeList username"
+          - name: offset
+            type: int
+            default: 0
+            description: "Row offset into the list"
+          - name: status
+            flag_name: list-status
+            type: int
+            description: "Only rows with this list status (1 watching, 2 completed, 3 on-hold, 4 dropped, 6 plan-to-watch, 7 all)"
+        response_format: json
+        response:
+          type: array
+          item: ListRow
+
+      manga-list:
+        method: GET
+        path: "/mangalist/{username}/load.json"
+        description: "A public manga list as JSON rows; no credential required"
+        example: "  myanimelist-pp-cli member manga-list Xinil --offset 0"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "MyAnimeList username"
+          - name: offset
+            type: int
+            default: 0
+            description: "Row offset into the list"
+          - name: status
+            flag_name: list-status
+            type: int
+            description: "Only rows with this list status"
+        response_format: json
+        response:
+          type: array
+          item: ListRow
+
+  news:
+    description: "Anime and manga news"
+    endpoints:
+      list:
+        method: GET
+        path: "/news"
+        description: "Latest news headlines with pagination"
+        example: "  myanimelist-pp-cli news list --page 1"
+        params:
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: NewsItem
+
+      get:
+        method: GET
+        path: "/news/{id}"
+        description: "A single news article, body included"
+        example: "  myanimelist-pp-cli news get 74696633"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "News article id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: NewsArticle
+
+  forum:
+    description: "Public forum boards and topics"
+    endpoints:
+      boards:
+        method: GET
+        path: "/forum/"
+        description: "All forum boards with their current topic counts"
+        example: "  myanimelist-pp-cli forum boards"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: ForumBoard
+
+      topics:
+        method: GET
+        path: "/forum/"
+        description: "Topics in one forum board"
+        example: "  myanimelist-pp-cli forum topics --board 5 --page 1"
+        params:
+          - name: board
+            flag_name: board
+            type: int
+            required: true
+            description: "Forum board id (see `forum boards`)"
+          - name: p
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: array
+          item: ForumTopic
+
+      topic:
+        method: GET
+        path: "/forum/"
+        description: "One forum topic and its posts"
+        example: "  myanimelist-pp-cli forum topic --topic-id 2245806"
+        params:
+          - name: topicid
+            flag_name: topic-id
+            type: int
+            required: true
+            description: "Topic id"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: ForumTopicDetail
+
+types:
+  AnimeSummary:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: image_url
+        type: string
+      - name: media_type
+        type: string
+      - name: start_year
+        type: int
+      - name: aired
+        type: string
+      - name: score
+        type: float
+      - name: status
+        type: string
+      - name: members
+        type: int
+
+  AnimeDetail:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: title_japanese
+        type: string
+      - name: title_english
+        type: string
+      - name: synonyms
+        type: string
+      - name: type
+        type: string
+      - name: episodes
+        type: int
+      - name: status
+        type: string
+      - name: aired
+        type: string
+      - name: premiered
+        type: string
+      - name: broadcast
+        type: string
+      - name: producers
+        type: string
+      - name: licensors
+        type: string
+      - name: studios
+        type: string
+      - name: source
+        type: string
+      - name: genres
+        type: string
+      - name: themes
+        type: string
+      - name: demographics
+        type: string
+      - name: duration
+        type: string
+      - name: rating
+        type: string
+      - name: score
+        type: float
+      - name: scored_by
+        type: int
+      - name: rank
+        type: int
+      - name: popularity
+        type: int
+      - name: members
+        type: int
+      - name: favorites
+        type: int
+      - name: synopsis
+        type: string
+      - name: background
+        type: string
+      - name: external_links
+        type: string
+      - name: streaming_platforms
+        type: string
+      - name: related
+        type: string
+
+  MangaSummary:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: media_type
+        type: string
+      - name: volumes
+        type: int
+      - name: chapters
+        type: int
+      - name: score
+        type: float
+      - name: status
+        type: string
+      - name: members
+        type: int
+
+  MangaDetail:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: title_japanese
+        type: string
+      - name: title_english
+        type: string
+      - name: type
+        type: string
+      - name: volumes
+        type: int
+      - name: chapters
+        type: int
+      - name: status
+        type: string
+      - name: published
+        type: string
+      - name: authors
+        type: string
+      - name: serialization
+        type: string
+      - name: genres
+        type: string
+      - name: themes
+        type: string
+      - name: demographic
+        type: string
+      - name: score
+        type: float
+      - name: rank
+        type: int
+      - name: popularity
+        type: int
+      - name: members
+        type: int
+      - name: favorites
+        type: int
+      - name: synopsis
+        type: string
+
+  TitleStats:
+    fields:
+      - name: id
+        type: int
+      - name: kind
+        type: string
+      - name: score
+        type: float
+      - name: scored_by
+        type: int
+      - name: score_distribution
+        type: string
+      - name: watching
+        type: int
+      - name: completed
+        type: int
+      - name: on_hold
+        type: int
+      - name: dropped
+        type: int
+      - name: plan_to_watch
+        type: int
+      - name: total
+        type: int
+
+  Episode:
+    fields:
+      - name: number
+        type: int
+      - name: title
+        type: string
+      - name: title_japanese
+        type: string
+      - name: aired
+        type: string
+      - name: poll_average
+        type: float
+      - name: replies
+        type: int
+      - name: url
+        type: string
+
+  CharacterRole:
+    fields:
+      - name: character_id
+        type: int
+      - name: character
+        type: string
+      - name: role
+        type: string
+      - name: favorites
+        type: int
+      - name: va_japanese_id
+        type: int
+      - name: va_japanese
+        type: string
+      - name: va_english_id
+        type: int
+      - name: va_english
+        type: string
+
+  StaffCredit:
+    fields:
+      - name: person_id
+        type: int
+      - name: person
+        type: string
+      - name: role
+        type: string
+
+  Review:
+    fields:
+      - name: review_id
+        type: int
+      - name: author
+        type: string
+      - name: score
+        type: int
+      - name: helpful
+        type: int
+      - name: spoiler
+        type: bool
+      - name: date
+        type: string
+      - name: summary
+        type: string
+
+  Recommendation:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: recommendations
+        type: int
+
+  Picture:
+    fields:
+      - name: url
+        type: string
+      - name: thumbnail
+        type: string
+      - name: kind
+        type: string
+
+  Video:
+    fields:
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: kind
+        type: string
+
+  SeasonEntry:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: media_type
+        type: string
+      - name: episodes
+        type: int
+      - name: score
+        type: float
+      - name: members
+        type: int
+      - name: broadcast
+        type: string
+      - name: producers
+        type: string
+      - name: studios
+        type: string
+      - name: source
+        type: string
+      - name: genres
+        type: string
+      - name: synopsis
+        type: string
+
+  RankedTitle:
+    fields:
+      - name: rank
+        type: int
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: media_type
+        type: string
+      - name: score
+        type: float
+      - name: members
+        type: int
+      - name: start_date
+        type: string
+
+  SuggestResult:
+    fields:
+      - name: categories
+        type: array
+
+  CharacterDetail:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: name_japanese
+        type: string
+      - name: favorites
+        type: int
+      - name: about
+        type: string
+      - name: appearances
+        type: string
+      - name: voice_actors
+        type: string
+
+  PersonDetail:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: name_japanese
+        type: string
+      - name: birthday
+        type: string
+      - name: favorites
+        type: int
+      - name: about
+        type: string
+      - name: voice_roles
+        type: string
+      - name: staff_roles
+        type: string
+
+  UserProfile:
+    fields:
+      - name: username
+        type: string
+      - name: anime_watching
+        type: int
+      - name: anime_completed
+        type: int
+      - name: anime_mean_score
+        type: float
+      - name: manga_completed
+        type: int
+      - name: favorites
+        type: string
+
+  NewsItem:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: published
+        type: string
+      - name: author
+        type: string
+      - name: summary
+        type: string
+
+  NewsArticle:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: published
+        type: string
+      - name: author
+        type: string
+      - name: body
+        type: string
+
+  ForumBoard:
+    fields:
+      - name: board_id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: topics
+        type: int
+      - name: posts
+        type: int
+
+  ForumTopic:
+    fields:
+      - name: topic_id
+        type: int
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: replies
+        type: int
+      - name: last_post
+        type: string
+
+  ForumTopicDetail:
+    fields:
+      - name: topic_id
+        type: int
+      - name: title
+        type: string
+      - name: posts
+        type: array
+
+  StreamingVideo:
+    fields:
+      - name: id
+        type: int
+      - name: anime_id
+        type: int
+      - name: provider_id
+        type: string
+      - name: subdub_type
+        type: string
+      - name: episode_number
+        type: int
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: embed_type
+        type: string
+      - name: thumbnail
+        type: string
+      - name: published_at
+        type: string
+      - name: availableForOnlyPremium
+        type: bool
+
+  ListRow:
+    fields:
+      - name: anime_id
+        type: int
+      - name: manga_id
+        type: int
+      - name: title
+        type: string
+      - name: status
+        type: int
+      - name: score
+        type: int
+      - name: num_watched_episodes
+        type: int
+      - name: num_read_chapters
+        type: int
+      - name: tags
+        type: string
+      - name: is_rewatching
+        type: bool
+      - name: updated_at
+        type: string
+
+  ScheduleEntry:
+    fields:
+      - name: day
+        type: string
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: broadcast_time
+        type: string
+      - name: episode
+        type: int
+
+  SeasonArchiveEntry:
+    fields:
+      - name: year
+        type: int
+      - name: season
+        type: string
+      - name: url
+        type: string
+
+  SitemapRef:
+    fields:
+      - name: loc
+        type: string
+      - name: lastmod
+        type: string

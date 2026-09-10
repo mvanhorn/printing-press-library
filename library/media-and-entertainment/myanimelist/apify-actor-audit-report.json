@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/myanimelist-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260910-215529-36659c2f",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

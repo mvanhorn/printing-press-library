@@ -1,0 +1,324 @@
+{
+  "api_name": "myanimelist",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "trackma",
+      "url": "https://github.com/z411/trackma",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "brunolm/mal-mcp",
+      "url": "https://github.com/brunolm/mal-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cyanheads/anime-mcp-server",
+      "url": "https://github.com/cyanheads/anime-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ryukinix/mal",
+      "url": "https://github.com/ryukinix/mal",
+      "language": "Python",
+      "install_method": "",
+      "stars": 110,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Wraient/curd",
+      "url": "https://github.com/Wraient/curd",
+      "language": "Go",
+      "install_method": "",
+      "stars": 324,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sdaqo/anipy-cli",
+      "url": "https://github.com/sdaqo/anipy-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 515,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pystardust/ani-cli",
+      "url": "https://github.com/pystardust/ani-cli",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 13700,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AdityaJ7/myanimelist-cli",
+      "url": "https://github.com/AdityaJ7/myanimelist-cli",
+      "language": "C",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-10T16:45:00Z",
+  "novel_features": [
+    {
+      "name": "Divisiveness index",
+      "command": "anime divisive",
+      "description": "See whether a title is universally loved or bitterly split, instead of reading one average score.",
+      "rationale": "Requires parsing MyAnimeList's 1-10 vote distribution, which the site only renders as a bar chart and no existing tool exposes at all.",
+      "example": "myanimelist-pp-cli anime divisive 5114 --json",
+      "why_it_matters": "Use it before committing to a long series when the average score hides a love-it-or-hate-it split.",
+      "group": "Reception analytics the site hides"
+    },
+    {
+      "name": "Reception drift and movers",
+      "command": "drift",
+      "description": "See how a title's score, member count, favorites, and rank have moved since you last looked.",
+      "rationale": "MyAnimeList publishes no score or membership history anywhere, so a local snapshot store is the only way to compute a delta.",
+      "example": "myanimelist-pp-cli drift --since 30d --json",
+      "why_it_matters": "Reach for it when a question depends on change over time rather than the current number.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly viewing grid",
+      "command": "week",
+      "description": "Get a timezone-correct seven-day grid of just the shows you track, with same-hour collisions flagged.",
+      "rationale": "Only possible by joining your local library against cached JST broadcast slots and episode air dates, then converting to your clock.",
+      "example": "myanimelist-pp-cli week --json",
+      "why_it_matters": "Use it to plan what to watch tonight without hand-converting Japan time for every show.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Drop-risk score",
+      "command": "anime drop-risk",
+      "description": "Judge how likely a title is to be abandoned before you commit dozens of episodes to it.",
+      "rationale": "Computed from the status distribution (dropped and on-hold share) joined with episode count, data the detail page never shows.",
+      "example": "myanimelist-pp-cli anime drop-risk 21 --json",
+      "why_it_matters": "Use it to triage a plan-to-watch backlog by follow-through rather than by average score.",
+      "group": "Reception analytics the site hides"
+    },
+    {
+      "name": "Episode reception curve",
+      "command": "anime consistency",
+      "description": "See whether a show improves, holds, or falls apart across its episodes using per-episode poll data.",
+      "rationale": "Requires the episode table's poll averages and reply counts plus per-episode deltas no single page or tool surfaces.",
+      "example": "myanimelist-pp-cli anime consistency 52991 --json",
+      "why_it_matters": "Use it to decide whether to keep watching mid-season rather than finishing a dud.",
+      "group": "Reception analytics the site hides"
+    },
+    {
+      "name": "Anime-to-manga source coverage",
+      "command": "adaptation",
+      "description": "Learn whether an anime covered its source manga and how much source material is left.",
+      "rationale": "Needs a cross-entity join between a cached anime entry and its related manga entry, which the site never presents together.",
+      "example": "myanimelist-pp-cli adaptation 52991 --json",
+      "why_it_matters": "Use it when a user asks where to pick up the manga after the anime.",
+      "group": "Franchise intelligence"
+    },
+    {
+      "name": "Franchise gap finder",
+      "command": "franchise gap",
+      "description": "Find the sequel, movie, or side story you skipped in every franchise you have already started.",
+      "rationale": "Only possible by traversing cached relation edges for franchises in the local library and diffing against local watch status.",
+      "example": "myanimelist-pp-cli franchise gap --json",
+      "why_it_matters": "Use it to catch missing entries before starting a new season of a franchise.",
+      "group": "Franchise intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Divisiveness index",
+      "command": "anime divisive",
+      "description": "See whether a title is universally loved or bitterly split, instead of reading one average score.",
+      "rationale": "Requires parsing MyAnimeList's 1-10 vote distribution, which the site only renders as a bar chart and no existing tool exposes at all.",
+      "example": "myanimelist-pp-cli anime divisive 5114 --json",
+      "why_it_matters": "Use it before committing to a long series when the average score hides a love-it-or-hate-it split.",
+      "group": "Reception analytics the site hides"
+    },
+    {
+      "name": "Reception drift and movers",
+      "command": "drift",
+      "description": "See how a title's score, member count, favorites, and rank have moved since you last looked.",
+      "rationale": "MyAnimeList publishes no score or membership history anywhere, so a local snapshot store is the only way to compute a delta.",
+      "example": "myanimelist-pp-cli drift --since 30d --json",
+      "why_it_matters": "Reach for it when a question depends on change over time rather than the current number.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly viewing grid",
+      "command": "week",
+      "description": "Get a timezone-correct seven-day grid of just the shows you track, with same-hour collisions flagged.",
+      "rationale": "Only possible by joining your local library against cached JST broadcast slots and episode air dates, then converting to your clock.",
+      "example": "myanimelist-pp-cli week --json",
+      "why_it_matters": "Use it to plan what to watch tonight without hand-converting Japan time for every show.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Drop-risk score",
+      "command": "anime drop-risk",
+      "description": "Judge how likely a title is to be abandoned before you commit dozens of episodes to it.",
+      "rationale": "Computed from the status distribution (dropped and on-hold share) joined with episode count, data the detail page never shows.",
+      "example": "myanimelist-pp-cli anime drop-risk 21 --json",
+      "why_it_matters": "Use it to triage a plan-to-watch backlog by follow-through rather than by average score.",
+      "group": "Reception analytics the site hides"
+    },
+    {
+      "name": "Episode reception curve",
+      "command": "anime consistency",
+      "description": "See whether a show improves, holds, or falls apart across its episodes using per-episode poll data.",
+      "rationale": "Requires the episode table's poll averages and reply counts plus per-episode deltas no single page or tool surfaces.",
+      "example": "myanimelist-pp-cli anime consistency 52991 --json",
+      "why_it_matters": "Use it to decide whether to keep watching mid-season rather than finishing a dud.",
+      "group": "Reception analytics the site hides"
+    },
+    {
+      "name": "Anime-to-manga source coverage",
+      "command": "adaptation",
+      "description": "Learn whether an anime covered its source manga and how much source material is left.",
+      "rationale": "Needs a cross-entity join between a cached anime entry and its related manga entry, which the site never presents together.",
+      "example": "myanimelist-pp-cli adaptation 52991 --json",
+      "why_it_matters": "Use it when a user asks where to pick up the manga after the anime.",
+      "group": "Franchise intelligence"
+    },
+    {
+      "name": "Franchise gap finder",
+      "command": "franchise gap",
+      "description": "Find the sequel, movie, or side story you skipped in every franchise you have already started.",
+      "rationale": "Only possible by traversing cached relation edges for franchises in the local library and diffing against local watch status.",
+      "example": "myanimelist-pp-cli franchise gap --json",
+      "why_it_matters": "Use it to catch missing entries before starting a new season of a franchise.",
+      "group": "Franchise intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "MyAnimeList",
+    "headline": "Every public MyAnimeList surface in one binary, plus offline analytics the site itself cannot answer",
+    "value_prop": "Search, inspect, and rank anime and manga from the terminal with no API key, no OAuth, and no browser. Everything you look at is cached in SQLite so it stays searchable offline, and local commands like `drift`, `week`, and `franchise gap` answer questions MyAnimeList has no page for: how a score moved, what airs tonight in your timezone, and which franchise entries you skipped.",
+    "auth_narrative": "No credentials, ever. The CLI reads MyAnimeList's public pages, its own suggest endpoint, its RSS feeds, and its advertised sitemap over plain HTTP. There is no API key to set, no OAuth flow to complete, and no session cookie to keep alive. Requests are polite by default: a descriptive User-Agent, one request per second, and a 24-hour cache so repeat reads cost nothing.",
+    "quickstart": [
+      {
+        "command": "myanimelist-pp-cli doctor --dry-run",
+        "comment": "Verify the runtime and cache are healthy before anything else."
+      },
+      {
+        "command": "myanimelist-pp-cli anime get 52991 --json",
+        "comment": "Pull a full title record by MyAnimeList id; the id is the only identifier you need."
+      },
+      {
+        "command": "myanimelist-pp-cli instant --query frieren --entity-type anime --json",
+        "comment": "Find ids fast with the site's own instant-search endpoint."
+      },
+      {
+        "command": "myanimelist-pp-cli season list 2026 fall --json",
+        "comment": "See a whole season grouped by format."
+      },
+      {
+        "command": "myanimelist-pp-cli track add 52991 --status watching --progress 3",
+        "comment": "Start a local watch record so week, next, and franchise gap have data to work with."
+      },
+      {
+        "command": "myanimelist-pp-cli week",
+        "comment": "Get this week's schedule for your own shows in your own timezone."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A command returns HTML instead of structured fields",
+        "fix": "The page shape changed; run the same command with --json to see the raw capture, and update the parser fixtures in internal/malhtml."
+      },
+      {
+        "symptom": "Requests start returning 429 or a bot-check page",
+        "fix": "Slow down: add --delay 2s or lower concurrency. The CLI already defaults to one request per second."
+      },
+      {
+        "symptom": "Cached data looks stale",
+        "fix": "Run `myanimelist-pp-cli sync --resources anime` or pass --refresh to refetch a single record past its TTL."
+      },
+      {
+        "symptom": "week or franchise gap prints nothing",
+        "fix": "Those commands read the local library; add titles first with `myanimelist-pp-cli track add \u003cid\u003e --status watching`."
+      },
+      {
+        "symptom": "drift reports no history",
+        "fix": "drift needs at least two snapshots over time; run `myanimelist-pp-cli sync --resources anime` periodically or on a schedule."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or a person needs MyAnimeList data without registering an application or holding a token: title lookups, seasonal and ranking exploration, cast and staff research, and analytics over score and status distributions. It is also the right tool for local watch tracking when a user does not want their list tied to an account. It is well suited to scripted seasonal planning, backlog triage, and franchise audits because every read is cached and every command emits JSON.",
+    "anti_triggers": [
+      "Do not use it to stream, download, or watch anime; it returns metadata and streaming links only.",
+      "Do not use it to modify a MyAnimeList account: there is no authenticated write path, by design.",
+      "Do not use it as a general anime database across sites; it reads MyAnimeList alone and does not merge AniList, Kitsu, or Shikimori data.",
+      "Do not use it for bulk crawling of the whole catalog; sitemap enumeration is explicit and rate-limited."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow a title record for an agent",
+        "command": "myanimelist-pp-cli anime get 52991 --agent --select id,title,score,episodes,status,genres,studios",
+        "explanation": "Title pages are large; --select keeps only the fields an agent needs."
+      },
+      {
+        "title": "Trim nested instant-search results",
+        "command": "myanimelist-pp-cli instant --query frieren --entity-type anime --agent --select categories.items.name,categories.items.payload.score",
+        "explanation": "The suggest response nests categories and payloads; dotted --select flattens the useful fields."
+      },
+      {
+        "title": "Is this show split or universally loved?",
+        "command": "myanimelist-pp-cli anime divisive 5114",
+        "explanation": "Turns the 1-10 vote distribution into a polarization reading."
+      },
+      {
+        "title": "Audit a franchise you started",
+        "command": "myanimelist-pp-cli franchise gap",
+        "explanation": "Lists entries missing from franchises already in your local library."
+      },
+      {
+        "title": "Plan the week in your own timezone",
+        "command": "myanimelist-pp-cli week",
+        "explanation": "Shows only your tracked shows, with same-hour collisions flagged."
+      }
+    ],
+    "trigger_phrases": [
+      "look up an anime on MyAnimeList",
+      "what anime airs tonight",
+      "watch order for this series",
+      "is this anime worth starting",
+      "search MyAnimeList for a manga",
+      "track my anime progress locally"
+    ]
+  }
+}

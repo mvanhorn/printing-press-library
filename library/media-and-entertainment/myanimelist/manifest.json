@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "myanimelist-pp-mcp",
+  "display_name": "MyAnimeList",
+  "version": "0.1.0",
+  "description": "The entire public MyAnimeList in one binary, plus offline analytics the site itself cannot answer.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/myanimelist-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/myanimelist-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
