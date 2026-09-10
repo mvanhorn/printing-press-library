@@ -147,7 +147,9 @@ export SUBSTACK_SESSION="s%3A..."
 export SUBSTACK_SESSION="substack.sid=s%3A..."
 
 # 2. A JSON cookie file at the default config-dir path
-#    (~/.config/substack-reader-pp-cli/cookie.json on the platform default)
+#    (~/.config/substack-reader-pp-cli/cookie.json on the platform default).
+#    The directory does not exist on a clean install — create it first.
+mkdir -p ~/.config/substack-reader-pp-cli && chmod 700 ~/.config/substack-reader-pp-cli
 echo '{"substack.sid":"s%3A..."}' > ~/.config/substack-reader-pp-cli/cookie.json
 chmod 600 ~/.config/substack-reader-pp-cli/cookie.json
 
@@ -155,7 +157,7 @@ chmod 600 ~/.config/substack-reader-pp-cli/cookie.json
 export SUBSTACK_COOKIE_FILE=/path/to/substack-cookie.json
 ```
 
-Precedence is `SUBSTACK_SESSION`, then `SUBSTACK_COOKIE_FILE`, then the default config-dir file. `SUBSTACK_COOKIE_FILE` is **authoritative** once set: a missing, unreadable, unparseable or `substack.sid`-less file there is a hard error, never a silent fall-through to a stale default. The default config-dir file is **best-effort**: absent, empty or corrupt all degrade to anonymous with a warning. The config directory itself is relocatable with `SUBSTACK_READER_CONFIG_DIR` or `SUBSTACK_READER_HOME`.
+Precedence is `SUBSTACK_SESSION`, then `SUBSTACK_COOKIE_FILE`, then the default config-dir file. `SUBSTACK_COOKIE_FILE` is **authoritative** once set: a missing, unreadable, unparseable or `substack.sid`-less file there is a hard error, never a silent fall-through to a stale default. The default config-dir file is **best-effort**: a file that exists but cannot be read or parsed degrades to anonymous *with* a warning, while an absent file — or one that parses but carries no `substack.sid` — degrades to anonymous *silently*. The config directory itself is relocatable with `SUBSTACK_READER_CONFIG_DIR` or `SUBSTACK_READER_HOME`.
 
 **Getting the cookie out of your browser.** Open DevTools → Application → Cookies → `https://substack.com`, and copy the value of `substack.sid`. Only `substack.sid` is needed — `connect.sid` is not. Copy it rather than retyping it: a single capital-`I`/lowercase-`l` slip yields a cookie that silently reads as anonymous.
 
