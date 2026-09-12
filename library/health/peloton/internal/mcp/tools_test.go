@@ -1074,3 +1074,159 @@ func TestLogUndeclaredArgsIsSilentWhenNothingIsUndeclared(t *testing.T) {
 		t.Fatalf("expected no stderr output for a fully-declared call, got %q", out)
 	}
 }
+
+// TestDeepStripFieldsRemovesNamedKeysAtAnyDepth guards the field-name-based
+// (not container-path-based) deletion contract deepStripFields exists to
+// provide: it must reach into nested objects and arrays alike, since the
+// verbose fields it's used for (stream URLs, instructor bios) live inside a
+// mix of per-class list items and a shared instructor array whose exact
+// shape this generated code otherwise never inspects.
+func TestDeepStripFieldsRemovesNamedKeysAtAnyDepth(t *testing.T) {
+	data := json.RawMessage(`{
+		"data": [
+			{"id": "1", "title": "Class One", "vod_stream_url": "https://example.test/1.m3u8"},
+			{"id": "2", "title": "Class Two", "vod_stream_url": "https://example.test/2.m3u8"}
+		],
+		"instructors": [
+			{"id": "i1", "name": "Instructor One", "bio": "a very long bio", "workout_share_images": ["a", "b"]}
+		]
+	}`)
+
+	stripped := deepStripFields(data, []string{"vod_stream_url", "bio", "workout_share_images"})
+
+	var obj map[string]any
+	if err := json.Unmarshal(stripped, &obj); err != nil {
+		t.Fatalf("stripped payload must remain valid JSON: %v", err)
+	}
+	classes := obj["data"].([]any)
+	for _, c := range classes {
+		class := c.(map[string]any)
+		if _, ok := class["vod_stream_url"]; ok {
+			t.Fatalf("vod_stream_url survived stripping in a nested class item: %#v", class)
+		}
+		if _, ok := class["id"]; !ok {
+			t.Fatalf("stripping removed unrelated fields too: %#v", class)
+		}
+	}
+	instructors := obj["instructors"].([]any)
+	instructor := instructors[0].(map[string]any)
+	if _, ok := instructor["bio"]; ok {
+		t.Fatalf("bio survived stripping in a nested instructor record: %#v", instructor)
+	}
+	if _, ok := instructor["workout_share_images"]; ok {
+		t.Fatalf("workout_share_images survived stripping in a nested instructor record: %#v", instructor)
+	}
+	if _, ok := instructor["name"]; !ok {
+		t.Fatalf("stripping removed unrelated instructor fields too: %#v", instructor)
+	}
+}
+
+// TestDeepStripFieldsIsNoOpOnInvalidJSONOrEmptyFieldList guards the helper's
+// safety contract, matching stripTopLevelFields elsewhere in this file: it
+// must never panic or corrupt a payload it can't parse, and must never
+// allocate/rebuild a payload when there's nothing to strip.
+func TestDeepStripFieldsIsNoOpOnInvalidJSONOrEmptyFieldList(t *testing.T) {
+	notJSON := json.RawMessage(`not json`)
+	if got := deepStripFields(notJSON, []string{"bio"}); string(got) != string(notJSON) {
+		t.Fatalf("deepStripFields altered invalid JSON: got %s, want unchanged %s", got, notJSON)
+	}
+
+	valid := json.RawMessage(`{"bio":"x"}`)
+	if got := deepStripFields(valid, nil); string(got) != string(valid) {
+		t.Fatalf("deepStripFields with no fields altered the payload: got %s, want unchanged %s", got, valid)
+	}
+}
+
+// TestClassesSearchDefaultsStripVerboseFieldsUnlessIncluded guards the live
+// bug this exists to fix: a 100-item classes_search result measured 454,819
+// bytes against a 60,000-byte MCP tool budget (~4.5 KB/class), most of it
+// stream URLs and per-instructor bio/Q&A/share-image blocks carrying no
+// information relevant to choosing a class. classes_search must strip them
+// by default and only include them when the caller explicitly opts in via
+// include_stream_urls/include_instructor_bios.
+func TestClassesSearchDefaultsStripVerboseFieldsUnlessIncluded(t *testing.T) {
+	fixture := json.RawMessage(`{
+		"data": [
+			{"id": "1", "title": "Class One", "vod_stream_url": "https://example.test/1.m3u8", "join_tokens": "abc123=="}
+		],
+		"instructors": [
+			{"id": "i1", "name": "Instructor One", "bio": "a very long bio"}
+		]
+	}`)
+
+	stripped := fixture
+	for _, toggle := range classesVerboseToggles {
+		stripped = deepStripFields(stripped, toggle.Fields)
+	}
+	strippedText := string(stripped)
+	for _, wantAbsent := range []string{"vod_stream_url", "join_tokens", "\"bio\""} {
+		if strings.Contains(strippedText, wantAbsent) {
+			t.Fatalf("default (unincluded) response still contains %q: %s", wantAbsent, strippedText)
+		}
+	}
+	for _, wantPresent := range []string{"\"id\":\"1\"", "\"title\":\"Class One\"", "\"name\":\"Instructor One\""} {
+		if !strings.Contains(strippedText, wantPresent) {
+			t.Fatalf("stripping removed a field it shouldn't have (missing %q): %s", wantPresent, strippedText)
+		}
+	}
+}
+
+// TestClassesCatalogAndSearchDeclareSelectAndVerboseToggles guards tool
+// schema discoverability: an agent reading the tool schema, not this file's
+// source, is how it learns select/include_stream_urls/include_instructor_bios
+// exist at all.
+func TestClassesCatalogAndSearchDeclareSelectAndVerboseToggles(t *testing.T) {
+	s := server.NewMCPServer("peloton", "test")
+	RegisterTools(s)
+	tools := s.ListTools()
+
+	wantTypes := map[string]string{
+		"select":                  "string",
+		"include_stream_urls":     "boolean",
+		"include_instructor_bios": "boolean",
+	}
+	for _, toolName := range []string{"classes_catalog", "classes_search", "classes_show", "classes_structure"} {
+		tool, ok := tools[toolName]
+		if !ok {
+			t.Fatalf("%s tool missing from registered tools", toolName)
+		}
+		for param, wantType := range wantTypes {
+			schema, ok := tool.Tool.InputSchema.Properties[param].(map[string]any)
+			if !ok {
+				t.Fatalf("%s tool schema does not declare %q: %#v", toolName, param, tool.Tool.InputSchema.Properties)
+			}
+			if gotType, _ := schema["type"].(string); gotType != wantType {
+				t.Fatalf("%s tool schema declares %q as type %q, want %q", toolName, param, gotType, wantType)
+			}
+		}
+	}
+}
+
+// TestAllTypedEndpointToolsDeclareSelect guards ask #2 from the live-tested
+// handoff this fixes: "select" -- proven to work well on offline/search
+// tools already -- must be available on every typed endpoint tool, not just
+// the classes_* ones, since the response-bloat problem it addresses isn't
+// unique to classes_search/classes_catalog.
+func TestAllTypedEndpointToolsDeclareSelect(t *testing.T) {
+	s := server.NewMCPServer("peloton", "test")
+	RegisterTools(s)
+	tools := s.ListTools()
+
+	for _, toolName := range []string{
+		"account_show", "classes_catalog", "classes_filters", "classes_search",
+		"classes_show", "classes_structure", "strength_movements",
+		"workouts_list", "workouts_performance", "workouts_show",
+	} {
+		tool, ok := tools[toolName]
+		if !ok {
+			t.Fatalf("%s tool missing from registered tools", toolName)
+		}
+		schema, ok := tool.Tool.InputSchema.Properties["select"].(map[string]any)
+		if !ok {
+			t.Fatalf("%s tool schema does not declare select: %#v", toolName, tool.Tool.InputSchema.Properties)
+		}
+		if gotType, _ := schema["type"].(string); gotType != "string" {
+			t.Fatalf("%s tool schema declares select as type %q, want \"string\"", toolName, gotType)
+		}
+	}
+}
