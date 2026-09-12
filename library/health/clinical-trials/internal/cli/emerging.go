@@ -87,7 +87,7 @@ func newNovelEmergingCmd(flags *rootFlags) *cobra.Command {
 			cutoff := time.Now().Year() - recentYears
 			recentIv, priorIv := newCounter(), newCounter()
 			recentCond, priorCond := newCounter(), newCounter()
-			phase := newCounter()
+			phase := tallyPhases(trials)
 			geo := newCounter()
 			recentN, priorN := 0, 0
 			for _, t := range trials {
@@ -113,15 +113,6 @@ func newNovelEmergingCmd(flags *rootFlags) *cobra.Command {
 					} else {
 						priorCond.add(key)
 					}
-				}
-				// Phaseless trials are observational; without this the range
-				// loop skips them and the distribution sums to less than
-				// SampleSize. See compare.go for the full rationale.
-				if len(t.Phases) == 0 {
-					phase.add(phaseLabel(""))
-				}
-				for _, ph := range t.Phases {
-					phase.add(phaseLabel(ph))
 				}
 				for _, country := range t.Countries {
 					geo.add(country)

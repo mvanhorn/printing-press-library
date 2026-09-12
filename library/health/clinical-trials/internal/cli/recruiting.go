@@ -81,21 +81,9 @@ func newRecruitingCmd(flags *rootFlags) *cobra.Command {
 
 // buildTrialListView assembles the shared summary from a fetched trial slice.
 func buildTrialListView(query, filter string, total int, trials []Trial) trialListView {
-	phase := newCounter()
+	phase := tallyPhases(trials)
 	geo := newCounter()
 	for _, t := range trials {
-		// A trial with no phases is observational, and the range loop below
-		// skips it — so the distribution used to sum to less than Returned.
-		// N/A is the same answer phaseDisplay gives such a trial for the
-		// Phase column further down this file, so the summary and the rows
-		// agree. The bucket merges two registry states on purpose; Phases is
-		// where they stay distinguishable, empty versus ["NA"].
-		if len(t.Phases) == 0 {
-			phase.add(phaseLabel(""))
-		}
-		for _, ph := range t.Phases {
-			phase.add(phaseLabel(ph))
-		}
 		for _, country := range t.Countries {
 			geo.add(country)
 		}

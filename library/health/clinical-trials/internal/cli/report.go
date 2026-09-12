@@ -70,19 +70,10 @@ func newNovelReportCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 
-			phase := newCounter()
+			phase := tallyPhases(trials)
 			geo := newCounter()
 			sponsor := newCounter()
 			for _, t := range trials {
-				// Phaseless trials are observational; without this the range
-				// loop skips them and the phase table sums to less than
-				// SampleSize printed beside it. See compare.go.
-				if len(t.Phases) == 0 {
-					phase.add(phaseLabel(""))
-				}
-				for _, ph := range t.Phases {
-					phase.add(phaseLabel(ph))
-				}
 				for _, country := range t.Countries {
 					geo.add(country)
 				}

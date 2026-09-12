@@ -371,6 +371,37 @@ func phaseLabel(phase string) string {
 	}
 }
 
+// tallyPhases counts phase ENTRIES, not trials. A trial posted under
+// PHASE1/PHASE2 contributes to both buckets, so the distribution can sum to
+// more than the sample it is printed beside — measured on the live CLI, 311
+// entries against a sample of 300 for semaglutide.
+//
+// A trial with no phases at all is observational, and the range loop alone
+// would skip it, which is how the distribution used to sum to LESS than the
+// sample. It lands in the bucket phaseLabel("") names, the same answer
+// phaseDisplay gives such a trial for the table's Phase column, so the summary
+// and the rows agree. That bucket is lossy on purpose: it holds both
+// interventional trials the registry marks "NA" and observational studies with
+// no phase at all. A caller needing the two apart reads Trial.Phases, which is
+// ["NA"] for the first and empty for the second.
+//
+// Extracted from compare, emerging, report and recruiting, which carried four
+// byte-identical copies of this loop. Only recruiting's was reachable from a
+// test; the other three tally inside RunE behind a live client. This is the
+// follow-up #1973 left open.
+func tallyPhases(trials []Trial) *counter {
+	phase := newCounter()
+	for _, t := range trials {
+		if len(t.Phases) == 0 {
+			phase.add(phaseLabel(""))
+		}
+		for _, ph := range t.Phases {
+			phase.add(phaseLabel(ph))
+		}
+	}
+	return phase
+}
+
 // resultEnvelope is the standard JSON shape intelligence commands emit: the
 // computed payload plus a meta block describing scan effort and partial
 // failures so agents can distinguish "no data" from "scan capped" or
