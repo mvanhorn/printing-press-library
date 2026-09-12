@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mcp-search-sql-binary-resolution-error-ordering",
+  "applied_at": "2026-09-11",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "search/sql's data-store diagnostics (mcpMissingStoreMessage, openMCPReadOnlyStore's open-failure message, mcpEmptyStoreNextStep -- all in internal/mcp/tools.go) now probe companion-binary resolution (mcpCompanionCLIAvailable, backed by the injectable mcpCLIPathResolver var defaulting to cobratree.SiblingCLIPath) before suggesting \"run peloton-pp-cli sync\". When the binary can't be resolved, all three return the same mcpCompanionCLIUnavailableMessage constant that command-mirror (shellout) tools already give in this situation, instead of prescribing a remedy that execs the same missing binary. Any future regen touching these three functions must keep the binary-resolution check first, and must route new tests for this behavior through stubMCPCLIAvailable rather than depending on whatever \"peloton-pp-cli\" resolution the real test machine/CI runner happens to produce.",
+  "reason": "Live-tested dead-end loop: on a deployment missing the peloton-pp-cli binary, search reported \"No local data store found... Run peloton-pp-cli sync before using MCP search/sql\", while every other CLI-backed (command-mirror) tool correctly reported \"companion CLI binary not found: exec: ...\" for the identical root cause. Every path to running the suggested `sync` command execs the same missing binary, so an agent following the instruction literally loops until it gives up. search/sql read the local SQLite store directly and never exec the binary themselves, which is why they had their own, incorrect diagnosis instead of inheriting the shellout path's honest one.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. Updated TestMCPSearchMissingStoreIsActionable/TestMCPSearchEmptyStoreReturnsActionableEnvelope/TestMCPSQLMissingStoreIsActionable/TestMCPSQLEmptyStoreReturnsActionableEnvelope to stub the binary as available (matching their original store-focused intent, since a real `go test` run has no real \"peloton-pp-cli\" to resolve and would otherwise silently hit the new code path). New tests TestMCPSearchMissingStoreAndBinaryGivesConsistentDiagnosis, TestMCPSQLMissingStoreAndBinaryGivesConsistentDiagnosis, and TestMCPSearchEmptyStoreAndMissingBinaryNamesRootCause stub the binary as unavailable and assert the corrected message/next_step, and that neither still says \"Run peloton-pp-cli sync\"."
+}

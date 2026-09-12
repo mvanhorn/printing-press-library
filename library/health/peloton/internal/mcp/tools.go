@@ -809,6 +809,37 @@ const (
 	mcpStoreStatusReady mcpStoreStatusKind = "ready"
 )
 
+// mcpCompanionCLIUnavailableMessage is the one consistent diagnosis every
+// CLI-backed MCP tool (command-mirror tools via cobratree.shellOutToCLI, and
+// search/sql here) gives when the companion peloton-pp-cli binary itself
+// can't be resolved -- naming the working alternative (live endpoint tools)
+// rather than prescribing a remedy ("run peloton-pp-cli sync") that execs
+// the very binary that's missing.
+const mcpCompanionCLIUnavailableMessage = "companion CLI unavailable; offline/analytics tooling disabled. Live endpoint tools remain available."
+
+// mcpCompanionCLIAvailable reports whether the companion CLI binary
+// resolves via the same sibling/env/PATH lookup cobratree's command-mirror
+// tools already use (cobratree.SiblingCLIPath). search/sql read the local
+// SQLite store directly and never exec the binary themselves, but their
+// missing/empty-store messages used to unconditionally suggest "run
+// peloton-pp-cli sync" -- correct advice when the binary exists and the
+// store just hasn't been populated yet, but a dead end when the binary is
+// genuinely missing (e.g. a deployment image that failed to include it):
+// every command a caller could try to follow that advice execs the same
+// unavailable binary, so an agent following it literally loops until it
+// gives up. Checking here first lets these two hand-written tools give the
+// same honest diagnosis the shellout-mirrored tools already give.
+// mcpCLIPathResolver is a package variable, not a direct call to
+// cobratree.SiblingCLIPath, so tests can simulate "companion CLI available"
+// vs. "unavailable" deterministically instead of depending on whatever the
+// real filesystem/PATH happens to contain on the machine running the test.
+var mcpCLIPathResolver = cobratree.SiblingCLIPath
+
+func mcpCompanionCLIAvailable() bool {
+	_, err := mcpCLIPathResolver()
+	return err == nil
+}
+
 func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
@@ -818,12 +849,18 @@ func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
 	}
 	db, err := store.OpenReadOnly(path)
 	if err != nil {
+		if !mcpCompanionCLIAvailable() {
+			return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. %s", path, err, mcpCompanionCLIUnavailableMessage))
+		}
 		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run peloton-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
 	}
 	return db, nil
 }
 
 func mcpMissingStoreMessage(path string) string {
+	if !mcpCompanionCLIAvailable() {
+		return mcpCompanionCLIUnavailableMessage
+	}
 	return fmt.Sprintf("No local data store found at %s. Run peloton-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
 }
 
@@ -839,6 +876,9 @@ func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
 }
 
 func mcpEmptyStoreNextStep() string {
+	if !mcpCompanionCLIAvailable() {
+		return mcpCompanionCLIUnavailableMessage
+	}
 	return "Run peloton-pp-cli sync to populate the local SQLite store before using MCP search/sql."
 }
 
