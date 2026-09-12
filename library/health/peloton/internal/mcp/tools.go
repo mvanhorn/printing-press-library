@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -835,8 +836,24 @@ const mcpCompanionCLIUnavailableMessage = "companion CLI unavailable; offline/an
 // real filesystem/PATH happens to contain on the machine running the test.
 var mcpCLIPathResolver = cobratree.SiblingCLIPath
 
+// mcpCompanionCLIAvailable resolves via mcpCLIPathResolver and then verifies
+// the result is actually usable: SiblingCLIPath returns a sibling-of-
+// executable candidate or the PELOTON_CLI_PATH env var value without
+// checking either exists or is executable (only its PATH-search fallback is
+// pre-validated, by exec.LookPath's own internal search). Without this
+// second check, a stale/wrong PELOTON_CLI_PATH or a non-executable sibling
+// file would report "available" and still recommend "run peloton-pp-cli
+// sync" -- a remedy that fails the moment it's tried, the exact dead end
+// this diagnosis exists to avoid. exec.LookPath on a path that already
+// contains a separator skips PATH search and validates the file directly
+// (existence + executable bit), the same check any exec.Command(path, ...)
+// call depends on.
 func mcpCompanionCLIAvailable() bool {
-	_, err := mcpCLIPathResolver()
+	path, err := mcpCLIPathResolver()
+	if err != nil {
+		return false
+	}
+	_, err = exec.LookPath(path)
 	return err == nil
 }
 

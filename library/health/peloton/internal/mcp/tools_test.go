@@ -109,7 +109,14 @@ func stubMCPCLIAvailable(t *testing.T, available bool) {
 	t.Helper()
 	original := mcpCLIPathResolver
 	if available {
-		mcpCLIPathResolver = func() (string, error) { return "/fake/peloton-pp-cli", nil }
+		// mcpCompanionCLIAvailable now verifies the resolved path is
+		// actually executable (exec.LookPath), not just present, so a
+		// fabricated path like "/fake/peloton-pp-cli" would fail that
+		// check and defeat this stub. os.Args[0] -- the running test
+		// binary itself -- is a real, executable file guaranteed to exist
+		// in every test environment.
+		exe := os.Args[0]
+		mcpCLIPathResolver = func() (string, error) { return exe, nil }
 	} else {
 		mcpCLIPathResolver = func() (string, error) { return "", fmt.Errorf("simulated: companion CLI not found") }
 	}
@@ -1464,5 +1471,38 @@ func TestMCPSearchEmptyStoreAndMissingBinaryNamesRootCause(t *testing.T) {
 	}
 	if !strings.Contains(envelope.NextStep, "companion CLI unavailable") {
 		t.Fatalf("next_step = %q, want it to name the missing binary instead of suggesting sync", envelope.NextStep)
+	}
+}
+
+// TestMCPCompanionCLIAvailableRejectsUnexecutablePath guards the P1 review
+// finding: SiblingCLIPath can return a sibling-of-executable candidate or
+// the PELOTON_CLI_PATH env var value without checking either exists or is
+// executable -- only its PATH-search fallback is pre-validated. Without a
+// second check, a stale/wrong PELOTON_CLI_PATH or a non-executable sibling
+// file would report "available" and still recommend "run peloton-pp-cli
+// sync", a remedy that fails the moment it's tried -- the exact dead end
+// this diagnosis exists to avoid.
+func TestMCPCompanionCLIAvailableRejectsUnexecutablePath(t *testing.T) {
+	original := mcpCLIPathResolver
+	defer func() { mcpCLIPathResolver = original }()
+
+	nonExistent := filepath.Join(t.TempDir(), "peloton-pp-cli")
+	mcpCLIPathResolver = func() (string, error) { return nonExistent, nil }
+	if mcpCompanionCLIAvailable() {
+		t.Fatal("mcpCompanionCLIAvailable() = true for a path that does not exist, want false")
+	}
+
+	notExecutable := filepath.Join(t.TempDir(), "peloton-pp-cli")
+	if err := os.WriteFile(notExecutable, []byte("#!/bin/sh\necho hi\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	mcpCLIPathResolver = func() (string, error) { return notExecutable, nil }
+	if mcpCompanionCLIAvailable() {
+		t.Fatal("mcpCompanionCLIAvailable() = true for a file without the executable bit set, want false")
+	}
+
+	mcpCLIPathResolver = func() (string, error) { return os.Args[0], nil }
+	if !mcpCompanionCLIAvailable() {
+		t.Fatal("mcpCompanionCLIAvailable() = false for the running test binary itself, want true")
 	}
 }
