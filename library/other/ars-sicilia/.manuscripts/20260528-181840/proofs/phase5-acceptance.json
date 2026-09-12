@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "cbe52a753f18a0a64b949e69f8a472a16db341676dfbd9544bcae9f59fad774c",
+  "source_fingerprint": "fae8ba8e39d1045faeddef604df39c2d1523c1232b2f348624d6d73618cf6bed",
   "source_files": {
     "cmd/ars-sicilia-pp-cli/main.go": "c0dfc303980570f5c430e6eb920798649f3825d25b3691778e19507229430b0c",
     "cmd/ars-sicilia-pp-mcp/main.go": "f181e27a68985fa073ecdaec19a264e69a0af84075b1460c097dc0dc4ea4b5db",
@@ -67,7 +67,7 @@
     "internal/cli/gruppi.go": "d561c302effefdf42ec8c31e62e66fb2b51701b42c4bb693f2a25410e6e9df93",
     "internal/cli/helpers.go": "4ed3f79f295b877f753c77d311e9906baf540e19906700661054d4a587c4dc79",
     "internal/cli/html_extract.go": "7355bbacae707a4112fee80a70d01f84c9327170cf2351c88ac6a3a6e930943b",
-    "internal/cli/icaro_helpers.go": "8372a789ed2247362f24ce30b03e3e585e6873082ae1662696951b205042af1a",
+    "internal/cli/icaro_helpers.go": "87ecbd9e36795b63e8b306d99d0ccc3a1448a4d23bfe98822274114cb0e1800f",
     "internal/cli/icaro_helpers_bd_hint_test.go": "45c4d536e9989b11e32ef38c4aa34457c8629deb37fc8930f596b64037fd908e",
     "internal/cli/icaro_helpers_test.go": "b2015c3d3dfa8b44c39a352d38506a0ddad38a025644bbf72de8c56ecabca03d",
     "internal/cli/import.go": "6e2ccefc32e31cf11ffe7cc5bd98d1d019cd5a81d1f63b976f4eddea77da03fc",
@@ -152,7 +152,7 @@
     "internal/icaroclient/query_test.go": "c63c2d3126195c6168de7e46b410a4241b01ab82857d9e8395654aad94d8525f",
     "internal/icaroclient/queryerror_test.go": "d9401977c21a572a97810d6809725adf0111b70b098239f600e7b0a408a314ef",
     "internal/icaroclient/retry_test.go": "9b263276009351f788555ffd77caec05dad3f0ab48d30e989aa392941587bcbb",
-    "internal/icaroclient/scheda_test.go": "92c7d71ed77c8331f841ad68a7379e5ff3086688f3ab8474f153649f514d56ba",
+    "internal/icaroclient/scheda_test.go": "bdf0ebf7c8f5be01e35ac6e9662c77c921b426f50566d74f6a942332f2a85be6",
     "internal/icaroclient/split.go": "58bf77422d943b84aa7f95de25635497c4d5d89b2f974b4ecf8b372a889503fb",
     "internal/icaroclient/split_test.go": "7121c24efa74785f8d05883085c9aff019120a0d9ce44678cc74cbd945fc4cbb",
     "internal/icaroclient/stopwhen_test.go": "4a565c7647305ec17ed32c877451b99ec654c353436742d0212e7390870bc855",

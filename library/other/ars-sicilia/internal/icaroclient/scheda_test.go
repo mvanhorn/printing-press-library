@@ -1,6 +1,9 @@
 package icaroclient
 
 import (
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -113,5 +116,35 @@ func TestParseSchedaSenzaBlocchiTieneIlPDF(t *testing.T) {
 	// campo resta vuoto, e sta al chiamante dirne il motivo.
 	if d.Testo != "" {
 		t.Errorf("testo = %q, voluto vuoto su una scheda senza <pre>", d.Testo)
+	}
+}
+
+// Una scheda che non si apre deve tornare come errore, non come dettaglio
+// vuoto. Il chiamante, da quando la scheda è il percorso principale di `get`,
+// distingue su questo errore la caduta del backend dal documento senza
+// allegato: nel primo caso ripiega sull'indice Icaro, nel secondo risponde.
+func TestSchedaPropagaIlGuasto(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	}))
+	defer srv.Close()
+
+	c := clientDiProva(t, srv.URL)
+	d, err := c.Scheda(context.Background(), srv.URL+"/bd/resoconti/scheda/17/208")
+	if err == nil {
+		t.Fatalf("atteso errore, ottenuto dettaglio %+v", d)
+	}
+	if d != nil {
+		t.Errorf("con l'errore il dettaglio deve essere nil, non %+v", d)
+	}
+}
+
+// URL vuoto non è un guasto: non c'è niente da aprire, e il chiamante lo
+// riconosce dal (nil, nil) invece di credere a una scheda senza campi.
+func TestSchedaSenzaURLNonEUnGuasto(t *testing.T) {
+	c := clientDiProva(t, "http://127.0.0.1:1")
+	d, err := c.Scheda(context.Background(), "  ")
+	if err != nil || d != nil {
+		t.Errorf("atteso (nil, nil), ottenuto (%+v, %v)", d, err)
 	}
 }

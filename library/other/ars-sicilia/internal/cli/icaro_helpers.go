@@ -932,9 +932,21 @@ func bdScheda(ctx context.Context, c *icaro.Client, arc icaro.Archive, params ma
 	// nella seduta N» si poteva chiedere solo ad `analytics --group-by oratore`,
 	// che è per legislatura e costa una novantina di richieste.
 	scheda, err := c.Scheda(ctx, r.URL)
-	if err != nil || scheda == nil {
-		out["nota"] = nota + " Questa volta però la scheda non si è aperta: apri `url` a mano."
-		return out, nil // la scheda non si è aperta: meglio i metadati che niente
+	if err != nil {
+		// L'errore si propaga, non si trasforma in un successo coi soli
+		// metadati. Finché questo era un ripiego per le sedute che Icaro non
+		// aveva, restituire la riga di short-list era il meglio disponibile;
+		// da quando la scheda è il percorso principale, quel `nil` direbbe
+		// «documento trovato» proprio quando il backend è caduto — senza
+		// `pdf_url`, senza testo, con exit 0, e scavalcando in silenzio il
+		// ramo Icaro, che a quel punto avrebbe almeno un frammento da dare.
+		// Chi legge non distinguerebbe un documento senza allegato da una
+		// caduta di rete. Il chiamante lo riceve come bdErr: prova Icaro, e se
+		// nemmeno lì c'è nulla esce con l'errore che dice «non ha risposto».
+		return nil, err
+	}
+	if scheda == nil {
+		return nil, fmt.Errorf("scheda /bd/ non indirizzabile per legisl=%d numero=%d in %s: la riga non porta un URL", legisl, numero, arc.Slug)
 	}
 	// I blocchi si espongono anche quando il PDF non c'è: sono quello che la
 	// scheda ha comunque detto, e su una seduta senza allegato sono l'unica cosa
