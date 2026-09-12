@@ -1,0 +1,50 @@
+{
+  "manifest_version": "0.3",
+  "name": "bing-ads-pp-mcp",
+  "display_name": "Microsoft Advertising Bing",
+  "version": "13.0.0",
+  "description": "Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output)",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bing-ads-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bing-ads-pp-mcp",
+      "args": [],
+      "env": {
+        "BING_ADS_BASE_URL": "${user_config.bing_ads_base_url}",
+        "BING_ADS_USER_AGENT": "${user_config.bing_ads_user_agent}",
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "bing_ads_base_url": {
+      "type": "string",
+      "title": "BING_ADS_BASE_URL",
+      "description": "Optional. Sets BING_ADS_BASE_URL for the Microsoft Advertising Bing MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "bing_ads_user_agent": {
+      "type": "string",
+      "title": "BING_ADS_USER_AGENT",
+      "description": "Optional. Sets BING_ADS_USER_AGENT for the Microsoft Advertising Bing MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

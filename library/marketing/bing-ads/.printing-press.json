@@ -1,0 +1,74 @@
+{
+  "api_name": "bing-ads",
+  "api_version": "13.0.0",
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_preference": "CustomerAccountId",
+  "auth_type": "api_key",
+  "category": "marketing",
+  "cli_name": "bing-ads-pp-cli",
+  "creator": {
+    "handle": "ubuntu",
+    "name": "ubuntu"
+  },
+  "description": "Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output)",
+  "display_name": "Microsoft Advertising Bing",
+  "generated_at": "2026-09-10T12:54:03.62623357Z",
+  "mcp_binary": "bing-ads-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 287,
+  "novel_features": [
+    {
+      "name": "Account discovery",
+      "command": "customer-management get-accounts-info",
+      "description": "List every Microsoft Advertising account visible under a customer via a single REST call, replacing the legacy SOAP GetAccountsInfo request."
+    },
+    {
+      "name": "Campaign performance reporting without WSDL",
+      "command": "reporting submit-generate-report",
+      "description": "Submit a campaign performance report request directly against the REST Reporting service; pair with poll-generate-report to retrieve the completed report, no legacy SOAP report-request XML required."
+    },
+    {
+      "name": "Ad Insight recommendation apply",
+      "command": "ad-insight apply-recommendations",
+      "description": "Apply Microsoft's auto-generated account recommendations directly from the terminal or MCP surface."
+    }
+  ],
+  "printer": "ubuntu",
+  "printer_name": "ubuntu",
+  "printing_press_version": "4.32.1",
+  "run_id": "20260828-081713",
+  "schema_version": 2,
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 84
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  },
+  "spec_checksum": "sha256:9ae84ef319b4c1331feb0625a7aba5b9d4490d1d34de40836d1cb99b6b8e650f",
+  "spec_format": "openapi3",
+  "spec_path": "spec.json",
+  "spec_source": "official",
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 96.7741935483871,
+    "passed": 30,
+    "total": 31,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  }
+}
