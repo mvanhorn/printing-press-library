@@ -33,10 +33,26 @@ const (
 	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
 	defaultMCPRateLimit = 2
 
-	// selectParamDescription is shared by every typed endpoint tool's
-	// "select" argument (see makeAPIHandlerVerbose) so the projection
-	// contract reads identically everywhere it's offered.
+	// selectParamDescription is shared by every typed endpoint tool whose
+	// response IS the item/object being returned, with no wrapper key (see
+	// makeAPIHandlerVerbose) so the projection contract reads identically
+	// everywhere it's offered.
 	selectParamDescription = "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
+
+	// selectParamDescriptionDataWrapped is for the endpoints whose live
+	// response wraps its items under a top-level "data" key (classes_catalog,
+	// classes_search, workouts_list -- see each endpoint's response_path:
+	// data in spec.yaml) alongside sibling metadata fields (e.g.
+	// classes_catalog/classes_search carry browse_categories,
+	// fitness_disciplines, and instructors alongside data). filterFields'
+	// envelope-fallback heuristic (internal/cli/helpers.go) only descends
+	// into a lone sibling array automatically when the object has at most
+	// maxEnvelopeFallbackKeys top-level keys; classes_catalog/classes_search
+	// exceed that, so a bare field name like "id" matches nothing there and
+	// silently projects to "{}". Always prefixing with "data." avoids
+	// depending on exactly how many sibling keys a given response happens to
+	// carry.
+	selectParamDescriptionDataWrapped = "Comma-separated dotted field paths to project from the response, e.g. data.id,data.title,data.duration. This endpoint's response wraps its items under a top-level \"data\" key alongside sibling metadata fields -- always prefix paths with \"data.\" (not a bare field name like \"id\") to reliably reach into the items. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
 )
 
 // rideArchivedRedundantFields are top-level keys on /api/v2/ride/archived
@@ -115,6 +131,37 @@ func deepStripFields(data json.RawMessage, fields []string) json.RawMessage {
 	return out
 }
 
+// reservedMCPMetaArgs names the MCP-only response-shaping arguments every
+// typed endpoint tool using verboseToggles must never forward upstream as a
+// raw query/body param: "select" (universal) plus each toggle's ArgName.
+// Extracted so tests can assert directly that these names are reserved,
+// without needing to invoke the full handler closure.
+func reservedMCPMetaArgs(verboseToggles []verboseFieldToggle) map[string]bool {
+	reserved := make(map[string]bool, len(verboseToggles)+1)
+	reserved["select"] = true
+	for _, toggle := range verboseToggles {
+		reserved[toggle.ArgName] = true
+	}
+	return reserved
+}
+
+// applyVerboseFieldToggles runs each toggle's include/strip decision against
+// args independently -- absent or false strips that toggle's fields, true
+// leaves them; each toggle is evaluated on its own, so e.g. passing
+// include_stream_urls=true and leaving include_instructor_bios unset keeps
+// stream/media fields while still stripping instructor bios. Extracted as
+// its own function (rather than inlined in makeAPIHandlerVerbose) so tests
+// can drive the exact toggle-selection logic the real handler uses without
+// standing up a live HTTP client.
+func applyVerboseFieldToggles(data json.RawMessage, args map[string]any, toggles []verboseFieldToggle) json.RawMessage {
+	for _, toggle := range toggles {
+		if include, _ := args[toggle.ArgName].(bool); !include {
+			data = deepStripFields(data, toggle.Fields)
+		}
+	}
+	return data
+}
+
 func deepStripValue(v any, remove map[string]bool) any {
 	switch tv := v.(type) {
 	case map[string]any:
@@ -170,7 +217,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("super_genre_id", mcplib.Description("Optional provider music-genre filter. Accepted values are advertised by classes_filters.")),
 			mcplib.WithBoolean("has_workout", mcplib.Description("Optional tri-state filter: true for classes you've already taken, false for classes you haven't. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
 			mcplib.WithBoolean("is_favorite_ride", mcplib.Description("Optional tri-state filter: true for bookmarked classes, false for not-bookmarked. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
-			mcplib.WithString("select", mcplib.Description(selectParamDescription)),
+			mcplib.WithString("select", mcplib.Description(selectParamDescriptionDataWrapped)),
 			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include per-class stream/playback URLs and join tokens. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included).")),
 			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query.")),
 			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
@@ -207,7 +254,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("super_genre_id", mcplib.Description("Optional provider music-genre filter. Accepted values are advertised by classes_filters.")),
 			mcplib.WithBoolean("has_workout", mcplib.Description("Optional tri-state filter: true for classes you've already taken, false for classes you haven't. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
 			mcplib.WithBoolean("is_favorite_ride", mcplib.Description("Optional tri-state filter: true for bookmarked classes, false for not-bookmarked. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
-			mcplib.WithString("select", mcplib.Description(selectParamDescription)),
+			mcplib.WithString("select", mcplib.Description(selectParamDescriptionDataWrapped)),
 			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include per-class stream/playback URLs and join tokens. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included).")),
 			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query.")),
 			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
@@ -261,7 +308,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("joins", mcplib.Description("Include linked ride metadata.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
 			mcplib.WithString("sort", mcplib.Description("Newest-first sort order.")),
-			mcplib.WithString("select", mcplib.Description(selectParamDescription)),
+			mcplib.WithString("select", mcplib.Description(selectParamDescriptionDataWrapped)),
 			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -473,13 +520,8 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
 		knownArgs := make(map[string]bool, len(bindings)+len(verboseToggles)+1)
-		// "select" is a universal MCP-only projection argument on every typed
-		// endpoint tool (see the applySelect call near the end of this
-		// function) -- reserved here so it's never mistaken for an
-		// undeclared argument and forwarded raw to the live API.
-		knownArgs["select"] = true
-		for _, toggle := range verboseToggles {
-			knownArgs[toggle.ArgName] = true
+		for name := range reservedMCPMetaArgs(verboseToggles) {
+			knownArgs[name] = true
 		}
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
@@ -639,11 +681,7 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 		if len(stripFields) > 0 {
 			data = stripTopLevelFields(data, stripFields)
 		}
-		for _, toggle := range verboseToggles {
-			if include, _ := args[toggle.ArgName].(bool); !include {
-				data = deepStripFields(data, toggle.Fields)
-			}
-		}
+		data = applyVerboseFieldToggles(data, args, verboseToggles)
 		// select is applied last, after any verbose-field stripping, so a
 		// caller who does pass include_stream_urls/include_instructor_bios=true
 		// can still narrow the now-larger response down with select in the
@@ -1222,7 +1260,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"offline_workout nests output under detail/history (use --select detail.title to reach a nested field). Every other offline command's fields, including \"caveats\" when a caveat applies, sit at the TOP level of the response -- not wrapped under a \"result\" key -- so e.g. offline_intervals's segments is reached with --select segments, not --select result.segments. offline_classes_filters double-nests under filters.filters (the wrapper's own \"filters\" key containing the provider's \"filters\" array) and filters.sorts -- there is no browse_categories/class_types field on this endpoint. Dotted --select paths only descend into object keys, not array indices (e.g. filters.filters.0.name does not work); arrays are matched element-wise instead.",
 			"Run doctor to check auth state, credential location, and sync cache freshness before assuming an API or credential problem.",
 			"Unrecognized typed-tool arguments are forwarded as raw live API params, not validated — a misspelled filter name silently no-ops instead of erroring. Double-check argument spelling against the tool's declared schema. classes_search/classes_catalog now declare duration, super_genre_id, has_workout, and is_favorite_ride directly, so those four no longer need the raw passthrough.",
-			"Every typed endpoint tool (classes_*, workouts_*, strength_movements, account_show) accepts a select argument with the same dotted-path projection as this CLI's --select flag, e.g. classes_search(..., select=\"id,title,duration,instructor_id\"). classes_catalog/classes_search/classes_show/classes_structure also default to omitting stream/playback URLs, join tokens, and instructor bios/Q&A/share-images -- pass include_stream_urls/include_instructor_bios to get them back.",
+			"Every typed endpoint tool (classes_*, workouts_*, strength_movements, account_show) accepts a select argument with the same dotted-path projection as this CLI's --select flag. classes_catalog, classes_search, and workouts_list wrap their items under a top-level \"data\" key, so their select paths must be prefixed accordingly, e.g. classes_search(..., select=\"data.id,data.title,data.duration,data.instructor_id\") -- a bare \"id\" matches nothing on these three tools. Every other typed endpoint tool's response has no wrapper, so bare field names (e.g. workouts_show(..., select=\"id,ride\")) work directly. classes_catalog/classes_search/classes_show/classes_structure also default to omitting stream/playback URLs, join tokens, and instructor bios/Q&A/share-images -- pass include_stream_urls/include_instructor_bios to get them back.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.

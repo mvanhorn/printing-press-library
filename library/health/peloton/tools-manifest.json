@@ -38,14 +38,21 @@
   "tools": [
     {
       "name": "account_show",
-      "description": "Show the current profile fact. Returns the Profile.",
+      "description": "Show the current profile fact. Optional: select. Returns the Profile.",
       "method": "GET",
       "path": "/api/me",
-      "params": []
+      "params": [
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
+        }
+      ]
     },
     {
       "name": "classes_catalog",
-      "description": "List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 7 more). Returns array of Class.",
+      "description": "List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 10 more). Returns array of Class.",
       "method": "GET",
       "path": "/api/v2/ride/archived",
       "params": [
@@ -122,12 +129,30 @@
           "type": "bool",
           "location": "query",
           "description": "Optional tri-state filter: true for bookmarked classes, false for not-bookmarked. Omitting the parameter leaves it unfiltered -- omitted and false are different queries."
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. data.id,data.title,data.duration. This endpoint's response wraps its items under a top-level \"data\" key alongside sibling metadata fields -- always prefix paths with \"data.\" (not a bare field name like \"id\") to reliably reach into the items. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
+        },
+        {
+          "name": "include_stream_urls",
+          "type": "bool",
+          "location": "query",
+          "description": "Include per-class stream/playback URLs and join tokens. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included)."
+        },
+        {
+          "name": "include_instructor_bios",
+          "type": "bool",
+          "location": "query",
+          "description": "Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query."
         }
       ]
     },
     {
       "name": "classes_filters",
-      "description": "Show provider class/filter vocabulary and embedded instructor metadata. Required: browse_category. Optional: include_icon_images (default: true), library_type (default: on_demand). Returns the FilterVocabulary.",
+      "description": "Show provider class/filter vocabulary and embedded instructor metadata. Required: browse_category. Optional: include_icon_images (default: true), library_type (default: on_demand), select. Returns the FilterVocabulary.",
       "method": "GET",
       "path": "/api/ride/filters",
       "params": [
@@ -149,12 +174,18 @@
           "location": "query",
           "description": "Provider browse category.",
           "required": true
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
         }
       ]
     },
     {
       "name": "classes_search",
-      "description": "Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 7 more). Returns array of Class.",
+      "description": "Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 10 more). Returns array of Class.",
       "method": "GET",
       "path": "/api/v2/ride/archived",
       "params": [
@@ -231,12 +262,30 @@
           "type": "bool",
           "location": "query",
           "description": "Optional tri-state filter: true for bookmarked classes, false for not-bookmarked. Omitting the parameter leaves it unfiltered -- omitted and false are different queries."
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. data.id,data.title,data.duration. This endpoint's response wraps its items under a top-level \"data\" key alongside sibling metadata fields -- always prefix paths with \"data.\" (not a bare field name like \"id\") to reliably reach into the items. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
+        },
+        {
+          "name": "include_stream_urls",
+          "type": "bool",
+          "location": "query",
+          "description": "Include per-class stream/playback URLs and join tokens. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included)."
+        },
+        {
+          "name": "include_instructor_bios",
+          "type": "bool",
+          "location": "query",
+          "description": "Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query."
         }
       ]
     },
     {
       "name": "classes_show",
-      "description": "Show class metadata and supported planned structure. Required: ride_id. Returns the ClassDetail.",
+      "description": "Show class metadata and supported planned structure. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios. Returns the ClassDetail.",
       "method": "GET",
       "path": "/api/ride/{ride_id}/details",
       "params": [
@@ -246,12 +295,30 @@
           "location": "path",
           "description": "Provider class identifier.",
           "required": true
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
+        },
+        {
+          "name": "include_stream_urls",
+          "type": "bool",
+          "location": "query",
+          "description": "Include stream/playback URLs and join tokens. Default false: these carry no information relevant to class metadata or structure and dominate response size."
+        },
+        {
+          "name": "include_instructor_bios",
+          "type": "bool",
+          "location": "query",
+          "description": "Include the instructor's full bio, Q&A, and share-image array. Default false."
         }
       ]
     },
     {
       "name": "classes_structure",
-      "description": "Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Returns the ClassDetail.",
+      "description": "Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios. Returns the ClassDetail.",
       "method": "GET",
       "path": "/api/ride/{ride_id}/details",
       "params": [
@@ -261,12 +328,30 @@
           "location": "path",
           "description": "Provider class identifier.",
           "required": true
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
+        },
+        {
+          "name": "include_stream_urls",
+          "type": "bool",
+          "location": "query",
+          "description": "Include stream/playback URLs and join tokens. Default false: these carry no information relevant to class metadata or structure and dominate response size."
+        },
+        {
+          "name": "include_instructor_bios",
+          "type": "bool",
+          "location": "query",
+          "description": "Include the instructor's full bio, Q&A, and share-image array. Default false."
         }
       ]
     },
     {
       "name": "strength_movements",
-      "description": "Inspect provider workout detail containing movement_tracker_data when present; no template fallback. Required: workout_id. Returns the WorkoutDetail.",
+      "description": "Inspect provider workout detail containing movement_tracker_data when present; no template fallback. Required: workout_id. Optional: select. Returns the WorkoutDetail.",
       "method": "GET",
       "path": "/api/workout/{workout_id}",
       "params": [
@@ -276,12 +361,18 @@
           "location": "path",
           "description": "Provider workout identifier.",
           "required": true
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
         }
       ]
     },
     {
       "name": "workouts_list",
-      "description": "List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), page (default: 0) (plus 1 more). Returns array of Workout.",
+      "description": "List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), page (default: 0) (plus 2 more). Returns array of Workout.",
       "method": "GET",
       "path": "/api/user/{user_id}/workouts",
       "params": [
@@ -315,12 +406,18 @@
           "type": "string",
           "location": "query",
           "description": "Newest-first sort order."
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. data.id,data.title,data.duration. This endpoint's response wraps its items under a top-level \"data\" key alongside sibling metadata fields -- always prefix paths with \"data.\" (not a bare field name like \"id\") to reliably reach into the items. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
         }
       ]
     },
     {
       "name": "workouts_performance",
-      "description": "Show recorded performance samples and summaries for one workout. Required: workout_id. Optional: every_n (default: 1). Returns the PerformanceGraph.",
+      "description": "Show recorded performance samples and summaries for one workout. Required: workout_id. Optional: every_n (default: 1), select. Returns the PerformanceGraph.",
       "method": "GET",
       "path": "/api/workout/{workout_id}/performance_graph",
       "params": [
@@ -336,12 +433,18 @@
           "type": "int",
           "location": "query",
           "description": "Sample stride; one preserves full samples."
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
         }
       ]
     },
     {
       "name": "workouts_show",
-      "description": "Show a recorded workout detail payload. Required: workout_id. Returns the WorkoutDetail.",
+      "description": "Show a recorded workout detail payload. Required: workout_id. Optional: select. Returns the WorkoutDetail.",
       "method": "GET",
       "path": "/api/workout/{workout_id}",
       "params": [
@@ -351,6 +454,12 @@
           "location": "path",
           "description": "Provider workout identifier.",
           "required": true
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated dotted field paths to project from the response, e.g. id,title,duration. Arrays are traversed element-wise. Reduces token cost when the response carries large nested fields you don't need."
         }
       ]
     }
