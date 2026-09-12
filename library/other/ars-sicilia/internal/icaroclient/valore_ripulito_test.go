@@ -2,6 +2,7 @@ package icaroclient
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -123,25 +124,58 @@ func TestEsenzioneLegataAlParametroNonAllaForma(t *testing.T) {
 // copre entrambe. Misurato sull'archivio 205 il 2026-09-06: il record
 // 9788875241667 esce solo dalla forma unita, il record scritto "978 88
 // 98231-25-6" solo da quella coi separatori resi spazio.
-func TestEspressioneIdentificativo(t *testing.T) {
-	if got := EspressioneIdentificativo("978 88 7524 166 7"); got != "(9788875241667 O (978 88 7524 166 7))" {
-		t.Errorf("EspressioneIdentificativo = %q", got)
+// Un ISBN-13 esce in tutte le grafie con cui l'archivio puo' tenerlo, e la
+// forma in cui l'utente lo scrive non cambia il risultato: dalle cifre il
+// raggruppamento non si deduce, quindi si enumera.
+func TestEspressioneIdentificativoISBN13(t *testing.T) {
+	conSeparatori := EspressioneIdentificativo("978 88 7524 166 7")
+	cifreNude := EspressioneIdentificativo("9788875241667")
+	if conSeparatori != cifreNude {
+		t.Error("le due scritture dello stesso ISBN devono produrre la stessa espressione: e' il difetto per cui le cifre nude interrogavano l'8% dell'archivio")
 	}
-	// Nessun separatore: una grafia sola, niente OR da costruire.
-	if got := EspressioneIdentificativo("9788875241667"); got != "9788875241667" {
-		t.Errorf("valore gia' unito riscritto: %q", got)
+	// 1 grafia unita + 25 segmentazioni (gruppo 1-5 cifre, poi registrante e
+	// pubblicazione almeno una ciascuno su nove cifre): 7+6+5+4+3.
+	if n := NumeroGrafie("9788875241667"); n != 26 {
+		t.Errorf("NumeroGrafie = %d, attese 26", n)
+	}
+	if !strings.HasPrefix(cifreNude, "(9788875241667 O (978 adj ") {
+		t.Errorf("la grafia unita deve restare il primo ramo: %.60q", cifreNude)
+	}
+	// La segmentazione vera del record misurato dev'esserci.
+	if !strings.Contains(cifreNude, "(978 adj 88 adj 7524 adj 166 adj 7)") {
+		t.Error("manca la segmentazione 978-88-7524-166-7, che e' quella del record")
 	}
 	if !CampoIdentificativo("isbn") || CampoIdentificativo("dewey") {
 		t.Error("l'eccezione vale per isbn e non per dewey: sono stati misurati al contrario")
 	}
 }
 
-func TestBuildQueryISBNMandaEntrambeLeGrafie(t *testing.T) {
+// Fuori dall'ISBN-13 non si inventa: resta il comportamento precedente, che
+// copre chi i separatori li scrive.
+func TestEspressioneIdentificativoFuoriDaISBN13(t *testing.T) {
+	casi := []struct{ in, out string }{
+		{"1234567890", "1234567890"},                                   // dieci cifre: non e' un ISBN-13
+		{"123 456 789 012 3", "(1234567890123 O (123 456 789 012 3))"}, // tredici cifre ma prefisso non 978/979
+		{"9788875241667x", "9788875241667x"},                           // non tutte cifre
+	}
+	for _, c := range casi {
+		if got := EspressioneIdentificativo(c.in); got != c.out {
+			t.Errorf("EspressioneIdentificativo(%q) = %q, atteso %q", c.in, got, c.out)
+		}
+	}
+}
+
+func TestBuildQueryISBNMandaTutteLeGrafie(t *testing.T) {
 	arc := Archive{ID: "205", Slug: "biblioteca", FieldMap: map[string]string{"isbn": "ISBN"}}
 	got := BuildQuery(arc, map[string]string{"isbn": "978-88-7524-166-7"}, "")
-	want := "((9788875241667 O (978 88 7524 166 7)).ISBN)"
-	if got != want {
-		t.Errorf("BuildQuery = %q, atteso %q", got, want)
+	if !strings.HasPrefix(got, "((9788875241667 O (978 adj ") || !strings.HasSuffix(got, ").ISBN)") {
+		t.Errorf("BuildQuery = %.70q…", got)
+	}
+	// L'espressione e' lunga circa 950 caratteri: il portale la accetta
+	// (misurato il 2026-09-06), ma se crescesse di un ordine di grandezza
+	// varrebbe la pena rimisurarlo.
+	if len(got) > 1200 {
+		t.Errorf("espressione di %d caratteri: oltre quanto e' stato misurato sul portale", len(got))
 	}
 }
 

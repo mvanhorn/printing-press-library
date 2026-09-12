@@ -10,10 +10,11 @@ import (
 )
 
 func newResocontiGetCmd(flags *rootFlags) *cobra.Command {
+	var conTesto bool
 	cmd := &cobra.Command{
 		Use:     "get <legisl> <numero>",
 		Short:   "Scarica un singolo documento da resoconti.",
-		Example: "  ars-sicilia-pp-cli resoconti get 18 1500 --json",
+		Example: "  ars-sicilia-pp-cli resoconti get 17 208 --con-testo --json",
 		Args:    cobra.MaximumNArgs(2),
 		Annotations: map[string]string{
 			"pp:endpoint":   "resoconti.get",
@@ -34,8 +35,14 @@ func newResocontiGetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return runGet(cmd, flags, "resoconti", legisl, numero)
+			return runGetOpts(cmd, flags, "resoconti", legisl, numero, nil, getOpts{conTesto: conTesto})
 		},
 	}
+	// Fuori per default: il testo di una seduta va dalle 8.000 alle 95.000
+	// battute (misurato sulle sedute dalla XIII alla XVIII), e chi apre la
+	// scheda per sapere chi ha parlato o per prendere `pdf_url` non le vuole
+	// addosso. Chiedendolo non costa comunque una richiesta in più: la pagina
+	// che lo contiene `get` la scarica già.
+	cmd.Flags().BoolVar(&conTesto, "con-testo", false, "Aggiunge il campo `testo` con la versione testuale della seduta, quando il portale la pubblica.")
 	return cmd
 }

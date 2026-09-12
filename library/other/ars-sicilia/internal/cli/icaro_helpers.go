@@ -317,22 +317,43 @@ func punteggiaturaHint(slug string, params map[string]string) string {
 		flag = append(flag, k)
 	}
 	sort.Strings(flag)
-	var pezzi []string
+
+	// Due avvisi, non uno, perche' descrivono due cose diverse. Sui campi
+	// normali la punteggiatura diventa uno spazio. Su un identificativo no: la
+	// fonte lo tiene sia unito sia a token separati, dalle cifre il
+	// raggruppamento non si deduce, e partono tutte le segmentazioni possibili
+	// in OR. Infilare il secondo caso nella frase del primo direbbe
+	// «sostituiti da spazio» di una riscrittura che non e' quella — ed e' lo
+	// stesso difetto, un messaggio che afferma qualcosa di non vero della
+	// corsa che descrive.
+	var spazi, identificativi []string
+	rimossiSpazi := map[string][]string{}
 	for _, k := range flag {
 		pulito, _ := icaro.ValoreRipulito(k, params[k])
-		// Su un campo identificativo non parte una grafia sola: la fonte tiene
-		// lo stesso ISBN sia unito sia coi separatori, quindi si spediscono
-		// entrambe in OR. Dire «è partito come X» annuncerebbe metà della
-		// query — la metà che su quel record trova zero.
 		if icaro.CampoIdentificativo(k) {
-			pezzi = append(pezzi, fmt.Sprintf("--%s «%s» è partito in entrambe le grafie, %s", k, strings.TrimSpace(params[k]), icaro.EspressioneIdentificativo(pulito)))
+			// Il NUMERO, non l'espressione: sono quasi mille caratteri, e un
+			// avviso che riversa la query nel terminale non lo legge nessuno.
+			// Chi la vuole vedere ha --dry-run.
+			identificativi = append(identificativi, fmt.Sprintf("--%s «%s» è partito in %d grafie",
+				k, strings.TrimSpace(params[k]), icaro.NumeroGrafie(pulito)))
 			continue
 		}
-		pezzi = append(pezzi, fmt.Sprintf("--%s «%s» è partito come «%s»", k, strings.TrimSpace(params[k]), pulito))
+		spazi = append(spazi, fmt.Sprintf("--%s «%s» è partito come «%s»", k, strings.TrimSpace(params[k]), pulito))
+		rimossiSpazi[k] = rimossi[k]
 	}
-	return fmt.Sprintf(
-		"hint: il motore del portale rifiuta la punteggiatura dentro un valore, quindi %s (%s sostituiti da spazio). Non è una resa: il portale indicizza la punteggiatura come separatore di parole, e in un valore di campo lo spazio vale adiacenza. Per scrivere l'espressione a mano usa --isis-query.",
-		strings.Join(pezzi, "; "), caratteriHint(rimossi))
+
+	var frasi []string
+	if len(spazi) > 0 {
+		frasi = append(frasi, fmt.Sprintf(
+			"il motore del portale rifiuta la punteggiatura dentro un valore, quindi %s (%s sostituiti da spazio). Non è una resa: il portale indicizza la punteggiatura come separatore di parole, e in un valore di campo lo spazio vale adiacenza.",
+			strings.Join(spazi, "; "), caratteriHint(rimossiSpazi)))
+	}
+	if len(identificativi) > 0 {
+		frasi = append(frasi, fmt.Sprintf(
+			"%s: l'archivio tiene lo stesso identificativo sia unito sia a gruppi separati, e dalle cifre il raggruppamento non si deduce (dipende dal registrante), quindi partono tutte le segmentazioni possibili. `--dry-run` mostra l'espressione.",
+			strings.Join(identificativi, "; ")))
+	}
+	return "hint: " + strings.Join(frasi, " ") + " Per scrivere l'espressione a mano usa --isis-query."
 }
 
 // caratteriHint nomina i caratteri tolti, una volta ciascuno e in ordine.
@@ -869,15 +890,17 @@ func firmatariByDoc(ctx context.Context, c *icaro.Client, arc icaro.Archive, rec
 // the returned docID. For the typical case where the caller passes legisl
 // and numero, the query is `<legisl>.LEGISL E <numero>.<KEY>` where KEY is
 // the archive-specific id field.
-// bdSchedaFallback cerca il record sul backend /bd/ e ne restituisce la scheda
-// con l'URL del documento allegato. Ritorna (nil, nil) se nemmeno /bd/ ce l'ha,
-// così il chiamante può emettere il not-found consueto.
+// bdScheda cerca il record sul backend /bd/ e ne restituisce la scheda con
+// l'URL del documento allegato. È il percorso principale di `get` sugli archivi
+// /bd/, non un ripiego: l'indice Icaro, per questi archivi, tiene frammenti.
+// Ritorna (nil, nil) se /bd/ ha risposto e il record non c'è, così il chiamante
+// può provare Icaro e poi emettere il not-found consueto.
 //
 // Il PDF non viene scaricato né convertito: pesa qualche MB (una seduta d'Aula
 // sfiora i 5) e il testo estratto supera i 200.000 caratteri, che non ha senso
 // far transitare per default. L'URL è stabile e citabile, quindi chi vuole il
 // testo lo prende con lo strumento che preferisce.
-func bdSchedaFallback(ctx context.Context, c *icaro.Client, arc icaro.Archive, params map[string]string, legisl, numero int) (map[string]any, error) {
+func bdScheda(ctx context.Context, c *icaro.Client, arc icaro.Archive, params map[string]string, legisl, numero int, opts getOpts) (map[string]any, error) {
 	recs, err := c.Search(ctx, arc, icaro.SearchOptions{
 		Params: params, // grezzi: gli archivi /bd/ non passano da normalizeParams
 		Limit:  1,
@@ -901,13 +924,48 @@ func bdSchedaFallback(ctx context.Context, c *icaro.Client, arc icaro.Archive, p
 	// legge il JSON — un agente, soprattutto — conclude «testo non disponibile»,
 	// mentre il testo c'è ed è nel PDF. È lo stesso principio dell'avviso su
 	// `--group-by cofirmatari`: quando il dato non si può dare, si dice dov'è.
-	nota := "l'indice testuale di questo archivio è fermo indietro nel tempo e questo record arriva dal backend /bd/: la scheda non ha il campo `body`. Il testo integrale non manca, sta nel PDF."
-	pdf, err := c.SchedaAllegatoURL(ctx, r.URL)
-	if err != nil || pdf == "" {
-		out["nota"] = nota + " Questa volta però la scheda non ha restituito l'allegato: apri `url` a mano."
+	nota := "questo record è la scheda del backend /bd/, la fonte del documento per questo archivio: non ha il campo `body`. Il testo integrale non manca, sta nel PDF."
+	// Una richiesta sola per tutto: la pagina della scheda si scaricava già per
+	// tenerne il solo href del PDF, e dentro il portale dichiara anche chi ha
+	// presieduto, chi ha parlato con quale gruppo, e i documenti della seduta.
+	// Sono campi che la CLI non aveva da nessun'altra parte: «chi ha parlato
+	// nella seduta N» si poteva chiedere solo ad `analytics --group-by oratore`,
+	// che è per legislatura e costa una novantina di richieste.
+	scheda, err := c.Scheda(ctx, r.URL)
+	if err != nil || scheda == nil {
+		out["nota"] = nota + " Questa volta però la scheda non si è aperta: apri `url` a mano."
 		return out, nil // la scheda non si è aperta: meglio i metadati che niente
 	}
-	out["pdf_url"] = pdf
+	// I blocchi si espongono anche quando il PDF non c'è: sono quello che la
+	// scheda ha comunque detto, e su una seduta senza allegato sono l'unica cosa
+	// che si porta a casa.
+	if len(scheda.Presidenza) > 0 {
+		out["presidenza"] = scheda.Presidenza
+	}
+	if len(scheda.Oratori) > 0 {
+		out["oratori"] = scheda.Oratori
+	}
+	if len(scheda.ODG) > 0 {
+		out["odg"] = scheda.ODG
+	}
+	if len(scheda.Allegati) > 0 {
+		out["allegati"] = scheda.Allegati
+	}
+	if opts.conTesto {
+		if scheda.Testo != "" {
+			out["testo"] = scheda.Testo
+		} else {
+			// Il campo non esce vuoto: `testo: ""` si legge come «la seduta non
+			// ha detto niente». Esce invece la ragione, che è una proprietà
+			// della fonte e non della richiesta.
+			nota += " La versione testuale di questa seduta il portale non la pubblica (il 2026-09-12 arrivava fino alla seduta 232 del 25.02.2026, e la frontiera si muove): resta il PDF."
+		}
+	}
+	if scheda.PDFURL == "" {
+		out["nota"] = nota + " Questa volta però la scheda non ha restituito l'allegato: apri `url` a mano."
+		return out, nil
+	}
+	out["pdf_url"] = scheda.PDFURL
 	out["nota"] = nota + " Scaricalo da `pdf_url`."
 	return out, nil
 }
@@ -956,6 +1014,31 @@ var bdFiltriStretti = map[string][]struct{ chiave, chiaveAlt, flag string }{
 	"convocazioni": {{"anno", "data", "--anno"}, {"commissione", "codcom", "--commissione"}},
 }
 
+// notaRamoIcaro spiega un record che su un archivio /bd/ arriva invece
+// dall'indice Icaro, e dice perché si è finiti lì.
+//
+// Quello che il ramo Icaro consegna non è il documento che chi scrive il
+// comando ha in mente: è un frammento per punto dell'ordine del giorno, che può
+// parlare di un'altra seduta — `resoconti get 17 208` rendeva l'ordine del
+// giorno della 209. E la causa cambia cosa farne: se /bd/ non ha risposto
+// (tronca le risposte a intermittenza) basta riprovare per avere la scheda, se
+// il record su /bd/ non c'è riprovare non serve. È la stessa distinzione che
+// getMissingErr tiene fra «non esiste» e «non ha risposto»: collassarle
+// farebbe rendere allo stesso comando la scheda un minuto e il frammento
+// quello dopo, senza che si capisca quale dei due si sta leggendo.
+func notaRamoIcaro(bdErr error) string {
+	comune := "l'indice Icaro, che di questo archivio tiene frammenti per punto dell'ordine del giorno: `body` è uno di quei frammenti, non il testo del documento, e può riferirsi a un'altra seduta."
+	if bdErr != nil {
+		return "il backend /bd/ non ha risposto (tronca le risposte a intermittenza) e questo record arriva da " + comune + " Riprova per avere la scheda /bd/ con `pdf_url`."
+	}
+	// Con bdErr nil il backend ha risposto, ma «ha risposto» non vuol dire «il
+	// record non c'è»: /bd/ tronca le risposte a intermittenza e una pagina
+	// tagliata torna come zero righe, non come errore. Al punto di chiamata i
+	// due casi sono indistinguibili, quindi la nota li tiene entrambi invece di
+	// affermare l'assenza, che sarebbe una deduzione e non una misura.
+	return "il backend /bd/ non ha restituito la scheda di questo documento — o non ce l'ha, o ha risposto vuoto, che su questo backend capita — e il record arriva da " + comune + " Se la scheda esiste, riprovando compare con `pdf_url`."
+}
+
 // getMissingErr traduce in errore l'esito di un `get` che non ha prodotto il
 // documento. Sono due fatti diversi e finivano nella stessa frase: «il record
 // non c'è» e «il backend non ha risposto». Il secondo travestito da primo è la
@@ -994,11 +1077,24 @@ func runGet(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legisl, nu
 	return runGetExtra(cmd, flags, archiveSlug, legisl, numero, nil)
 }
 
+// getOpts raccoglie le scelte che valgono per un solo archivio, così la firma
+// comune di `get` non cresce di un parametro per ogni caso particolare.
+type getOpts struct {
+	// conTesto chiede la versione testuale della seduta, che la scheda /bd/
+	// porta ma che non esce per default: sono decine di migliaia di caratteri,
+	// e chi apre una scheda per sapere chi ha parlato non li vuole addosso.
+	conTesto bool
+}
+
 // runGetExtra is runGet with additional pinning params (e.g. --anno) so callers
 // can disambiguate records that share legisl+numero (leggi reuse a number per
 // year). The extra keys are translated through the archive FieldMap like any
 // other criterion.
 func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legisl, numero int, extra map[string]string) error {
+	return runGetOpts(cmd, flags, archiveSlug, legisl, numero, extra, getOpts{})
+}
+
+func runGetOpts(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legisl, numero int, extra map[string]string, opts getOpts) error {
 	arc := icaro.BySlug(archiveSlug)
 	if arc == nil {
 		return fmt.Errorf("unknown archive slug: %q", archiveSlug)
@@ -1009,6 +1105,16 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 	if flags.dryRun || cliIsVerify() {
 		return emitGetDryRun(cmd, *arc, legisl, numero, params)
 	}
+	// `get` va in rete e basta: il documento non sta nello store, che delle
+	// righe sincronizzate non tiene né `body` né `pdf_url`. Dirlo qui, perché
+	// senza questa riga `--data-source local` — che promette «solo dati
+	// sincronizzati» — veniva ignorato in silenzio: la richiesta partiva lo
+	// stesso e la risposta usciva con exit 0, senza un modo per accorgersi che
+	// il vincolo non era stato rispettato. La macchina per rifiutare c'era già,
+	// nessun `get` la chiamava.
+	if err := validateDataSourceStrategy(flags, "live"); err != nil {
+		return err
+	}
 	c, err := icaro.New(nil)
 	if err != nil {
 		return err
@@ -1016,6 +1122,33 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 	ctx := cmd.Context()
 	if ctx == nil {
 		ctx = context.Background()
+	}
+	// Sugli archivi serviti da /bd/ la scheda vince sempre, anche quando l'indice
+	// Icaro il record ce l'ha. Icaro tiene i resoconti spezzati in un documento
+	// per punto dell'ordine del giorno, e `get` apriva il primo della lista
+	// presentandolo come la seduta: `resoconti get 17 208 --select body` rendeva
+	// l'ordine del giorno DELLA SEDUTA 209, sotto numero 208, con exit 0 e senza
+	// una nota — chi legge crede di leggere la seduta che ha chiesto. Il
+	// discriminante non può essere il titolo o la dimensione del frammento (la
+	// 18/232 sono 15 KB e non è un ordine del giorno, la 17/100 sono 35 KB):
+	// su questo archivio OGNI record Icaro è un frammento, quindi la scheda,
+	// dove sta il PDF del resoconto integrale, va servita quando esiste. Le
+	// schede /bd/ arrivano fino alla XIII legislatura (seduta 1 del 25.07.2001),
+	// quindi il ramo Icaro resta per i pochi casi in cui /bd/ non ha il record.
+	var bdErr error
+	if icaro.IsBDArchive(arc.Slug) {
+		out, err := bdScheda(ctx, c, *arc, params, legisl, numero, opts)
+		if err == nil && out != nil {
+			// Anche su stderr, non solo nel campo `nota`: la ricetta
+			// documentata è `resoconti get ... --select pdf_url`, e --select
+			// il campo lo filtra via. L'avviso servirebbe a niente proprio
+			// nel comando che la documentazione suggerisce di scrivere.
+			if n, ok := out["nota"].(string); ok {
+				fmt.Fprintln(os.Stderr, "hint: "+n)
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+		}
+		bdErr = err
 	}
 	recs, err := c.Search(ctx, *arc, icaro.SearchOptions{
 		Params: normalizeParams(*arc, params),
@@ -1037,27 +1170,12 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 		return fmt.Errorf("locating document: %w", err)
 	}
 	if len(recs) == 0 {
-		// Icaro non ha il record. Per i tre archivi migrati a /bd/ non significa
-		// che il documento non esista: l'indice Icaro è fermo indietro nel tempo
-		// (sui resoconti, alla seduta 232 del 25.02.2026) mentre /bd/ è corrente.
-		// Prima di dichiarare il not-found si guarda lì, e si restituisce la
-		// scheda con l'URL del PDF: è il testo integrale, che Icaro non dà
-		// nemmeno quando il record ce l'ha.
-		if icaro.IsBDArchive(arc.Slug) {
-			out, bdErr := bdSchedaFallback(ctx, c, *arc, params, legisl, numero)
-			if bdErr == nil && out != nil {
-				// Anche su stderr, non solo nel campo `nota`: la ricetta
-				// documentata è `resoconti get ... --select pdf_url`, e --select
-				// il campo lo filtra via. L'avviso servirebbe a niente proprio
-				// nel comando che la documentazione suggerisce di scrivere.
-				if n, ok := out["nota"].(string); ok {
-					fmt.Fprintln(os.Stderr, "hint: "+n)
-				}
-				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
-			}
-			return getMissingErr(arc.Slug, legisl, numero, bdErr)
-		}
-		return getMissingErr(arc.Slug, legisl, numero, nil)
+		// bdErr distingue i due esiti che il ramo sopra può avere avuto: nil
+		// significa che /bd/ ha risposto e il record non c'è, non-nil che il
+		// backend non ha risposto. getMissingErr tiene separate le due frasi,
+		// perché «non esiste» detto di un backend che tronca le risposte è la
+		// bugia peggiore che questa CLI possa dire.
+		return getMissingErr(arc.Slug, legisl, numero, bdErr)
 	}
 	doc, err := c.GetDoc(ctx, *arc, recs[0].DocID)
 	if err != nil {
@@ -1094,13 +1212,31 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 	// di scegliere in silenzio. Su stderr oltre che nel campo, perché `get` non
 	// ha busta e --select il campo lo filtra via.
 	nota := ""
-	if len(recs) > 1 && unDocPerNumero(arc.Slug) {
-		nota = fmt.Sprintf("il portale ha più di un documento per legisl=%d numero=%d — di norma versioni diverse della stessa pratica. Questo è il primo", legisl, numero)
-		if doc.DocNo > 0 {
-			nota += fmt.Sprintf(" (docno %d)", doc.DocNo)
+	// Il ramo Icaro su un archivio /bd/ è l'eccezione, e quello che consegna non
+	// è il documento che chi scrive il comando ha in mente: è un frammento per
+	// punto dell'ordine del giorno, che può parlare di un'altra seduta. Dirlo, e
+	// dire anche PERCHÉ si è finiti qui: se /bd/ non ha risposto basta riprovare
+	// per avere la scheda, se il record non c'è riprovare non serve. Senza questa
+	// distinzione lo stesso comando renderebbe la scheda un minuto e il frammento
+	// quello dopo, senza che si capisca quale dei due si sta leggendo.
+	if icaro.IsBDArchive(arc.Slug) {
+		nota = notaRamoIcaro(bdErr)
+		if opts.conTesto {
+			// Il flag sta sul comando, quindi ci si arriva anche qui. Tacere
+			// lascerebbe credere che la seduta non abbia testo, mentre è questo
+			// ramo a non averne: la versione testuale vive sulla scheda /bd/.
+			nota += " --con-testo non ha niente da aggiungere su questo percorso: la versione testuale sta sulla scheda /bd/, che qui non ha risposto."
 		}
-		nota += fmt.Sprintf("; gli altri si vedono con `%s cerca --legisl %d --numero %d`.", arc.Slug, legisl, numero)
 		fmt.Fprintln(os.Stderr, "hint: "+nota)
+	}
+	if len(recs) > 1 && unDocPerNumero(arc.Slug) {
+		multi := fmt.Sprintf("il portale ha più di un documento per legisl=%d numero=%d — di norma versioni diverse della stessa pratica. Questo è il primo", legisl, numero)
+		if doc.DocNo > 0 {
+			multi += fmt.Sprintf(" (docno %d)", doc.DocNo)
+		}
+		multi += fmt.Sprintf("; gli altri si vedono con `%s cerca --legisl %d --numero %d`.", arc.Slug, legisl, numero)
+		fmt.Fprintln(os.Stderr, "hint: "+multi)
+		nota = uniscoNote(nota, multi)
 	}
 	// Le leggi riusano lo stesso numero ogni anno e l'archivio ne restituisce
 	// una sola: senza --anno `leggi get 17 9` apriva la L.R. 9/2018 («Bilancio
@@ -1141,7 +1277,7 @@ func runGetExtra(cmd *cobra.Command, flags *rootFlags, archiveSlug string, legis
 //
 // I tre archivi migrati a /bd/ hanno due percorsi: se l'indice Icaro il record
 // ce l'ha si risponde con la scheda Icaro, altrimenti con la scheda /bd/
-// (bdSchedaFallback). Le due uscite avevano forme diverse — la prima teneva
+// (bdScheda). Le due uscite avevano forme diverse — la prima teneva
 // numero e data dentro `fields` (`fields.Numero`, `fields.Data`), la seconda in
 // radice — quindi lo stesso `--select numero,data_iso,titolo` rendeva sulla
 // seduta 268 e tornava `{}` sulla 147. Con exit 0: chi legge solo stdout
@@ -1222,7 +1358,7 @@ func emitGetDryRun(cmd *cobra.Command, arc icaro.Archive, legisl, numero int, pa
 	}
 	nota := "aggancia il documento, poi ne scarica la scheda: l'URL della scheda contiene l'id che questa ricerca restituisce, quindi non e' anteprimabile."
 	if icaro.IsBDArchive(arc.Slug) {
-		nota += " Su questo archivio la ricerca e' forzata sull'indice Icaro (serve l'id del documento); se l'indice non ha il record, `get` ripiega sulla scheda del backend /bd/ e restituisce `pdf_url`."
+		nota += " Su questo archivio `get` interroga prima il backend /bd/ e restituisce la scheda con `pdf_url`; solo se /bd/ non ha il record ripiega sull'indice Icaro, che ne tiene frammenti per punto dell'ordine del giorno."
 	}
 	// Stessa avvertenza che emitLeggeCronologiaDryRun dà gia' sulla stessa
 	// ambiguita': dal vivo `leggi get` senza --anno avverte, e un'anteprima che

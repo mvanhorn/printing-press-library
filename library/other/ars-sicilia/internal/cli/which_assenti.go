@@ -48,7 +48,7 @@ var whichAssenti = []capacitaAssente{
 		// risponde a quella domanda. La cosa più vicina che esiste davvero è
 		// la prosa dei resoconti d'aula, dove gli emendamenti sono citati uno
 		// per uno ma solo come testo.
-		Invece: "gli emendamenti sono citati nella prosa dei resoconti d'aula: prendi la seduta con `ddl iter` o `legge cronologia` e leggine il testo con `resoconti get <legisl> <seduta>` (sulle sedute recenti il testo sta nel PDF indicato da `pdf_url`). Sono citazioni dentro un discorso, non un elenco interrogabile.",
+		Invece: "gli emendamenti sono citati nella prosa dei resoconti d'aula: prendi la seduta con `ddl iter` o `legge cronologia` e leggine il testo con `resoconti get <legisl> <seduta>` (il testo sta nel PDF indicato da `pdf_url`). Sono citazioni dentro un discorso, non un elenco interrogabile.",
 		chiavi: []string{"emendamento", "emendamenti", "subemendamenti"},
 	},
 	{

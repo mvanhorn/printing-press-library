@@ -406,15 +406,73 @@ func CampoIdentificativo(param string) bool {
 	return param == "isbn"
 }
 
-// EspressioneIdentificativo costruisce l'OR delle due grafie di un
-// identificativo: quella unita (`9788875241667`) e quella coi separatori resi
-// spazio (`978 88 7524 166 7`), che ISIS legge come adiacenza.
+// EspressioneIdentificativo costruisce l'espressione che aggancia un
+// identificativo in tutte le grafie con cui l'archivio lo tiene.
+//
+// La prima versione univa due sole grafie — quella unita e quella coi
+// separatori resi spazio — e bastava finche' l'utente scriveva i separatori.
+// Chi incolla le tredici cifre nude non ne ha, quindi partiva la sola grafia
+// unita: **l'8% dell'archivio**, con `troncato: false` sul restante 92%. Una
+// lista vuota che si presenta come una risposta, che e' il difetto peggiore
+// che questa CLI conosca.
+//
+// Dalle cifre nude il raggruppamento non si deduce, perche' dipende dal
+// registrante. Si enumera: per un ISBN-13 il prefisso e' fisso (tre cifre) e
+// il carattere di controllo e' l'ultimo, quindi restano nove cifre da spezzare
+// in gruppo (1-5 cifre), registrante e pubblicazione — **25 combinazioni**, un
+// numero costante, non una ricerca. Vanno tutte in OR con la grafia unita, e
+// costano UNA richiesta.
+//
+// Misurato il 2026-09-06 sull'archivio 205, coi due controlli in entrambi i
+// versi: `9788898231256` (record tenuto in grafia separata) e `9788875241667`
+// (record tenuto in grafia unita) tornano ciascuno il proprio documento, e due
+// ISBN inesistenti — un carattere di controllo sbagliato e tredici cifre a
+// caso — tornano zero. L'espressione e' lunga circa 950 caratteri e il portale
+// la accetta.
+//
+// Fuori da questa forma non si inventa nulla: un valore che non e' tredici
+// cifre con prefisso 978/979 (un ISBN-10, un identificativo di un altro
+// genere) ricade sul comportamento precedente, che copre chi i separatori li
+// scrive.
 func EspressioneIdentificativo(pulito string) string {
+	if grafie := grafieISBN13(pulito); grafie != "" {
+		return grafie
+	}
 	unito := strings.ReplaceAll(pulito, " ", "")
 	if unito == pulito {
 		return pulito // nessun separatore: una grafia sola, niente da unire
 	}
 	return fmt.Sprintf("(%s O (%s))", unito, pulito)
+}
+
+// grafieISBN13 enumera le grafie di un ISBN-13 e le unisce in OR, oppure torna
+// "" se il valore non e' un ISBN-13.
+//
+// La catena di ogni candidato e' `prefisso adj gruppo adj registrante adj
+// pubblicazione adj controllo`: `adj` e' l'adiacenza ISIS, e ricostruisce
+// esattamente un ISBN tenuto a token separati. Discrimina: misurato, una cifra
+// di controllo sbagliata o due gruppi scambiati tornano zero.
+func grafieISBN13(pulito string) string {
+	cifre := strings.ReplaceAll(pulito, " ", "")
+	if len(cifre) != 13 || !soloCifre(cifre) {
+		return ""
+	}
+
+	if p := cifre[:3]; p != "978" && p != "979" {
+		return ""
+	}
+	prefisso, mezzo, controllo := cifre[:3], cifre[3:12], cifre[12:]
+	grafie := []string{cifre} // la grafia unita, un token solo
+	// Il gruppo linguistico va da una a cinque cifre (ISO 2108); registrante e
+	// pubblicazione si spartiscono il resto, almeno una cifra ciascuno.
+	for g := 1; g <= 5 && g < len(mezzo)-1; g++ {
+		gruppo, resto := mezzo[:g], mezzo[g:]
+		for r := 1; r < len(resto); r++ {
+			grafie = append(grafie, fmt.Sprintf("(%s adj %s adj %s adj %s adj %s)",
+				prefisso, gruppo, resto[:r], resto[r:], controllo))
+		}
+	}
+	return "(" + strings.Join(grafie, " O ") + ")"
 }
 
 // ValoriRipuliti riporta, per una mappa di parametri, i caratteri che
@@ -429,4 +487,17 @@ func ValoriRipuliti(params map[string]string) (map[string][]string, bool) {
 		}
 	}
 	return out, len(out) > 0
+}
+
+// NumeroGrafie dice quante grafie l'espressione mette in OR, per gli avvisi:
+// il testo dell'espressione e' lungo quasi mille caratteri e in un hint non si
+// legge, il conteggio si'.
+func NumeroGrafie(pulito string) int {
+	if g := grafieISBN13(pulito); g != "" {
+		return strings.Count(g, " O ") + 1
+	}
+	if strings.Contains(strings.TrimSpace(pulito), " ") {
+		return 2
+	}
+	return 1
 }

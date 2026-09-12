@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-isbn-cifre-nude",
+  "applied_at": "2026-09-06",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Enumerate an ISBN-13's possible groupings so a bare-digit ISBN reaches the 92% of the archive that stores it as separate tokens, instead of the 8% that stores it joined.",
+  "reason": "The OR of two spellings shipped in 2026.9.3 was built only when the value carried separators. A bare-digit ISBN has none, so only the joined branch left - and the joined spelling is the MINORITY: measured 2026-09-06 on archive 205 with the portal's own counter, 3565 records hold the ISBN as separate groups (~92%) against 326 joined (~8%). So the most natural way to paste an ISBN queried 8% of the archive and answered 0 with truncated:false on the rest, which is a silent empty list presenting itself as an answer. The grouping cannot be derived from the digits - it depends on the registrant - so it is enumerated: an ISBN-13 has a fixed three-digit prefix and a trailing check digit, leaving nine digits to split into group (1-5 digits), registrant and publication, which is 25 combinations, a constant rather than a search. They go in OR with the joined spelling and cost one request. Measured that ISIS `adj` reconstructs a separated ISBN and discriminates: a wrong check digit, a swapped order and a wrong segmentation all return zero, and `$` composes inside the chain. Outside ISBN-13 nothing is invented: a value that is not thirteen digits prefixed 978/979 keeps the previous behaviour. The sanitisation notice was also split in two, because saying \"punctuation replaced by a space\" of an enumerated identifier describes a rewrite that does not happen, and it declares the number of spellings rather than dumping a 950-character expression into the terminal.",
+  "files": [
+    "internal/icaroclient/query.go",
+    "internal/cli/icaro_helpers.go",
+    "internal/icaroclient/valore_ripulito_test.go",
+    "internal/cli/icaro_helpers_bd_hint_test.go"
+  ],
+  "validated_outcome": "biblioteca cerca --isbn 9788898231256 goes from 0 results with truncated:false to the right record («A sinistra! : un futuro possibile…»), which is stored as separate groups; --isbn 9788875241667 still returns its own record, stored joined; both punctuated forms are unchanged; two nonexistent ISBNs (wrong check digit, random digits) return 0, so the enumeration still discriminates; --dewey \"340.5\" is untouched. The expression is ~950 characters and the portal accepts it."
+}
