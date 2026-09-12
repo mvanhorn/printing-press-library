@@ -23,11 +23,15 @@ func TestPunteggiaturaHintMutoSugliArchiviBD(t *testing.T) {
 	}
 }
 
-// Su un campo identificativo partono due grafie, non una: annunciarne una sola
-// descriverebbe meta' della query.
-func TestPunteggiaturaHintSuIdentificativoNominaEntrambeLeGrafie(t *testing.T) {
+// Su un campo identificativo parte un OR di ventisei grafie. L'avviso ne
+// dichiara il NUMERO: l'espressione e' lunga quasi mille caratteri e riversarla
+// nel terminale non la fa leggere a nessuno.
+func TestPunteggiaturaHintSuIdentificativoDichiaraQuanteGrafie(t *testing.T) {
 	h := punteggiaturaHint("biblioteca", map[string]string{"isbn": "978-88-7524-166-7"})
-	if !strings.Contains(h, "9788875241667") || !strings.Contains(h, "978 88 7524 166 7") {
-		t.Errorf("l'avviso deve nominare entrambe le grafie: %q", h)
+	if !strings.Contains(h, "26 grafie") {
+		t.Errorf("l'avviso deve dire quante grafie sono partite: %q", h)
+	}
+	if strings.Contains(h, " adj ") || strings.Contains(h, "sostituiti da spazio") {
+		t.Errorf("l'avviso non deve contenere l'espressione, ne' dire che la punteggiatura e' diventata spazio: %q", h)
 	}
 }

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-resoconti-con-testo",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.30.3",
+  "summary": "SchedaDettaglio.Testo legge la versione testuale della seduta da <pre id=\"textContent\"> della scheda /bd/. `resoconti get --con-testo` la espone nel campo `testo`; senza il flag l'uscita resta identica. Nuova getOpts passata a runGetOpts (runGet e runGetExtra restano involucri), cosi' la firma comune non cresce di un parametro per ogni caso particolare. Quando il portale il testo non lo pubblica, il campo non esce vuoto: la nota dice perche' e rimanda a pdf_url. Il flag sta sul comando, quindi lo si puo' passare anche quando risponde il ramo Icaro: li' la nota dichiara che --con-testo non ha niente da aggiungere, perche' la versione testuale vive sulla scheda /bd/.",
+  "reason": "Il testo integrale era l'unica cosa che `resoconti get` non sapeva dare: dopo il passaggio alla scheda /bd/ rispondeva con pdf_url e basta, e il rilievo del news-agent del 12/09 diceva che il giornalista localizza le sedute ma non puo' leggerle via CLI. Il testo pero' e' nella stessa pagina che `get` scarica gia': 66.975 caratteri sulla seduta 17/208, un terzo di quello che si estrarrebbe dal PDF e senza scaricarlo. Fuori per default perche' una seduta va dalle 8.000 alle 95.000 battute e chi apre la scheda per prendere pdf_url o per sapere chi ha parlato non le vuole addosso.",
+  "files": [
+    "internal/icaroclient/bd.go",
+    "internal/icaroclient/scheda_test.go",
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/resoconti_get.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Disponibilita' misurata prima di scrivere, su undici sedute: testo presente su 13/1 (46.985 caratteri), 15/1 (27.356), 16/100 (95.129), 17/208 (66.975), 18/100 (91.488), 18/200 (8.894), 18/232 (30.161); assente su 18/233, 240, 260, 271. La frontiera e' la seduta 232 del 25.02.2026 - la stessa a cui si ferma l'indice Icaro - e NON e' la distinzione provvisorio/definitivo: la 232 e' provvisoria (_P.pdf) e il testo ce l'ha. Percio' la CLI guarda se il <pre> c'e' invece di dedurlo, e la documentazione descrive la frontiera come misurata e mobile. Caso del giornalista, end-to-end: `resoconti get 17 {205..209} --con-testo` rende le cinque sedute della sfiducia a Musumeci e il conteggio del termine le separa - 3, 9, 61, 2, 2 occorrenze - cioe' indica la 207 come la seduta in cui la mozione 431 e' stata discussa, che era esattamente la domanda a cui il report non sapeva rispondere. `get 18 271 --con-testo` non rende un `testo` vuoto ma la nota col perche'. Nessuna regressione: `get` senza flag confrontato byte a byte col binario del commit precedente su 17/208, 18/271, 13/1 e 16/100 - identico, stderr compreso; `ddl get 18 1203` differisce solo per il timestamp anti-cache dell'URL Icaro. go build, go vet, go test ./... verdi. NON esposto su MCP: makeCLIHandler manda i parametri come `--nome valore` e un flag booleano non ci passa; stesso trattamento di --con-firmatari, che sull'MCP non c'e' da prima."
+}

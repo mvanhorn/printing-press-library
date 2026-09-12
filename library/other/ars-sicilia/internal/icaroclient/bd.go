@@ -1062,6 +1062,64 @@ func suggestOptionNames(opts []bdOption, term, legisl string) []string {
 // citare e riusare.
 var reBDFileHref = regexp.MustCompile(`href="(/bd/[a-z]+/file/[^"]+\.pdf\?id=[^"]+)"`)
 
+// SchedaPersona è una persona nominata da un blocco della scheda: un oratore
+// col suo gruppo, o chi ha presieduto la seduta col suo ruolo. I due campi non
+// coesistono — il portale scrive il gruppo agli oratori e il ruolo a chi
+// presiede — ma la forma è una sola perché per chi legge sono la stessa cosa:
+// un nome qualificato.
+type SchedaPersona struct {
+	Nome   string `json:"nome"`
+	Gruppo string `json:"gruppo,omitempty"`
+	Ruolo  string `json:"ruolo,omitempty"`
+}
+
+// SchedaLink è una voce di un blocco fatto di documenti collegati (l'ordine del
+// giorno, gli allegati). L'URL può mancare: certe voci storiche sono solo testo.
+type SchedaLink struct {
+	Titolo string `json:"titolo"`
+	URL    string `json:"url,omitempty"`
+}
+
+// SchedaDettaglio è quello che una scheda /bd/ dichiara oltre al PDF.
+//
+// Esiste perché la pagina la scaricavamo già intera — 78 KB sulla seduta
+// 17/208 — per tenerne un solo href. Dentro, in blocchi <h3> distinti, il
+// portale elenca chi ha presieduto, chi ha parlato e con quale gruppo, e i
+// documenti della seduta con i loro URL: dati che la CLI non aveva da nessun'altra
+// parte e che adesso non costano una richiesta in più. «Chi ha parlato nella
+// seduta N» si poteva chiedere solo ad `analytics --group-by oratore`, che è
+// per legislatura e costa una novantina di richieste.
+//
+// Ogni blocco può mancare: la scheda della seduta 13/1 (25.07.2001) non ha
+// l'ordine del giorno, la 15/1 non ha gli oratori, la 18/271 aggiunge un blocco
+// «Allegati al resoconto» che le altre non hanno. Si legge quello che c'è —
+// verificato dalla XIII alla XVIII, dove i titoli dei blocchi sono identici.
+type SchedaDettaglio struct {
+	PDFURL     string
+	Presidenza []SchedaPersona
+	Oratori    []SchedaPersona
+	ODG        []SchedaLink
+	Allegati   []SchedaLink
+	// Testo è la versione testuale della seduta, che il portale rende in
+	// <pre id="textContent"> sotto la scheda: il resoconto stenografico intero,
+	// 66.975 caratteri sulla seduta 17/208, cioè un terzo di quello che si
+	// estrarrebbe dal PDF e senza scaricarlo.
+	//
+	// Non c'è su tutte le sedute. Misurato il 2026-09-12: c'è sulla 13/1 del
+	// 2001 e arriva fino alla 232 del 25.02.2026, oltre la quale la scheda
+	// porta solo il PDF. La frontiera si muove col portale e NON è la
+	// distinzione provvisorio/definitivo - la 232 è provvisoria e il testo ce
+	// l'ha - quindi si guarda se c'è, non si deduce da altro.
+	Testo string
+}
+
+// reOratore separa «Cognome Nome (Gruppo).» nelle sue due parti. Il nome è quello
+// che precede la PRIMA parentesi e il gruppo arriva fino all'ULTIMA, perché i
+// gruppi ne contengono a loro volta: «Popolo della Libertà (PDL) - verso PPE».
+// Con la chiusura alla prima parentesi quel gruppo diventava «PDL» e il resto
+// del nome ci finiva dentro. Il punto finale è del portale, non del nome.
+var reOratore = regexp.MustCompile(`^([^(]*)\((.*)\)\s*\.?$`)
+
 // SchedaAllegatoURL risolve la scheda /bd/ di un record e ne estrae l'URL del PDF
 // (il resoconto stenografico integrale, per l'archivio resoconti). Ritorna ""
 // senza errore se la scheda non espone un allegato.
@@ -1070,19 +1128,192 @@ var reBDFileHref = regexp.MustCompile(`href="(/bd/[a-z]+/file/[^"]+\.pdf\?id=[^"
 // solo frammenti per punto dell'ordine del giorno, e per le sedute recenti non
 // ha nulla.
 func (c *Client) SchedaAllegatoURL(ctx context.Context, schedaURL string) (string, error) {
+	d, err := c.Scheda(ctx, schedaURL)
+	if err != nil || d == nil {
+		return "", err
+	}
+	return d.PDFURL, nil
+}
+
+// Scheda scarica la scheda /bd/ di un record e ne legge il PDF e i blocchi
+// descrittivi. Una richiesta sola: prima se ne faceva una identica per tenerne
+// il solo href del PDF.
+//
+// Ritorna (nil, nil) se schedaURL è vuoto.
+func (c *Client) Scheda(ctx context.Context, schedaURL string) (*SchedaDettaglio, error) {
 	schedaURL = strings.TrimSpace(schedaURL)
 	if schedaURL == "" {
-		return "", nil
+		return nil, nil
 	}
 	body, err := c.get(ctx, schedaURL)
 	if err != nil {
-		return "", fmt.Errorf("scheda %s: %w", schedaURL, err)
+		return nil, fmt.Errorf("scheda %s: %w", schedaURL, err)
 	}
-	m := reBDFileHref.FindStringSubmatch(body)
-	if m == nil {
-		return "", nil
+	return parseScheda(body, c.BaseURL), nil
+}
+
+// parseScheda legge i blocchi della scheda. Sta separata dalla richiesta per
+// poterla misurare su una pagina salvata invece che sul portale.
+func parseScheda(body, baseURL string) *SchedaDettaglio {
+	out := &SchedaDettaglio{}
+	root, err := html.Parse(strings.NewReader(body))
+	if err != nil {
+		// Il PDF esce lo stesso: viene da una regex sul sorgente e non dipende
+		// dal DOM. Un blocco descrittivo mancante è un dato in meno, una
+		// scheda senza pdf_url e' la risposta che non serve a nessuno.
+		out.PDFURL = primoPDF(body, baseURL, nil)
+		return out
 	}
-	return c.BaseURL + m[1], nil
+	walk(root, func(n *html.Node) {
+		if n.Type != html.ElementNode || n.Data != "h3" {
+			return
+		}
+		blocco := prossimoBlocco(n)
+		if blocco == nil {
+			return
+		}
+		switch strings.TrimSpace(textContent(n)) {
+		case "Presidenza":
+			out.Presidenza = append(out.Presidenza, persone(blocco)...)
+		case "Oratori":
+			out.Oratori = append(out.Oratori, persone(blocco)...)
+		case "Ordine del giorno":
+			out.ODG = append(out.ODG, collegamenti(blocco, baseURL)...)
+		case "Allegati al resoconto":
+			out.Allegati = append(out.Allegati, collegamenti(blocco, baseURL)...)
+		}
+	})
+	// La versione testuale sta fuori dai blocchi descrittivi, in un <pre> con
+	// un id suo: si legge da lì e non dal testo della pagina, che porterebbe
+	// dentro menu, intestazioni e i blocchi stessi.
+	walk(root, func(n *html.Node) {
+		if out.Testo != "" || n.Type != html.ElementNode || n.Data != "pre" || attr(n, "id") != "textContent" {
+			return
+		}
+		out.Testo = strings.TrimSpace(textContent(n))
+	})
+	// Il PDF si sceglie DOPO i blocchi, saltando gli allegati. Gli allegati
+	// stanno sotto lo stesso path `/bd/<archivio>/file/` del resoconto e hanno
+	// lo stesso `?id=`: prendere il primo href che somiglia a un PDF significa
+	// prendere l'allegato se il portale lo mette prima, e `pdf_url` diventerebbe
+	// un altro documento senza che niente lo segnali. Oggi l'ordine è quello
+	// giusto su tutte le sedute misurate, ma è un ordine, non una garanzia.
+	esclusi := make(map[string]bool, len(out.Allegati))
+	for _, a := range out.Allegati {
+		esclusi[a.URL] = true
+	}
+	out.PDFURL = primoPDF(body, baseURL, esclusi)
+	return out
+}
+
+// primoPDF torna il primo allegato-documento della scheda che non sia già stato
+// riconosciuto come allegato secondario.
+func primoPDF(body, baseURL string, esclusi map[string]bool) string {
+	base, _ := url.Parse(baseURL)
+	for _, m := range reBDFileHref.FindAllStringSubmatch(body, -1) {
+		href := baseURL + m[1]
+		if base != nil {
+			if u, err := url.Parse(m[1]); err == nil {
+				href = base.ResolveReference(u).String()
+			}
+		}
+		if !esclusi[href] {
+			return href
+		}
+	}
+	return ""
+}
+
+// prossimoBlocco torna il div del contenuto che segue un <h3> di sezione.
+func prossimoBlocco(h3 *html.Node) *html.Node {
+	for s := h3.NextSibling; s != nil; s = s.NextSibling {
+		if s.Type == html.ElementNode && s.Data == "div" && hasClass(s, "testo_gestionale") {
+			return s
+		}
+	}
+	return nil
+}
+
+// vociBlocco spezza il contenuto di un blocco nelle sue voci. Il portale le
+// separa con «&bull;» e le manda a capo con <br/>: il bullet è il separatore
+// affidabile, il <br/> no — sulle voci a più righe non c'e'.
+func vociBlocco(blocco *html.Node) []string {
+	var voci []string
+	for _, pezzo := range strings.Split(textContent(blocco), "\u2022") {
+		if v := strings.TrimSpace(collassaSpazi(pezzo)); v != "" {
+			voci = append(voci, v)
+		}
+	}
+	return voci
+}
+
+// persone legge un blocco di nomi. Chi presiede arriva come «<b>Nome</b>,
+// <i>Ruolo</i>», gli oratori come «Nome (Gruppo).»: il testo li distingue da
+// sé, la virgola nel primo caso e la parentesi nel secondo, quindi non serve
+// sapere in anticipo quale blocco si sta leggendo.
+func persone(blocco *html.Node) []SchedaPersona {
+	var out []SchedaPersona
+	for _, v := range vociBlocco(blocco) {
+		if m := reOratore.FindStringSubmatch(v); m != nil {
+			nome := strings.TrimSpace(m[1])
+			if nome == "" {
+				continue
+			}
+			out = append(out, SchedaPersona{Nome: nome, Gruppo: strings.TrimSpace(m[2])})
+			continue
+		}
+		nome, ruolo, _ := strings.Cut(v, ",")
+		// Il punto finale lo scrive il portale in coda agli oratori, e sulle
+		// sedute vecchie il gruppo non c'è: «Savarino Giuseppa.» arriva qui e
+		// senza questa riga il nome se lo porterebbe dietro.
+		nome = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(nome), "."))
+		if nome == "" {
+			continue
+		}
+		out = append(out, SchedaPersona{Nome: nome, Ruolo: strings.TrimSpace(ruolo)})
+	}
+	return out
+}
+
+// collegamenti legge un blocco di documenti. Il titolo è il testo del link.
+// Gli URL escono citabili: l'ordine del giorno è già assoluto (vive su
+// w3.ars.sicilia.it, un altro host), gli allegati arrivano relativi e con spazi
+// e accenti dentro il nome del file — «Allegato A della seduta n. 271di
+// martedÃ¬ 08 settembre 2026.pdf», con l'accento doppio-codificato dal portale.
+// Vanno risolti sul baseURL e percent-encodati: così com'erano, incollati in
+// una barra degli indirizzi, non aprivano niente. Verificato: la forma che esce
+// di qui risponde 200 application/pdf.
+func collegamenti(blocco *html.Node, baseURL string) []SchedaLink {
+	base, _ := url.Parse(baseURL)
+	var out []SchedaLink
+	walk(blocco, func(n *html.Node) {
+		if n.Type != html.ElementNode || n.Data != "a" {
+			return
+		}
+		titolo := strings.TrimSpace(collassaSpazi(textContent(n)))
+		href := strings.TrimSpace(attr(n, "href"))
+		if titolo == "" && href == "" {
+			return
+		}
+		if u, err := url.Parse(href); err == nil && base != nil {
+			href = base.ResolveReference(u).String()
+		}
+		out = append(out, SchedaLink{Titolo: titolo, URL: href})
+	})
+	if len(out) > 0 {
+		return out
+	}
+	// Nessun link: le voci sono solo testo, e vanno riportate lo stesso.
+	for _, v := range vociBlocco(blocco) {
+		out = append(out, SchedaLink{Titolo: v})
+	}
+	return out
+}
+
+var reSpazi = regexp.MustCompile(`\s+`)
+
+func collassaSpazi(s string) string {
+	return strings.TrimSpace(reSpazi.ReplaceAllString(s, " "))
 }
 
 // CommissioniDisponibili elenca le denominazioni delle commissioni indicizzate dal
