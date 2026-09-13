@@ -1,0 +1,291 @@
+{
+  "api_name": "immoweb",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "immoweb-keeper",
+      "url": "https://github.com/lawrensylvan/immoweb-keeper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 29,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "immoweb-be-scraper",
+      "url": "https://github.com/pierodellagiustina/immoweb-be-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ImmoWeb",
+      "url": "https://github.com/g-coomans/ImmoWeb",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "immoweb-zimmo-scraper",
+      "url": "https://github.com/vincentcox/immoweb-zimmo-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "immoweb-telegram-bot",
+      "url": "https://github.com/othellodesutter/immoweb-telegram-bot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Homiio",
+      "url": "https://github.com/OxyHQ/Homiio",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "belgium-rental-watcher",
+      "url": "https://github.com/simon324/belgium-rental-watcher",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "immoweb_bot",
+      "url": "https://github.com/adamkorompai/immoweb_bot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-13T07:05:53Z",
+  "novel_features": [
+    {
+      "name": "Commune market snapshot",
+      "command": "market",
+      "description": "Median asking price, €/m², price-cut share and recent disappearances for one or several communes, broken down by bedrooms, EPC, type or postcode. Student rooms and per-room lets are left out. Pulls missing areas on first use (--no-pull to stay offline).",
+      "rationale": "Immoweb's price map is gone; these medians only exist once listings are pulled into the local store and aggregated.",
+      "example": "immoweb-pp-cli market ixelles saint-gilles --type apartment --deal rent --by bedrooms --agent",
+      "why_it_matters": "Reach for this when an agent needs neighbourhood price levels or wants to compare communes before searching.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Listing deal verdict",
+      "command": "deal",
+      "description": "Tells you whether one listing is cheap or expensive: €/m² percentile against comparable listings, days on market, price-cut history, demand and EPC gap. Pulls missing areas on first use (--no-pull to stay offline).",
+      "rationale": "Combines the live listing detail with local comparables and the listing's own recorded price history, which no Immoweb page shows.",
+      "example": "immoweb-pp-cli deal 21828249 --agent",
+      "why_it_matters": "Use before advising on an offer or deciding whether a specific listing is worth a visit.",
+      "group": "Decision support"
+    },
+    {
+      "name": "Saved-search triage",
+      "command": "triage",
+      "description": "Ranks the current matches of a saved search (or ad-hoc filters) by a transparent score: EUR/m2 percentile within the same postal code, freshness, price cut, private seller and EPC (with --enrich) so you know who to call first.",
+      "rationale": "Needs the saved search, the hidden/seen lists, commune medians and price history joined locally; Immoweb alerts rank nothing.",
+      "example": "immoweb-pp-cli triage --type apartment --deal rent --commune ixelles --max-price 1500 --min-bedrooms 2 --agent",
+      "why_it_matters": "Use when a search returns too many listings and the user needs a prioritised short list with reasons.",
+      "group": "Decision support"
+    },
+    {
+      "name": "Price-cut leaderboard",
+      "command": "drops",
+      "description": "Lists stored listings whose asking price fell (from prices recorded by find/watch/pull and Immoweb's old-price field), with first and latest price, number of cuts, total % cut and days listed.",
+      "rationale": "Immoweb only shows a 'new price' badge; the old price exists only in the CLI's recorded price history.",
+      "example": "immoweb-pp-cli drops --commune liege --since 30d --agent",
+      "why_it_matters": "Use to find motivated sellers or negotiation leverage across everything the user has tracked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rental yield estimator",
+      "command": "yield",
+      "description": "Estimates gross rental yield for a sale listing or a whole commune from comparable rents, and refuses when there are too few comparables. Pulls missing areas on first use (--no-pull to stay offline).",
+      "rationale": "Joins rentals and sales for the same postcode, type and bedroom count, which Immoweb never shows together.",
+      "example": "immoweb-pp-cli yield --commune liege --type apartment --agent",
+      "why_it_matters": "Use for investor questions about rental return before looking at individual listings.",
+      "group": "Market intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Commune market snapshot",
+      "command": "market",
+      "description": "Median asking price, €/m², price-cut share and recent disappearances for one or several communes, broken down by bedrooms, EPC, type or postcode. Student rooms and per-room lets are left out. Pulls missing areas on first use (--no-pull to stay offline).",
+      "rationale": "Immoweb's price map is gone; these medians only exist once listings are pulled into the local store and aggregated.",
+      "example": "immoweb-pp-cli market ixelles saint-gilles --type apartment --deal rent --by bedrooms --agent",
+      "why_it_matters": "Reach for this when an agent needs neighbourhood price levels or wants to compare communes before searching.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Listing deal verdict",
+      "command": "deal",
+      "description": "Tells you whether one listing is cheap or expensive: €/m² percentile against comparable listings, days on market, price-cut history, demand and EPC gap. Pulls missing areas on first use (--no-pull to stay offline).",
+      "rationale": "Combines the live listing detail with local comparables and the listing's own recorded price history, which no Immoweb page shows.",
+      "example": "immoweb-pp-cli deal 21828249 --agent",
+      "why_it_matters": "Use before advising on an offer or deciding whether a specific listing is worth a visit.",
+      "group": "Decision support"
+    },
+    {
+      "name": "Saved-search triage",
+      "command": "triage",
+      "description": "Ranks the current matches of a saved search (or ad-hoc filters) by a transparent score: EUR/m2 percentile within the same postal code, freshness, price cut, private seller and EPC (with --enrich) so you know who to call first.",
+      "rationale": "Needs the saved search, the hidden/seen lists, commune medians and price history joined locally; Immoweb alerts rank nothing.",
+      "example": "immoweb-pp-cli triage --type apartment --deal rent --commune ixelles --max-price 1500 --min-bedrooms 2 --agent",
+      "why_it_matters": "Use when a search returns too many listings and the user needs a prioritised short list with reasons.",
+      "group": "Decision support"
+    },
+    {
+      "name": "Price-cut leaderboard",
+      "command": "drops",
+      "description": "Lists stored listings whose asking price fell (from prices recorded by find/watch/pull and Immoweb's old-price field), with first and latest price, number of cuts, total % cut and days listed.",
+      "rationale": "Immoweb only shows a 'new price' badge; the old price exists only in the CLI's recorded price history.",
+      "example": "immoweb-pp-cli drops --commune liege --since 30d --agent",
+      "why_it_matters": "Use to find motivated sellers or negotiation leverage across everything the user has tracked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rental yield estimator",
+      "command": "yield",
+      "description": "Estimates gross rental yield for a sale listing or a whole commune from comparable rents, and refuses when there are too few comparables. Pulls missing areas on first use (--no-pull to stay offline).",
+      "rationale": "Joins rentals and sales for the same postcode, type and bedroom count, which Immoweb never shows together.",
+      "example": "immoweb-pp-cli yield --commune liege --type apartment --agent",
+      "why_it_matters": "Use for investor questions about rental return before looking at individual listings.",
+      "group": "Market intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Immoweb",
+    "headline": "Search Immoweb from the terminal with every site filter, then get the answers the site can't give: price cuts, days on market, commune medians and rental yield.",
+    "value_prop": "Talks to the same JSON endpoints the immoweb.be website uses, with no login and no browser, and exposes every search filter as a flag. Everything you look at lands in a local SQLite history, so `watch` shows what is new, cheaper or gone since last time, `deal` judges one listing against its neighbours, and `market` rebuilds the commune price statistics Immoweb no longer publishes.",
+    "quickstart": [
+      {
+        "command": "immoweb-pp-cli doctor",
+        "comment": "Check the CLI can reach immoweb.be (no account or key needed)."
+      },
+      {
+        "command": "immoweb-pp-cli locations --query ixelles",
+        "comment": "Resolve a commune name to the postcodes Immoweb filters on."
+      },
+      {
+        "command": "immoweb-pp-cli find --type apartment --deal rent --commune ixelles --max-price 1500 --min-bedrooms 2 --sort newest",
+        "comment": "Search live listings with friendly filters; results are also stored locally."
+      },
+      {
+        "command": "immoweb-pp-cli show 21828249",
+        "comment": "Open one listing as a readable card: price, surfaces, EPC, agency contact, link."
+      },
+      {
+        "command": "immoweb-pp-cli saved add ixelles-2bed --type apartment --deal rent --commune ixelles --max-price 1500 --min-bedrooms 2",
+        "comment": "Save the search under a name so it can be watched and triaged."
+      },
+      {
+        "command": "immoweb-pp-cli watch ixelles-2bed",
+        "comment": "See what is new, cheaper or gone since the last run."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A search suddenly returns an empty page before the end of the results",
+        "fix": "Immoweb soft-throttles with empty pages; the CLI reports a rate-limit error. Wait a minute or lower --pages, then re-run."
+      },
+      {
+        "symptom": "'unknown commune' error from find or saved add",
+        "fix": "Get the postal code from immoweb-pp-cli locations --query \u003cname\u003e, then search with immoweb-pp-cli find --postcode \u003ccode\u003e (plus your other filters)."
+      },
+      {
+        "symptom": "market, deal or yield say there are not enough comparables",
+        "fix": "Pull more data for the area first: immoweb-pp-cli pull --commune \u003cname\u003e --type \u003ctype\u003e --deal \u003csale|rent\u003e."
+      },
+      {
+        "symptom": "HTML page instead of JSON (non-JSON error)",
+        "fix": "Either a filter value is invalid (check --help: --epc A,B, --type house,apartment) or Immoweb served a bot challenge; fix the value, or wait a few minutes and retry with fewer requests (--rate-limit 2)."
+      },
+      {
+        "symptom": "market for a commune outside Brussels includes a neighbouring postcode",
+        "fix": "Outside Brussels a commune follows Immoweb's own grouping, which can span postcodes; market warns when two communes share one. Use market --by postcode to see the split, or pass --postcode."
+      }
+    ],
+    "when_to_use": "Use this CLI for Belgian property searches on Immoweb: finding houses, apartments, land or rentals by commune and criteria, reading one listing's full details, tracking saved searches over time, and answering price questions (is this listing cheap, what did it cost before, what yield does a commune give) from the locally recorded history. It needs no Immoweb account.",
+    "anti_triggers": [
+      "Do not use it to contact agencies, book visits or post listings; those are Immoweb account or write actions it does not perform.",
+      "Do not use it for property outside Belgium or for other portals such as Zimmo, Immovlan or Biddit auctions.",
+      "Do not use it for official valuations, notary or registration-duty calculations; its figures are asking-price statistics, not appraisals.",
+      "Do not use it to read the user's Immoweb favourites or account saved searches; it keeps its own local saved searches instead."
+    ],
+    "recipes": [
+      {
+        "title": "Who to call first for a rental search",
+        "command": "immoweb-pp-cli triage --type apartment --deal rent --commune ixelles --max-price 1500 --min-bedrooms 2 --agent",
+        "explanation": "Ranks current matches with the per-factor breakdown (EUR/m2 vs the same postal code, freshness, cut, private seller); add --enrich 5 to score EPC for the top five."
+      },
+      {
+        "title": "Is this house fairly priced?",
+        "command": "immoweb-pp-cli deal 21828249 --agent",
+        "explanation": "Returns the €/m² percentile against comparables, days on market and any recorded price cuts."
+      },
+      {
+        "title": "Key facts from a listing, agent-sized",
+        "command": "immoweb-pp-cli listings get 21828249 --agent --select classified.price.mainValue,classified.property.netHabitableSurface,classified.transaction.certificates.epcScore,classified.statistics.viewCount",
+        "explanation": "The raw detail JSON is about 20 KB; --select keeps only the dotted fields the agent needs."
+      },
+      {
+        "title": "Compare commune rents",
+        "command": "immoweb-pp-cli market ixelles saint-gilles etterbeek --type apartment --deal rent --by bedrooms --agent",
+        "explanation": "Median rent and €/m² per bedroom count, side by side, with sample sizes."
+      },
+      {
+        "title": "Recent price cuts in what you have tracked",
+        "command": "immoweb-pp-cli drops --since 30d --agent",
+        "explanation": "Reads the local store only: cuts come from prices recorded by find, watch and pull plus Immoweb's own old-price field, so pull an area first (immoweb-pp-cli pull --commune liege --type apartment --deal sale)."
+      }
+    ],
+    "trigger_phrases": [
+      "search immoweb",
+      "find an apartment to rent in Ixelles",
+      "is this house cheap for the area",
+      "which listings dropped their price",
+      "median rent in Ixelles",
+      "compare communes Ixelles and Saint-Gilles",
+      "what's new in my saved search",
+      "rental yield in Liège",
+      "use immoweb",
+      "run immoweb-pp-cli"
+    ]
+  }
+}

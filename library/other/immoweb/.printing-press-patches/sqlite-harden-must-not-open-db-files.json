@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sqlite-harden-must-not-open-db-files",
+  "applied_at": "2026-09-13",
+  "base_run_id": "20260912-183347-d9a891d6",
+  "base_printing_press_version": "4.32.1",
+  "summary": "SQLite file-mode hardening must chmod the database, WAL and SHM files by path and never open/close them while the store holds connections.",
+  "reason": "Opening and closing the database file from the application releases the process's POSIX fcntl locks held by live SQLite connections, so concurrent CLI processes (live-check probes, agents running commands in parallel) can write at the same time and corrupt the store; a 'database disk image is malformed' was observed during concurrent market/deal/yield runs.",
+  "files": ["internal/store/store.go"],
+  "validated_outcome": "Concurrent stress (5 heavy commands x 6 rounds, 8 writers x 15 rounds) keeps PRAGMA integrity_check = ok."
+}

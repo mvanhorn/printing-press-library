@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "mcp-flag-values-joined-with-equals",
+  "applied_at": "2026-09-13",
+  "base_run_id": "20260912-183347-d9a891d6",
+  "base_printing_press_version": "4.32.1",
+  "summary": "cliArgsFromMCP must emit structured flag values as a single --flag=value token.",
+  "reason": "Emitting --flag and value as two argv tokens let an MCP caller send a string such as \"--db=/path\" for a bool flag (which consumes no value): pflag then parsed the value as its own flag, smuggling hidden or blocked flags (--db, --base-url, --config) past the tool schema. Found by the Phase 4.95 security review; reproduced by chmod-ing an arbitrary user file through a read-only tool.",
+  "files": ["internal/mcp/cobratree/shellout.go", "internal/mcp/cobratree/shellout_test.go"],
+  "validated_outcome": "TestCliArgsFromMCP_NoFlagSmugglingThroughValues passes; existing passthrough tests updated to the --flag=value form."
+}

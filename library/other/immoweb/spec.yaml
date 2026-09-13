@@ -1,0 +1,512 @@
+name: immoweb
+description: "Search Immoweb (Belgian real-estate listings) and track prices locally"
+version: "0.1.0"
+category: other
+base_url: "https://www.immoweb.be"
+http_transport: standard
+health_check_path: "/en/search-results-count?countries=BE&propertyTypes=HOUSE&transactionTypes=FOR_SALE"
+required_headers:
+  - name: Accept
+    value: "application/json"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/immoweb-pp-cli/config.toml"
+learn:
+  entity_lookup_seeds:
+    commune:
+      - canonical: Ixelles
+        aliases: [elsene, "1050"]
+      - canonical: Bruxelles ville
+        aliases: [brussels, brussel, bruxelles, "1000"]
+      - canonical: Saint-Gilles
+        aliases: [sint-gillis, "1060"]
+      - canonical: Etterbeek
+        aliases: ["1040"]
+      - canonical: Schaerbeek
+        aliases: [schaarbeek, "1030"]
+      - canonical: Uccle
+        aliases: [ukkel, "1180"]
+      - canonical: Liège
+        aliases: [liege, luik, "4000"]
+      - canonical: Namur
+        aliases: [namen, "5000"]
+      - canonical: Gent
+        aliases: [gand, ghent, "9000"]
+      - canonical: Antwerpen
+        aliases: [anvers, antwerp, "2000"]
+      - canonical: Leuven
+        aliases: [louvain, "3000"]
+      - canonical: Charleroi
+        aliases: ["6000"]
+    property_type:
+      - canonical: HOUSE
+        aliases: [maison, huis, house]
+      - canonical: APARTMENT
+        aliases: [appartement, flat, apartment]
+      - canonical: LAND
+        aliases: [terrain, grond, plot]
+  ticker_patterns:
+    - "^[0-9]{7,9}$"
+  synonyms:
+    "a louer": "for rent"
+    "a vendre": "for sale"
+    "te huur": "for rent"
+    "te koop": "for sale"
+resources:
+  listings:
+    description: "Immoweb classifieds: search, count, map results, full details and similar listings"
+    endpoints:
+      search:
+        method: GET
+        path: "/en/search-results"
+        description: "Search listings with every Immoweb filter (30 per page, raw Immoweb result objects)"
+        example: "  immoweb-pp-cli listings search --property-types APARTMENT --transaction-types FOR_RENT --postal-codes BE-1050 --max-price 1500 --order-by newest"
+        happy_args: "--property-types=HOUSE;--transaction-types=FOR_SALE;--postal-codes=BE-1050"
+        params:
+          - name: countries
+            type: string
+            description: "Country filter (BE for Belgium; Immoweb also lists FR, ES, IT, LU, NL)"
+            default: BE
+          - name: propertyTypes
+            type: string
+            description: "Property types, comma-separated: HOUSE, APARTMENT, LAND, OFFICE, GARAGE, COMMERCIAL, INDUSTRY, OTHER"
+            flag_name: property-types
+            example: "HOUSE"
+          - name: transactionTypes
+            type: string
+            description: "FOR_SALE or FOR_RENT"
+            flag_name: transaction-types
+            enum: [FOR_SALE, FOR_RENT]
+            example: "FOR_SALE"
+          - name: postalCodes
+            type: string
+            description: "Postal codes, comma-separated (1050 or BE-1050); resolve commune names with 'locations lookup'"
+            flag_name: postal-codes
+            example: "BE-1050"
+          - name: provinces
+            type: string
+            description: "Provinces, comma-separated (e.g. NAMUR, LIEGE, ANTWERP, BRABANT_WALLON)"
+          - name: districts
+            type: string
+            description: "Districts (arrondissements), comma-separated (e.g. LIEGE, NIVELLES)"
+          - name: minPrice
+            type: int
+            description: "Minimum price in EUR (sale price, or monthly rent for FOR_RENT)"
+            flag_name: min-price
+          - name: maxPrice
+            type: int
+            description: "Maximum price in EUR (sale price, or monthly rent for FOR_RENT)"
+            flag_name: max-price
+          - name: minBedroomCount
+            type: int
+            description: "Minimum number of bedrooms"
+            flag_name: min-bedrooms
+          - name: maxBedroomCount
+            type: int
+            description: "Maximum number of bedrooms"
+            flag_name: max-bedrooms
+          - name: minSurface
+            type: int
+            description: "Minimum net habitable surface in m²"
+            flag_name: min-surface
+          - name: maxSurface
+            type: int
+            description: "Maximum net habitable surface in m²"
+            flag_name: max-surface
+          - name: minLandSurface
+            type: int
+            description: "Minimum land (plot) surface in m²"
+            flag_name: min-land-surface
+          - name: maxLandSurface
+            type: int
+            description: "Maximum land (plot) surface in m²"
+            flag_name: max-land-surface
+          - name: minConstructionYear
+            type: int
+            description: "Minimum construction year"
+            flag_name: min-construction-year
+          - name: maxConstructionYear
+            type: int
+            description: "Maximum construction year"
+            flag_name: max-construction-year
+          - name: minFacadeCount
+            type: int
+            description: "Minimum number of facades (2 = terraced, 3 = semi-detached, 4 = detached)"
+            flag_name: min-facades
+          - name: epcScores
+            type: string
+            description: "EPC/PEB energy labels, comma-separated (A, B, C, D, E, F, G)"
+            flag_name: epc-scores
+          - name: hasGarden
+            type: bool
+            description: "Only listings with a garden"
+            flag_name: has-garden
+          - name: hasTerrace
+            type: bool
+            description: "Only listings with a terrace"
+            flag_name: has-terrace
+          - name: hasSwimmingPool
+            type: bool
+            description: "Only listings with a swimming pool"
+            flag_name: has-swimming-pool
+          - name: hasLift
+            type: bool
+            description: "Only listings with a lift"
+            flag_name: has-lift
+          - name: isNewlyBuilt
+            type: bool
+            description: "Only new builds"
+            flag_name: is-newly-built
+          - name: isALifeAnnuitySale
+            type: bool
+            description: "Only life-annuity (viager) sales"
+            flag_name: life-annuity
+          - name: isAPublicSale
+            type: bool
+            description: "Only public (notary) sales"
+            flag_name: public-sale
+          - name: isFurnished
+            type: bool
+            description: "Only furnished rentals"
+            flag_name: is-furnished
+          - name: orderBy
+            type: string
+            description: "Sort order"
+            flag_name: order-by
+            enum: [relevance, newest, cheapest, most_expensive, postal_code]
+            default: relevance
+          - name: page
+            type: int
+            description: "Result page (30 listings per page; the site caps at page 333)"
+            default: 1
+        response:
+          type: array
+          item: Listing
+        response_path: results
+      count:
+        method: GET
+        path: "/en/search-results-count"
+        description: "Exact number of listings matching the filters (search pages cap at 9,969)"
+        example: "  immoweb-pp-cli listings count --property-types HOUSE --transaction-types FOR_SALE --postal-codes BE-1050"
+        happy_args: "--property-types=HOUSE;--transaction-types=FOR_SALE;--postal-codes=BE-1050"
+        params:
+          - name: countries
+            type: string
+            description: "Country filter (BE for Belgium; Immoweb also lists FR, ES, IT, LU, NL)"
+            default: BE
+          - name: propertyTypes
+            type: string
+            description: "Property types, comma-separated: HOUSE, APARTMENT, LAND, OFFICE, GARAGE, COMMERCIAL, INDUSTRY, OTHER"
+            flag_name: property-types
+            example: "HOUSE"
+          - name: transactionTypes
+            type: string
+            description: "FOR_SALE or FOR_RENT"
+            flag_name: transaction-types
+            enum: [FOR_SALE, FOR_RENT]
+            example: "FOR_SALE"
+          - name: postalCodes
+            type: string
+            description: "Postal codes, comma-separated (1050 or BE-1050); resolve commune names with 'locations lookup'"
+            flag_name: postal-codes
+            example: "BE-1050"
+          - name: provinces
+            type: string
+            description: "Provinces, comma-separated (e.g. NAMUR, LIEGE, ANTWERP, BRABANT_WALLON)"
+          - name: districts
+            type: string
+            description: "Districts (arrondissements), comma-separated (e.g. LIEGE, NIVELLES)"
+          - name: minPrice
+            type: int
+            description: "Minimum price in EUR (sale price, or monthly rent for FOR_RENT)"
+            flag_name: min-price
+          - name: maxPrice
+            type: int
+            description: "Maximum price in EUR (sale price, or monthly rent for FOR_RENT)"
+            flag_name: max-price
+          - name: minBedroomCount
+            type: int
+            description: "Minimum number of bedrooms"
+            flag_name: min-bedrooms
+          - name: maxBedroomCount
+            type: int
+            description: "Maximum number of bedrooms"
+            flag_name: max-bedrooms
+          - name: minSurface
+            type: int
+            description: "Minimum net habitable surface in m²"
+            flag_name: min-surface
+          - name: maxSurface
+            type: int
+            description: "Maximum net habitable surface in m²"
+            flag_name: max-surface
+          - name: minLandSurface
+            type: int
+            description: "Minimum land (plot) surface in m²"
+            flag_name: min-land-surface
+          - name: maxLandSurface
+            type: int
+            description: "Maximum land (plot) surface in m²"
+            flag_name: max-land-surface
+          - name: minConstructionYear
+            type: int
+            description: "Minimum construction year"
+            flag_name: min-construction-year
+          - name: maxConstructionYear
+            type: int
+            description: "Maximum construction year"
+            flag_name: max-construction-year
+          - name: minFacadeCount
+            type: int
+            description: "Minimum number of facades (2 = terraced, 3 = semi-detached, 4 = detached)"
+            flag_name: min-facades
+          - name: epcScores
+            type: string
+            description: "EPC/PEB energy labels, comma-separated (A, B, C, D, E, F, G)"
+            flag_name: epc-scores
+          - name: hasGarden
+            type: bool
+            description: "Only listings with a garden"
+            flag_name: has-garden
+          - name: hasTerrace
+            type: bool
+            description: "Only listings with a terrace"
+            flag_name: has-terrace
+          - name: hasSwimmingPool
+            type: bool
+            description: "Only listings with a swimming pool"
+            flag_name: has-swimming-pool
+          - name: hasLift
+            type: bool
+            description: "Only listings with a lift"
+            flag_name: has-lift
+          - name: isNewlyBuilt
+            type: bool
+            description: "Only new builds"
+            flag_name: is-newly-built
+          - name: isALifeAnnuitySale
+            type: bool
+            description: "Only life-annuity (viager) sales"
+            flag_name: life-annuity
+          - name: isAPublicSale
+            type: bool
+            description: "Only public (notary) sales"
+            flag_name: public-sale
+          - name: isFurnished
+            type: bool
+            description: "Only furnished rentals"
+            flag_name: is-furnished
+        response:
+          type: object
+          item: Count
+      map:
+        method: GET
+        path: "/en/search-results-map"
+        description: "Up to 200 listings per call with GPS coordinates (the bulk path used by the Immoweb map view)"
+        example: "  immoweb-pp-cli listings map --property-types HOUSE --transaction-types FOR_SALE --postal-codes BE-1050"
+        happy_args: "--property-types=HOUSE;--transaction-types=FOR_SALE;--postal-codes=BE-1050"
+        params:
+          - name: countries
+            type: string
+            description: "Country filter (BE for Belgium; Immoweb also lists FR, ES, IT, LU, NL)"
+            default: BE
+          - name: propertyTypes
+            type: string
+            description: "Property types, comma-separated: HOUSE, APARTMENT, LAND, OFFICE, GARAGE, COMMERCIAL, INDUSTRY, OTHER"
+            flag_name: property-types
+            example: "HOUSE"
+          - name: transactionTypes
+            type: string
+            description: "FOR_SALE or FOR_RENT"
+            flag_name: transaction-types
+            enum: [FOR_SALE, FOR_RENT]
+            example: "FOR_SALE"
+          - name: postalCodes
+            type: string
+            description: "Postal codes, comma-separated (1050 or BE-1050); resolve commune names with 'locations lookup'"
+            flag_name: postal-codes
+            example: "BE-1050"
+          - name: provinces
+            type: string
+            description: "Provinces, comma-separated (e.g. NAMUR, LIEGE, ANTWERP, BRABANT_WALLON)"
+          - name: districts
+            type: string
+            description: "Districts (arrondissements), comma-separated (e.g. LIEGE, NIVELLES)"
+          - name: minPrice
+            type: int
+            description: "Minimum price in EUR (sale price, or monthly rent for FOR_RENT)"
+            flag_name: min-price
+          - name: maxPrice
+            type: int
+            description: "Maximum price in EUR (sale price, or monthly rent for FOR_RENT)"
+            flag_name: max-price
+          - name: minBedroomCount
+            type: int
+            description: "Minimum number of bedrooms"
+            flag_name: min-bedrooms
+          - name: maxBedroomCount
+            type: int
+            description: "Maximum number of bedrooms"
+            flag_name: max-bedrooms
+          - name: minSurface
+            type: int
+            description: "Minimum net habitable surface in m²"
+            flag_name: min-surface
+          - name: maxSurface
+            type: int
+            description: "Maximum net habitable surface in m²"
+            flag_name: max-surface
+          - name: minLandSurface
+            type: int
+            description: "Minimum land (plot) surface in m²"
+            flag_name: min-land-surface
+          - name: maxLandSurface
+            type: int
+            description: "Maximum land (plot) surface in m²"
+            flag_name: max-land-surface
+          - name: minConstructionYear
+            type: int
+            description: "Minimum construction year"
+            flag_name: min-construction-year
+          - name: maxConstructionYear
+            type: int
+            description: "Maximum construction year"
+            flag_name: max-construction-year
+          - name: minFacadeCount
+            type: int
+            description: "Minimum number of facades (2 = terraced, 3 = semi-detached, 4 = detached)"
+            flag_name: min-facades
+          - name: epcScores
+            type: string
+            description: "EPC/PEB energy labels, comma-separated (A, B, C, D, E, F, G)"
+            flag_name: epc-scores
+          - name: hasGarden
+            type: bool
+            description: "Only listings with a garden"
+            flag_name: has-garden
+          - name: hasTerrace
+            type: bool
+            description: "Only listings with a terrace"
+            flag_name: has-terrace
+          - name: hasSwimmingPool
+            type: bool
+            description: "Only listings with a swimming pool"
+            flag_name: has-swimming-pool
+          - name: hasLift
+            type: bool
+            description: "Only listings with a lift"
+            flag_name: has-lift
+          - name: isNewlyBuilt
+            type: bool
+            description: "Only new builds"
+            flag_name: is-newly-built
+          - name: isALifeAnnuitySale
+            type: bool
+            description: "Only life-annuity (viager) sales"
+            flag_name: life-annuity
+          - name: isAPublicSale
+            type: bool
+            description: "Only public (notary) sales"
+            flag_name: public-sale
+          - name: isFurnished
+            type: bool
+            description: "Only furnished rentals"
+            flag_name: is-furnished
+          - name: page
+            type: int
+            description: "Result page (30 listings per page; the site caps at page 333)"
+            default: 1
+        response:
+          type: array
+          item: Listing
+        response_path: results
+      get:
+        method: GET
+        path: "/en/classified/get-result/{id}"
+        description: "Full details of one listing: EPC, cadastral income, surfaces, heating, agency contact, photos, views and bookmarks"
+        example: "  immoweb-pp-cli listings get 21828249"
+        happy_args: "id=21828249"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Immoweb listing ID (the number at the end of a listing URL)"
+            example: "21828249"
+        response:
+          type: object
+          item: ClassifiedEnvelope
+      similar:
+        method: GET
+        path: "/en/search-similar-results"
+        description: "Listings Immoweb considers similar to a given listing"
+        example: "  immoweb-pp-cli listings similar --classified-id 21828249"
+        happy_args: "--classified-id=21828249"
+        params:
+          - name: classifiedId
+            type: string
+            required: true
+            flag_name: classified-id
+            description: "Immoweb listing ID to find similar listings for"
+            example: "21828249"
+        response:
+          type: array
+          item: Listing
+        response_path: results
+  locations:
+    description: "Resolve commune names and postal codes to Immoweb location filters"
+    endpoints:
+      lookup:
+        method: GET
+        path: "/en/search/autocomplete"
+        description: "Look up a commune, locality or postal code; returns the postalCodes value to pass to search filters"
+        example: "  immoweb-pp-cli locations lookup --query ixelles"
+        happy_args: "--query=ixelles"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Commune name, locality or postal code (e.g. ixelles, liege, 9000)"
+            example: "ixelles"
+        response:
+          type: array
+          item: LocationGroup
+types:
+  Listing:
+    fields:
+      - name: id
+        type: integer
+      - name: customerName
+        type: string
+      - name: customerLogoUrl
+        type: string
+      - name: flags
+        type: object
+      - name: property
+        type: object
+      - name: transaction
+        type: object
+      - name: price
+        type: object
+      - name: publication
+        type: object
+  Count:
+    fields:
+      - name: classifiedsCount
+        type: integer
+  ClassifiedEnvelope:
+    fields:
+      - name: classified
+        type: object
+  LocationGroup:
+    fields:
+      - name: group
+        type: string
+      - name: results
+        type: array

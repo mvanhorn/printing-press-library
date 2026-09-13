@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hints-point-at-pull-not-sync",
+  "applied_at": "2026-09-13",
+  "base_run_id": "20260912-183347-d9a891d6",
+  "base_printing_press_version": "4.32.1",
+  "summary": "Stale-store hints must send users to `pull` (area-scoped harvest), and 401/404 hints must describe Immoweb's no-auth reality (bot protection, removed listings), not API credentials or a generic list command.",
+  "reason": "The generic `sync` command has no area filter and would page through every Belgian listing; this API has no credentials, so a 401/403 means bot protection and a 404 usually means the listing was sold or withdrawn.",
+  "files": [
+    "internal/cli/sync_hint.go",
+    "internal/cli/helpers.go"
+  ]
+}

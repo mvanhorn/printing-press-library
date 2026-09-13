@@ -1,0 +1,685 @@
+{
+  "api_name": "immoweb",
+  "base_url": "https://www.immoweb.be",
+  "description": "Search Immoweb from the terminal with every site filter, then get the answers the site can't give: price cuts, days on market, commune medians and rental yield.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "listings_count",
+      "description": "Exact number of listings matching the filters (search pages cap at 9,969). Optional: countries (default: BE), property-types, transaction-types (plus 23 more). Returns the Count.",
+      "method": "GET",
+      "path": "/en/search-results-count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "query",
+          "description": "Country filter (BE for Belgium; Immoweb also lists FR, ES, IT, LU, NL)"
+        },
+        {
+          "name": "property-types",
+          "wire_name": "propertyTypes",
+          "type": "string",
+          "location": "query",
+          "description": "Property types, comma-separated: HOUSE, APARTMENT, LAND, OFFICE, GARAGE, COMMERCIAL,..."
+        },
+        {
+          "name": "transaction-types",
+          "wire_name": "transactionTypes",
+          "type": "string",
+          "location": "query",
+          "description": "FOR_SALE or FOR_RENT"
+        },
+        {
+          "name": "postal-codes",
+          "wire_name": "postalCodes",
+          "type": "string",
+          "location": "query",
+          "description": "Postal codes, comma-separated (1050 or BE-1050); resolve commune names with 'locations lookup'"
+        },
+        {
+          "name": "provinces",
+          "type": "string",
+          "location": "query",
+          "description": "Provinces, comma-separated (e.g. NAMUR, LIEGE, ANTWERP, BRABANT_WALLON)"
+        },
+        {
+          "name": "districts",
+          "type": "string",
+          "location": "query",
+          "description": "Districts (arrondissements), comma-separated (e.g. LIEGE, NIVELLES)"
+        },
+        {
+          "name": "min-price",
+          "wire_name": "minPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum price in EUR (sale price, or monthly rent for FOR_RENT)"
+        },
+        {
+          "name": "max-price",
+          "wire_name": "maxPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum price in EUR (sale price, or monthly rent for FOR_RENT)"
+        },
+        {
+          "name": "min-bedrooms",
+          "wire_name": "minBedroomCount",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of bedrooms"
+        },
+        {
+          "name": "max-bedrooms",
+          "wire_name": "maxBedroomCount",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of bedrooms"
+        },
+        {
+          "name": "min-surface",
+          "wire_name": "minSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum net habitable surface in m²"
+        },
+        {
+          "name": "max-surface",
+          "wire_name": "maxSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum net habitable surface in m²"
+        },
+        {
+          "name": "min-land-surface",
+          "wire_name": "minLandSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum land (plot) surface in m²"
+        },
+        {
+          "name": "max-land-surface",
+          "wire_name": "maxLandSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum land (plot) surface in m²"
+        },
+        {
+          "name": "min-construction-year",
+          "wire_name": "minConstructionYear",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum construction year"
+        },
+        {
+          "name": "max-construction-year",
+          "wire_name": "maxConstructionYear",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum construction year"
+        },
+        {
+          "name": "min-facades",
+          "wire_name": "minFacadeCount",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of facades (2 = terraced, 3 = semi-detached, 4 = detached)"
+        },
+        {
+          "name": "epc-scores",
+          "wire_name": "epcScores",
+          "type": "string",
+          "location": "query",
+          "description": "EPC/PEB energy labels, comma-separated (A, B, C, D, E, F, G)"
+        },
+        {
+          "name": "has-garden",
+          "wire_name": "hasGarden",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a garden"
+        },
+        {
+          "name": "has-terrace",
+          "wire_name": "hasTerrace",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a terrace"
+        },
+        {
+          "name": "has-swimming-pool",
+          "wire_name": "hasSwimmingPool",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a swimming pool"
+        },
+        {
+          "name": "has-lift",
+          "wire_name": "hasLift",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a lift"
+        },
+        {
+          "name": "is-newly-built",
+          "wire_name": "isNewlyBuilt",
+          "type": "bool",
+          "location": "query",
+          "description": "Only new builds"
+        },
+        {
+          "name": "life-annuity",
+          "wire_name": "isALifeAnnuitySale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only life-annuity (viager) sales"
+        },
+        {
+          "name": "public-sale",
+          "wire_name": "isAPublicSale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only public (notary) sales"
+        },
+        {
+          "name": "is-furnished",
+          "wire_name": "isFurnished",
+          "type": "bool",
+          "location": "query",
+          "description": "Only furnished rentals"
+        }
+      ]
+    },
+    {
+      "name": "listings_get",
+      "description": "Full details of one listing: EPC, cadastral income, surfaces, heating, agency contact, photos, views and bookmarks. Required: id. Returns the ClassifiedEnvelope.",
+      "method": "GET",
+      "path": "/en/classified/get-result/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Immoweb listing ID (the number at the end of a listing URL)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_map",
+      "description": "Up to 200 listings per call with GPS coordinates (the bulk path used by the Immoweb map view). Optional: countries (default: BE), property-types, transaction-types (plus 24 more). Returns array of Listing.",
+      "method": "GET",
+      "path": "/en/search-results-map",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "query",
+          "description": "Country filter (BE for Belgium; Immoweb also lists FR, ES, IT, LU, NL)"
+        },
+        {
+          "name": "property-types",
+          "wire_name": "propertyTypes",
+          "type": "string",
+          "location": "query",
+          "description": "Property types, comma-separated: HOUSE, APARTMENT, LAND, OFFICE, GARAGE, COMMERCIAL,..."
+        },
+        {
+          "name": "transaction-types",
+          "wire_name": "transactionTypes",
+          "type": "string",
+          "location": "query",
+          "description": "FOR_SALE or FOR_RENT"
+        },
+        {
+          "name": "postal-codes",
+          "wire_name": "postalCodes",
+          "type": "string",
+          "location": "query",
+          "description": "Postal codes, comma-separated (1050 or BE-1050); resolve commune names with 'locations lookup'"
+        },
+        {
+          "name": "provinces",
+          "type": "string",
+          "location": "query",
+          "description": "Provinces, comma-separated (e.g. NAMUR, LIEGE, ANTWERP, BRABANT_WALLON)"
+        },
+        {
+          "name": "districts",
+          "type": "string",
+          "location": "query",
+          "description": "Districts (arrondissements), comma-separated (e.g. LIEGE, NIVELLES)"
+        },
+        {
+          "name": "min-price",
+          "wire_name": "minPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum price in EUR (sale price, or monthly rent for FOR_RENT)"
+        },
+        {
+          "name": "max-price",
+          "wire_name": "maxPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum price in EUR (sale price, or monthly rent for FOR_RENT)"
+        },
+        {
+          "name": "min-bedrooms",
+          "wire_name": "minBedroomCount",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of bedrooms"
+        },
+        {
+          "name": "max-bedrooms",
+          "wire_name": "maxBedroomCount",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of bedrooms"
+        },
+        {
+          "name": "min-surface",
+          "wire_name": "minSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum net habitable surface in m²"
+        },
+        {
+          "name": "max-surface",
+          "wire_name": "maxSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum net habitable surface in m²"
+        },
+        {
+          "name": "min-land-surface",
+          "wire_name": "minLandSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum land (plot) surface in m²"
+        },
+        {
+          "name": "max-land-surface",
+          "wire_name": "maxLandSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum land (plot) surface in m²"
+        },
+        {
+          "name": "min-construction-year",
+          "wire_name": "minConstructionYear",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum construction year"
+        },
+        {
+          "name": "max-construction-year",
+          "wire_name": "maxConstructionYear",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum construction year"
+        },
+        {
+          "name": "min-facades",
+          "wire_name": "minFacadeCount",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of facades (2 = terraced, 3 = semi-detached, 4 = detached)"
+        },
+        {
+          "name": "epc-scores",
+          "wire_name": "epcScores",
+          "type": "string",
+          "location": "query",
+          "description": "EPC/PEB energy labels, comma-separated (A, B, C, D, E, F, G)"
+        },
+        {
+          "name": "has-garden",
+          "wire_name": "hasGarden",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a garden"
+        },
+        {
+          "name": "has-terrace",
+          "wire_name": "hasTerrace",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a terrace"
+        },
+        {
+          "name": "has-swimming-pool",
+          "wire_name": "hasSwimmingPool",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a swimming pool"
+        },
+        {
+          "name": "has-lift",
+          "wire_name": "hasLift",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a lift"
+        },
+        {
+          "name": "is-newly-built",
+          "wire_name": "isNewlyBuilt",
+          "type": "bool",
+          "location": "query",
+          "description": "Only new builds"
+        },
+        {
+          "name": "life-annuity",
+          "wire_name": "isALifeAnnuitySale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only life-annuity (viager) sales"
+        },
+        {
+          "name": "public-sale",
+          "wire_name": "isAPublicSale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only public (notary) sales"
+        },
+        {
+          "name": "is-furnished",
+          "wire_name": "isFurnished",
+          "type": "bool",
+          "location": "query",
+          "description": "Only furnished rentals"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page (30 listings per page; the site caps at page 333)"
+        }
+      ]
+    },
+    {
+      "name": "listings_search",
+      "description": "Search listings with every Immoweb filter (30 per page, raw Immoweb result objects). Optional: countries (default: BE), property-types, transaction-types (plus 25 more). Returns array of Listing.",
+      "method": "GET",
+      "path": "/en/search-results",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "query",
+          "description": "Country filter (BE for Belgium; Immoweb also lists FR, ES, IT, LU, NL)"
+        },
+        {
+          "name": "property-types",
+          "wire_name": "propertyTypes",
+          "type": "string",
+          "location": "query",
+          "description": "Property types, comma-separated: HOUSE, APARTMENT, LAND, OFFICE, GARAGE, COMMERCIAL,..."
+        },
+        {
+          "name": "transaction-types",
+          "wire_name": "transactionTypes",
+          "type": "string",
+          "location": "query",
+          "description": "FOR_SALE or FOR_RENT"
+        },
+        {
+          "name": "postal-codes",
+          "wire_name": "postalCodes",
+          "type": "string",
+          "location": "query",
+          "description": "Postal codes, comma-separated (1050 or BE-1050); resolve commune names with 'locations lookup'"
+        },
+        {
+          "name": "provinces",
+          "type": "string",
+          "location": "query",
+          "description": "Provinces, comma-separated (e.g. NAMUR, LIEGE, ANTWERP, BRABANT_WALLON)"
+        },
+        {
+          "name": "districts",
+          "type": "string",
+          "location": "query",
+          "description": "Districts (arrondissements), comma-separated (e.g. LIEGE, NIVELLES)"
+        },
+        {
+          "name": "min-price",
+          "wire_name": "minPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum price in EUR (sale price, or monthly rent for FOR_RENT)"
+        },
+        {
+          "name": "max-price",
+          "wire_name": "maxPrice",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum price in EUR (sale price, or monthly rent for FOR_RENT)"
+        },
+        {
+          "name": "min-bedrooms",
+          "wire_name": "minBedroomCount",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of bedrooms"
+        },
+        {
+          "name": "max-bedrooms",
+          "wire_name": "maxBedroomCount",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of bedrooms"
+        },
+        {
+          "name": "min-surface",
+          "wire_name": "minSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum net habitable surface in m²"
+        },
+        {
+          "name": "max-surface",
+          "wire_name": "maxSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum net habitable surface in m²"
+        },
+        {
+          "name": "min-land-surface",
+          "wire_name": "minLandSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum land (plot) surface in m²"
+        },
+        {
+          "name": "max-land-surface",
+          "wire_name": "maxLandSurface",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum land (plot) surface in m²"
+        },
+        {
+          "name": "min-construction-year",
+          "wire_name": "minConstructionYear",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum construction year"
+        },
+        {
+          "name": "max-construction-year",
+          "wire_name": "maxConstructionYear",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum construction year"
+        },
+        {
+          "name": "min-facades",
+          "wire_name": "minFacadeCount",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of facades (2 = terraced, 3 = semi-detached, 4 = detached)"
+        },
+        {
+          "name": "epc-scores",
+          "wire_name": "epcScores",
+          "type": "string",
+          "location": "query",
+          "description": "EPC/PEB energy labels, comma-separated (A, B, C, D, E, F, G)"
+        },
+        {
+          "name": "has-garden",
+          "wire_name": "hasGarden",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a garden"
+        },
+        {
+          "name": "has-terrace",
+          "wire_name": "hasTerrace",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a terrace"
+        },
+        {
+          "name": "has-swimming-pool",
+          "wire_name": "hasSwimmingPool",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a swimming pool"
+        },
+        {
+          "name": "has-lift",
+          "wire_name": "hasLift",
+          "type": "bool",
+          "location": "query",
+          "description": "Only listings with a lift"
+        },
+        {
+          "name": "is-newly-built",
+          "wire_name": "isNewlyBuilt",
+          "type": "bool",
+          "location": "query",
+          "description": "Only new builds"
+        },
+        {
+          "name": "life-annuity",
+          "wire_name": "isALifeAnnuitySale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only life-annuity (viager) sales"
+        },
+        {
+          "name": "public-sale",
+          "wire_name": "isAPublicSale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only public (notary) sales"
+        },
+        {
+          "name": "is-furnished",
+          "wire_name": "isFurnished",
+          "type": "bool",
+          "location": "query",
+          "description": "Only furnished rentals"
+        },
+        {
+          "name": "order-by",
+          "wire_name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page (30 listings per page; the site caps at page 333)"
+        }
+      ]
+    },
+    {
+      "name": "listings_similar",
+      "description": "Listings Immoweb considers similar to a given listing. Required: classified-id. Returns array of Listing.",
+      "method": "GET",
+      "path": "/en/search-similar-results",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "classified-id",
+          "wire_name": "classifiedId",
+          "type": "string",
+          "location": "query",
+          "description": "Immoweb listing ID to find similar listings for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_lookup",
+      "description": "Look up a commune, locality or postal code; returns the postalCodes value to pass to search filters. Required: query.",
+      "method": "GET",
+      "path": "/en/search/autocomplete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Commune name, locality or postal code (e.g. ixelles, liege, 9000)",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Commune market snapshot",
+      "command": "market",
+      "description": "Median asking price, €/m², price-cut share and recent disappearances for one or several communes, broken down by bedrooms, EPC, type or postcode. Student rooms and per-room lets are left out. Pulls missing areas on first use (--no-pull to stay offline)."
+    },
+    {
+      "name": "Listing deal verdict",
+      "command": "deal",
+      "description": "Tells you whether one listing is cheap or expensive: €/m² percentile against comparable listings, days on market, price-cut history, demand and EPC gap. Pulls missing areas on first use (--no-pull to stay offline)."
+    },
+    {
+      "name": "Saved-search triage",
+      "command": "triage",
+      "description": "Ranks the current matches of a saved search (or ad-hoc filters) by a transparent score: EUR/m2 percentile within the same postal code, freshness, price cut, private seller and EPC (with --enrich) so you know who to call first."
+    },
+    {
+      "name": "Price-cut leaderboard",
+      "command": "drops",
+      "description": "Lists stored listings whose asking price fell (from prices recorded by find/watch/pull and Immoweb's old-price field), with first and latest price, number of cuts, total % cut and days listed."
+    },
+    {
+      "name": "Rental yield estimator",
+      "command": "yield",
+      "description": "Estimates gross rental yield for a sale listing or a whole commune from comparable rents, and refuses when there are too few comparables. Pulls missing areas on first use (--no-pull to stay offline)."
+    }
+  ]
+}

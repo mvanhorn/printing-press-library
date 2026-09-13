@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-13T11:46:36.902489Z",
+  "printing_press_version": "4.32.1",
+  "api_name": "immoweb",
+  "display_name": "Immoweb",
+  "cli_name": "immoweb-pp-cli",
+  "creator": {
+    "handle": "sambassio",
+    "name": "sambassio"
+  },
+  "owner": "sambassio",
+  "printer": "sambassio",
+  "printer_name": "sambassio",
+  "spec_path": "immoweb-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:64e8c431aa0bb71d2a48b122f38d83b3fe46a2a572d4648abbe506123b1dafae",
+  "run_id": "20260912-183347-d9a891d6",
+  "category": "other",
+  "description": "Search Immoweb from the terminal with every site filter, then get the answers the site can't give: price cuts, days on market, commune medians and rental yield.",
+  "mcp_binary": "immoweb-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Commune market snapshot",
+      "command": "market",
+      "description": "Median asking price, €/m², price-cut share and recent disappearances for one or several communes, broken down by bedrooms, EPC, type or postcode. Student rooms and per-room lets are left out. Pulls missing areas on first use (--no-pull to stay offline)."
+    },
+    {
+      "name": "Listing deal verdict",
+      "command": "deal",
+      "description": "Tells you whether one listing is cheap or expensive: €/m² percentile against comparable listings, days on market, price-cut history, demand and EPC gap. Pulls missing areas on first use (--no-pull to stay offline)."
+    },
+    {
+      "name": "Saved-search triage",
+      "command": "triage",
+      "description": "Ranks the current matches of a saved search (or ad-hoc filters) by a transparent score: EUR/m2 percentile within the same postal code, freshness, price cut, private seller and EPC (with --enrich) so you know who to call first."
+    },
+    {
+      "name": "Price-cut leaderboard",
+      "command": "drops",
+      "description": "Lists stored listings whose asking price fell (from prices recorded by find/watch/pull and Immoweb's old-price field), with first and latest price, number of cuts, total % cut and days listed."
+    },
+    {
+      "name": "Rental yield estimator",
+      "command": "yield",
+      "description": "Estimates gross rental yield for a sale listing or a whole commune from comparable rents, and refuses when there are too few comparables. Pulls missing areas on first use (--no-pull to stay offline)."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Commune market snapshot",
+      "command": "market",
+      "description": "Median asking price, €/m², price-cut share and recent disappearances for one or several communes, broken down by bedrooms, EPC, type or postcode. Student rooms and per-room lets are left out. Pulls missing areas on first use (--no-pull to stay offline)."
+    },
+    {
+      "name": "Listing deal verdict",
+      "command": "deal",
+      "description": "Tells you whether one listing is cheap or expensive: €/m² percentile against comparable listings, days on market, price-cut history, demand and EPC gap. Pulls missing areas on first use (--no-pull to stay offline)."
+    },
+    {
+      "name": "Saved-search triage",
+      "command": "triage",
+      "description": "Ranks the current matches of a saved search (or ad-hoc filters) by a transparent score: EUR/m2 percentile within the same postal code, freshness, price cut, private seller and EPC (with --enrich) so you know who to call first."
+    },
+    {
+      "name": "Price-cut leaderboard",
+      "command": "drops",
+      "description": "Lists stored listings whose asking price fell (from prices recorded by find/watch/pull and Immoweb's old-price field), with first and latest price, number of cuts, total % cut and days listed."
+    },
+    {
+      "name": "Rental yield estimator",
+      "command": "yield",
+      "description": "Estimates gross rental yield for a sale listing or a whole commune from comparable rents, and refuses when there are too few comparables. Pulls missing areas on first use (--no-pull to stay offline)."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 44,
+    "total": 44,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 89,
+      "grade": "A",
+      "total": 89
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-09-13T11:35:43.670212Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "find",
+      "file": "find.go",
+      "line": 44,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Not read-only: RunE stores every fetched page (listings + price observations) in the local SQLite store; correctly annotated mcp:local-write, so readOnlyHint must stay false."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix (platform client-profile list Short could name the returned profile names array)."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "show",
+      "file": "show.go",
+      "line": 32,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Not read-only: RunE records the fetched listing detail (EPC, views, gone date) into the local store via SaveDetail; carries mcp:local-write, which is the accurate class."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 847,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix (learnings list Short could mention its --query/--resource/--min-confidence filters)."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-13T11:31:44.29499Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:847"
+  }
+}

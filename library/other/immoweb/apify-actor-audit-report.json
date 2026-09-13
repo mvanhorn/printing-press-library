@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/immoweb-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260912-183347-d9a891d6",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

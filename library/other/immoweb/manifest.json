@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "immoweb-pp-mcp",
+  "display_name": "Immoweb",
+  "version": "0.1.0",
+  "description": "Search Immoweb from the terminal with every site filter, then get the answers the site can't give: price cuts, days on market, commune medians and rental yield.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/immoweb-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/immoweb-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

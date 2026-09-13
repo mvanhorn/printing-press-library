@@ -1,0 +1,896 @@
+name: immoweb
+description: Discovered API spec for immoweb
+version: 0.1.0
+base_url: https://www.immoweb.be
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "page" from query: search input'
+    - 'rejected auth candidate "query" from query: search input'
+config:
+    format: toml
+    path: ~/.config/immoweb-pp-cli/config.toml
+resources:
+    en:
+        description: Operations on search-results
+        endpoints:
+            get_get_result:
+                method: GET
+                path: /en/classified/get-result/{get_result_id}
+                description: GET /en/classified/get-result/{get_result_id}
+                params:
+                    - name: get_result_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The get_result_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GetResult
+                pagination: null
+            list_autocomplete:
+                method: GET
+                path: /en/search/autocomplete
+                description: GET /en/search/autocomplete
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: AutocompleteResult
+                pagination: null
+                response_path: results
+            list_search_results:
+                method: GET
+                path: /en/search-results
+                description: GET /en/search-results
+                params:
+                    - name: countries
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: maxPrice
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: minBedroomCount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: minPrice
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: orderBy
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: postalCodes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: propertyTypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: transactionTypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SearchResultResult
+                pagination: null
+                response_path: results
+            list_search_results_count:
+                method: GET
+                path: /en/search-results-count
+                description: GET /en/search-results-count
+                params:
+                    - name: countries
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: epcScores
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: postalCodes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: propertyTypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: transactionTypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SearchResultsCount
+                pagination: null
+            list_search_results_map:
+                method: GET
+                path: /en/search-results-map
+                description: GET /en/search-results-map
+                params:
+                    - name: countries
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: postalCodes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: propertyTypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: transactionTypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SearchResultsMapResult
+                pagination: null
+                response_path: results
+            list_search_similar_results:
+                method: GET
+                path: /en/search-similar-results
+                description: GET /en/search-similar-results
+                params:
+                    - name: classifiedId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SearchSimilarResultResult
+                pagination: null
+                response_path: results
+types:
+    AutocompleteResult:
+        fields:
+            - name: customerId
+              type: string
+            - name: label
+              type: string
+            - name: mainLocality
+              type: string
+            - name: queryParam
+              type: string
+            - name: queryValue
+              type: string
+            - name: shortLabel
+              type: string
+            - name: slug
+              type: string
+            - name: type
+              type: string
+    Classified:
+        fields:
+            - name: customers
+              type: '[]ref:Customer'
+            - name: displayFlags
+              type: ref:DisplayFlags
+            - name: externalReference
+              type: string
+              omit_empty: true
+            - name: flags
+              type: ref:Flags3
+            - name: hasSectionsArray
+              type: ref:HasSectionsArray
+            - name: id
+              type: integer
+            - name: isBookmarked
+              type: bool
+            - name: media
+              type: ref:Media3
+            - name: premiumProjectPage
+              type: object
+            - name: price
+              type: ref:Price3
+            - name: property
+              type: ref:Property3
+            - name: publication
+              type: ref:Publication3
+            - name: statistics
+              type: ref:Statistics
+            - name: transaction
+              type: ref:Transaction3
+            - name: unitGroupings
+              type: array
+    Cluster:
+        fields:
+            - name: bedroomRange
+              type: string
+            - name: surfaceRange
+              type: string
+    Cluster2:
+        fields:
+            - name: bedroomRange
+              type: string
+            - name: surfaceRange
+              type: string
+    Cluster3:
+        fields:
+            - name: bedroomRange
+              type: string
+            - name: surfaceRange
+              type: string
+    Customer:
+        fields:
+            - name: contactHoursLandline
+              type: string
+              omit_empty: true
+            - name: contactHoursMobile
+              type: string
+              omit_empty: true
+            - name: email
+              type: string
+              omit_empty: true
+              format: email
+            - name: features
+              type: object
+            - name: id
+              type: integer
+            - name: ipiNo
+              type: string
+              omit_empty: true
+            - name: isOwner
+              type: bool
+            - name: location
+              type: object
+            - name: logoUrl
+              type: string
+              omit_empty: true
+              format: url
+            - name: mobileNumber
+              type: string
+              omit_empty: true
+            - name: name
+              type: string
+              omit_empty: true
+            - name: phoneNumber
+              type: string
+              omit_empty: true
+            - name: salesRepresentative
+              type: object
+              omit_empty: true
+            - name: type
+              type: string
+            - name: website
+              type: string
+              omit_empty: true
+              format: url
+    DisplayFlags:
+        fields:
+            - name: main
+              type: string
+              omit_empty: true
+            - name: secondary
+              type: array
+    Flags:
+        fields:
+            - name: main
+              type: string
+            - name: secondary
+              type: array
+    Flags2:
+        fields:
+            - name: main
+              type: string
+            - name: secondary
+              type: array
+    Flags3:
+        fields:
+            - name: isInvestmentProject
+              type: bool
+            - name: isLifeAnnuitySale
+              type: bool
+            - name: isNewClassified
+              type: bool
+            - name: isNewPrice
+              type: bool
+            - name: isNewRealEstateProject
+              type: bool
+            - name: isNewlyBuilt
+              type: bool
+            - name: isPublicSale
+              type: bool
+            - name: isSoldOrRented
+              type: bool
+            - name: isUnderOption
+              type: bool
+    Flags4:
+        fields:
+            - name: main
+              type: string
+            - name: secondary
+              type: array
+    GetResult:
+        fields:
+            - name: classified
+              type: ref:Classified
+    HasSectionsArray:
+        fields:
+            - name: hasEnergySection
+              type: bool
+            - name: hasExteriorSection
+              type: bool
+            - name: hasFacilitiesSection
+              type: bool
+            - name: hasFinancialSection
+              type: bool
+            - name: hasGeneralSection
+              type: bool
+            - name: hasInteriorSection
+              type: bool
+            - name: hasPlanningSection
+              type: bool
+            - name: hasPublicSaleSection
+              type: bool
+    Media:
+        fields:
+            - name: pictures
+              type: array
+    Media2:
+        fields:
+            - name: pictures
+              type: array
+    Media3:
+        fields:
+            - name: documents
+              type: array
+            - name: pictures
+              type: array
+    Media4:
+        fields:
+            - name: pictures
+              type: array
+    Price:
+        fields:
+            - name: HTMLDisplayPrice
+              type: string
+            - name: accessibilityPrice
+              type: string
+            - name: additionalValue
+              type: integer
+              omit_empty: true
+            - name: alternativeDisplayPrice
+              type: string
+            - name: hidePrice
+              type: bool
+            - name: label
+              type: string
+            - name: language
+              type: string
+            - name: mainDisplayPrice
+              type: string
+            - name: mainValue
+              type: integer
+            - name: shortDisplayPrice
+              type: string
+            - name: type
+              type: string
+    Price2:
+        fields:
+            - name: HTMLDisplayPrice
+              type: string
+            - name: accessibilityPrice
+              type: string
+            - name: alternativeDisplayPrice
+              type: string
+            - name: hidePrice
+              type: bool
+            - name: label
+              type: string
+            - name: language
+              type: string
+            - name: mainDisplayPrice
+              type: string
+            - name: mainValue
+              type: integer
+            - name: shortDisplayPrice
+              type: string
+            - name: type
+              type: string
+    Price3:
+        fields:
+            - name: HTMLDisplayPrice
+              type: string
+            - name: accessibilityPrice
+              type: string
+            - name: additionalValue
+              type: integer
+              omit_empty: true
+            - name: alternativeDisplayPrice
+              type: string
+            - name: hidePrice
+              type: bool
+            - name: label
+              type: string
+            - name: language
+              type: string
+            - name: mainDisplayPrice
+              type: string
+            - name: mainValue
+              type: integer
+            - name: shortDisplayPrice
+              type: string
+            - name: type
+              type: string
+    Price4:
+        fields:
+            - name: HTMLDisplayPrice
+              type: string
+            - name: accessibilityPrice
+              type: string
+            - name: alternativeDisplayPrice
+              type: string
+            - name: hidePrice
+              type: bool
+            - name: label
+              type: string
+            - name: language
+              type: string
+            - name: mainDisplayPrice
+              type: string
+            - name: mainValue
+              type: integer
+            - name: shortDisplayPrice
+              type: string
+            - name: type
+              type: string
+    Property:
+        fields:
+            - name: bedroomCount
+              type: integer
+            - name: landSurface
+              type: integer
+              omit_empty: true
+            - name: location
+              type: object
+            - name: netHabitableSurface
+              type: integer
+            - name: subtype
+              type: string
+            - name: title
+              type: string
+              omit_empty: true
+            - name: type
+              type: string
+    Property2:
+        fields:
+            - name: bedroomCount
+              type: integer
+            - name: landSurface
+              type: integer
+            - name: location
+              type: object
+            - name: netHabitableSurface
+              type: integer
+            - name: subtype
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Property3:
+        fields:
+            - name: alternativeDescriptions
+              type: object
+            - name: basement
+              type: object
+            - name: bathroomCount
+              type: integer
+            - name: bathrooms
+              type: array
+            - name: bedroomCount
+              type: integer
+            - name: bedrooms
+              type: array
+            - name: building
+              type: object
+            - name: constructionPermit
+              type: object
+            - name: description
+              type: string
+              omit_empty: true
+            - name: diningRoom
+              type: object
+              omit_empty: true
+            - name: energy
+              type: object
+            - name: fireplaceExists
+              type: bool
+            - name: gardenSurface
+              type: integer
+              omit_empty: true
+            - name: hasAirConditioning
+              type: bool
+              omit_empty: true
+            - name: hasArmoredDoor
+              type: bool
+              omit_empty: true
+            - name: hasBasement
+              type: bool
+            - name: hasCableTV
+              type: bool
+            - name: hasCaretakerOrConcierge
+              type: bool
+              omit_empty: true
+            - name: hasDiningRoom
+              type: bool
+              omit_empty: true
+            - name: hasDisabledAccess
+              type: bool
+            - name: hasDoorPhone
+              type: bool
+            - name: hasDressingRoom
+              type: bool
+              omit_empty: true
+            - name: hasGarden
+              type: bool
+              omit_empty: true
+            - name: hasInternet
+              type: bool
+              omit_empty: true
+            - name: hasJacuzzi
+              type: bool
+              omit_empty: true
+            - name: hasLaundryRoom
+              type: bool
+              omit_empty: true
+            - name: hasLift
+              type: bool
+            - name: hasLivingRoom
+              type: bool
+            - name: hasSauna
+              type: bool
+              omit_empty: true
+            - name: hasSecureAccessAlarm
+              type: bool
+              omit_empty: true
+            - name: hasSwimmingPool
+              type: bool
+            - name: hasTerrace
+              type: bool
+            - name: hasVisiophone
+              type: bool
+            - name: kitchen
+              type: object
+            - name: land
+              type: object
+              omit_empty: true
+            - name: laundryRoom
+              type: object
+              omit_empty: true
+            - name: livingRoom
+              type: object
+            - name: location
+              type: object
+            - name: monthlyCosts
+              type: integer
+            - name: netHabitableSurface
+              type: integer
+            - name: parkingCountIndoor
+              type: integer
+              omit_empty: true
+            - name: propertyCertificates
+              type: object
+            - name: roomCount
+              type: integer
+              omit_empty: true
+            - name: showerRoomCount
+              type: integer
+              omit_empty: true
+            - name: showerRooms
+              type: array
+            - name: specificities
+              type: object
+              omit_empty: true
+            - name: subtype
+              type: string
+            - name: terraceOrientation
+              type: string
+              omit_empty: true
+            - name: terraceSurface
+              type: integer
+            - name: title
+              type: string
+              omit_empty: true
+            - name: toiletCount
+              type: integer
+            - name: toilets
+              type: array
+            - name: type
+              type: string
+    Property4:
+        fields:
+            - name: bedroomCount
+              type: integer
+            - name: landSurface
+              type: integer
+            - name: location
+              type: object
+            - name: netHabitableSurface
+              type: integer
+            - name: subtype
+              type: string
+            - name: title
+              type: string
+            - name: type
+              type: string
+    Publication:
+        fields:
+            - name: detailedPageVisibility
+              type: string
+              omit_empty: true
+            - name: lastModificationDate
+              type: string
+              format: date-time
+            - name: size
+              type: string
+            - name: visualisationOption
+              type: string
+    Publication2:
+        fields:
+            - name: detailedPageVisibility
+              type: string
+            - name: lastModificationDate
+              type: string
+              format: date-time
+            - name: size
+              type: string
+            - name: visualisationOption
+              type: string
+    Publication3:
+        fields:
+            - name: creationDate
+              type: string
+              format: date-time
+            - name: detailedPageVisibility
+              type: string
+              omit_empty: true
+            - name: expirationDate
+              type: string
+              omit_empty: true
+              format: date-time
+            - name: lastModificationDate
+              type: string
+              format: date-time
+            - name: visualisationOption
+              type: string
+    Publication4:
+        fields:
+            - name: detailedPageVisibility
+              type: string
+            - name: lastModificationDate
+              type: string
+              format: date-time
+            - name: size
+              type: string
+            - name: visualisationOption
+              type: string
+    SearchResultResult:
+        fields:
+            - name: cluster
+              type: ref:Cluster
+            - name: customerLogoUrl
+              type: string
+              omit_empty: true
+              format: url
+            - name: customerName
+              type: string
+            - name: flags
+              type: ref:Flags
+            - name: id
+              type: integer
+            - name: isBookmarked
+              type: bool
+            - name: media
+              type: ref:Media
+            - name: price
+              type: ref:Price
+            - name: property
+              type: ref:Property
+            - name: publication
+              type: ref:Publication
+            - name: transaction
+              type: ref:Transaction
+    SearchResultsCount:
+        fields:
+            - name: classifiedsCount
+              type: integer
+    SearchResultsMapResult:
+        fields:
+            - name: cluster
+              type: ref:Cluster2
+            - name: customerLogoUrl
+              type: string
+              format: url
+            - name: customerName
+              type: string
+            - name: flags
+              type: ref:Flags2
+            - name: id
+              type: integer
+            - name: isBookmarked
+              type: bool
+            - name: media
+              type: ref:Media2
+            - name: price
+              type: ref:Price2
+            - name: property
+              type: ref:Property2
+            - name: publication
+              type: ref:Publication2
+            - name: transaction
+              type: ref:Transaction2
+    SearchSimilarResultResult:
+        fields:
+            - name: cluster
+              type: ref:Cluster3
+            - name: customerLogoUrl
+              type: string
+              format: url
+            - name: customerName
+              type: string
+            - name: flags
+              type: ref:Flags4
+            - name: id
+              type: integer
+            - name: isBookmarked
+              type: bool
+            - name: media
+              type: ref:Media4
+            - name: price
+              type: ref:Price4
+            - name: property
+              type: ref:Property4
+            - name: publication
+              type: ref:Publication4
+            - name: transaction
+              type: ref:Transaction4
+    Statistics:
+        fields:
+            - name: bookmarkCount
+              type: integer
+            - name: viewCount
+              type: integer
+    Transaction:
+        fields:
+            - name: certificate
+              type: string
+              omit_empty: true
+            - name: certificateLogoUrl
+              type: string
+              omit_empty: true
+              format: url
+            - name: rental
+              type: object
+              omit_empty: true
+            - name: sale
+              type: object
+              omit_empty: true
+            - name: type
+              type: string
+    Transaction2:
+        fields:
+            - name: hidePrice
+              type: bool
+            - name: sale
+              type: object
+            - name: type
+              type: string
+    Transaction3:
+        fields:
+            - name: availabilityPeriodType
+              type: string
+            - name: certificates
+              type: object
+            - name: investor
+              type: object
+            - name: rental
+              type: object
+              omit_empty: true
+            - name: sale
+              type: object
+              omit_empty: true
+            - name: subtype
+              type: string
+            - name: type
+              type: string
+    Transaction4:
+        fields:
+            - name: certificate
+              type: string
+            - name: certificateLogoUrl
+              type: string
+              format: url
+            - name: sale
+              type: object
+            - name: type
+              type: string
