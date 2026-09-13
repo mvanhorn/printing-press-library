@@ -169,7 +169,10 @@ Do NOT use it for general commune statistics; use 'market' instead.`,
 				if err != nil {
 					return err
 				}
-				if !includeRooms && !immo.IsRoomLet(target.Listing) {
+				if !includeRooms {
+					if immo.IsRoomLet(target.Listing) {
+						return usageErr(fmt.Errorf("listing %d is a student room or per-room let; pass --include-rooms to estimate it against room rents", id))
+					}
 					var n int
 					rents, n = dropRoomLets(rents)
 					view.RoomLetsExcluded += n

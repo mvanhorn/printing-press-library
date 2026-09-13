@@ -44,6 +44,7 @@ func scopeHarvest(ctx context.Context, c *client.Client, db *store.Store, crit i
 	}
 	rep.Communes = resolved
 	rep.Scope = crit.Key()
+	started := time.Now().Add(-time.Second) // last_seen has second precision
 	hv, err := harvest(ctx, c, db, crit.Params(), maxPages)
 	rep.Requests = hv.Calls
 	if err != nil {
@@ -69,10 +70,11 @@ func scopeHarvest(ctx context.Context, c *client.Client, db *store.Store, crit i
 				gone = append(gone, e.ID)
 			}
 		}
-		if err := db.MarkGone(ctx, gone, time.Now()); err != nil {
+		marked, err := db.MarkGone(ctx, gone, started, time.Now())
+		if err != nil {
 			return rep, err
 		}
-		rep.MarkedGone = len(gone)
+		rep.MarkedGone = marked
 	}
 	switch {
 	case !hv.PricedComplete:

@@ -217,3 +217,19 @@ func TestTermSafeAndPhotoHost(t *testing.T) {
 		}
 	}
 }
+
+func TestFillMarketNeedsUsableValues(t *testing.T) {
+	rows := []store.StoredListing{}
+	for i := 0; i < 5; i++ {
+		r := stored(int64(500+i), "FOR_SALE", "1050", 300000, 100, 2)
+		if i > 0 {
+			r.Price, r.PricePerSqm = nil, nil
+		}
+		rows = append(rows, r)
+	}
+	mc := marketCommune{}
+	fillMarket(&mc, rows, 0, map[int64][]store.PriceObs{}, "bedrooms", time.Now())
+	if mc.Sample != 5 || mc.PriceSample != 1 || mc.MedianPrice != nil || mc.MedianPricePerM2 != nil || !strings.Contains(mc.Note, "only 1 listings with a price") {
+		t.Errorf("one usable price must not become a median: %+v", mc)
+	}
+}

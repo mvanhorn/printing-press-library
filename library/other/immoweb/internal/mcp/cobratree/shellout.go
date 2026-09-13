@@ -215,6 +215,7 @@ var blockedRootFlags = map[string]bool{
 	"home":         true,
 	"insecure":     true,
 	"profile":      true,
+	"receipt":      true,
 	"receipt-file": true,
 	"token":        true,
 }

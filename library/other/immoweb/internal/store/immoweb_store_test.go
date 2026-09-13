@@ -89,8 +89,11 @@ func TestGoneAndSearchRuns(t *testing.T) {
 	if err := db.RecordSearchRun(ctx, "sg", map[int64]*float64{a.ID: a.Price}, []int64{b.ID}, now.Add(time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.MarkGone(ctx, []int64{b.ID}, now.Add(time.Hour)); err != nil {
-		t.Fatal(err)
+	if n, err := db.MarkGone(ctx, []int64{a.ID}, now.Add(-time.Minute), now.Add(time.Hour)); err != nil || n != 0 {
+		t.Fatalf("a listing seen after the harvest started must not be marked gone: %d %v", n, err)
+	}
+	if n, err := db.MarkGone(ctx, []int64{b.ID}, now.Add(30*time.Minute), now.Add(time.Hour)); err != nil || n != 1 {
+		t.Fatalf("MarkGone = %d %v", n, err)
 	}
 	seen, _ = db.SeenIDs(ctx, "sg")
 	if len(seen) != 1 {

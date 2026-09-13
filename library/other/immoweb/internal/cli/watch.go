@@ -215,6 +215,7 @@ func runWatch(ctx context.Context, db *store.Store, cl *client.Client, ss store.
 		return rep, err
 	}
 	rep.Baseline = ss.LastRunAt == ""
+	started := time.Now().Add(-time.Second) // last_seen has second precision
 	hv, err := harvest(ctx, cl, db, crit.Params(), pages)
 	if err != nil {
 		return rep, err
@@ -280,7 +281,7 @@ func runWatch(ctx context.Context, db *store.Store, cl *client.Client, ss store.
 			}
 		}
 		if len(goneIDs) > 0 {
-			if err := db.MarkGone(ctx, goneIDs, time.Now()); err != nil {
+			if _, err := db.MarkGone(ctx, goneIDs, started, time.Now()); err != nil {
 				return rep, err
 			}
 		}

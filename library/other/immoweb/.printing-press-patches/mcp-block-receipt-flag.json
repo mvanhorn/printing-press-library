@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "mcp-block-receipt-flag",
+  "applied_at": "2026-09-13",
+  "base_run_id": "20260912-183347-d9a891d6",
+  "base_printing_press_version": "4.32.1",
+  "summary": "blockedRootFlags also blocks the inherited --receipt flag for MCP callers.",
+  "reason": "--receipt was missing from the MCP root-flag denylist, so a caller could turn on receipt file writes from a tool annotated read-only. Found by the public-library Greptile review.",
+  "files": ["internal/mcp/cobratree/shellout.go"],
+  "markers": ["\"receipt\":      true,"]
+}

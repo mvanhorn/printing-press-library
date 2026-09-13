@@ -84,6 +84,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 		"limit": float64(10),
 	}
 	got := cliArgsFromMCP(in, map[string]bool{
+		"receipt":      true,
 		"args":         true,
 		"audit-dir":    true,
 		"base-url":     true,

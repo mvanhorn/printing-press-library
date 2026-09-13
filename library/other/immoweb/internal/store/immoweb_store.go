@@ -552,25 +552,34 @@ func (s *Store) RecordSearchRun(ctx context.Context, name string, prices map[int
 }
 
 // MarkGone flags listings (e.g. from an area pull) that were not returned by
-// a complete harvest of their scope.
-func (s *Store) MarkGone(ctx context.Context, ids []int64, at time.Time) error {
+// a complete harvest of their scope, skipping any listing seen at or after
+// seenBefore (the harvest start). It returns how many were marked.
+func (s *Store) MarkGone(ctx context.Context, ids []int64, seenBefore, at time.Time) (int, error) {
 	if len(ids) == 0 {
-		return nil
+		return 0, nil
 	}
 	now := at.UTC().Format(time.RFC3339)
+	cutoff := seenBefore.UTC().Format(time.RFC3339)
 	s.lockForWrite()
 	defer s.unlockAfterWrite()
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
+	marked := 0
 	for _, id := range ids {
-		if _, err := tx.ExecContext(ctx, `UPDATE immo_listings SET gone_at = COALESCE(gone_at, ?) WHERE id = ?`, now, id); err != nil {
-			return err
+		// last_seen < cutoff keeps an overlapping, newer pull that saw the
+		// listing after this harvest started from being overwritten.
+		res, err := tx.ExecContext(ctx, `UPDATE immo_listings SET gone_at = COALESCE(gone_at, ?) WHERE id = ? AND last_seen < ?`, now, id, cutoff)
+		if err != nil {
+			return 0, err
+		}
+		if n, _ := res.RowsAffected(); n > 0 {
+			marked++
 		}
 	}
-	return tx.Commit()
+	return marked, tx.Commit()
 }
 
 // HiddenSet returns all hidden listing IDs.

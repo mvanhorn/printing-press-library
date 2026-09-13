@@ -31,6 +31,8 @@ type marketCommune struct {
 	PostalCodes      []string     `json:"postal_codes"`
 	LiveCount        *int         `json:"live_count_on_immoweb,omitempty"`
 	Sample           int          `json:"sample"`
+	PriceSample      int          `json:"price_sample"`
+	PricePerM2Sample int          `json:"price_per_m2_sample"`
 	CoveragePct      *float64     `json:"coverage_pct,omitempty"`
 	MedianPrice      *float64     `json:"median_price,omitempty"`
 	MedianPricePerM2 *float64     `json:"median_price_per_m2,omitempty"`
@@ -245,7 +247,7 @@ Do NOT use it for rental return; use 'yield' instead.`,
 				if mc.LiveCount != nil {
 					live = fmt.Sprint(*mc.LiveCount)
 				}
-				fmt.Fprintf(w, "  listings: %s on Immoweb · %d analysed · %d gone in 30 days\n", live, mc.Sample, mc.GoneLast30d)
+				fmt.Fprintf(w, "  listings: %s on Immoweb · %d analysed (%d priced, %d with €/m²) · %d gone in 30 days\n", live, mc.Sample, mc.PriceSample, mc.PricePerM2Sample, mc.GoneLast30d)
 				fmt.Fprintf(w, "  median price %s · median €/m² %s (p25 %s, p75 %s)\n",
 					fmtPtrEUR(mc.MedianPrice), fmtPtrEUR(mc.MedianPricePerM2), fmtPtrEUR(mc.P25PricePerM2), fmtPtrEUR(mc.P75PricePerM2))
 				if mc.MedianDaysListed != nil {
@@ -253,8 +255,8 @@ Do NOT use it for rental return; use 'yield' instead.`,
 				} else {
 					fmt.Fprintf(w, "  days listed: publication date known for %d listings only (search results omit it)\n", mc.DaysSample)
 				}
-				if mc.Sample < minComparables {
-					fmt.Fprintf(w, "  only %d listings: treat medians as indicative\n", mc.Sample)
+				if mc.PriceSample < minComparables || mc.PricePerM2Sample < minComparables {
+					fmt.Fprintf(w, "  %s\n", mc.Note)
 				}
 				if mc.RoomLetsExcluded > 0 {
 					fmt.Fprintf(w, "  %d student rooms / per-room lets left out (--include-rooms keeps them)\n", mc.RoomLetsExcluded)
@@ -289,11 +291,18 @@ func fillMarket(mc *marketCommune, rows []store.StoredListing, goneCount int, hi
 	if len(rows) == 0 {
 		return
 	}
-	mc.MedianPrice = medianPtr(priceValues(rows))
-	pps := ppsValues(rows)
-	mc.MedianPricePerM2 = medianPtr(pps)
-	mc.P25PricePerM2 = quantilePtr(pps, 0.25)
-	mc.P75PricePerM2 = quantilePtr(pps, 0.75)
+	// Medians only from enough usable values: rows without a price or a
+	// plausible surface do not count towards them.
+	prices, pps := priceValues(rows), ppsValues(rows)
+	mc.PriceSample, mc.PricePerM2Sample = len(prices), len(pps)
+	if len(prices) >= minComparables {
+		mc.MedianPrice = medianPtr(prices)
+	}
+	if len(pps) >= minComparables {
+		mc.MedianPricePerM2 = medianPtr(pps)
+		mc.P25PricePerM2 = quantilePtr(pps, 0.25)
+		mc.P75PricePerM2 = quantilePtr(pps, 0.75)
+	}
 	days := []float64{}
 	uo, cut := 0, 0
 	for _, r := range rows {
@@ -352,8 +361,11 @@ func fillMarket(mc *marketCommune, rows []store.StoredListing, goneCount int, hi
 		mc.Bands = append(mc.Bands, marketBand{Band: k, N: len(g), MedianPrice: medianPtr(priceValues(g)), MedianPricePerM2: medianPtr(ppsValues(g))})
 	}
 	notes := []string{}
-	if mc.Sample < minComparables {
-		notes = append(notes, fmt.Sprintf("only %d listings: treat medians as indicative", mc.Sample))
+	if len(prices) < minComparables {
+		notes = append(notes, fmt.Sprintf("only %d listings with a price (need %d): no median price", len(prices), minComparables))
+	}
+	if len(pps) < minComparables {
+		notes = append(notes, fmt.Sprintf("only %d listings with a usable surface (need %d): no €/m² median", len(pps), minComparables))
 	}
 	if daysNote != "" {
 		notes = append(notes, daysNote)
