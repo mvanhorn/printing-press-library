@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "classes-response-third-round-bloat-strip",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "classAlwaysStripFields unconditionally deep-strips per-class fields confirmed always-empty (conflicted_movement_preferences, muscle_group_score, equipment_ids, equipment_tags, extra_images, dynamic_video_recorded_speed_in_mph, distance/distance_display_value/distance_unit, thumbnail_location/thumbnail_title) or exact duplicates of a kept sibling (difficulty_estimate/overall_estimate vs. difficulty_rating_avg/overall_rating_avg; class_type_ids/ride_type_id vs. ride_type_ids) on classes_catalog/classes_search/classes_show/classes_structure -- no MCP argument restores these since there's never a reason to want an always-empty or duplicate field back. classInternalIdentifierFields (home_peloton_id, studio_peloton_id, series_id, content_availability_level, origin_locale) gets its own include_internal_ids toggle instead, since unlike the always-strip set these have no alternate source. instructorBioFields grows two missed image URLs (jumbotron_url, bike_instructor_list_display_image_url) plus 16 social/media-link, playback-default, and admin/catalog bookkeeping fields. A regen touching these lists must keep this third round included -- found by a third round of live retesting after the first two passes still left limit=100 responses ~4.2x over the MCP tool budget.",
+  "reason": "Independent live retesting after the second Issue 2 fix (classes-response-second-round-bloat-strip) confirmed the limit=20 case fixed (90,780 -> 59,503 bytes) but limit=100 still ~4.2x over the 60,000-byte budget, and supplied a ranked list of the specific fields still present in a live response.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New tests TestClassAlwaysStripFieldsRemovesConstantEmptyAndDuplicateFieldsUnconditionally, TestClassesVerboseTogglesIncludeInternalIds, and TestInstructorBioFieldsCoversThirdRoundLiveConfirmedFields cover the unconditional strip, the new toggle's independent restore, and the instructor field additions respectively."
+}

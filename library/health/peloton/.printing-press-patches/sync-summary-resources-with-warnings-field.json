@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "sync-summary-resources-with-warnings-field",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "sync's {\"event\":\"sync_summary\",...} line carries two distinct warning counts: resources_warned (terminal-state: a resource whose run ended in a warning, e.g. access-denied) and resources_with_warnings (event-based: a resource that emitted at least one sync_warning event anywhere during the run, including cap-hits on a resource that still finished under success). A warningResourceTrackingWriter wraps sync's event-stream writer to compute the second count by observing every sync_warning line as it's written, rather than threading a counter through every emission call site scattered across the flat/dependent pagination loops. A regen must keep both fields and keep the tracking writer wrapping the real event-stream writer before any resource sync begins.",
+  "reason": "Live retesting found resources_warned alone insufficient: a full archive with max_pages_cap_hit/max_parents_cap_hit warnings on resources that still completed showed resources_warned:0, which reads as \"everything that succeeded is complete\" even though two of those successes were data-truncated. resources_with_warnings surfaces that gap directly.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_hint_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestWarningResourceTrackingWriterCountsDistinctResourcesWithWarnings covers the tracking writer directly (distinct-resource dedup, non-warning lines ignored, passthrough bytes unaltered). TestSyncResourceClassifiesAccessDeniedAsWarnNotErr separately confirms isSyncAccessWarning's classification still produces a Warn (not Err) given a client that preserves HTTP status codes -- see this same round's note below about a real transport gap that currently prevents that from happening through the CLI's actual managed-OAuth client.",
+  "upstream_issue": "Deferred, not filed: installManagedPelotonBearer (internal/cli/peloton_oauth.go) installs pelotonTwoXXRoundTripper unconditionally on every managed-OAuth client (the CLI's only auth path, registered via registerClientHook). That transport converts any non-2xx HTTP response into a plain Go error before client.go's status-code-aware branches (isSyncAccessWarning's 403/400 access-warning classification, the 429 rate-limit backoff path, and the 5xx-specific retry path) ever see the real status code -- confirmed live and via a since-removed httptest-based test that only ever produced a generic \"managed Peloton HTTP response must be 2xx\" sync_error, never a sync_warning. resources_warned may therefore be unreachable in production despite this round's fix; a fix to the round tripper (preserve the real *http.Response for ordinary non-2xx codes, keep failing closed only on redirects, its stated purpose) needs its own focused round given the blast radius across retry/rate-limit/access-warning behavior for every command, not just sync."
+}

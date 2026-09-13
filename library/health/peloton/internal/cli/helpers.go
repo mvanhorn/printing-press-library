@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 	"unicode"
@@ -241,6 +242,71 @@ func syncWarningJSON(resource, parent string, status int, reason, message string
 	}
 	out, _ := json.Marshal(payload)
 	return string(out)
+}
+
+// warningResourceTrackingWriter wraps an io.Writer used as sync's event
+// stream and records the distinct resources named on any {"event":
+// "sync_warning",...} line written through it, without altering the bytes
+// passed through. It exists because a resource can emit one or more
+// sync_warning events mid-run (pagination cap hits, non-incremental
+// notices, cursor issues) while still finishing under sync_complete and
+// being tallied as a success -- sync_summary's resources_warned field (a
+// terminal-state count) can't see that. resources_with_warnings, driven by
+// this tracker, answers "how many resources warned at all", independent of
+// how each one ultimately finished. A single wrapping writer is used
+// (rather than threading a counter through every sync_warning emission
+// call site scattered across the flat/dependent pagination loops, several
+// of which run concurrently) since every one of those call sites already
+// funnels through this same writer.
+type warningResourceTrackingWriter struct {
+	io.Writer
+	mu     sync.Mutex
+	warned map[string]bool
+}
+
+func newWarningResourceTrackingWriter(w io.Writer) *warningResourceTrackingWriter {
+	return &warningResourceTrackingWriter{Writer: w, warned: map[string]bool{}}
+}
+
+// Write is called once per event line (fmt.Fprintf/Fprintln build the full
+// line before calling Write a single time), so p always holds exactly one
+// JSON event -- safe to parse directly rather than needing to buffer across
+// calls.
+func (w *warningResourceTrackingWriter) Write(p []byte) (int, error) {
+	if resource := syncWarningEventResource(p); resource != "" {
+		w.mu.Lock()
+		w.warned[resource] = true
+		w.mu.Unlock()
+	}
+	return w.Writer.Write(p)
+}
+
+// Count returns the number of distinct resources that have emitted at
+// least one sync_warning event so far. Safe to call once every goroutine
+// writing through this writer has completed (sync's flat phase joins its
+// worker pool, and the dependent phase runs synchronously, before
+// sync_summary is built).
+func (w *warningResourceTrackingWriter) Count() int {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return len(w.warned)
+}
+
+func syncWarningEventResource(line []byte) string {
+	if !bytes.Contains(line, []byte(`"event":"sync_warning"`)) {
+		return ""
+	}
+	var evt struct {
+		Event    string `json:"event"`
+		Resource string `json:"resource"`
+	}
+	if err := json.Unmarshal(bytes.TrimRight(line, "\n"), &evt); err != nil {
+		return ""
+	}
+	if evt.Event != "sync_warning" {
+		return ""
+	}
+	return evt.Resource
 }
 
 // syncCompleteEventJSON renders a sync_complete event for the flat-resource

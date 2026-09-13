@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bound-original-bytes-semantics-documented",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "original_bytes (on every envelope shape internal/mcp/bound emits) means the byte length of the JSON bound.go itself received as input -- after whatever field stripping/verbose-toggle stripping/select projection the caller already applied, before bound.go's own truncation -- never the raw upstream API response size. A regen must keep this documented at the point original_bytes is computed so the semantics don't need re-deriving from live measurement again.",
+  "reason": "Live testing that depends on original_bytes for cost-model measurement found its meaning ambiguous: a select-projected call read a small original_bytes (post-projection size) while an unprojected call read a much larger one (pre-projection, pre-bounding size) on the same underlying data, and both were technically correct under different unstated readings of the field. This is a documentation-only fix (no behavior change) recording the one definition both cases actually satisfy.",
+  "files": [
+    "internal/mcp/bound/bound.go"
+  ]
+}

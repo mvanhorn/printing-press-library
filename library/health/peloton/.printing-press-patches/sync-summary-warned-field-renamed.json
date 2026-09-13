@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-summary-warned-field-renamed",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "sync's {\"event\":\"sync_summary\",...} line names its warned-resource count resources_warned, not warned. A regen must keep this name and keep the count meaning \"resources whose run ended in a warning state\" (e.g. access-denied skips) rather than a raw tally of sync_warning lines -- a single resource can emit multiple sync_warning events (pagination cap hits, non-incremental notices, cursor issues) while still completing successfully and being counted under success instead.",
+  "reason": "Live testing found the plain warned field undercounted relative to the number of sync_warning lines actually seen in a run's event stream, since it only tallies resources whose terminal result carried a Warn, not every sync_warning event emitted along the way. Correctly counting total warning events would require instrumenting every sync_warning emission site across the flat/dependent pagination loops (several of which run concurrently), which is disproportionate for a low-priority cosmetic mismatch -- renaming to resources_warned and documenting the distinction in sync's own --help text resolves the ambiguity without that risk.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green; existing sync tests (channel_workflow_test.go, sync_hint_test.go) only assert on the sync_summary event name, not the field name, so no test changes were needed."
+}

@@ -81,7 +81,17 @@ Exit codes & warnings:
   access-policy body) are reported as warnings rather than failing the
   run. In --json mode each is emitted as a {"event":"sync_warning",...}
   line carrying status, reason, and message fields, and a final
-  {"event":"sync_summary",...} aggregates the run.
+  {"event":"sync_summary",...} aggregates the run, with two related but
+  distinct warning counts: resources_warned counts resources whose run
+  ended in a warning state (e.g. access-denied skips), while
+  resources_with_warnings counts resources that emitted at least one
+  sync_warning event anywhere during the run (pagination cap hits,
+  non-incremental notices, cursor issues) regardless of how they
+  finished. A resource capped by --max-pages/--max-parents still
+  completes and is tallied under success, so it can push
+  resources_with_warnings above resources_warned -- that gap is the
+  signal that some "successful" resource's data may be incomplete and
+  worth a closer look at the sync_warning lines themselves.
 
   Exit 0 when at least one resource synced and no resource flagged in
   the spec as critical (x-critical: true) failed; non-critical failures
@@ -215,7 +225,9 @@ account with tens of thousands of catalog classes synced.
 			}
 			defer db.Close()
 
-			syncEventWriter := cmd.OutOrStdout()
+			var syncEventWriter io.Writer = cmd.OutOrStdout()
+			warnedResourceTracker := newWarningResourceTrackingWriter(syncEventWriter)
+			syncEventWriter = warnedResourceTracker
 
 			// If no specific resources, sync top-level resources
 			if len(resources) == 0 {
@@ -484,8 +496,8 @@ account with tens of thousands of catalog classes synced.
 						totalSynced, totalResources, elapsed.Seconds())
 				}
 			} else {
-				fmt.Fprintf(syncEventWriter, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
-					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
+				fmt.Fprintf(syncEventWriter, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"resources_warned":%d,"resources_with_warnings":%d,"errored":%d,"duration_ms":%d}`+"\n",
+					totalSynced, totalResources, successCount, warnCount, warnedResourceTracker.Count(), errCount, elapsed.Milliseconds())
 			}
 
 			// Exit-code policy:

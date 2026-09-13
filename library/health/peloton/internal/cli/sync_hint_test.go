@@ -6,6 +6,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
 	"github.com/spf13/cobra"
@@ -249,5 +251,89 @@ func TestSyncFailedWorkoutsExitsNonZero(t *testing.T) {
 	defer db.Close()
 	if count, err := db.Count("classes"); err != nil || count == 0 {
 		t.Fatalf("classes count = %d, err = %v; classes should have synced despite workouts failing", count, err)
+	}
+}
+
+// accessDeniedFixtureClient satisfies the minimal interface syncResource
+// needs (Get + RateLimit), returning a *client.APIError on every call so
+// isSyncAccessWarning's classification can be exercised directly -- without
+// going through the real managed-OAuth HTTP transport. That transport
+// (installManagedPelotonBearer's pelotonTwoXXRoundTripper, the client's
+// only transport as of this writing: it is registered unconditionally via
+// registerClientHook and runs for every command) converts any non-2xx
+// response into a plain Go error before client.go's status-code-aware
+// retry/rate-limit/access-warning branches ever see it, which was found to
+// make isSyncAccessWarning's 403/400-access-denial path unreachable through
+// the real CLI end-to-end (confirmed live and via a since-removed
+// httptest-based version of this test, which only ever produced a generic
+// "network error ... must be 2xx" sync_error, never a sync_warning).
+// Fixing that transport is out of scope here (broad blast radius: it also
+// silently defeats 429 and 5xx-specific retry handling for every command,
+// not just sync) and tracked separately. This fixture isolates the
+// question this test answers: given a client that DOES preserve HTTP
+// status codes, does isSyncAccessWarning correctly classify a 403 as a
+// Warn (not an Err), and does the resources_warned/resources_with_warnings
+// counting machinery correctly reflect it.
+type accessDeniedFixtureClient struct{}
+
+func (accessDeniedFixtureClient) Get(_ context.Context, path string, _ map[string]string) (json.RawMessage, error) {
+	return nil, &client.APIError{Method: "GET", Path: path, StatusCode: 403, Body: `{"error":"forbidden"}`}
+}
+
+func (accessDeniedFixtureClient) RateLimit() float64 { return 0 }
+
+// TestSyncResourceClassifiesAccessDeniedAsWarnNotErr guards isSyncAccessWarning's
+// warn-and-continue contract at the syncResource level, independent of
+// whatever HTTP transport is in front of it: a 403 must produce
+// syncResult.Warn (not .Err), and must emit a sync_warning (not
+// sync_error) event line naming the resource.
+func TestSyncResourceClassifiesAccessDeniedAsWarnNotErr(t *testing.T) {
+	db := newSyncHintTestStore(t)
+	var events bytes.Buffer
+
+	res := syncResource(context.Background(), accessDeniedFixtureClient{}, db, "classes", "", false, 0, false, false, nil, &events)
+
+	if res.Err != nil {
+		t.Fatalf("syncResult.Err = %v, want nil (a 403 must warn, not error)", res.Err)
+	}
+	if res.Warn == nil {
+		t.Fatal("syncResult.Warn = nil, want non-nil for a 403 response")
+	}
+	if !strings.Contains(events.String(), `"event":"sync_warning"`) {
+		t.Fatalf("no sync_warning event emitted for the 403: %s", events.String())
+	}
+	if !strings.Contains(events.String(), `"resource":"classes"`) {
+		t.Fatalf("sync_warning event does not name the resource: %s", events.String())
+	}
+}
+
+// TestWarningResourceTrackingWriterCountsDistinctResourcesWithWarnings
+// guards resources_with_warnings' data source directly: it must count each
+// resource once regardless of how many sync_warning lines it emits, must
+// ignore non-warning event lines, and must still pass every byte through
+// unmodified (it wraps sync's real event stream, so altering output would
+// corrupt the NDJSON a caller parses).
+func TestWarningResourceTrackingWriterCountsDistinctResourcesWithWarnings(t *testing.T) {
+	var underlying bytes.Buffer
+	w := newWarningResourceTrackingWriter(&underlying)
+
+	lines := []string{
+		`{"event":"sync_start","resource":"classes"}` + "\n",
+		`{"event":"sync_warning","resource":"classes","reason":"max_pages_cap_hit","status":0,"message":"m"}` + "\n",
+		`{"event":"sync_warning","resource":"workouts","reason":"resource_not_incremental","status":0,"message":"m"}` + "\n",
+		`{"event":"sync_warning","resource":"classes","reason":"stuck_pagination","status":0,"message":"m"}` + "\n",
+		`{"event":"sync_complete","resource":"classes","total":5,"duration_ms":1}` + "\n",
+	}
+	for _, line := range lines {
+		if _, err := w.Write([]byte(line)); err != nil {
+			t.Fatalf("Write: %v", err)
+		}
+	}
+
+	if got := w.Count(); got != 2 {
+		t.Fatalf("Count() = %d, want 2 (classes, workouts)", got)
+	}
+	if underlying.String() != strings.Join(lines, "") {
+		t.Fatalf("wrapped writer altered the passed-through bytes:\ngot:  %q\nwant: %q", underlying.String(), strings.Join(lines, ""))
 	}
 }

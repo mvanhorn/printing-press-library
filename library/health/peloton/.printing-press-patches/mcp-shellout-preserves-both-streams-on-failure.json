@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mcp-shellout-preserves-both-streams-on-failure",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "RunCLICommand (internal/mcp/cobratree/shellout.go), the command-mirror shellout used by every non-typed MCP tool, now includes both stderr and stdout in the returned error when a failed subprocess wrote to both -- previously it picked stderr alone whenever non-empty, silently discarding a non-trivial stdout. A regen must keep the three-way switch (stderr-only, stdout-only, both) rather than reverting to stderr-priority.",
+  "reason": "Marking workouts a critical sync resource (see workouts-marked-critical-resource.json) made this pre-existing gap concretely reachable for the first time: a failed `workflow archive --json` now exits non-zero with a short cobra \"Error: ...\" summary on stderr, while the actual sync_error event naming which resource failed and why only exists in stdout's NDJSON stream. Live-tested: a caller got \"1 critical resource(s) failed to sync: workouts\" with no way to learn the underlying reason, where the same failure previously (when it exited 0) showed the full diagnosis in the visible event stream.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestRunCLICommandIncludesBothStreamsOnFailure drives a helper script that writes distinct content to both streams and asserts both appear in the returned error; existing stderr-only/stdout-only/bounded-output tests still pass unmodified."
+}

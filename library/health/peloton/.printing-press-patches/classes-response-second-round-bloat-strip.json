@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "classes-response-second-round-bloat-strip",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "rideArchivedRedundantFields (classes_catalog/classes_search top-level strip) adds browse_categories and fitness_disciplines -- the same category of static, per-call-identical catalog vocabulary as ride_types/class_types. classDetailStreamAndMediaFields adds live_stream_id, vod_stream_id, and user_caption_locales; instructorBioFields adds background, quote, music_bio, and eight instructor portrait/hero/list image URL fields. A regen touching these lists must keep this second round included -- it was found by live retesting after the first pass (duration/select/verbose-toggle work) still left the default response ~3.4x over the MCP tool budget.",
+  "reason": "Independent live retesting after the first Issue 2 fix measured the default classes_search response at 90,780 bytes for limit=20 (60,000-byte budget), decomposing to ~23.4 KB fixed cost (browse_categories/fitness_disciplines, missed entirely by the first pass) plus ~3,370 bytes/class (mostly the instructor image URLs and per-class stream ids/caption locales the first pass's field lists didn't cover).",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestClassesResponseStripsSecondRoundLiveConfirmedBloat covers all the newly-added field names: stripped by default, restored by the correct toggle, and not restored by the other toggle."
+}

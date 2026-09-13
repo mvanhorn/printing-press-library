@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-pagination-no-truncation-claim-when-satisfied",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "boundedPageListEnvelope's page cut is now classified into a pageCutCause (none / item-limit / byte-limit) rather than a single itemLimited bool. pageCutNone -- this call's own fetched batch was delivered in full, nothing held back -- suppresses truncated/page_size_capped/max_bytes/original_bytes entirely while still emitting next_cursor when more data exists further upstream (show_next). A regen touching fitJSONPageItems/boundedPageListEnvelope must keep the three-way classification, or a fully-satisfied request (e.g. a caller-chosen small limit, or a resumed page landing exactly on the last few items of a batch) goes back to falsely claiming a byte-budget or page-size cut that didn't happen on this call. Because classes_catalog/classes_search/workouts_list all share this one builder, the fix applies uniformly across all three without endpoint-specific code.",
+  "reason": "Live retesting after the page_size_capped fix (mcp-pagination-metadata-projection-and-honest-truncation.json) found one remaining false positive: a classes_search limit=20 call (20 of 20 delivered from a 226-record collection) and a workouts_list limit=1 call (1 of 1 delivered from 3,734) both reported truncated:true with byte-attribution fields and advice to narrow the request, even though nothing was cut from either call -- the previous itemLimited-only classification treated \"more exists upstream\" (nextUpstream non-empty) the same as \"this response was cut\", conflating two independent signals.",
+  "files": [
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestEndpointPageResponseNoTruncationClaimWhenRequestFullySatisfied reproduces the exact live-reported shape (small fully-delivered batch, more data upstream) and asserts truncated/page_size_capped/byte fields are all absent while next_cursor is still present; the existing page_size_capped and byte-limit tests confirm the other two causes are unaffected."
+}

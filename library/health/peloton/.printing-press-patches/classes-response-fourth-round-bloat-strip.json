@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "classes-response-fourth-round-bloat-strip",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "classAlwaysStripFields grows eight more constant/derivable per-class fields (rating, flags, total_following_workouts, sold_out, free_for_limited_time, fitness_discipline_display_name, captions, scheduled_start_time). A new classBooleanFlagFields (14 is_*/has_* fields with no selection value) gets its own include_flags toggle, deliberately excluding is_favorite -- the one flag with real filtering value -- which stays present unconditionally regardless of include_flags. A regen touching these lists must keep this fourth round included and must keep is_favorite out of classBooleanFlagFields specifically.",
+  "reason": "Independent live retesting after the third Issue 2 fix (classes-response-third-round-bloat-strip) found per-class marginal cost down from 3,370 to 1,630 bytes/class but still 2.78x over the 60,000-byte budget at limit=100, and supplied a ranked field list (constant/derivable fields, then the boolean-flag block) to close the remaining gap.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New tests TestClassAlwaysStripFieldsCoversFourthRoundConstantAndDerivableFields and TestClassesVerboseTogglesIncludeFlagsExcludesIsFavorite cover the new strip fields and the new toggle's is_favorite exception respectively."
+}

@@ -815,6 +815,103 @@ func TestStripTopLevelFieldsRemovesRedundantCatalogVocabulary(t *testing.T) {
 	}
 }
 
+// TestMCPToolPageResultTextArrayFieldHintHandlesResidualInstructorsArray
+// guards the live-tested Issue 10 fix: even after rideArchivedRedundantFields
+// strips ride_types/class_types/browse_categories/fitness_disciplines, a
+// real classes_catalog/classes_search response still carries a sibling
+// "instructors" array alongside "data" (unconditionally -- it isn't gated
+// by any toggle), so bound.go's auto-detecting single-array trimmer still
+// bails to a raw, non-resumable preview for any unprojected call large
+// enough to need trimming. classes_catalog/classes_search set
+// mcpPageConfig.ArrayField ("data") precisely so mcpToolPageResultText (the
+// function their real handler calls, since they always configure a
+// CursorParam) skips that ambiguous auto-detection and returns a proper
+// resumable envelope instead -- matching the better outcome a select-projected
+// call got only as an accidental side effect of select happening to drop
+// the "instructors" field.
+func TestMCPToolPageResultTextArrayFieldHintHandlesResidualInstructorsArray(t *testing.T) {
+	data := make([]map[string]string, 0, bound.MaxItems+25)
+	for i := 0; i < bound.MaxItems+25; i++ {
+		data = append(data, map[string]string{
+			"id": strings.Repeat("d", 8), "title": strings.Repeat("verbose class title ", 90),
+		})
+	}
+	instructors := make([]map[string]string, 0, 35)
+	for i := 0; i < 35; i++ {
+		instructors = append(instructors, map[string]string{"id": strings.Repeat("i", 8), "name": strings.Repeat("instructor name ", 5)})
+	}
+	fixture, err := json.Marshal(map[string]any{"data": data, "instructors": instructors})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	pageConfig := mcpPageConfig{CursorParam: "page", ArrayField: "data"}
+	text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "", false))
+
+	var envelope struct {
+		Data       []json.RawMessage `json:"data"`
+		Truncated  bool              `json:"truncated"`
+		NextCursor string            `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded page result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("expected truncation given %d oversized classes: %s", len(data), text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("ArrayField hint should make this resumable despite the sibling instructors array, not a dead-end preview: %s", text)
+	}
+	if len(envelope.Data) == 0 {
+		t.Fatalf("expected real class records under \"data\": %s", text)
+	}
+}
+
+// TestMCPToolPageResultTextRespectsExplicitSelectOfFirstPageOnlyField
+// guards a Greptile review finding on the FirstPageOnlyFields fix: a
+// caller resuming workouts_list with an explicit select naming "summary"
+// (e.g. select=data.id,summary) has made a deliberate ask for it on that
+// page, distinct from the unprojected-default-response repeated-overhead
+// case FirstPageOnlyFields exists to trim. mcpToolPageResultText must not
+// pass FirstPageOnlyFields through to bound.go at all when hasSelect is
+// true, or an explicit later-page select would silently return less than
+// it asked for.
+func TestMCPToolPageResultTextRespectsExplicitSelectOfFirstPageOnlyField(t *testing.T) {
+	fixture, err := json.Marshal(map[string]any{
+		"data": []map[string]string{{"id": "w1"}}, "summary": map[string]any{"jan": 5},
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+	pageConfig := mcpPageConfig{CursorParam: "page", ArrayField: "data", FirstPageOnlyFields: []string{"summary"}}
+
+	// A resumed call (non-empty cursor) with an explicit select asking for
+	// summary must keep it.
+	explicitText := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "some-cursor", true))
+	var explicit struct {
+		Summary map[string]any `json:"summary"`
+	}
+	if err := json.Unmarshal([]byte(explicitText), &explicit); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, explicitText)
+	}
+	if explicit.Summary == nil {
+		t.Fatalf("explicit select naming summary on a resumed call must keep it: %s", explicitText)
+	}
+
+	// The same resumed call with no select (the default, unprojected
+	// shape FirstPageOnlyFields targets) must still drop it.
+	defaultText := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "some-cursor", false))
+	var defaultResult struct {
+		Summary map[string]any `json:"summary"`
+	}
+	if err := json.Unmarshal([]byte(defaultText), &defaultResult); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, defaultText)
+	}
+	if defaultResult.Summary != nil {
+		t.Fatalf("unprojected resumed call should still drop summary: %s", defaultText)
+	}
+}
+
 // TestStripTopLevelFieldsIsNoOpWhenFieldsAbsentOrNotAnObject guards the
 // helper's safety contract: it must never alter a payload with none of the
 // named fields, and must never panic or corrupt a payload that isn't a JSON
@@ -1238,6 +1335,276 @@ func TestApplyVerboseFieldTogglesEachOptInIsIndependent(t *testing.T) {
 	}
 }
 
+// TestClassesResponseStripsSecondRoundLiveConfirmedBloat guards a second
+// round of independent live testing after the first fix shipped: the
+// default response was still ~3.4x over the MCP tool budget, from fields
+// the first pass missed entirely. browse_categories/fitness_disciplines are
+// top-level catalog vocabulary (same category as the already-stripped
+// ride_types/class_types, ~23.4 KB of fixed per-call cost measured live);
+// the rest are per-class/per-instructor fields gated by the existing
+// verbose toggles, expanded to cover what live testing actually found in
+// the response.
+func TestClassesResponseStripsSecondRoundLiveConfirmedBloat(t *testing.T) {
+	fixture := json.RawMessage(`{
+		"data": [
+			{
+				"id": "1", "title": "Class One",
+				"live_stream_id": "ls-1", "vod_stream_id": "vs-1",
+				"user_caption_locales": [{"locale": "en-US", "display_name": "English"}]
+			}
+		],
+		"ride_types": [{"id": "rt1"}],
+		"class_types": [{"id": "ct1"}],
+		"browse_categories": [{"id": "cycling", "name": "Cycling", "icon_url": "https://example.test/icon.png"}],
+		"fitness_disciplines": [{"id": "cycling", "name": "Cycling"}],
+		"instructors": [
+			{
+				"id": "i1", "name": "Instructor One",
+				"background": "a long background", "quote": "a quote", "music_bio": "a music bio",
+				"about_image_url": "https://example.test/about.png",
+				"instructor_hero_image_url": "https://example.test/hero.png",
+				"jumbotron_url_dark": "https://example.test/jumbo-dark.png",
+				"jumbotron_url_ios": "https://example.test/jumbo-ios.png",
+				"life_style_image_url": "https://example.test/lifestyle.png",
+				"ios_instructor_list_display_image_url": "https://example.test/ios-list.png",
+				"web_instructor_list_display_image_url": "https://example.test/web-list.png",
+				"web_instructor_list_gif_image_url": "https://example.test/web-list.gif"
+			}
+		]
+	}`)
+
+	// rideArchivedRedundantFields is applied via stripTopLevelFields
+	// (top-level, unconditional), matching how classes_catalog/
+	// classes_search actually call it.
+	stripped := stripTopLevelFields(fixture, rideArchivedRedundantFields)
+	for _, wantAbsent := range []string{"ride_types", "class_types", "browse_categories", "fitness_disciplines"} {
+		if strings.Contains(string(stripped), wantAbsent) {
+			t.Fatalf("rideArchivedRedundantFields did not strip top-level %q: %s", wantAbsent, stripped)
+		}
+	}
+
+	stripped = applyVerboseFieldToggles(stripped, map[string]any{}, classesVerboseToggles)
+	for _, wantAbsent := range []string{
+		"live_stream_id", "vod_stream_id", "user_caption_locales",
+		"background", "\"quote\"", "music_bio",
+		"about_image_url", "instructor_hero_image_url", "jumbotron_url_dark", "jumbotron_url_ios",
+		"life_style_image_url", "ios_instructor_list_display_image_url",
+		"web_instructor_list_display_image_url", "web_instructor_list_gif_image_url",
+	} {
+		if strings.Contains(string(stripped), wantAbsent) {
+			t.Fatalf("default (unincluded) response still contains %q: %s", wantAbsent, stripped)
+		}
+	}
+	for _, wantPresent := range []string{"\"id\":\"1\"", "\"title\":\"Class One\"", "\"name\":\"Instructor One\""} {
+		if !strings.Contains(string(stripped), wantPresent) {
+			t.Fatalf("stripping removed a field it shouldn't have (missing %q): %s", wantPresent, stripped)
+		}
+	}
+
+	// include_stream_urls=true must restore the new stream-adjacent
+	// fields (live_stream_id/vod_stream_id/user_caption_locales) without
+	// restoring instructor bio fields.
+	streamRestored := applyVerboseFieldToggles(stripTopLevelFields(fixture, rideArchivedRedundantFields), map[string]any{"include_stream_urls": true}, classesVerboseToggles)
+	for _, want := range []string{"live_stream_id", "vod_stream_id", "user_caption_locales"} {
+		if !strings.Contains(string(streamRestored), want) {
+			t.Fatalf("include_stream_urls=true did not restore %q: %s", want, streamRestored)
+		}
+	}
+	if strings.Contains(string(streamRestored), "instructor_hero_image_url") {
+		t.Fatalf("include_stream_urls=true unexpectedly also restored an instructor bio field: %s", streamRestored)
+	}
+
+	// include_instructor_bios=true must restore the new instructor fields
+	// without restoring stream-adjacent fields.
+	biosRestored := applyVerboseFieldToggles(stripTopLevelFields(fixture, rideArchivedRedundantFields), map[string]any{"include_instructor_bios": true}, classesVerboseToggles)
+	for _, want := range []string{"background", "music_bio", "instructor_hero_image_url", "web_instructor_list_gif_image_url"} {
+		if !strings.Contains(string(biosRestored), want) {
+			t.Fatalf("include_instructor_bios=true did not restore %q: %s", want, biosRestored)
+		}
+	}
+	if strings.Contains(string(biosRestored), "live_stream_id") {
+		t.Fatalf("include_instructor_bios=true unexpectedly also restored a stream-adjacent field: %s", biosRestored)
+	}
+}
+
+// TestClassAlwaysStripFieldsRemovesConstantEmptyAndDuplicateFieldsUnconditionally
+// guards a third round of independent live testing: a set of per-class
+// fields that are either always empty across every observed class or exact
+// duplicates of a sibling field already kept (difficulty_rating_avg/
+// overall_rating_avg/ride_type_ids). Unlike the verboseFieldToggle-gated
+// categories, no argument restores these -- there is no scenario where a
+// caller wants an always-empty field or a value already present under
+// another name, so deepStripFields is applied unconditionally.
+func TestClassAlwaysStripFieldsRemovesConstantEmptyAndDuplicateFieldsUnconditionally(t *testing.T) {
+	fixture := json.RawMessage(`{
+		"data": [
+			{
+				"id": "1", "title": "Class One",
+				"conflicted_movement_preferences": [], "muscle_group_score": null,
+				"equipment_ids": [], "equipment_tags": [], "extra_images": [],
+				"dynamic_video_recorded_speed_in_mph": null,
+				"distance": null, "distance_display_value": "", "distance_unit": null,
+				"thumbnail_location": null, "thumbnail_title": "",
+				"difficulty_estimate": 2.5, "difficulty_rating_avg": 2.5,
+				"overall_estimate": 4.1, "overall_rating_avg": 4.1,
+				"class_type_ids": ["ct1"], "ride_type_ids": ["rt1"], "ride_type_id": "rt1"
+			}
+		]
+	}`)
+
+	stripped := deepStripFields(fixture, classAlwaysStripFields)
+	strippedText := string(stripped)
+	for _, wantAbsent := range classAlwaysStripFields {
+		if strings.Contains(strippedText, "\""+wantAbsent+"\"") {
+			t.Fatalf("classAlwaysStripFields did not strip %q: %s", wantAbsent, strippedText)
+		}
+	}
+	for _, wantPresent := range []string{"\"id\":\"1\"", "difficulty_rating_avg", "overall_rating_avg", "ride_type_ids"} {
+		if !strings.Contains(strippedText, wantPresent) {
+			t.Fatalf("classAlwaysStripFields removed a field it shouldn't have (missing %q): %s", wantPresent, strippedText)
+		}
+	}
+}
+
+// TestClassesVerboseTogglesIncludeInternalIds guards the third opt-in
+// category found by the same round of live testing: internal cross-
+// reference identifiers (home/studio location ids, series grouping id,
+// content licensing tier, origin locale) that -- unlike
+// classAlwaysStripFields -- have no alternate source, so they stay
+// recoverable via include_internal_ids rather than being stripped for good.
+func TestClassesVerboseTogglesIncludeInternalIds(t *testing.T) {
+	fixture := json.RawMessage(`{
+		"data": [
+			{
+				"id": "1", "title": "Class One",
+				"home_peloton_id": "hp-1", "studio_peloton_id": "sp-1",
+				"series_id": "series-1", "content_availability_level": "premium",
+				"origin_locale": "en-US"
+			}
+		]
+	}`)
+
+	stripped := applyVerboseFieldToggles(fixture, map[string]any{}, classesVerboseToggles)
+	for _, wantAbsent := range classInternalIdentifierFields {
+		if strings.Contains(string(stripped), wantAbsent) {
+			t.Fatalf("default (unincluded) response still contains %q: %s", wantAbsent, stripped)
+		}
+	}
+
+	restored := applyVerboseFieldToggles(fixture, map[string]any{"include_internal_ids": true}, classesVerboseToggles)
+	for _, want := range classInternalIdentifierFields {
+		if !strings.Contains(string(restored), want) {
+			t.Fatalf("include_internal_ids=true did not restore %q: %s", want, restored)
+		}
+	}
+}
+
+// TestInstructorBioFieldsCoversThirdRoundLiveConfirmedFields guards the
+// additional instructor fields found alongside classAlwaysStripFields and
+// classInternalIdentifierFields in the same round of live testing: two
+// missed image URLs plus a block of social/media links, playback defaults,
+// and admin/catalog bookkeeping fields.
+func TestInstructorBioFieldsCoversThirdRoundLiveConfirmedFields(t *testing.T) {
+	for _, want := range []string{
+		"jumbotron_url", "bike_instructor_list_display_image_url",
+		"film_link", "facebook_fan_page", "instagram_profile",
+		"twitter_profile", "strava_profile", "spotify_playlist_uri",
+		"default_cross_fade", "default_cue_delay",
+		"coach_type", "individual_instructor_ids", "featured_profile",
+		"is_announced", "is_filterable", "is_instructor_group",
+		"is_visible", "list_order",
+	} {
+		found := false
+		for _, f := range instructorBioFields {
+			if f == want {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("instructorBioFields is missing third-round field %q", want)
+		}
+	}
+}
+
+// TestClassAlwaysStripFieldsCoversFourthRoundConstantAndDerivableFields
+// guards a fourth round of independent live testing: a further set of
+// per-class fields confirmed constant (rating, flags,
+// total_following_workouts, sold_out, free_for_limited_time) or derivable
+// from/redundant with a kept sibling (fitness_discipline_display_name,
+// captions, scheduled_start_time, alongside the kept fitness_discipline and
+// original_air_time). Like the third-round additions, no argument restores
+// these.
+func TestClassAlwaysStripFieldsCoversFourthRoundConstantAndDerivableFields(t *testing.T) {
+	fixture := json.RawMessage(`{
+		"data": [
+			{
+				"id": "1", "title": "Class One",
+				"rating": 0, "flags": [], "total_following_workouts": 0,
+				"fitness_discipline": "cycling", "fitness_discipline_display_name": "Cycling",
+				"captions": [{"locale": "en-US"}], "has_closed_captions": true,
+				"original_air_time": 1700000000, "scheduled_start_time": 1700000003,
+				"sold_out": false, "free_for_limited_time": false
+			}
+		]
+	}`)
+
+	stripped := deepStripFields(fixture, classAlwaysStripFields)
+	strippedText := string(stripped)
+	for _, wantAbsent := range []string{
+		"rating", "\"flags\"", "total_following_workouts",
+		"fitness_discipline_display_name", "captions", "scheduled_start_time",
+		"sold_out", "free_for_limited_time",
+	} {
+		if strings.Contains(strippedText, "\""+strings.Trim(wantAbsent, "\"")+"\"") {
+			t.Fatalf("classAlwaysStripFields did not strip %s: %s", wantAbsent, strippedText)
+		}
+	}
+	for _, wantPresent := range []string{"\"id\":\"1\"", "fitness_discipline\":\"cycling\"", "has_closed_captions", "original_air_time"} {
+		if !strings.Contains(strippedText, wantPresent) {
+			t.Fatalf("classAlwaysStripFields removed a field it shouldn't have (missing %q): %s", wantPresent, strippedText)
+		}
+	}
+}
+
+// TestClassesVerboseTogglesIncludeFlagsExcludesIsFavorite guards the fourth
+// opt-in category found by the same round of live testing: a block of
+// is_*/has_* boolean fields with no selection value, gated by
+// include_flags. is_favorite is deliberately excluded from
+// classBooleanFlagFields (it's the one flag with real selection value) so
+// it must survive both with and without include_flags set.
+func TestClassesVerboseTogglesIncludeFlagsExcludesIsFavorite(t *testing.T) {
+	fixture := json.RawMessage(`{
+		"data": [
+			{
+				"id": "1", "title": "Class One",
+				"is_favorite": true, "is_archived": false,
+				"has_closed_captions": true, "has_pedaling_metrics": true
+			}
+		]
+	}`)
+
+	stripped := applyVerboseFieldToggles(fixture, map[string]any{}, classesVerboseToggles)
+	for _, wantAbsent := range classBooleanFlagFields {
+		if strings.Contains(string(stripped), "\""+wantAbsent+"\"") {
+			t.Fatalf("default (unincluded) response still contains %q: %s", wantAbsent, stripped)
+		}
+	}
+	if !strings.Contains(string(stripped), `"is_favorite":true`) {
+		t.Fatalf("is_favorite must survive stripping unconditionally: %s", stripped)
+	}
+
+	restored := applyVerboseFieldToggles(fixture, map[string]any{"include_flags": true}, classesVerboseToggles)
+	for _, want := range []string{"is_archived", "has_closed_captions", "has_pedaling_metrics"} {
+		if !strings.Contains(string(restored), want) {
+			t.Fatalf("include_flags=true did not restore %q: %s", want, restored)
+		}
+	}
+	if !strings.Contains(string(restored), `"is_favorite":true`) {
+		t.Fatalf("is_favorite must still be present with include_flags=true: %s", restored)
+	}
+}
+
 // TestReservedMCPMetaArgsIncludesEveryVerboseToggle guards the other half of
 // the same review finding: include_stream_urls/include_instructor_bios are
 // MCP-only response-shaping arguments, not real Peloton API parameters, so
@@ -1274,6 +1641,8 @@ func TestClassesCatalogAndSearchDeclareSelectAndVerboseToggles(t *testing.T) {
 		"select":                  "string",
 		"include_stream_urls":     "boolean",
 		"include_instructor_bios": "boolean",
+		"include_internal_ids":    "boolean",
+		"include_flags":           "boolean",
 	}
 	for _, toolName := range []string{"classes_catalog", "classes_search", "classes_show", "classes_structure"} {
 		tool, ok := tools[toolName]

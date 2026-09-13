@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "mcp-array-field-hint-avoids-multiarray-preview-fallback",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "bound.PageOptions/mcpPageConfig carry an optional ArrayField hint naming the response's real item-list key directly, bypassing boundedSingleArrayPageObject's auto-detect scan (which bails to a dead-end, non-resumable preview as soon as a second top-level array field is present). classes_catalog, classes_search, and workouts_list set ArrayField to \"data\" -- their real response always carries a sibling array (\"instructors\" on the classes tools) regardless of query, so a regen must keep this hint wired or unprojected oversized responses on these three tools silently lose pagination and fall back to an unparsable raw preview.",
+  "reason": "Live retesting found an unprojected classes_search call over budget returned a raw, non-resumable preview blob, while the same call with select=data.id took the proper resumable next_cursor envelope -- purely because select happened to drop the sibling \"instructors\" array and leave exactly one top-level array field, which is what the underlying auto-detect heuristic actually requires. Naming the item field directly for these known-shape endpoints makes unprojected and projected calls equally resumable.",
+  "files": [
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New tests TestEndpointPageResponseArrayFieldHintSurvivesASiblingArray (bound package) and TestMCPToolPageResultTextArrayFieldHintHandlesResidualInstructorsArray (mcp package) both drive a data+instructors fixture through the real production call path and assert a resumable next_cursor envelope, not a preview."
+}

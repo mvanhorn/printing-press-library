@@ -286,8 +286,15 @@ func SplitShellArgs(s string) []string {
 }
 
 // RunCLICommand executes the companion CLI while preserving stdout as the
-// machine-readable channel. Stderr is included only in error text so post-run
-// telemetry or quota output cannot corrupt JSON results.
+// machine-readable channel. On success, only stdout is returned -- stderr
+// (telemetry, progress lines) never corrupts the JSON result. On failure,
+// both streams matter and neither is dropped: a command like `workflow
+// archive --json` can write a short human-readable summary to stderr (e.g.
+// cobra's own "Error: ..." top-level print) while the real diagnosis -- the
+// specific sync_error event naming which resource failed and why -- only
+// exists in stdout's NDJSON event stream. Returning just the stderr summary
+// and discarding a non-trivial stdout would leave a caller with an accurate
+// but undiagnosable failure.
 func RunCLICommand(ctx context.Context, binPath string, args []string) (string, error) {
 	cmd := exec.CommandContext(ctx, binPath, args...) // #nosec G204 -- trusted companion CLI path, args pre-tokenized.
 	stdout := newCappedCapture()
@@ -298,18 +305,17 @@ func RunCLICommand(ctx context.Context, binPath string, args []string) (string, 
 	stdoutText := stdout.String()
 	if err != nil {
 		stderrText := strings.TrimSpace(stderr.String())
-		msg := stderrText
-		if msg == "" {
-			msg = strings.TrimSpace(stdoutText)
+		stdoutTrimmed := strings.TrimSpace(stdoutText)
+		switch {
+		case stderrText != "" && stdoutTrimmed != "":
+			return stdoutText, fmt.Errorf("cli %s: %w (stderr: %s) (stdout: %s)", binPath, err, bound.Text(stderrText), bound.Text(stdoutTrimmed))
+		case stderrText != "":
+			return stdoutText, fmt.Errorf("cli %s: %w (stderr: %s)", binPath, err, bound.Text(stderrText))
+		case stdoutTrimmed != "":
+			return stdoutText, fmt.Errorf("cli %s: %w (output: %s)", binPath, err, bound.Text(stdoutTrimmed))
+		default:
+			return stdoutText, fmt.Errorf("cli %s: %w", binPath, err)
 		}
-		if msg != "" {
-			label := "stderr"
-			if stderrText == "" {
-				label = "output"
-			}
-			return stdoutText, fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, bound.Text(msg))
-		}
-		return stdoutText, fmt.Errorf("cli %s: %w", binPath, err)
 	}
 	return stdoutText, nil
 }

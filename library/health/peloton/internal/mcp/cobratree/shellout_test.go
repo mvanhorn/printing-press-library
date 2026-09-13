@@ -681,6 +681,28 @@ func TestRunCLICommandFallsBackToStdoutOnFailureWithoutStderr(t *testing.T) {
 	}
 }
 
+// TestRunCLICommandIncludesBothStreamsOnFailure guards a live-tested
+// regression: a command like `workflow archive --json` can write a short
+// human-readable summary to stderr (cobra's own top-level "Error: ..."
+// print) while stdout's NDJSON event stream carries the actual diagnosis --
+// which resource failed and why. The prior behavior used stderr alone
+// whenever it was non-empty, discarding a non-trivial stdout entirely, so a
+// caller saw only "1 critical resource(s) failed to sync: workouts" with no
+// way to learn the underlying reason the real sync_error event named.
+func TestRunCLICommandIncludesBothStreamsOnFailure(t *testing.T) {
+	bin := writeShelloutHelper(t, "fail-both")
+	_, err := RunCLICommand(context.Background(), bin, nil)
+	if err == nil {
+		t.Fatal("RunCLICommand fail-both succeeded unexpectedly")
+	}
+	if !strings.Contains(err.Error(), "1 critical resource(s) failed to sync: workouts") {
+		t.Fatalf("error dropped the stderr summary: %v", err)
+	}
+	if !strings.Contains(err.Error(), "sync_error") || !strings.Contains(err.Error(), "the real reason") {
+		t.Fatalf("error dropped the stdout diagnosis: %v", err)
+	}
+}
+
 func TestRunCLICommandBoundsFailureOutput(t *testing.T) {
 	for _, mode := range []string{"fail-large-stderr", "fail-large-stdout"} {
 		t.Run(mode, func(t *testing.T) {
@@ -716,6 +738,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 			body = "@echo off\r\nfor /L %%i in (1,1,70000) do <nul set /p =x 1>&2\r\nexit /b 7\r\n"
 		case "fail-large-stdout":
 			body = "@echo off\r\nfor /L %%i in (1,1,70000) do <nul set /p =x\r\nexit /b 7\r\n"
+		case "fail-both":
+			body = "@echo off\r\necho {\"event\":\"sync_error\",\"resource\":\"workouts\",\"error\":\"the real reason\"}\r\necho Error: 1 critical resource(s) failed to sync: workouts 1>&2\r\nexit /b 1\r\n"
 		default:
 			t.Fatalf("unknown mode %q", mode)
 		}
@@ -737,6 +761,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 		body = "#!/bin/sh\nhead -c 70000 /dev/zero | tr '\\000' x >&2\nexit 7\n"
 	case "fail-large-stdout":
 		body = "#!/bin/sh\nhead -c 70000 /dev/zero | tr '\\000' x\nexit 7\n"
+	case "fail-both":
+		body = "#!/bin/sh\necho '{\"event\":\"sync_error\",\"resource\":\"workouts\",\"error\":\"the real reason\"}'\necho 'Error: 1 critical resource(s) failed to sync: workouts' >&2\nexit 1\n"
 	default:
 		t.Fatalf("unknown mode %q", mode)
 	}

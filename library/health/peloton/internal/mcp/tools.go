@@ -61,7 +61,11 @@ const (
 // vocabulary already available in full via classes_filters (see
 // makeAPIHandlerStripFields's doc comment for why these must be stripped
 // rather than left for the shared MCP response trimmer to sort out).
-var rideArchivedRedundantFields = []string{"ride_types", "class_types"}
+// browse_categories/fitness_disciplines confirmed via live testing: fixed
+// per-call cost (a 15-entry list with several CDN image URLs each,
+// identical regardless of query) accounting for a measured ~23.4 KB of
+// fixed boilerplate on top of the already-stripped ride_types/class_types.
+var rideArchivedRedundantFields = []string{"ride_types", "class_types", "browse_categories", "fitness_disciplines"}
 
 // verboseFieldToggle pairs an opt-in MCP boolean argument with the field
 // names it controls. When the argument is absent or false,
@@ -85,28 +89,124 @@ type verboseFieldToggle struct {
 // information relevant to choosing a class, while dominating response size:
 // a 100-item classes_search result measured 454,819 bytes against a
 // 60,000-byte MCP tool budget (~4.5 KB/class), most of it these fields
-// repeated per class. Gated by the include_stream_urls MCP argument
-// (default: stripped).
+// repeated per class. live_stream_id/vod_stream_id and
+// user_caption_locales were found in a second round of live testing
+// (id counterparts to the already-listed *_url fields, and per-class
+// caption display names in four languages -- the locale codes a caller
+// would actually want are already present in the sibling "captions"
+// field, which this leaves untouched). Gated by the include_stream_urls
+// MCP argument (default: stripped).
 var classDetailStreamAndMediaFields = []string{
 	"vod_stream_url", "live_stream_url", "preview_stream_url",
 	"sample_vod_stream_url", "sample_preview_stream_url",
-	"join_tokens", "image_url",
+	"live_stream_id", "vod_stream_id",
+	"join_tokens", "image_url", "user_caption_locales",
 }
 
-// instructorBioFields are large instructor sub-fields confirmed via the same
-// live testing: a full bio, an ordered Q&A array, and a 12-entry
-// mostly-identical default Strava placeholder image array, repeated for
-// every instructor in a result set regardless of query. Gated by the
-// include_instructor_bios MCP argument (default: stripped).
-var instructorBioFields = []string{"bio", "short_bio", "ordered_q_and_as", "workout_share_images"}
+// instructorBioFields are large instructor sub-fields confirmed via live
+// testing: a full bio, background, quote, an ordered Q&A array, a 12-entry
+// mostly-identical default Strava placeholder image array, and (found in a
+// second round of live testing) music_bio plus eight portrait/hero/list
+// image URL fields -- all repeated in full for every instructor in a
+// result set regardless of query. A third round of live testing found two
+// more missed image URLs (jumbotron_url, bike_instructor_list_display_image_url)
+// plus a block of social/media links (film_link, facebook_fan_page,
+// instagram_profile, twitter_profile, strava_profile, spotify_playlist_uri),
+// playback defaults (default_cross_fade, default_cue_delay), and
+// admin/catalog bookkeeping fields (coach_type, individual_instructor_ids,
+// featured_profile, is_announced, is_filterable, is_instructor_group,
+// is_visible, list_order) that carry no information relevant to choosing a
+// class. Gated by the include_instructor_bios MCP argument (default:
+// stripped).
+var instructorBioFields = []string{
+	"bio", "short_bio", "background", "quote", "music_bio",
+	"ordered_q_and_as", "workout_share_images",
+	"about_image_url", "instructor_hero_image_url",
+	"jumbotron_url_dark", "jumbotron_url_ios", "life_style_image_url",
+	"ios_instructor_list_display_image_url",
+	"web_instructor_list_display_image_url",
+	"web_instructor_list_gif_image_url",
+	"jumbotron_url", "bike_instructor_list_display_image_url",
+	"film_link", "facebook_fan_page", "instagram_profile",
+	"twitter_profile", "strava_profile", "spotify_playlist_uri",
+	"default_cross_fade", "default_cue_delay",
+	"coach_type", "individual_instructor_ids", "featured_profile",
+	"is_announced", "is_filterable", "is_instructor_group",
+	"is_visible", "list_order",
+}
 
-// classesVerboseToggles wires classDetailStreamAndMediaFields and
-// instructorBioFields to their MCP boolean arguments; shared by
+// classInternalIdentifierFields are per-class cross-reference identifiers
+// confirmed via a third round of live testing to carry no information
+// relevant to choosing or describing a class for a conversational caller:
+// internal studio/home-location ids, a series grouping id, a content
+// licensing tier, and an origin locale code. Unlike
+// classDetailStreamAndMediaFields/instructorBioFields these have no
+// alternate source a caller could fall back to, so (matching that same
+// precedent rather than classAlwaysStripFields' unconditional strip) they
+// stay recoverable via the include_internal_ids MCP argument (default:
+// stripped).
+var classInternalIdentifierFields = []string{
+	"home_peloton_id", "studio_peloton_id", "series_id",
+	"content_availability_level", "origin_locale",
+}
+
+// classAlwaysStripFields are per-class fields confirmed via a third and
+// fourth round of live testing to be either always empty/constant across
+// every observed class (conflicted_movement_preferences, muscle_group_score,
+// equipment_ids, equipment_tags, extra_images,
+// dynamic_video_recorded_speed_in_mph, distance, distance_display_value,
+// distance_unit, thumbnail_location, thumbnail_title, rating, flags,
+// total_following_workouts, sold_out, free_for_limited_time) or exact/
+// near-exact duplicates of a sibling field already kept (difficulty_estimate/
+// overall_estimate duplicate difficulty_rating_avg/overall_rating_avg;
+// class_type_ids/ride_type_id duplicate ride_type_ids;
+// fitness_discipline_display_name is derivable from fitness_discipline;
+// captions is largely redundant with the has_closed_captions flag;
+// scheduled_start_time duplicates original_air_time to within seconds).
+// Stripped unconditionally -- no MCP argument restores these, since (unlike
+// classDetailStreamAndMediaFields/instructorBioFields/
+// classInternalIdentifierFields/classBooleanFlagFields) there is no scenario
+// where a caller wants an always-empty/constant field or a value already
+// present under another name.
+var classAlwaysStripFields = []string{
+	"conflicted_movement_preferences", "muscle_group_score",
+	"equipment_ids", "equipment_tags", "extra_images",
+	"dynamic_video_recorded_speed_in_mph",
+	"distance", "distance_display_value", "distance_unit",
+	"thumbnail_location", "thumbnail_title",
+	"difficulty_estimate", "overall_estimate",
+	"class_type_ids", "ride_type_id",
+	"rating", "flags", "total_following_workouts",
+	"fitness_discipline_display_name", "captions", "scheduled_start_time",
+	"sold_out", "free_for_limited_time",
+}
+
+// classBooleanFlagFields are per-class is_*/has_* boolean fields confirmed
+// via a fourth round of live testing to carry no information relevant to
+// choosing a class for a conversational caller. is_favorite is deliberately
+// excluded from this list -- it's the one flag with real selection value
+// (a caller filtering on bookmarked classes needs it) so it's always kept
+// rather than gated. Gated by the include_flags MCP argument (default:
+// stripped).
+var classBooleanFlagFields = []string{
+	"is_archived", "is_closed_caption_shown", "is_dynamic_video_eligible",
+	"is_explicit", "is_fixed_distance", "is_limited_ride",
+	"is_live_in_studio_only", "is_made_for_radio", "is_outdoor",
+	"is_sessions_eligible",
+	"has_closed_captions", "has_free_mode", "has_pedaling_metrics",
+	"has_tread_pace_target",
+}
+
+// classesVerboseToggles wires classDetailStreamAndMediaFields,
+// instructorBioFields, classInternalIdentifierFields, and
+// classBooleanFlagFields to their MCP boolean arguments; shared by
 // classes_catalog, classes_search, classes_show, and classes_structure,
 // which all return either a Class or a ClassDetail shape.
 var classesVerboseToggles = []verboseFieldToggle{
 	{ArgName: "include_stream_urls", Fields: classDetailStreamAndMediaFields},
 	{ArgName: "include_instructor_bios", Fields: instructorBioFields},
+	{ArgName: "include_internal_ids", Fields: classInternalIdentifierFields},
+	{ArgName: "include_flags", Fields: classBooleanFlagFields},
 }
 
 // deepStripFields recursively removes the named keys from data at every
@@ -206,7 +306,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_catalog",
-			mcplib.WithDescription("List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 10 more). Returns array of Class."),
+			mcplib.WithDescription("List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 12 more). Returns array of Class."),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Required catalog category.")),
 			mcplib.WithString("content_format", mcplib.Required(), mcplib.Description("Required provider content format.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -219,14 +319,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithBoolean("has_workout", mcplib.Description("Optional tri-state filter: true for classes you've already taken, false for classes you haven't. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
 			mcplib.WithBoolean("is_favorite_ride", mcplib.Description("Optional tri-state filter: true for bookmarked classes, false for not-bookmarked. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
 			mcplib.WithString("select", mcplib.Description(selectParamDescriptionDataWrapped)),
-			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include per-class stream/playback URLs and join tokens. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included).")),
-			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query.")),
+			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include per-class stream/playback URLs and IDs, join tokens, and caption locale display names. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included).")),
+			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include each instructor's full bio, background, quote, Q&A, share-image array, and portrait/hero/list image URLs. Default false: these repeat in full for every instructor in the result set regardless of query.")),
+			mcplib.WithBoolean("include_internal_ids", mcplib.Description("Include internal cross-reference identifiers per class: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false: not useful for choosing a class; recoverable via this flag when needed.")),
+			mcplib.WithBoolean("include_flags", mcplib.Description("Include per-class is_*/has_* boolean fields (archived, closed_caption_shown, dynamic_video_eligible, explicit, fixed_distance, limited_ride, live_in_studio_only, made_for_radio, outdoor, sessions_eligible, closed_captions, free_mode, pedaling_metrics, tread_pace_target). Default false: not useful for choosing a class. is_favorite is always present regardless of this flag.")),
 			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandlerVerbose("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}, {PublicName: "duration", WireName: "duration", Location: "query"}, {PublicName: "super_genre_id", WireName: "super_genre_id", Location: "query"}, {PublicName: "has_workout", WireName: "has_workout", Location: "query"}, {PublicName: "is_favorite_ride", WireName: "is_favorite_ride", Location: "query"}}, []string{}, rideArchivedRedundantFields, classesVerboseToggles),
+		makeAPIHandlerVerbose("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: "", ArrayField: "data", NextPageIndicatorPath: "show_next", CurrentPageNumberPath: "page"}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}, {PublicName: "duration", WireName: "duration", Location: "query"}, {PublicName: "super_genre_id", WireName: "super_genre_id", Location: "query"}, {PublicName: "has_workout", WireName: "has_workout", Location: "query"}, {PublicName: "is_favorite_ride", WireName: "is_favorite_ride", Location: "query"}}, []string{}, rideArchivedRedundantFields, classesVerboseToggles),
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_filters",
@@ -243,7 +345,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_search",
-			mcplib.WithDescription("Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 10 more). Returns array of Class."),
+			mcplib.WithDescription("Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 12 more). Returns array of Class."),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Required catalog category.")),
 			mcplib.WithString("content_format", mcplib.Required(), mcplib.Description("Required provider content format.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -256,22 +358,26 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithBoolean("has_workout", mcplib.Description("Optional tri-state filter: true for classes you've already taken, false for classes you haven't. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
 			mcplib.WithBoolean("is_favorite_ride", mcplib.Description("Optional tri-state filter: true for bookmarked classes, false for not-bookmarked. Omitting the parameter leaves it unfiltered -- omitted and false are different queries.")),
 			mcplib.WithString("select", mcplib.Description(selectParamDescriptionDataWrapped)),
-			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include per-class stream/playback URLs and join tokens. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included).")),
-			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query.")),
+			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include per-class stream/playback URLs and IDs, join tokens, and caption locale display names. Default false: these carry no information relevant to choosing a class and dominate response size (measured ~4.5 KB/class with them included).")),
+			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include each instructor's full bio, background, quote, Q&A, share-image array, and portrait/hero/list image URLs. Default false: these repeat in full for every instructor in the result set regardless of query.")),
+			mcplib.WithBoolean("include_internal_ids", mcplib.Description("Include internal cross-reference identifiers per class: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false: not useful for choosing a class; recoverable via this flag when needed.")),
+			mcplib.WithBoolean("include_flags", mcplib.Description("Include per-class is_*/has_* boolean fields (archived, closed_caption_shown, dynamic_video_eligible, explicit, fixed_distance, limited_ride, live_in_studio_only, made_for_radio, outdoor, sessions_eligible, closed_captions, free_mode, pedaling_metrics, tread_pace_target). Default false: not useful for choosing a class. is_favorite is always present regardless of this flag.")),
 			mcplib.WithString("cursor", mcplib.Description("Opaque pagination cursor returned by a previous MCP response")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandlerVerbose("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}, {PublicName: "duration", WireName: "duration", Location: "query"}, {PublicName: "super_genre_id", WireName: "super_genre_id", Location: "query"}, {PublicName: "has_workout", WireName: "has_workout", Location: "query"}, {PublicName: "is_favorite_ride", WireName: "is_favorite_ride", Location: "query"}}, []string{}, rideArchivedRedundantFields, classesVerboseToggles),
+		makeAPIHandlerVerbose("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: "", ArrayField: "data", NextPageIndicatorPath: "show_next", CurrentPageNumberPath: "page"}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}, {PublicName: "duration", WireName: "duration", Location: "query"}, {PublicName: "super_genre_id", WireName: "super_genre_id", Location: "query"}, {PublicName: "has_workout", WireName: "has_workout", Location: "query"}, {PublicName: "is_favorite_ride", WireName: "is_favorite_ride", Location: "query"}}, []string{}, rideArchivedRedundantFields, classesVerboseToggles),
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_show",
-			mcplib.WithDescription("Show class metadata and supported planned structure. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios. Returns the ClassDetail."),
+			mcplib.WithDescription("Show class metadata and supported planned structure. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios, include_internal_ids, include_flags. Returns the ClassDetail."),
 			mcplib.WithString("ride_id", mcplib.Required(), mcplib.Description("Provider class identifier.")),
 			mcplib.WithString("select", mcplib.Description(selectParamDescription)),
-			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include stream/playback URLs and join tokens. Default false: these carry no information relevant to class metadata or structure and dominate response size.")),
-			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include the instructor's full bio, Q&A, and share-image array. Default false.")),
+			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include stream/playback URLs and IDs, join tokens, and caption locale display names. Default false: these carry no information relevant to class metadata or structure and dominate response size.")),
+			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include the instructor's full bio, background, quote, Q&A, share-image array, and portrait/hero/list image URLs. Default false.")),
+			mcplib.WithBoolean("include_internal_ids", mcplib.Description("Include internal cross-reference identifiers: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false; recoverable via this flag when needed.")),
+			mcplib.WithBoolean("include_flags", mcplib.Description("Include per-class is_*/has_* boolean fields. Default false: not useful for class metadata or structure. is_favorite is always present regardless of this flag.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -280,11 +386,13 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_structure",
-			mcplib.WithDescription("Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios. Returns the ClassDetail."),
+			mcplib.WithDescription("Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios, include_internal_ids, include_flags. Returns the ClassDetail."),
 			mcplib.WithString("ride_id", mcplib.Required(), mcplib.Description("Provider class identifier.")),
 			mcplib.WithString("select", mcplib.Description(selectParamDescription)),
-			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include stream/playback URLs and join tokens. Default false: these carry no information relevant to class metadata or structure and dominate response size.")),
-			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include the instructor's full bio, Q&A, and share-image array. Default false.")),
+			mcplib.WithBoolean("include_stream_urls", mcplib.Description("Include stream/playback URLs and IDs, join tokens, and caption locale display names. Default false: these carry no information relevant to class metadata or structure and dominate response size.")),
+			mcplib.WithBoolean("include_instructor_bios", mcplib.Description("Include the instructor's full bio, background, quote, Q&A, share-image array, and portrait/hero/list image URLs. Default false.")),
+			mcplib.WithBoolean("include_internal_ids", mcplib.Description("Include internal cross-reference identifiers: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false; recoverable via this flag when needed.")),
+			mcplib.WithBoolean("include_flags", mcplib.Description("Include per-class is_*/has_* boolean fields. Default false: not useful for class metadata or structure. is_favorite is always present regardless of this flag.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -315,7 +423,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/user/{user_id}/workouts", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "user_id", WireName: "user_id", Location: "path"}, {PublicName: "joins", WireName: "joins", Location: "query", Default: "ride"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort", WireName: "sort", Location: "query", Default: "-start_time"}}, []string{"user_id"}),
+		makeAPIHandler("GET", "/api/user/{user_id}/workouts", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: "", ArrayField: "data", NextPageIndicatorPath: "show_next", CurrentPageNumberPath: "page", FirstPageOnlyFields: []string{"summary"}}, []mcpParamBinding{{PublicName: "user_id", WireName: "user_id", Location: "path"}, {PublicName: "joins", WireName: "joins", Location: "query", Default: "ride"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort", WireName: "sort", Location: "query", Default: "-start_time"}}, []string{"user_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("workouts_performance",
@@ -389,6 +497,35 @@ type mcpParamBinding struct {
 type mcpPageConfig struct {
 	CursorParam    string
 	NextCursorPath string
+
+	// ArrayField names the top-level response key holding the item list
+	// directly, for responses whose envelope carries more than one
+	// top-level array field (e.g. classes_catalog/classes_search's "data"
+	// alongside a sibling "instructors" array) -- see
+	// bound.PageOptions.ArrayField's doc comment for why auto-detection
+	// can't be trusted on those responses. Leave empty for endpoints whose
+	// response has at most one top-level array field, where auto-detection
+	// already works.
+	ArrayField string
+
+	// NextPageIndicatorPath and CurrentPageNumberPath name response paths
+	// for endpoints that paginate upstream via an incrementing integer page
+	// number rather than a cursor value in the body -- see
+	// bound.PageOptions' fields of the same name for why this exists: once
+	// a fetched upstream page is fully split into local MCP sub-pages,
+	// nothing else signals that more upstream data exists, and a caller
+	// paginating by following next_cursor until it's absent stops early,
+	// silently missing data. classes_catalog/classes_search confirmed live
+	// to report these as "show_next"/"page".
+	NextPageIndicatorPath string
+	CurrentPageNumberPath string
+
+	// FirstPageOnlyFields names response fields to keep only on a query's
+	// very first page, dropped on every later page. workouts_list carries
+	// a per-month workout histogram ("summary", confirmed live at ~1.5 KB)
+	// that's genuinely useful once but repeated fixed overhead on every
+	// subsequent page a caller pages through.
+	FirstPageOnlyFields []string
 }
 
 func formatMCPParamValue(v any) string {
@@ -682,15 +819,20 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 		if len(stripFields) > 0 {
 			data = stripTopLevelFields(data, stripFields)
 		}
+		if len(verboseToggles) > 0 {
+			data = deepStripFields(data, classAlwaysStripFields)
+		}
 		data = applyVerboseFieldToggles(data, args, verboseToggles)
 		// select is applied last, after any verbose-field stripping, so a
 		// caller who does pass include_stream_urls/include_instructor_bios=true
 		// can still narrow the now-larger response down with select in the
 		// same call. Binary responses are base64-encoded file payloads, not
 		// JSON a dotted-path projection could meaningfully narrow.
+		var hasSelect bool
 		if !binaryResponse {
 			if selectFields, ok := args["select"].(string); ok && strings.TrimSpace(selectFields) != "" {
 				data = cli.FilterFieldsJSON(data, selectFields)
+				hasSelect = true
 			}
 		}
 
@@ -710,7 +852,7 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 			return mcplib.NewToolResultText(string(out)), nil
 		}
 		if pageConfig.CursorParam != "" {
-			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, hasSelect), nil
 		}
 		return mcpToolResultText(method, data), nil
 	}
@@ -752,12 +894,24 @@ func mcpToolError(message string) *mcplib.CallToolResult {
 	return mcplib.NewToolResultError(bound.Text(message))
 }
 
-func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
-	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
-		Cursor:         cursor,
-		CursorParam:    pageConfig.CursorParam,
-		NextCursorPath: pageConfig.NextCursorPath,
-	}))
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, hasSelect bool) *mcplib.CallToolResult {
+	opts := bound.PageOptions{
+		Cursor:                cursor,
+		CursorParam:           pageConfig.CursorParam,
+		NextCursorPath:        pageConfig.NextCursorPath,
+		ArrayField:            pageConfig.ArrayField,
+		NextPageIndicatorPath: pageConfig.NextPageIndicatorPath,
+		CurrentPageNumberPath: pageConfig.CurrentPageNumberPath,
+	}
+	// A caller who explicitly named a field via select has already made
+	// their own choice about what to keep -- FirstPageOnlyFields exists to
+	// trim the *default* unprojected response's repeated fixed cost, not
+	// to silently override a deliberate later-page ask for that same
+	// field (e.g. select=data.id,summary on page 2 of workouts_list).
+	if !hasSelect {
+		opts.FirstPageOnlyFields = pageConfig.FirstPageOnlyFields
+	}
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, opts))
 }
 
 func newMCPClient() (*client.Client, error) {
@@ -1238,7 +1392,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_count":  30,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary. classes_search/classes_catalog declare duration, super_genre_id, has_workout, and is_favorite_ride (has_workout and is_favorite_ride are tri-state: true/false/omitted are three distinct queries) alongside the original 8 params, matching classes_filters' vocabulary. Every typed endpoint tool declares a select argument (same dotted-path projection semantics as this CLI's --select flag) so a caller can shrink an oversized response itself; classes_catalog/classes_search/classes_show/classes_structure additionally default to stripping stream/playback URLs, join tokens, and instructor bio/Q&A/share-image blocks (restore them with include_stream_urls/include_instructor_bios). Typed endpoint tools still forward any argument not in their declared schema straight onto the live API as a raw query/body param, unvalidated — this is intentional (it's an escape hatch for real Peloton filters our internal spec doesn't declare), but it also means a misspelled argument name silently no-ops on the provider side instead of erroring; the MCP server logs undeclared forwarded argument names to stderr so an operator can catch a typo, but a calling agent won't see that log. --compact/--csv/--quiet remain CLI-only and have no effect on typed endpoint tools (only on command-mirror tools).",
+		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary. classes_search/classes_catalog declare duration, super_genre_id, has_workout, and is_favorite_ride (has_workout and is_favorite_ride are tri-state: true/false/omitted are three distinct queries) alongside the original 8 params, matching classes_filters' vocabulary. Every typed endpoint tool declares a select argument (same dotted-path projection semantics as this CLI's --select flag) so a caller can shrink an oversized response itself; classes_catalog/classes_search/classes_show/classes_structure additionally default to stripping stream/playback URLs, join tokens, instructor bio/Q&A/share-image blocks, internal cross-reference identifiers, and a block of is_*/has_* boolean flags (restore with include_stream_urls/include_instructor_bios/include_internal_ids/include_flags; is_favorite is always present regardless of include_flags), plus always strip a set of per-class fields confirmed always-empty/constant or duplicate of a kept sibling field -- these have no restore argument since there is never a reason to want them back. classes_catalog, classes_search, and workouts_list carry an ArrayField hint (\"data\") so an oversized response is always resumable via next_cursor, even unprojected -- their response has a sibling array field (\"instructors\" on the classes tools) that would otherwise defeat the generic single-array-envelope detector and fall back to a dead-end raw preview. Those same three tools also carry a page/show_next fallback so pagination correctly advances the real upstream page once a fetched batch has been fully split into MCP-sized sub-pages, including when a select projection drops the item array down to metadata fields only -- next_cursor's presence is the reliable completion signal (its absence means no more data). count is intentionally left as whatever the upstream response reported (or omitted, if it didn't report one) rather than a synthesized value -- use total for the real collection size. next_cursor can be present with no truncated field at all -- that means this call's own request was fully satisfied (nothing was cut) but more data exists further upstream if the caller wants to keep paging. When truncated:true is present, it can mean either a byte-budget cut (max_bytes/original_bytes present) or the fixed 50-item page size alone (page_size_capped:true instead, well under budget) -- only the former means select/limit would shrink this response. workouts_list also keeps its per-month workout-histogram summary field on the first page of a query only, dropping it from later pages as repeated fixed overhead a caller paging through history doesn't need again. Typed endpoint tools still forward any argument not in their declared schema straight onto the live API as a raw query/body param, unvalidated — this is intentional (it's an escape hatch for real Peloton filters our internal spec doesn't declare), but it also means a misspelled argument name silently no-ops on the provider side instead of erroring; the MCP server logs undeclared forwarded argument names to stderr so an operator can catch a typo, but a calling agent won't see that log. --compact/--csv/--quiet remain CLI-only and have no effect on typed endpoint tools (only on command-mirror tools).",
 		"auth": map[string]any{
 			// "session_login" deliberately avoids any OAuth-flavored term:
 			// Peloton has no OAuth flow at all, just POST /auth/login once
@@ -1317,7 +1471,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"offline_workout nests output under detail/history (use --select detail.title to reach a nested field). Every other offline command's fields, including \"caveats\" when a caveat applies, sit at the TOP level of the response -- not wrapped under a \"result\" key -- so e.g. offline_intervals's segments is reached with --select segments, not --select result.segments. offline_classes_filters double-nests under filters.filters (the wrapper's own \"filters\" key containing the provider's \"filters\" array) and filters.sorts -- there is no browse_categories/class_types field on this endpoint. Dotted --select paths only descend into object keys, not array indices (e.g. filters.filters.0.name does not work); arrays are matched element-wise instead.",
 			"Run doctor to check auth state, credential location, and sync cache freshness before assuming an API or credential problem.",
 			"Unrecognized typed-tool arguments are forwarded as raw live API params, not validated — a misspelled filter name silently no-ops instead of erroring. Double-check argument spelling against the tool's declared schema. classes_search/classes_catalog now declare duration, super_genre_id, has_workout, and is_favorite_ride directly, so those four no longer need the raw passthrough.",
-			"Every typed endpoint tool (classes_*, workouts_*, strength_movements, account_show) accepts a select argument with the same dotted-path projection as this CLI's --select flag. classes_catalog, classes_search, and workouts_list wrap their items under a top-level \"data\" key, so their select paths must be prefixed accordingly, e.g. classes_search(..., select=\"data.id,data.title,data.duration,data.instructor_id\") -- a bare \"id\" matches nothing on these three tools. Every other typed endpoint tool's response has no wrapper, so bare field names (e.g. workouts_show(..., select=\"id,ride\")) work directly. classes_catalog/classes_search/classes_show/classes_structure also default to omitting stream/playback URLs, join tokens, and instructor bios/Q&A/share-images -- pass include_stream_urls/include_instructor_bios to get them back.",
+			"Every typed endpoint tool (classes_*, workouts_*, strength_movements, account_show) accepts a select argument with the same dotted-path projection as this CLI's --select flag. classes_catalog, classes_search, and workouts_list wrap their items under a top-level \"data\" key, so their select paths must be prefixed accordingly, e.g. classes_search(..., select=\"data.id,data.title,data.duration,data.instructor_id\") -- a bare \"id\" matches nothing on these three tools. Every other typed endpoint tool's response has no wrapper, so bare field names (e.g. workouts_show(..., select=\"id,ride\")) work directly. classes_catalog/classes_search/classes_show/classes_structure also default to omitting stream/playback URLs, join tokens, instructor bios/Q&A/share-images, internal cross-reference identifiers, and is_*/has_* boolean flags (is_favorite excepted, always present) -- pass include_stream_urls/include_instructor_bios/include_internal_ids/include_flags to get them back. The same four tools also always omit a handful of per-class fields confirmed always-empty/constant or duplicate of a kept sibling field (no argument restores these).",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.

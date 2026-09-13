@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-integer-page-pagination-fallback",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "bound.PageOptions/mcpPageConfig carry NextPageIndicatorPath/CurrentPageNumberPath (set to \"show_next\"/\"page\" on classes_catalog, classes_search, and workouts_list). When a fetched upstream page has been fully split into MaxItems-sized local MCP sub-pages and no NextCursorPath value exists (these endpoints paginate upstream via an incrementing ?page=N integer, not a body cursor value), this reads a boolean \"more pages exist\" flag and the current page number from the response body and synthesizes the next page number as the outgoing cursor's upstream value. A regen touching these three tools' mcpPageConfig must keep this wired, or pagination silently dead-ends after the first upstream page once its items exceed one MCP sub-page.",
+  "reason": "Live retesting (following up the ArrayField hint fix from mcp-array-field-hint-avoids-multiarray-preview-fallback.json) found that resumable pagination worked for the first upstream page's own local sub-pages, but the moment local offset was exhausted, next_cursor silently stopped appearing even though the upstream API had thousands more records (show_next:true in the body) -- a caller following \"next_cursor until absent\" stopped after 100 of 15,324 records with no indication anything was missing. workouts_list is given the same page/show_next path names on the assumption it shares classes_catalog/classes_search's pagination envelope shape; this is unverified against live workouts data and should be confirmed on the next retest -- if wrong, extractNextIntegerPage degrades to a safe no-op (same behavior as before this patch), not a crash.",
+  "files": [
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestEndpointPageResponseIntegerPageFallbackAdvancesPastLocalSubPaging drives a full three-call trace (first upstream page's two local sub-pages, then a real upstream-page advance, then correct termination) end to end through EndpointPageResponse, matching the exact live-reported bug shape (100-item upstream page split into two 50-item local pages)."
+}

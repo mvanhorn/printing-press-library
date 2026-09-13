@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-pagination-metadata-projection-and-honest-truncation",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Three related pagination-envelope fixes on classes_catalog/classes_search/workouts_list, all in internal/mcp/bound: (1) injectMetadataOnlyNextCursor adds next_cursor to a response whose select projection dropped the item array entirely (metadata-only calls no longer dead-end even though the array-based path can't page them). (2) boundedPageListEnvelope's build stops synthesizing a count value (-1 sentinel or the raw locally-fetched batch size) and instead passes count through untouched like total/page/show_next -- there is no bound.go-invented meaning to preserve. (3) A page cut to the fixed 50-item cap while comfortably under MaxBytes now reports page_size_capped:true instead of max_bytes/original_bytes, since those imply (falsely) that narrowing the request would help. A regen touching this pagination envelope must keep all three: dropping the metadata-only fallback re-opens the same silent dead-end Issue 11 was, re-adding a synthetic count value re-introduces the four-different-meanings confusion, and reverting page_size_capped makes truncation attribution dishonest again for the common (well under budget, item-capped) case.",
+  "reason": "Live retesting after the Issue 10/11 pagination fixes found: a metadata-only select projection (count/total/page/show_next kept, data dropped) got no next_cursor despite show_next:true in the body -- the same class of silent data loss Issue 11 was, via a different route (Issue 13). count decoded to four different, undocumented values across projected/unprojected/paginated/terminal calls with no consistent meaning a caller could rely on (Issue 14). And a page cut at exactly 50 items while only a few KB into a 60,000-byte budget was reported as a byte-budget overrun with advice to narrow the request, which cannot help a response that was never byte-constrained (Issue 15).",
+  "files": [
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. TestEndpointPageResponseMetadataOnlyProjectionStillGetsNextCursor/...NoCursorWhenNoMoreData cover the metadata-only fallback both directions; TestEndpointPageResponseCountPassesThroughUnmodified covers the count passthrough; TestEndpointPageResponseDistinguishesPageSizeCapFromByteBudget covers both the item-limited and genuinely byte-limited cases getting the correct, distinct signal."
+}

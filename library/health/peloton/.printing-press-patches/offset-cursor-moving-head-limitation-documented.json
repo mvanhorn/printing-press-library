@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "offset-cursor-moving-head-limitation-documented",
+  "applied_at": "2026-09-12",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "bound.go's endpointCursor is offset-based (a numeric position into a fetched upstream page), not keyset-based. Documented at its definition: this drifts under a moving head -- inserts at the head of a newest-first sort (classes_search/classes_catalog, workouts_list) reappear as duplicates, deletions cause silent skips. Deliberately not fixed; a regen must keep the doc comment so the tradeoff is visible without re-deriving it from live testing again.",
+  "reason": "Live testing confirmed the drift directly: total shifted 15,324 to 15,334 mid-walk and a later page's leading records matched the previous page's trailing records; a separate call showed an earlier page's first record displaced eleven positions deep. Explicitly decided (2026-09-12) to defer a keyset-cursor redesign rather than implement it this round: it needs per-resource sort-key knowledge across three tools and is a larger, riskier change than anything else addressed this session. Acceptable today since MCP callers pull a snapshot in one sitting; becomes load-bearing once a full-enumeration consumer (e.g. a future pagination-based workflow_archive/sync path) is built on top of this cursor, at which point dedupe-by-id is mandatory regardless of cursor scheme.",
+  "files": [
+    "internal/mcp/bound/bound.go"
+  ]
+}

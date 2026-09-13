@@ -52,7 +52,7 @@
     },
     {
       "name": "classes_catalog",
-      "description": "List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 10 more). Returns array of Class.",
+      "description": "List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 12 more). Returns array of Class.",
       "method": "GET",
       "path": "/api/v2/ride/archived",
       "params": [
@@ -147,6 +147,18 @@
           "type": "bool",
           "location": "query",
           "description": "Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query."
+        },
+        {
+          "name": "include_internal_ids",
+          "type": "bool",
+          "location": "query",
+          "description": "Include internal cross-reference identifiers per class: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false: not useful for choosing a class; recoverable via this flag when needed."
+        },
+        {
+          "name": "include_flags",
+          "type": "bool",
+          "location": "query",
+          "description": "Include per-class is_*/has_* boolean fields (archived, closed_caption_shown, dynamic_video_eligible, explicit, fixed_distance, limited_ride, live_in_studio_only, made_for_radio, outdoor, sessions_eligible, closed_captions, free_mode, pedaling_metrics, tread_pace_target). Default false: not useful for choosing a class. is_favorite is always present regardless of this flag."
         }
       ]
     },
@@ -185,7 +197,7 @@
     },
     {
       "name": "classes_search",
-      "description": "Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 10 more). Returns array of Class.",
+      "description": "Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 12 more). Returns array of Class.",
       "method": "GET",
       "path": "/api/v2/ride/archived",
       "params": [
@@ -280,12 +292,24 @@
           "type": "bool",
           "location": "query",
           "description": "Include each instructor's full bio, Q&A, and share-image array. Default false: these repeat in full for every instructor in the result set regardless of query."
+        },
+        {
+          "name": "include_internal_ids",
+          "type": "bool",
+          "location": "query",
+          "description": "Include internal cross-reference identifiers per class: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false: not useful for choosing a class; recoverable via this flag when needed."
+        },
+        {
+          "name": "include_flags",
+          "type": "bool",
+          "location": "query",
+          "description": "Include per-class is_*/has_* boolean fields (archived, closed_caption_shown, dynamic_video_eligible, explicit, fixed_distance, limited_ride, live_in_studio_only, made_for_radio, outdoor, sessions_eligible, closed_captions, free_mode, pedaling_metrics, tread_pace_target). Default false: not useful for choosing a class. is_favorite is always present regardless of this flag."
         }
       ]
     },
     {
       "name": "classes_show",
-      "description": "Show class metadata and supported planned structure. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios. Returns the ClassDetail.",
+      "description": "Show class metadata and supported planned structure. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios, include_internal_ids, include_flags. Returns the ClassDetail.",
       "method": "GET",
       "path": "/api/ride/{ride_id}/details",
       "params": [
@@ -313,12 +337,24 @@
           "type": "bool",
           "location": "query",
           "description": "Include the instructor's full bio, Q&A, and share-image array. Default false."
+        },
+        {
+          "name": "include_internal_ids",
+          "type": "bool",
+          "location": "query",
+          "description": "Include internal cross-reference identifiers: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false; recoverable via this flag when needed."
+        },
+        {
+          "name": "include_flags",
+          "type": "bool",
+          "location": "query",
+          "description": "Include per-class is_*/has_* boolean fields. Default false: not useful for class metadata or structure. is_favorite is always present regardless of this flag."
         }
       ]
     },
     {
       "name": "classes_structure",
-      "description": "Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios. Returns the ClassDetail.",
+      "description": "Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Optional: select, include_stream_urls, include_instructor_bios, include_internal_ids, include_flags. Returns the ClassDetail.",
       "method": "GET",
       "path": "/api/ride/{ride_id}/details",
       "params": [
@@ -346,6 +382,18 @@
           "type": "bool",
           "location": "query",
           "description": "Include the instructor's full bio, Q&A, and share-image array. Default false."
+        },
+        {
+          "name": "include_internal_ids",
+          "type": "bool",
+          "location": "query",
+          "description": "Include internal cross-reference identifiers: home/studio location ids, series grouping id, content licensing tier, and origin locale. Default false; recoverable via this flag when needed."
+        },
+        {
+          "name": "include_flags",
+          "type": "bool",
+          "location": "query",
+          "description": "Include per-class is_*/has_* boolean fields. Default false: not useful for class metadata or structure. is_favorite is always present regardless of this flag."
         }
       ]
     },

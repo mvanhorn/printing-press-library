@@ -261,6 +261,466 @@ func TestEndpointPageResponseMultiArrayObjectUsesNonResumablePreview(t *testing.
 	}
 }
 
+// TestEndpointPageResponseMetadataOnlyProjectionStillGetsNextCursor guards
+// Issue 13: a "select" projection that keeps only metadata fields (count,
+// total, page, show_next, ...) and drops the item array entirely used to
+// silently lose pagination -- boundedSingleArrayPageObject has nothing to
+// slice without an items array, so the response fell through to the plain
+// "fits under budget, return unchanged" path even when show_next:true said
+// more data existed. A caller probing totals/counts before a full pull got
+// dead-ended the same way an unprojected oversized call was before the
+// Issue 11 fix, just via a different route. injectMetadataOnlyNextCursor
+// must add next_cursor here without needing any items to page through.
+func TestEndpointPageResponseMetadataOnlyProjectionStillGetsNextCursor(t *testing.T) {
+	fixture, err := json.Marshal(map[string]any{
+		"count": 100, "page": 1, "show_next": true, "total": 226,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	})
+
+	var envelope struct {
+		Count      int    `json:"count"`
+		Total      int    `json:"total"`
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("metadata-only projection with show_next:true should still get next_cursor: %s", text)
+	}
+	if envelope.Count != 100 || envelope.Total != 226 {
+		t.Fatalf("metadata fields should pass through unchanged: %s", text)
+	}
+	upstream, err := UpstreamCursor(envelope.NextCursor)
+	if err != nil {
+		t.Fatalf("UpstreamCursor(%q): %v", envelope.NextCursor, err)
+	}
+	if upstream != "2" {
+		t.Fatalf("next_cursor should advance to page 2 (current page 1 + 1), got %q", upstream)
+	}
+}
+
+// TestEndpointPageResponseMetadataOnlyProjectionNoCursorWhenNoMoreData
+// guards the terminal case of the same fix: show_next:false must not
+// spuriously get a next_cursor added.
+func TestEndpointPageResponseMetadataOnlyProjectionNoCursorWhenNoMoreData(t *testing.T) {
+	fixture, err := json.Marshal(map[string]any{
+		"count": 26, "page": 4, "show_next": false, "total": 226,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	})
+
+	var envelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.NextCursor != "" {
+		t.Fatalf("show_next:false should not get a next_cursor: %s", text)
+	}
+}
+
+// TestEndpointPageResponseDistinguishesPageSizeCapFromByteBudget guards
+// Issue 15: a page cut to the fixed 50-item cap while comfortably under
+// MaxBytes must not claim a byte-budget overrun (max_bytes/original_bytes
+// alongside truncated:true implies the request needs to be narrower, which
+// can't help a response that's already only a few KB). It should report
+// page_size_capped instead. A page genuinely forced below the item cap by
+// byte size must still get the honest max_bytes/original_bytes fields.
+func TestEndpointPageResponseDistinguishesPageSizeCapFromByteBudget(t *testing.T) {
+	// Item-limited: MaxItems+25 small items comfortably fit many more than
+	// MaxItems under MaxBytes, so the cut to 50 is purely the item cap.
+	small := make([]map[string]string, 0, MaxItems+25)
+	for i := 0; i < MaxItems+25; i++ {
+		small = append(small, map[string]string{"id": strconv.Itoa(i)})
+	}
+	itemLimitedText := EndpointPageResponse("GET", mustMarshal(t, map[string]any{"data": small}), PageOptions{
+		CursorParam: "page", ArrayField: "data",
+	})
+	var itemLimited struct {
+		Truncated      bool `json:"truncated"`
+		PageSizeCapped bool `json:"page_size_capped"`
+		MaxBytes       int  `json:"max_bytes"`
+		OriginalBytes  int  `json:"original_bytes"`
+	}
+	if err := json.Unmarshal([]byte(itemLimitedText), &itemLimited); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, itemLimitedText)
+	}
+	if !itemLimited.Truncated || !itemLimited.PageSizeCapped {
+		t.Fatalf("small-item page cut at MaxItems should report page_size_capped: %s", itemLimitedText)
+	}
+	if itemLimited.MaxBytes != 0 || itemLimited.OriginalBytes != 0 {
+		t.Fatalf("page_size_capped response should not also claim a byte-budget overrun: %s", itemLimitedText)
+	}
+
+	// Byte-limited: large items force a cut below MaxItems to fit MaxBytes.
+	large := make([]map[string]string, 0, MaxItems+25)
+	for i := 0; i < MaxItems+25; i++ {
+		large = append(large, map[string]string{"id": strconv.Itoa(i), "payload": strings.Repeat("x", 1600)})
+	}
+	byteLimitedText := EndpointPageResponse("GET", mustMarshal(t, map[string]any{"data": large}), PageOptions{
+		CursorParam: "page", ArrayField: "data",
+	})
+	var byteLimited struct {
+		Truncated      bool `json:"truncated"`
+		PageSizeCapped bool `json:"page_size_capped"`
+		MaxBytes       int  `json:"max_bytes"`
+		OriginalBytes  int  `json:"original_bytes"`
+	}
+	if err := json.Unmarshal([]byte(byteLimitedText), &byteLimited); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, byteLimitedText)
+	}
+	if !byteLimited.Truncated || byteLimited.PageSizeCapped {
+		t.Fatalf("large-item page forced below MaxItems by size should not report page_size_capped: %s", byteLimitedText)
+	}
+	if byteLimited.MaxBytes != MaxBytes || byteLimited.OriginalBytes == 0 {
+		t.Fatalf("byte-limited response should report real max_bytes/original_bytes: %s", byteLimitedText)
+	}
+}
+
+// TestEndpointPageResponseCountPassesThroughUnmodified guards Issue 14:
+// count must never be synthesized by bound.go on the page-envelope path
+// (a prior -1 sentinel / raw-batch-count scheme produced four different,
+// undocumented behaviors across projected/unprojected/paginated/terminal
+// calls). Whatever the upstream response reported under count (or nothing,
+// if it reported none) passes through untouched, the same treatment as
+// total/page/show_next.
+func TestEndpointPageResponseCountPassesThroughUnmodified(t *testing.T) {
+	items := make([]map[string]string, 0, MaxItems+25)
+	for i := 0; i < MaxItems+25; i++ {
+		items = append(items, map[string]string{"id": strconv.Itoa(i), "payload": strings.Repeat("x", 1600)})
+	}
+	fixture := mustMarshal(t, map[string]any{"data": items, "count": 100, "total": 226})
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{CursorParam: "page", ArrayField: "data"})
+	var envelope struct {
+		Count int `json:"count"`
+		Total int `json:"total"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.Count != 100 {
+		t.Fatalf("count should pass through the upstream value (100) unmodified, got %d: %s", envelope.Count, text)
+	}
+	if envelope.Total != 226 {
+		t.Fatalf("total should pass through unmodified, got %d: %s", envelope.Total, text)
+	}
+}
+
+// TestEndpointPageResponseNoTruncationClaimWhenRequestFullySatisfied guards
+// the B7 false positive: a call whose own fetched batch is small enough to
+// return in full (well under both MaxItems and MaxBytes) still got
+// truncated:true plus byte-attribution fields whenever more data existed
+// further upstream (nextUpstream non-empty), even though nothing was cut
+// from THIS response -- confirmed live on a classes_search limit=20 call
+// (20 of 20 delivered, 226 in the full collection) and a workouts_list
+// limit=1 call (1 of 1 delivered, 3,734 in the full collection). Both
+// falsely told the caller "narrow the request", which cannot help a
+// request that was already fully satisfied. next_cursor must still be
+// present (more data exists and show_next says so), but truncated/
+// page_size_capped/max_bytes/original_bytes must all be absent.
+func TestEndpointPageResponseNoTruncationClaimWhenRequestFullySatisfied(t *testing.T) {
+	items := make([]map[string]string, 0, 20)
+	for i := 0; i < 20; i++ {
+		items = append(items, map[string]string{"id": strconv.Itoa(i)})
+	}
+	fixture := mustMarshal(t, map[string]any{
+		"data": items, "page": 0, "show_next": true, "total": 226,
+	})
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	})
+
+	var envelope struct {
+		ReturnedCount  int    `json:"returned_count"`
+		Truncated      bool   `json:"truncated"`
+		PageSizeCapped bool   `json:"page_size_capped"`
+		MaxBytes       int    `json:"max_bytes"`
+		OriginalBytes  int    `json:"original_bytes"`
+		NextCursor     string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.ReturnedCount != 20 {
+		t.Fatalf("returned_count = %d, want 20 (the full requested batch)", envelope.ReturnedCount)
+	}
+	if envelope.Truncated || envelope.PageSizeCapped || envelope.MaxBytes != 0 || envelope.OriginalBytes != 0 {
+		t.Fatalf("a fully-satisfied request must not claim any truncation cause: %s", text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("next_cursor must still be present so a caller can continue into the rest of the collection: %s", text)
+	}
+}
+
+// TestEndpointPageResponseFirstPageOnlyFieldsDroppedOnLaterPages guards
+// workouts_list's summary field: a fixed-cost block (its real per-month
+// workout histogram measured ~1.5 KB live) useful on the first page and
+// pure repeated overhead on every page after. FirstPageOnlyFields must
+// keep it present when there's no incoming cursor (the first call) and
+// drop it once a cursor is supplied (any later page), without disturbing
+// any other field.
+func TestEndpointPageResponseFirstPageOnlyFieldsDroppedOnLaterPages(t *testing.T) {
+	items := make([]map[string]string, 0, MaxItems+25)
+	for i := 0; i < MaxItems+25; i++ {
+		items = append(items, map[string]string{"id": strconv.Itoa(i), "payload": strings.Repeat("x", 1600)})
+	}
+	fixture := mustMarshal(t, map[string]any{"data": items, "summary": []int{1, 2, 3}, "total": len(items)})
+	opts := PageOptions{CursorParam: "page", ArrayField: "data", FirstPageOnlyFields: []string{"summary"}}
+
+	firstText := EndpointPageResponse("GET", fixture, opts)
+	var first struct {
+		Summary    []int  `json:"summary"`
+		Total      int    `json:"total"`
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(firstText), &first); err != nil {
+		t.Fatalf("first page must remain valid JSON: %v\n%s", err, firstText)
+	}
+	if len(first.Summary) != 3 {
+		t.Fatalf("first page should keep summary, got %v: %s", first.Summary, firstText)
+	}
+	if first.Total != len(items) {
+		t.Fatalf("first page should keep other fields like total: %s", firstText)
+	}
+	if first.NextCursor == "" {
+		t.Fatalf("expected a next_cursor to drive the second-page check: %s", firstText)
+	}
+
+	secondOpts := opts
+	secondOpts.Cursor = first.NextCursor
+	secondText := EndpointPageResponse("GET", fixture, secondOpts)
+	var second struct {
+		Summary []int `json:"summary"`
+		Total   int   `json:"total"`
+	}
+	if err := json.Unmarshal([]byte(secondText), &second); err != nil {
+		t.Fatalf("second page must remain valid JSON: %v\n%s", err, secondText)
+	}
+	if second.Summary != nil {
+		t.Fatalf("second page should have dropped summary, got %v: %s", second.Summary, secondText)
+	}
+	if second.Total != len(items) {
+		t.Fatalf("second page should still keep other fields like total: %s", secondText)
+	}
+}
+
+func mustMarshal(t *testing.T, v any) json.RawMessage {
+	t.Helper()
+	out, err := json.Marshal(v)
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+	return out
+}
+
+// TestEndpointPageResponseArrayFieldHintSurvivesASiblingArray guards the
+// live-tested fix for Issue 10: classes_catalog/classes_search's real
+// response always carries a sibling "instructors" array alongside "data",
+// regardless of query. Auto-detection (proven by
+// TestEndpointPageResponseMultiArrayObjectUsesNonResumablePreview) bails to
+// a non-resumable preview as soon as it sees that second top-level array --
+// which meant every sufficiently large *unprojected* call on these
+// endpoints got a preview a caller couldn't page through, while a
+// projected call (whose select projection happens to drop every field but
+// "data") took the better, resumable envelope path purely as a side effect
+// of removing "instructors" from the response. Setting PageOptions.ArrayField
+// names the real item field directly, skipping the ambiguous scan, so an
+// unprojected response becomes just as resumable as a projected one.
+func TestEndpointPageResponseArrayFieldHintSurvivesASiblingArray(t *testing.T) {
+	data := make([]map[string]string, 0, MaxItems+25)
+	instructors := make([]map[string]string, 0, 30)
+	for i := 0; i < MaxItems+25; i++ {
+		data = append(data, map[string]string{"id": "class-" + strconv.Itoa(i), "payload": strings.Repeat("x", 1600)})
+	}
+	for i := 0; i < 30; i++ {
+		instructors = append(instructors, map[string]string{"id": "instructor-" + strconv.Itoa(i), "name": strings.Repeat("y", 200)})
+	}
+	fixture, err := json.Marshal(map[string]any{
+		"data":        data,
+		"instructors": instructors,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{CursorParam: "page", ArrayField: "data"})
+	if len(text) > MaxBytes {
+		t.Fatalf("bounded result length = %d, want <= %d", len(text), MaxBytes)
+	}
+
+	var envelope struct {
+		Data          []map[string]string `json:"data"`
+		Truncated     bool                `json:"truncated"`
+		NextCursor    string              `json:"next_cursor"`
+		ReturnedCount int                 `json:"returned_count"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded page result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("expected truncation given %d items over the byte budget: %s", len(data), text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("ArrayField hint should still produce a resumable next_cursor, not a dead-end preview: %s", text)
+	}
+	if envelope.ReturnedCount == 0 || len(envelope.Data) != envelope.ReturnedCount {
+		t.Fatalf("expected real items under \"data\" matching returned_count, got %d items, returned_count=%d: %s", len(envelope.Data), envelope.ReturnedCount, text)
+	}
+}
+
+// classesPageIntFixture builds a fixture shaped like classes_catalog/
+// classes_search's real upstream response: a "data" array of itemCount
+// records, plus the page/show_next/page_count/total fields the live API
+// actually reports (confirmed via live field-presence testing), which
+// NextPageIndicatorPath/CurrentPageNumberPath read to advance upstream
+// page-int pagination.
+func classesPageIntFixture(itemCount, page int, showNext bool) json.RawMessage {
+	items := make([]map[string]string, 0, itemCount)
+	for i := 0; i < itemCount; i++ {
+		items = append(items, map[string]string{
+			"id": "class-p" + strconv.Itoa(page) + "-" + strconv.Itoa(i),
+			// Padding so a 100-item page exceeds MaxBytes and needs local
+			// MaxItems-sized sub-paging, matching the live-observed shape.
+			"title": strings.Repeat("verbose class title ", 30),
+		})
+	}
+	out, _ := json.Marshal(map[string]any{
+		"data":      items,
+		"page":      page,
+		"show_next": showNext,
+		"total":     15324,
+	})
+	return out
+}
+
+// TestEndpointPageResponseIntegerPageFallbackAdvancesPastLocalSubPaging
+// guards Issue 11: classes_catalog/classes_search paginate upstream via an
+// incrementing ?page=N integer, not a cursor value in the body, so
+// NextCursorPath (empty for these endpoints -- there's no such value)
+// never fires. Before the NextPageIndicatorPath/CurrentPageNumberPath
+// fallback, once a fetched 100-item upstream page was split into two
+// 50-item local MCP sub-pages (MaxItems=50), the second sub-page had
+// nothing left to advance on -- local offset was exhausted and no upstream
+// cursor was known -- so it silently omitted next_cursor even though
+// show_next:true in the body said more data existed. A caller paginating
+// by "follow next_cursor until absent" stopped two sub-pages in,
+// permanently missing everything past the first upstream page: reproduced
+// live as 100 of 15,324 records retrieved with no indication anything was
+// missing.
+func TestEndpointPageResponseIntegerPageFallbackAdvancesPastLocalSubPaging(t *testing.T) {
+	opts := PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	}
+
+	// Page 1: first 100-item upstream page (page=0), no incoming cursor.
+	// This is the existing "local offset still available" case (50 < 100)
+	// and already worked before this fix -- included for a realistic
+	// end-to-end trace, not as new coverage on its own.
+	page0 := classesPageIntFixture(100, 0, true)
+	firstText := EndpointPageResponse("GET", page0, opts)
+	var first struct {
+		Data       []json.RawMessage `json:"data"`
+		Truncated  bool              `json:"truncated"`
+		NextCursor string            `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(firstText), &first); err != nil {
+		t.Fatalf("first page result must remain valid JSON: %v\n%s", err, firstText)
+	}
+	if len(first.Data) != 50 || first.NextCursor == "" {
+		t.Fatalf("first page: got %d items, next_cursor=%q; want 50 items and a non-empty cursor", len(first.Data), first.NextCursor)
+	}
+
+	// Page 2: the MCP client's tool handler has no real upstream cursor
+	// yet (this cursor's UpstreamCursor is still "", since page 1 only
+	// advanced the local Offset), so it refetches the SAME upstream page
+	// 0 -- this is what the real tools.go handler does today, traced from
+	// UpstreamCursor's empty-string behavior. This is the exhausted-local-
+	// offset case Issue 11 was filed against: without the fallback,
+	// next_cursor comes back empty here even though show_next was true.
+	secondOpts := opts
+	secondOpts.Cursor = first.NextCursor
+	secondText := EndpointPageResponse("GET", page0, secondOpts)
+	var second struct {
+		Data          []json.RawMessage `json:"data"`
+		ReturnedCount int               `json:"returned_count"`
+		Truncated     bool              `json:"truncated"`
+		NextCursor    string            `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(secondText), &second); err != nil {
+		t.Fatalf("second page result must remain valid JSON: %v\n%s", err, secondText)
+	}
+	if len(second.Data) != 50 {
+		t.Fatalf("second page: got %d items, want 50", len(second.Data))
+	}
+	if second.NextCursor == "" {
+		t.Fatalf("second page: next_cursor is empty despite show_next:true in the fixture -- Issue 11 regression: %s", secondText)
+	}
+
+	upstream, err := UpstreamCursor(second.NextCursor)
+	if err != nil {
+		t.Fatalf("UpstreamCursor(%q): %v", second.NextCursor, err)
+	}
+	if upstream != "1" {
+		t.Fatalf("second page's next_cursor should carry upstream page \"1\" (current page 0 + 1), got %q", upstream)
+	}
+
+	// Page 3: the MCP handler now has a real upstream cursor ("1") and
+	// would fetch the next actual upstream page. Confirm the cycle
+	// continues correctly with fresh data, and confirm it terminates
+	// (empty next_cursor) once show_next is false.
+	// page 1 is the final upstream page (50 items, under a full page and
+	// show_next:false), so a single local sub-page covers it exactly and
+	// pagination should terminate here (empty next_cursor) rather than
+	// needing a further local-offset advance.
+	page1 := classesPageIntFixture(50, 1, false)
+	thirdOpts := opts
+	thirdOpts.Cursor = second.NextCursor
+	thirdText := EndpointPageResponse("GET", page1, thirdOpts)
+	var third struct {
+		Data       []map[string]string `json:"data"`
+		NextCursor string              `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(thirdText), &third); err != nil {
+		t.Fatalf("third page result must remain valid JSON: %v\n%s", err, thirdText)
+	}
+	if len(third.Data) != 50 {
+		t.Fatalf("third page: got %d items, want 50", len(third.Data))
+	}
+	if !strings.HasPrefix(third.Data[0]["id"], "class-p1-") {
+		t.Fatalf("third page did not advance to new upstream data (page 1): got id %q", third.Data[0]["id"])
+	}
+	if third.NextCursor != "" {
+		t.Fatalf("third page should terminate pagination (show_next:false, exactly one local page), got next_cursor=%q", third.NextCursor)
+	}
+}
+
 func TestEndpointResponseTruncatedByItemLimitDoesNotClaimByteOverflow(t *testing.T) {
 	items := make([]string, 0, MaxItems+1)
 	for i := 0; i < MaxItems+1; i++ {
