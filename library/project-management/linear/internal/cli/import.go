@@ -178,6 +178,9 @@ counted without stopping later records.`,
 			var db *store.Store
 			opened, dbErr := store.Open(dbPath)
 			if dbErr != nil {
+				if flags.trustMode == "strict" && !flags.dryRun {
+					return fmt.Errorf("trust-mode=strict: cannot open ledger at %s: %w (imported fixtures would not be recoverable by pp-cleanup)", dbPath, dbErr)
+				}
 				if !flags.dryRun {
 					fmt.Fprintf(os.Stderr, "warning: cannot open ledger at %s: %v (importing without local write-back)\n", dbPath, dbErr)
 				}

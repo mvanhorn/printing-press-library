@@ -273,6 +273,23 @@ func TestImportIssuesDryRunResolvesTeamAndCountsResolutionFailures(t *testing.T)
 	}
 }
 
+func TestImportStrictModeAbortsWhenLedgerUnavailable(t *testing.T) {
+	inputPath := filepath.Join(t.TempDir(), "issues.jsonl")
+	if err := os.WriteFile(inputPath, []byte("{\"title\":\"x\",\"team\":\"ENG\"}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	blocked := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(blocked, []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	dbPath := filepath.Join(blocked, "linear.db")
+
+	_, err := executeRootForTest("import", "issues", "--input", inputPath, "--db", dbPath, "--trust-mode", "strict", "--session", "import-strict")
+	if err == nil || !strings.Contains(err.Error(), "trust-mode=strict") || !strings.Contains(err.Error(), "cannot open ledger") {
+		t.Fatalf("expected strict ledger-open error, got %v", err)
+	}
+}
+
 func TestImportUnsupportedResourceDoesNotSendRequest(t *testing.T) {
 	inputPath := filepath.Join(t.TempDir(), "projects.jsonl")
 	if err := os.WriteFile(inputPath, []byte("{}\n"), 0o600); err != nil {
