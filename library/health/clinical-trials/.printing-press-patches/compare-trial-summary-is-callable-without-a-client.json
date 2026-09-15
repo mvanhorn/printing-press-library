@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "compare-trial-summary-is-callable-without-a-client",
+  "applied_at": "2026-09-15",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "The sample size and the phase and sponsor rankings compare derives from its fetched trials must be assembled in a function that takes those trials and performs no I/O, so the aggregation can be exercised without a live client.",
+  "reason": "The aggregation was reachable only behind a live client, and coverage answered that by duplicating it rather than calling it. A reprint must preserve the I/O-free helper so coverage continues to exercise tallyPhases, including its phaseless-trial guard. Guarded by TestSummarizeTrialsReachesTallyPhases.",
+  "files": [
+    "internal/cli/compare.go"
+  ],
+  "validated_outcome": "Restoring the inline phase loop in place of the tallyPhases call fails TestSummarizeTrialsReachesTallyPhases (N/A bucket 0, want 2) and TestSummarizeTrialsDistributionCountsEntries (5 entries, want 7), while the generated TestCompareAggregation stays green."
+}

@@ -138,16 +138,40 @@ func buildDrugProfile(ctx context.Context, ctgov ctgovClient, src *source.Client
 	if err != nil {
 		return nil, err
 	}
+	summarizeTrials(p, trials, topSponsors)
+	return p, nil
+}
+
+// summarizeTrials fills in the parts of a drugProfile that are derived from
+// the sampled trials alone: the sample size and the phase and sponsor
+// rankings. It takes no client and performs no I/O, so the aggregation the
+// comparison rests on can be exercised directly.
+//
+// Splitting it out is not cosmetic. The assembly previously sat inside
+// buildDrugProfile between a ctgovFetch and a return, reachable only behind a
+// live client, and the existing coverage in compare_test.go responded to that
+// by rebuilding the loop in the test body rather than calling it. A copy
+// cannot detect a change in the original: that copy still tallies phases with
+// its own inline loop and so does not reach tallyPhases at all, which is
+// where the phaseless-trial guard lives.
+//
+// The phase cap of 8 is deliberately fixed while sponsors honour the
+// --top-sponsors flag. phaseLabel maps the registry's values onto six
+// buckets - Early Phase 1, Phase 1 through Phase 4, and N/A - and passes any
+// value it does not recognise through unchanged, so eight leaves room for two
+// unmapped values before the cap can hide one. Sponsors are unbounded: a
+// sample can hold hundreds, and which ones a reader wants is a judgement the
+// flag exists to make.
+func summarizeTrials(p *drugProfile, trials []Trial, topSponsors int) {
 	p.SampleSize = len(trials)
 
-	phase := tallyPhases(trials)
 	sponsor := newCounter()
 	for _, t := range trials {
 		sponsor.add(t.Sponsor)
 	}
-	p.PhaseDistribution = phase.top(8)
+
+	p.PhaseDistribution = tallyPhases(trials).top(8)
 	p.TopSponsors = sponsor.top(topSponsors)
-	return p, nil
 }
 
 // buildInterventionQuery joins resolved drug names into a single Essie
