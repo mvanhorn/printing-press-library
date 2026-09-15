@@ -2741,8 +2741,43 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
 }
 
+// unifiConsolePageMarkers are strings carried by the HTML a UniFi OS console
+// serves for a path it does not handle. The console answers unknown paths with its
+// own page rather than a JSON 404, so an HTML body is evidence about WHERE the
+// request went at least as often as it is evidence about the credential.
+var unifiConsolePageMarkers = [][]byte{
+	[]byte("UniFi OS"),
+	[]byte("UNIFI_OS_MANIFEST"),
+	[]byte("unifi.ui.com"),
+}
+
+// isUniFiConsolePage reports whether an HTML payload is the console's own page.
+func isUniFiConsolePage(trimmed []byte) bool {
+	if len(trimmed) == 0 || trimmed[0] != '<' {
+		return false
+	}
+	for _, marker := range unifiConsolePageMarkers {
+		if bytes.Contains(trimmed, marker) {
+			return true
+		}
+	}
+	return false
+}
+
 func nonJSONPayloadError(data json.RawMessage) error {
 	trimmed := bytes.TrimSpace(data)
+	if isUniFiConsolePage(trimmed) {
+		// PATCH(amend-2026-09-15: an HTML console page means the URL missed the API)
+		// This used to blame the credential unconditionally and return the auth exit
+		// code. Reproduced against a Cloud Gateway Ultra: a base_url without the
+		// console's /proxy/network prefix returns that login page, so the user was
+		// told to check a key that was already correct, and scripts were told the
+		// failure was an authentication one.
+		return apiErr(fmt.Errorf("the console answered with its own HTML page instead of " +
+			"JSON, so the request did not reach the API. Check base_url: on a UniFi OS " +
+			"console the Network integration API lives under /proxy/network, e.g. " +
+			"base_url = \"https://<gateway>/proxy/network\". The API key may be fine"))
+	}
 	if len(trimmed) > 0 && trimmed[0] == '<' {
 		return authErr(fmt.Errorf("not authenticated or session expired; API returned HTML instead of JSON. " + "Set your API key with: export UNIFI_API_KEY=\"your-token-here\""))
 	}
