@@ -122,6 +122,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 Generate a local API key from the gateway's own UI (Settings -> Control Plane -> Integrations -> Create API Key) and set UNIFI_API_KEY. The gateway's self-signed certificate is handled automatically for private/loopback/link-local hosts; no --insecure flag needed for the common case.
 
+The exact location of that page varies by UniFi Network version: on a Cloud Gateway it lives inside the **Network** application's own Settings, not the console/OS Settings tree.
+
+**On a self-hosted gateway, set `base_url` as well.** The local Network API sits behind the console's proxy, so the base URL has to include that prefix:
+
+```toml
+# ~/.config/unifi-pp-cli/config.toml  (see `unifi-pp-cli doctor` for the resolved path)
+base_url = "https://192.168.1.1/proxy/network"
+```
+
+Omit `/proxy/network` and the console answers with its own HTML page. The CLI reports that as a **base-URL** problem and exits 5, not as an authentication failure — which matters because the symptom reads like a bad key while the key is perfectly good.
+
 ## Quick Start
 
 ```bash
