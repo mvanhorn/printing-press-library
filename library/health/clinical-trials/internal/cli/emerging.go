@@ -84,60 +84,11 @@ func newNovelEmergingCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 
-			cutoff := time.Now().Year() - recentYears
-			recentIv, priorIv := newCounter(), newCounter()
-			recentCond, priorCond := newCounter(), newCounter()
-			phase := tallyPhases(trials)
-			geo := newCounter()
-			recentN, priorN := 0, 0
-			for _, t := range trials {
-				yr := startYear(t.StartDate)
-				recent := yr == 0 || yr >= cutoff // unknown dates count as recent (most-recently-updated sample)
-				if recent {
-					recentN++
-				} else {
-					priorN++
-				}
-				for _, iv := range t.Interventions {
-					key := normalizeCategoryToken(iv)
-					if recent {
-						recentIv.add(key)
-					} else {
-						priorIv.add(key)
-					}
-				}
-				for _, cond := range t.Conditions {
-					key := normalizeCategoryToken(cond)
-					if recent {
-						recentCond.add(key)
-					} else {
-						priorCond.add(key)
-					}
-				}
-				for _, country := range t.Countries {
-					geo.add(country)
-				}
-			}
-
-			view := emergingView{
-				Query:              category,
-				TotalTrials:        total,
-				RecruitingTrials:   recruiting,
-				RecruitingPct:      percentOf(recruiting, total),
-				SampleSize:         len(trials),
-				RecentCohort:       recentN,
-				PriorCohort:        priorN,
-				RecentSinceYear:    cutoff,
-				PhaseDistribution:  phase.top(8),
-				FastestGrowing:     growth(recentIv, priorIv, limit),
-				EmergingConditions: growth(recentCond, priorCond, limit),
-				GeographicHotspots: geo.top(10),
-			}
-			if len(trials) == 0 {
-				view.Note = "no trials matched; try a broader category term"
-			} else if priorN == 0 {
-				view.Note = "all sampled trials fall in the recent cohort; growth percentages reflect newly-appearing categories. Widen --sample or lower --recent-years for a comparison baseline."
-			}
+			view := summarizeEmerging(trials, recentYears, limit)
+			view.Query = category
+			view.TotalTrials = total
+			view.RecruitingTrials = recruiting
+			view.RecruitingPct = percentOf(recruiting, total)
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				if err := printJSONFiltered(cmd.OutOrStdout(), view, flags); err != nil {
@@ -181,6 +132,86 @@ func normalizeCategoryToken(s string) string {
 		s = strings.TrimSpace(s[:i])
 	}
 	return s
+}
+
+// summarizeEmerging derives everything the emerging view holds about the
+// sampled trials themselves: the recent/prior cohort split, the phase and
+// geography rankings, the two growth tables and the advisory note. It takes
+// no client and performs no I/O, so the cohort rules can be exercised
+// directly. The caller fills in Query and the three registry-wide counts,
+// which come from count queries rather than from the sample.
+//
+// This was assembled inline in RunE, behind a ctgovFetch, which left four
+// decisions unexercised. Each is a judgement a later reader could reasonably
+// reverse, so each now has a test:
+//
+// A trial whose start date does not parse counts as RECENT, not prior. The
+// sample is ordered by most-recent update, so an unparsed date is far more
+// likely to be a new posting than an old one; sending it to the prior cohort
+// would inflate the baseline and depress every growth figure measured
+// against it.
+//
+// Countries are tallied across the whole sample rather than per cohort. The
+// field answers where this research happens, which is not a question about
+// change over time, so splitting it would halve the counts for no gain.
+//
+// The note branches are ordered and the order carries meaning: an empty
+// sample satisfies both conditions, and it must be reported as no match
+// rather than as an all-recent cohort, because there is no cohort at all.
+func summarizeEmerging(trials []Trial, recentYears, limit int) emergingView {
+	cutoff := time.Now().Year() - recentYears
+	recentIv, priorIv := newCounter(), newCounter()
+	recentCond, priorCond := newCounter(), newCounter()
+	geo := newCounter()
+	recentN, priorN := 0, 0
+
+	for _, t := range trials {
+		yr := startYear(t.StartDate)
+		recent := yr == 0 || yr >= cutoff
+		if recent {
+			recentN++
+		} else {
+			priorN++
+		}
+		for _, iv := range t.Interventions {
+			key := normalizeCategoryToken(iv)
+			if recent {
+				recentIv.add(key)
+			} else {
+				priorIv.add(key)
+			}
+		}
+		for _, cond := range t.Conditions {
+			key := normalizeCategoryToken(cond)
+			if recent {
+				recentCond.add(key)
+			} else {
+				priorCond.add(key)
+			}
+		}
+		for _, country := range t.Countries {
+			geo.add(country)
+		}
+	}
+
+	view := emergingView{
+		SampleSize:         len(trials),
+		RecentCohort:       recentN,
+		PriorCohort:        priorN,
+		RecentSinceYear:    cutoff,
+		PhaseDistribution:  tallyPhases(trials).top(8),
+		FastestGrowing:     growth(recentIv, priorIv, limit),
+		EmergingConditions: growth(recentCond, priorCond, limit),
+		GeographicHotspots: geo.top(10),
+	}
+
+	if len(trials) == 0 {
+		view.Note = "no trials matched; try a broader category term"
+	} else if priorN == 0 {
+		view.Note = "all sampled trials fall in the recent cohort; growth percentages reflect newly-appearing categories. Widen --sample or lower --recent-years for a comparison baseline."
+	}
+
+	return view
 }
 
 // growth computes per-label growth between recent and prior cohorts, returning
