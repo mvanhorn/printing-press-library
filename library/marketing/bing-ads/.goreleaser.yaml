@@ -1,0 +1,51 @@
+version: 2
+project_name: bing-ads-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bing-ads-pp-cli
+    main: ./cmd/bing-ads-pp-cli
+    binary: bing-ads-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/bing-ads/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bing-ads-pp-mcp
+    main: ./cmd/bing-ads-pp-mcp
+    binary: bing-ads-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bing-ads-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//bing-ads-pp-cli"
+    description: "Reconstructed from the official BingAds-Python-SDK openapi_client (openapi-generator output)"
+    install: |
+      bin.install "bing-ads-pp-cli"
+      bin.install "bing-ads-pp-mcp"
