@@ -16,8 +16,12 @@ func newReportsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagContextType string
 
 	cmd := &cobra.Command{
-		Use:         "get <report_id>",
-		Short:       "Get a report's header, expenses, and web deep link",
+		Use: "get <report_id>",
+		// PATCH(amend-2026-09-15: F3 correct overpromising help text) — confirmed live
+		// (and by reading this file) that the command only ever returns the flat report
+		// header: no expenses array is constructed here, and no webUrl/deep-link field
+		// has been observed in real responses.
+		Short:       "Get a report's header",
 		Example:     "  concur-pp-cli reports get 550e8400-e29b-41d4-a716-446655440000 --user-id 550e8400-e29b-41d4-a716-446655440000 --context-type TRAVELER",
 		Annotations: map[string]string{"pp:endpoint": "reports.get", "pp:method": "GET", "pp:path": "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

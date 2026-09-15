@@ -54,8 +54,9 @@ Do not use this CLI for:
 
 These capabilities aren't available in any other tool for this API.
 
-### Conditional browser fallback for report creation
+### Conditional browser fallback for report and expense creation
 - **`reports create`** — Automatically and transparently retries report creation via automated browser when the Concur v4 API rejects pure HTTP requests with a `policyId is required` error. This fallback is completely conditional and only triggers for tenants requiring explicit policy assignment. It never guesses a Concur region: the UI host is derived only from a base URL that's actually `concursolutions.com`, or from an explicit `CONCUR_UI_BASE_URL` override — anything else is a clear error, not a silent default. If the browser click already succeeded before a later step fails, the error says so explicitly (with the report ID when known) instead of looking like a safely-retryable failure; do not blindly retry in that case.
+- **`expenses create`** — Same conditional fallback pattern, triggered by a different confirmed-live defect: once a request body passes every client-side validation check, the API 404s instead of persisting (deliberately-invalid bodies correctly get a 400 instead, ruling out a body-shape bug). Triggers for a `--stdin` body exactly as reliably as the flag-driven path -- the fields it needs are read from the constructed request body, not the command's flag variables. Since the browser never surfaces a usable expense ID, success is confirmed by diffing the report's expense list (`GET .../reports/{id}/expenses`, confirmed unaffected by the defect) before and after the form's Save click, correlated against the submitted amount and expense type so a report modified concurrently through a shared manager/processor/proxy context can't have another actor's new expense misattributed as this call's own. Fills `--vendor`/`--business-purpose` directly in the form when set; if either can't be found or filled, the fallback aborts BEFORE the irreversible Save click rather than saving without a value the caller explicitly asked for. Transaction Date has no stable accessible name and Payment Type's only verified-live value is Concur's own default (Cash) -- rather than silently substitute today/Cash and report success, a `--date` or `--payment-type` this can't honor is rejected before the browser even opens.
 
 ### Local state that compounds
 - **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses.
@@ -143,7 +144,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 **reports** — Expense report headers and lifecycle
 
 - `concur-pp-cli reports create` — Create a new expense report header (transparently falls back to browser-driven creation on tenants requiring policy selection)
-- `concur-pp-cli reports get` — Get a report's header, expenses, and web deep link
+- `concur-pp-cli reports get` — Get a report's header
 - `concur-pp-cli reports list` — List the current user's expense reports
 - `concur-pp-cli reports submit` — Submit a report for approval
 - `concur-pp-cli reports update` — Update a report's name or business purpose
@@ -191,6 +192,31 @@ concur-pp-cli hotels search --to "New York" --check-in 2026-10-12 --check-out 20
 Both create a live shopping session against your real tenant -- searches only, never books. `flights search` is a direct API call; `hotels search` drives a real browser (see HTTP Transport and Auth Setup) and is markedly slower.
 
 Scan the local SQLite cache for likely double-entered transactions across all your reports.
+
+### File a manual expense line item (e.g. a recurring personal-reimbursement stipend)
+
+```bash
+concur-pp-cli expenses create \
+  --report-id <report-id> --user-id <user-id> \
+  --type 01000 --date 2026-09-15 --amount 50 \
+  --payment-type CASH --vendor "F45 Training Culver City" --business-purpose "gym" \
+  --agent
+```
+
+`--type`/`--payment-type` take the `expenseTypeId`/`paymentTypeId` codes from `expense-types
+list`/`payment-types`, not display names. `--vendor` and `--business-purpose` are distinct
+Concur form fields (confirmed live 2026-09-15) -- Vendor Description is who you paid, Business
+Purpose is why; don't put a business-purpose-shaped value like "gym" into `--vendor`. Setting
+`--business-purpose` at creation time also means never needing `expenses apply-rules`'
+PATCH-based fill, which hits this same command's confirmed-live 404 defect just like creation
+itself used to. `--currency` set to anything other than `USD` is **rejected** -- no working
+currency-override field is confirmed live for this endpoint, and silently creating an expense in
+the report/policy default currency instead of what was requested is a correctness bug, not an
+acceptable fallback. If this command hits its confirmed-live HTTP 404 defect, it now falls back
+to browser automation automatically instead of just failing -- see "Conditional browser fallback
+for report and expense creation" above; this triggers for a `--stdin` body just as reliably as
+the flag-driven path, and will similarly reject (rather than silently substitute defaults for) a
+historical `--date` or non-Cash `--payment-type` it can't reliably honor.
 
 ## Auth Setup
 

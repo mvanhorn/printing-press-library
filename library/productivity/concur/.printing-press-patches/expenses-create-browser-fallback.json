@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "id": "expenses-create-browser-fallback",
+  "applied_at": "2026-09-15",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "feat(concur): add browser-automation fallback for expenses create on the confirmed-live backend 404 defect, plus a --business-purpose flag and stdin-path fallback coverage",
+  "reason": "expenses-create-body-shape-and-404-hint.json (this CLI's prior patch, same PR) fixed the request body shape and improved the 404's error message, but left the underlying Concur-backend defect itself undocumented as unfixable from the CLI. This patch closes that gap the same way report-creation-browser-fallback.json already closed an analogous one for reports create: when the HTTP path hits the confirmed-live defect (isExpensesCreate404DefectError), fall back to driving Concur's real 'New Expense' form via agent-browser. The direct new-expense URL (https://<host>/nui/expense/reports/<report_id>/expenses/new?expenseTypeId=<code>) and the Amount/Vendor Description/Business Purpose/Save Expense field names were confirmed live 2026-09-15 by navigating the real form. Because the browser never surfaces a usable expense ID, success is confirmed by diffing the report's expense list (GET .../reports/{id}/expenses, confirmed live unaffected by the mutation defect per PR #1940's F1 fix) before and after the Save Expense click -- which surfaced a second, real bug: the client's response cache was serving the stale 'before' snapshot back for the 'after' fetch, silently defeating the diff. Fixed by using GetNoCache (an existing client method built for exactly this poll-loop shape) instead of Get. Two follow-up fixes landed in the same patch before review: (1) added a --business-purpose flag -- businessPurpose is a valid flat top-level property confirmed live in the same 34-property error that revealed expenseType/paymentType/vendor's object shapes, and it is a DIFFERENT Concur field from Vendor Description (--vendor) -- setting it at creation time avoids ever needing expenses apply-rules' PATCH-based fill, which was independently confirmed live this session to hit this exact same 404 defect on the update path too; (2) removed an overly-broad !stdinBody exclusion on the fallback trigger -- a --stdin caller's flag variables are always empty, so the original version could never drive the fallback for that input path at all, no matter which input path hit the defect. Fixed by extracting the fallback's needed fields from the already-constructed request body map (extractExpenseFallbackParams) instead of the raw flag variables, which works uniformly for both input paths.",
+  "files": [
+    "internal/cli/expenses_create.go",
+    "internal/cli/expenses_create_test.go",
+    "internal/cli/expenses_create_fallback_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "isExpensesCreate404DefectError(err) && !flags.dryRun",
+    "extractExpenseFallbackParams(body)",
+    "createExpenseViaBrowserFallback(",
+    "c.GetNoCache(ctx, path, nil)",
+    "cmd.Flags().StringVar(&bodyBusinessPurpose, \"business-purpose\"",
+    "diffNewExpense(before, after, beforeIDs, amount, expenseTypeCode)",
+    "expenseAmountAndType(raw)",
+    "hasConcurAPIErr && concurAPIErr.StatusCode == 404 && concurAPIErr.Method == \"POST\""
+  ],
+  "validated_outcome": "go build/vet clean; full go test ./... passes with zero regressions; 20+ new tests across all revisions (404-defect detection incl. a PATCH-path case and a Method/Path-scoping matrix, expense-list diffing with amount+type correlation incl. a concurrent-misattribution scenario, partial-success error, --business-purpose flag, extractExpenseFallbackParams for both input shapes, currency/date/payment-type rejection paths verified to fire before any browser or API write, field-not-fillable abort verified to fire before the Save click, and a full command-level test suite with a mocked agent-browser binary). publish validate: same 2 pre-existing unrelated failures as the prior patch in this PR (phase5 fingerprint drift, verify-skill install-section drift); govulncheck/go vet/go build/--help/--version all clean.",
+  "findings_addressed": ["F2"],
+  "review_fixes": [
+    {
+      "finding": "Currency Override Is Ignored (Greptile P1)",
+      "fix": "A non-USD --currency used to warn on stderr and still submit the POST in the report/policy default currency. Now rejected with a hard error before any write -- a JSON/agent caller has no way to detect a silent currency mismatch from a success response, so a loud failure is strictly safer than a quiet wrong-currency expense."
+    },
+    {
+      "finding": "404 Match Is Too Broad (Greptile P2)",
+      "fix": "classifyAPIError's expenses-create 404 signature used to match on the response path merely CONTAINING \"/expenses\", which also matches GET/PATCH on an individual expense (apply-rules' PATCH) or attendee routes. Now extracts the real *client.APIError and requires Method==\"POST\" plus an exact \"/expenses\" path suffix, so an unrelated 404 on a different route/method never gets the create-specific partial-success-flavored hint."
+    },
+    {
+      "finding": "Fallback Discards Requested Fields (Greptile P1)",
+      "fix": "A historical --date or non-Cash --payment-type used to only warn, then save with Concur's form defaults (today, Cash) anyway and report success. Both are now rejected before the browser even opens (both checks are static -- no browser state needed to know they'd be violated), instead of silently creating an expense with materially different data than requested."
+    },
+    {
+      "finding": "Concurrent Expense Misattribution (Greptile P1)",
+      "fix": "diffNewExpense used to treat ANY single expense ID absent from the earlier snapshot as the expense this call created. Shared manager/processor/proxy contexts mean another actor could add the only newly-visible expense while this call's Save was delayed or failed. Now filters candidates against the amount and expense-type code this call actually submitted (new expenseAmountAndType helper, tolerant of either a flat or nested response shape) before accepting a match; zero or multiple matching candidates still errors rather than guessing."
+    },
+    {
+      "finding": "Business Purpose Gets Dropped (Greptile P1)",
+      "fix": "Vendor Description and Business Purpose used to only warn if the field couldn't be found/filled, then save anyway -- the later expense-list diff only confirms SOME new expense appeared, not that the caller's requested field values landed. Both now abort BEFORE the irreversible Save click if the field can't be found or filled, applying the same fix to Vendor Description as Business Purpose for consistency (an identical latent bug Greptile didn't call out by name but the pattern was the same)."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "expenses create: Transaction Date field targeting in the browser fallback",
+      "reason": "Confirmed live 2026-09-15 that the Transaction Date input has no stable accessible name (unlabeled, placeholder \"MM/DD/YYYY\" only) -- agent-browser's ref model is name/role based, so this field can't be targeted reliably. Per the review-fixes above, a --date other than today is now REJECTED rather than silently defaulted. Superseding this requires either a more specific live-confirmed selector strategy for unlabeled fields, or an agent-browser capability for placeholder-based targeting -- at which point --date could be honored instead of rejected."
+    },
+    {
+      "feature": "expenses create: Payment Type change in the browser fallback",
+      "reason": "Concur's form defaults Payment Type to Cash, matching this CLI's own default, so the common case never needs to touch it. Changing it to a different value was not verified live in this session. Per the review-fixes above, a non-Cash --payment-type is now REJECTED rather than silently defaulted to Cash. Superseding this requires live-verifying the Payment Type dropdown interaction."
+    },
+    {
+      "feature": "expenses create HTTP 404 on fully-valid bodies (the underlying Concur-backend defect itself)",
+      "reason": "This patch works around the defect via browser automation; it does not fix the defect, which lives in Concur's backend, not this CLI. If Concur fixes this server-side, isExpensesCreate404DefectError simply stops matching and the pure-HTTP path keeps working as originally generated -- no cleanup needed, but worth noting this fallback becomes dead code at that point."
+    }
+  ]
+}

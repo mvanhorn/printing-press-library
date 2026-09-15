@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "expenses-create-body-shape-and-404-hint",
+  "applied_at": "2026-09-15",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "fix(concur): correct expenses-create's request body shape; accurate hint for its live 404; fix reports-get help text",
+  "reason": "Confirmed live during a real monthly-expense-filing session: expenses create's flag-driven body builder sent expenseTypeCode/transactionCurrencyCode/paymentTypeId/vendorDescription, all rejected by the live API with HTTP 400 Unrecognized field -- 100% of flag-driven expense creation failed. The real NewReportExpense model wants expenseType/paymentType/vendor as objects and transactionAmount/transactionDate as flat values (confirmed via ~10 live trials narrowing the exact shape). Separately, once a body passes all field-type validation, the same endpoint returns a generic, misleading HTTP 404 instead of 201 (confirmed via ~15 live trials isolating this to request-completeness, not a body-shape problem) -- classifyAPIError's generic 404 hint ('run the list command') is actively wrong for this case, so a narrowly-scoped, more accurate hint replaces it for this exact signature only. Also fixed reports get's help text, which promised an expenses array and web deep link that the command has never actually returned.",
+  "files": [
+    "internal/cli/expenses_create.go",
+    "internal/cli/expenses_create_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_test.go",
+    "internal/cli/reports_get.go"
+  ],
+  "call_sites": [
+    "bodyMap[\"expenseType\"] = map[string]any{\"code\": bodyExpenseTypeCode}",
+    "strings.Contains(msg, \"HTTP 404\") && strings.Contains(msg, \"No static resource\") && strings.Contains(msg, \"/expenses\")"
+  ],
+  "validated_outcome": "go build/vet clean; full go test ./... passes with zero regressions; 4 new tests added (2 for the corrected body shape + currency warning, 2 for the 404-hint classification including a regression guard that unrelated 404s keep the original generic hint).",
+  "findings_addressed": ["F1", "F2", "F3"],
+  "deferred_to_upstream": [
+    {
+      "feature": "expenses create currency override",
+      "reason": "No working currency-override field was found live for this endpoint -- transactionCurrencyCode (the only field this CLI ever sent) is confirmed not one of the API's 34 known top-level properties. A non-USD --currency now warns explicitly instead of silently sending a confirmed-wrong key or guessing at an unverified one. Superseding this patch requires live-testing a real non-USD tenant/expense to find the actual mechanism (possibly report/policy-level currency inheritance with no per-expense override at all)."
+    },
+    {
+      "feature": "expenses create HTTP 404 on fully-valid bodies",
+      "reason": "This looks like a genuine Concur-backend defect (or tenant/policy-specific server misconfiguration) triggered once a request passes all client-side validation -- confirmed not a body-shape issue via ~15 live permutations. There is no client-side fix for the underlying 404; this patch only improves the error message. If Concur fixes this server-side, the new hint becomes dead code for a no-longer-reachable state and can be removed."
+    }
+  ]
+}
