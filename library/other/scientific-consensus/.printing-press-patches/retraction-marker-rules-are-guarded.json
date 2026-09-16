@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "retraction-marker-rules-are-guarded",
+  "applied_at": "2026-09-16",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Every element of the retraction marker pattern is deliberate and a regeneration must not simplify any of them away: the start anchor, case-insensitive matching, the required separator, the optional bracket, and withdrawn as a marker beside retracted. The index-only tier stays separate from the title tier and still excludes the work from the score, and retraction notices stay undetected until a rule of their own is measured. A hand-authored retracted_test.go pins each element, and testdata/corpora_full/vaccines.json, which retracted.go and normalize.go already cite as evidence, is restored so that evidence can be read.",
+  "reason": "The CLI gate covered four cases, so the anchor, the withdrawn marker and the bracket form could each be removed with every test green, and the corpus the source comments cite was not in the repository.",
+  "files": [
+    "internal/scengine/retracted_test.go",
+    "internal/scengine/testdata/corpora_full/vaccines.json"
+  ],
+  "validated_outcome": "Seven mutations of the detector each fail at least one test; three of them (anchor, withdrawn, bracket) fail only in this file. The anchor guard is a synthetic title, marked as such in its why field, because no stored corpus holds a text that only the anchor rejects (15 files, 650 titles and abstracts checked). The corpus test asserts 37 studies, exactly two of which discuss a retraction in the abstract, and that the detector flags none of them."
+}
