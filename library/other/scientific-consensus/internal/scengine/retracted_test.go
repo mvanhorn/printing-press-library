@@ -10,8 +10,8 @@ import (
 
 // This file pins DetectRetraction at the engine level. The CLI-level gate
 // (internal/cli/retraction_gate_test.go) covers filterRetracted with four
-// cases; the marker forms, the withdrawn variant, and the index false
-// positive below are only guarded here.
+// cases; the marker forms, the withdrawn variant, the start anchor, and the
+// index false positive below are only guarded here.
 //
 // Design under test, and why it has two tiers:
 //
@@ -96,7 +96,7 @@ var retractionCases = []retractionCase{
 		title: "Misconduct accounts for the majority of retracted scientific publications",
 		flag:  false,
 		want:  NotRetracted,
-		why:   "bibliometrics paper; the word is mid-title, so the start anchor rejects it",
+		why:   "bibliometrics paper; the word is mid-title with no separator after it",
 	},
 	{
 		name:  "topology_homonym",
@@ -118,6 +118,17 @@ var retractionCases = []retractionCase{
 		flag:  false,
 		want:  NotRetracted,
 		why:   "ordinary trial, verified is_retracted:false",
+	},
+
+	// --- NEGATIVE: synthetic guard for the start anchor ---
+	{
+		name:  "anchor_guard_synthetic_mid_title",
+		title: "Why clinical trials get retracted: a cross-sectional analysis",
+		flag:  false,
+		want:  NotRetracted,
+		why: "synthetic, not a measured title. The marker word followed by a separator sits mid-title, " +
+			"so only the start anchor rejects it. No stored corpus contains such a text (15 files, " +
+			"650 titles and abstracts checked), so without this case removing the anchor passes every test.",
 	},
 
 	// --- The verified index false positive ---
