@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "691604729126bd71472758eadbe4c6bcb96f32be93c251f1b47f7beeb5f9706d",
+  "source_fingerprint": "3274fcc65645ca9c6c85efd918fd0d5ad164c9999e9987e2e98d42e29da284a3",
   "source_files": {
     "cmd/immoweb-pp-cli/main.go": "822daad193ba50eac02df87945555778240028e8827f65ae42e2a253d60c2e82",
     "cmd/immoweb-pp-mcp/http_auth_test.go": "62811b19c2aa1ab7d47ce338e5833bc6747b66d6f6d2ac183be89f107daf6890",
@@ -87,7 +87,7 @@
     "internal/client/client.go": "770900deb53e5db078cc03f702df3ddbb22e907a3ad5e8f84161b3cd4f66b819",
     "internal/client/client_test.go": "3c15a2fe144a53275170c24ac7b9ad219c95470a363e9000e2cc6264dfcb5546",
     "internal/client/client_verify_short_circuit_test.go": "9e8724e5257617aa7aa38ff256b3b44997e7deb30717f36b31d4b38a704162d3",
-    "internal/client/immoweb_query_test.go": "73cbf9e10a847f734443de8d7cee7fde1726887d3fd1fff74cec5839ebb3927d",
+    "internal/client/immoweb_query_test.go": "82658ff70e9e0617bb6e4fd297dec50ac4fd8afd750f3a3598d0ca72f124944e",
     "internal/client/platform_budget_test.go": "8c80f10afe5a7113dd44121a36749253d17b271eea600d8e7e4c7e19f15e7807",
     "internal/client/platform_rate_limit_test.go": "4cc10f547c549e1521f175efccc6f88a2f61d254099d7f74093fd2831385bccc",
     "internal/cliutil/cliutil_test.go": "f5b59e4c8161a503341c5400b12c28cb41b7e9310c854e8ce5e60cfedad45549",
