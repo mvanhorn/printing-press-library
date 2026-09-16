@@ -624,7 +624,7 @@ func pathWithQueryValues(path string, params url.Values) string {
 	if len(params) == 0 {
 		return path
 	}
-	encoded := params.Encode()
+	encoded := immowebQuery(params.Encode())
 	if encoded == "" {
 		return path
 	}
@@ -1099,7 +1099,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 					q.Set(k, v)
 				}
 			}
-			req.URL.RawQuery = q.Encode()
+			req.URL.RawQuery = immowebQuery(q.Encode())
 		}
 
 		if authHeader != "" {
@@ -1782,4 +1782,11 @@ func isPermanentDNSError(err error) bool {
 	// The generic "server misbehaving" text is also used for transient
 	// SERVFAIL responses, so only explicit refusal text is terminal here.
 	return strings.Contains(reason, "refused")
+}
+
+// immowebQuery keeps list separators readable in a query string. Immoweb
+// ignores a list parameter whose commas are percent-encoded (epcScores=F%2CG
+// filters nothing, epcScores=F,G filters), so commas are sent as-is.
+func immowebQuery(encoded string) string {
+	return strings.ReplaceAll(encoded, "%2C", ",")
 }
