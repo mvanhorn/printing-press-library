@@ -8,5 +8,5 @@
   "reason": "Immoweb ignores a list parameter whose comma is percent-encoded: --epc F,G produced the unfiltered count (1 576) while the site's own epcScores=F,G gives 521. Single labels worked, so the loss was silent.",
   "files": ["internal/client/client.go", "internal/client/immoweb_query_test.go"],
   "markers": ["func immowebQuery(encoded string) string"],
-  "validated_outcome": "find --epc F,G now returns the same total as the site (521 for 1030,1080,1040 houses+apartments); TestImmowebQueryKeepsCommas."
+  "validated_outcome": "find --epc F,G now returns the same total as the site (521 for 1030,1080,1040 houses+apartments); TestImmowebQueryKeepsCommas and TestGetSendsListFiltersWithLiteralCommas (request-level)."
 }
