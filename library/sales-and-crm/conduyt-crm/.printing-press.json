@@ -7,11 +7,11 @@
   "cli_name": "conduyt-crm-pp-cli",
   "creator": {
     "handle": "ptaramona",
-    "name": "Paul Taramona"
+    "name": "Conduyt"
   },
   "owner": "ptaramona",
   "printer": "ptaramona",
-  "printer_name": "Paul Taramona",
+  "printer_name": "Conduyt",
   "spec_path": "conduyt-crm-openapi.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:5bc444f57627c86e0ab3661017241b39a454a48bcd8075cb77874728cc8b62a8",
@@ -26,7 +26,8 @@
   "auth_type": "bearer_token",
   "auth_preference": "BearerAuth",
   "auth_env_vars": [
-    "CONDUYT_CRM_BEARER_AUTH"
+    "CONDUYT_API_KEY",
+    "CONDUYT_BEARER_AUTH"
   ],
   "auth_env_var_specs": [
     {

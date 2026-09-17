@@ -1,7 +1,7 @@
 ---
 name: pp-conduyt-crm
 description: "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has. Trigger phrases: `is this list safe to text`, `did the morning import land`, `who is on pace this month`, `compare speed to lead week over week`, `what is the dialer handing out next`, `use conduyt-crm`, `run conduyt-crm`."
-author: "Paul Taramona"
+author: "conduyt"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
