@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix55-empty-compare-property-paths",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.32.1",
+  "files": [
+    "internal/cli/reports_compare.go"
+  ],
+  "summary": "Empty report comparison property paths: `reports_compare.go` renders an empty JSON property as `[\"\"]` and inserts property separators by segment position, keeping public metric names injective without changing the existing escaping for dots and brackets.",
+  "reason": "Command-level regressions cover an empty-property collision with an ordinary nested path, distinction from the document root, and an empty property below an indexed dimension member."
+}

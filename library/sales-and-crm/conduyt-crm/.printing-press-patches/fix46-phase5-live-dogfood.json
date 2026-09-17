@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix46-phase5-live-dogfood",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.32.1",
+  "files": [
+    "internal/cli/phase5_live_dogfood_test.go"
+  ],
+  "summary": "Phase 5 live dogfood contracts: normalize only the exact Conduyt double-wrapped paginated list envelope and preserve its page metadata while projecting rows through JSON, table, CSV, selectors, pagination, and write-through caching.",
+  "reason": "Keep specialized collection decoders aligned with that shared shape; true queue totals override fetched-row caps. Preserve the live-first/local-fallback contract for hours audit, leave scorecards uncapped by default, and separate the read-only line-type estimate from the explicitly paid `run --until-done` subcommand. Preserve the named generated endpoint commands' dogfood annotations and required query-flag validation. Regression coverage lives beside the CLI tests, including `phase5_live_dogfood_test.go`."
+}

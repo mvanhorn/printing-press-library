@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix30-paid-loop-shape-guard",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.32.1",
+  "files": [
+    "internal/cli/contacts_verify_line_type.go"
+  ],
+  "summary": "Paid-loop response-shape guard: `internal/cli/contacts_verify_line_type.go` validates every successful verification response before counting the batch or issuing another paid POST.",
+  "reason": "Error/message envelopes, missing or wrongly typed required fields, and invalid `byLineType` maps stop immediately through the existing partial API-error path. Regression coverage proves each malformed response issues exactly one POST."
+}

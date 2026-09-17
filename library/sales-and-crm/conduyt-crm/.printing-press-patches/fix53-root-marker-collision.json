@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix53-root-marker-collision",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.32.1",
+  "files": [
+    "internal/cli/reports_compare.go"
+  ],
+  "summary": "Root marker collision: `reports_compare.go` keeps the document root as a distinct empty internal collection path and applies the human-readable `$` label only when formatting comparison output.",
+  "reason": "`reports_compare.go` keeps the document root as a distinct empty internal collection path and applies the human-readable `$` label only when formatting comparison output. A JSON property literally named `$` therefore remains an ordinary key for collection kinds, member classification, and fixed metrics."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix54-structured-compare-paths",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.32.1",
+  "files": [
+    "internal/cli/reports_compare.go"
+  ],
+  "summary": "Structured report comparison paths: `reports_compare.go` represents report metric and collection paths as typed property and array-selector segments.",
+  "reason": "`reports_compare.go` represents report metric and collection paths as typed property and array-selector segments. Internal map keys use an injective length-prefixed encoding, while ancestry and dimension classification operate on segments rather than rendered strings. Human-readable output escapes dots and brackets in literal property names, so those properties cannot collide with nested properties or generated array selectors."
+}

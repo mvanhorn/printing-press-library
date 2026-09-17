@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix52-root-collection-comparison",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.32.1",
+  "files": [
+    "internal/cli/reports_compare.go"
+  ],
+  "summary": "Root collection comparison: `reports_compare.go` records the document root as `$`, so root-array indexed member churn follows the same collection-kind rules as nested dimensions.",
+  "reason": "`reports_compare.go` records the document root as `$`, so root-array indexed member churn follows the same collection-kind rules as nested dimensions. Same-kind root arrays remain non-fatal, including an empty window, while root array/object/scalar kind changes produce a partial typed failure naming `$`."
+}
