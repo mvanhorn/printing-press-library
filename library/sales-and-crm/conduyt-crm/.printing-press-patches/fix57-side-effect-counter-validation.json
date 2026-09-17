@@ -4,7 +4,14 @@
   "applied_at": "2026-09-17",
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
-  "files": [],
+  "files": [
+    "internal/cli/automations_hours_audit.go",
+    "internal/cli/automations_hours_audit_test.go",
+    "internal/cli/imports_blame.go",
+    "internal/cli/imports_blame_test.go",
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_watch_test.go"
+  ],
   "summary": "Side-effect counter validation: `imports blame` and `imports watch --verify` must parse every inspected import side-effect counter as a non-negative integer and return their existing partial API failure when any present counter is malformed or negative.",
   "reason": "Preferred `retryableFailed` and `exhaustedFailed` keys retain their legacy-key fallback and conflict checks, but use the same counter parser as all other side-effect keys. Endpoint-level regression coverage lives beside both import commands."
 }

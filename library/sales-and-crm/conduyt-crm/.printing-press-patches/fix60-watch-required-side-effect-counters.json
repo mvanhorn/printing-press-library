@@ -4,7 +4,12 @@
   "applied_at": "2026-09-17",
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
-  "files": [],
+  "files": [
+    "internal/cli/imports_blame.go",
+    "internal/cli/imports_blame_test.go",
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_watch_test.go"
+  ],
   "summary": "Watch requires rendered side-effect counters: `imports watch --verify` must require every rendered job-scoped side-effect counter, including `total`, `completed`, `failed`, and `held`, using the same strict preferred/legacy parsing contract as `imports blame`.",
   "reason": "Missing or invalid counters return the existing partial API failure, and missing watch-verification counters render as `null` rather than zero. Endpoint-level regression coverage lives beside the watch command."
 }

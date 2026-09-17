@@ -4,7 +4,12 @@
   "applied_at": "2026-09-17",
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
-  "files": [],
+  "files": [
+    "internal/cli/automations_hours_audit_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/reports_compare.go",
+    "internal/cli/reports_compare_test.go"
+  ],
   "summary": "Nested collection and total drift: classify one-sided report dimensions against their nearest indexed collection, including missing or incompatible nested containers.",
   "reason": "Preserve pagination total presence and validity across pages so zero, missing, and malformed later totals produce typed truncation errors."
 }

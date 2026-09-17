@@ -4,7 +4,16 @@
   "applied_at": "2026-09-17",
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
-  "files": [],
+  "files": [
+    "internal/cli/contacts_verify_line_type.go",
+    "internal/cli/contacts_verify_line_type_test.go",
+    "internal/cli/dialer_coverage.go",
+    "internal/cli/dialer_coverage_test.go",
+    "internal/cli/imports_blame.go",
+    "internal/cli/imports_blame_test.go",
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_watch_test.go"
+  ],
   "summary": "Partial API exits and verification consistency: preserve underlying HTTP errors after partial metadata is emitted by imports blame and sibling partial-result commands, so documented status exit codes survive.",
   "reason": "Reject line-type verification batches unless `done == (remaining == 0)` before counting the batch. Regression tests cover HTTP 401/403/404/500 mappings and the contradictory terminal response."
 }

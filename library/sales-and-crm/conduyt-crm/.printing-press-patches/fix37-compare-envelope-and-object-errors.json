@@ -4,7 +4,17 @@
   "applied_at": "2026-09-17",
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
-  "files": [],
+  "files": [
+    "internal/cli/contacts_verify_line_type.go",
+    "internal/cli/contacts_verify_line_type_test.go",
+    "internal/cli/dialer_coverage.go",
+    "internal/cli/export.go",
+    "internal/cli/helpers.go",
+    "internal/cli/reports_compare.go",
+    "internal/cli/reports_compare_test.go",
+    "internal/cli/search.go",
+    "internal/cli/tail.go"
+  ],
   "summary": "Compare envelope and object errors: guard report comparison responses before decoding or unwrapping them.",
   "reason": "The shared guard now rejects every non-null `error` value and string/object `message` envelopes, with regression coverage for current, prior, top-level, nested, and audited handcrafted response paths."
 }

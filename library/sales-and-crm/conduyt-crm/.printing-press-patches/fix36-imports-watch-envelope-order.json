@@ -4,7 +4,10 @@
   "applied_at": "2026-09-17",
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
-  "files": [],
+  "files": [
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_watch_test.go"
+  ],
   "summary": "Imports watch envelope order: guard import job, launch-monitor, and verification responses for API error envelopes before decoding or unwrapping them.",
   "reason": "Regression tests cover top-level and data-nested string/object `error` and `message` envelopes carrying otherwise valid terminal data."
 }
