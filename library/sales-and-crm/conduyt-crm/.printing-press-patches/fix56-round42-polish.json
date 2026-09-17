@@ -5,8 +5,12 @@
   "base_run_id": "20260916-101513-9e12dad7",
   "base_printing_press_version": "4.32.1",
   "files": [
-    "internal/cli/reports_compare.go",
-    "internal/cli/reports_compare_test.go"
+    "internal/cli/automations_hours_audit.go",
+    "internal/cli/automations_hours_audit_test.go",
+    "internal/cli/imports_blame.go",
+    "internal/cli/imports_blame_test.go",
+    "internal/cli/imports_watch.go",
+    "internal/cli/imports_watch_test.go"
   ],
   "summary": "Round 42 polish: import side-effect verification prefers the current `retryableFailed` and `exhaustedFailed` counters, accepts legacy counters only when the current key is absent, and fails closed on invalid or conflicting dual-key values.",
   "reason": "Published-only hours audits classify an automation after filtering its graph to audited action types, so the automation and excluded summary counts reconcile even when a published graph contains only trigger/control nodes."
