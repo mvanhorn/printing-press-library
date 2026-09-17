@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "conduyt-crm-pp-mcp",
-  "display_name": "Conduyt",
-  "version": "4.2.0",
-  "description": "AI-native CRM for the terminal — manage contacts, deals, pipelines, automations, email sequences, SMS drip campaigns, invoices, and 70+ resource types. Local SQLite sync, compound insight queries (pipeline health, deal velocity, email stats), and MCP code-orchestration for agent integration.",
+  "display_name": "Conduyt CRM",
+  "version": "1.0.0",
+  "description": "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,17 +15,23 @@
       "command": "${__dirname}/bin/conduyt-crm-pp-mcp",
       "args": [],
       "env": {
-        "CONDUYT_CRM_TOKEN": "${user_config.conduyt_crm_token}"
+        "CONDUYT_API_KEY": "${user_config.conduyt_api_key}",
+        "CONDUYT_BEARER_AUTH": "${user_config.conduyt_bearer_auth}"
       }
     }
   },
   "user_config": {
-    "conduyt_crm_token": {
+    "conduyt_api_key": {
       "type": "string",
-      "title": "CONDUYT_CRM_TOKEN",
-      "description": "Bearer token for authenticating with the Conduyt CRM API.",
-      "sensitive": true,
-      "required": true
+      "title": "CONDUYT_API_KEY",
+      "description": "Optional. Sets CONDUYT_API_KEY for the Conduyt CRM MCP server.",
+      "sensitive": true
+    },
+    "conduyt_bearer_auth": {
+      "type": "string",
+      "title": "CONDUYT_BEARER_AUTH",
+      "description": "Optional. Sets CONDUYT_BEARER_AUTH for the Conduyt CRM MCP server.",
+      "sensitive": true
     }
   },
   "compatibility": {

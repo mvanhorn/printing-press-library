@@ -1,50 +1,145 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-09T18:10:00Z",
-  "printing_press_version": "4.2.0",
+  "schema_version": 2,
+  "generated_at": "2026-09-17T15:05:57.295707Z",
+  "printing_press_version": "4.32.1",
   "api_name": "conduyt-crm",
   "display_name": "Conduyt CRM",
   "cli_name": "conduyt-crm-pp-cli",
   "creator": {
     "handle": "ptaramona",
-    "name": "Conduyt"
+    "name": "Paul Taramona"
   },
-  "owner": "conduyt",
-  "owner_name": "Conduyt",
-  "category": "sales-and-crm",
-  "description": "AI-native CRM for the terminal — manage contacts, deals, pipelines, automations, email sequences, SMS drip campaigns, invoices, and 70+ resource types. Local SQLite sync, compound insight queries (pipeline health, deal velocity, email stats), and MCP code-orchestration for agent integration.",
-  "mcp_binary": "conduyt-crm-pp-mcp",
-  "mcp_ready": "full",
-  "auth_type": "bearer",
-  "auth_env_vars": [
-    "CONDUYT_CRM_TOKEN"
-  ],
+  "owner": "ptaramona",
+  "printer": "ptaramona",
+  "printer_name": "Paul Taramona",
+  "spec_path": "conduyt-crm-openapi.yaml",
   "spec_format": "openapi3",
-  "base_url": "https://app.conduyt.com/api/v1",
-  "run_id": "20260509T181000Z-6513e1d0",
-  "novel_features": [
+  "spec_checksum": "sha256:5bc444f57627c86e0ab3661017241b39a454a48bcd8075cb77874728cc8b62a8",
+  "run_id": "20260916-101513-9e12dad7",
+  "category": "sales-and-crm",
+  "description": "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has.",
+  "mcp_binary": "conduyt-crm-pp-mcp",
+  "mcp_tool_count": 829,
+  "mcp_public_tool_count": 21,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "BearerAuth",
+  "auth_env_vars": [
+    "CONDUYT_CRM_BEARER_AUTH"
+  ],
+  "auth_env_var_specs": [
     {
-      "name": "Contact Trends",
-      "command": "contact-trends",
-      "description": "Analyze contact creation patterns by date and source using local SQLite store"
+      "name": "CONDUYT_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
     },
     {
-      "name": "Deal Velocity",
-      "command": "deal-velocity",
-      "description": "Analyze average deal cycle time, win rate, and per-stage duration metrics"
-    },
-    {
-      "name": "Pipeline Health",
-      "command": "pipeline-health",
-      "description": "Pipeline health check with stale deal detection, stage distribution, and bottleneck scoring"
-    },
-    {
-      "name": "Email Stats",
-      "command": "email-stats",
-      "description": "Email performance analytics — open rates, click rates, reply rates, and per-template breakdown"
+      "name": "CONDUYT_BEARER_AUTH",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
     }
   ],
-  "printer": "ptaramona",
-  "printer_name": "Conduyt",
-  "mcp_tool_count": 321
+  "novel_features": [
+    {
+      "name": "Send-safety check",
+      "command": "send-check",
+      "description": "A go/no-go verdict for a send list before any SMS or drip: missing phones, unverified line types, invalid numbers and DNC hits in one table."
+    },
+    {
+      "name": "Import delivery blame",
+      "command": "imports blame",
+      "description": "For one import job: who got the SMS, who was skipped and why, grouped by reason, including queued and exhausted side effects."
+    },
+    {
+      "name": "Import watcher",
+      "command": "imports watch",
+      "description": "Blocks until an import job reaches a terminal state, then prints the created/updated/skipped/error recap with typed exit codes."
+    },
+    {
+      "name": "Verification cost estimate",
+      "command": "contacts verify-line-type",
+      "description": "Counts the unverified numbers in scope from the local store and shows the tenant-paid Twilio exposure before the paid verification loop runs."
+    },
+    {
+      "name": "Targets scorecard",
+      "command": "reports scorecard",
+      "description": "Target versus actual per user and metric with attainment percent and pace to the end of the period."
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "reports compare",
+      "description": "Any core report called for a window and the equal prior window, with prior, current, delta and delta percent on every numeric value."
+    },
+    {
+      "name": "Dial coverage",
+      "command": "dialer coverage",
+      "description": "Priorities in dial order with queue depth per priority and the count of available agents; empty priorities are listed under empty_priorities with a warning (exit 0)."
+    },
+    {
+      "name": "Operating-hours audit",
+      "command": "automations hours-audit",
+      "description": "Every Send SMS, Send Email and Assign step across synced automations, listed with or without an operating-hours window."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Send-safety check",
+      "command": "send-check",
+      "description": "A go/no-go verdict for a send list before any SMS or drip: missing phones, unverified line types, invalid numbers and DNC hits in one table."
+    },
+    {
+      "name": "Import delivery blame",
+      "command": "imports blame",
+      "description": "For one import job: who got the SMS, who was skipped and why, grouped by reason, including queued and exhausted side effects."
+    },
+    {
+      "name": "Import watcher",
+      "command": "imports watch",
+      "description": "Blocks until an import job reaches a terminal state, then prints the created/updated/skipped/error recap with typed exit codes."
+    },
+    {
+      "name": "Verification cost estimate",
+      "command": "contacts verify-line-type",
+      "description": "Counts the unverified numbers in scope from the local store and shows the tenant-paid Twilio exposure before the paid verification loop runs."
+    },
+    {
+      "name": "Targets scorecard",
+      "command": "reports scorecard",
+      "description": "Target versus actual per user and metric with attainment percent and pace to the end of the period."
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "reports compare",
+      "description": "Any core report called for a window and the equal prior window, with prior, current, delta and delta percent on every numeric value."
+    },
+    {
+      "name": "Dial coverage",
+      "command": "dialer coverage",
+      "description": "Priorities in dial order with queue depth per priority and the count of available agents; empty priorities are listed under empty_priorities with a warning (exit 0)."
+    },
+    {
+      "name": "Operating-hours audit",
+      "command": "automations hours-audit",
+      "description": "Every Send SMS, Send Email and Assign step across synced automations, listed with or without an operating-hours window."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 99.79550102249489,
+    "passed": 488,
+    "total": 489,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A",
+      "total": 97
+    }
+  }
 }

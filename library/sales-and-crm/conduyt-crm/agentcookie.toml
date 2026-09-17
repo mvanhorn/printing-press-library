@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "conduyt-crm-pp-cli"
+display_name = "Conduyt CRM"
+description = "Every Conduyt endpoint as a command, plus send-safety, import forensics, report deltas and dialer coverage no other Conduyt surface has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/conduyt-crm-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CONDUYT_API_KEY = true
+CONDUYT_BEARER_AUTH = true
