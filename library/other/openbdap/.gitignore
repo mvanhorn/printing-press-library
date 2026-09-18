@@ -1,0 +1,11 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/openbdap-pp-cli
+/openbdap-pp-cli.exe
+/openbdap-pp-mcp
+/openbdap-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Dump CSV lasciati nella directory corrente da "scarica" (anche durante i test).
+/*.csv

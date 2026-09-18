@@ -1,0 +1,261 @@
+{
+  "api_name": "openbdap",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "ckan-mcp-server",
+      "url": "https://github.com/ondata/ckan-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 57,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DoveVannoINostriSoldi",
+      "url": "https://github.com/Italian-Builders-Org/DoveVannoINostriSoldi",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 318,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-17T18:33:54Z",
+  "novel_features": [
+    {
+      "name": "Dossier di progetto",
+      "command": "dossier",
+      "description": "Il quadro completo di un'opera pubblica a partire dal CUP: progetto, pagamenti, gare, partecipanti, piano dei costi e soggetti titolari.",
+      "rationale": "Richiede di unire il dataset MOP Totale con i cinque dataset MOP regionali, che nessuna chiamata singola restituisce insieme.",
+      "example": "openbdap-pp-cli dossier I77H11000120009 --agent",
+      "why_it_matters": "Usalo quando ti serve tutto su un'opera e hai solo il CUP, invece di cinque chiamate OData con filtri diversi.",
+      "group": "Opere pubbliche trasversali"
+    },
+    {
+      "name": "Serie storiche del catalogo",
+      "command": "serie",
+      "description": "Le annualita', le mensilita' e le regioni disponibili di una stessa serie di dataset.",
+      "rationale": "Le serie esistono solo dentro i titoli dei 3857 dataset e vanno ricostruite nello store locale.",
+      "example": "openbdap-pp-cli serie \"Pagamenti Bilancio dello Stato\" --agent",
+      "why_it_matters": "Usalo per sapere se esiste l'annualita' che ti serve senza scorrere il catalogo.",
+      "group": "Catalogo che si capisce"
+    },
+    {
+      "name": "Opere di un ente",
+      "command": "opere",
+      "description": "Le opere pubbliche in capo a un ente, a partire dal suo codice fiscale, con il totale reale.",
+      "rationale": "Il codice fiscale del titolare e' una chiave trasversale ai dataset MOP regionali e il conteggio vero arriva solo da count=true.",
+      "example": "openbdap-pp-cli opere --cf 80208450587 --agent",
+      "why_it_matters": "Usalo per capire quante e quali opere risultano a un'amministrazione.",
+      "group": "Opere pubbliche trasversali"
+    },
+    {
+      "name": "Novita' del catalogo",
+      "command": "novita",
+      "description": "I dataset il cui ultimo aggiornamento cade nella finestra indicata.",
+      "rationale": "Il portale non pubblica un flusso di attivita': le date di aggiornamento sono leggibili solo dall'archivio locale.",
+      "example": "openbdap-pp-cli novita --da 30d --agent",
+      "why_it_matters": "Usalo per sapere cosa e' cambiato di recente senza riscaricare il catalogo.",
+      "group": "Catalogo che si capisce"
+    },
+    {
+      "name": "Indice dei campi",
+      "command": "campi",
+      "description": "In quali dataset esiste un campo, con l'identificativo pronto da usare nei filtri.",
+      "rationale": "L'identificativo di colonna e' deterministico e l'indice locale delle colonne lo lega ai dataset che lo contengono.",
+      "example": "openbdap-pp-cli campi \"codice fiscale\" --agent",
+      "why_it_matters": "Usalo quando sai quale campo ti serve ma non in quale dataset vive.",
+      "group": "Catalogo che si capisce"
+    },
+    {
+      "name": "Mappa della famiglia MOP",
+      "command": "mop",
+      "description": "Quale dataset MOP interrogare per ogni regione e ruolo, con il relativo identificativo OData.",
+      "rationale": "Lato OData non esiste alcun elenco: ruolo e regione si ricavano dai nomi dei dataset conservati nello store.",
+      "example": "openbdap-pp-cli mop --regione Sicilia --agent",
+      "why_it_matters": "Usalo prima di una ricerca mirata sulle opere pubbliche, per sapere dove cercare.",
+      "group": "Opere pubbliche trasversali"
+    },
+    {
+      "name": "Ricerca per CIG",
+      "command": "cig",
+      "description": "La gara e i partecipanti a partire dal codice CIG.",
+      "rationale": "Il CIG non compare nel dataset nazionale e va cercato in parallelo sui dataset di gare e partecipanti regionali.",
+      "example": "openbdap-pp-cli cig 12345678AB --agent",
+      "why_it_matters": "Usalo quando parti da un CIG invece che da un CUP.",
+      "group": "Opere pubbliche trasversali"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dossier di progetto",
+      "command": "dossier",
+      "description": "Il quadro completo di un'opera pubblica a partire dal CUP: progetto, pagamenti, gare, partecipanti, piano dei costi e soggetti titolari.",
+      "rationale": "Richiede di unire il dataset MOP Totale con i cinque dataset MOP regionali, che nessuna chiamata singola restituisce insieme.",
+      "example": "openbdap-pp-cli dossier I77H11000120009 --agent",
+      "why_it_matters": "Usalo quando ti serve tutto su un'opera e hai solo il CUP, invece di cinque chiamate OData con filtri diversi.",
+      "group": "Opere pubbliche trasversali"
+    },
+    {
+      "name": "Serie storiche del catalogo",
+      "command": "serie",
+      "description": "Le annualita', le mensilita' e le regioni disponibili di una stessa serie di dataset.",
+      "rationale": "Le serie esistono solo dentro i titoli dei 3857 dataset e vanno ricostruite nello store locale.",
+      "example": "openbdap-pp-cli serie \"Pagamenti Bilancio dello Stato\" --agent",
+      "why_it_matters": "Usalo per sapere se esiste l'annualita' che ti serve senza scorrere il catalogo.",
+      "group": "Catalogo che si capisce"
+    },
+    {
+      "name": "Opere di un ente",
+      "command": "opere",
+      "description": "Le opere pubbliche in capo a un ente, a partire dal suo codice fiscale, con il totale reale.",
+      "rationale": "Il codice fiscale del titolare e' una chiave trasversale ai dataset MOP regionali e il conteggio vero arriva solo da count=true.",
+      "example": "openbdap-pp-cli opere --cf 80208450587 --agent",
+      "why_it_matters": "Usalo per capire quante e quali opere risultano a un'amministrazione.",
+      "group": "Opere pubbliche trasversali"
+    },
+    {
+      "name": "Novita' del catalogo",
+      "command": "novita",
+      "description": "I dataset il cui ultimo aggiornamento cade nella finestra indicata.",
+      "rationale": "Il portale non pubblica un flusso di attivita': le date di aggiornamento sono leggibili solo dall'archivio locale.",
+      "example": "openbdap-pp-cli novita --da 30d --agent",
+      "why_it_matters": "Usalo per sapere cosa e' cambiato di recente senza riscaricare il catalogo.",
+      "group": "Catalogo che si capisce"
+    },
+    {
+      "name": "Indice dei campi",
+      "command": "campi",
+      "description": "In quali dataset esiste un campo, con l'identificativo pronto da usare nei filtri.",
+      "rationale": "L'identificativo di colonna e' deterministico e l'indice locale delle colonne lo lega ai dataset che lo contengono.",
+      "example": "openbdap-pp-cli campi \"codice fiscale\" --agent",
+      "why_it_matters": "Usalo quando sai quale campo ti serve ma non in quale dataset vive.",
+      "group": "Catalogo che si capisce"
+    },
+    {
+      "name": "Mappa della famiglia MOP",
+      "command": "mop",
+      "description": "Quale dataset MOP interrogare per ogni regione e ruolo, con il relativo identificativo OData.",
+      "rationale": "Lato OData non esiste alcun elenco: ruolo e regione si ricavano dai nomi dei dataset conservati nello store.",
+      "example": "openbdap-pp-cli mop --regione Sicilia --agent",
+      "why_it_matters": "Usalo prima di una ricerca mirata sulle opere pubbliche, per sapere dove cercare.",
+      "group": "Opere pubbliche trasversali"
+    },
+    {
+      "name": "Ricerca per CIG",
+      "command": "cig",
+      "description": "La gara e i partecipanti a partire dal codice CIG.",
+      "rationale": "Il CIG non compare nel dataset nazionale e va cercato in parallelo sui dataset di gare e partecipanti regionali.",
+      "example": "openbdap-pp-cli cig 12345678AB --agent",
+      "why_it_matters": "Usalo quando parti da un CIG invece che da un CUP.",
+      "group": "Opere pubbliche trasversali"
+    }
+  ],
+  "narrative": {
+    "display_name": "OpenBDAP",
+    "headline": "Il catalogo Open Data della Ragioneria Generale dello Stato da terminale: ricerca offline, righe filtrate per nome di colonna leggibile e opere pubbliche cercabili per CUP, CIG o codice fiscale.",
+    "value_prop": "OpenBDAP pubblica migliaia di dataset di finanza pubblica dietro un'API CKAN con conteggi sbagliati e un OData con nomi di colonna offuscati e senza elenco. Questa CLI allinea il catalogo in un archivio SQLite locale con 'allinea', ci costruisce sopra una ricerca full-text su titolo e descrizione, e traduce i nomi leggibili delle colonne negli identificativi che il servizio pretende. Comandi come dossier, opere e serie fanno in un colpo cio' che oggi richiede una manciata di chiamate costruite a mano.",
+    "quickstart": [
+      {
+        "command": "openbdap-pp-cli doctor --dry-run",
+        "comment": "verifica che il portale risponda"
+      },
+      {
+        "command": "openbdap-pp-cli allinea",
+        "comment": "allinea il catalogo nell'archivio locale: serve a cerca, serie, mop, novita e campi"
+      },
+      {
+        "command": "openbdap-pp-cli cerca \"opere pubbliche\"",
+        "comment": "cerca offline su titolo e descrizione"
+      },
+      {
+        "command": "openbdap-pp-cli colonne bda1676b-62ab-44b7-8f9a-ca93b8534488",
+        "comment": "capisci le colonne prima di estrarre le righe"
+      },
+      {
+        "command": "openbdap-pp-cli dossier I77H11000120009",
+        "comment": "il quadro completo di un'opera dal CUP"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Il servizio OData risponde 500",
+        "fix": "Stai usando l'UUID del dataset al posto dell'identificativo OData: prendilo da 'catalogo dettaglio'."
+      },
+      {
+        "symptom": "L'estrazione delle righe va in timeout",
+        "fix": "Riduci la pagina: oltre 5000 righe per chiamata il servizio non risponde."
+      },
+      {
+        "symptom": "La ricerca sul portale restituisce conteggi incoerenti",
+        "fix": "Usa 'cerca', che interroga l'archivio locale: il campo count dell'API e' inaffidabile."
+      },
+      {
+        "symptom": "Il download CSV non parte",
+        "fix": "L'indirizzo http non funziona, serve https: la CLI lo forza gia'."
+      },
+      {
+        "symptom": "cerca, serie, mop, novita, cup, cig, dossier o opere non restituiscono nulla",
+        "fix": "L'archivio locale e' vuoto: lancia 'openbdap-pp-cli allinea'. La risposta lo dice anche nel campo nota."
+      },
+      {
+        "symptom": "campi non trova il campo cercato",
+        "fix": "L'indice degli schemi si popola a parte: lancia 'openbdap-pp-cli campi --aggiorna --tema 172_opere-pubbliche'."
+      }
+    ],
+    "when_to_use": "Usa questa CLI per esplorare il catalogo Open Data della Ragioneria Generale dello Stato e per estrarne dati tabellari. E' la scelta giusta quando devi trovare quale dataset copre un anno, una regione o un tema, quando devi capire come si chiamano davvero le colonne prima di filtrare, e quando devi ricostruire il quadro di un'opera pubblica a partire da un CUP, da un CIG o dal codice fiscale di un ente.",
+    "anti_triggers": [
+      "non usarla per altri portali CKAN: questo e' un portale con un'API CKAN parziale e non standard",
+      "non usarla per i dati ANAC sui contratti pubblici, che stanno su un'altra banca dati",
+      "non usarla per interrogare il portale OpenCUP o ReGiS"
+    ],
+    "recipes": [
+      {
+        "title": "Allineare il catalogo prima di ogni ricerca offline",
+        "command": "openbdap-pp-cli allinea",
+        "explanation": "Popola l'archivio SQLite locale su cui lavorano cerca, serie, mop e novita."
+      },
+      {
+        "title": "Trovare i dataset di un tema e un anno",
+        "command": "openbdap-pp-cli cerca SIOPE --anno 2024 --agent",
+        "explanation": "Cerca offline nell'archivio locale con i filtri derivati dai titoli."
+      },
+      {
+        "title": "Estrarre righe filtrate senza conoscere gli identificativi di colonna",
+        "command": "openbdap-pp-cli righe bda1676b-62ab-44b7-8f9a-ca93b8534488 --dove \"Codice CUP=I77H11000120009\" --csv",
+        "explanation": "Il nome leggibile viene tradotto nell'identificativo che il servizio pretende."
+      },
+      {
+        "title": "Il quadro di un'opera, campi essenziali",
+        "command": "openbdap-pp-cli dossier I77H11000120009 --agent --select cup,progetto",
+        "explanation": "Riduce il documento alle sole chiavi di primo livello che servono all'agente."
+      },
+      {
+        "title": "Contare le opere di un ente",
+        "command": "openbdap-pp-cli opere --cf 80208450587 --solo-conteggio",
+        "explanation": "Usa il conteggio reale del servizio invece di scaricare le righe."
+      },
+      {
+        "title": "Costruire l'indice dei campi e cercarci dentro",
+        "command": "openbdap-pp-cli campi --aggiorna --tema 172_opere-pubbliche",
+        "explanation": "L'indice degli schemi si popola su richiesta: senza questo passaggio 'campi' non trova nulla."
+      }
+    ],
+    "trigger_phrases": [
+      "cerca un dataset su openbdap",
+      "dati di finanza pubblica RGS",
+      "opere pubbliche per CUP",
+      "quante opere pubbliche ha un ente",
+      "usa openbdap",
+      "catalogo BDAP"
+    ]
+  }
+}

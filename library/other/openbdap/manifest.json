@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "openbdap-pp-mcp",
+  "display_name": "OpenBDAP",
+  "version": "0.1.0",
+  "description": "Il catalogo Open Data della Ragioneria Generale dello Stato da terminale: ricerca offline, righe filtrate per nome di colonna leggibile e opere pubbliche cercabili per CUP, CIG o codice fiscale.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openbdap-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openbdap-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

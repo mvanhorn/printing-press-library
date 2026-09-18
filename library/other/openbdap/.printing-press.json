@@ -1,0 +1,116 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-17T21:13:24.378879671Z",
+  "printing_press_version": "4.32.2",
+  "api_name": "openbdap",
+  "display_name": "OpenBDAP",
+  "cli_name": "openbdap-pp-cli",
+  "creator": {
+    "handle": "aborruso",
+    "name": "aborruso"
+  },
+  "owner": "aborruso",
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4c3662013e68877d8ba9fde57d412f055dd626db0d354d9b837dbe14b13b54d2",
+  "run_id": "20260917-200055-21d6873c",
+  "category": "other",
+  "description": "Il catalogo Open Data della Ragioneria Generale dello Stato da terminale: ricerca offline, righe filtrate per nome di colonna leggibile e opere pubbliche cercabili per CUP, CIG o codice fiscale.",
+  "mcp_binary": "openbdap-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_public_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Dossier di progetto",
+      "command": "dossier",
+      "description": "Il quadro completo di un'opera pubblica a partire dal CUP: progetto, pagamenti, gare, partecipanti, piano dei costi e soggetti titolari."
+    },
+    {
+      "name": "Serie storiche del catalogo",
+      "command": "serie",
+      "description": "Le annualita', le mensilita' e le regioni disponibili di una stessa serie di dataset."
+    },
+    {
+      "name": "Opere di un ente",
+      "command": "opere",
+      "description": "Le opere pubbliche in capo a un ente, a partire dal suo codice fiscale, con il totale reale."
+    },
+    {
+      "name": "Novita' del catalogo",
+      "command": "novita",
+      "description": "I dataset il cui ultimo aggiornamento cade nella finestra indicata."
+    },
+    {
+      "name": "Indice dei campi",
+      "command": "campi",
+      "description": "In quali dataset esiste un campo, con l'identificativo pronto da usare nei filtri."
+    },
+    {
+      "name": "Mappa della famiglia MOP",
+      "command": "mop",
+      "description": "Quale dataset MOP interrogare per ogni regione e ruolo, con il relativo identificativo OData."
+    },
+    {
+      "name": "Ricerca per CIG",
+      "command": "cig",
+      "description": "La gara e i partecipanti a partire dal codice CIG."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dossier di progetto",
+      "command": "dossier",
+      "description": "Il quadro completo di un'opera pubblica a partire dal CUP: progetto, pagamenti, gare, partecipanti, piano dei costi e soggetti titolari."
+    },
+    {
+      "name": "Serie storiche del catalogo",
+      "command": "serie",
+      "description": "Le annualita', le mensilita' e le regioni disponibili di una stessa serie di dataset."
+    },
+    {
+      "name": "Opere di un ente",
+      "command": "opere",
+      "description": "Le opere pubbliche in capo a un ente, a partire dal suo codice fiscale, con il totale reale."
+    },
+    {
+      "name": "Novita' del catalogo",
+      "command": "novita",
+      "description": "I dataset il cui ultimo aggiornamento cade nella finestra indicata."
+    },
+    {
+      "name": "Indice dei campi",
+      "command": "campi",
+      "description": "In quali dataset esiste un campo, con l'identificativo pronto da usare nei filtri."
+    },
+    {
+      "name": "Mappa della famiglia MOP",
+      "command": "mop",
+      "description": "Quale dataset MOP interrogare per ogni regione e ruolo, con il relativo identificativo OData."
+    },
+    {
+      "name": "Ricerca per CIG",
+      "command": "cig",
+      "description": "La gara e i partecipanti a partire dal codice CIG."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 52,
+    "total": 52,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

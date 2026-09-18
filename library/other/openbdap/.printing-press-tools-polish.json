@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-17T21:04:59.238499376Z",
+  "cli_dir": "\u003ccli-dir\u003e/openbdap-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Comando di framework in file generato DO-NOT-EDIT: \"List client profiles\" descrive gia' per intero la gestione dei profili client, che non ha parametri di dominio. Un testo piu' ricco andrebbe scritto nel template del generatore, non qui."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 847,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Superficie learn-loop emessa dal generatore, file DO-NOT-EDIT: \"List recorded learnings\" e' esatto, e i dettagli utili a un agente stanno gia' nel Long e negli Example del comando. La miglioria va fatta a monte, nel template della learn-loop."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-09-17T20:55:34.176549401Z"
+  }
+}

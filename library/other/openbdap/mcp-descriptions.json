@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "licenze_elenco": "Elenca le licenze ammesse dal catalogo OpenBDAP. Nessun parametro. Restituisce un array di licenze con id, title e url: l'id e' il valore che compare nel campo license_id dei metadati restituiti da catalogo_dettaglio. Usalo per sciogliere quell'id nel nome esteso della licenza e nel link al testo, non per cercare dataset.",
+    "tag_elenco": "Elenca tutte le parole chiave (tag CKAN) usate nel catalogo OpenBDAP. Nessun parametro. Restituisce un array di nomi. Usalo per scoprire i termini effettivamente presenti prima di interrogare catalogo_ricerca; questo comando non restituisce i dataset associati a una parola chiave, per quelli serve catalogo_ricerca.",
+    "gruppi_elenco": "Elenca i temi (gruppi CKAN) del catalogo OpenBDAP, per esempio 172_opere-pubbliche. Nessun parametro. Restituisce un array di nomi di tema. Usalo per ottenere il nome da passare a gruppi_dettaglio, che a sua volta restituisce gli UUID dei dataset contenuti nel tema.",
+    "catalogo_elenco": "Elenca gli identificativi UUID di tutti i dataset del catalogo OpenBDAP, circa 3.900 voci e nessun metadato. Nessun parametro e nessun filtro. Restituisce un array di identificativi da passare a catalogo_dettaglio o ai comandi dati_*. Per cercare per testo usa catalogo_ricerca, per elencare i dataset di un tema usa gruppi_dettaglio."
+  }
+}

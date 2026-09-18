@@ -1,0 +1,291 @@
+{
+  "api_name": "openbdap",
+  "base_url": "https://bdap-opendata.rgs.mef.gov.it",
+  "description": "Il catalogo Open Data della Ragioneria Generale dello Stato da terminale: ricerca offline, righe filtrate per nome di colonna leggibile e opere pubbliche cercabili per CUP, CIG o codice fiscale.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "catalogo_dettaglio",
+      "description": "Metadati di un dataset (solo per UUID: i nomi non sono risolvibili). Required: id. Returns the Dataset.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/package_show",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "UUID del dataset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalogo_elenco",
+      "description": "Elenca gli identificativi di tutti i dataset del catalogo. Returns array of DatasetId.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/package_list",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalogo_ricerca",
+      "description": "Ricerca testuale lato portale (il campo count non e' affidabile e fq viene ignorato). Required: q. Optional: rows (default: 20), start (default: 0). Returns array of Dataset.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/package_search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Testo da cercare",
+          "required": true
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "query",
+          "description": "Numero di dataset da restituire"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Dataset da saltare"
+        }
+      ]
+    },
+    {
+      "name": "dati_colonne",
+      "description": "Colonne del dataset: nome leggibile, nome fisico, identificativo da usare nei filtri, tipo, cardinalita' e valori distinti. Required: id. Returns array of Colonna.",
+      "method": "GET",
+      "path": "/ODataProxy/MdData('{id}@rgs')/DataColumns",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identificativo OData della risorsa",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dati_conta",
+      "description": "Conta le righe del dataset, rispettando il filtro. Required: id. Optional: count (default: true), filtro. Returns array of Conteggio.",
+      "method": "GET",
+      "path": "/ODataProxy/MdData('{id}@rgs')/DataRows",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identificativo OData della risorsa",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "bool",
+          "location": "query",
+          "description": "Chiede il totale invece delle righe"
+        },
+        {
+          "name": "filtro",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro OData grezzo"
+        }
+      ]
+    },
+    {
+      "name": "dati_metadati",
+      "description": "Metadati OData del dataset (ultimo aggiornamento, stato). Required: id. Returns the MetadatiOData.",
+      "method": "GET",
+      "path": "/ODataProxy/MdData('{id}@rgs')",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identificativo OData della risorsa (non l'UUID del dataset)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dati_misure",
+      "description": "Misure numeriche dichiarate dal dataset. Required: id. Returns array of Misura.",
+      "method": "GET",
+      "path": "/ODataProxy/MdData('{id}@rgs')/DataMeasures",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identificativo OData della risorsa",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dati_righe",
+      "description": "Righe del dataset, con filtri OData. Required: id. Optional: top (default: 50), skip (default: 0), filtro (plus 2 more). Returns array of Riga.",
+      "method": "GET",
+      "path": "/ODataProxy/MdData('{id}@rgs')/DataRows",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identificativo OData della risorsa",
+          "required": true
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Numero massimo di righe (oltre 5000 il servizio va in timeout)"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Righe da saltare"
+        },
+        {
+          "name": "filtro",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro OData grezzo, per esempio Cccodice_cup_1267962549 eq 'I77H11000120009'"
+        },
+        {
+          "name": "campi",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Identificativi di colonna da restituire, separati da virgola"
+        },
+        {
+          "name": "ordina",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Ordinamento, per esempio \u003ccolonna\u003e desc"
+        }
+      ]
+    },
+    {
+      "name": "gruppi_dettaglio",
+      "description": "Dettaglio di un tema, con gli UUID dei dataset che contiene. Required: id. Returns the Gruppo.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/group_show",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Nome del tema, per esempio 172_opere-pubbliche",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "gruppi_elenco",
+      "description": "Elenca i temi del catalogo. Returns array of NomeGruppo.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/group_list",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "licenze_elenco",
+      "description": "Elenca le licenze. Returns array of Licenza.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/license_list",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "scarica_csv",
+      "description": "Scarica l'intero dataset in CSV (separatore punto e virgola). Required: id.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/datastore/dump/{id}.csv",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "UUID del dataset",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tag_elenco",
+      "description": "Elenca le parole chiave. Returns array of NomeTag.",
+      "method": "GET",
+      "path": "/SpodCkanApi/api/3/action/tag_list",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Dossier di progetto",
+      "command": "dossier",
+      "description": "Il quadro completo di un'opera pubblica a partire dal CUP: progetto, pagamenti, gare, partecipanti, piano dei costi e soggetti titolari."
+    },
+    {
+      "name": "Serie storiche del catalogo",
+      "command": "serie",
+      "description": "Le annualita', le mensilita' e le regioni disponibili di una stessa serie di dataset."
+    },
+    {
+      "name": "Opere di un ente",
+      "command": "opere",
+      "description": "Le opere pubbliche in capo a un ente, a partire dal suo codice fiscale, con il totale reale."
+    },
+    {
+      "name": "Novita' del catalogo",
+      "command": "novita",
+      "description": "I dataset il cui ultimo aggiornamento cade nella finestra indicata."
+    },
+    {
+      "name": "Indice dei campi",
+      "command": "campi",
+      "description": "In quali dataset esiste un campo, con l'identificativo pronto da usare nei filtri."
+    },
+    {
+      "name": "Mappa della famiglia MOP",
+      "command": "mop",
+      "description": "Quale dataset MOP interrogare per ogni regione e ruolo, con il relativo identificativo OData."
+    },
+    {
+      "name": "Ricerca per CIG",
+      "command": "cig",
+      "description": "La gara e i partecipanti a partire dal codice CIG."
+    }
+  ]
+}

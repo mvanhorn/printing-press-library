@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "bonusly",
   "cli_name": "bonusly-pp-cli",
-  "version": "2026.9.2",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.9.3",
+  "released_at": "2026-09-18T09:08:45Z",
+  "source_commit": "252cfd068f6c489bd49248f651cc2beb30e44139",
   "printing_press_version": "4.30.1",
   "run_id": "20260810-153232-4e95f81e",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "feat(bonusly): add redemptions suggest, ranking rewards from history against your point balance",
+      "pr": 2014,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2014",
+      "commit": "252cfd068f6c489bd49248f651cc2beb30e44139"
     }
   ]
 }

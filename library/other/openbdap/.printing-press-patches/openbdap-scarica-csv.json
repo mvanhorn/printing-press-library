@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "openbdap-scarica-csv",
+  "applied_at": "2026-09-17",
+  "base_run_id": "20260917-200055-21d6873c",
+  "base_printing_press_version": "4.32.2",
+  "summary": "A regeneration must keep 'scarica' streaming the raw CSV body to stdout, writing a file only under explicit machine output, staging that file and renaming it on success, checking the response content type, and requesting https.",
+  "reason": "The generated promoted command for an endpoint declared response_format: csv resolves the response as JSON and fails with 'API returned a non-JSON response', so the dump is never downloaded. The four behaviours above are the contract that makes the endpoint usable: dumps reach hundreds of megabytes, so the body is streamed rather than buffered; an ordinary pipeline must receive CSV, so the file plus receipt shape is limited to --json/--agent; an interrupted transfer must not destroy an existing dump, so the download is staged and renamed; the portal answers 200 with an HTML page for an unknown id, so a non-CSV content type is an error; and the http URL published in the dataset metadata does not respond, so https is forced.",
+  "files": ["internal/cli/openbdap_scarica.go", "internal/cli/root.go"],
+  "call_sites": ["newScaricaCmd(flags)"],
+  "validated_outcome": "'scarica <id>' piped returns CSV (1518 rows); with --json it writes the file and prints a receipt; an unknown id fails on content type instead of writing HTML as CSV.",
+  "upstream_issue": ""
+}

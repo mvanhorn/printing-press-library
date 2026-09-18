@@ -1,0 +1,368 @@
+name: openbdap
+description: "CLI per il catalogo Open Data di OpenBDAP (Ragioneria Generale dello Stato)"
+version: "0.1.0"
+category: other
+base_url: "https://bdap-opendata.rgs.mef.gov.it"
+health_check_path: "/SpodCkanApi/api/3/action/package_list"
+http_transport: standard
+required_headers:
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/openbdap-pp-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^[A-Z][0-9A-Z]{14}$"
+    - "^[0-9A-Z]{10}$"
+  stopwords:
+    - dataset
+    - dati
+  synonyms:
+    "opere pubbliche": "mop"
+    "ultimi": "recenti"
+
+resources:
+  catalogo:
+    description: "Dataset del catalogo OpenBDAP"
+    endpoints:
+      elenco:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/package_list"
+        description: "Elenca gli identificativi di tutti i dataset del catalogo"
+        example: "  openbdap-pp-cli catalogo elenco --agent"
+        response:
+          type: array
+          item: DatasetId
+        response_path: result
+      dettaglio:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/package_show"
+        description: "Metadati di un dataset (solo per UUID: i nomi non sono risolvibili)"
+        example: "  openbdap-pp-cli catalogo dettaglio --id c76e90f7-eea5-4f32-8767-6b60e3505a1d"
+        happy_args: "--id=c76e90f7-eea5-4f32-8767-6b60e3505a1d"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "UUID del dataset"
+        response:
+          type: object
+          item: Dataset
+        response_path: result
+      ricerca:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/package_search"
+        description: "Ricerca testuale lato portale (il campo count non e' affidabile e fq viene ignorato)"
+        example: "  openbdap-pp-cli catalogo ricerca --q \"opere pubbliche\" --rows 20"
+        happy_args: "--q=opere;--rows=5"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Testo da cercare"
+          - name: rows
+            type: int
+            default: 20
+            description: "Numero di dataset da restituire"
+          - name: start
+            type: int
+            default: 0
+            description: "Dataset da saltare"
+        response:
+          type: array
+          item: Dataset
+        response_path: result.results
+
+  scarica:
+    description: "Scaricamento integrale dei dataset in CSV"
+    endpoints:
+      csv:
+        method: GET
+        path: "/SpodCkanApi/api/3/datastore/dump/{id}.csv"
+        description: "Scarica l'intero dataset in CSV (separatore punto e virgola)"
+        example: "  openbdap-pp-cli scarica csv d032b3a2-2b70-4193-a0c8-cb7eb69f8710"
+        happy_args: "id=d032b3a2-2b70-4193-a0c8-cb7eb69f8710"
+        response_format: csv
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "UUID del dataset"
+
+  gruppi:
+    description: "Temi (gruppi) del catalogo"
+    endpoints:
+      elenco:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/group_list"
+        description: "Elenca i temi del catalogo"
+        response:
+          type: array
+          item: NomeGruppo
+        response_path: result
+      dettaglio:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/group_show"
+        description: "Dettaglio di un tema, con gli UUID dei dataset che contiene"
+        example: "  openbdap-pp-cli gruppi dettaglio --id 172_opere-pubbliche"
+        happy_args: "--id=172_opere-pubbliche"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Nome del tema, per esempio 172_opere-pubbliche"
+        response:
+          type: object
+          item: Gruppo
+        response_path: result
+
+  tag:
+    description: "Parole chiave del catalogo"
+    endpoints:
+      elenco:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/tag_list"
+        description: "Elenca le parole chiave"
+        response:
+          type: array
+          item: NomeTag
+        response_path: result
+
+  licenze:
+    description: "Licenze usate nel catalogo"
+    endpoints:
+      elenco:
+        method: GET
+        path: "/SpodCkanApi/api/3/action/license_list"
+        description: "Elenca le licenze"
+        response:
+          type: array
+          item: Licenza
+        response_path: result
+
+  dati:
+    description: "Dati tabellari dei dataset via OData"
+    endpoints:
+      metadati:
+        method: GET
+        path: "/ODataProxy/MdData('{id}@rgs')"
+        description: "Metadati OData del dataset (ultimo aggiornamento, stato)"
+        example: "  openbdap-pp-cli dati metadati bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        happy_args: "id=bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Identificativo OData della risorsa (non l'UUID del dataset)"
+        response:
+          type: object
+          item: MetadatiOData
+        response_path: d
+      colonne:
+        method: GET
+        path: "/ODataProxy/MdData('{id}@rgs')/DataColumns"
+        description: "Colonne del dataset: nome leggibile, nome fisico, identificativo da usare nei filtri, tipo, cardinalita' e valori distinti"
+        example: "  openbdap-pp-cli dati colonne bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        happy_args: "id=bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Identificativo OData della risorsa"
+        response:
+          type: array
+          item: Colonna
+        response_path: d.results
+      misure:
+        method: GET
+        path: "/ODataProxy/MdData('{id}@rgs')/DataMeasures"
+        description: "Misure numeriche dichiarate dal dataset"
+        example: "  openbdap-pp-cli dati misure bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        happy_args: "id=bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Identificativo OData della risorsa"
+        response:
+          type: array
+          item: Misura
+        response_path: d.results
+      righe:
+        method: GET
+        path: "/ODataProxy/MdData('{id}@rgs')/DataRows"
+        description: "Righe del dataset, con filtri OData"
+        example: "  openbdap-pp-cli dati righe bda1676b-62ab-44b7-8f9a-ca93b8534488 --top 10"
+        happy_args: "id=bda1676b-62ab-44b7-8f9a-ca93b8534488;--top=5"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Identificativo OData della risorsa"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 50
+            description: "Numero massimo di righe (oltre 5000 il servizio va in timeout)"
+          - name: $skip
+            flag_name: skip
+            type: int
+            default: 0
+            description: "Righe da saltare"
+          - name: $filter
+            flag_name: filtro
+            type: string
+            description: "Filtro OData grezzo, per esempio Cccodice_cup_1267962549 eq 'I77H11000120009'"
+          - name: $select
+            flag_name: campi
+            type: string
+            description: "Identificativi di colonna da restituire, separati da virgola"
+          - name: $orderby
+            flag_name: ordina
+            type: string
+            description: "Ordinamento, per esempio <colonna> desc"
+        response:
+          type: array
+          item: Riga
+        response_path: d.results
+      conta:
+        method: GET
+        path: "/ODataProxy/MdData('{id}@rgs')/DataRows"
+        description: "Conta le righe del dataset, rispettando il filtro"
+        example: "  openbdap-pp-cli dati conta bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        happy_args: "id=bda1676b-62ab-44b7-8f9a-ca93b8534488"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Identificativo OData della risorsa"
+          - name: count
+            type: bool
+            default: true
+            description: "Chiede il totale invece delle righe"
+          - name: $filter
+            flag_name: filtro
+            type: string
+            description: "Filtro OData grezzo"
+        response:
+          type: array
+          item: Conteggio
+        response_path: d.results
+
+types:
+  DatasetId:
+    fields:
+      - name: id
+        type: string
+  NomeGruppo:
+    fields:
+      - name: name
+        type: string
+  NomeTag:
+    fields:
+      - name: name
+        type: string
+  Licenza:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: url
+        type: string
+  Dataset:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: notes
+        type: string
+      - name: author
+        type: string
+      - name: license_id
+        type: string
+      - name: license_title
+        type: string
+      - name: metadata_created
+        type: string
+      - name: metadata_modified
+        type: string
+      - name: num_resources
+        type: int
+      - name: num_tags
+        type: int
+  Gruppo:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: display_name
+        type: string
+      - name: package_count
+        type: int
+  MetadatiOData:
+    fields:
+      - name: id
+        type: string
+      - name: lastUpdate
+        type: string
+      - name: isReady
+        type: bool
+      - name: inferredDataType
+        type: string
+  Colonna:
+    fields:
+      - name: id
+        type: int
+      - name: physicalName
+        type: string
+      - name: logicalName
+        type: string
+      - name: colUniqueId
+        type: string
+      - name: dbType
+        type: string
+      - name: columnType
+        type: string
+      - name: cardinality
+        type: int
+      - name: maxLength
+        type: int
+      - name: canSum
+        type: bool
+      - name: values
+        type: string
+  Misura:
+    fields:
+      - name: id
+        type: string
+      - name: alias
+        type: string
+      - name: decimalPlaces
+        type: int
+  Riga:
+    fields:
+      - name: row_id
+        type: int
+  Conteggio:
+    fields:
+      - name: Tot
+        type: int
