@@ -1,0 +1,2807 @@
+{
+ "run": "2026-09-19T02:01:06Z",
+ "press": "4.32.0",
+ "level": "full",
+ "matrix_size": 150,
+ "passed": 150,
+ "failed": 0,
+ "skipped": 110,
+ "rows": [
+  {
+   "command": "account personal-information",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "account",
+    "personal-information",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "account personal-information",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "account",
+    "personal-information"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "account personal-information",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "account",
+    "personal-information",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "account personal-information",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "account settings",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "account",
+    "settings",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "account settings",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "account",
+    "settings"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "account settings",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "account",
+    "settings",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "account settings",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "account social-profile",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "account",
+    "social-profile",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "account social-profile",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "account",
+    "social-profile"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "account social-profile",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "account",
+    "social-profile",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "account social-profile",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "activities breakdown",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "activities",
+    "breakdown",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities breakdown",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "activities",
+    "breakdown",
+    "--start-date",
+    "2026-01-01",
+    "--end-date",
+    "2026-06-30",
+    "--metric",
+    "duration"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "activities breakdown",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "activities",
+    "breakdown",
+    "--start-date",
+    "2026-01-01",
+    "--end-date",
+    "2026-06-30",
+    "--metric",
+    "duration",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "activities breakdown",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "activities download-original",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "activities",
+    "download-original",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities download-original",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no id parseable from companion at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "activities download-original",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "no id parseable from companion at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "activities download-original",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "activities",
+    "download-original",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities get",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "activities",
+    "get",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities get",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"activityid\"",
+   "source_live": false
+  },
+  {
+   "command": "activities get",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"activityid\"",
+   "source_live": false
+  },
+  {
+   "command": "activities get",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "activities",
+    "get",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities hr-time-in-zones",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "activities",
+    "hr-time-in-zones",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities hr-time-in-zones",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"activityid\"",
+   "source_live": false
+  },
+  {
+   "command": "activities hr-time-in-zones",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"activityid\"",
+   "source_live": false
+  },
+  {
+   "command": "activities hr-time-in-zones",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "activities",
+    "hr-time-in-zones",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities list",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "activities",
+    "list",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities list",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "activities",
+    "list",
+    "--limit",
+    "1",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "activities list",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "activities",
+    "list",
+    "--limit",
+    "1",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "activities list",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "activities splits",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "activities",
+    "splits",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "activities splits",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"activityid\"",
+   "source_live": false
+  },
+  {
+   "command": "activities splits",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"activityid\"",
+   "source_live": false
+  },
+  {
+   "command": "activities splits",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "activities",
+    "splits",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "analytics",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "analytics",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "analytics",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "analytics",
+    "--type",
+    "messages"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "analytics",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "analytics",
+    "--type",
+    "messages",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "analytics",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "doctor",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "doctor",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "doctor",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "doctor",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "doctor",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "doctor",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "doctor",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "doctor",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "export",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "export",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "export",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "command path [export] has fewer segments than placeholders (2)",
+   "source_live": false
+  },
+  {
+   "command": "export",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "command path [export] has fewer segments than placeholders (2)",
+   "source_live": false
+  },
+  {
+   "command": "export",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "export",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "command path [export] has fewer segments than placeholders (2)",
+   "source_live": false
+  },
+  {
+   "command": "feedback",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "feedback",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "feedback",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"text\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "feedback",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"text\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "feedback",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "feedback",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"text\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "feedback list",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "feedback",
+    "list",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "feedback list",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "feedback",
+    "list"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "feedback list",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "feedback",
+    "list",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "feedback list",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "fitness age",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "fitness",
+    "age",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "fitness age",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "fitness",
+    "age",
+    "--date",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "fitness age",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "fitness",
+    "age",
+    "--date",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "fitness age",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "fitness max-metrics",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "fitness",
+    "max-metrics",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "fitness max-metrics",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "fitness",
+    "max-metrics",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "fitness max-metrics",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "fitness",
+    "max-metrics",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "fitness max-metrics",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "heart-rate daily",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "daily",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "heart-rate daily",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "heart-rate daily",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "heart-rate daily",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "daily",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "heart-rate daily-alt",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "daily-alt",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "heart-rate daily-alt",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "daily-alt",
+    "--date",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "heart-rate daily-alt",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "daily-alt",
+    "--date",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "heart-rate daily-alt",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "heart-rate zones",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "zones",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "heart-rate zones",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "zones"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "heart-rate zones",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "heart-rate",
+    "zones",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "heart-rate zones",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "history",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "history",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "history",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "history",
+    "--status"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "history",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "history",
+    "--status",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "history",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "insights sleep",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "insights",
+    "sleep",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "insights sleep",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "insights",
+    "sleep",
+    "--days",
+    "28"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "insights sleep",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "insights",
+    "sleep",
+    "--days",
+    "28",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "insights sleep",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "insights training",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "insights",
+    "training",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "insights training",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "insights",
+    "training",
+    "--days",
+    "28"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "insights training",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "insights",
+    "training",
+    "--days",
+    "28",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "insights training",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "candidates",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "candidates"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "candidates",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "confirm",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no id parseable from companion at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "no id parseable from companion at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "no id parseable from companion at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "learnings forget",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "forget",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings forget",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "learnings forget",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "learnings forget",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "learnings forget",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "learnings list",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "list",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings list",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "list",
+    "--agent"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings list",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "list",
+    "--agent"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings list",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "learnings purge",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "purge",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings purge",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "purge",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings purge",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "purge",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings purge",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "learnings purge",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "learnings reject",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "reject",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings reject",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"id\"",
+   "source_live": false
+  },
+  {
+   "command": "learnings reject",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"id\"",
+   "source_live": false
+  },
+  {
+   "command": "learnings reject",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "learnings reject",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "list companion previously failed at depth 0 for \"id\"",
+   "source_live": false
+  },
+  {
+   "command": "learnings stats",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "stats",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings stats",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "stats"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings stats",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "learnings",
+    "stats",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "learnings stats",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "playbook amend",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "playbook",
+    "amend",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "playbook amend",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "playbook",
+    "amend",
+    "--query",
+    "$QUERY",
+    "--add-note",
+    "$NOTE",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "playbook amend",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "playbook",
+    "amend",
+    "--query",
+    "$QUERY",
+    "--add-note",
+    "$NOTE",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "playbook amend",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "playbook amend",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "playbook list",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "playbook",
+    "list",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "playbook list",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "playbook",
+    "list",
+    "--agent"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "playbook list",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "playbook",
+    "list",
+    "--agent"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "playbook list",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "profile delete",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "profile",
+    "delete",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile delete",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile delete",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile delete",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "profile delete",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile list",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "profile",
+    "list",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile list",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "profile",
+    "list"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile list",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "profile",
+    "list",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile list",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "profile save",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "profile",
+    "save",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile save",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile save",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile save",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "profile save",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile show",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "profile",
+    "show",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile show",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile show",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile show",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "profile",
+    "show",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile use",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "profile",
+    "use",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "profile use",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile use",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "profile use",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command; error_path would call live API without --dry-run",
+   "source_live": false
+  },
+  {
+   "command": "profile use",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"name\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "recall",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "recall",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "recall",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "recall",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "recall",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "recall",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "search",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "search",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "search",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "search",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "search",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "search",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep night",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "night",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sleep night",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "sleep night",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "sleep night",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "night",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sleep night-alt",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "night-alt",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sleep night-alt",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "night-alt",
+    "--date",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep night-alt",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "night-alt",
+    "--date",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep night-alt",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "sleep score-stats",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "score-stats",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sleep score-stats",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "score-stats",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep score-stats",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "score-stats",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep score-stats",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "sleep stats",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "stats",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sleep stats",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "stats",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep stats",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "sleep",
+    "stats",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "sleep stats",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "sql",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "sql",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sql",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "sql",
+    "SELECT resource_type, count(*) AS n FROM resources GROUP BY 1"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sql",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "sql",
+    "SELECT resource_type, count(*) AS n FROM resources GROUP BY 1",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sql",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "sql",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "steps daily",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "steps",
+    "daily",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "steps daily",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "steps",
+    "daily",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "steps daily",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "steps",
+    "daily",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "steps daily",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "steps weekly",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "steps",
+    "weekly",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "steps weekly",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "steps",
+    "weekly",
+    "--end",
+    "2026-09-01",
+    "--weeks",
+    "42"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "steps weekly",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "steps",
+    "weekly",
+    "--end",
+    "2026-09-01",
+    "--weeks",
+    "42",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "steps weekly",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "sync",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "sync",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "sync",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "blocked-fixture: mutating command requires runnable example",
+   "source_live": false
+  },
+  {
+   "command": "sync",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "blocked-fixture: mutating command requires runnable example",
+   "source_live": false
+  },
+  {
+   "command": "sync",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "blocked-fixture: mutating command requires runnable example",
+   "source_live": false
+  },
+  {
+   "command": "tail",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "tail",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "tail",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"resource\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "tail",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"resource\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "tail",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no-error-path-probe annotation",
+   "source_live": false
+  },
+  {
+   "command": "teach",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "teach",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "teach",
+    "--query",
+    "$QUERY",
+    "--resource-type",
+    "<type>",
+    "--resource",
+    "<id>",
+    "--resource",
+    "<id>",
+    "&",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "teach",
+    "--query",
+    "$QUERY",
+    "--resource-type",
+    "<type>",
+    "--resource",
+    "<id>",
+    "--resource",
+    "<id>",
+    "&",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "teach",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "teach-lookup",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "teach-lookup",
+    "--kind",
+    "country",
+    "--canonical",
+    "United States",
+    "--value",
+    "USA",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "teach-lookup",
+    "--kind",
+    "country",
+    "--canonical",
+    "United States",
+    "--value",
+    "USA",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "teach-pattern",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "teach-pattern",
+    "--query-template",
+    "items in {entity}",
+    "--resource-template",
+    "GROUP-{entity:category}",
+    "--resource-type",
+    "items",
+    "--entity-kind",
+    "category",
+    "--strategy",
+    "substitute",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "teach-pattern",
+    "--query-template",
+    "items in {entity}",
+    "--resource-template",
+    "GROUP-{entity:category}",
+    "--resource-type",
+    "items",
+    "--entity-kind",
+    "category",
+    "--strategy",
+    "substitute",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "teach-playbook",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json",
+   "source_live": false
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json",
+   "source_live": false
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "training readiness",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "training",
+    "readiness",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "training readiness",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "training",
+    "readiness",
+    "--date",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "training readiness",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "training",
+    "readiness",
+    "--date",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "training readiness",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "training status",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "training",
+    "status",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "training status",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "training",
+    "status",
+    "--end",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "training status",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "training",
+    "status",
+    "--end",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "training status",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "wellness daily-summary",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "daily-summary",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "wellness daily-summary",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "wellness daily-summary",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "wellness daily-summary",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "daily-summary",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "wellness hydration",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "hydration",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "wellness hydration",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "hydration",
+    "--date",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "wellness hydration",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "hydration",
+    "--date",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "wellness hydration",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "wellness hydration-alt",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "hydration-alt",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "wellness hydration-alt",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "hydration-alt",
+    "--date",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "wellness hydration-alt",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "hydration-alt",
+    "--date",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "wellness hydration-alt",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "wellness intensity-minutes-weekly",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "intensity-minutes-weekly",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "wellness intensity-minutes-weekly",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "intensity-minutes-weekly",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "wellness intensity-minutes-weekly",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "intensity-minutes-weekly",
+    "--start",
+    "2026-09-01",
+    "--end",
+    "2026-09-01",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": true
+  },
+  {
+   "command": "wellness intensity-minutes-weekly",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "wellness metrics-daily",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "metrics-daily",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "wellness metrics-daily",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "wellness metrics-daily",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"displayname\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "wellness metrics-daily",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "wellness",
+    "metrics-daily",
+    "__printing_press_invalid__"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "which",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "which",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "which",
+   "kind": "happy_path",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "which",
+   "kind": "json_fidelity",
+   "status": "skip",
+   "args": null,
+   "reason": "non-id positional \"query\" at depth 0",
+   "source_live": false
+  },
+  {
+   "command": "which",
+   "kind": "error_path",
+   "status": "pass",
+   "args": [
+    "which",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow archive",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "workflow",
+    "archive",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow archive",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "workflow",
+    "archive",
+    "--dry-run"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow archive",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "workflow",
+    "archive",
+    "--dry-run",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow archive",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  },
+  {
+   "command": "workflow archive",
+   "kind": "error_path_real",
+   "status": "skip",
+   "args": null,
+   "reason": "mutating command dry-run only",
+   "source_live": false
+  },
+  {
+   "command": "workflow status",
+   "kind": "help",
+   "status": "pass",
+   "args": [
+    "workflow",
+    "status",
+    "--help"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow status",
+   "kind": "happy_path",
+   "status": "pass",
+   "args": [
+    "workflow",
+    "status"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow status",
+   "kind": "json_fidelity",
+   "status": "pass",
+   "args": [
+    "workflow",
+    "status",
+    "--json"
+   ],
+   "reason": null,
+   "source_live": false
+  },
+  {
+   "command": "workflow status",
+   "kind": "error_path",
+   "status": "skip",
+   "args": null,
+   "reason": "no positional argument",
+   "source_live": false
+  }
+ ]
+}

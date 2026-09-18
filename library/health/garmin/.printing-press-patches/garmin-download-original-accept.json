@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "garmin-download-original-accept",
+  "applied_at": "2026-09-14",
+  "base_run_id": "20260907-222621",
+  "base_printing_press_version": "4.32.0",
+  "summary": "`activities download-original <id>` returned HTTP 406 NotAcceptableException on every account and every activity. The generated command pinned `Accept: application/octet-stream`, which openapi/parser.go binaryResponseAcceptType selects whenever application/octet-stream is one of the declared success content types (it is preferred over every other concrete binary type). MEASURED AGAINST GARMIN 2026-09-14: /download-service/files/activity/{id} answers 406 to `Accept: application/octet-stream` AND 406 to `Accept: application/zip`, and serves the file to `Accept: */*`; the body comes back as `Content-Type: application/x-zip-compressed`, which is why neither concrete type matched. THE INPUT IS FIXED: the operation's 200 content now declares application/zip plus */*, both with a string/binary schema. responseUsesBinary stays true (it is satisfied by any binary media type or string/binary schema), so the command keeps its binary response path and its X-Printing-Press-Binary-Response header, while binaryResponseAcceptType returns \"\" (*/* is not a concrete binary accept type) and withholds the per-endpoint Accept override — leaving the generated client's own binary default, `Accept: */*` (client.go.tmpl: empty Accept + binaryResponse -> */*). The generated command is hand-patched to drop the Accept entry from headerOverrides, which is what a regeneration now emits.",
+  "reason": "N131.5.5 examples-runner F-2 (owner-facing defect list, 2026-09-14): download-original is one of the 27 Command Reference entries and was the only one that did not work on the account.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/activities_download-original.go",
+    "internal/cli/activities_download_original_accept_test.go"
+  ],
+  "generated_files_edited": [
+    "internal/cli/activities_download-original.go — the `\"Accept\": \"application/octet-stream\"` entry is removed from the headerOverrides literal. X-Printing-Press-Binary-Response stays. No other line is touched.",
+    "internal/mcp/tools.go — the download-original makeAPIHandler call passes nil instead of map[string]string{\"Accept\": \"application/octet-stream\"}; tools-manifest.json — the matching header_overrides block is removed. Found by the round-2 independent review (MCP tool still 406'd live); the MCP server builds the request in-process, so the override reached Garmin."
+  ],
+  "validated_outcome": "TestActivitiesDownloadOriginalAsksForATypeGarminServes drives the real command through an httptest server that negotiates the way a 406 says a server negotiates (serves application/zip, refuses an Accept naming neither application/zip nor */*): before the change it failed with the live error verbatim — `GET /download-service/files/activity/<id> returned HTTP 406: {\"error\":\"NotAcceptableException\"}` — and passes after. LIVE, owner home, GARMIN_HOME unset, the account’s newest activity: exit 0, 345707 bytes delivered, `unzip -l` lists <id>_ACTIVITY.fit (681158 bytes uncompressed). The intermediate application/zip attempt was measured live and 406'd, which is why */* is the declared shape.",
+  "regen_notes": [
+    "PREDICTED, NOT MEASURED — no regeneration was run. Read this turn in press v4.32.0: binaryAcceptContentType returns false for */*, so binaryResponseAcceptType returns \"\" from inside its loop and upserts no Accept override; responseUsesBinary is an any-match over the success content types, so application/zip with a string/binary schema keeps the response binary; and client.go.tmpl sets Accept: */* when the request carries no Accept and the response is binary. On that reading a regeneration from the current spec.yaml emits the no-Accept-override form without the patch. What IS measured: the edited spec.yaml parses — the `dogfood` run in the same turn came after this edit and printed its spec-derived checks. If a later spec edit re-adds application/octet-stream, or leaves application/zip as the only declared type, binaryResponseAcceptType pins that concrete type again and the 406 returns.",
+    "The measured produced type is application/x-zip-compressed. Declaring that single type would also yield a matching Accept, but it was not probed live; */* is the form proven end to end."
+  ]
+}

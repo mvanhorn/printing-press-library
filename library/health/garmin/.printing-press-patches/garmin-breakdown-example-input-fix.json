@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "garmin-breakdown-example-input-fix",
+  "applied_at": "2026-09-14",
+  "base_run_id": "20260907-222621",
+  "base_printing_press_version": "4.32.0",
+  "summary": "internal/cli/activities_breakdown.go line 25 printed Example \"garmin-pp-cli activities breakdown --aggregation lifetime --metric duration\", which exits 2 with `required flag \"start-date\" not set`: --start-date and --end-date are required by the command's own RunE guard and the synthesized example omitted both, while --aggregation is hidden (MarkHidden) and defaulted. THE INPUT IS FIXED: spec.yaml's activitiesBreakdown operation now carries x-pp-example (openapi/parser.go readExampleExtension -> spec.Endpoint.Example, which generator.go exampleLine returns before any synthesis), so a regeneration emits the runnable example on its own. The Go literal is hand-patched to the byte-identical string the press would render (readExampleExtension normalizes the value to a two-space leading indent) because a `dogfood` re-render does not rewrite endpoint command files.",
+  "reason": "N131.5.5 examples-runner F-5 (owner-facing defect list, 2026-09-14): SKILL.md and README.md name `activities breakdown` without arguments, so an agent reads --help for them and copies the one example there. An example that exits 2 is worse than no example.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/activities_breakdown.go",
+    "internal/cli/activities_breakdown_example_test.go"
+  ],
+  "generated_files_edited": [
+    "internal/cli/activities_breakdown.go — the Example string literal only (one line). No other line of the file is touched."
+  ],
+  "validated_outcome": "TestActivitiesBreakdownExampleSetsEveryRequiredFlag parses the printed Example against the command's own flag set: it failed on all three assertions before the change (--start-date omitted, --end-date omitted, hidden --aggregation named) and passes after. LIVE, owner home, GARMIN_HOME unset: the new example run verbatim (`activities breakdown --start-date 2026-01-01 --end-date 2026-06-30 --metric duration --agent`) exits 0 and returns countOfActivities 2 with cycling duration stats; the old example on the pre-fix binary exits 2 with `required flag \"start-date\" not set`.",
+  "regen_notes": [
+    "PREDICTED, NOT MEASURED — no regeneration was run. Read this turn in press v4.32.0: internal/generator/generator.go exampleLine returns endpoint.Example verbatim before any synthesis, and internal/openapi/parser.go readExampleExtension fills endpoint.Example from x-pp-example (normalizing it to a two-space leading indent). On that reading a regeneration from the current spec.yaml emits this example without the patch. What IS measured: the edited spec.yaml parses — the `dogfood` run in the same turn came after this edit and printed its spec-derived checks (auth scheme, OAuth scope cover). Re-apply the Go literal only if a regeneration is done with a spec.yaml that lost the extension.",
+    "The dates in the example are literal. If the press ever gains a dated-example placeholder, prefer it; a fixed past window was chosen over `today` because the Example string is rendered once into the source."
+  ]
+}

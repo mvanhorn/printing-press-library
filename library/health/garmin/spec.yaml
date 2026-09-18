@@ -1,0 +1,1598 @@
+openapi: 3.1.0
+info:
+  title: Garmin Connect (unofficial) — v1 endpoint set
+  version: 0.1.0
+  summary: Hand-authored OpenAPI 3.1 description of the Garmin Connect internal API paths used by the garmin-pp-cli spike.
+  description: |
+    Hand-written spec for the Printing Press (`cli-printing-press generate --spec`). Garmin publishes
+    no OpenAPI document for Garmin Connect; every path here was read from maintained community
+    clients (python-garminconnect `__init__.py` and `client.py`, matin/garth, tcgoetz/GarminDB,
+    Pythe1337N/garmin-connect) on 2026-09-07. **Every path here was then executed against two live
+    Garmin accounts on 2026-09-07 (36/36 and 37/37 rows HTTP 200); response *shapes* remain
+    unverified wherever a schema says so.** Each operation carries an `x-source` extension citing
+    the client file:line it was read from, and the operations confirmed by the live probe cite that
+    probe too; response schemas carry `x-shape: partially-verified` or `unverified` wherever the client source does not
+    show the keys and no live row settled them.
+
+    ## Authentication (see `components.securitySchemes.bearer`)
+
+    Data calls authenticate with `Authorization: Bearer <DI access token>`. The token is minted by
+    exchanging a Garmin SSO service ticket at `POST https://diauth.garmin.com/di-oauth2-service/oauth/token`
+    (form fields `client_id`, `service_ticket`, `grant_type=https://connectapi.garmin.com/di-oauth2-service/oauth/grant/service_ticket`,
+    `service_url`; header `Authorization: Basic base64(client_id + ":")`) and later refreshed at the
+    same URL with `grant_type=refresh_token`. The exchange and refresh live outside this spec's
+    server (they target `diauth.garmin.com`, not `connectapi.garmin.com`) and are implemented by the
+    CLI's `auth login` (loopback-redirect browser SSO) and `auth refresh`; they are not operations here.
+
+    ## Required headers
+
+    With a DI bearer token the data calls send only `Authorization: Bearer`, `Accept: application/json`
+    and the native-app header set (`client.py:452-459` `get_api_headers` DI branch; gccli
+    `internal/garminapi/client.go:89-91`). `DI-Backend: connectapi.garmin.com` belongs ONLY to
+    python-garminconnect's JWT_WEB cookie fallback (`client.py:460-472`) and is NOT sent with a DI
+    token (corrected 2026-09-07 after the spike's source-fidelity audit, finding SF-F1). The optional
+    `DIBackend` parameter below is kept for that fallback only.
+
+    ## Dates and windows
+
+    All date parameters are `YYYY-MM-DD` strings. Range endpoints marked `x-max-window-days: 28`
+    accept at most 28 calendar days per request; a caller walks longer ranges in 28-day windows
+    (`start`, `start+27`), (`start+28`, `start+55`), … and merges the pages.
+
+    ## `{displayName}`
+
+    Several paths interpolate the account's `displayName`, read once from
+    `GET /userprofile-service/socialProfile` (operation `getSocialProfile`). It is URL-encoded
+    before entering the path.
+  contact:
+    name: garmin-pp-spike (N131)
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: https://connectapi.garmin.com
+    description: Garmin Connect API tier (data calls). Token exchange/refresh use https://diauth.garmin.com and are not modelled here.
+
+security:
+  - bearer: []
+
+tags:
+  - name: account
+    description: 'Bootstrap and identity: social profile, unit settings, and the account email a login is checked against.'
+  - name: sleep
+    description: Sleep score trends, server-aggregated nightly summaries, and full per-night detail.
+  - name: fitness
+    description: "Fitness level over time: VO2 max, max-met values, and Garmin's fitness-age estimate."
+  - name: training
+    description: Training status over a window and the daily training-readiness score.
+  - name: heart-rate
+    description: Configured heart-rate zones, daily heart-rate detail, and per-activity time in zone.
+  - name: steps
+    description: Daily and weekly step totals against the account's goal.
+  - name: wellness
+    description: 'Daily wellness roll-ups: the day summary, intensity minutes, resting heart rate, and hydration.'
+  - name: activities
+    description: The activity feed, per-activity detail and splits, lifetime breakdowns, and original file downloads.
+paths:
+  /userprofile-service/socialProfile:
+    get:
+      operationId: accountSocialProfile
+      tags:
+        - account
+      summary: Show the signed-in account's social profile and displayName
+      description: |
+        Returns the account's public profile. The `displayName` field is the account key that several
+        other Garmin paths interpolate, so this is the first call after a login and the cheapest way to
+        confirm a stored token still works: a 401 or 403 here means the token was rejected by the data
+        tier.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+      responses:
+        '200':
+          description: Social profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 856
+          symbol: _load_social_profile
+        - file: python-garminconnect/garminconnect/client.py
+          line: 434
+          symbol: _verify_token
+      x-class: point
+
+      x-pp-resource: account
+  /userprofile-service/userprofile/user-settings:
+    get:
+      operationId: accountSettings
+      tags:
+        - account
+      summary: Show account settings, including the measurement unit system
+      description: |
+        Returns the account's settings. Read this once per home to learn whether the account reports
+        distances in metric or statute units before formatting any distance, pace or weight.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+      responses:
+        '200':
+          description: User settings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 418-420
+          symbol: garmin_connect_user_settings_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 3125-3130
+          symbol: get_user_profile
+      x-class: point
+
+      x-pp-resource: account
+  /sleep-service/stats/sleep/daily/{start}/{end}:
+    get:
+      operationId: sleepStats
+      tags:
+        - sleep
+      summary: List server-aggregated daily sleep summaries for a date range
+      description: |
+        One row per night between `start` and `end`, aggregated by Garmin. At most 28 calendar days per
+        request; `history` fills longer ranges into the local archive in 28-day windows, oldest day
+        first, de-duplicating on the calendar date. Rows arrive under `individualStats`.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: Sleep stats for the window.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SleepStatsRange'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1938
+          symbol: get_sleep_daily
+      x-class: range
+      x-max-window-days: 28
+
+      x-pp-resource: sleep
+      x-pp-syncable: false
+  /wellness-service/stats/daily/sleep/score/{start}/{end}:
+    get:
+      operationId: sleepScoreStats
+      tags:
+        - sleep
+      summary: List the nightly sleep score for a date range
+      description: |
+        The sleep score trend: one row per calendar date with the score value and qualifier. Cheaper
+        than fetching per-night detail when the question is about a trend rather than one night. At most
+        28 calendar days per request.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: One row per calendar date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SleepScoreDay'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: garth/src/garth/stats/sleep.py
+          line: 12-15
+          symbol: DailySleep
+        - file: python-garminconnect/garminconnect/__init__.py
+          line:
+          note: not present (grep 2026-09-07)
+      x-class: range
+      x-max-window-days: 28
+
+      x-pp-resource: sleep
+      x-pp-syncable: false
+  /wellness-service/wellness/dailySleepData/{displayName}:
+    get:
+      operationId: sleepNight
+      tags:
+        - sleep
+      summary: Show full sleep detail for one night
+      description: |
+        Everything Garmin recorded for a single night: stage minutes, sleep windows, restlessness and
+        the sleep-score breakdown. One request per night, so a trend question should use the range
+        commands instead. This is the account-scoped path variant; `night-alt` is the same payload
+        without the displayName in the path.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DisplayName'
+        - $ref: '#/components/parameters/DateQuery'
+        - name: nonSleepBufferMinutes
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 60
+          description: Minutes of buffer around the sleep window. 60 is the value Garmin's own clients send.
+      responses:
+        '200':
+          description: Sleep detail for the night ending on `date`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySleepData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 481
+          symbol: garmin_connect_daily_sleep_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1903-1917
+          symbol: get_sleep_data
+        - file: garth/src/garth/data/sleep.py
+          line: 116
+          symbol: SleepData.get
+      x-class: per-day
+      x-variant:
+        group: sleep-detail
+        role: primary
+        alternate: getDailySleepAlt
+
+      x-pp-resource: sleep
+      x-pp-syncable: false
+  /sleep-service/sleep/dailySleepData:
+    get:
+      operationId: sleepNightAlt
+      tags:
+        - sleep
+      summary: Show full sleep detail for one night (path variant without displayName)
+      description: |
+        Identical payload to `night`, on the sleep-service path that takes the date as a query parameter.
+        It needs no displayName, so it works before the bootstrap profile call has run, and it is the
+        fallback if the account-scoped path ever changes.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DateQuery'
+      responses:
+        '200':
+          description: Sleep detail for the night ending on `date`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySleepData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: garth/src/garth/data/daily_sleep_data.py
+          line: 135
+          symbol: DailySleepData.get
+        - file: garmin-connect/src/garmin/UrlClass.ts
+          line: 68-70
+          symbol: DAILY_SLEEP
+        - file: python-garminconnect/garminconnect/__init__.py
+          line:
+          note: not present (grep 2026-09-07)
+      x-class: per-day
+      x-variant:
+        group: sleep-detail
+        role: alternate
+        primary: getDailySleep
+
+      x-pp-resource: sleep
+      x-pp-syncable: false
+  /metrics-service/metrics/maxmet/daily/{start}/{end}:
+    get:
+      operationId: fitnessMaxMetrics
+      tags:
+        - fitness
+      summary: List VO2 max and max-met values for a date range
+      description: |
+        Fitness-level trend: VO2 max, generic and cycling, plus Garmin's max-met value, one row per date.
+        Only dates with a measurement appear; days without a qualifying activity are absent rather than
+        zero. At most 28 calendar days per request.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: Max-met rows for the range.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 436
+          symbol: garmin_connect_metrics_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1474-1493
+          symbol: get_max_metrics / get_max_metrics_range
+      x-class: range
+      x-max-window-days: 28
+      x-max-window-days-note: UNVERIFIED for this path; applied by analogy with the usersummary stats endpoints.
+
+      x-pp-resource: fitness
+      x-pp-syncable: false
+  /fitnessage-service/fitnessage/{date}:
+    get:
+      operationId: fitnessAge
+      tags:
+        - fitness
+      summary: Show the fitness-age estimate for one date
+      description: |
+        Garmin's fitness-age estimate and the components it was computed from for a single date. There
+        is no range form, so a fitness-age trend costs one request per day and is what the local archive
+        exists for.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DatePath'
+      responses:
+        '200':
+          description: Fitness age data for the date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 560
+          symbol: garmin_connect_fitnessage
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2250-2256
+          symbol: get_fitnessage_data
+      x-class: per-day
+
+      x-pp-resource: fitness
+      x-pp-syncable: false
+  /mobile-gateway/usersummary/trainingstatus/latest/{end}:
+    get:
+      operationId: trainingStatus
+      tags:
+        - training
+      summary: List daily training status ending on a date
+      description: |
+        Training status with acute and chronic load, for the days ending on the given date.
+        The status values are productive, maintaining, unproductive, detraining and their siblings.
+        Returns a page of days, not a single day; treat the end date as the anchor.
+        Requires `--end`.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: Training-status rows for the page ending on `end`.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingStatusDay'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: garth/src/garth/stats/training_status/daily.py
+          line: 35-38
+          symbol: DailyTrainingStatus
+        - file: python-garminconnect/garminconnect/__init__.py
+          line:
+          note: not present; pgc uses /metrics-service/metrics/trainingstatus/aggregated/{date} at line 532
+      x-class: range
+      x-max-window-days: 28
+
+      x-pp-resource: training
+      x-pp-syncable: false
+  /metrics-service/metrics/trainingreadiness/{date}:
+    get:
+      operationId: trainingReadiness
+      tags:
+        - training
+      summary: Show the training-readiness score for one date
+      description: |
+        Garmin's training-readiness score for a single date, with the inputs it was built from.
+        Those inputs are sleep, recovery, HRV and acute load. One request per day; a readiness trend
+        comes from the local archive, not from this endpoint.
+        Requires `--date`.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DatePath'
+      responses:
+        '200':
+          description: Training readiness entries for the date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 525
+          symbol: garmin_connect_training_readiness_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2077-2083
+          symbol: get_training_readiness
+      x-class: per-day
+
+      x-pp-resource: training
+      x-pp-syncable: false
+  /fitnessstats-service/activity:
+    get:
+      operationId: activitiesBreakdown
+      tags:
+        - activities
+      summary: Summarise lifetime activity totals grouped by activity type
+      description: |
+        Server-side aggregation of every activity on the account into totals per parent activity type,
+        by duration or distance. Answers 'what does this account actually do, and how much' in one
+        request instead of paging the whole activity list.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: aggregation
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [lifetime]
+            default: lifetime
+        - name: groupByParentActivityType
+          in: query
+          required: true
+          schema:
+            type: boolean
+            default: true
+          description: Garmin expects the capitalised literal strings `True` and `False` here, not lowercase.
+        - name: metric
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [distance, duration, movingDuration, elevationGain]
+            default: distance
+      responses:
+        '200':
+          description: Aggregated totals per parent activity type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 559
+          symbol: garmin_connect_fitnessstats
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2713-2742
+          symbol: get_progress_summary_between_dates
+      x-class: range
+      x-max-window-days-note: No 28-day chunking in any client read for this path; window limit UNVERIFIED.
+      # startDate and endDate are required and carry no default, so the
+      # synthesized example omitted them and printed a command that exits 2
+      # with `required flag "start-date" not set` (N131.5.5 F-5). aggregation
+      # is hidden and defaulted; an example should not teach it.
+      x-pp-example: garmin-pp-cli activities breakdown --start-date 2026-01-01 --end-date 2026-06-30 --metric duration
+
+      x-pp-resource: activities
+  /biometric-service/heartRateZones:
+    get:
+      operationId: heartRateZones
+      tags:
+        - heart-rate
+      summary: List the configured heart-rate zones for every sport profile
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+      responses:
+        '200':
+          description: One entry per sport profile.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 440
+          symbol: garmin_connect_heart_rate_zones_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2962-2965
+          symbol: get_heart_rate_zones
+      x-class: point
+
+      description: |
+        The zone boundaries the account has configured, per sport. These are settings, not measurements:
+        read them to label time-in-zone numbers, and expect them to change only when the user edits them
+        or Garmin auto-detects a new threshold.
+      x-pp-resource: heart_rate
+  /usersummary-service/usersummary/daily/{displayName}:
+    get:
+      operationId: wellnessDailySummary
+      tags:
+        - wellness
+      summary: Show the daily wellness summary for one date
+      description: |
+        The single-day roll-up: steps, floors, intensity minutes, calories, resting heart rate and
+        stress. Check `includesWellnessData` before reading any wellness field — an account with no
+        wearable returns the envelope with the series absent, not zeroes.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DisplayName'
+        - name: calendarDate
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+      responses:
+        '200':
+          description: Daily summary.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 435
+          symbol: garmin_connect_daily_summary_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 959-984
+          symbol: get_user_summary
+      x-class: per-day
+
+      x-pp-resource: wellness
+      x-pp-syncable: false
+  /usersummary-service/stats/steps/daily/{start}/{end}:
+    get:
+      operationId: stepsDaily
+      tags:
+        - steps
+      summary: List daily step totals and goals for a date range
+      description: |
+        One row per calendar date with total steps, the step goal and the distance walked. At most 28
+        calendar days per request; `history` fills longer ranges into the local archive in 28-day
+        windows, oldest day first.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: One row per calendar date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyStepsDay'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 449
+          symbol: garmin_connect_daily_stats_steps_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1018-1073
+          symbol: get_daily_steps
+        - file: garth/src/garth/stats/steps.py
+          line: 12-18
+          symbol: DailySteps
+      x-class: range
+      x-max-window-days: 28
+
+      x-pp-resource: steps
+      x-pp-syncable: false
+  /usersummary-service/stats/steps/weekly/{end}/{weeks}:
+    get:
+      operationId: stepsWeekly
+      tags:
+        - steps
+      summary: List weekly step aggregates for a number of weeks ending on a date
+      description: |
+        Weekly step buckets instead of daily ones, about a year of them in a single request.
+        The daily form would take thirteen requests for the same span. Use this for long-horizon trend
+        questions and fall back to the daily form when a specific date matters.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/EndDate'
+        - name: weeks
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            default: 52
+          description: Number of weeks ending on `end`.
+      responses:
+        '200':
+          description: One row per week.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeeklyStepsRow'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 452
+          symbol: garmin_connect_weekly_stats_steps_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1076-1098
+          symbol: get_weekly_steps
+        - file: garth/src/garth/stats/steps.py
+          line: 22-30
+          symbol: WeeklySteps
+      x-class: range
+      x-max-window-weeks: 52
+
+      x-pp-resource: steps
+      x-pp-syncable: false
+  /usersummary-service/stats/im/weekly/{start}/{end}:
+    get:
+      operationId: wellnessIntensityMinutesWeekly
+      tags:
+        - wellness
+      summary: List weekly moderate and vigorous intensity minutes between two dates
+      description: |
+        Weekly buckets of moderate and vigorous intensity minutes against the account's weekly goal.
+        This is the series behind Garmin's 'intensity minutes' badge.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: One row per week.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeeklyIntensityMinutesRow'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 458
+          symbol: garmin_connect_weekly_stats_intensity_minutes_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1121-1144
+          symbol: get_weekly_intensity_minutes
+        - file: garth/src/garth/stats/intensity_minutes.py
+          line: 27-28
+          symbol: WeeklyIntensityMinutes
+      x-class: range
+      x-max-window-weeks: 52
+
+      x-pp-resource: wellness
+      x-pp-syncable: false
+  /userstats-service/wellness/daily/{displayName}:
+    get:
+      operationId: wellnessMetricsDaily
+      tags:
+        - wellness
+      summary: List one daily wellness metric series (resting heart rate, calories) for a range
+      description: |
+        A single named metric as a daily time series over a date range, selected by the numeric metric
+        id. Metric 60 is resting heart rate. Longer ranges are accepted here than on the 28-day stats
+        endpoints, but the exact ceiling is not published.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DisplayName'
+        - name: fromDate
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: untilDate
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: metricId
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: integer
+            default: [60]
+          description: One or more metric ids. 60 = WELLNESS_RESTING_HEART_RATE, 22 = WELLNESS_ACTIVE_CALORIES, 23 = WELLNESS_BMR_CALORIES.
+      responses:
+        '200':
+          description: Metric series keyed by metric name.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WellnessMetricsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 520
+          symbol: garmin_connect_rhr_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1973-2040
+          symbol: get_rhr_day / get_rhr_daily / get_calories_daily
+      x-class: range
+      x-max-window-days-note: python-garminconnect docstring says up to ~1 year per request; not a 28-day endpoint. UNVERIFIED live.
+
+      x-pp-resource: wellness
+      x-pp-syncable: false
+  /wellness-service/wellness/dailyHeartRate/{displayName}:
+    get:
+      operationId: heartRateDaily
+      tags:
+        - heart-rate
+      summary: Show heart-rate detail for one date
+      description: |
+        The intraday heart-rate series for a single date plus the resting, minimum and maximum values
+        Garmin derived from it. Sampled values only exist for dates a wearable was worn. This is the
+        account-scoped path variant.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DisplayName'
+        - $ref: '#/components/parameters/DateQuery'
+      responses:
+        '200':
+          description: Heart-rate detail for the date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyHeartRate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 541
+          symbol: garmin_connect_heartrates_daily_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1146-1174
+          symbol: get_heart_rates
+      x-class: per-day
+      x-variant:
+        group: daily-heart-rate
+        role: primary
+        alternate: getDailyHeartRateAlt
+
+      x-pp-resource: heart_rate
+      x-pp-syncable: false
+  /wellness-service/wellness/dailyHeartRate/:
+    get:
+      operationId: heartRateDailyAlt
+      tags:
+        - heart-rate
+      summary: Show heart-rate detail for one date (path variant without displayName)
+      description: |
+        Identical payload to `daily`, on the wellness-service path that takes the date as a query parameter.
+        It needs no displayName, so it is kept as a fallback and for use before the bootstrap profile
+        call has run.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DateQuery'
+      responses:
+        '200':
+          description: Heart-rate detail for the date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyHeartRate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: garth/src/garth/data/heart_rate.py
+          line: 76
+          symbol: DailyHeartRate.get
+        - file: python-garminconnect/garminconnect/__init__.py
+          line:
+          note: pgc uses the {displayName} form at 541/1146-1174
+      x-class: per-day
+      x-variant:
+        group: daily-heart-rate
+        role: alternate
+        primary: getDailyHeartRate
+
+      x-pp-resource: heart_rate
+      x-pp-syncable: false
+  /usersummary-service/usersummary/hydration/daily/{date}:
+    get:
+      operationId: wellnessHydration
+      tags:
+        - wellness
+      summary: Show logged hydration for one date
+      description: |
+        Water intake logged for a single date against the day's goal. Only populated for accounts where
+        the user logs hydration by hand or from a paired bottle.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DatePath'
+      responses:
+        '200':
+          description: Hydration data for the date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 443
+          symbol: garmin_connect_daily_hydration_url
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 1735-1741
+          symbol: get_hydration_data
+      x-class: per-day
+      x-variant:
+        group: hydration
+        role: primary
+        alternate: getDailyHydrationAlt
+
+      x-pp-resource: wellness
+      x-pp-syncable: false
+  /usersummary-service/usersummary/hydration/allData/{date}:
+    get:
+      operationId: wellnessHydrationAlt
+      tags:
+        - wellness
+      summary: Show logged hydration for one date, including goal and sweat-loss fields
+      description: |
+        The hydration payload plus the activity sweat-loss and goal-adjustment fields.
+        It is a superset of everything the shorter path returns; prefer this variant unless the extra
+        fields are unwanted.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/DatePath'
+      responses:
+        '200':
+          description: Hydration data for the date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: GarminDB/garmindb/download.py
+          line: 44
+          symbol: garmin_connect_daily_hydration_url
+        - file: GarminDB/garmindb/download.py
+          line: 293
+          symbol: __get_hydration_day
+        - file: garmin-connect/src/garmin/UrlClass.ts
+          line: 77-79
+          symbol: DAILY_HYDRATION
+        - file: python-garminconnect/garminconnect/__init__.py
+          line:
+          note: not present; pgc uses hydration/daily at 443
+      x-class: per-day
+      x-variant:
+        group: hydration
+        role: alternate
+        primary: getDailyHydration
+
+      x-pp-resource: wellness
+      x-pp-syncable: false
+  /activitylist-service/activities/search/activities:
+    get:
+      operationId: activitiesList
+      tags:
+        - activities
+      summary: List activities newest first, with optional date and type filters
+      description: |
+        The account's activity feed, one row per recorded activity, newest first. Pages with `--offset`
+        and `--limit`; an empty page means the end of the account's history. Optional filters narrow by
+        date range, activity type and sort order. Distinct local start dates over this list are how
+        'days active' is counted — Garmin exposes no server-side count.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Zero-based offset into the activity feed; 0 is the most recent activity. Sent to Garmin as the `start` query parameter.
+          x-url-name: start
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+          description: Page size. Other clients cap this at 1000 as a safety measure; Garmin publishes no ceiling of its own.
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/DateString'
+        - name: activityType
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter to one activity type, for example cycling, running, swimming, multi_sport, fitness_equipment, hiking, walking or other.
+        - name: activitySubType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Garmin defaults to descending by startLocal; `asc` returns oldest first.
+      responses:
+        '200':
+          description: A page of activity summaries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivitySummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 552
+          symbol: garmin_connect_activities
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2360-2397
+          symbol: get_activities
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2655-2711
+          symbol: get_activities_by_date
+      x-class: list
+      x-pagination:
+        style: offset
+        offsetParam: start
+        limitParam: limit
+        stopCondition: empty page
+
+      x-pp-resource: activities
+  /activity-service/activity/{activityId}:
+    get:
+      operationId: activitiesGet
+      tags:
+        - activities
+      summary: Show the summary for one activity
+      description: |
+        Everything Garmin holds about one activity at summary level: type, timing, distance and elevation.
+        Aggregate heart rate and power come with it. Take the id from the activity list.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/ActivityId'
+      responses:
+        '200':
+          description: Activity summary.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivitySummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 556
+          symbol: garmin_connect_activity
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2980-2986
+          symbol: get_activity
+      x-class: point
+      x-scope: v2
+
+      x-pp-resource: activities
+  /activity-service/activity/{activityId}/hrTimeInZones:
+    get:
+      operationId: activitiesHrTimeInZones
+      tags:
+        - activities
+      summary: Show time spent in each heart-rate zone for one activity
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/ActivityId'
+      responses:
+        '200':
+          description: Seconds spent in each heart-rate zone during the activity, returned by Garmin untransformed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2938-2944
+          symbol: get_activity_hr_in_timezones
+      x-class: point
+
+      description: |
+        Seconds spent in each configured heart-rate zone during one activity.
+        That is the raw material for a training-polarisation ratio across a season. Combine with the zone
+        settings to label the zones.
+      x-pp-resource: activities
+  /activity-service/activity/{activityId}/splits:
+    get:
+      operationId: activitiesSplits
+      tags:
+        - activities
+      summary: List the splits recorded for one activity
+      description: |
+        The lap or split breakdown of a single activity, each with its own distance, duration and
+        averages. Present for activities the device or the user split.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/ActivityId'
+      responses:
+        '200':
+          description: Lap and split records for the activity, returned by Garmin untransformed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeFormObject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2904-2910
+          symbol: get_activity_splits
+      x-class: point
+      x-scope: v2
+
+      x-pp-resource: activities
+  /download-service/files/activity/{activityId}:
+    get:
+      operationId: activitiesDownloadOriginal
+      tags:
+        - activities
+      summary: Download the original activity file for one activity
+      description: |
+        Fetches the original recorded file for one activity as a ZIP containing the device FIT file.
+        This is the sanctioned export route for raw per-second data that the JSON endpoints do not
+        expose. Binary response; write it to a file rather than parsing it.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+        - $ref: '#/components/parameters/ActivityId'
+      responses:
+        '200':
+          description: ZIP archive holding the original FIT file.
+          content:
+            # Measured against Garmin on 2026-09-14 (N131.5.5 F-2): this path
+            # answers HTTP 406 NotAcceptableException to
+            # `Accept: application/octet-stream` AND to `Accept:
+            # application/zip`, and serves the ZIP to `Accept: */*` — the body
+            # comes back as `Content-Type: application/x-zip-compressed`, which
+            # is why neither concrete type matched. Declaring
+            # */* beside application/zip is how the spec says so: the generated
+            # response stays binary (any binary media type or string/binary
+            # schema decides that), while the per-endpoint Accept override is
+            # withheld because */* is not a concrete type — leaving the client's
+            # own binary default, which is `*/*`.
+            application/zip:
+              schema:
+                type: string
+                format: binary
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      x-source:
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 562
+          symbol: garmin_connect_fit_download
+        - file: python-garminconnect/garminconnect/__init__.py
+          line: 2870-2889
+          symbol: download_activity
+        - file: GarminDB/garmindb/download.py
+          line: 40
+          symbol: garmin_connect_download_service_url
+      x-class: binary
+      x-scope: v2
+
+      x-pp-resource: activities
+  /userprofile-service/userprofile/personal-information:
+    get:
+      operationId: accountPersonalInformation
+      tags:
+        - account
+      summary: Show the signed-in account's identity (email, birth date, locale)
+      description: |
+        Returns the identity block for the signed-in account, including the account email. That email is
+        the only field on any Garmin response that names which account a token belongs to, so `auth
+        login` reads it immediately after the token exchange and refuses to store a token whose account
+        does not match the one the operator named. Run it before trusting a home that a shared browser
+        session may have filled with the wrong household member.
+      parameters:
+        - $ref: '#/components/parameters/DIBackend'
+      responses:
+        '200':
+          description: Personal information for the signed-in account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalInformation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      x-source:
+        - file: garmin-pp-spike/probe-1
+          line:
+          symbol: N131.2 live probe 2026-09-07 (HTTP 200 on both household accounts; userInfo.email present)
+      x-class: point
+      x-pp-resource: account
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        DI OAuth2 access token from `POST https://diauth.garmin.com/di-oauth2-service/oauth/token`.
+        Obtained by exchanging a Garmin SSO service ticket (grant type
+        `https://connectapi.garmin.com/di-oauth2-service/oauth/grant/service_ticket`; form fields
+        `client_id`, `service_ticket`, `grant_type`, `service_url`; header `Authorization: Basic
+        base64(client_id + ":")`) and refreshed with `grant_type=refresh_token` at the same URL.
+        Client ids in use: GARMIN_CONNECT_MOBILE_ANDROID_DI_2025Q2 (newest), …_2024Q4, …_DI,
+        GARMIN_CONNECT_MOBILE_IOS_DI. Sources: python-garminconnect `client.py:170-180`
+        (constants), `client.py:1313-1376` (exchange), `client.py:1378-1416` (refresh);
+        bpauli/gccli `internal/garminauth/di.go:15-28` (constants), `di.go:46-63` (exchange, one
+        client id only — a service ticket is single-use), `di.go:69-110` (refresh),
+        `di.go:161-172` (native headers). The token response carries `access_token`,
+        `refresh_token`, `expires_in`, `refresh_token_expires_in` (`di.go:32-38`); the refresh-token
+        TTL value is UNVERIFIED (server-side claim). The CLI stores only `access_token`,
+        `refresh_token` and `client_id` (python-garminconnect `client.py:1504-1511`), never a
+        password, in a 0600 file inside a 0700 directory written O_CREAT|O_EXCL|O_NOFOLLOW then
+        atomically renamed (`client.py:1529-1552`).
+
+      x-auth-key-url: https://sso.garmin.com/portal/sso/en-US/sign-in
+      x-auth-vars:
+        - name: GARMIN_ACCESS_TOKEN
+          kind: per_call
+          required: false
+          sensitive: true
+          description: An access token obtained elsewhere. Garmin issues no personal API key, so there is normally nothing to put here — run `auth login` instead. A token set here is used as-is, is never refreshed, and is not the account `auth status` reports for this home.
+        - name: GARMIN_TOKEN
+          kind: per_call
+          required: false
+          sensitive: true
+          description: Same as GARMIN_ACCESS_TOKEN.
+      x-auth-instructions: |
+        Run `garmin-pp-cli auth login --email <your Garmin account email>`. It opens your browser at Garmin's sign-in page, catches the redirect back to a loopback port, exchanges the ticket for a token pair, and refuses to store a token whose account email does not match the one you named. Sign out of Garmin in the browser first if another household member has used it, and re-run `auth login` per account with that account's own GARMIN_HOME. There is no key to copy and paste: Garmin issues no personal API token, and the password is never seen by this CLI.
+  parameters:
+    DIBackend:
+      name: DI-Backend
+      in: header
+      required: false
+      schema:
+        type: string
+        enum: [connectapi.garmin.com]
+      description: |
+        Request header used only by Garmin's older cookie-based auth path. It is a header value, not a
+        hostname to call, and it is not sent alongside a bearer token, so it has no default: the
+        generated commands send it only when `--di-backend` is passed explicitly. Set it only if you
+        are deliberately exercising that fallback.
+    DisplayName:
+      name: displayName
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The account's `displayName`, taken from `account social-profile` and URL-encoded. Garmin answers 403 when it is missing.
+    StartDate:
+      name: start
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DateString'
+      description: Inclusive start date, YYYY-MM-DD.
+    EndDate:
+      name: end
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DateString'
+      description: Inclusive end date, YYYY-MM-DD.
+    DatePath:
+      name: date
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DateString'
+      description: Calendar date, YYYY-MM-DD.
+    DateQuery:
+      name: date
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/DateString'
+      description: Calendar date, YYYY-MM-DD.
+    ActivityId:
+      name: activityId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      description: Numeric activity id, the `activityId` field of a row from `activities list`. Always a positive integer.
+
+  responses:
+    Unauthorized:
+      description: The token is missing, expired, or was rejected by Garmin's data tier. Refresh it; if the refresh also fails, run `auth login` again. #369 class). Refresh, then re-login.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+    Forbidden:
+      description: Forbidden. Observed unauthenticated as `{"message":"HTTP 403 Forbidden","error":"ForbiddenException"}` (N131.0 auth research §4.2 probe D). Also the result of a literal `None` displayName in the path.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+    NotFound:
+      description: Not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+
+  schemas:
+    DateString:
+      type: string
+      pattern: '^\d{4}-\d{2}-\d{2}$'
+      format: date
+      description: Calendar date in YYYY-MM-DD form.
+      examples: ['2026-09-01']
+
+    FreeFormObject:
+      type: object
+      additionalProperties: true
+      description: A JSON object whose keys this spec does not model; read the response to see them.
+      x-shape: unverified
+
+    ErrorBody:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+      x-shape: partially-verified
+      x-shape-note: '`message`/`error` observed on an unauthenticated 403 (N131.0 auth research §4.2); other codes UNVERIFIED.'
+
+    SocialProfile:
+      type: object
+      additionalProperties: true
+      properties:
+        displayName:
+          type: string
+          description: The account key that the `{displayName}` paths interpolate. Garmin occasionally omits it on a cold response, so one retry is worthwhile before treating it as an error.
+        fullName:
+          type: string
+      required: [displayName]
+      x-shape: partially-verified
+      x-shape-note: only `displayName` and `fullName` are read by python-garminconnect (`__init__.py:857, 876`).
+
+    UserSettings:
+      type: object
+      additionalProperties: true
+      properties:
+        userData:
+          type: object
+          additionalProperties: true
+          description: Present on every accepted settings response. The measurement unit system lives here.
+      required: [userData]
+      x-shape: partially-verified
+
+    SleepStatsRange:
+      type: object
+      additionalProperties: true
+      properties:
+        individualStats:
+          type: array
+          items:
+            $ref: '#/components/schemas/SleepStatsDay'
+      x-shape: partially-verified
+      x-shape-note: '`individualStats[]` and its `calendarDate` are the only keys python-garminconnect reads (`__init__.py:1945-1950`).'
+
+    SleepStatsDay:
+      type: object
+      additionalProperties: true
+      properties:
+        calendarDate:
+          $ref: '#/components/schemas/DateString'
+      required: [calendarDate]
+      x-shape: partially-verified
+
+    SleepScoreDay:
+      type: object
+      additionalProperties: true
+      properties:
+        calendarDate:
+          $ref: '#/components/schemas/DateString'
+        value:
+          type: [integer, 'null']
+          description: Sleep score.
+      x-shape: partially-verified
+      x-shape-note: garth `DailySleep` declares `value` (`stats/sleep.py:10`); `calendarDate` comes from the shared `Stats` base. Wire keys are camelCase of the dataclass fields (garth `stats/_base.py:56`, `camel_to_snake_dict`).
+
+    DailySleepData:
+      type: object
+      additionalProperties: true
+      description: 'Per-night sleep detail. The sub-object shapes are abbreviated: Garmin returns more keys than are declared here.'
+      properties:
+        dailySleepDTO:
+          type: object
+          additionalProperties: true
+          properties:
+            id: {type: integer}
+            userProfilePK: {type: integer}
+            calendarDate: {$ref: '#/components/schemas/DateString'}
+            sleepTimeSeconds: {type: integer}
+            napTimeSeconds: {type: integer}
+            sleepStartTimestampGMT: {type: integer, description: epoch milliseconds}
+            sleepEndTimestampGMT: {type: integer, description: epoch milliseconds}
+            sleepStartTimestampLocal: {type: integer, description: 'epoch milliseconds; on some accounts the value is already shifted to local time'}
+            sleepEndTimestampLocal: {type: integer}
+            deepSleepSeconds: {type: [integer, 'null']}
+            lightSleepSeconds: {type: [integer, 'null']}
+            remSleepSeconds: {type: [integer, 'null']}
+            awakeSleepSeconds: {type: [integer, 'null']}
+            unmeasurableSleepSeconds: {type: [integer, 'null']}
+            awakeCount: {type: [integer, 'null']}
+            averageRespirationValue: {type: [number, 'null']}
+            avgSleepStress: {type: [number, 'null']}
+            sleepScores:
+              type: object
+              additionalProperties: true
+              description: Sub-scores (totalDuration, stress, awakeCount, overall, remPercentage, restlessness, lightPercentage, deepPercentage), each with `qualifierKey` and `value`.
+            sleepNeed: {type: object, additionalProperties: true}
+        remSleepData: {type: boolean}
+        sleepMovement: {type: [array, 'null'], items: {type: object, additionalProperties: true}}
+        sleepLevels: {type: [array, 'null'], items: {type: object, additionalProperties: true}}
+        restingHeartRate: {type: [integer, 'null']}
+        bodyBatteryChange: {type: [integer, 'null']}
+        avgSkinTempDeviationC: {type: [number, 'null']}
+      x-shape: partially-verified
+      x-shape-note: modelled from garth `data/daily_sleep_data.py` (`SleepDTO` 55-88, `DailySleepData` 113-125) and `data/sleep.py:41-64`; garth converts the camelCase wire object with `camel_to_snake_dict` before populating the dataclass (`data/daily_sleep_data.py:138`), so the wire keys are the camelCase forms of these fields; `dailySleepDTO`/`userProfilePK` casing is taken from python-garminconnect (`__init__.py:1572, 1587` use `userProfilePK`) and is UNVERIFIED for this response. Not observed live.
+
+    TrainingStatusDay:
+      type: object
+      additionalProperties: true
+      properties:
+        calendarDate: {$ref: '#/components/schemas/DateString'}
+        sinceDate: {type: [string, 'null'], format: date}
+        weeklyTrainingLoad: {type: [integer, 'null']}
+        trainingStatus: {type: [integer, 'null']}
+        timestamp: {type: [string, 'null']}
+        deviceId: {type: [integer, 'null']}
+        loadTunnelMin: {type: [integer, 'null']}
+        loadTunnelMax: {type: [integer, 'null']}
+        loadLevelTrend: {type: [string, integer, 'null']}
+        sport: {type: [string, 'null']}
+        subSport: {type: [string, 'null']}
+        fitnessTrendSport: {type: [string, 'null']}
+        fitnessTrend: {type: [integer, 'null']}
+        trainingStatusFeedbackPhrase: {type: [string, 'null']}
+        trainingPaused: {type: [boolean, 'null']}
+        primaryTrainingDevice: {type: [boolean, 'null']}
+        acwrPercent: {type: [integer, 'null']}
+        acwrStatus: {type: [string, 'null']}
+        acwrStatusFeedback: {type: [string, 'null']}
+        dailyTrainingLoadAcute: {type: [integer, 'null']}
+        maxTrainingLoadChronic: {type: [number, 'null']}
+        minTrainingLoadChronic: {type: [number, 'null']}
+        dailyTrainingLoadChronic: {type: [integer, 'null']}
+        dailyAcuteChronicWorkloadRatio: {type: [number, 'null']}
+      x-shape: partially-verified
+      x-shape-note: camelCase of garth `DailyTrainingStatus` fields (`stats/training_status/daily.py:10-33`); garth flattens a nested response in `_parse_response` (line 41+), so the raw wire nesting is UNVERIFIED.
+
+    DailySummary:
+      type: object
+      additionalProperties: true
+      properties:
+        privacyProtected:
+          type: boolean
+          description: '`true` means Garmin refused the request for this account. Treat it as an authentication failure, not as an empty day.'
+      x-shape: partially-verified
+      x-shape-note: only `privacyProtected` is read in source; steps/floors/calories/resting-HR keys UNVERIFIED.
+
+    DailyStepsDay:
+      type: object
+      additionalProperties: true
+      properties:
+        calendarDate: {$ref: '#/components/schemas/DateString'}
+        totalSteps: {type: [integer, 'null']}
+        totalDistance: {type: [integer, 'null'], description: metres}
+        stepGoal: {type: integer}
+      x-shape: partially-verified
+      x-shape-note: camelCase of garth `DailySteps` (`stats/steps.py:12-15`).
+
+    WeeklyStepsRow:
+      type: object
+      additionalProperties: true
+      properties:
+        calendarDate: {$ref: '#/components/schemas/DateString', description: Week start date}
+        totalSteps: {type: integer}
+        averageSteps: {type: number}
+        totalDistance: {type: number, description: metres}
+        averageDistance: {type: number}
+        wellnessDataDaysCount: {type: integer, description: Days with data}
+      x-shape: partially-verified
+      x-shape-note: python-garminconnect docstring (`__init__.py:1084-1090`) and garth `WeeklySteps` (`stats/steps.py:22-27`).
+
+    WeeklyIntensityMinutesRow:
+      type: object
+      additionalProperties: true
+      properties:
+        calendarDate: {$ref: '#/components/schemas/DateString', description: Week start date}
+        weeklyGoal: {type: integer}
+        moderateValue: {type: integer}
+        vigorousValue: {type: integer}
+      x-shape: partially-verified
+      x-shape-note: python-garminconnect docstring (`__init__.py:1130-1136`).
+
+    WellnessMetricsResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        allMetrics:
+          type: object
+          additionalProperties: true
+          properties:
+            metricsMap:
+              type: object
+              description: Keyed by metric name, e.g. WELLNESS_RESTING_HEART_RATE, WELLNESS_ACTIVE_CALORIES, WELLNESS_BMR_CALORIES.
+              additionalProperties:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+                  properties:
+                    calendarDate: {$ref: '#/components/schemas/DateString'}
+                    value: {type: [number, 'null']}
+      x-shape: partially-verified
+      x-shape-note: read path in python-garminconnect `__init__.py:2003-2010` and `2028-2040`.
+
+    DailyHeartRate:
+      type: object
+      additionalProperties: true
+      properties:
+        userProfilePK: {type: integer}
+        calendarDate: {$ref: '#/components/schemas/DateString'}
+        startTimestampGMT: {type: string}
+        endTimestampGMT: {type: string}
+        startTimestampLocal: {type: string}
+        endTimestampLocal: {type: string}
+        maxHeartRate: {type: [integer, 'null']}
+        minHeartRate: {type: [integer, 'null']}
+        restingHeartRate: {type: [integer, 'null']}
+        lastSevenDaysAvgRestingHeartRate: {type: [integer, 'null']}
+        heartRateValues:
+          type: [array, 'null']
+          description: Intraday readings as `[timestampMs, heartRate]` pairs.
+          items:
+            type: array
+            items:
+              type: [integer, 'null']
+      x-shape: partially-verified
+      x-shape-note: camelCase of garth `DailyHeartRate` (`data/heart_rate.py:39-48`; garth applies `camel_to_snake_dict` to the wire object at `data/heart_rate.py:83`); python-garminconnect returns the object untouched (`__init__.py:1163-1174`).
+
+    ActivitySummary:
+      type: object
+      additionalProperties: true
+      properties:
+        activityId:
+          type: integer
+          format: int64
+        activityName: {type: string}
+        startTimeLocal: {type: string, description: 'Local start time. Its date part is what a ''days active'' count uses, because Garmin exposes no server-side count.'}
+        startTimeGMT: {type: string}
+        activityType:
+          type: object
+          additionalProperties: true
+          properties:
+            typeKey: {type: string}
+            parentTypeId: {type: integer}
+        duration: {type: number, description: seconds}
+        distance: {type: number, description: metres}
+        averageHR: {type: [number, 'null']}
+        maxHR: {type: [number, 'null']}
+        calories: {type: [number, 'null']}
+      required: [activityId]
+      x-shape: unverified
+      x-shape-note: no client read parses activity rows beyond passing them through; keys other than `activityId` are conventional names carried from the N131.0 archive design (endpoints research §4c) and are UNVERIFIED until the spike records a real row.
+    PersonalInformation:
+      type: object
+      description: |
+        Identity block for the signed-in account. Only the fields `auth login` asserts on are
+        declared; the payload carries more. Probed 2026-09-07 on two household accounts: HTTP 200,
+        `userInfo.email` present on both. No other Garmin response observed in the N131.2 probe
+        carries the account email.
+      properties:
+        userInfo:
+          type: object
+          description: Account identity. `email` is the field the login identity assertion compares.
+          properties:
+            email:
+              type: string
+              format: email
+              description: The signed-in account's email address.
+            birthDate:
+              $ref: '#/components/schemas/DateString'
+            locale:
+              type: string
+          additionalProperties: true
+        biometricProfile:
+          type: object
+          additionalProperties: true
+      additionalProperties: true
+      x-shape: partially-verified

@@ -1,0 +1,51 @@
+version: 2
+project_name: garmin-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: garmin-pp-cli
+    main: ./cmd/garmin-pp-cli
+    binary: garmin-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/garmin/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: garmin-pp-mcp
+    main: ./cmd/garmin-pp-mcp
+    binary: garmin-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: garmin-pp-cli
+    repository:
+      owner: prashantkamani
+      name: homebrew-tap
+    homepage: "https://github.com/prashantkamani/garmin-pp-cli"
+    description: "Your whole Garmin history in a local database, not one 28-day page at a time."
+    install: |
+      bin.install "garmin-pp-cli"
+      bin.install "garmin-pp-mcp"

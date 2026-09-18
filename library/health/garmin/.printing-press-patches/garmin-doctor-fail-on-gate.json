@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "garmin-doctor-fail-on-gate",
+  "applied_at": "2026-09-14",
+  "base_run_id": "20260907-222621",
+  "base_printing_press_version": "4.32.0",
+  "summary": "`doctor --fail-on warn` and `--fail-on error` exited 0 on a home with no credentials while the report printed `FAIL Auth: not configured`. Two different classifiers ran over the same report: the human renderer's switch (doctor.go, checkKeys loop) knows `not configured` is a FAIL, while doctorExitForFailOn scanned for `refused:`, `error`, `unreachable`, `invalid`, `missing` or a `WARN` prefix — none of which `not configured` contains. The renderer's switch is now one function, doctorCheckIndicator, returning OK/INFO/WARN/FAIL, and the gate classifies the same rendered checks (doctorCheckKeys) with it before its original scan, which is kept so no previously-failing report starts passing. Case order inside the classifier is preserved exactly: `not configured` still reaches the FAIL case ahead of the general `not ` WARN case, and `present, not verified` stays INFO so a healthy home does not start failing CI.",
+  "reason": "N131.5.5 examples-runner F-1 (owner-facing defect list, 2026-09-14): SKILL.md and README.md offer `doctor --fail-on warn` as the automation check, and a check the tool prints as FAIL that no exit gate reports is a false green on the tool's own terms.",
+  "files": [
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_fail_on_test.go"
+  ],
+  "call_sites": [
+    "doctorIndicatorFail"
+  ],
+  "generated_files_edited": [
+    "internal/cli/doctor.go — the checkKeys slice and the indicator switch move out of the render loop into package-level doctorCheckKeys and doctorCheckIndicator (verdict constants doctorIndicatorOK/Info/Warn/Fail); the render loop calls the classifier; doctorExitForFailOn gains a loop over doctorCheckKeys ahead of its existing report-wide scan. Behaviour of the printed report is unchanged."
+  ],
+  "validated_outcome": "TestDoctorFailOnHonoursThePrintedVerdicts failed before the change (`--fail-on warn` and `--fail-on error` both returned nil for a report carrying \"auth\": \"not configured\") and passes after; TestDoctorCheckIndicatorAgreesWithTheGate pins the nine classifications that matter, including the INFO and OK cases that must not trip a gate. LIVE: `--home <empty home> doctor --fail-on warn` exits 0 on the pre-fix binary and 1 after, printing the same `FAIL Auth: not configured` line in both; `--fail-on error` on the same home also exits 1. Regression check on the healthy owner home (every check OK or INFO): `doctor --fail-on warn` still exits 0.",
+  "regen_notes": [
+    "UPSTREAM FINDING, not fixed at the input: the press emits both classifiers into every generated CLI, so every printed CLI with an auth-less home has this false green. A regeneration restores the split classifiers and the weaker gate. Re-apply this patch and run the two tests after any regeneration of doctor.go.",
+    "The report-wide token scan is deliberately kept beside the new loop: it covers keys the human report prints without an indicator, and removing it would relax the gate."
+  ]
+}

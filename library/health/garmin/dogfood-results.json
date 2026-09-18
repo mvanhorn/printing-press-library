@@ -1,0 +1,111 @@
+{
+  "dir": "\u003ccli-dir\u003e/garmin",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 8,
+    "valid": 8,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 1,
+    "items": [
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 97,
+      "registered": 96,
+      "unregistered": [
+        "sync"
+      ]
+    },
+    "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 4,
+    "exempted_via_client_directive": 1
+  },
+  "description_drift_check": {
+    "expected": "Your whole Garmin history in a local database, not one 28-day page at a time."
+  },
+  "source_client_check": {
+    "checked": 10
+  },
+  "print_json_filtered_check": {
+    "checked": 71
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 71
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead helper functions found",
+    "1 unregistered commands: sync"
+  ]
+}

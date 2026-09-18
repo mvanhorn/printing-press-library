@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "garmin-store-readonly-wal",
+  "applied_at": "2026-09-14",
+  "base_run_id": "20260907-222621",
+  "base_printing_press_version": "4.32.0",
+  "summary": "store.OpenReadOnlyContext opened the archive with mode=ro&immutable=1. immutable=1 tells SQLite the file has no writers, so the connection skips the -shm WAL-index and cannot see frames a still-open writer has committed but not checkpointed. The archive is a WAL database and `history` holds its writer open for a whole fill, so the handle could return a short answer or `no such table` for a table that exists — and it backs the MCP `sql` and `search` tools through internal/mcp/tools.go openMCPReadOnlyStore (called inside handleSearch and handleSQL), which is where an agent gets that clean wrong answer. The DSN is now mode=ro with _pragma=query_only(true), byte-identical in shape to the `sql` verb's own open (internal/cli/garmin_sql.go openGarminArchiveReadOnly), which has been proven against the live archive. THE DISCLOSED TRADE: without immutable=1 a mode=ro open of a WAL database whose -shm is absent must create the -shm, so it needs a writable containing directory. Measured this turn on a chmod 0555 fixture directory: the old DSN read the catalog (45 rows); the new one fails with `attempt to write a readonly database (1544)`. Every generated read command already fails earlier on such a home for its own reasons (learn init / playbook init open read-write), so no command's behaviour changes there, but a read-only GARMIN_HOME mount is now an error rather than a stale snapshot.",
+  "reason": "N131.5.5 round-1 independent review F-5 (carried to round 2 by the orchestrator, 2026-09-14). The round-1 builder and the reviewer each measured both failure modes on their own WAL fixtures.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/schema_version_test.go",
+    "internal/store/open_readonly_wal_test.go",
+    "internal/cli/garmin_sql.go"
+  ],
+  "call_sites": [
+    "_pragma=query_only(true)"
+  ],
+  "generated_files_edited": [
+    "internal/store/store.go — OpenReadOnlyContext's DSN (immutable=1 dropped, _pragma=query_only(true) added) and the doc comment above it, which justified immutable=1 and is replaced by what is now true plus the read-only-directory cost.",
+    "internal/store/schema_version_test.go — two generated tests pinned the old contract. assertNoWALIndexSidecars ('a read-only open creates no -shm and no -wal') is replaced by snapshotDatabaseFile + assertReadOnlyOpenDidNotMutate, which assert the database file is byte-identical after the read-only open and that no -wal content is left; TestOpenReadOnly_SkipsWALIndexSidecars and TestOpenReadOnly_ConcurrentProcesses call it. TestOpenAppliesPragmas asserted the read-only handle reports journal_mode 'delete' (immutable=1 reporting that it had not attached the WAL-index); it now asserts 'wal' plus query_only 1.",
+    "internal/cli/garmin_sql.go — comment only: openGarminArchiveReadOnly's doc no longer says immutable=1 is 'where this differs from store.OpenReadOnly', because it no longer does."
+  ],
+  "validated_outcome": "internal/store/open_readonly_wal_test.go builds the review's own fixture (WAL, wal_autocheckpoint=0, the writing connection held open so its close cannot checkpoint). Before the change all three tests failed: the read-only handle saw 1 row of 2, answered `no such table: later_table` for a table created in the un-checkpointed WAL, and reported query_only 0. All three pass after. The two generated tests above failed on the DSN change and were repaired to the new contract rather than deleted. go test -count=1 ./... is green with GARMIN_HOME unset, and the MCP package's own tests pass. THE PRESS'S OWN RATIONALE FOR immutable=1 WAS EXERCISED AND DID NOT REPRODUCE: TestOpenReadOnly_ConcurrentProcesses, which the generated comment calls \"the smallest reproduction\" of the concurrent-reader WAL-index fault the flag existed to avoid, runs two sibling read-only processes against one store and passes without immutable=1 — both helper processes exited 0 and read their row. The only assertion that failed in that test on the DSN change was the no-sidecar one, which was a restatement of the flag rather than a fault.",
+  "regen_notes": [
+    "UPSTREAM FINDING, not fixed at the input: the immutable=1 DSN, and the two generated tests that pin it, come from the press. A regeneration restores both and silently re-introduces the stale-snapshot answer in the MCP sql and search tools. Re-apply this patch and run internal/store/open_readonly_wal_test.go after any regeneration.",
+    "NOT CHANGED, and a separate judgement: rejectNewerSchemaBeforeJournalMode (internal/store/store.go) opens its own probe with mode=ro&immutable=1 to read PRAGMA user_version before a read-write open. It is a preflight that tolerates its own errors, not an answer to a user's question, so it was left alone; a peer writer that has migrated without checkpointing can still make it read a stale user_version."
+  ]
+}

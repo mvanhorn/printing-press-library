@@ -1,0 +1,57 @@
+{
+  "manifest_version": "0.3",
+  "name": "garmin-pp-mcp",
+  "display_name": "Garmin Connect",
+  "version": "0.1.0",
+  "description": "Your whole Garmin history in a local database, not one 28-day page at a time.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/garmin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/garmin-pp-mcp",
+      "args": [],
+      "env": {
+        "GARMIN_ACCESS_TOKEN": "${user_config.garmin_access_token}",
+        "GARMIN_BASE_URL": "${user_config.garmin_base_url}",
+        "GARMIN_TOKEN": "${user_config.garmin_token}",
+        "GARMIN_USER_AGENT": "${user_config.garmin_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "garmin_access_token": {
+      "type": "string",
+      "title": "GARMIN_ACCESS_TOKEN",
+      "description": "Optional. An access token obtained elsewhere. Garmin issues no personal API key, so there is normally nothing to put here — run `auth login` instead. A token set here is used as-is, is never refreshed, and is not the account `auth status` reports for this home.",
+      "sensitive": true
+    },
+    "garmin_base_url": {
+      "type": "string",
+      "title": "GARMIN_BASE_URL",
+      "description": "Optional. Sets GARMIN_BASE_URL for the Garmin Connect MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "garmin_token": {
+      "type": "string",
+      "title": "GARMIN_TOKEN",
+      "description": "Optional. Same as GARMIN_ACCESS_TOKEN.",
+      "sensitive": true
+    },
+    "garmin_user_agent": {
+      "type": "string",
+      "title": "GARMIN_USER_AGENT",
+      "description": "Optional. Sets GARMIN_USER_AGENT for the Garmin Connect MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

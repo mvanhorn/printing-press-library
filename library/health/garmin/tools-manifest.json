@@ -1,0 +1,755 @@
+{
+  "api_name": "garmin",
+  "base_url": "https://connectapi.garmin.com",
+  "description": "Your whole Garmin history in a local database, not one 28-day page at a time.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GARMIN_ACCESS_TOKEN",
+      "GARMIN_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GARMIN_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "An access token obtained elsewhere. Garmin issues no personal API key, so there is normally nothing to put here — run `auth login` instead. A token set here is used as-is, is never refreshed, and is not the account `auth status` reports for this home."
+      },
+      {
+        "name": "GARMIN_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Same as GARMIN_ACCESS_TOKEN."
+      }
+    ],
+    "key_url": "https://sso.garmin.com/portal/sso/en-US/sign-in"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_personal-information",
+      "description": "Returns the identity block for the signed-in account, including the account email. That email is the only field on any Garmin response that names which account a token belongs to, so `auth login` reads it immediately after the token exchange and refuses to store a token whose account does not match the one the operator named. Run it before trusting a home that a shared browser session may have filled with the wrong household member. Optional: DI-Backend.",
+      "method": "GET",
+      "path": "/userprofile-service/userprofile/personal-information",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        }
+      ]
+    },
+    {
+      "name": "account_settings",
+      "description": "Returns the account's settings. Read this once per home to learn whether the account reports distances in metric or statute units before formatting any distance, pace or weight. Optional: DI-Backend.",
+      "method": "GET",
+      "path": "/userprofile-service/userprofile/user-settings",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        }
+      ]
+    },
+    {
+      "name": "account_social-profile",
+      "description": "Returns the account's public profile. The `displayName` field is the account key that several other Garmin paths interpolate, so this is the first call after a login and the cheapest way to confirm a stored token still works: a 401 or 403 here means the token was rejected by the data tier. Optional: DI-Backend.",
+      "method": "GET",
+      "path": "/userprofile-service/socialProfile",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        }
+      ]
+    },
+    {
+      "name": "activities_breakdown",
+      "description": "Server-side aggregation of every activity on the account into totals per parent activity type, by duration or distance. Answers 'what does this account actually do, and how much' in one request instead of paging the whole activity list. Required: startDate, endDate, aggregation (default: lifetime), groupByParentActivityType (default: true), metric (default: distance). Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/fitnessstats-service/activity",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date",
+          "required": true
+        },
+        {
+          "name": "aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation",
+          "required": true
+        },
+        {
+          "name": "groupByParentActivityType",
+          "type": "bool",
+          "location": "query",
+          "description": "Garmin expects the capitalised literal strings `True` and `False` here, not lowercase.",
+          "required": true
+        },
+        {
+          "name": "metric",
+          "type": "string",
+          "location": "query",
+          "description": "Metric",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_download-original",
+      "description": "Fetches the original recorded file for one activity as a ZIP containing the device FIT file. This is the sanctioned export route for raw per-second data that the JSON endpoints do not expose. Binary response; write it to a file rather than parsing it. Required: activityId. Optional: DI-Backend.",
+      "method": "GET",
+      "path": "/download-service/files/activity/{activityId}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "activityId",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric activity id, the `activityId` field of a row from `activities list`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_get",
+      "description": "Everything Garmin holds about one activity at summary level: type, timing, distance and elevation. Aggregate heart rate and power come with it. Take the id from the activity list. Required: activityId. Optional: DI-Backend. Returns the ActivitySummary.",
+      "method": "GET",
+      "path": "/activity-service/activity/{activityId}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "activityId",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric activity id, the `activityId` field of a row from `activities list`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_hr-time-in-zones",
+      "description": "Seconds spent in each configured heart-rate zone during one activity. That is the raw material for a training-polarisation ratio across a season. Combine with the zone settings to label the zones. Required: activityId. Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/activity-service/activity/{activityId}/hrTimeInZones",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "activityId",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric activity id, the `activityId` field of a row from `activities list`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_list",
+      "description": "The account's activity feed, one row per recorded activity, newest first. Pages with `--offset` and `--limit`; an empty page means the end of the account's history. Optional filters narrow by date range, activity type and sort order. Distinct local start dates over this list are how 'days active' is counted — Garmin exposes no server-side count. Optional: DI-Backend, offset (default: 0), limit (default: 20) (plus 5 more). Returns array of ActivitySummary.",
+      "method": "GET",
+      "path": "/activitylist-service/activities/search/activities",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "offset",
+          "wire_name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based offset into the activity feed; 0 is the most recent activity. Sent to Garmin as the `start` query parameter."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size. Other clients cap this at 1000 as a safety measure; Garmin publishes no ceiling of its own."
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "activityType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to one activity type, for example cycling, running, swimming, multi_sport, fitness_equipment, hiking, walking or other."
+        },
+        {
+          "name": "activitySubType",
+          "type": "string",
+          "location": "query",
+          "description": "Activity sub type"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Garmin defaults to descending by startLocal; `asc` returns oldest first."
+        }
+      ]
+    },
+    {
+      "name": "activities_splits",
+      "description": "The lap or split breakdown of a single activity, each with its own distance, duration and averages. Present for activities the device or the user split. Required: activityId. Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/activity-service/activity/{activityId}/splits",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "activityId",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric activity id, the `activityId` field of a row from `activities list`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fitness_age",
+      "description": "Garmin's fitness-age estimate and the components it was computed from for a single date. There is no range form, so a fitness-age trend costs one request per day and is what the local archive exists for. Required: date. Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/fitnessage-service/fitnessage/{date}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fitness_max-metrics",
+      "description": "Fitness-level trend: VO2 max, generic and cycling, plus Garmin's max-met value, one row per date. Only dates with a measurement appear; days without a qualifying activity are absent rather than zero. At most 28 calendar days per request. Required: start, end. Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/metrics-service/metrics/maxmet/daily/{start}/{end}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive start date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "heart_rate_daily",
+      "description": "The intraday heart-rate series for a single date plus the resting, minimum and maximum values Garmin derived from it. Sampled values only exist for dates a wearable was worn. This is the account-scoped path variant. Required: displayName, date. Optional: DI-Backend. Returns array of HeartRateDailyItem.",
+      "method": "GET",
+      "path": "/wellness-service/wellness/dailyHeartRate/{displayName}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "path",
+          "description": "The account's `displayName`, taken from `account social-profile` and URL-encoded.",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "heart_rate_daily-alt",
+      "description": "Identical payload to `daily`, on the wellness-service path that takes the date as a query parameter. It needs no displayName, so it is kept as a fallback and for use before the bootstrap profile call has run. Required: date. Optional: DI-Backend. Returns array of HeartRateDailyAltItem.",
+      "method": "GET",
+      "path": "/wellness-service/wellness/dailyHeartRate/",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "heart_rate_zones",
+      "description": "The zone boundaries the account has configured, per sport. These are settings, not measurements: read them to label time-in-zone numbers, and expect them to change only when the user edits them or Garmin auto-detects a new threshold. Optional: DI-Backend. Returns array of FreeFormObject.",
+      "method": "GET",
+      "path": "/biometric-service/heartRateZones",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        }
+      ]
+    },
+    {
+      "name": "sleep_night",
+      "description": "Everything Garmin recorded for a single night: stage minutes, sleep windows, restlessness and the sleep-score breakdown. One request per night, so a trend question should use the range commands instead. This is the account-scoped path variant; `night-alt` is the same payload without the displayName in the path. Required: displayName, date. Optional: DI-Backend, nonSleepBufferMinutes (default: 60). Returns the DailySleepData.",
+      "method": "GET",
+      "path": "/wellness-service/wellness/dailySleepData/{displayName}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "path",
+          "description": "The account's `displayName`, taken from `account social-profile` and URL-encoded.",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "nonSleepBufferMinutes",
+          "type": "int",
+          "location": "query",
+          "description": "Minutes of buffer around the sleep window. 60 is the value Garmin's own clients send."
+        }
+      ]
+    },
+    {
+      "name": "sleep_night-alt",
+      "description": "Identical payload to `night`, on the sleep-service path that takes the date as a query parameter. It needs no displayName, so it works before the bootstrap profile call has run, and it is the fallback if the account-scoped path ever changes. Required: date. Optional: DI-Backend. Returns the DailySleepData.",
+      "method": "GET",
+      "path": "/sleep-service/sleep/dailySleepData",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sleep_score-stats",
+      "description": "The sleep score trend: one row per calendar date with the score value and qualifier. Cheaper than fetching per-night detail when the question is about a trend rather than one night. At most 28 calendar days per request. Required: start, end. Optional: DI-Backend. Returns array of SleepScoreDay.",
+      "method": "GET",
+      "path": "/wellness-service/stats/daily/sleep/score/{start}/{end}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive start date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sleep_stats",
+      "description": "One row per night between `start` and `end`, aggregated by Garmin. At most 28 calendar days per request; `history` fills longer ranges into the local archive in 28-day windows, oldest day first, de-duplicating on the calendar date. Rows arrive under `individualStats`. Required: start, end. Optional: DI-Backend. Returns array of SleepStatsDay.",
+      "method": "GET",
+      "path": "/sleep-service/stats/sleep/daily/{start}/{end}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive start date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steps_daily",
+      "description": "One row per calendar date with total steps, the step goal and the distance walked. At most 28 calendar days per request; `history` fills longer ranges into the local archive in 28-day windows, oldest day first. Required: start, end. Optional: DI-Backend. Returns array of DailyStepsDay.",
+      "method": "GET",
+      "path": "/usersummary-service/stats/steps/daily/{start}/{end}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive start date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "steps_weekly",
+      "description": "Weekly step buckets instead of daily ones, about a year of them in a single request. The daily form would take thirteen requests for the same span. Use this for long-horizon trend questions and fall back to the daily form when a specific date matters. Required: end, weeks (default: 52). Optional: DI-Backend. Returns array of WeeklyStepsRow.",
+      "method": "GET",
+      "path": "/usersummary-service/stats/steps/weekly/{end}/{weeks}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "weeks",
+          "type": "int",
+          "location": "path",
+          "description": "Number of weeks ending on `end`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "training_readiness",
+      "description": "Garmin's training-readiness score for a single date, with the inputs it was built from. Those inputs are sleep, recovery, HRV and acute load. One request per day; a readiness trend comes from the local archive, not from this endpoint. Requires `--date`. Required: date. Optional: DI-Backend. Returns array of FreeFormObject.",
+      "method": "GET",
+      "path": "/metrics-service/metrics/trainingreadiness/{date}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "training_status",
+      "description": "Training status with acute and chronic load, for the days ending on the given date. The status values are productive, maintaining, unproductive, detraining and their siblings. Returns a page of days, not a single day; treat the end date as the anchor. Requires `--end`. Required: end. Optional: DI-Backend.",
+      "method": "GET",
+      "path": "/mobile-gateway/usersummary/trainingstatus/latest/{end}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wellness_daily-summary",
+      "description": "The single-day roll-up: steps, floors, intensity minutes, calories, resting heart rate and stress. Check `includesWellnessData` before reading any wellness field — an account with no wearable returns the envelope with the series absent, not zeroes. Required: displayName, calendarDate. Optional: DI-Backend.",
+      "method": "GET",
+      "path": "/usersummary-service/usersummary/daily/{displayName}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "path",
+          "description": "The account's `displayName`, taken from `account social-profile` and URL-encoded.",
+          "required": true
+        },
+        {
+          "name": "calendarDate",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wellness_hydration",
+      "description": "Water intake logged for a single date against the day's goal. Only populated for accounts where the user logs hydration by hand or from a paired bottle. Required: date. Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/usersummary-service/usersummary/hydration/daily/{date}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wellness_hydration-alt",
+      "description": "The hydration payload plus the activity sweat-loss and goal-adjustment fields. It is a superset of everything the shorter path returns; prefer this variant unless the extra fields are unwanted. Required: date. Optional: DI-Backend. Returns the FreeFormObject.",
+      "method": "GET",
+      "path": "/usersummary-service/usersummary/hydration/allData/{date}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wellness_intensity-minutes-weekly",
+      "description": "Weekly buckets of moderate and vigorous intensity minutes against the account's weekly goal. This is the series behind Garmin's 'intensity minutes' badge. Required: start, end. Optional: DI-Backend. Returns array of WeeklyIntensityMinutesRow.",
+      "method": "GET",
+      "path": "/usersummary-service/stats/im/weekly/{start}/{end}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive start date, YYYY-MM-DD.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "path",
+          "description": "Inclusive end date, YYYY-MM-DD.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wellness_metrics-daily",
+      "description": "A single named metric as a daily time series over a date range, selected by the numeric metric id. Metric 60 is resting heart rate. Longer ranges are accepted here than on the 28-day stats endpoints, but the exact ceiling is not published. Required: displayName, fromDate, untilDate, metricId (default: [60]). Optional: DI-Backend. Returns the WellnessMetricsResponse.",
+      "method": "GET",
+      "path": "/userstats-service/wellness/daily/{displayName}",
+      "params": [
+        {
+          "name": "DI-Backend",
+          "type": "string",
+          "location": "query",
+          "description": "Request header used only by Garmin's older cookie-based auth path."
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "path",
+          "description": "The account's `displayName`, taken from `account social-profile` and URL-encoded.",
+          "required": true
+        },
+        {
+          "name": "fromDate",
+          "type": "string",
+          "location": "query",
+          "description": "From date",
+          "required": true
+        },
+        {
+          "name": "untilDate",
+          "type": "string",
+          "location": "query",
+          "description": "Until date",
+          "required": true
+        },
+        {
+          "name": "metricId",
+          "type": "array",
+          "location": "query",
+          "description": "One or more metric ids. 60 = WELLNESS_RESTING_HEART_RATE, 22 = WELLNESS_ACTIVE_CALORIES, 23 = WELLNESS_BMR_CALORIES.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Sleep over a window, joined and compared",
+      "command": "insights sleep",
+      "description": "Duration, score, stage split and resting heart rate for a window of nights, with the equally long window before it beside them."
+    },
+    {
+      "name": "Training load, zone split and fitness trend in one read",
+      "command": "insights training",
+      "description": "Archived activities grouped by type with their time and distance, time summed per heart-rate zone, weekly load buckets, and the VO2-max and readiness trends beside them."
+    },
+    {
+      "name": "Oldest-first archive fill of the 28-day-capped series",
+      "command": "history",
+      "description": "Fills a local SQLite archive of every Garmin daily series from the oldest day forward, keeping one bookmark per series so an interrupted run resumes instead of restarting."
+    },
+    {
+      "name": "SQL over the whole archive, read-only by construction",
+      "command": "sql",
+      "description": "Ask the archive anything in SQL: one read-only SELECT across every series `history` has filled."
+    },
+    {
+      "name": "Loopback browser login with identity assertion",
+      "command": "auth login",
+      "description": "Refuses to store a token whose account is not the address you named, so a shared browser cannot sign the wrong household member in."
+    }
+  ]
+}

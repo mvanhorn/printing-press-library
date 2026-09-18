@@ -1,0 +1,263 @@
+{
+  "api_name": "garmin",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "tcgoetz/GarminDB",
+      "url": "https://github.com/tcgoetz/GarminDB",
+      "language": "Python",
+      "install_method": "pip",
+      "stars": 3292,
+      "last_updated": "2026-09-07",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "cyberjunky/python-garminconnect",
+      "url": "https://github.com/cyberjunky/python-garminconnect",
+      "language": "Python",
+      "install_method": "pip",
+      "stars": 2953,
+      "last_updated": "2026-09-06",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "matin/garth",
+      "url": "https://github.com/matin/garth",
+      "language": "Python",
+      "install_method": "pip",
+      "stars": 814,
+      "last_updated": "2026-06-09",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "bpauli/gccli",
+      "url": "https://github.com/bpauli/gccli",
+      "language": "Go",
+      "install_method": "binary",
+      "stars": 27,
+      "last_updated": "2026-08-31",
+      "command_count": 12,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Every maintained client is a library, not an agent-native CLI: python-garminconnect and garth expose Python objects, so an agent has to write a script per question.",
+    "No client keeps a local archive of the 28-day-capped daily-stats endpoints, so any multi-year question re-fetches the whole history every time.",
+    "GarminDB does keep a local database but is a batch importer with no query surface an agent can call, and no JSON output.",
+    "gccli is the only Go CLI and the only browser-loopback login, but it ships no local store and no cross-series analytics."
+  ],
+  "patterns": [
+    "python-garminconnect: SSO service ticket exchanged at the DI OAuth2 token endpoint for a bearer plus refresh token, then plain refresh; no OAuth1 and no consumer key.",
+    "python-garminconnect: every daily-stats range request is chunked into 28-day windows and de-duplicated by calendar date.",
+    "garth: page size 28 for daily series and 52 for weekly series, encoded as a constant rather than discovered per call.",
+    "bpauli/gccli: loopback browser login on an ephemeral 127.0.0.1 port, so the tool never sees the password and never handles MFA or CAPTCHA.",
+    "GarminDB: a durable local store is what makes multi-year questions answerable at all."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-09-07T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Sleep over a window, joined and compared",
+      "command": "insights sleep",
+      "description": "Duration, score, stage split and resting heart rate for a window of nights, with the equally long window before it beside them.",
+      "rationale": "Duration, score and stage minutes arrive from three separate Garmin series; only a local archive holds them against the same night, so one read can join them and compare two periods.",
+      "example": "garmin-pp-cli insights sleep --days 90 --agent --select period,coverage.nights_with_stats,duration_minutes.avg,score.avg",
+      "why_it_matters": "Pick this over per-night endpoint calls whenever the question spans more than a few nights: one local read replaces one request per night, and nights the watch did not measure are counted as missing rather than as zero.",
+      "group": "Questions answered from the archive"
+    },
+    {
+      "name": "Training load, zone split and fitness trend in one read",
+      "command": "insights training",
+      "description": "Archived activities grouped by type with their time and distance, time summed per heart-rate zone, weekly load buckets, and the VO2-max and readiness trends beside them.",
+      "rationale": "Zone seconds come from a per-activity endpoint and load from the feed; joining a month of them live costs one request per activity, and from the archive it costs none.",
+      "example": "garmin-pp-cli insights training --days 28 --agent --select totals,by_type.type,by_type.duration_minutes,hr_zones",
+      "why_it_matters": "Pick this over the activity feed when the question is about volume, intensity or balance rather than one workout; it reports how many activities had zones archived so a strapless ride is not read as easy training.",
+      "group": "Questions answered from the archive"
+    },
+    {
+      "name": "Oldest-first archive fill of the 28-day-capped series",
+      "command": "history",
+      "description": "Fills a local SQLite archive of every Garmin daily series from the oldest day forward, keeping one bookmark per series so an interrupted run resumes instead of restarting.",
+      "rationale": "Garmin caps every daily-stats request at 28 days and answers the per-day series one date at a time, so years of history exist only where something walked the calendar and stored them.",
+      "example": "garmin-pp-cli history --since all",
+      "why_it_matters": "Run this before any question that reaches past the last 28 days: `--since all` or `--since YYYY-MM-DD` is the only depth control it offers, `--status` reports what each series still owes, `--strict` makes a scheduled run exit non-zero instead of warning past a series that did not answer, and every insights command reads the archive rather than the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "SQL over the whole archive, read-only by construction",
+      "command": "sql",
+      "description": "Ask the archive anything in SQL: one read-only SELECT across every series `history` has filled.",
+      "rationale": "The archive is a local SQLite file, so a question nobody anticipated is a query rather than a feature request, and Garmin's own API answers no aggregate and no join.",
+      "example": "garmin-pp-cli sql \"SELECT substr(json_extract(data,'$.startTimeLocal'),1,7) AS month, count(*) AS activities, round(sum(json_extract(data,'$.duration'))/3600.0,1) AS hours FROM resources WHERE resource_type='activities' GROUP BY month ORDER BY month DESC LIMIT 12\" --agent",
+      "why_it_matters": "Reach for this when the question is neither the sleep nor the training recipe: one SELECT joins any two series on the id they share, and a single-statement gate over a mode=ro, query_only handle means no query can write, whatever it says.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Loopback browser login with identity assertion",
+      "command": "auth login",
+      "description": "Refuses to store a token whose account is not the address you named, so a shared browser cannot sign the wrong household member in.",
+      "rationale": "Every other client either takes the password or scrapes a browser cookie; a shared browser session quietly signs in the wrong household member, and only an identity check catches it.",
+      "example": "garmin-pp-cli auth login --email you@example.com",
+      "why_it_matters": "Run this once per Garmin account per home before anything else; afterwards every command works unattended from the refresh token.",
+      "group": "Auth you can trust with a household"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Sleep over a window, joined and compared",
+      "command": "insights sleep",
+      "description": "Duration, score, stage split and resting heart rate for a window of nights, with the equally long window before it beside them.",
+      "rationale": "Duration, score and stage minutes arrive from three separate Garmin series; only a local archive holds them against the same night, so one read can join them and compare two periods.",
+      "example": "garmin-pp-cli insights sleep --days 90 --agent --select period,coverage.nights_with_stats,duration_minutes.avg,score.avg",
+      "why_it_matters": "Pick this over per-night endpoint calls whenever the question spans more than a few nights: one local read replaces one request per night, and nights the watch did not measure are counted as missing rather than as zero.",
+      "group": "Questions answered from the archive"
+    },
+    {
+      "name": "Training load, zone split and fitness trend in one read",
+      "command": "insights training",
+      "description": "Archived activities grouped by type with their time and distance, time summed per heart-rate zone, weekly load buckets, and the VO2-max and readiness trends beside them.",
+      "rationale": "Zone seconds come from a per-activity endpoint and load from the feed; joining a month of them live costs one request per activity, and from the archive it costs none.",
+      "example": "garmin-pp-cli insights training --days 28 --agent --select totals,by_type.type,by_type.duration_minutes,hr_zones",
+      "why_it_matters": "Pick this over the activity feed when the question is about volume, intensity or balance rather than one workout; it reports how many activities had zones archived so a strapless ride is not read as easy training.",
+      "group": "Questions answered from the archive"
+    },
+    {
+      "name": "Oldest-first archive fill of the 28-day-capped series",
+      "command": "history",
+      "description": "Fills a local SQLite archive of every Garmin daily series from the oldest day forward, keeping one bookmark per series so an interrupted run resumes instead of restarting.",
+      "rationale": "Garmin caps every daily-stats request at 28 days and answers the per-day series one date at a time, so years of history exist only where something walked the calendar and stored them.",
+      "example": "garmin-pp-cli history --since all",
+      "why_it_matters": "Run this before any question that reaches past the last 28 days: `--since all` or `--since YYYY-MM-DD` is the only depth control it offers, `--status` reports what each series still owes, `--strict` makes a scheduled run exit non-zero instead of warning past a series that did not answer, and every insights command reads the archive rather than the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "SQL over the whole archive, read-only by construction",
+      "command": "sql",
+      "description": "Ask the archive anything in SQL: one read-only SELECT across every series `history` has filled.",
+      "rationale": "The archive is a local SQLite file, so a question nobody anticipated is a query rather than a feature request, and Garmin's own API answers no aggregate and no join.",
+      "example": "garmin-pp-cli sql \"SELECT substr(json_extract(data,'$.startTimeLocal'),1,7) AS month, count(*) AS activities, round(sum(json_extract(data,'$.duration'))/3600.0,1) AS hours FROM resources WHERE resource_type='activities' GROUP BY month ORDER BY month DESC LIMIT 12\" --agent",
+      "why_it_matters": "Reach for this when the question is neither the sleep nor the training recipe: one SELECT joins any two series on the id they share, and a single-statement gate over a mode=ro, query_only handle means no query can write, whatever it says.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Loopback browser login with identity assertion",
+      "command": "auth login",
+      "description": "Refuses to store a token whose account is not the address you named, so a shared browser cannot sign the wrong household member in.",
+      "rationale": "Every other client either takes the password or scrapes a browser cookie; a shared browser session quietly signs in the wrong household member, and only an identity check catches it.",
+      "example": "garmin-pp-cli auth login --email you@example.com",
+      "why_it_matters": "Run this once per Garmin account per home before anything else; afterwards every command works unattended from the refresh token.",
+      "group": "Auth you can trust with a household"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GARMIN_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Garmin Connect",
+    "headline": "Your whole Garmin history in a local database, not one 28-day page at a time.",
+    "value_prop": "Garmin Connect caps every daily-stats request at 28 calendar days and issues no personal API token, which is why its ecosystem is a handful of Python libraries rather than a tool an agent can call. `history` walks the whole account into a local SQLite archive, oldest day first, and `insights sleep` and `insights training` answer months-long sleep, training-load and heart-rate-zone questions from that archive with JSON on stdout. `auth login` keeps each household account in its own home and refuses to store a token that belongs to somebody else.",
+    "auth_narrative": "Garmin issues no personal API key, so `garmin-pp-cli auth login --email you@example.com` is the way in: it signs the browser out of Garmin, opens Garmin's own sign-in page, catches the one-time ticket on a loopback port on 127.0.0.1, and then asks Garmin which account it just authenticated. If that is not the address you passed, nothing is written to disk. Your password never reaches this CLI, and the refresh token keeps the session alive afterwards without another browser visit. A token supplied in GARMIN_ACCESS_TOKEN or GARMIN_TOKEN is used as-is instead: never refreshed, and not this home's stored chain. One Garmin account per home; `auth status --verify` asks Garmin which one this home holds. `garmin-pp-cli auth logout` clears that home's stored chain.",
+    "quickstart": [
+      {
+        "command": "garmin-pp-cli doctor",
+        "comment": "Health check first: it names the directory every path kind resolved to and whether this home has credentials."
+      },
+      {
+        "command": "garmin-pp-cli history --status",
+        "comment": "What each series already holds and what it still owes. It makes no request, so it is safe before anything is filled."
+      },
+      {
+        "command": "garmin-pp-cli history --since all",
+        "comment": "Do this once. It is the only command that fills the archive, and everything below reads the archive rather than the API."
+      },
+      {
+        "command": "garmin-pp-cli insights sleep --days 28 --agent",
+        "comment": "The first archive question: four weeks of sleep with the four weeks before them alongside."
+      },
+      {
+        "command": "garmin-pp-cli insights training --days 28 --agent",
+        "comment": "The same window for activities: totals by type, time in heart-rate zone and weekly load."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`auth login` reports that Garmin authenticated an account other than the one passed to `--email`.",
+        "fix": "A Garmin session survived the sign-out. Nothing was stored: sign out at sso.garmin.com/sso/logout in the browser, then run the login again."
+      },
+      {
+        "symptom": "Every insights number is null or zero and a hint on stderr names `history`.",
+        "fix": "The archive holds no rows for that window. Run `garmin-pp-cli history --since all` once, then `garmin-pp-cli history --status` to see how far each series got."
+      },
+      {
+        "symptom": "A `history` run stopped partway, or you interrupted it.",
+        "fix": "Run it again; `garmin-pp-cli history --status` shows what is still outstanding."
+      },
+      {
+        "symptom": "A date range longer than 28 days comes back with fewer rows than were asked for.",
+        "fix": "Garmin caps daily-stats requests at 28 calendar days. Ask the archive instead, for example `garmin-pp-cli insights sleep --days 90`."
+      },
+      {
+        "symptom": "`sync` prints that it is superseded and exits 2.",
+        "fix": "`history` is the only command that fills the archive. Run `garmin-pp-cli history` instead."
+      },
+      {
+        "symptom": "Commands read the wrong household member's data on a shared machine.",
+        "fix": "Each Garmin account needs its own home. Pass `--home \u003cdir\u003e` or set GARMIN_HOME, then run `garmin-pp-cli doctor --json` to see which directory each path kind resolved to."
+      },
+      {
+        "symptom": "Sleep and heart-rate series stay empty while activities fill normally.",
+        "fix": "The account has no wearable paired; a bike computer records activities but no wellness series. Check `includesWellnessData` on the daily summary before treating it as a bug."
+      }
+    ],
+    "when_to_use": "Reach for this CLI for questions about the owner's own Garmin Connect history: sleep and training trends, VO2 max, resting heart rate, step and intensity-minute totals, heart-rate zones, and the activity feed. It earns its keep on questions that span weeks or years, because those are answered from the local archive instead of from Garmin's 28-day pages. Do not reach for it before the archive is filled: an unfilled archive answers every trend question with nulls and a hint naming `history`, which is an honest answer but not the one the user asked for.",
+    "anti_triggers": [
+      "Writing anything back to Garmin Connect. Every command here reads.",
+      "Another household member's account from this home. Each account needs its own login in its own home.",
+      "A live device readout. A metric appears here only after the watch or bike computer has synced to Garmin Connect.",
+      "Strava, Apple Health, Whoop or Oura data, which live in their own services."
+    ],
+    "recipes": [
+      {
+        "title": "Before you run `history`",
+        "command": "garmin-pp-cli history --since all --dry-run",
+        "explanation": "The dry run prints the same estimate the real run prints before its expensive half, and makes no request at all, so read it before committing to the fill. What it is counting: the daily series start at 2007-01-01, the oldest day Garmin answers for whatever the account's age, and the activity feed starts at the account's first activity; one request covers a 28-day or 364-day window of a daily series, one activity for each of the three per-activity fetches, or one signal day for each of the four per-day series, and each request takes about 0.4 s. An account worn daily for years comes to several thousand requests, about an hour, and a few hundred MB on disk; a sparse account is about a thousand requests and under ten minutes. The per-activity fetches — detail, splits and heart-rate zones — cover only the activities that start on or after the day the run starts from, so a later, deeper `--since` extends them downward along with the daily series. When the estimate reads acceptable, start the fill with `garmin-pp-cli history --since all`."
+      },
+      {
+        "title": "A quarter of sleep, narrowed to the numbers that answer the question",
+        "command": "garmin-pp-cli insights sleep --days 90 --agent --select period,coverage.nights_with_stats,duration_minutes.avg,score.avg,trend_vs_prior_period.duration_minutes.delta_pct",
+        "explanation": "Ninety nights come out of the archive in one local read; `--select` keeps five numbers instead of the full nightly payload, and `coverage.nights_with_stats` says how many nights actually fed the averages."
+      },
+      {
+        "title": "Four weeks of training load and the zone split behind it",
+        "command": "garmin-pp-cli insights training --days 28 --agent --select totals,by_type.type,by_type.duration_minutes,hr_zones",
+        "explanation": "Totals, a per-type breakdown and the heart-rate-zone split in one read; drop the `--select` to also see `coverage.activities_with_zones`, which is how many of those activities were recorded with a strap."
+      },
+      {
+        "title": "Join two series on a value read out of the JSON",
+        "command": "garmin-pp-cli sql \"WITH days AS MATERIALIZED (SELECT substr(json_extract(data,'$.startTimeLocal'),1,10) AS day, count(*) AS activities, round(sum(json_extract(data,'$.duration'))/3600.0,1) AS hours FROM resources WHERE resource_type='activities' GROUP BY 1), steps AS MATERIALIZED (SELECT id AS day, json_extract(data,'$.totalSteps') AS steps FROM resources WHERE resource_type='steps') SELECT d.day, d.activities, d.hours, s.steps FROM days d JOIN steps s ON s.day = d.day ORDER BY d.day DESC LIMIT 14\" --agent",
+        "explanation": "Every archived series lives in one table, `resources`, keyed by (resource_type, id), so joining two of them is a self-join. When the join keys on a value read out of the JSON — here the activity's own start day against the step series' date id — give each side its own `WITH ... AS MATERIALIZED (...)` CTE: without MATERIALIZED, SQLite inlines the CTE and re-parses every JSON row once per joined pair. `sql` accepts a single SELECT or WITH statement and runs it against a handle opened read-only, so no query can change the archive whatever it says. Run `garmin-pp-cli sql \"SELECT resource_type, count(*) FROM resources GROUP BY 1\"` first to see which series this archive holds. `analytics --type activities --group-by activityName` stays the shorthand when one top-level field of one series is all you need, and `search \u003ctext\u003e --type activities --data-source local` is the full-text equivalent over the same rows."
+      },
+      {
+        "title": "Connect a second household account",
+        "command": "garmin-pp-cli auth login --email other@example.com --home ~/.local/share/garmin-homes/other",
+        "explanation": "The second account gets its own home: `--home` for a single invocation, GARMIN_HOME to make it durable for a session."
+      }
+    ],
+    "trigger_phrases": [
+      "how did I sleep this month",
+      "sleep trend for the last 90 days",
+      "training load and time in heart rate zones",
+      "vo2 max trend",
+      "fill the garmin archive",
+      "use garmin connect",
+      "run garmin"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+# agentcookie-manual-override
+# agentcookie.toml: secrets-bus adoption manifest v2 — hand-maintained; the marker above keeps
+# the generator from rewriting it. garmin-pp-cli authenticates with a refreshing OAuth token pair
+# written by `auth login` (credentials.toml under the data directory). A static bearer copied to
+# another machine expires there with no refresh, so no key is nominated for off-box sync.
+schema_version = 2
+name = "garmin-pp-cli"
+display_name = "Garmin Connect"
+description = "Your whole Garmin history in a local database, not one 28-day page at a time."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/garmin-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
