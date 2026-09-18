@@ -1192,6 +1192,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Neglected-Teammate Finder", "command": "recognition gap", "description": "Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet verified against a real API response in this build.", "rationale": "Joins the org-chart direct-reports endpoint against your own recognition-given history locally; the admin equivalent (adminUsersLastRecognized) needs a scope this CLI's user doesn't have.", "via": "mcp-command-mirror"},
 			{"name": "Company Values Trend Audit", "command": "recognition values", "description": "See which company-value hashtags are actually trending in a department, instead of manually tallying the feed.", "rationale": "Aggregates hashtag frequency across the synced feed, scoped by department headcount; no live endpoint returns this pre-aggregated.", "via": "mcp-command-mirror"},
 			{"name": "Redemption Spend Forecast", "command": "redemptions forecast", "description": "Project your reward-redemption spend from your own history -- a simple trend line, not a black box.", "rationale": "Projects from your own local redemption history, which only grows more accurate the longer sync has run.", "via": "mcp-command-mirror"},
+			// pp:hand-edit bonusly-redemptions-suggest — see
+			// .printing-press-patches/bonusly-redemptions-suggest.json
+			{"name": "Redemption Suggestion", "command": "redemptions suggest", "description": "Suggest rewards to redeem again from your own history, next to your current point balance. Bonusly exposes no live rewards-catalog endpoint with prices, so this can't rank by afford-ability.", "rationale": "Joins a live balance snapshot against your own local redemption history; no Bonusly endpoint returns a priced rewards catalog to filter against (see README Known Gaps).", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Recognition Budget Audit", "insight": "Requires joining synced recognition totals against department headcounts locally; the admin-only Participation Report does this server-side but needs a scope this CLI's user doesn't have."},
@@ -1200,6 +1203,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Neglected-Teammate Finder", "insight": "Joins the org-chart direct-reports endpoint against your own recognition-given history locally; the admin equivalent (adminUsersLastRecognized) needs a scope this CLI's user doesn't have."},
 			{"topic": "Company Values Trend Audit", "insight": "Aggregates hashtag frequency across the synced feed, scoped by department headcount; no live endpoint returns this pre-aggregated."},
 			{"topic": "Redemption Spend Forecast", "insight": "Projects from your own local redemption history, which only grows more accurate the longer sync has run."},
+			{"topic": "Redemption Suggestion", "insight": "Joins a live balance snapshot against your own local redemption history; no Bonusly endpoint returns a priced rewards catalog to filter against (see README Known Gaps)."},
 			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
 			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
 		},

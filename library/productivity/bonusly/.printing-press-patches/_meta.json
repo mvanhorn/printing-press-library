@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Local-store novel commands (redemptions forecast/suggest, recognition gap/search-mine/values/audit) have no per-client-profile scoping",
+      "reason": "internal/store/store.go's tables carry no account/profile column, so switching --client-profile mid-use can mix a previous account's rows into a local read. Fixing it needs a schema migration across the whole local-store layer, not a single-command change. Tracked at https://github.com/mvanhorn/printing-press-library/issues/2015."
+    }
+  ]
+}

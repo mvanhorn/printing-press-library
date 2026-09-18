@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -216,6 +217,11 @@ func summarizeEmerging(trials []Trial, recentYears, limit int) emergingView {
 
 // growth computes per-label growth between recent and prior cohorts, returning
 // the top n by recent count (only labels with a meaningful recent presence).
+//
+// GrowthPct rounds half away from zero on both sides. Adding 0.5 before an
+// int conversion rounds only positive values, because the conversion
+// truncates toward zero, so every shrinking category would read one point
+// less negative than it is.
 func growth(recent, prior *counter, n int) []growthEntry {
 	var out []growthEntry
 	for label, rc := range recent.counts {
@@ -228,7 +234,7 @@ func growth(recent, prior *counter, n int) []growthEntry {
 			entry.NewlyAdded = true
 			entry.GrowthPct = 100
 		} else {
-			entry.GrowthPct = int(float64(rc-pc)*100.0/float64(pc) + 0.5)
+			entry.GrowthPct = int(math.Round(float64(rc-pc) * 100.0 / float64(pc)))
 		}
 		out = append(out, entry)
 	}

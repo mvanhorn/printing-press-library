@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.9.11 - 2026-09-18
+
+- test(clinical-trials): pin the emerging cohort cutoff year (#2010).
+
 ## 2026.9.10 - 2026-09-16
 
 - clinical-trials: extract compare's trial summary into a callable helper (#2001).

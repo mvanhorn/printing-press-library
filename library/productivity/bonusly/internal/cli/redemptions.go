@@ -18,5 +18,8 @@ func newRedemptionsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newRedemptionsGetCmd(flags))
 	cmd.AddCommand(newRedemptionsListMineCmd(flags))
 	addNovelCommandIfAbsent(cmd, newNovelRedemptionsForecastCmd(flags))
+	// pp:hand-edit bonusly-redemptions-suggest — wires the new `suggest`
+	// novel command; see .printing-press-patches/bonusly-redemptions-suggest.json
+	addNovelCommandIfAbsent(cmd, newNovelRedemptionsSuggestCmd(flags))
 	return cmd
 }

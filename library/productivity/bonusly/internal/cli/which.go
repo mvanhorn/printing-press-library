@@ -33,6 +33,9 @@ var whichIndex = []whichEntry{
 	{Command: "recognition gap", Description: "Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet verified against a real API response in this build.", Group: "Local state that compounds", WhyItMatters: "Use before 1:1s or sprint retros to catch teammates who've gone unrecognized."},
 	{Command: "recognition values", Description: "See which company-value hashtags are actually trending in a department, instead of manually tallying the feed.", Group: "Local state that compounds", WhyItMatters: "Use this for a culture pulse-check across a team or the whole company."},
 	{Command: "redemptions forecast", Description: "Project your reward-redemption spend from your own history -- a simple trend line, not a black box.", Group: "Local state that compounds", WhyItMatters: "Use this to sanity-check whether your redeemable balance will cover a reward you're eyeing."},
+	// pp:hand-edit bonusly-redemptions-suggest — see
+	// .printing-press-patches/bonusly-redemptions-suggest.json
+	{Command: "redemptions suggest", Description: "Suggest rewards to redeem again from your own history, next to your current point balance. Bonusly exposes no live rewards-catalog endpoint with prices, so this can't rank by afford-ability.", Group: "Local state that compounds", WhyItMatters: "Use this when you're ready to redeem and want a memory jog for what you've liked before, alongside your current balance."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

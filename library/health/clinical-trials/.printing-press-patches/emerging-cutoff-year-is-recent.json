@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "emerging-cutoff-year-is-recent",
+  "applied_at": "2026-09-16",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "summarizeEmerging's cohort cutoff is inclusive: a trial that started in the cutoff year, current year minus --recent-years, belongs to the recent cohort and its interventions and conditions are tallied as recent. RecentSinceYear reports that same year. A reprint must keep the comparison inclusive and the reported year equal to the one the split uses.",
+  "reason": "The existing emerging corpus places no trial near the cutoff, so an exclusive comparison, a cutoff moved by a year, or a reported year off by one all passed every test. A hand-authored test in its own file puts trials on and beside the cutoff.",
+  "files": [
+    "internal/cli/emerging.go",
+    "internal/cli/emerging_cutoff_test.go"
+  ],
+  "validated_outcome": "Three mutations of emerging.go pass the suite before this change and fail the new tests: >= to >, the cutoff one year later, and RecentSinceYear reported as cutoff+1. Sending undated trials to the prior cohort fails only the existing tests, so the two files guard separate rules."
+}

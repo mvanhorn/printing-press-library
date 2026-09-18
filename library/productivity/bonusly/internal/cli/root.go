@@ -212,6 +212,9 @@ func isCobraUsageError(err error) bool {
 		strings.HasPrefix(msg, `invalid argument "`)
 }
 
+// pp:hand-edit bonusly-redemptions-suggest — added the "redemptions suggest"
+// bullet to the Highlights banner below. See
+// .printing-press-patches/bonusly-redemptions-suggest.json
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "bonusly-pp-cli",
@@ -225,6 +228,7 @@ Highlights (not in the official API docs):
   • recognition gap   Find direct reports you haven't recognized recently, without an admin's Participation Report. Requires a live lookup to resolve your manager identity and direct reports (no local fallback); not yet v…
   • recognition values   See which company-value hashtags are actually trending in a department, instead of manually tallying the feed.
   • redemptions forecast   Project your reward-redemption spend from your own history -- a simple trend line, not a black box.
+  • redemptions suggest   Suggest rewards to redeem again from your own history, next to your current point balance.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'bonusly-pp-cli doctor' to verify auth and connectivity.

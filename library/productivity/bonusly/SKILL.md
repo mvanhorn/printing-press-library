@@ -97,6 +97,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   bonusly-pp-cli redemptions forecast --agent
   ```
+- **`redemptions suggest`** — Suggest rewards to redeem again from your own history, next to your current point balance. Bonusly exposes no live rewards-catalog endpoint with prices, so this can't rank by afford-ability.
+
+  _Use this when you're ready to redeem and want a memory jog for what you've liked before, alongside your current balance._
+
+  ```bash
+  bonusly-pp-cli redemptions suggest --agent
+  ```
 
 ## Command Reference
 

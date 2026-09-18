@@ -204,6 +204,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   bonusly-pp-cli redemptions forecast --agent
   ```
+- **`redemptions suggest`** — Suggest rewards to redeem again from your own history, next to your current point balance. Bonusly exposes no live rewards-catalog endpoint with prices, so this can't rank by afford-ability.
+
+  _Use this when you're ready to redeem and want a memory jog for what you've liked before, alongside your current balance._
+
+  ```bash
+  bonusly-pp-cli redemptions suggest --agent
+  ```
 
 ## Recipes
 
@@ -452,7 +459,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 
 This CLI was originally generated without access to a live Bonusly API credential, so its first cut of endpoint paths was inferred from documentation and pattern-matching rather than confirmed. It has since been live-tested end-to-end against a real authenticated session, and several of those original inferences turned out wrong in ways the no-auth probing heuristic (401 vs. 404 with no token) could not have caught, because Bonusly returns 401 on some genuinely nonexistent paths too. This section reflects what live testing actually found.
 
-1. **Removed: `awards`, `groups`, `incentives`, `meetings`.** None of these command groups could be made to work. Live probing (~20 path variants each, using a real authenticated session) found no working endpoint for the awards catalog, custom/system user groups, or 1:1 meetings resources — every variant tried returned 404. Rather than ship commands that always fail, they were removed. If you find the real endpoints (e.g. by capturing your own browser's network traffic while using these Bonusly features), please open an issue or PR.
+1. **Removed: `awards`, `groups`, `incentives`, `meetings`.** None of these command groups could be made to work. Live probing (~20 path variants each, using a real authenticated session) found no working endpoint for the awards catalog, custom/system user groups, or 1:1 meetings resources — every variant tried returned 404. Rather than ship commands that always fail, they were removed. If you find the real endpoints (e.g. by capturing your own browser's network traffic while using these Bonusly features), please open an issue or PR. In the meantime, `redemptions suggest` offers a workaround built from data this CLI can actually reach: it resurfaces reward names from your own redemption history instead of a live priced catalog.
 2. **Fixed: `balance`, `balance history`, `recognition audit`.** The originally-inferred `/users/points_balance` does not exist; the real data (`giving_balance`, `earning_balance`, `lifetime_earnings`) lives directly on `GET /users/me`. Bonusly does not appear to expose `monthly_budget`, `currency`, `exchange_rate`, `lifetime_given`, or `lifetime_redeemed` to a non-admin account via any endpoint found so far — those fields report as zero rather than a guessed value.
 3. **Fixed: `org top`.** The real endpoint is `GET /users?top_level=true`, not `/users/top_level`.
 4. **Fixed: `redemptions list-mine`.** The literal string `"me"` is not accepted on this sub-resource; the command now resolves the caller's real id via `/users/me` first, then calls `GET /users/{id}/redemptions`.
