@@ -1,0 +1,111 @@
+dogfood: using spec C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli\spec.json (bundled)
+dogfood: caller --spec=C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\research\haven-openapi.json overridden by bundled C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli\spec.json
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+{
+  "dir": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli",
+  "spec_path": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\spec.json",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 5,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 65,
+      "registered": 65
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 5
+  },
+  "description_drift_check": {
+    "expected": "Browse Haven menus, compare locations, and plan a meal from saved prices."
+  },
+  "source_client_check": {
+    "checked": 12
+  },
+  "print_json_filtered_check": {
+    "checked": 47
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 47
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "5 dead helper functions found"
+  ]
+}

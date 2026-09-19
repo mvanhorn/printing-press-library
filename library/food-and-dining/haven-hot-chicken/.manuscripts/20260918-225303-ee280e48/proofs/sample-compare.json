@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "name": "The Sandwich",
+    "note": "Exact case/whitespace-normalized name matches only; variants are preserved and not assumed equivalent. Prices are base prices in cents.",
+    "observations": [
+      {
+        "complete": true,
+        "fetched_at": "2026-09-19T03:19:37.6353159Z",
+        "location_id": 14208,
+        "snapshot_id": 1
+      },
+      {
+        "complete": true,
+        "fetched_at": "2026-09-19T03:19:38.163048Z",
+        "location_id": 14205,
+        "snapshot_id": 2
+      }
+    ],
+    "rows": [
+      {
+        "ambiguous": false,
+        "items": [
+          {
+            "available": true,
+            "disabled": false,
+            "hidden": false,
+            "id": 9653482,
+            "name": "The Sandwich",
+            "price_cents": 1349
+          }
+        ],
+        "location_id": 14208,
+        "status": "matched"
+      },
+      {
+        "ambiguous": false,
+        "items": [
+          {
+            "available": true,
+            "disabled": false,
+            "hidden": false,
+            "id": 9653484,
+            "name": "The Sandwich",
+            "price_cents": 1349
+          }
+        ],
+        "location_id": 14205,
+        "status": "matched"
+      }
+    ]
+  }
+}

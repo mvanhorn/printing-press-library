@@ -1,0 +1,102 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Location price comparison",
+        "command": "haven compare",
+        "example": "haven-hot-chicken-pp-cli haven compare --item \"The Sandwich\" --locations 14208,14205 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"items\": [],\n    \"missing_locations\": [\n      14208,\n      14205\n    ],\n    \"note\": \"No complete saved menu for these locations. Run haven refresh --locations with these IDs first.\"\n  }\n}\n"
+      },
+      {
+        "name": "Base-price meal subtotal",
+        "command": "haven subtotal",
+        "example": "haven-hot-chicken-pp-cli haven subtotal --location 14208 --item 9656289=2 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"items\": [],\n    \"missing_locations\": [\n      14208\n    ],\n    \"note\": \"No complete saved menu for these locations. Run haven refresh --locations with these IDs first.\"\n  }\n}\n"
+      },
+      {
+        "name": "Saved menu changes",
+        "command": "haven changes",
+        "example": "haven-hot-chicken-pp-cli haven changes --location 14208 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"items\": [],\n    \"missing_locations\": [\n      14208\n    ],\n    \"note\": \"No complete saved menu for these locations. Run haven refresh --locations with these IDs first.\"\n  }\n}\n"
+      },
+      {
+        "name": "Shared availability",
+        "command": "haven common",
+        "example": "haven-hot-chicken-pp-cli haven common --locations 14208,14205 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"items\": [],\n    \"missing_locations\": [\n      14208,\n      14205\n    ],\n    \"note\": \"No complete saved menu for these locations. Run haven refresh --locations with these IDs first.\"\n  }\n}\n"
+      },
+      {
+        "name": "Nearby locations",
+        "command": "haven nearby",
+        "example": "haven-hot-chicken-pp-cli haven nearby --lat 41.3 --lon -72.9 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"latitude\": 41.3,\n    \"longitude\": -72.9,\n    \"note\": \"Straight-line miles from supplied coordinates; not driving distance or travel time. Locations without valid coordinates are skipped.\",\n    \"rows\": [],\n    \"skipped_location_ids\": []\n  }\n}\n"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\build\\stage\\bin\\haven-hot-chicken-pp-cli.exe",
+      "binary_path": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\build\\stage\\bin\\haven-hot-chicken-pp-cli.exe",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-09-19T03:28:35.4762533Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 5,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "haven-hot-chicken",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 10,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 0,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 9,
+      "vision": 9,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 5,
+      "dead_code": 1,
+      "live_api_verification": 0,
+      "total": 91,
+      "percentage": 91
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "dead_code scored 1/5 - needs improvement",
+      "MCP: 6 tools (6 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_remote_transport",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

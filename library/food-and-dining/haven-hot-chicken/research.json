@@ -1,0 +1,158 @@
+{
+  "api_name": "haven-hot-chicken",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-19T03:09:38.546924Z",
+  "novel_features": [
+    {
+      "name": "Location price comparison",
+      "command": "haven compare",
+      "description": "Compare the same named menu item across saved location menus.",
+      "rationale": "Join location-scoped menu observations without switching storefronts.",
+      "example": "haven-hot-chicken-pp-cli haven compare --item \"The Sandwich\" --locations 14208,14205 --agent",
+      "why_it_matters": "Compare the same named menu item across saved location menus.",
+      "group": "Saved menu comparisons"
+    },
+    {
+      "name": "Base-price meal subtotal",
+      "command": "haven subtotal",
+      "description": "Estimate a meal base-price subtotal from explicit item IDs and quantities.",
+      "rationale": "Combine saved prices with quantities without creating a remote cart.",
+      "example": "haven-hot-chicken-pp-cli haven subtotal --location 14208 --item 9656289=2 --agent",
+      "why_it_matters": "Estimate a meal base-price subtotal from explicit item IDs and quantities.",
+      "group": "Meal and pickup planning"
+    },
+    {
+      "name": "Saved menu changes",
+      "command": "haven changes",
+      "description": "Show additions, removals, price and availability changes between two complete saved menus.",
+      "rationale": "Retain observation history the current-menu API does not expose.",
+      "example": "haven-hot-chicken-pp-cli haven changes --location 14208 --agent",
+      "why_it_matters": "Show additions, removals, price and availability changes between two complete saved menus.",
+      "group": "Saved menu comparisons"
+    },
+    {
+      "name": "Shared availability",
+      "command": "haven common",
+      "description": "Find items marked available in every selected saved location menu.",
+      "rationale": "Intersect location-specific availability with observation timestamps.",
+      "example": "haven-hot-chicken-pp-cli haven common --locations 14208,14205 --agent",
+      "why_it_matters": "Find items marked available in every selected saved location menu.",
+      "group": "Saved menu comparisons"
+    },
+    {
+      "name": "Nearby locations",
+      "command": "haven nearby",
+      "description": "Rank saved shops by straight-line distance from supplied coordinates.",
+      "rationale": "Calculate distances locally without sending coordinates to a service.",
+      "example": "haven-hot-chicken-pp-cli haven nearby --lat 41.3 --lon -72.9 --agent",
+      "why_it_matters": "Rank saved shops by straight-line distance from supplied coordinates.",
+      "group": "Meal and pickup planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Location price comparison",
+      "command": "haven compare",
+      "description": "Compare the same named menu item across saved location menus.",
+      "rationale": "Join location-scoped menu observations without switching storefronts.",
+      "example": "haven-hot-chicken-pp-cli haven compare --item \"The Sandwich\" --locations 14208,14205 --agent",
+      "why_it_matters": "Compare the same named menu item across saved location menus.",
+      "group": "Saved menu comparisons"
+    },
+    {
+      "name": "Base-price meal subtotal",
+      "command": "haven subtotal",
+      "description": "Estimate a meal base-price subtotal from explicit item IDs and quantities.",
+      "rationale": "Combine saved prices with quantities without creating a remote cart.",
+      "example": "haven-hot-chicken-pp-cli haven subtotal --location 14208 --item 9656289=2 --agent",
+      "why_it_matters": "Estimate a meal base-price subtotal from explicit item IDs and quantities.",
+      "group": "Meal and pickup planning"
+    },
+    {
+      "name": "Saved menu changes",
+      "command": "haven changes",
+      "description": "Show additions, removals, price and availability changes between two complete saved menus.",
+      "rationale": "Retain observation history the current-menu API does not expose.",
+      "example": "haven-hot-chicken-pp-cli haven changes --location 14208 --agent",
+      "why_it_matters": "Show additions, removals, price and availability changes between two complete saved menus.",
+      "group": "Saved menu comparisons"
+    },
+    {
+      "name": "Shared availability",
+      "command": "haven common",
+      "description": "Find items marked available in every selected saved location menu.",
+      "rationale": "Intersect location-specific availability with observation timestamps.",
+      "example": "haven-hot-chicken-pp-cli haven common --locations 14208,14205 --agent",
+      "why_it_matters": "Find items marked available in every selected saved location menu.",
+      "group": "Saved menu comparisons"
+    },
+    {
+      "name": "Nearby locations",
+      "command": "haven nearby",
+      "description": "Rank saved shops by straight-line distance from supplied coordinates.",
+      "rationale": "Calculate distances locally without sending coordinates to a service.",
+      "example": "haven-hot-chicken-pp-cli haven nearby --lat 41.3 --lon -72.9 --agent",
+      "why_it_matters": "Rank saved shops by straight-line distance from supplied coordinates.",
+      "group": "Meal and pickup planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Haven Hot Chicken",
+    "headline": "Browse Haven menus, compare locations, and plan a meal from saved prices.",
+    "value_prop": "Fetch public Haven location menus and item options. Save menus locally to compare prices, estimate base subtotals, inspect changes and find shared availability.",
+    "auth_narrative": "Public menu and location commands require no login or API key. The brand-routing header is a public identifier. Orders, payments, rewards and account history are outside this CLI.",
+    "quickstart": [
+      {
+        "command": "haven-hot-chicken-pp-cli doctor --dry-run",
+        "comment": "Check the CLI setup."
+      },
+      {
+        "command": "haven-hot-chicken-pp-cli haven refresh --locations 14208,14205",
+        "comment": "Save complete North Haven and New Haven menu observations."
+      },
+      {
+        "command": "haven-hot-chicken-pp-cli haven menu --location 14208",
+        "comment": "Read the saved menu with its observation time."
+      },
+      {
+        "command": "haven-hot-chicken-pp-cli haven compare --item \"The Sandwich\" --locations 14208,14205",
+        "comment": "Compare the same named item across saved menus."
+      }
+    ],
+    "when_to_use": "Use this CLI for public Haven menus, location details, item options and comparisons over saved menus. Refresh before relying on changing prices or availability.",
+    "anti_triggers": [
+      "Do not use for placing or paying for orders.",
+      "Do not use for account rewards or order history.",
+      "Do not treat menu text as allergen advice or base subtotals as checkout totals."
+    ],
+    "recipes": [
+      {
+        "title": "Compact menu",
+        "command": "haven-hot-chicken-pp-cli haven menu --location 14208 --agent --select items.name,items.price_cents",
+        "explanation": "Return only saved item names and base prices."
+      },
+      {
+        "title": "Shared choices",
+        "command": "haven-hot-chicken-pp-cli haven common --locations 14208,14205 --agent",
+        "explanation": "Find items available in both saved menus."
+      },
+      {
+        "title": "Saved changes",
+        "command": "haven-hot-chicken-pp-cli haven changes --location 14208 --agent",
+        "explanation": "Compare the two newest complete observations when available."
+      }
+    ],
+    "trigger_phrases": [
+      "check the Haven menu",
+      "compare Haven prices",
+      "estimate a Haven meal subtotal",
+      "use haven-hot-chicken",
+      "run haven-hot-chicken"
+    ]
+  }
+}

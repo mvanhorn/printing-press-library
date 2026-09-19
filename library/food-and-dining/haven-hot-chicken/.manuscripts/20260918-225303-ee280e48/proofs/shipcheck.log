@@ -1,0 +1,225 @@
+
+=== verify ===
+Runtime Verification: C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli\haven-hot-chicken-pp-cli.exe
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+haven                          write        PASS   PASS     FAIL     2/3
+items                          read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+locations                      read         PASS   PASS     PASS     3/3
+menu-categories                read         PASS   PASS     PASS     3/3
+menus                          read         PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     FAIL     2/3
+profile                        write        PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       write        PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS items modifiers get-item
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS locations get
+  PASS menus categories get-menu
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (33/33 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 7 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli\spec.json (bundled)
+dogfood: caller --spec=C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\research\haven-openapi.json overridden by bundled C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli\spec.json
+dogfood_warning: README.md Unique Features will drop documented commands haven changes, haven common, haven compare, haven nearby, haven subtotal not found in the built feature set; update research.json to keep them
+dogfood_warning: SKILL.md Unique Capabilities will drop documented commands haven changes, haven common, haven compare, haven nearby, haven subtotal not found in the built feature set; update research.json to keep them
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal\cli\which.go (whichIndex) from novel_features_built
+dogfood: synced README.md (Value Proposition) from research.json narrative
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Authentication) from research.json narrative
+dogfood: synced SKILL.md (Auth Setup) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+dogfood: synced internal/cli/root.go (Highlights) from novel_features_built
+Dogfood Report: haven-hot-chicken-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    5 dead (WARN)
+  - handleBinaryResponseDelivery (defined, never called)
+  - readSecretFromStdin (defined, never called)
+  - retainCLIQueryParams (defined, never called)
+  - retainExplicitQueryParams (defined, never called)
+  - successfulNoop (defined, never called)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          9/10 commands have examples (PASS)
+  - items modifiers get-item: missing example
+
+Novel Features:    0/5 survived (WARN)
+  - haven compare: planned but not found
+  - haven subtotal: planned but not found
+  - haven changes: planned but not found
+  - haven common: planned but not found
+  - haven nearby: planned but not found
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 5 dead helper functions found
+  - 5/5 novel features missing: haven compare, haven subtotal, haven changes, haven common, haven nearby
+
+=== workflow-verify ===
+Workflow Verification: haven-hot-chicken-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== haven-hot-chicken-pp-cli ===
+  ✘ 0 error(s), 9 likely false-positive(s)
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: SKILL.md: menu
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: SKILL.md: common
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: SKILL.md: changes
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: README.md: refresh
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: README.md: menu
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: README.md: compare
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: README.md: menu
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: README.md: common
+    [positional-args] haven-hot-chicken-pp-cli haven: got 1 positional args; Use: "haven" expects 0–0  [likely false positive]
+      evidence: README.md: changes
+  ✘ canonical-sections
+    [canonical-sections] (file: SKILL.md): install section is missing or malformed; this section is generator-owned. Regenerate the printed CLI to restore it.
+      evidence:
+        expected canonical block:
+        ## Prerequisites: Install the CLI
+        
+        This skill drives the `haven-hot-chicken-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+        
+        1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+           ```bash
+           npx -y @mvanhorn/printing-press-library install haven-hot-chicken --cli-only
+           ```
+        2. Verify: `haven-hot-chicken-pp-cli --version`
+        3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+        
+        If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+        
+        ```bash
+        go install github.com/mvanhorn/printing-press-library/library/food-and-dining/haven-hot-chicken/cmd/haven-hot-chicken-pp-cli@latest
+        ```
+        
+        If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+        
+
+
+=== scorecard ===
+Quality Scorecard: haven-hot-chicken
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          9/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport N/A
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              9/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           N/A
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               1/5
+
+  Total: 90/100 - Grade A
+  Note: omitted from denominator: mcp_remote_transport, mcp_tool_design, mcp_surface_strategy, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Passed: 5/5  (100% pass rate, 0 skipped)
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+  - dead_code scored 1/5 - needs improvement
+  - MCP: 6 tools (6 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         15.83s
+  validate-narrative  PASS    0         622ms
+  dogfood           PASS    0         2.287s
+  workflow-verify   PASS    0         47ms
+  apify-audit       PASS    0         64ms
+  verify-skill      FAIL    1         2.17s
+  scorecard         PASS    0         1.854s
+
+Verdict: FAIL (1/7 legs failed)

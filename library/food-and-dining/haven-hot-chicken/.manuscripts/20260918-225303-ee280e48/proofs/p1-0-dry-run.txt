@@ -1,0 +1,11 @@
+GET https://api.thanx.com/locations
+{
+  "meta": {
+    "source": "dry-run"
+  },
+  "results": {
+    "dry_run": true
+  }
+}
+
+(dry run - no request sent)

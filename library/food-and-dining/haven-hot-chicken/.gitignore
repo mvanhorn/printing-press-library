@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/haven-hot-chicken-pp-cli
+/haven-hot-chicken-pp-cli.exe
+/haven-hot-chicken-pp-mcp
+/haven-hot-chicken-pp-mcp.exe
+/bin/
+/build/
+/dist/

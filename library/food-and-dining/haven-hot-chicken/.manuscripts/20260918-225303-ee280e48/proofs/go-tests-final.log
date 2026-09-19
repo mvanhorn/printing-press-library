@@ -1,0 +1,20 @@
+?   	haven-hot-chicken-pp-cli/cmd/haven-hot-chicken-pp-cli	[no test files]
+?   	haven-hot-chicken-pp-cli/cmd/haven-hot-chicken-pp-mcp	[no test files]
+?   	haven-hot-chicken-pp-cli/internal/cache	[no test files]
+ok  	haven-hot-chicken-pp-cli/internal/cli	8.814s
+?   	haven-hot-chicken-pp-cli/internal/cli/playbooks	[no test files]
+ok  	haven-hot-chicken-pp-cli/internal/client	1.184s
+ok  	haven-hot-chicken-pp-cli/internal/cliutil	12.750s
+?   	haven-hot-chicken-pp-cli/internal/cliutil/testenv	[no test files]
+?   	haven-hot-chicken-pp-cli/internal/config	[no test files]
+ok  	haven-hot-chicken-pp-cli/internal/haven	0.490s
+ok  	haven-hot-chicken-pp-cli/internal/learn	3.354s
+ok  	haven-hot-chicken-pp-cli/internal/learn/entities	0.295s
+ok  	haven-hot-chicken-pp-cli/internal/learn/lookups	2.151s
+ok  	haven-hot-chicken-pp-cli/internal/learn/patterns	0.667s
+ok  	haven-hot-chicken-pp-cli/internal/mcp	2.135s
+ok  	haven-hot-chicken-pp-cli/internal/mcp/bound	0.394s
+ok  	haven-hot-chicken-pp-cli/internal/mcp/cobratree	6.212s
+ok  	haven-hot-chicken-pp-cli/internal/platform	0.909s
+ok  	haven-hot-chicken-pp-cli/internal/store	3.059s
+?   	haven-hot-chicken-pp-cli/internal/types	[no test files]

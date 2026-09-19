@@ -1,0 +1,26 @@
+=== haven-hot-chicken-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✘ canonical-sections
+    [canonical-sections] (file: SKILL.md): install section is missing or malformed; this section is generator-owned. Regenerate the printed CLI to restore it.
+      evidence:
+        expected canonical block:
+        ## Prerequisites: Install the CLI
+        
+        This skill drives the `haven-hot-chicken-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+        
+        1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+           ```bash
+           npx -y @mvanhorn/printing-press-library install haven-hot-chicken --cli-only
+           ```
+        2. Verify: `haven-hot-chicken-pp-cli --version`
+        3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+        
+        If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+        
+        ```bash
+        go install github.com/mvanhorn/printing-press-library/library/food-and-dining/haven-hot-chicken/cmd/haven-hot-chicken-pp-cli@latest
+        ```
+        
+        If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+        
+

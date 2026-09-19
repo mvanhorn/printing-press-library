@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "currency": "USD",
+    "items": [
+      {
+        "item_id": 9656289,
+        "name": "Pumpkin Spice Banana Puddin'",
+        "quantity": 2,
+        "total_cents": 1098,
+        "unit_price_cents": 549
+      }
+    ],
+    "note": "Base-price estimate only; excludes modifiers, tax, tips and fees. Does not create an order or checkout total.",
+    "observation": {
+      "complete": true,
+      "fetched_at": "2026-09-19T03:19:37.6353159Z",
+      "location_id": 14208,
+      "snapshot_id": 1
+    },
+    "subtotal_cents": 1098
+  }
+}

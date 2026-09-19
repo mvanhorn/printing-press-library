@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "after": {
+      "complete": true,
+      "fetched_at": "2026-09-19T03:22:28.583355Z",
+      "location_id": 14208,
+      "snapshot_id": 3
+    },
+    "before": {
+      "complete": true,
+      "fetched_at": "2026-09-19T03:19:37.6353159Z",
+      "location_id": 14208,
+      "snapshot_id": 1
+    },
+    "rows": []
+  }
+}

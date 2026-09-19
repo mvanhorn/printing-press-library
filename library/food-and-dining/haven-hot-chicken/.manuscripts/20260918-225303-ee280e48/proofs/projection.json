@@ -1,0 +1,209 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "items": [
+      {
+        "name": "Tendie Duo Combo",
+        "price_cents": 1575
+      },
+      {
+        "name": "Tendie Trio Combo",
+        "price_cents": 1875
+      },
+      {
+        "name": "Tendie Slider Combo",
+        "price_cents": 1075
+      },
+      {
+        "name": "Kid's Meal",
+        "price_cents": 749
+      },
+      {
+        "name": "Tendie Duo",
+        "price_cents": 1099
+      },
+      {
+        "name": "Tendie Trio",
+        "price_cents": 1399
+      },
+      {
+        "name": "Tendie Slider",
+        "price_cents": 599
+      },
+      {
+        "name": "Fuego Fries",
+        "price_cents": 1199
+      },
+      {
+        "name": "Sweet Heat Mac Bowl",
+        "price_cents": 1599
+      },
+      {
+        "name": "Family Meal Deal",
+        "price_cents": 5999
+      },
+      {
+        "name": "Tendies by the Dozen",
+        "price_cents": 4799
+      },
+      {
+        "name": "Slider Pack - 12pk",
+        "price_cents": 6799
+      },
+      {
+        "name": "Regular Mac \u0026 Cheese",
+        "price_cents": 649
+      },
+      {
+        "name": "Family Mac \u0026 Cheese",
+        "price_cents": 1649
+      },
+      {
+        "name": "Regular Fries",
+        "price_cents": 499
+      },
+      {
+        "name": "Family Fries",
+        "price_cents": 849
+      },
+      {
+        "name": "Family Creamy Vinegar Slaw",
+        "price_cents": 1099
+      },
+      {
+        "name": "Regular Garlic-Dill Pickles",
+        "price_cents": 249
+      },
+      {
+        "name": "Family Garlic-Dill Pickles",
+        "price_cents": 699
+      },
+      {
+        "name": "Toast - 2 slices",
+        "price_cents": 150
+      },
+      {
+        "name": "Rob Sauce",
+        "price_cents": 100
+      },
+      {
+        "name": "Large Rob Sauce",
+        "price_cents": 400
+      },
+      {
+        "name": "House Ranch",
+        "price_cents": 100
+      },
+      {
+        "name": "Large House Ranch",
+        "price_cents": 400
+      },
+      {
+        "name": "Sweet Sauce",
+        "price_cents": 100
+      },
+      {
+        "name": "Large Sweet Sauce",
+        "price_cents": 400
+      },
+      {
+        "name": "Tuscan Caesar Dressing",
+        "price_cents": 100
+      },
+      {
+        "name": "Powerade Mountain Berry Blast 20oz bottle",
+        "price_cents": 399
+      },
+      {
+        "name": "Powerade Fruit Punch 20oz bottle",
+        "price_cents": 399
+      },
+      {
+        "name": "Gold Peak Raspberry Iced Tea 18.5oz bottle",
+        "price_cents": 399
+      },
+      {
+        "name": "Gold Peak Unsweetened Iced Tea 18.5oz bottle",
+        "price_cents": 399
+      },
+      {
+        "name": "Minute Maid Lemonade 20oz bottle",
+        "price_cents": 399
+      },
+      {
+        "name": "Coke 20oz bottle",
+        "price_cents": 349
+      },
+      {
+        "name": "Diet Coke 20oz bottle",
+        "price_cents": 349
+      },
+      {
+        "name": "Coke Zero 20oz bottle",
+        "price_cents": 349
+      },
+      {
+        "name": "Fanta Orange 20oz bottle",
+        "price_cents": 349
+      },
+      {
+        "name": "Sprite 20oz bottle",
+        "price_cents": 349
+      },
+      {
+        "name": "Barq's Rootbeer 20oz bottle",
+        "price_cents": 349
+      },
+      {
+        "name": "Everybody Water 16.9oz carton",
+        "price_cents": 299
+      },
+      {
+        "name": "Smart Water 20oz bottle",
+        "price_cents": 399
+      },
+      {
+        "name": "Apple Juice Box",
+        "price_cents": 199
+      },
+      {
+        "name": "Regular Banana Puddin'",
+        "price_cents": 549
+      },
+      {
+        "name": "Family Banana Puddin'",
+        "price_cents": 1349
+      },
+      {
+        "name": "Fries and a Fountain Drink",
+        "price_cents": 649
+      },
+      {
+        "name": "Wrap Snack",
+        "price_cents": 799
+      },
+      {
+        "name": "Regular Creamy Vinegar Slaw",
+        "price_cents": 449
+      },
+      {
+        "name": "Regular Fountain Soda",
+        "price_cents": 299
+      },
+      {
+        "name": "Large Fountain Soda",
+        "price_cents": 349
+      },
+      {
+        "name": "The Grilled",
+        "price_cents": 1199
+      },
+      {
+        "name": "The Grilled Combo",
+        "price_cents": 1649
+      }
+    ]
+  }
+}

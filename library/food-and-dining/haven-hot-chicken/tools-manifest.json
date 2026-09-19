@@ -1,0 +1,232 @@
+{
+  "api_name": "haven-hot-chicken",
+  "base_url": "https://api.thanx.com",
+  "description": "Browse Haven menus, compare locations, and plan a meal from saved prices.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "items_modifiers_get-item",
+      "description": "Get item modifiers. Required: item_id, location_id. Optional: Accept-Version (default: v3.5), Thanx-Merchant (default: havenhotchicken). Returns array of ModifiersGetItemItem.",
+      "method": "GET",
+      "path": "/items/{item_id}/modifiers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Accept-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Public consumer API version observed in Haven ordering"
+        },
+        {
+          "name": "Thanx-Merchant",
+          "type": "string",
+          "location": "query",
+          "description": "Public Haven restaurant brand routing identifier"
+        },
+        {
+          "name": "item_id",
+          "type": "int",
+          "location": "path",
+          "description": "Item ID from a location menu",
+          "required": true
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "query",
+          "description": "Haven location ID from locations list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_get",
+      "description": "Get location. Required: location_id. Optional: Accept-Version (default: v3.5), Thanx-Merchant (default: havenhotchicken). Returns the LocationsGetResponse.",
+      "method": "GET",
+      "path": "/locations/{location_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Accept-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Public consumer API version observed in Haven ordering"
+        },
+        {
+          "name": "Thanx-Merchant",
+          "type": "string",
+          "location": "query",
+          "description": "Public Haven restaurant brand routing identifier"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "path",
+          "description": "Haven location ID from locations list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_list",
+      "description": "List locations. Optional: Accept-Version (default: v3.5), Thanx-Merchant (default: havenhotchicken). Returns array of LocationsListItem.",
+      "method": "GET",
+      "path": "/locations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Accept-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Public consumer API version observed in Haven ordering"
+        },
+        {
+          "name": "Thanx-Merchant",
+          "type": "string",
+          "location": "query",
+          "description": "Public Haven restaurant brand routing identifier"
+        }
+      ]
+    },
+    {
+      "name": "menu-categories_list",
+      "description": "List menu categories. Required: location_id. Optional: Accept-Version (default: v3.5), Thanx-Merchant (default: havenhotchicken), wanted_at (plus 1 more). Returns array of MenuCategoriesListItem.",
+      "method": "GET",
+      "path": "/menu_categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Accept-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Public consumer API version observed in Haven ordering"
+        },
+        {
+          "name": "Thanx-Merchant",
+          "type": "string",
+          "location": "query",
+          "description": "Public Haven restaurant brand routing identifier"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "query",
+          "description": "Haven location ID from locations list",
+          "required": true
+        },
+        {
+          "name": "wanted_at",
+          "type": "string",
+          "location": "query",
+          "description": "Optional filter observed in the Haven ordering client"
+        },
+        {
+          "name": "handoff",
+          "type": "string",
+          "location": "query",
+          "description": "Optional filter observed in the Haven ordering client"
+        }
+      ]
+    },
+    {
+      "name": "menus_list",
+      "description": "List menus. Required: location_id. Optional: Accept-Version (default: v3.5), Thanx-Merchant (default: havenhotchicken). Returns array of MenusListItem.",
+      "method": "GET",
+      "path": "/menus",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Accept-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Public consumer API version observed in Haven ordering"
+        },
+        {
+          "name": "Thanx-Merchant",
+          "type": "string",
+          "location": "query",
+          "description": "Public Haven restaurant brand routing identifier"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "query",
+          "description": "Haven location ID from locations list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "menus_categories_get-menu",
+      "description": "Get menu categories. Required: menu_id. Optional: Accept-Version (default: v3.5), Thanx-Merchant (default: havenhotchicken), include_hidden (default: true) (plus 1 more). Returns array of CategoriesGetMenuItem.",
+      "method": "GET",
+      "path": "/menus/{menu_id}/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "Accept-Version",
+          "type": "string",
+          "location": "query",
+          "description": "Public consumer API version observed in Haven ordering"
+        },
+        {
+          "name": "Thanx-Merchant",
+          "type": "string",
+          "location": "query",
+          "description": "Public Haven restaurant brand routing identifier"
+        },
+        {
+          "name": "menu_id",
+          "type": "int",
+          "location": "path",
+          "description": "Menu ID from menus list for a location",
+          "required": true
+        },
+        {
+          "name": "include_hidden",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional filter observed in the Haven ordering client"
+        },
+        {
+          "name": "include_unavailable",
+          "type": "bool",
+          "location": "query",
+          "description": "Optional filter observed in the Haven ordering client"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Location price comparison",
+      "command": "haven compare",
+      "description": "Compare the same named menu item across saved location menus."
+    },
+    {
+      "name": "Base-price meal subtotal",
+      "command": "haven subtotal",
+      "description": "Estimate a meal base-price subtotal from explicit item IDs and quantities."
+    },
+    {
+      "name": "Saved menu changes",
+      "command": "haven changes",
+      "description": "Show additions, removals, price and availability changes between two complete saved menus."
+    },
+    {
+      "name": "Shared availability",
+      "command": "haven common",
+      "description": "Find items marked available in every selected saved location menu."
+    },
+    {
+      "name": "Nearby locations",
+      "command": "haven nearby",
+      "description": "Rank saved shops by straight-line distance from supplied coordinates."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "latitude": 41.3,
+    "longitude": -72.9,
+    "note": "Straight-line miles from supplied coordinates; not driving distance or travel time. Locations without valid coordinates are skipped.",
+    "rows": [
+      {
+        "distance_miles": 1.3823750073847567,
+        "location": {
+          "city": "New Haven",
+          "id": 14205,
+          "latitude": 41.310884,
+          "longitude": -72.922348,
+          "name": "New Haven, CT",
+          "state": "Connecticut"
+        }
+      },
+      {
+        "distance_miles": 6.987461082255968,
+        "location": {
+          "city": "Orange",
+          "id": 14206,
+          "latitude": 41.252199,
+          "longitude": -73.018584,
+          "name": "Orange, CT",
+          "state": "Connecticut"
+        }
+      }
+    ],
+    "skipped_location_ids": []
+  }
+}

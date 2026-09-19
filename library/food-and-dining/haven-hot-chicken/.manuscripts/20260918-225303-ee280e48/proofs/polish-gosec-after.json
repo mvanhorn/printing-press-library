@@ -1,0 +1,488 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "200",
+				"url": "https://cwe.mitre.org/data/definitions/200.html"
+			},
+			"rule_id": "G119",
+			"details": "Sensitive headers should not be re-added in redirect policy callbacks",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\client\\client.go",
+			"code": "336: \t\t\tif h, err := c.authHeader(req.Context()); err == nil \u0026\u0026 h != \"\" {\n337: \t\t\t\treq.Header.Set(\"Authorization\", h)\n338: \t\t\t}\n",
+			"line": "337",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\platform\\gate.go",
+			"code": "21: \tGateMismatch           GateOutcome = \"mismatch\"\n22: \tGateInvalidCredentials GateOutcome = \"invalid_credentials\"\n23: \tGateInsufficientScope  GateOutcome = \"insufficient_scope\"\n",
+			"line": "22",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\teach.go",
+			"code": "209: \t}\n210: \treturn os.WriteFile(path, []byte(strings.Join(kept, \"\\n\")+\"\\n\"), 0o600)\n211: }\n",
+			"line": "210",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "3969: \t\t}\n3970: \t\tquery := fmt.Sprintf(\n3971: \t\t\t`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,\n3972: \t\t\tfield,\n3973: \t\t)\n3974: \t\trows, err := s.db.Query(query, resourceType, input)\n",
+			"line": "3970-3973",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "3666: \t\t// DISTINCT for the same reason as the typed-column path above.\n3667: \t\tfallback := fmt.Sprintf(\n3668: \t\t\t`SELECT DISTINCT json_extract(data, '$.%s') FROM resources WHERE resource_type = ? AND json_extract(data, '$.%s') IS NOT NULL`,\n3669: \t\t\tfield, field,\n3670: \t\t)\n3671: \t\trows, err = s.db.Query(fallback, resourceType)\n",
+			"line": "3667-3670",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "1314: \t}\n1315: \tquery := fmt.Sprintf(`SELECT data FROM \"%s\"%s`, table, order)\n1316: \targs := []any{}\n",
+			"line": "1315",
+			"column": "11",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "1290: \tfor _, col := range []string{\"updated_at\", \"synced_at\"} {\n1291: \t\tq := fmt.Sprintf(`SELECT name FROM pragma_table_info(\"%s\") WHERE name = ?`, table)\n1292: \t\tif err := s.db.QueryRow(q, col).Scan(\u0026dummy); err == nil {\n",
+			"line": "1291",
+			"column": "8",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G202",
+			"details": "SQL string concatenation",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\learnings.go",
+			"code": "608: \t}\n609: \tq := \"DELETE FROM search_learnings WHERE \" + strings.Join(clauses, \" AND \")\n610: \tres, err := s.db.ExecContext(ctx, q, args...)\n",
+			"line": "609",
+			"column": "7",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G202",
+			"details": "SQL string concatenation",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\platform\\migration.go",
+			"code": "155: \tquotedTarget := strings.ReplaceAll(targetPath, \"'\", \"''\")\n156: \tif _, err := source.ExecContext(ctx, \"VACUUM INTO '\"+quotedTarget+\"'\"); err != nil {\n157: \t\t_ = os.Remove(targetPath)\n",
+			"line": "156",
+			"column": "39",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "252: \tjournalPath := dbPath + \"-journal\"\n253: \tfile, err := os.OpenFile(journalPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)\n254: \tif err == nil {\n",
+			"line": "253",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\platform\\ratelimit.go",
+			"code": "147: \tfor {\n148: \t\tfile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)\n149: \t\tif err == nil {\n",
+			"line": "148",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\platform\\profile.go",
+			"code": "509: \t}\n510: \tfile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)\n511: \tif errors.Is(err, os.ErrExist) {\n",
+			"line": "510",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\learn\\teach_log.go",
+			"code": "111: \t\trotateTeachLogIfNeeded(p)\n112: \t\tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n113: \t\tif err != nil {\n",
+			"line": "112",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\learn\\playbooks.go",
+			"code": "72: func ParsePlaybookFile(path string) (Playbook, error) {\n73: \tdata, err := os.ReadFile(path)\n74: \tif err != nil {\n",
+			"line": "73",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\config\\config.go",
+			"code": "104: func readConfigFile(path string, cfg *Config, owner string) error {\n105: \tdata, err := os.ReadFile(path)\n106: \tif err != nil {\n",
+			"line": "105",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\teach_playbook.go",
+			"code": "373: \t} else if strings.TrimSpace(notesFile) != \"\" {\n374: \t\tdata, err := os.ReadFile(notesFile)\n375: \t\tif err != nil {\n",
+			"line": "374",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\teach.go",
+			"code": "149: \t\trotateLogIfNeeded(p, learningsAuditMaxBytes)\n150: \t\tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n151: \t\tif err != nil {\n",
+			"line": "150",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\teach.go",
+			"code": "126: \t\trotateLogIfNeeded(p, learningsAuditMaxBytes)\n127: \t\tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n128: \t\tif err != nil {\n",
+			"line": "127",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\feedback.go",
+			"code": "200: \t\t\t}\n201: \t\t\tdata, err := os.ReadFile(p)\n202: \t\t\tif err != nil {\n",
+			"line": "201",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\feedback.go",
+			"code": "65: \t}\n66: \tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n67: \tif err != nil {\n",
+			"line": "66",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cli\\export.go",
+			"code": "77: \t\t\tif outputFile != \"\" {\n78: \t\t\t\tf, err := os.Create(outputFile)\n79: \t\t\t\tif err != nil {\n",
+			"line": "78",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "499",
+				"url": "https://cwe.mitre.org/data/definitions/499.html"
+			},
+			"rule_id": "G117",
+			"details": "Marshaled struct field \"SessionKey\" (JSON key \"session_key\") matches secret pattern",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\learn\\journal.go",
+			"code": "264: \t}\n265: \tline, err := json.Marshal(entry)\n266: \tif err != nil {\n",
+			"line": "265",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\platform\\profile.go",
+			"code": "301: \t}\n302: \tif err := os.Chmod(dir, 0o700); err != nil {\n303: \t\treturn err\n",
+			"line": "302",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\cliutil\\testenv\\testenv.go",
+			"code": "75: \tdefer os.RemoveAll(home)\n76: \t_ = os.Chmod(home, 0o700)\n77: \tfor _, name := range homeVars {\n",
+			"line": "76",
+			"column": "6",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\client\\client.go",
+			"code": "679: func ensureCachePerms(resourceDir, cacheFile string) {\n680: \t_ = os.Chmod(resourceDir, 0o700)\n681: \t_ = os.Chmod(cacheFile, 0o600)\n",
+			"line": "680",
+			"column": "6",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "3757: \tvar ts sql.NullString\n3758: \ts.db.QueryRow(\"SELECT last_synced_at FROM sync_state WHERE resource_type = ?\", resourceType).Scan(\u0026ts)\n3759: \tif ts.Valid {\n",
+			"line": "3758",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\store\\store.go",
+			"code": "3500: \tvar cursor sql.NullString\n3501: \ts.db.QueryRow(\"SELECT last_cursor FROM sync_state WHERE resource_type = ?\", resourceType).Scan(\u0026cursor)\n3502: \tif cursor.Valid {\n",
+			"line": "3501",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\learn\\journal.go",
+			"code": "277: \tif _, err := f.Write(append(line, '\\n')); err != nil {\n278: \t\tf.Close()\n279: \t\treturn fmt.Errorf(\"journal: write: %w\", err)\n",
+			"line": "278",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli\\internal\\client\\client.go",
+			"code": "1347: \t\t\tfmt.Fprintf(os.Stderr, \"  Body:\\n\")\n1348: \t\t\tenc.Encode(pretty)\n1349: \t\t}\n",
+			"line": "1348",
+			"column": "4",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 115,
+		"lines": 39263,
+		"nosec": 24,
+		"found": 29
+	},
+	"GosecVersion": "dev"
+}

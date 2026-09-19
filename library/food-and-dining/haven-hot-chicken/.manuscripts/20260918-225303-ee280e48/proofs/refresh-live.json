@@ -1,0 +1,18 @@
+{
+  "locations": 10,
+  "note": "Saved complete menu observations. Prices and availability can change before checkout.",
+  "observations": [
+    {
+      "complete": true,
+      "fetched_at": "2026-09-19T03:22:28.583355Z",
+      "items": 58,
+      "location_id": 14208
+    },
+    {
+      "complete": true,
+      "fetched_at": "2026-09-19T03:22:29.1521494Z",
+      "items": 58,
+      "location_id": 14205
+    }
+  ]
+}

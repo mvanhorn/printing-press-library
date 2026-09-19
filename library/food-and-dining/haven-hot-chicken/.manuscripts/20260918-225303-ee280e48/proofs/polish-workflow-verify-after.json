@@ -1,0 +1,8 @@
+{
+  "dir": "C:\\Users\\wirel\\printing-press\\.runstate\\playground-ce295253\\runs\\20260918-225303-ee280e48\\working\\haven-hot-chicken-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

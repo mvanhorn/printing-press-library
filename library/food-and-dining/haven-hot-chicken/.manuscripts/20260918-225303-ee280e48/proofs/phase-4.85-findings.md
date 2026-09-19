@@ -1,0 +1,1 @@
+Five passing samples reviewed independently. One warning fixed: empty nearby result now explicitly instructs haven refresh. Comparison relevance, integer cents subtotal, all-location retention, text format and distance ordering passed. No remaining output-review findings.

@@ -1,0 +1,1578 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Haven Hot Chicken",
+    "version": "1.0.0",
+    "description": "Public Haven Hot Chicken locations, menus and item options through the observed Thanx consumer API. No account login or order submission."
+  },
+  "servers": [
+    {
+      "url": "https://api.thanx.com"
+    }
+  ],
+  "paths": {
+    "/locations": {
+      "get": {
+        "operationId": "listLocations",
+        "summary": "listLocations",
+        "tags": [
+          "locations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v3.5"
+            },
+            "description": "Public consumer API version observed in Haven ordering"
+          },
+          {
+            "name": "Thanx-Merchant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "havenhotchicken"
+            },
+            "description": "Public Haven restaurant brand routing identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed public response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "locations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "uid": {
+                            "type": "string"
+                          },
+                          "merchant_id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "street": {
+                            "type": "string"
+                          },
+                          "city": {
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string"
+                          },
+                          "latitude": {
+                            "type": "number",
+                            "format": "double"
+                          },
+                          "zip": {
+                            "type": "string"
+                          },
+                          "longitude": {
+                            "type": "number",
+                            "format": "double"
+                          },
+                          "time_zone": {
+                            "type": "string"
+                          },
+                          "coming_soon": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "opentable_handle": {
+                            "nullable": true
+                          },
+                          "tag_value": {
+                            "type": "string"
+                          },
+                          "phone": {
+                            "type": "string"
+                          },
+                          "ordering_configuration": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "pickup": {
+                                "type": "boolean"
+                              },
+                              "curbside": {
+                                "type": "boolean"
+                              },
+                              "delivery": {
+                                "type": "boolean"
+                              },
+                              "tableside": {
+                                "type": "boolean"
+                              },
+                              "drivethru": {
+                                "type": "boolean"
+                              },
+                              "minimum_spend_delivery": {
+                                "type": "number",
+                                "format": "double"
+                              },
+                              "minimum_spend_pickup": {
+                                "type": "number",
+                                "format": "double"
+                              },
+                              "maximum_days_in_advance": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "requires_phone": {
+                                "type": "boolean"
+                              },
+                              "supports_coupons": {
+                                "type": "boolean"
+                              },
+                              "supports_order_transfer": {
+                                "type": "boolean"
+                              },
+                              "supports_special_instructions": {
+                                "type": "boolean"
+                              },
+                              "instructions_max_length": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "supports_tips": {
+                                "type": "boolean"
+                              },
+                              "supports_asap": {
+                                "type": "boolean"
+                              },
+                              "disables_schedule": {
+                                "type": "boolean"
+                              },
+                              "supports_gift_card_loyalty_point_accrual": {
+                                "type": "boolean"
+                              },
+                              "tip_percentage_low": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "tip_percentage_medium": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "tip_percentage_high": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "tip_percentage_default": {
+                                "nullable": true
+                              },
+                              "labels": {
+                                "type": "object",
+                                "properties": {
+                                  "handoff": {
+                                    "type": "object",
+                                    "properties": {
+                                      "curbside": {
+                                        "type": "string"
+                                      },
+                                      "delivery": {
+                                        "type": "string"
+                                      },
+                                      "pickup": {
+                                        "type": "string"
+                                      },
+                                      "tableside": {
+                                        "type": "string"
+                                      },
+                                      "drivethru": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "custom_fields": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "integer",
+                                      "format": "int64"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    },
+                                    "supported_handoff": {
+                                      "type": "string"
+                                    },
+                                    "required": {
+                                      "type": "boolean"
+                                    },
+                                    "validation_regex": {
+                                      "nullable": true
+                                    }
+                                  }
+                                }
+                              },
+                              "ordering_hours": {
+                                "type": "object",
+                                "properties": {
+                                  "monday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "tuesday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "wednesday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "thursday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "friday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "saturday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "sunday": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "start": {
+                                          "type": "string"
+                                        },
+                                        "end": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "display_hours": {
+                                "type": "string"
+                              },
+                              "active_schedule_overrides": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {}
+                                }
+                              }
+                            }
+                          },
+                          "alert_banner": {
+                            "nullable": true
+                          },
+                          "business_hours": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "day": {
+                                  "type": "string"
+                                },
+                                "start": {
+                                  "type": "string"
+                                },
+                                "end": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "loyalty_redemption_type": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locations/{location_id}": {
+      "get": {
+        "operationId": "getLocation",
+        "summary": "getLocation",
+        "tags": [
+          "locations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v3.5"
+            },
+            "description": "Public consumer API version observed in Haven ordering"
+          },
+          {
+            "name": "Thanx-Merchant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "havenhotchicken"
+            },
+            "description": "Public Haven restaurant brand routing identifier"
+          },
+          {
+            "name": "location_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 14208
+            },
+            "description": "Haven location ID from locations list"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed public response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "uid": {
+                          "type": "string"
+                        },
+                        "merchant_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "street": {
+                          "type": "string"
+                        },
+                        "city": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "latitude": {
+                          "type": "number",
+                          "format": "double"
+                        },
+                        "zip": {
+                          "type": "string"
+                        },
+                        "longitude": {
+                          "type": "number",
+                          "format": "double"
+                        },
+                        "time_zone": {
+                          "type": "string"
+                        },
+                        "coming_soon": {
+                          "type": "boolean"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "opentable_handle": {
+                          "nullable": true
+                        },
+                        "tag_value": {
+                          "type": "string"
+                        },
+                        "phone": {
+                          "type": "string"
+                        },
+                        "ordering_configuration": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "pickup": {
+                              "type": "boolean"
+                            },
+                            "curbside": {
+                              "type": "boolean"
+                            },
+                            "delivery": {
+                              "type": "boolean"
+                            },
+                            "tableside": {
+                              "type": "boolean"
+                            },
+                            "drivethru": {
+                              "type": "boolean"
+                            },
+                            "minimum_spend_delivery": {
+                              "type": "number",
+                              "format": "double"
+                            },
+                            "minimum_spend_pickup": {
+                              "type": "number",
+                              "format": "double"
+                            },
+                            "maximum_days_in_advance": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "requires_phone": {
+                              "type": "boolean"
+                            },
+                            "supports_coupons": {
+                              "type": "boolean"
+                            },
+                            "supports_order_transfer": {
+                              "type": "boolean"
+                            },
+                            "supports_special_instructions": {
+                              "type": "boolean"
+                            },
+                            "instructions_max_length": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "supports_tips": {
+                              "type": "boolean"
+                            },
+                            "supports_asap": {
+                              "type": "boolean"
+                            },
+                            "disables_schedule": {
+                              "type": "boolean"
+                            },
+                            "supports_gift_card_loyalty_point_accrual": {
+                              "type": "boolean"
+                            },
+                            "tip_percentage_low": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "tip_percentage_medium": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "tip_percentage_high": {
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "tip_percentage_default": {
+                              "nullable": true
+                            },
+                            "labels": {
+                              "type": "object",
+                              "properties": {
+                                "handoff": {
+                                  "type": "object",
+                                  "properties": {
+                                    "curbside": {
+                                      "type": "string"
+                                    },
+                                    "delivery": {
+                                      "type": "string"
+                                    },
+                                    "pickup": {
+                                      "type": "string"
+                                    },
+                                    "tableside": {
+                                      "type": "string"
+                                    },
+                                    "drivethru": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "custom_fields": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  },
+                                  "supported_handoff": {
+                                    "type": "string"
+                                  },
+                                  "required": {
+                                    "type": "boolean"
+                                  },
+                                  "validation_regex": {
+                                    "nullable": true
+                                  }
+                                }
+                              }
+                            },
+                            "ordering_hours": {
+                              "type": "object",
+                              "properties": {
+                                "monday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "tuesday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "wednesday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "thursday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "friday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "saturday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "sunday": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "start": {
+                                        "type": "string"
+                                      },
+                                      "end": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "display_hours": {
+                              "type": "string"
+                            },
+                            "active_schedule_overrides": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          }
+                        },
+                        "alert_banner": {
+                          "nullable": true
+                        },
+                        "business_hours": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "day": {
+                                "type": "string"
+                              },
+                              "start": {
+                                "type": "string"
+                              },
+                              "end": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "loyalty_redemption_type": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menus": {
+      "get": {
+        "operationId": "listMenus",
+        "summary": "listMenus",
+        "tags": [
+          "menus"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v3.5"
+            },
+            "description": "Public consumer API version observed in Haven ordering"
+          },
+          {
+            "name": "Thanx-Merchant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "havenhotchicken"
+            },
+            "description": "Public Haven restaurant brand routing identifier"
+          },
+          {
+            "name": "location_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 14208
+            },
+            "description": "Haven location ID from locations list"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed public response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "menus": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "location_id": {
+                            "type": "integer",
+                            "format": "int64"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu_categories": {
+      "get": {
+        "operationId": "listMenuCategories",
+        "summary": "listMenuCategories",
+        "tags": [
+          "categories"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v3.5"
+            },
+            "description": "Public consumer API version observed in Haven ordering"
+          },
+          {
+            "name": "Thanx-Merchant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "havenhotchicken"
+            },
+            "description": "Public Haven restaurant brand routing identifier"
+          },
+          {
+            "name": "location_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 14208
+            },
+            "description": "Haven location ID from locations list"
+          },
+          {
+            "name": "wanted_at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional filter observed in the Haven ordering client"
+          },
+          {
+            "name": "handoff",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional filter observed in the Haven ordering client"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed public response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "uid": {
+                            "type": "string"
+                          },
+                          "menu_id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "object",
+                            "properties": {
+                              "2x": {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              "3x": {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              "product_card": {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              "product_card_thumb": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "category_id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                },
+                                "short_description": {
+                                  "type": "string"
+                                },
+                                "price": {
+                                  "type": "number",
+                                  "format": "double"
+                                },
+                                "min_quantity": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "max_quantity": {
+                                  "nullable": true
+                                },
+                                "availability": {
+                                  "nullable": true
+                                },
+                                "available_now": {
+                                  "type": "boolean"
+                                },
+                                "is_disabled": {
+                                  "type": "boolean"
+                                },
+                                "calorie_info": {
+                                  "nullable": true
+                                },
+                                "food_labeling_tags": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "pricing_strategy": {
+                                  "nullable": true
+                                },
+                                "pricing_rules": {
+                                  "nullable": true
+                                },
+                                "images": {
+                                  "type": "object",
+                                  "properties": {
+                                    "2x": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        },
+                                        "item_image": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "3x": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        },
+                                        "item_image": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "product_card": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "product_card_thumb": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menus/{menu_id}/categories": {
+      "get": {
+        "operationId": "getMenuCategories",
+        "summary": "getMenuCategories",
+        "tags": [
+          "categories"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v3.5"
+            },
+            "description": "Public consumer API version observed in Haven ordering"
+          },
+          {
+            "name": "Thanx-Merchant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "havenhotchicken"
+            },
+            "description": "Public Haven restaurant brand routing identifier"
+          },
+          {
+            "name": "menu_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 27380
+            },
+            "description": "Menu ID from menus list for a location"
+          },
+          {
+            "name": "include_hidden",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "description": "Optional filter observed in the Haven ordering client"
+          },
+          {
+            "name": "include_unavailable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "description": "Optional filter observed in the Haven ordering client"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed public response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "categories": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "uid": {
+                            "type": "string"
+                          },
+                          "menu_id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "images": {
+                            "type": "object",
+                            "properties": {
+                              "2x": {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              "3x": {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              "product_card": {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              "product_card_thumb": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "category_id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                },
+                                "short_description": {
+                                  "type": "string"
+                                },
+                                "price": {
+                                  "type": "number",
+                                  "format": "double"
+                                },
+                                "min_quantity": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "max_quantity": {
+                                  "nullable": true
+                                },
+                                "availability": {
+                                  "nullable": true
+                                },
+                                "available_now": {
+                                  "type": "boolean"
+                                },
+                                "is_disabled": {
+                                  "type": "boolean"
+                                },
+                                "calorie_info": {
+                                  "nullable": true
+                                },
+                                "food_labeling_tags": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "pricing_strategy": {
+                                  "nullable": true
+                                },
+                                "pricing_rules": {
+                                  "nullable": true
+                                },
+                                "images": {
+                                  "type": "object",
+                                  "properties": {
+                                    "2x": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        },
+                                        "item_image": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "3x": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        },
+                                        "item_image": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "product_card": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "product_card_thumb": {
+                                      "type": "object",
+                                      "properties": {
+                                        "mobile-app-large": {
+                                          "type": "string"
+                                        },
+                                        "mobile-app": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "hidden": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/items/{item_id}/modifiers": {
+      "get": {
+        "operationId": "getItemModifiers",
+        "summary": "getItemModifiers",
+        "tags": [
+          "modifiers"
+        ],
+        "parameters": [
+          {
+            "name": "Accept-Version",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "v3.5"
+            },
+            "description": "Public consumer API version observed in Haven ordering"
+          },
+          {
+            "name": "Thanx-Merchant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "havenhotchicken"
+            },
+            "description": "Public Haven restaurant brand routing identifier"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 9656289
+            },
+            "description": "Item ID from a location menu"
+          },
+          {
+            "name": "location_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 14208
+            },
+            "description": "Haven location ID from locations list"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Observed public response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "modifiers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "item_id": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "required": {
+                            "type": "boolean"
+                          },
+                          "min_selections": {
+                            "nullable": true
+                          },
+                          "max_selections": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "availability": {
+                            "nullable": true
+                          },
+                          "options": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "default": {
+                                  "type": "boolean"
+                                },
+                                "availability": {
+                                  "nullable": true
+                                },
+                                "available_now": {
+                                  "type": "boolean"
+                                },
+                                "is_disabled": {
+                                  "type": "boolean"
+                                },
+                                "price": {
+                                  "type": "number",
+                                  "format": "double"
+                                },
+                                "modifiers": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "min_quantity": {
+                                  "nullable": true
+                                },
+                                "max_quantity": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "calorie_info": {
+                                  "nullable": true
+                                },
+                                "food_labeling_tags": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "images": {
+                                  "type": "object",
+                                  "properties": {
+                                    "2x": {
+                                      "type": "object",
+                                      "properties": {}
+                                    },
+                                    "3x": {
+                                      "type": "object",
+                                      "properties": {}
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "min_total_option_quantity": {
+                            "nullable": true
+                          },
+                          "max_total_option_quantity": {
+                            "type": "integer",
+                            "format": "int64"
+                          },
+                          "pricing_strategy": {
+                            "nullable": true
+                          },
+                          "pricing_rules": {
+                            "type": "object",
+                            "properties": {
+                              "sequence": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {}
+                                }
+                              },
+                              "size_specific_pricing_guid": {
+                                "nullable": true
+                              },
+                              "size_sequence_pricing_rules": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {}
+                                }
+                              }
+                            }
+                          },
+                          "uid": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-learn": {
+    "entity_lookup_seeds": {
+      "location": [
+        {
+          "canonical": "North Haven, CT",
+          "aliases": [
+            "north haven"
+          ]
+        },
+        {
+          "canonical": "New Haven, CT",
+          "aliases": [
+            "new haven"
+          ]
+        },
+        {
+          "canonical": "Middletown, CT",
+          "aliases": [
+            "middletown"
+          ]
+        },
+        {
+          "canonical": "Oxford, CT",
+          "aliases": [
+            "oxford"
+          ]
+        },
+        {
+          "canonical": "Newington, CT",
+          "aliases": [
+            "newington"
+          ]
+        },
+        {
+          "canonical": "Orange, CT",
+          "aliases": [
+            "orange"
+          ]
+        },
+        {
+          "canonical": "Fairfield, CT",
+          "aliases": [
+            "fairfield"
+          ]
+        },
+        {
+          "canonical": "Norwalk, CT",
+          "aliases": [
+            "norwalk"
+          ]
+        },
+        {
+          "canonical": "Storrs, CT",
+          "aliases": [
+            "storrs"
+          ]
+        },
+        {
+          "canonical": "Franklin, MA",
+          "aliases": [
+            "franklin"
+          ]
+        }
+      ]
+    },
+    "synonyms": {
+      "tenders": "tendies",
+      "banana pudding": "banana puddin"
+    }
+  },
+  "x-mcp": {
+    "transport": [
+      "stdio"
+    ]
+  }
+}

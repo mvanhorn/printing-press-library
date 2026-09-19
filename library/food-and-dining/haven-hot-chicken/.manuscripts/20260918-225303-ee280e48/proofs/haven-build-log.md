@@ -1,0 +1,6 @@
+Manifest transcendence rows: 5 planned, 0 built. Phase 3 will not pass until all 5 ship.
+
+Completed: 5 of 5 approved transcendence command paths resolve and return actual saved-menu results. Refresh/menu/locations absorption complete; generated public endpoint calls passed help/dry-run/JSON foundation review (p1-review.json).
+Files: internal/haven/{model,store,queries,haven_test,capture_replay_test}.go; internal/cli/haven_commands.go, haven_commands_test.go, haven_headers.go and five haven wrapper files. Docs corrected for local installation and integer cents.
+Verification: go test ./internal/cli ./internal/haven; go build ./...; go vet ./... all pass. Live refresh saved 10 location records and 58 distinct items each at North Haven and New Haven. All five features sampled; changes inspected two real complete observations, no synthetic history. Headers hook supplies public routing/version to generic sync.
+Nothing deferred; no complex request bodies or writes in this scope. Generated README/SKILL assumed unpublished public installation existed; replaced with truthful local build steps. Native same-model subagent replaces the skill's Claude-default delegation mechanism by user instruction.

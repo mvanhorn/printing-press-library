@@ -1,0 +1,16 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS haven-hot-chicken-pp-cli --help
+PASS haven-hot-chicken-pp-cli version
+PASS haven-hot-chicken-pp-cli doctor
+agentcookie: skipping haven-hot-chicken (cookie-only or no env-var auth)
+Generated haven-hot-chicken at C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli
+Bundled C:\Users\wirel\printing-press\.runstate\playground-ce295253\runs\20260918-225303-ee280e48\working\haven-hot-chicken-pp-cli\build\haven-hot-chicken-pp-mcp-windows-amd64.mcpb

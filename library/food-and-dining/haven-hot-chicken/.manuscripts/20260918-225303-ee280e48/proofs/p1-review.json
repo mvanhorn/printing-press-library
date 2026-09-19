@@ -1,0 +1,47 @@
+[
+  {
+    "command": "locations list",
+    "mode": "--help",
+    "exit": 0
+  },
+  {
+    "command": "locations list",
+    "mode": "--dry-run",
+    "exit": 0
+  },
+  {
+    "command": "locations list",
+    "mode": "--json",
+    "exit": 0
+  },
+  {
+    "command": "menu-categories --location-id 14208",
+    "mode": "--help",
+    "exit": 0
+  },
+  {
+    "command": "menu-categories --location-id 14208",
+    "mode": "--dry-run",
+    "exit": 0
+  },
+  {
+    "command": "menu-categories --location-id 14208",
+    "mode": "--json",
+    "exit": 0
+  },
+  {
+    "command": "items modifiers get-item 9656289 --location-id 14208",
+    "mode": "--help",
+    "exit": 0
+  },
+  {
+    "command": "items modifiers get-item 9656289 --location-id 14208",
+    "mode": "--dry-run",
+    "exit": 0
+  },
+  {
+    "command": "items modifiers get-item 9656289 --location-id 14208",
+    "mode": "--json",
+    "exit": 0
+  }
+]

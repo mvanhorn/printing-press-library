@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-19T03:46:07.7991611Z",
+  "printing_press_version": "4.32.2",
+  "api_name": "haven-hot-chicken",
+  "display_name": "Haven Hot Chicken",
+  "cli_name": "haven-hot-chicken-pp-cli",
+  "creator": {
+    "handle": "wirelesstkd",
+    "name": "matthew.martin"
+  },
+  "owner": "wirelesstkd",
+  "printer": "wirelesstkd",
+  "printer_name": "matthew.martin",
+  "spec_path": "haven-openapi.json",
+  "spec_format": "openapi3",
+  "spec_source": "docs",
+  "spec_checksum": "sha256:cec0382566cf927620a166260f082d83a8ca3d1fd635f9893234957acc4adc7d",
+  "run_id": "20260918-225303-ee280e48",
+  "category": "food-and-dining",
+  "description": "Browse Haven menus, compare locations, and plan a meal from saved prices.",
+  "mcp_binary": "haven-hot-chicken-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Location price comparison",
+      "command": "haven compare",
+      "description": "Compare the same named menu item across saved location menus."
+    },
+    {
+      "name": "Base-price meal subtotal",
+      "command": "haven subtotal",
+      "description": "Estimate a meal base-price subtotal from explicit item IDs and quantities."
+    },
+    {
+      "name": "Saved menu changes",
+      "command": "haven changes",
+      "description": "Show additions, removals, price and availability changes between two complete saved menus."
+    },
+    {
+      "name": "Shared availability",
+      "command": "haven common",
+      "description": "Find items marked available in every selected saved location menu."
+    },
+    {
+      "name": "Nearby locations",
+      "command": "haven nearby",
+      "description": "Rank saved shops by straight-line distance from supplied coordinates."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Location price comparison",
+      "command": "haven compare",
+      "description": "Compare the same named menu item across saved location menus."
+    },
+    {
+      "name": "Base-price meal subtotal",
+      "command": "haven subtotal",
+      "description": "Estimate a meal base-price subtotal from explicit item IDs and quantities."
+    },
+    {
+      "name": "Saved menu changes",
+      "command": "haven changes",
+      "description": "Show additions, removals, price and availability changes between two complete saved menus."
+    },
+    {
+      "name": "Shared availability",
+      "command": "haven common",
+      "description": "Find items marked available in every selected saved location menu."
+    },
+    {
+      "name": "Nearby locations",
+      "command": "haven nearby",
+      "description": "Rank saved shops by straight-line distance from supplied coordinates."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 33,
+    "total": 33,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

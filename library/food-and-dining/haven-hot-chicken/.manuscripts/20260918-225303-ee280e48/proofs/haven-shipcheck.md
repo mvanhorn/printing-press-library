@@ -1,0 +1,1 @@
+Shipcheck PASS: 7/7 legs; score 91/100 Grade A; 5/5 novel features recognized and live sampled. Fixed static command discovery by explicit Cobra declarations. Canonical public install reference retained with explicit unpublished gate and local build instructions. Generated helper dead-code warnings are not runtime failures. See shipcheck-2.log and sample-*.json for evidence.

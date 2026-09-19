@@ -1,0 +1,239 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "excluded": [
+      {
+        "locations": [
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860606,
+                "name": "Gold Peak Raspberry Iced Tea 18.5oz bottle",
+                "price_cents": 399
+              }
+            ],
+            "location_id": 14208,
+            "status": "available"
+          },
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": false,
+                "disabled": true,
+                "hidden": false,
+                "id": 6860882,
+                "name": "Gold Peak Raspberry Iced Tea 18.5oz bottle",
+                "price_cents": 399
+              }
+            ],
+            "location_id": 14205,
+            "status": "unavailable"
+          }
+        ],
+        "name": "gold peak raspberry iced tea 18.5oz bottle"
+      },
+      {
+        "locations": [
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": false,
+                "disabled": true,
+                "hidden": false,
+                "id": 6860600,
+                "name": "Powerade Mountain Berry Blast 20oz bottle",
+                "price_cents": 399
+              }
+            ],
+            "location_id": 14208,
+            "status": "unavailable"
+          },
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": false,
+                "disabled": true,
+                "hidden": false,
+                "id": 6860880,
+                "name": "Powerade Mountain Berry Blast 20oz bottle",
+                "price_cents": 399
+              }
+            ],
+            "location_id": 14205,
+            "status": "unavailable"
+          }
+        ],
+        "name": "powerade mountain berry blast 20oz bottle"
+      },
+      {
+        "locations": [
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 9656289,
+                "name": "Pumpkin Spice Banana Puddin'",
+                "price_cents": 549
+              }
+            ],
+            "location_id": 14208,
+            "status": "available"
+          },
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": false,
+                "disabled": true,
+                "hidden": false,
+                "id": 9656287,
+                "name": "Pumpkin Spice Banana Puddin'",
+                "price_cents": 549
+              }
+            ],
+            "location_id": 14205,
+            "status": "unavailable"
+          }
+        ],
+        "name": "pumpkin spice banana puddin'"
+      }
+    ],
+    "excluded_total": 5,
+    "note": "Availability is from saved observations, not a live ordering guarantee. Matching names do not establish identical recipes or options.",
+    "observations": [
+      {
+        "complete": true,
+        "fetched_at": "2026-09-19T03:19:37.6353159Z",
+        "location_id": 14208,
+        "snapshot_id": 1
+      },
+      {
+        "complete": true,
+        "fetched_at": "2026-09-19T03:19:38.163048Z",
+        "location_id": 14205,
+        "snapshot_id": 2
+      }
+    ],
+    "rows": [
+      {
+        "locations": [
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860647,
+                "name": "Apple Juice Box",
+                "price_cents": 199
+              }
+            ],
+            "location_id": 14208,
+            "status": "available"
+          },
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860894,
+                "name": "Apple Juice Box",
+                "price_cents": 199
+              }
+            ],
+            "location_id": 14205,
+            "status": "available"
+          }
+        ],
+        "name": "apple juice box"
+      },
+      {
+        "locations": [
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860639,
+                "name": "Barq's Rootbeer 20oz bottle",
+                "price_cents": 349
+              }
+            ],
+            "location_id": 14208,
+            "status": "available"
+          },
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860891,
+                "name": "Barq's Rootbeer 20oz bottle",
+                "price_cents": 349
+              }
+            ],
+            "location_id": 14205,
+            "status": "available"
+          }
+        ],
+        "name": "barq's rootbeer 20oz bottle"
+      },
+      {
+        "locations": [
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860618,
+                "name": "Coke 20oz bottle",
+                "price_cents": 349
+              }
+            ],
+            "location_id": 14208,
+            "status": "available"
+          },
+          {
+            "ambiguous": false,
+            "items": [
+              {
+                "available": true,
+                "disabled": false,
+                "hidden": false,
+                "id": 6860885,
+                "name": "Coke 20oz bottle",
+                "price_cents": 349
+              }
+            ],
+            "location_id": 14205,
+            "status": "available"
+          }
+        ],
+        "name": "coke 20oz bottle"
+      }
+    ],
+    "rows_total": 51,
+    "truncated": true
+  }
+}

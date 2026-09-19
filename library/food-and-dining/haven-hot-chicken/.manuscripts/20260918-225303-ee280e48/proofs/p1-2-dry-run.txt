@@ -1,0 +1,12 @@
+GET https://api.thanx.com/items/9656289/modifiers
+  ?location_id=14208
+
+(dry run - no request sent)
+{
+  "meta": {
+    "source": "dry-run"
+  },
+  "results": {
+    "dry_run": true
+  }
+}

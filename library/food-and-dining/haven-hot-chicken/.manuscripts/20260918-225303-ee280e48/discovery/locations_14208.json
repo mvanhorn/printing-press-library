@@ -1,0 +1,153 @@
+{
+  "location": {
+    "id": 14208,
+    "uid": "y2k17lvcmynyjzv",
+    "merchant_id": 1122,
+    "street": "PUBLIC_RESTAURANT_ADDRESS_REDACTED",
+    "city": "North Haven",
+    "state": "Connecticut",
+    "latitude": 41.396959,
+    "zip": "06473",
+    "longitude": -72.853759,
+    "time_zone": "America/New_York",
+    "coming_soon": false,
+    "name": "North Haven, CT",
+    "opentable_handle": null,
+    "tag_value": "North Haven, CT (North Haven, CT)",
+    "phone": "PUBLIC_RESTAURANT_CONTACT_REDACTED",
+    "ordering_configuration": {
+      "enabled": true,
+      "pickup": true,
+      "curbside": true,
+      "delivery": true,
+      "tableside": false,
+      "drivethru": false,
+      "minimum_spend_delivery": 0.0,
+      "minimum_spend_pickup": 0.0,
+      "maximum_days_in_advance": 90,
+      "requires_phone": true,
+      "supports_coupons": true,
+      "supports_order_transfer": true,
+      "supports_special_instructions": false,
+      "instructions_max_length": 200,
+      "supports_tips": true,
+      "supports_asap": true,
+      "disables_schedule": false,
+      "supports_gift_card_loyalty_point_accrual": false,
+      "tip_percentage_low": 12,
+      "tip_percentage_medium": 15,
+      "tip_percentage_high": 18,
+      "tip_percentage_default": null,
+      "labels": {
+        "handoff": {
+          "curbside": "Curbside",
+          "delivery": "Delivery",
+          "pickup": "Pickup",
+          "tableside": "Tableside",
+          "drivethru": "Drive-thru"
+        }
+      },
+      "custom_fields": [
+        {
+          "id": 7437,
+          "label": "Vehicle Color",
+          "supported_handoff": "curbside",
+          "required": true,
+          "validation_regex": null
+        },
+        {
+          "id": 7436,
+          "label": "Vehicle Description",
+          "supported_handoff": "curbside",
+          "required": true,
+          "validation_regex": null
+        }
+      ],
+      "ordering_hours": {
+        "monday": [
+          {
+            "start": "10:00",
+            "end": "21:45"
+          }
+        ],
+        "tuesday": [
+          {
+            "start": "10:00",
+            "end": "21:45"
+          }
+        ],
+        "wednesday": [
+          {
+            "start": "10:00",
+            "end": "21:45"
+          }
+        ],
+        "thursday": [
+          {
+            "start": "10:00",
+            "end": "21:45"
+          }
+        ],
+        "friday": [
+          {
+            "start": "10:00",
+            "end": "23:45"
+          }
+        ],
+        "saturday": [
+          {
+            "start": "10:00",
+            "end": "23:45"
+          }
+        ],
+        "sunday": [
+          {
+            "start": "10:00",
+            "end": "21:45"
+          }
+        ]
+      },
+      "display_hours": "Mon-Thu: 10:00 am - 9:45 pm\nFri-Sat: 10:00 am - 11:45 pm\nSun: 10:00 am - 9:45 pm",
+      "active_schedule_overrides": []
+    },
+    "alert_banner": null,
+    "business_hours": [
+      {
+        "day": "Monday",
+        "start": "10:00",
+        "end": "21:45"
+      },
+      {
+        "day": "Tuesday",
+        "start": "10:00",
+        "end": "21:45"
+      },
+      {
+        "day": "Wednesday",
+        "start": "10:00",
+        "end": "21:45"
+      },
+      {
+        "day": "Thursday",
+        "start": "10:00",
+        "end": "21:45"
+      },
+      {
+        "day": "Friday",
+        "start": "10:00",
+        "end": "23:45"
+      },
+      {
+        "day": "Saturday",
+        "start": "10:00",
+        "end": "23:45"
+      },
+      {
+        "day": "Sunday",
+        "start": "10:00",
+        "end": "21:45"
+      }
+    ],
+    "loyalty_redemption_type": "direct"
+  }
+}

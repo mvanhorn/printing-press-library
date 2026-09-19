@@ -1,0 +1,1 @@
+Codex adaptation approved by user: Chrome verified ordering menu, DOM-backed script URLs led to public source inspection, then six direct GET replays succeeded. This is not a HAR capture. Runtime is ordinary HTTP to api.thanx.com with public Accept-Version and Thanx-Merchant headers; no browser process or credentials required.

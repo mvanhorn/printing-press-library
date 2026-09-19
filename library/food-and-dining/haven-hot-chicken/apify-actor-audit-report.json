@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e\\haven-hot-chicken-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e\\20260918-225303-ee280e48",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

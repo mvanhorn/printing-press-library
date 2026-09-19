@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-19T03:41:46.4825999Z",
+  "cli_dir": "\u003ccli-dir\u003e\\haven-hot-chicken-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template improvement. List client profiles precisely identifies the listing operation in its client group; platform profiles are framework-managed."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 847,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template improvement. List recorded learnings accurately describes local taught query mappings; source has no menu behavior gap."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-19T03:39:31.8988444Z"
+  }
+}
