@@ -846,7 +846,7 @@ func TestMCPToolPageResultTextArrayFieldHintHandlesResidualInstructorsArray(t *t
 	}
 
 	pageConfig := mcpPageConfig{CursorParam: "page", ArrayField: "data"}
-	text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "", nil))
+	text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "", nil, nil))
 
 	var envelope struct {
 		Data       []json.RawMessage `json:"data"`
@@ -890,7 +890,7 @@ func TestMCPToolPageResultTextRespectsExplicitSelectOfFirstPageOnlyField(t *test
 
 	summaryPresent := func(t *testing.T, selected map[string]bool) bool {
 		t.Helper()
-		text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "some-cursor", selected))
+		text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "some-cursor", selected, nil))
 		var envelope struct {
 			Summary map[string]any `json:"summary"`
 		}
@@ -908,6 +908,55 @@ func TestMCPToolPageResultTextRespectsExplicitSelectOfFirstPageOnlyField(t *test
 	}
 	if summaryPresent(t, nil) {
 		t.Fatal("unprojected (no select at all) resumed call should still drop summary")
+	}
+}
+
+// TestMCPToolPageResultTextRecoversNextCursorFromPreSelectData guards
+// mcpToolPageResultText's wiring of preSelectData through to
+// bound.PageOptions.PreProjectionData (Issue #2026): a select like
+// select=data.id,next_cursor keeps the item array but drops show_next/page,
+// which the endpoint's continuation detection depends on. Without the
+// unfiltered pre-select body to fall back on, next_cursor is silently
+// omitted even though more data exists upstream.
+func TestMCPToolPageResultTextRecoversNextCursorFromPreSelectData(t *testing.T) {
+	preSelect, err := json.Marshal(map[string]any{
+		"data":      []map[string]string{{"id": "w1", "created_at": "1789230702"}},
+		"show_next": true,
+		"page":      0,
+		"total":     3742,
+	})
+	if err != nil {
+		t.Fatalf("marshal preSelect fixture: %v", err)
+	}
+	// What select=data.id,next_cursor leaves behind.
+	projected := json.RawMessage(`{"data":[{"id":"w1"}]}`)
+	pageConfig := mcpPageConfig{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	}
+
+	withPreSelect := mcpTextContent(t, mcpToolPageResultText("GET", projected, pageConfig, "", nil, preSelect))
+	var withCursor struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(withPreSelect), &withCursor); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, withPreSelect)
+	}
+	if withCursor.NextCursor == "" {
+		t.Fatalf("preSelectData should recover next_cursor for a select dropping show_next/page: %s", withPreSelect)
+	}
+
+	withoutPreSelect := mcpTextContent(t, mcpToolPageResultText("GET", projected, pageConfig, "", nil, nil))
+	var withoutCursor struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(withoutPreSelect), &withoutCursor); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, withoutPreSelect)
+	}
+	if withoutCursor.NextCursor != "" {
+		t.Fatalf("this fixture should only recover next_cursor via preSelectData, not on its own: %s", withoutPreSelect)
 	}
 }
 

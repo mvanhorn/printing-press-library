@@ -823,6 +823,12 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 			data = deepStripFields(data, classAlwaysStripFields)
 		}
 		data = applyVerboseFieldToggles(data, args, verboseToggles)
+		// preSelectData is captured before "select" runs so pagination
+		// continuation detection (bound.PageOptions.PreProjectionData) can
+		// still see show_next/page/NextCursorPath even when a caller's own
+		// select drops them from the displayed result. See that field's
+		// doc comment.
+		preSelectData := data
 		// select is applied last, after any verbose-field stripping, so a
 		// caller who does pass include_stream_urls/include_instructor_bios=true
 		// can still narrow the now-larger response down with select in the
@@ -852,7 +858,7 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 			return mcplib.NewToolResultText(string(out)), nil
 		}
 		if pageConfig.CursorParam != "" {
-			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, explicitlySelectedFields), nil
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, explicitlySelectedFields, preSelectData), nil
 		}
 		return mcpToolResultText(method, data), nil
 	}
@@ -894,7 +900,7 @@ func mcpToolError(message string) *mcplib.CallToolResult {
 	return mcplib.NewToolResultError(bound.Text(message))
 }
 
-func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, explicitlySelectedFields map[string]bool) *mcplib.CallToolResult {
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, explicitlySelectedFields map[string]bool, preSelectData json.RawMessage) *mcplib.CallToolResult {
 	opts := bound.PageOptions{
 		Cursor:                cursor,
 		CursorParam:           pageConfig.CursorParam,
@@ -913,6 +919,10 @@ func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPa
 		// would silently defeat the trim for every select that doesn't
 		// happen to also exclude it explicitly.
 		KeepFirstPageOnlyFields: explicitlySelectedFields,
+		// See bound.PageOptions.PreProjectionData: a select that drops
+		// show_next/page (or the endpoint's NextCursorPath field) must not
+		// be able to hide that more upstream data exists.
+		PreProjectionData: preSelectData,
 	}
 	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, opts))
 }
