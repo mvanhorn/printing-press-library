@@ -94,14 +94,25 @@ type PageOptions struct {
 	//
 	// This package has no visibility into whether a "select" projection
 	// ran (that happens entirely in the caller, before this package ever
-	// sees the data), so it cannot itself distinguish "this field survived
-	// because it's the unprojected default" from "the caller explicitly
-	// asked for it via select" -- stripping it unconditionally would
-	// silently return less than an explicit select=...,summary asked for
-	// on page 2+. The caller is responsible for only setting this field
-	// when no select was applied to the current call; see
-	// mcpToolPageResultText's hasSelect handling.
+	// sees the data), so on its own it can't distinguish "this field
+	// survived because it's the unprojected default" from "the caller
+	// explicitly asked for it via select" -- stripping it unconditionally
+	// would silently return less than an explicit select=...,summary asked
+	// for on page 2+. KeepFirstPageOnlyFields is how the caller (tools.go)
+	// tells this package which of these names were explicitly selected;
+	// only those are exempted from the later-page strip. A select that
+	// does NOT name the field must still have it stripped even though a
+	// select ran -- a caller's own select projection can pass unselected
+	// sibling metadata straight through unfiltered (its own envelope
+	// fallback), so "a select happened" alone isn't enough to prove this
+	// specific field was actually asked for.
 	FirstPageOnlyFields []string
+
+	// KeepFirstPageOnlyFields names entries from FirstPageOnlyFields (by
+	// the same top-level key) that the caller's own select explicitly
+	// requested, and so must be kept even on a later page. Ignored when
+	// FirstPageOnlyFields is empty. See that field's doc comment.
+	KeepFirstPageOnlyFields map[string]bool
 }
 
 // endpointCursor is an offset-based cursor: Offset positions within the
@@ -452,7 +463,7 @@ func boundedPageListEnvelope(field string, items []json.RawMessage, original jso
 				if key == field {
 					continue
 				}
-				if !isFirstPage && firstPageOnly[key] {
+				if !isFirstPage && firstPageOnly[key] && !opts.KeepFirstPageOnlyFields[key] {
 					continue
 				}
 				// count is intentionally left as whatever the upstream

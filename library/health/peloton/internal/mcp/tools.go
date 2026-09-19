@@ -828,11 +828,11 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 		// can still narrow the now-larger response down with select in the
 		// same call. Binary responses are base64-encoded file payloads, not
 		// JSON a dotted-path projection could meaningfully narrow.
-		var hasSelect bool
+		var explicitlySelectedFields map[string]bool
 		if !binaryResponse {
 			if selectFields, ok := args["select"].(string); ok && strings.TrimSpace(selectFields) != "" {
 				data = cli.FilterFieldsJSON(data, selectFields)
-				hasSelect = true
+				explicitlySelectedFields = topLevelSelectFieldNames(selectFields)
 			}
 		}
 
@@ -852,7 +852,7 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 			return mcplib.NewToolResultText(string(out)), nil
 		}
 		if pageConfig.CursorParam != "" {
-			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, hasSelect), nil
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, explicitlySelectedFields), nil
 		}
 		return mcpToolResultText(method, data), nil
 	}
@@ -894,7 +894,7 @@ func mcpToolError(message string) *mcplib.CallToolResult {
 	return mcplib.NewToolResultError(bound.Text(message))
 }
 
-func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, hasSelect bool) *mcplib.CallToolResult {
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, explicitlySelectedFields map[string]bool) *mcplib.CallToolResult {
 	opts := bound.PageOptions{
 		Cursor:                cursor,
 		CursorParam:           pageConfig.CursorParam,
@@ -902,16 +902,37 @@ func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPa
 		ArrayField:            pageConfig.ArrayField,
 		NextPageIndicatorPath: pageConfig.NextPageIndicatorPath,
 		CurrentPageNumberPath: pageConfig.CurrentPageNumberPath,
-	}
-	// A caller who explicitly named a field via select has already made
-	// their own choice about what to keep -- FirstPageOnlyFields exists to
-	// trim the *default* unprojected response's repeated fixed cost, not
-	// to silently override a deliberate later-page ask for that same
-	// field (e.g. select=data.id,summary on page 2 of workouts_list).
-	if !hasSelect {
-		opts.FirstPageOnlyFields = pageConfig.FirstPageOnlyFields
+		FirstPageOnlyFields:   pageConfig.FirstPageOnlyFields,
+		// A caller who explicitly named a FirstPageOnlyFields entry via
+		// select has made a deliberate ask for it on this page --
+		// FirstPageOnlyFields exists to trim the *default* unprojected
+		// response's repeated fixed cost, not to override that. A select
+		// that does NOT name the field (e.g. select=id) must still have it
+		// stripped: filterFieldsRec's envelope fallback can otherwise pass
+		// unselected sibling metadata straight through unfiltered, which
+		// would silently defeat the trim for every select that doesn't
+		// happen to also exclude it explicitly.
+		KeepFirstPageOnlyFields: explicitlySelectedFields,
 	}
 	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, opts))
+}
+
+// topLevelSelectFieldNames extracts the top-level segment of each
+// comma-separated select path (e.g. "data.id,summary" -> {"data": true,
+// "summary": true}), matching filterFieldsRec's own path-splitting and
+// lowercasing so a bound.PageOptions.KeepFirstPageOnlyFields lookup agrees
+// with what the projection actually kept.
+func topLevelSelectFieldNames(selectFields string) map[string]bool {
+	names := map[string]bool{}
+	for _, f := range strings.Split(selectFields, ",") {
+		f = strings.TrimSpace(f)
+		if f == "" {
+			continue
+		}
+		head, _, _ := strings.Cut(f, ".")
+		names[strings.ToLower(head)] = true
+	}
+	return names
 }
 
 func newMCPClient() (*client.Client, error) {
