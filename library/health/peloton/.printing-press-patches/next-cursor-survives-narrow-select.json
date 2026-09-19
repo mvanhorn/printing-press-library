@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "next-cursor-survives-narrow-select",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "workouts_list and classes_search detect whether more upstream data exists by extracting show_next/page (or, where set, NextCursorPath) from the response body bound.go receives -- but that body may already be select-filtered by the time it gets there. bound.PageOptions.PreProjectionData carries the response as it was before the caller's own select ran; extraction (extractNextUpstream) prefers it over the possibly-filtered data. tools.go's makeAPIHandlerVerbose captures this as preSelectData right before applying select and threads it through mcpToolPageResultText into PreProjectionData. A regen touching either endpoint's select handling, or bound.go's boundedSingleArrayPageObject/injectMetadataOnlyNextCursor, must keep this wiring: continuation detection is a fact about the underlying collection and must not depend on which envelope fields a caller's select chose to keep for display.",
+  "reason": "Live desktop testing (B9) found next_cursor silently absent on a resumed workouts_list/classes_search page whenever the select dropped both show_next and page (e.g. select=data.id,next_cursor), even though the upstream API had more pages -- the same silent-incompleteness failure class as the earlier FirstPageOnlyFields/summary and metadata-only-projection fixes on this same codepath, just reached through a narrower, entirely reasonable projection. Tracked as printing-press-library#2026.",
+  "files": [
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go build/vet/test and verify_skill.py all green. TestEndpointPageResponsePreProjectionDataRecoversNextCursorWhenSelectDropsContinuationFields and TestMCPToolPageResultTextRecoversNextCursorFromPreSelectData both assert next_cursor is present when PreProjectionData/preSelectData carries show_next:true+page, and reproduce the original bug (next_cursor absent) when it is omitted, confirming the fix is what closes the gap rather than an unrelated change.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/2026"
+}

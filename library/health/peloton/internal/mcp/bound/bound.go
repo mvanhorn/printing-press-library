@@ -113,6 +113,26 @@ type PageOptions struct {
 	// requested, and so must be kept even on a later page. Ignored when
 	// FirstPageOnlyFields is empty. See that field's doc comment.
 	KeepFirstPageOnlyFields map[string]bool
+
+	// PreProjectionData, when set, is the response body as it was before
+	// the caller applied its own "select" projection (or any other field
+	// stripping). This package uses it -- in preference to the data
+	// argument passed to EndpointPageResponse, which may already be
+	// select-filtered -- only to determine whether more upstream data
+	// exists (extracting NextCursorPath, or NextPageIndicatorPath +
+	// CurrentPageNumberPath). Whether another page exists upstream is a
+	// fact about the underlying collection, not about which fields a
+	// caller's select chose to keep for display, so a select that drops
+	// show_next/page (or the cursor field) must not be able to hide that
+	// more data exists. Confirmed live: select=data.id,next_cursor on a
+	// resumed call kept the item array but dropped show_next/page, so
+	// extraction against the filtered body always came up empty and
+	// next_cursor was silently omitted even though the upstream API had
+	// more pages. Never used for anything else -- the emitted fields
+	// (including which FirstPageOnlyFields entries survive) still come
+	// from data. Nil is treated as "no override" and falls back to data,
+	// so callers that don't populate it see no behavior change.
+	PreProjectionData json.RawMessage
 }
 
 // endpointCursor is an offset-based cursor: Offset positions within the
@@ -311,11 +331,27 @@ func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byt
 	if !ok {
 		return nil, false
 	}
-	nextUpstream := extractStringPath(data, opts.NextCursorPath)
-	if nextUpstream == "" {
-		nextUpstream = extractNextIntegerPage(data, opts.NextPageIndicatorPath, opts.CurrentPageNumberPath)
-	}
+	nextUpstream := extractNextUpstream(data, opts)
 	return boundedPageListEnvelope(arrayField, items, data, endpointListNote, opts, obj, nextUpstream), true
+}
+
+// extractNextUpstream resolves the upstream continuation value for a
+// paginated response: opts.NextCursorPath if set, else the
+// NextPageIndicatorPath/CurrentPageNumberPath integer-page fallback.
+// Extraction runs against opts.PreProjectionData when the caller supplied
+// it, not against data, since data may already be select-filtered -- see
+// PreProjectionData's doc comment for why continuation detection must not
+// depend on what a caller's own select projection happened to keep.
+func extractNextUpstream(data json.RawMessage, opts PageOptions) string {
+	source := data
+	if opts.PreProjectionData != nil {
+		source = opts.PreProjectionData
+	}
+	nextUpstream := extractStringPath(source, opts.NextCursorPath)
+	if nextUpstream == "" {
+		nextUpstream = extractNextIntegerPage(source, opts.NextPageIndicatorPath, opts.CurrentPageNumberPath)
+	}
+	return nextUpstream
 }
 
 // injectMetadataOnlyNextCursor handles a response whose item array is
@@ -349,10 +385,7 @@ func injectMetadataOnlyNextCursor(data json.RawMessage, opts PageOptions) ([]byt
 		// already handled (or should have handled) this shape.
 		return nil, false
 	}
-	nextUpstream := extractStringPath(data, opts.NextCursorPath)
-	if nextUpstream == "" {
-		nextUpstream = extractNextIntegerPage(data, opts.NextPageIndicatorPath, opts.CurrentPageNumberPath)
-	}
+	nextUpstream := extractNextUpstream(data, opts)
 	if nextUpstream == "" {
 		return nil, false
 	}

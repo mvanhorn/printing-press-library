@@ -338,6 +338,84 @@ func TestEndpointPageResponseMetadataOnlyProjectionNoCursorWhenNoMoreData(t *tes
 	}
 }
 
+// TestEndpointPageResponsePreProjectionDataRecoversNextCursorWhenSelectDropsContinuationFields
+// guards a follow-up to the same fix: a caller's own select can keep the
+// item array itself (so boundedSingleArrayPageObject handles the response,
+// not injectMetadataOnlyNextCursor) while still dropping show_next/page --
+// e.g. select=data.id,next_cursor. Extraction against the already-filtered
+// data then finds neither field and silently reports no more pages, even
+// though the upstream API has one. PreProjectionData (the same response
+// before select ran) must be consulted instead so next_cursor still gets
+// emitted.
+func TestEndpointPageResponsePreProjectionDataRecoversNextCursorWhenSelectDropsContinuationFields(t *testing.T) {
+	preProjection, err := json.Marshal(map[string]any{
+		"data":           []map[string]string{{"id": "w1", "created_at": "1789230702"}},
+		"show_next":      true,
+		"page":           0,
+		"count":          1,
+		"total":          3742,
+		"returned_count": 1,
+	})
+	if err != nil {
+		t.Fatalf("marshal preProjection fixture: %v", err)
+	}
+	// What a select=data.id,next_cursor projection would leave: the item
+	// array survives (with only "id" per item), show_next/page do not.
+	projected, err := json.Marshal(map[string]any{
+		"data": []map[string]string{{"id": "w1"}},
+	})
+	if err != nil {
+		t.Fatalf("marshal projected fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", projected, PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+		PreProjectionData:     preProjection,
+	})
+
+	var envelope struct {
+		Data       []json.RawMessage `json:"data"`
+		NextCursor string            `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("a select dropping show_next/page must not hide that more upstream data exists: %s", text)
+	}
+	upstream, err := UpstreamCursor(envelope.NextCursor)
+	if err != nil {
+		t.Fatalf("UpstreamCursor(%q): %v", envelope.NextCursor, err)
+	}
+	if upstream != "1" {
+		t.Fatalf("next_cursor should advance to page 1 (current page 0 + 1), got %q", upstream)
+	}
+	if len(envelope.Data) != 1 {
+		t.Fatalf("expected the single projected record to pass through: %s", text)
+	}
+
+	// Without PreProjectionData, the same projected body reproduces the
+	// original bug: no signal survives to prove more data exists upstream.
+	withoutOverride := EndpointPageResponse("GET", projected, PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	})
+	var noOverride struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(withoutOverride), &noOverride); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, withoutOverride)
+	}
+	if noOverride.NextCursor != "" {
+		t.Fatalf("this fixture should only recover next_cursor via PreProjectionData, not on its own: %s", withoutOverride)
+	}
+}
+
 // TestEndpointPageResponseDistinguishesPageSizeCapFromByteBudget guards
 // Issue 15: a page cut to the fixed 50-item cap while comfortably under
 // MaxBytes must not claim a byte-budget overrun (max_bytes/original_bytes
