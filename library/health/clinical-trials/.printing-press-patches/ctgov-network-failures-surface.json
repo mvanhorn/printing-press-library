@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ctgov-network-failures-surface",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "A failed ClinicalTrials.gov call must reach the caller as an error, and a fetch that fails partway must hand back what it already collected rather than discarding it.",
+  "reason": "ctgovCount returns 0 with its error, and many call sites print that number as a study total, so swallowing the error would render a confident zero that reads as 'nothing matched' instead of a broken lookup. ctgovFetch returns its partial results alongside the error on purpose: a scan that dies on page three still gives the caller pages one and two to decide about. A reprint must keep both, and must keep the two scan bounds that go with them - the floor that turns a non-positive maxPages into one page, and the maxStudies cap that stops the scan mid-page. Guarded by TestCountPropagatesTheClientError, TestFetchKeepsPartialResultsOnError, TestFetchTreatsNonPositiveMaxPagesAsOne and TestFetchStopsAtMaxStudies.",
+  "files": [
+    "internal/cli/intel.go",
+    "internal/cli/ctgov_error_paths_test.go"
+  ],
+  "validated_outcome": "Against the tests that existed before the new file, all four rules survived mutation: dropping the partial results, removing the maxPages floor, removing the maxStudies cap and swallowing the count error each left the package green. Changing the returned count by one failed 3 existing tests as a control. Against the new file all four mutations fail."
+}
