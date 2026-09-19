@@ -127,9 +127,10 @@ func configuraRicercaMOP(cmd *cobra.Command, flags *rootFlags, r ricercaMOP) *co
 			// standard output vedrebbe "nessun risultato" come un fatto.
 			segnaOrigineLocale(flags)
 			return printJSONFiltered(cmd.OutOrStdout(), rispostaLocale{
-				Richiesta: codice,
-				Risultati: make([]esitoFamiglia, 0),
-				Nota:      notaArchivioVuoto,
+				Richiesta:     codice,
+				Risultati:     make([]esitoFamiglia, 0),
+				Nota:          notaArchivioVuoto,
+				ArchivioVuoto: true,
 			}, flags)
 		}
 		var bersagli []dataset
@@ -145,9 +146,10 @@ func configuraRicercaMOP(cmd *cobra.Command, flags *rootFlags, r ricercaMOP) *co
 			// caso dell'archivio assente, non un errore del comando.
 			segnaOrigineLocale(flags)
 			return printJSONFiltered(cmd.OutOrStdout(), rispostaLocale{
-				Richiesta: codice,
-				Risultati: make([]esitoFamiglia, 0),
-				Nota:      notaArchivioVuoto,
+				Richiesta:     codice,
+				Risultati:     make([]esitoFamiglia, 0),
+				Nota:          notaArchivioVuoto,
+				ArchivioVuoto: true,
 			}, flags)
 		}
 		c, err := flags.newClient()
@@ -174,6 +176,13 @@ func configuraRicercaMOP(cmd *cobra.Command, flags *rootFlags, r ricercaMOP) *co
 		if falliti > 0 {
 			fmt.Fprintf(cmd.ErrOrStderr(), "attenzione: %d dataset su %d non hanno risposto; il risultato e' parziale\n", falliti, len(esiti))
 		}
+		// Un dataset che restituisce esattamente il limite ha quasi certamente
+		// altre righe: senza nota il troncamento non si vede.
+		notaTroncato := ""
+		if troncati := famiglieTroncate(risultati, limite); len(troncati) > 0 {
+			notaTroncato = fmt.Sprintf("righe troncate a --limite %d in: %s", limite, strings.Join(troncati, ", "))
+			fmt.Fprintf(cmd.ErrOrStderr(), "attenzione: %s\n", notaTroncato)
+		}
 		for i := range risultati {
 			risultati[i].Righe = compattaRighe(risultati[i].Righe, flags.compact)
 		}
@@ -183,6 +192,9 @@ func configuraRicercaMOP(cmd *cobra.Command, flags *rootFlags, r ricercaMOP) *co
 			risposta := rispostaLocale{Richiesta: codice, Risultati: risultati, Trovati: trovate}
 			if trovate == 0 {
 				risposta.Nota = fmt.Sprintf("nessun risultato per %s nei %d dataset interrogati", codice, len(esiti))
+			}
+			if notaTroncato != "" {
+				risposta.Nota = notaTroncato
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), risposta, flags)
 		}
@@ -245,6 +257,7 @@ func newNovelOpereCmd(flags *rootFlags) *cobra.Command {
 					"opere":          make([]map[string]any, 0),
 					"totale":         nil,
 					"nota":           notaArchivioVuoto,
+					"archivio_vuoto": true,
 				}, flags)
 			}
 			bersagli := datasetProgetti(elenco, regione)
@@ -255,6 +268,7 @@ func newNovelOpereCmd(flags *rootFlags) *cobra.Command {
 					"opere":          make([]map[string]any, 0),
 					"totale":         nil,
 					"nota":           notaArchivioVuoto,
+					"archivio_vuoto": true,
 				}, flags)
 			}
 			c, err := flags.newClient()
@@ -336,4 +350,22 @@ func init() {
 	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
 		addNovelCommandIfAbsent(root, newNovelCupCmd(flags))
 	})
+}
+
+// famiglieTroncate elenca le famiglie in cui un dataset ha restituito
+// esattamente il limite chiesto, che e' il segno del troncamento.
+func famiglieTroncate(esiti []esitoFamiglia, limite int) []string {
+	if limite <= 0 {
+		return nil
+	}
+	viste := map[string]bool{}
+	var fuori []string
+	for _, e := range esiti {
+		if len(e.Righe) < limite || viste[e.Famiglia] {
+			continue
+		}
+		viste[e.Famiglia] = true
+		fuori = append(fuori, e.Famiglia)
+	}
+	return fuori
 }

@@ -4,7 +4,9 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -37,11 +39,29 @@ type rispostaLocale struct {
 	Risultati any    `json:"risultati"`
 	Trovati   int    `json:"trovati"`
 	Nota      string `json:"nota,omitempty"`
+	// ArchivioVuoto separa i due zeri che altrimenti si confondono: "il
+	// codice non c'e'" e "non ho un archivio in cui cercarlo". Il primo e'
+	// frequente, quindi il secondo passa inosservato se resta solo una nota.
+	ArchivioVuoto bool `json:"archivio_vuoto,omitempty"`
+}
+
+// percorsoArchivio risolve il percorso dell'archivio quando serve, non quando
+// il comando si costruisce. Il default del flag e' calcolato alla costruzione,
+// cioe' prima che --home sposti le cartelle: senza questo, --home non muove
+// l'archivio e una prova a freddo legge senza saperlo quello vero.
+func percorsoArchivio(cmd *cobra.Command, dbPath string) string {
+	if cmd != nil {
+		if f := cmd.Flags().Lookup("db"); f != nil && f.Changed {
+			return dbPath
+		}
+	}
+	return defaultDBPath("openbdap-pp-cli")
 }
 
 // apriStore apre l'archivio locale del catalogo. Restituisce ok=false quando
 // l'archivio non esiste ancora: chi chiama stampa un risultato vuoto.
 func apriStore(cmd *cobra.Command, dbPath string) (*store.Store, bool, error) {
+	dbPath = percorsoArchivio(cmd, dbPath)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		fmt.Fprintf(cmd.ErrOrStderr(), "nessun archivio locale in %s\nlancia: openbdap-pp-cli allinea\n", dbPath)
 		return nil, false, nil
@@ -114,7 +134,11 @@ func newAllineaCmd(flags *rootFlags) *cobra.Command {
 			if cliutil.IsDogfoodEnv() && len(ids) > 5 {
 				ids = ids[:5]
 			}
-			db, err := store.OpenWithContext(ctx, dbPath)
+			// Il percorso si risolve una volta sola e poi si usa ovunque,
+			// output compreso: dire di aver scritto in un posto diverso da
+			// quello vero e' peggio che non dirlo affatto.
+			archivio := percorsoArchivio(cmd, dbPath)
+			db, err := store.OpenWithContext(ctx, archivio)
 			if err != nil {
 				return err
 			}
@@ -137,7 +161,7 @@ func newAllineaCmd(flags *rootFlags) *cobra.Command {
 			esito := map[string]any{
 				"dataset_allineati": contati,
 				"dataset_richiesti": len(ids),
-				"archivio":          dbPath,
+				"archivio":          archivio,
 				"durata":            esitoTempo.String(),
 			}
 			if len(errori) > 0 {
@@ -165,7 +189,7 @@ func newAllineaCmd(flags *rootFlags) *cobra.Command {
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), esito, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Allineati %d dataset su %d in %s\n", contati, len(ids), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Allineati %d dataset su %d in %s\n", contati, len(ids), archivio)
 			return nil
 		},
 	}
@@ -246,7 +270,7 @@ func newCercaCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&tag, "tag", "", "filtra per parola chiave")
 	cmd.Flags().StringVar(&anno, "anno", "", "filtra per anno di riferimento ricavato dal titolo")
 	cmd.Flags().StringVar(&regione, "regione", "", "filtra per regione ricavata dal titolo")
-	cmd.Flags().StringVar(&famiglia, "famiglia", "", "filtra per famiglia MOP: progetti, gare, partecipanti, pagamenti, piano-costi, soggetti-titolari")
+	cmd.Flags().StringVar(&famiglia, "famiglia", "", "filtra per famiglia MOP: progetti, gare, partecipanti, pagamenti, piano-costi, soggetti-titolari, localizzazione")
 	cmd.Flags().StringVar(&dbPath, "db", defaultDBPath("openbdap-pp-cli"), "percorso dell'archivio locale")
 	return cmd
 }
@@ -347,6 +371,7 @@ func newColonneCmd(flags *rootFlags) *cobra.Command {
 // risolviLocaleMorbido prova a risolvere un dataset dall'archivio; se manca
 // l'archivio o la corrispondenza, chi chiama usa il valore cosi' com'e'.
 func risolviLocaleMorbido(cmd *cobra.Command, dbPath, chiave string) (dataset, bool, error) {
+	dbPath = percorsoArchivio(cmd, dbPath)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return dataset{}, false, nil
 	}
@@ -454,9 +479,23 @@ func newRigheCmd(flags *rootFlags) *cobra.Command {
 			if righe == nil {
 				righe = make([]map[string]any, 0)
 			}
+			// Un risultato che tocca esattamente il limite e' indistinguibile
+			// da un risultato completo: senza nota, cinquanta righe sembrano
+			// tutte le righe. Il totale vero costa una chiamata, e si paga
+			// solo qui.
+			nota := ""
+			if limite > 0 && len(righe) == limite {
+				nota = fmt.Sprintf("risultato troncato a --limite %d: usa --tutte per averle tutte", limite)
+				if totale, err := contaRighe(ctx, c, odataID, filtro); err == nil && totale > limite {
+					nota = fmt.Sprintf("risultato troncato a --limite %d di %d righe: usa --tutte per averle tutte", limite, totale)
+				}
+			}
 			righe = compattaRighe(righe, flags.compact)
+			if nota != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "attenzione: %s\n", nota)
+			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), righe, flags)
+				return printJSONConNota(cmd.OutOrStdout(), righe, flags, nota)
 			}
 			if len(righe) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "Nessuna riga corrisponde al filtro.")
@@ -556,4 +595,21 @@ func init() {
 		addNovelCommandIfAbsent(root, newRigheCmd(flags))
 		addNovelCommandIfAbsent(root, newContaCmd(flags))
 	})
+}
+
+// printJSONConNota stampa il risultato aggiungendo la nota in meta. La nota
+// non entra in results: chi legge l'array continua a leggerlo com'era.
+func printJSONConNota(w io.Writer, v any, flags *rootFlags, nota string) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	if nota == "" {
+		return printOutputWithFlags(w, json.RawMessage(raw), flags)
+	}
+	meta := map[string]any{
+		"source": resolveAgentOutputSource(flags, json.RawMessage(raw)),
+		"nota":   nota,
+	}
+	return printOutputWithFlagsMeta(w, json.RawMessage(raw), flags, meta)
 }

@@ -19,6 +19,8 @@ type dossierProgetto struct {
 	Mancanti []string                    `json:"sezioni_non_disponibili,omitempty"`
 	Nota     string                      `json:"nota,omitempty"`
 	Dedotta  bool                        `json:"regione_dedotta,omitempty"`
+	// ArchivioVuoto distingue "il CUP non c'e'" da "non ho un archivio".
+	ArchivioVuoto bool `json:"archivio_vuoto,omitempty"`
 }
 
 func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
@@ -28,8 +30,8 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dossier [cup]",
 		Short: "Il quadro completo di un'opera pubblica a partire dal CUP",
-		Long: "Trova il progetto nel dataset nazionale, ne ricava la regione e raccoglie pagamenti, gare, partecipanti, " +
-			"piano dei costi e soggetti titolari dai dataset regionali.\n" +
+		Long: "Trova il progetto nel dataset nazionale, ricava dove ricade l'opera dalla localizzazione geografica e " +
+			"raccoglie pagamenti, gare, partecipanti, piano dei costi e soggetti titolari dai dataset regionali.\n" +
 			"Usa questo comando per il quadro completo di un progetto. NON usarlo per la sola anagrafica; usa 'cup'.",
 		Example: strings.Trim(`
   openbdap-pp-cli dossier I77H11000120009
@@ -63,6 +65,7 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !ok {
 				dossier.Nota = notaArchivioVuoto
+				dossier.ArchivioVuoto = true
 				segnaOrigineLocale(flags)
 				return printJSONFiltered(cmd.OutOrStdout(), dossier, flags)
 			}
@@ -77,6 +80,7 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 			progetti := datasetProgetti(elenco, regione)
 			if len(progetti) == 0 {
 				dossier.Nota = notaArchivioVuoto
+				dossier.ArchivioVuoto = true
 				segnaOrigineLocale(flags)
 				return printJSONFiltered(cmd.OutOrStdout(), dossier, flags)
 			}
@@ -98,16 +102,48 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			// Passo 2: la regione del titolare restringe il fan-out sulle altre
-			// famiglie, che sono pubblicate solo per regione.
+			var troncate []string
+
+			// Passo 2: la localizzazione. Il dataset e' nazionale, quindi si
+			// interroga senza filtro di regione, e la regione che riporta e'
+			// un dato: vale piu' della deduzione dal nome del titolare.
+			if bersagli := datasetMOP(elenco, "localizzazione", ""); len(bersagli) > 0 {
+				righe := make([]map[string]any, 0)
+				for _, e := range cercaNeiMOP(ctx, c, bersagli, "Codice CUP", cup, limite) {
+					if e.Errore != "" {
+						dossier.Mancanti = append(dossier.Mancanti, "localizzazione: "+e.Errore)
+						continue
+					}
+					righe = append(righe, e.Righe...)
+				}
+				for _, r := range righe {
+					aggiungiCodiceISTAT(r)
+				}
+				dossier.Sezioni["localizzazione"] = righe
+				if limite > 0 && len(righe) >= limite {
+					troncate = append(troncate, "localizzazione")
+				}
+			} else {
+				dossier.Mancanti = append(dossier.Mancanti, "localizzazione: nessun dataset nell'archivio locale")
+			}
+
+			// Passo 3: la regione restringe il fan-out sulle altre famiglie,
+			// che sono pubblicate solo per regione.
 			regioneRicerca := regione
 			if regioneRicerca == "" {
 				regioneRicerca = dossier.Regione
 			}
 			if regioneRicerca == "" {
-				// Il dataset nazionale non riporta la regione: si prova a
-				// dedurla dal nome del titolare. E' un indizio, non un dato,
-				// quindi la risposta lo dichiara.
+				if dalDato := regioneDallaLocalizzazione(dossier.Sezioni["localizzazione"]); dalDato != "" {
+					regioneRicerca = dalDato
+					dossier.Regione = dalDato
+				}
+			}
+			if regioneRicerca == "" {
+				// Ne' il dataset nazionale ne' la localizzazione dicono dove
+				// ricade l'opera: si prova a dedurre la regione dal nome del
+				// titolare. E' un indizio, non un dato, quindi la risposta lo
+				// dichiara.
 				if dedotta := regioneDalTitolare(dossier.Progetto); dedotta != "" {
 					regioneRicerca = dedotta
 					dossier.Regione = dedotta
@@ -115,7 +151,7 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			for _, fam := range famiglieMOPOrdinate {
-				if fam == "progetti" {
+				if fam == "progetti" || famiglieMOPNazionali[fam] {
 					continue
 				}
 				bersagli := datasetMOP(elenco, fam, regioneRicerca)
@@ -132,6 +168,15 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 					righe = append(righe, e.Righe...)
 				}
 				dossier.Sezioni[fam] = righe
+				if limite > 0 && len(righe) >= limite {
+					troncate = append(troncate, fam)
+				}
+			}
+			// Una sezione che si ferma esattamente sul limite ha quasi
+			// certamente altre righe: senza nota il dossier sembra completo.
+			if len(troncate) > 0 {
+				dossier.Nota = fmt.Sprintf("sezioni troncate a --limite %d: %s", limite, strings.Join(troncate, ", "))
+				fmt.Fprintf(cmd.ErrOrStderr(), "attenzione: %s\n", dossier.Nota)
 			}
 			dossier.Progetto = compattaRighe(dossier.Progetto, flags.compact)
 			for fam, righe := range dossier.Sezioni {
@@ -173,6 +218,41 @@ func newNovelDossierCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&limite, "limite", 50, "numero massimo di righe per sezione")
 	cmd.Flags().StringVar(&dbPath, "db", defaultDBPath("openbdap-pp-cli"), "percorso dell'archivio locale")
 	return cmd
+}
+
+// regioniISTAT mappa il codice regione ISTAT al nome con cui la regione compare
+// nei titoli dei dataset MOP. Il codice e' l'unico aggancio stabile: la
+// descrizione e' scritta in forme diverse ("VALLE D'AOSTA/VALLEE D'AOSTE").
+var regioniISTAT = map[string]string{
+	"01": "Piemonte", "02": "Valle d'Aosta", "03": "Lombardia",
+	"04": "Trentino-Alto Adige", "05": "Veneto", "06": "Friuli-Venezia Giulia",
+	"07": "Liguria", "08": "Emilia-Romagna", "09": "Toscana", "10": "Umbria",
+	"11": "Marche", "12": "Lazio", "13": "Abruzzo", "14": "Molise",
+	"15": "Campania", "16": "Puglia", "17": "Basilicata", "18": "Calabria",
+	"19": "Sicilia", "20": "Sardegna",
+}
+
+// regioneDallaLocalizzazione ricava la regione dalle righe di localizzazione.
+// Un CUP puo' ricadere in piu' comuni: si prende la prima regione riconosciuta,
+// che e' quella da cui partire per i dataset regionali.
+func regioneDallaLocalizzazione(righe []map[string]any) string {
+	for _, riga := range righe {
+		if r := regioniISTAT[strings.TrimSpace(testo(riga["Codice Regione"]))]; r != "" {
+			return r
+		}
+	}
+	return ""
+}
+
+// aggiungiCodiceISTAT concatena provincia e comune nel codice ISTAT a sei
+// cifre. Il dataset li pubblica separati e l'ordine giusto non e' ovvio.
+func aggiungiCodiceISTAT(riga map[string]any) {
+	provincia := strings.TrimSpace(testo(riga["Codice Provincia"]))
+	comune := strings.TrimSpace(testo(riga["Codice Comune"]))
+	if provincia == "" || comune == "" {
+		return
+	}
+	riga["Codice ISTAT Comune"] = provincia + comune
 }
 
 // regioneDalTitolare prova a dedurre la regione dal nome del titolare quando

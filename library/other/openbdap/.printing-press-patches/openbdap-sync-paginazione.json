@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "openbdap-sync-paginazione",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260917-200055-21d6873c",
+  "base_printing_press_version": "4.32.2",
+  "summary": "A regeneration must keep `catalogo-package-search` declared as paginated in `resourceSupportsPagination` and keep its `start`/`rows` pagination parameters in `determinePaginationDefaults`.",
+  "reason": "The profiler left both switches empty, so `sync` treated the CKAN `package_search` endpoint as unpaginated: it fetched a single page, stored 20 records and reported `success` with `errored: 0` and no warning. Measured on `--param q=comuni`, where the endpoint returns 43 datasets. The fallback parameter names the generated code uses when the switch is empty (`after`, `count`) are not the ones CKAN reads, so declaring pagination alone is not enough; the endpoint pages with `start` and `rows`. The portal's `count` field echoes the requested `rows` instead of the total, which is the same unreliable count the rest of this CLI works around, so the end of pagination can only be proven by a short page.",
+  "files": ["internal/cli/sync.go"],
+  "call_sites": ["resourceSupportsPagination(resource)", "determinePaginationDefaults(resource)"],
+  "validated_outcome": "'sync --resources catalogo-package-search --param q=comuni' stores 43 records instead of 20, matching the number of results the endpoint returns for that query with rows=100.",
+  "upstream_issue": ""
+}

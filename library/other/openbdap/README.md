@@ -420,7 +420,10 @@ Static request headers can be configured under `headers`; per-command header ove
 - **L'estrazione delle righe va in timeout** — Riduci la pagina: oltre 5000 righe per chiamata il servizio non risponde.
 - **La ricerca sul portale restituisce conteggi incoerenti** — Usa 'cerca', che interroga l'archivio locale: il campo count dell'API e' inaffidabile.
 - **Il download CSV non parte** — L'indirizzo http non funziona, serve https: la CLI lo forza gia'.
-- **cerca, serie, mop, novita, cup, cig, dossier o opere non restituiscono nulla** — L'archivio locale e' vuoto: lancia 'openbdap-pp-cli allinea'. La risposta lo dice anche nel campo nota.
+- **cerca, serie, mop, novita, cup, cig, dossier o opere non restituiscono nulla** — L'archivio locale e' vuoto: lancia 'openbdap-pp-cli allinea'. La risposta lo dice nel campo nota e nel booleano archivio_vuoto, che distingue "il codice non c'e'" da "non ho un archivio in cui cercarlo".
+- **Il CSV di scarica arriva con gli accenti corrotti** — Il portale serve il dump in latin-1; 'scarica' lo converte in UTF-8, e con --raw restituisce i byte originali.
+- **dossier non dice dove ricade l'opera** — La sezione 'localizzazione' c'e' dalla versione con la famiglia MOP omonima, e porta il codice ISTAT del comune a sei cifre.
+- **righe sembra restituire tutte le righe e invece ne restituisce 50** — E' il default di --limite: quando il risultato lo tocca, la risposta porta il totale vero in meta.nota e un avviso su stderr. Usa --tutte per averle tutte.
 - **campi non trova il campo cercato** — L'indice degli schemi si popola a parte: lancia 'openbdap-pp-cli campi --aggiorna --tema 172_opere-pubbliche'.
 
 ## Sources & Inspiration

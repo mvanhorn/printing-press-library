@@ -74,7 +74,11 @@ var famiglieMOP = map[string]string{
 }
 
 // famiglieMOPOrdinate e' l'ordine in cui il dossier interroga le famiglie.
-var famiglieMOPOrdinate = []string{"progetti", "pagamenti", "gare", "partecipanti", "piano-costi", "soggetti-titolari"}
+var famiglieMOPOrdinate = []string{"progetti", "localizzazione", "pagamenti", "gare", "partecipanti", "piano-costi", "soggetti-titolari"}
+
+// famiglieMOPNazionali elenca le famiglie pubblicate in un solo dataset per
+// tutta l'Italia: interrogarle con un filtro di regione non trova nulla.
+var famiglieMOPNazionali = map[string]bool{"localizzazione": true}
 
 func normalizza(s string) string {
 	return strings.ToLower(strings.TrimSpace(s))

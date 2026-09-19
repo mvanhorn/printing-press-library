@@ -87,7 +87,7 @@ func newNovelMopCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&regione, "regione", "", "limita la mappa a una regione")
-	cmd.Flags().StringVar(&famiglia, "famiglia", "", "limita la mappa a un ruolo: progetti, gare, partecipanti, pagamenti, piano-costi, soggetti-titolari")
+	cmd.Flags().StringVar(&famiglia, "famiglia", "", "limita la mappa a un ruolo: progetti, gare, partecipanti, pagamenti, piano-costi, soggetti-titolari, localizzazione")
 	cmd.Flags().StringVar(&dbPath, "db", defaultDBPath("openbdap-pp-cli"), "percorso dell'archivio locale")
 	return cmd
 }
@@ -104,10 +104,50 @@ type esitoFamiglia struct {
 
 // cercaNeiMOP interroga in parallelo i dataset MOP indicati, filtrando su una
 // colonna risolta per nome (per esempio "Codice CUP") in ciascun dataset.
+// concorrenzaMOP e' quante richieste restano aperte insieme verso il portale.
+// Le famiglie MOP sono pubblicate in ventuno dataset regionali: con sei alla
+// volta una ricerca per CIG costava quattordici ondate.
+const concorrenzaMOP = 12
+
+// colonneDelleFamiglie legge le colonne una volta per famiglia. I dataset
+// regionali di una stessa famiglia hanno colonne identiche, identificativi
+// compresi, quindi rileggerle per ognuno raddoppia le richieste senza
+// aggiungere nulla.
+func colonneDelleFamiglie(ctx context.Context, c *client.Client, datasets []dataset) map[string][]colonna {
+	primo := map[string]string{}
+	for _, d := range datasets {
+		if d.Famiglia == "" || d.ODataID == "" {
+			continue
+		}
+		if _, gia := primo[d.Famiglia]; !gia {
+			primo[d.Famiglia] = d.ODataID
+		}
+	}
+	condivise := make(map[string][]colonna, len(primo))
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	for fam, id := range primo {
+		wg.Add(1)
+		go func(fam, id string) {
+			defer wg.Done()
+			colonne, err := colonneDataset(ctx, c, id)
+			if err != nil {
+				return
+			}
+			mu.Lock()
+			condivise[fam] = colonne
+			mu.Unlock()
+		}(fam, id)
+	}
+	wg.Wait()
+	return condivise
+}
+
 func cercaNeiMOP(ctx context.Context, c *client.Client, datasets []dataset, nomeColonna, valore string, limite int) []esitoFamiglia {
+	condivise := colonneDelleFamiglie(ctx, c, datasets)
 	esiti := make([]esitoFamiglia, len(datasets))
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 6)
+	sem := make(chan struct{}, concorrenzaMOP)
 	for i, d := range datasets {
 		wg.Add(1)
 		go func(i int, d dataset) {
@@ -115,11 +155,15 @@ func cercaNeiMOP(ctx context.Context, c *client.Client, datasets []dataset, nome
 			sem <- struct{}{}
 			defer func() { <-sem }()
 			e := esitoFamiglia{Famiglia: d.Famiglia, Regione: d.Regione, Dataset: d.ODataID, Righe: make([]map[string]any, 0)}
-			colonne, err := colonneDataset(ctx, c, d.ODataID)
-			if err != nil {
-				e.Errore = err.Error()
-				esiti[i] = e
-				return
+			colonne, riusate := condivise[d.Famiglia]
+			if !riusate {
+				var err error
+				colonne, err = colonneDataset(ctx, c, d.ODataID)
+				if err != nil {
+					e.Errore = err.Error()
+					esiti[i] = e
+					return
+				}
 			}
 			col, ok := risolviColonna(colonne, nomeColonna)
 			if !ok {
@@ -127,8 +171,18 @@ func cercaNeiMOP(ctx context.Context, c *client.Client, datasets []dataset, nome
 				esiti[i] = e
 				return
 			}
-			filtro := filtroUguale(col.ID, valore)
-			righe, err := righeDataset(ctx, c, d.ODataID, colonne, filtro, nil, limite, 0)
+			righe, err := righeDataset(ctx, c, d.ODataID, colonne, filtroUguale(col.ID, valore), nil, limite, 0)
+			if err != nil && riusate {
+				// Le colonne prese in prestito dalla famiglia potrebbero non
+				// valere per questo dataset: prima di dichiarare l'errore si
+				// riprova con le sue.
+				if proprie, errColonne := colonneDataset(ctx, c, d.ODataID); errColonne == nil {
+					if colProprio, okProprio := risolviColonna(proprie, nomeColonna); okProprio {
+						colonne = proprie
+						righe, err = righeDataset(ctx, c, d.ODataID, proprie, filtroUguale(colProprio.ID, valore), nil, limite, 0)
+					}
+				}
+			}
 			if err != nil {
 				e.Errore = err.Error()
 				esiti[i] = e

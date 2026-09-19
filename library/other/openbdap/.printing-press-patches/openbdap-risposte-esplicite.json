@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "openbdap-risposte-esplicite",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260917-200055-21d6873c",
+  "base_printing_press_version": "4.32.2",
+  "summary": "A regeneration must keep three explicit signals: a truncation note when 'righe', 'cup', 'cig' or a 'dossier' section stops exactly on --limite (with the true total from contaRighe in 'righe'), the archivio_vuoto boolean beside the empty-archive note, and the archive path resolved at run time so --home moves it.",
+  "reason": "Each of the three is a silent wrong answer. A result that stops on the default --limite 50 is indistinguishable from a complete one, which is the same trap as the API's implicit $top that this CLI exists to solve; the note travels in meta, not in results, so consumers reading results as an array keep working. An empty archive and a code that is genuinely absent from MOP both answer zero with exit 0, and the true negative is frequent (about half of CUPs are not in MOP), so a text note alone goes unnoticed. The --db default is computed when the command is built, before --home applies, so a cold test with --home silently read the real archive.",
+  "files": ["internal/cli/openbdap_comandi_base.go", "internal/cli/openbdap_opere.go", "internal/cli/openbdap_dossier.go"],
+  "call_sites": ["printJSONConNota(cmd.OutOrStdout(), righe, flags, nota)", "famiglieTroncate(risultati, limite)", "percorsoArchivio(cmd, dbPath)"],
+  "validated_outcome": "'righe bda1676b... --dove \"Descrizione Titolare~COMUNE DI PALERMO\" --agent' returns 50 rows with meta.nota reporting 347 total; '--home <vuota> cig 57106934F1 --agent' returns archivio_vuoto true.",
+  "upstream_issue": ""
+}

@@ -1106,6 +1106,16 @@ func cursorPageHasContinuation(cursorType string, hasMore bool, nextCursor strin
 // Values are detected from the API spec by the profiler at generation time.
 func determinePaginationDefaults(resource string) paginationDefaults {
 	switch resource {
+	case "catalogo-package-search":
+		// CKAN pagina package_search con start e rows. Il profiler ha lasciato
+		// lo switch vuoto, quindi senza questo caso il sync usa i nomi di
+		// ripiego (after/count), che il portale ignora.
+		return paginationDefaults{
+			cursorParam: "start",
+			cursorType:  "offset",
+			limitParam:  "rows",
+			limit:       100,
+		}
 	}
 	return paginationDefaults{
 		cursorParam:    "after",
@@ -1118,6 +1128,10 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 
 func resourceSupportsPagination(resource string) bool {
 	switch resource {
+	case "catalogo-package-search":
+		// Senza questo caso il sync si ferma alla prima pagina e dichiara
+		// success con venti record, senza errore e senza avviso.
+		return true
 	}
 	return false
 }

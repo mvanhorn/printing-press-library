@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "openbdap-scarica-utf8",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260917-200055-21d6873c",
+  "base_printing_press_version": "4.32.2",
+  "summary": "A regeneration must keep `scarica` converting the dump to UTF-8 by default, deciding the encoding on a whole peeked block rather than the first non-ASCII byte, deferring the decision when a sequence is cut by the buffer boundary, passing an already-UTF-8 stream through untouched, and keeping --raw for the portal's original bytes.",
+  "reason": "The portal serves the CSV dump in latin-1 (verified: iconv -f UTF-8 fails at byte 129 of the Valle d'Aosta dump) while the OData path of the same CLI returns clean UTF-8. Two encodings depending on the command is a silent trap: a pipeline that reads the CSV without iconv carries corrupted accented place names to the end of the analysis, and a warning on stderr is read only by whoever is watching the terminal. The conversion is streamed, so dumps of hundreds of megabytes keep working, and --raw stays available for byte-exact copies. The decision looks at the whole peeked block because a single high byte can form a valid UTF-8 sequence by accident, and a sequence cut at the end of the buffer is not an invalid sequence: the reader then consumes only the ASCII before it and looks again with the buffer refilled.",
+  "files": [
+    "internal/cli/openbdap_scarica.go"
+  ],
+  "call_sites": [
+    "nuovoLettoreUTF8(resp.Body)",
+    "dichiaraUTF8(resp.Header.Get(\"Content-Type\"))"
+  ],
+  "validated_outcome": "'scarica 32838eab-4cdf-4759-ad75-1a090ed0a02e --output x.csv' passes iconv -f UTF-8 and is byte-identical to 'iconv -f ISO-8859-1' on the same dump; with --raw the file is latin-1 as before. Unit tests cover the buffer-boundary case (a UTF-8 sequence starting in the last bytes of the peek), a latin-1 prefix that forms a valid UTF-8 sequence by accident, and a truncated tail at end of stream.",
+  "upstream_issue": ""
+}

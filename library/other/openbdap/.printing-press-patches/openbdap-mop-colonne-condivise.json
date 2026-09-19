@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "openbdap-mop-colonne-condivise",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260917-200055-21d6873c",
+  "base_printing_press_version": "4.32.2",
+  "summary": "A regeneration must keep cercaNeiMOP reading the column schema once per MOP family instead of once per regional dataset, falling back to the dataset's own columns when a borrowed schema makes the row query fail.",
+  "reason": "A search by CIG hits twenty-one gare datasets plus twenty-one partecipanti datasets, and each one used to cost two requests, one for the obfuscated column ids and one for the rows. The regional datasets of a family have identical column sets, identifiers included (verified across all forty-two), so the schema call is pure duplication: dropping it halves the traffic (9.4s to 4.9s with pacing disabled). The per-dataset fallback keeps the result correct if a partition ever diverges.",
+  "files": ["internal/cli/openbdap_mop.go"],
+  "call_sites": ["colonneDelleFamiglie(ctx, c, datasets)"],
+  "validated_outcome": "'cig 57106934F1 --no-cache' returns the same single result as before in 18.4s instead of 23.3s, and 4.9s instead of 9.4s with --rate-limit 0.",
+  "upstream_issue": ""
+}

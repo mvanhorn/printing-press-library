@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "openbdap-mop-localizzazione",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260917-200055-21d6873c",
+  "base_printing_press_version": "4.32.2",
+  "summary": "A regeneration must keep the MOP localizzazione family wired: listed in the --famiglia help, present in famiglieMOPOrdinate, queried by 'dossier' without a region filter because its dataset is national, carrying the six-digit ISTAT municipality code, and used as the region resolver before the fallback that guesses the region from the holder's name.",
+  "reason": "The Localizzazione Geografica Opere Pubbliche dataset answers the most frequent question about a CUP, where the work is located, and 'dossier' had no section for it. It also carries Codice Regione ISTAT, which resolves the region from data instead of the previous heuristic (regioneDalTitolare) that searches for a region name inside Descrizione Titolare: that match fails for most municipalities (COMUNE DI PALERMO resolved to nothing), so the fallback used to fan out over all twenty-one regional partitions. The dataset is not partitioned by region, so filtering it by region returns nothing.",
+  "files": ["internal/cli/openbdap_catalogo.go", "internal/cli/openbdap_dossier.go", "internal/cli/openbdap_mop.go", "internal/cli/openbdap_comandi_base.go"],
+  "call_sites": ["datasetMOP(elenco, \"localizzazione\", \"\")", "regioneDallaLocalizzazione(dossier.Sezioni[\"localizzazione\"])", "aggiungiCodiceISTAT(r)"],
+  "validated_outcome": "'dossier I77H11000120009 --agent' returns the localizzazione section with Codice ISTAT Comune 007058 and regione 'Valle d'Aosta' without regione_dedotta; 'dossier D76E18000090001' (COMUNE DI PALERMO) now resolves Sicilia instead of scanning every partition.",
+  "upstream_issue": ""
+}
