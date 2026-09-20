@@ -5,6 +5,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -239,11 +240,50 @@ func TestManagedCatalogRejectsNon2xxWithoutRetry(t *testing.T) {
 	if err := installManagedPelotonBearer(c); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := c.Get(context.Background(), "/catalog", nil); err == nil || !strings.Contains(err.Error(), "must be 2xx") {
+	if _, err := c.Get(context.Background(), "/catalog", nil); err == nil || !strings.Contains(err.Error(), "must not be a redirect") {
 		t.Fatalf("unexpected catalog error: %v", err)
 	}
 	if hits != 1 {
 		t.Fatalf("catalog calls=%d, want 1", hits)
+	}
+}
+
+// TestManagedCatalogPreservesRealStatusCodeFor4xx guards a fix for a live
+// gap found investigating a stale-refresh-token report: an earlier version
+// of pelotonTwoXXRoundTripper masked every non-2xx response (redirects and
+// ordinary 4xx/5xx API errors alike) into a generic "must be 2xx" error,
+// discarding the real status code before client.Client.do() could build
+// its usual *client.APIError. tools.go's status-specific error messages
+// (permission denied, auth failed, ...) match on strings.Contains(err,
+// "HTTP 403") and siblings -- with the mask in place those branches could
+// never fire for any managed Peloton request, regardless of what Peloton's
+// real API actually returned. Only 3xx (the shape the roundtripper exists
+// to catch, since do()'s own success check incorrectly treats a 3xx as
+// success too) should still be intercepted.
+func TestManagedCatalogPreservesRealStatusCodeFor4xx(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "managed-access", RefreshToken: "managed-refresh", ExpiresAt: oauthNow().Add(time.Hour)}); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte(`{"error":"expired token"}`))
+	}))
+	defer server.Close()
+	c := client.New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	if err := installManagedPelotonBearer(c); err != nil {
+		t.Fatal(err)
+	}
+	_, err := c.Get(context.Background(), "/workouts", nil)
+	if err == nil {
+		t.Fatal("expected an error for a 403 response")
+	}
+	if !strings.Contains(err.Error(), "HTTP 403") {
+		t.Fatalf("expected the real status code to survive (tools.go matches on \"HTTP 403\"), got: %v", err)
+	}
+	var apiErr *client.APIError
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusForbidden {
+		t.Fatalf("expected a *client.APIError with StatusCode 403, got: %v", err)
 	}
 }
 
@@ -413,5 +453,95 @@ func TestManagedBearerRefreshPreservesCachedSessionID(t *testing.T) {
 	bundle, err := loadOAuthBundle()
 	if err != nil || bundle.SessionID != "kept-session" {
 		t.Fatalf("bundle=%+v err=%v path=%s", bundle, err, path)
+	}
+}
+
+// TestManagedPelotonAccessTokenFallsBackToBootstrapWhenRefreshTokenIsDead
+// guards the fix for a live report: a container's refresh_token had gone
+// permanently invalid (provider-side rotation from concurrent CLI usage
+// under the same account, most likely), and every call failed with
+// "managed Peloton OAuth request failed with HTTP 403" for over a week —
+// with PELOTON_OAUTH_USERNAME/PASSWORD configured, a fresh login could
+// have recovered automatically, but the old code only ever tried
+// bootstrapPelotonToken() when the bundle had no refresh_token at all, not
+// when a refresh attempt failed. A dead refresh_token now falls back to a
+// fresh bootstrap login when one is possible.
+func TestManagedPelotonAccessTokenFallsBackToBootstrapWhenRefreshTokenIsDead(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "expired", RefreshToken: "dead-refresh", ExpiresAt: oauthNow().Add(-time.Minute)}); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PELOTON_OAUTH_USERNAME", "fixture-user")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "fixture-password")
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("parsing token request: %v", err)
+		}
+		if r.Form.Get("grant_type") == "refresh_token" {
+			w.WriteHeader(http.StatusForbidden)
+			_, _ = w.Write([]byte(`{"error":"invalid_grant"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"access_token":"bootstrapped-after-dead-refresh","refresh_token":"fresh-refresh","expires_in":3600}`))
+	}))
+	defer server.Close()
+	oauthHTTPClient, oauthTokenURL = server.Client(), server.URL
+
+	got, err := managedPelotonAccessToken()
+	if err != nil || got != "bootstrapped-after-dead-refresh" {
+		t.Fatalf("token=%q err=%v", got, err)
+	}
+	bundle, err := loadOAuthBundle()
+	if err != nil || bundle.RefreshToken != "fresh-refresh" {
+		t.Fatalf("bundle=%+v err=%v", bundle, err)
+	}
+}
+
+// TestManagedPelotonAccessTokenReturnsOriginalRefreshErrorWithoutBootstrapCreds
+// guards the exact scenario from the live report: no
+// PELOTON_OAUTH_USERNAME/PASSWORD configured at all, so there is no
+// automatic recovery possible — the caller must see the original,
+// diagnostic refresh failure (not a generic "bootstrap credentials
+// unavailable" that would obscure what actually failed).
+func TestManagedPelotonAccessTokenReturnsOriginalRefreshErrorWithoutBootstrapCreds(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "expired", RefreshToken: "dead-refresh", ExpiresAt: oauthNow().Add(-time.Minute)}); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte(`{"error":"invalid_grant"}`))
+	}))
+	defer server.Close()
+	oauthHTTPClient, oauthTokenURL = server.Client(), server.URL
+
+	_, err := managedPelotonAccessToken()
+	if err == nil || !strings.Contains(err.Error(), "HTTP 403") {
+		t.Fatalf("expected the original refresh failure (HTTP 403) to survive with no bootstrap creds configured, got: %v", err)
+	}
+}
+
+// TestManagedPelotonAccessTokenKeepsOriginalRefreshErrorWhenBootstrapAlsoFails
+// guards the case where bootstrap credentials are configured but are
+// themselves wrong (or Peloton also rejects them) — the more diagnostic
+// original refresh error should survive, not get replaced by the
+// bootstrap attempt's own failure.
+func TestManagedPelotonAccessTokenKeepsOriginalRefreshErrorWhenBootstrapAlsoFails(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "expired", RefreshToken: "dead-refresh", ExpiresAt: oauthNow().Add(-time.Minute)}); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PELOTON_OAUTH_USERNAME", "fixture-user")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "fixture-password")
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte(`{"error":"invalid_grant"}`))
+	}))
+	defer server.Close()
+	oauthHTTPClient, oauthTokenURL = server.Client(), server.URL
+
+	_, err := managedPelotonAccessToken()
+	if err == nil || !strings.Contains(err.Error(), "HTTP 403") {
+		t.Fatalf("expected the original refresh failure to survive when bootstrap also fails, got: %v", err)
 	}
 }
