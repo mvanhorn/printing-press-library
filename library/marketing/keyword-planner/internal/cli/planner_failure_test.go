@@ -65,7 +65,7 @@ func TestPlannerCollectorFailurePreservesCommittedPages(t *testing.T) {
 			}))
 			defer server.Close()
 			client := keywordapi.NewClient(keywordapi.Config{
-				AccessToken: "test-access-fixture", DeveloperToken: "test-developer-fixture",
+				AccessToken: "test-access-fixture",
 				CustomerID: "1234567890", BaseURL: server.URL, HTTPClient: server.Client(),
 				RateLockDir: t.TempDir(), MinRequestInterval: time.Nanosecond,
 				Limiter: cliutil.NewAdaptiveLimiter(1000), MaxAttempts: 1,

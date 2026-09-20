@@ -61,10 +61,9 @@ var accountPathPattern = regexp.MustCompile("^/v25/customers/([0-9]+(?:-[0-9]+)*
 // BaseURL and HTTPClient are intended for test injection. The CLI must not
 // expose arbitrary endpoint overrides to users.
 type Config struct {
-	ClientID       string
-	ClientSecret   string
-	RefreshToken   string
-	DeveloperToken string
+	ClientID     string
+	ClientSecret string
+	RefreshToken string
 
 	CustomerID      string
 	LoginCustomerID string
@@ -152,7 +151,6 @@ func LoadConfigWithDefault(envPath, defaultPath string) (Config, error) {
 	cfg.ClientID = values["GOOGLE_ADS_CLIENT_ID"]
 	cfg.ClientSecret = values["GOOGLE_ADS_CLIENT_SECRET"]
 	cfg.RefreshToken = values["GOOGLE_ADS_REFRESH_TOKEN"]
-	cfg.DeveloperToken = values["GOOGLE_ADS_DEVELOPER_TOKEN"]
 	cfg.LoginCustomerID = values["GOOGLE_ADS_LOGIN_CUSTOMER_ID"]
 	cfg.CustomerID = values["GOOGLE_ADS_CUSTOMER_ID"]
 	return cfg, nil
@@ -209,7 +207,6 @@ var configEnvNames = []string{
 	"GOOGLE_ADS_CLIENT_ID",
 	"GOOGLE_ADS_CLIENT_SECRET",
 	"GOOGLE_ADS_REFRESH_TOKEN",
-	"GOOGLE_ADS_DEVELOPER_TOKEN",
 	"GOOGLE_ADS_LOGIN_CUSTOMER_ID",
 	"GOOGLE_ADS_CUSTOMER_ID",
 }
@@ -314,6 +311,7 @@ const (
 	CodeDeveloperTokenNotApproved ErrorCode = "developer_token_not_approved"
 	CodeDeveloperTokenProhibited  ErrorCode = "developer_token_prohibited"
 	CodeCustomerNotEnabled        ErrorCode = "customer_not_enabled"
+	CodeCloudProjectNotApproved   ErrorCode = "cloud_project_not_approved_for_production"
 )
 
 // Error is the safe, typed error returned by this package. It contains no
@@ -380,21 +378,23 @@ func errorHint(code ErrorCode) string {
 	case CodeInvalidRequest:
 		return "check request fields, customer routing, and the read-only account query"
 	case CodeAuth:
-		return "check OAuth refresh-token validity and developer-token credentials"
+		return "check OAuth refresh-token validity and Cloud project API access"
 	case CodeUserPermissionDenied:
 		return "check the OAuth user's access to the operating customer and manager routing"
+	case CodeCloudProjectNotApproved:
+		return "apply for production API access in the Google Cloud project that owns the OAuth client; Planner methods require Basic or Standard access"
 	case CodeDeveloperTokenNotApproved:
-		return "check the developer-token access level and permitted Google Ads use"
+		return "check the OAuth client Cloud project access level and permitted Google Ads use"
 	case CodeDeveloperTokenProhibited:
-		return "the developer token is prohibited for this API; stop and inspect its access status"
+		return "stop and inspect API access for the Google Cloud project that owns the OAuth client"
 	case CodeCustomerNotEnabled:
 		return "enable the operating customer for Google Ads API access or choose an approved target"
 	case CodeAccessDenied:
-		return "check customer permissions, manager routing, and developer-token access"
+		return "check customer permissions, manager routing, and Cloud project API access"
 	case CodeAPIVersion:
 		return "use the pinned v25 REST endpoint and refresh the Discovery artifact before changing versions"
 	case CodeDailyQuota:
-		return "stop retries and wait for the developer-token daily quota window"
+		return "stop retries and wait for the Cloud project daily quota window"
 	case CodeRateLimit:
 		return "the per-customer request rate was exhausted; bounded retries have stopped"
 	case CodeUpstream5xx:
@@ -431,7 +431,7 @@ func exitCodeFor(code ErrorCode) int {
 	case CodeUpstream5xx, CodeUpstream, CodeDailyQuota, CodeRateLimit:
 		return 5
 	case CodeAccessDenied, CodeUserPermissionDenied, CodeDeveloperTokenNotApproved,
-		CodeDeveloperTokenProhibited, CodeCustomerNotEnabled, CodeAPIVersion:
+		CodeDeveloperTokenProhibited, CodeCustomerNotEnabled, CodeCloudProjectNotApproved, CodeAPIVersion:
 		return 6
 	case CodeResponseMalformed, CodeResponseCallback, CodeCredentialEcho:
 		return 7
@@ -594,9 +594,6 @@ func (c *Client) Call(ctx context.Context, method, path string, body []byte, cal
 	callCtx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
 	defer cancel()
 
-	if strings.TrimSpace(c.cfg.DeveloperToken) == "" {
-		return Response{}, newError(CodeCredentialsMissing, 0, method, path, 0)
-	}
 	token, err := c.getAccessToken(callCtx)
 	if err != nil {
 		return Response{}, err
@@ -728,7 +725,6 @@ func (c *Client) credentialEcho(body []byte, accessToken string) bool {
 		c.cfg.ClientID,
 		c.cfg.ClientSecret,
 		c.cfg.RefreshToken,
-		c.cfg.DeveloperToken,
 		c.cfg.AccessToken,
 		accessToken,
 	} {
@@ -851,7 +847,6 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body []byt
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", "Bearer "+accessToken)
-	request.Header.Set("developer-token", c.cfg.DeveloperToken)
 	if strings.TrimSpace(c.cfg.LoginCustomerID) != "" {
 		request.Header.Set("login-customer-id", normalizeCustomerID(c.cfg.LoginCustomerID))
 	}
@@ -1022,6 +1017,8 @@ func tokenErrorCode(body []byte) ErrorCode {
 
 func classifyHTTPError(status int, body []byte, method, path string, attempt int) error {
 	switch googleAdsFailureCode(body) {
+	case "CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION":
+		return newError(CodeCloudProjectNotApproved, status, method, path, attempt)
 	case "USER_PERMISSION_DENIED":
 		return newError(CodeUserPermissionDenied, status, method, path, attempt)
 	case "DEVELOPER_TOKEN_NOT_APPROVED":
@@ -1068,6 +1065,7 @@ func classifyHTTPError(status int, body []byte, method, path string, attempt int
 func googleAdsFailureCode(body []byte) string {
 	text := strings.ToUpper(string(body))
 	for _, code := range []string{
+		"CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION",
 		"DEVELOPER_TOKEN_NOT_APPROVED",
 		"DEVELOPER_TOKEN_PROHIBITED",
 		"USER_PERMISSION_DENIED",
@@ -1090,7 +1088,8 @@ func googleAdsFailureCode(body []byte) string {
 
 func isPermanentGoogleAdsCode(code string) bool {
 	switch code {
-	case "USER_PERMISSION_DENIED",
+	case "CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION",
+		"USER_PERMISSION_DENIED",
 		"DEVELOPER_TOKEN_NOT_APPROVED",
 		"DEVELOPER_TOKEN_PROHIBITED",
 		"CUSTOMER_NOT_ENABLED",

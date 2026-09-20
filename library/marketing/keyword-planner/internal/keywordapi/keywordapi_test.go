@@ -58,7 +58,6 @@ func newTestClient(t *testing.T, handlers testHandlers) (*Client, *httptest.Serv
 		ClientID:           "client-id",
 		ClientSecret:       "client-secret",
 		RefreshToken:       "refresh-token",
-		DeveloperToken:     "developer-token",
 		CustomerID:         "1234567890",
 		LoginCustomerID:    "0987654321",
 		BaseURL:            server.URL,
@@ -81,7 +80,6 @@ func TestLoadConfigFileAndEnvironmentOverride(t *testing.T) {
 		"GOOGLE_ADS_CLIENT_ID=file-client",
 		"GOOGLE_ADS_CLIENT_SECRET=file-secret",
 		"GOOGLE_ADS_REFRESH_TOKEN=file-refresh",
-		"GOOGLE_ADS_DEVELOPER_TOKEN=file-developer",
 		"GOOGLE_ADS_LOGIN_CUSTOMER_ID=file-login",
 		"GOOGLE_ADS_CUSTOMER_ID=file-customer",
 		"UNRELATED_SHOULD_BE_IGNORED=do-not-load",
@@ -100,7 +98,7 @@ func TestLoadConfigFileAndEnvironmentOverride(t *testing.T) {
 		t.Fatalf("environment override not applied: client=%q customer=%q", cfg.ClientID, cfg.CustomerID)
 	}
 	if cfg.ClientSecret != "file-secret" || cfg.RefreshToken != "file-refresh" ||
-		cfg.DeveloperToken != "file-developer" || cfg.LoginCustomerID != "file-login" {
+		cfg.LoginCustomerID != "file-login" {
 		t.Fatalf("selected env file values not loaded: %#v", cfg)
 	}
 }
@@ -111,7 +109,6 @@ func TestLoadConfigUsesEnvironmentFileFallback(t *testing.T) {
 		"GOOGLE_ADS_CLIENT_ID=fallback-client",
 		"GOOGLE_ADS_CLIENT_SECRET=fallback-secret",
 		"GOOGLE_ADS_REFRESH_TOKEN=fallback-refresh",
-		"GOOGLE_ADS_DEVELOPER_TOKEN=fallback-developer",
 		"GOOGLE_ADS_CUSTOMER_ID=1234567890",
 	}, "\n")), 0o600); err != nil {
 		t.Fatal(err)
@@ -251,7 +248,7 @@ func TestCallExactPathHeadersAndNestedBody(t *testing.T) {
 			if got := r.Header.Get("Authorization"); got != "Bearer access-token" {
 				t.Errorf("authorization = %q", got)
 			}
-			if got := r.Header.Get("developer-token"); got != "developer-token" {
+			if got := r.Header.Get("developer-token"); got != "" {
 				t.Errorf("developer-token = %q", got)
 			}
 			if got := r.Header.Get("login-customer-id"); got != "0987654321" {
@@ -477,7 +474,6 @@ func TestNoResponseFailureCallsCallback(t *testing.T) {
 		ClientID:           "client-id",
 		ClientSecret:       "client-secret",
 		RefreshToken:       "refresh-token",
-		DeveloperToken:     "developer-token",
 		CustomerID:         "1234567890",
 		BaseURL:            "http://example.invalid",
 		TokenURL:           "http://example.invalid/token",
@@ -550,7 +546,6 @@ func TestOAuthRedirectsAreNotFollowedOrPersisted(t *testing.T) {
 				ClientID:           "client-id",
 				ClientSecret:       "client-secret",
 				RefreshToken:       "refresh-token",
-				DeveloperToken:     "developer-token",
 				CustomerID:         "1234567890",
 				BaseURL:            source.URL,
 				TokenURL:           source.URL + "/token",
@@ -606,7 +601,6 @@ func TestAdsRedirectsPreserveRaw3xxReceiptWithoutFollowing(t *testing.T) {
 			injected := source.Client()
 			client := NewClient(Config{
 				AccessToken:        "access-token",
-				DeveloperToken:     "developer-token",
 				CustomerID:         "1234567890",
 				BaseURL:            source.URL,
 				HTTPClient:         injected,

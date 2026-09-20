@@ -32,7 +32,6 @@ func plannerAgentAuth() agentContextAuth {
 			{Name: "GOOGLE_ADS_CLIENT_ID", Kind: "auth_flow_input", Required: true, Description: "OAuth client associated with the approved refresh grant."},
 			{Name: "GOOGLE_ADS_CLIENT_SECRET", Kind: "auth_flow_input", Required: true, Sensitive: true, Description: "OAuth client secret; loaded only for live calls."},
 			{Name: "GOOGLE_ADS_REFRESH_TOKEN", Kind: "auth_flow_input", Required: true, Sensitive: true, Description: "Approved AdWords refresh grant; access tokens stay in memory."},
-			{Name: "GOOGLE_ADS_DEVELOPER_TOKEN", Kind: "per_call", Required: true, Sensitive: true, Description: "Google Ads developer-token header."},
 			{Name: "GOOGLE_ADS_CUSTOMER_ID", Kind: "per_call", Required: true, Description: "Separately verified operating customer ID."},
 			{Name: "GOOGLE_ADS_LOGIN_CUSTOMER_ID", Kind: "per_call", Description: "Optional manager login context; distinct from the operating target."},
 		},

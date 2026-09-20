@@ -1,5 +1,8 @@
 # Google Keyword Planner CLI
 
+Created by [@vieGPT](https://github.com/vieGPT) (Max Michel).
+Contributors: [@meoyawn](https://github.com/meoyawn) (Adel Nizamutdinov).
+
 **Turn Google Keyword Planner reads into an immutable local evidence portfolio for offline research and safe warehouse handoff.**
 
 The CLI collects keyword ideas and historical monthly metrics through Google's read-only v25 REST methods, preserving every raw response, request scope, coverage state, and supplied bid field in SQLite. Use the portfolio commands to trace a number to its receipt, compare preserved snapshots, keep close-variant lineage visible, and calculate policy-safe descriptive statistics offline. Planner search-volume and advertiser-bid fields are vendor estimates for subject research, not measured YouTube demand, YouTube RPM, or a revenue forecast.
@@ -95,7 +98,9 @@ These local evidence views extend the direct API with receipt, coverage, lineage
 
 ## Authentication
 
-Authentication uses the OAuth refresh-token flow with GOOGLE_ADS_CLIENT_ID, GOOGLE_ADS_CLIENT_SECRET, GOOGLE_ADS_REFRESH_TOKEN, and GOOGLE_ADS_DEVELOPER_TOKEN loaded from ~/.env. GOOGLE_ADS_LOGIN_CUSTOMER_ID is the optional manager login header, while GOOGLE_ADS_CUSTOMER_ID is the separately resolved operating account; the approved OAuth grant carries the required AdWords scope, the CLI refreshes a short-lived access token in memory, and sends Authorization: Bearer plus developer-token and, when applicable, login-customer-id. Token responses are never stored in the portfolio, and an invalid grant, permission or developer-token error, or customer routing failure is an account-setup problem rather than a reason to loop retries.
+Authentication uses the OAuth refresh-token flow with `GOOGLE_ADS_CLIENT_ID`, `GOOGLE_ADS_CLIENT_SECRET`, and `GOOGLE_ADS_REFRESH_TOKEN` loaded from `~/.env`. The approved grant must carry the AdWords scope. The CLI refreshes a short-lived access token in memory and sends `Authorization: Bearer`. `GOOGLE_ADS_CUSTOMER_ID` selects the operating account; `GOOGLE_ADS_LOGIN_CUSTOMER_ID` supplies optional manager routing. Token responses never enter the portfolio. An invalid grant, permission error, or customer routing failure is an account-setup problem, not a reason to repeat the same request.
+
+Google [retired developer tokens on September 9, 2026](https://developers.google.com/google-ads/api/docs/api-policy/developer-token). The CLI no longer loads or sends `GOOGLE_ADS_DEVELOPER_TOKEN`. API access belongs to the Google Cloud project that owns the OAuth client. Enable Google Ads API in that project and obtain [Basic or Standard access](https://developers.google.com/google-ads/api/docs/api-policy/access-levels): Explorer access excludes the Keyword Planner methods. New Basic access applications require completed brand verification. Browser cookies are not used.
 
 ## Configuration
 
@@ -106,7 +111,6 @@ Planner credentials default to `~/.env`, a private regular file. Environment bin
 | `GOOGLE_ADS_CLIENT_ID` | OAuth application's client ID |
 | `GOOGLE_ADS_CLIENT_SECRET` | OAuth application's protected client secret |
 | `GOOGLE_ADS_REFRESH_TOKEN` | Approved grant used to obtain an in-memory access token |
-| `GOOGLE_ADS_DEVELOPER_TOKEN` | Google Ads developer access token |
 | `GOOGLE_ADS_CUSTOMER_ID` | Operating customer; `--customer-id` overrides it |
 | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | Optional manager login context, resolved separately |
 | `KEYWORD_PLANNER_ENV_FILE` | Override credential-file location; `--env-file` takes precedence |
@@ -128,7 +132,7 @@ Every response is saved before decoding. Every repeat creates a new snapshot. Er
 ## Troubleshooting
 
 - `invalid_grant`: the grant needs inspection or renewed authorization; repeating the same invalid grant will not repair it.
-- Permission, developer-token, or customer errors: inspect the separately configured target and manager context, and the provider's specific error code. Do not create or link accounts automatically.
+- Permission, Cloud project access, or customer errors: inspect the separately configured target and manager context, and the provider's specific error code. Do not create or link accounts automatically.
 - Quota errors: use bounded retries only for transient throttling. Local pacing coordinates processes on this host; it does not coordinate other hosts or represent account-wide remaining quota.
 - Empty data: check coverage and exact request scope. A valid empty response has no inferred suppression cause.
 - No August data in an early September response: inspect coverage; a closed month need not already be available from Google.
@@ -136,7 +140,7 @@ Every response is saved before decoding. Every repeat creates a new snapshot. Er
 ### API-specific
 - **OAuth returns invalid_grant** — Inspect the approved OAuth grant and protected bindings in `~/.env`; after correcting the grant, run `keyword-planner-pp-cli doctor --live`. Do not retry the same invalid grant.
 - **USER_PERMISSION_DENIED or CUSTOMER_NOT_ENABLED** — Verify that GOOGLE_ADS_CUSTOMER_ID names the operating account and GOOGLE_ADS_LOGIN_CUSTOMER_ID is only the manager context, then rerun `keyword-planner-pp-cli doctor --live` after access is corrected.
-- **DEVELOPER_TOKEN_NOT_APPROVED or DEVELOPER_TOKEN_PROHIBITED** — Use a developer token approved for the operating account and rerun `keyword-planner-pp-cli doctor --live`; do not switch providers or retry a permanently rejected token.
+- **CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION** — Check API access in the Google Cloud project that owns the OAuth client. Obtain Basic or Standard access for Planner methods, then rerun `keyword-planner-pp-cli doctor --live`. An Ads account or an OAuth grant alone does not provide API access.
 - **A request uses an invalid language or geo resource name** — Pass a verified `languageConstants/<id>` and `geoTargetConstants/<id>` value; resolve labels before the live call.
 - **The Planner request is rate-limited or daily quota is exhausted** — Keep Planner calls at no more than one request per second per operating customer, allow bounded transient backoff, and stop on persistent daily-quota errors.
 - **The requested range ends in the current or a future month** — Set the end month to a closed UTC calendar month; the CLI rejects open and future ranges before network activity.

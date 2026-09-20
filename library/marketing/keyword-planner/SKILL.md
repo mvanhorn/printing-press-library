@@ -41,7 +41,9 @@ Do not use this press for campaign or bid changes, account administration, Googl
 
 ## Auth Setup
 
-Authentication uses the OAuth refresh-token flow with GOOGLE_ADS_CLIENT_ID, GOOGLE_ADS_CLIENT_SECRET, GOOGLE_ADS_REFRESH_TOKEN, and GOOGLE_ADS_DEVELOPER_TOKEN loaded from ~/.env. GOOGLE_ADS_LOGIN_CUSTOMER_ID is the optional manager login header, while GOOGLE_ADS_CUSTOMER_ID is the separately resolved operating account; the approved OAuth grant carries the required AdWords scope, the CLI refreshes a short-lived access token in memory, and sends Authorization: Bearer plus developer-token and, when applicable, login-customer-id. Token responses are never stored in the portfolio, and an invalid grant, permission or developer-token error, or customer routing failure is an account-setup problem rather than a reason to loop retries.
+Authentication uses the OAuth refresh-token flow with `GOOGLE_ADS_CLIENT_ID`, `GOOGLE_ADS_CLIENT_SECRET`, and `GOOGLE_ADS_REFRESH_TOKEN` loaded from `~/.env`. The approved grant must carry the AdWords scope. The CLI refreshes a short-lived access token in memory and sends `Authorization: Bearer`. `GOOGLE_ADS_CUSTOMER_ID` selects the operating account; `GOOGLE_ADS_LOGIN_CUSTOMER_ID` supplies optional manager routing. Token responses never enter the portfolio. An invalid grant, permission error, or customer routing failure is an account-setup problem, not a reason to repeat the same request.
+
+Google [retired developer tokens on September 9, 2026](https://developers.google.com/google-ads/api/docs/api-policy/developer-token). The CLI no longer loads or sends `GOOGLE_ADS_DEVELOPER_TOKEN`. API access belongs to the Google Cloud project that owns the OAuth client. Enable Google Ads API in that project and obtain [Basic or Standard access](https://developers.google.com/google-ads/api/docs/api-policy/access-levels): Explorer access excludes the Keyword Planner methods. New Basic access applications require completed brand verification. Browser cookies are not used.
 
 Run `keyword-planner-pp-cli doctor` to verify setup.
 
@@ -184,7 +186,6 @@ Live collection loads only the Google Ads bindings from `~/.env`, with explicit 
 | `GOOGLE_ADS_CLIENT_ID` | OAuth client for the approved grant |
 | `GOOGLE_ADS_CLIENT_SECRET` | OAuth client secret |
 | `GOOGLE_ADS_REFRESH_TOKEN` | Approved refresh grant carrying the AdWords scope |
-| `GOOGLE_ADS_DEVELOPER_TOKEN` | Google Ads developer-token header |
 | `GOOGLE_ADS_CUSTOMER_ID` | Explicit operating customer target |
 | `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | Optional manager login context |
 
@@ -201,7 +202,7 @@ Every response is saved before decoding. Every repeat creates a new snapshot. Er
 ## Troubleshooting
 
 - `invalid_grant`: the grant needs inspection or renewed authorization; repeating the same invalid grant will not repair it.
-- Permission, developer-token, or customer errors: inspect the separately configured target and manager context, and the provider's specific error code. Do not create or link accounts automatically.
+- Permission, Cloud project access, or customer errors: inspect the separately configured target and manager context, and the provider's specific error code. Do not create or link accounts automatically.
 - Quota errors: use bounded retries only for transient throttling. Local pacing coordinates processes on this host; it does not coordinate other hosts or represent account-wide remaining quota.
 - Empty data: check coverage and exact request scope. A valid empty response has no inferred suppression cause.
 - No August data in an early September response: inspect coverage; a closed month need not already be available from Google.

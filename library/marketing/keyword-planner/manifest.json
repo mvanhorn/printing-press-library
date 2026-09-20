@@ -18,7 +18,6 @@
         "GOOGLE_ADS_CLIENT_ID": "${user_config.google_ads_client_id}",
         "GOOGLE_ADS_CLIENT_SECRET": "${user_config.google_ads_client_secret}",
         "GOOGLE_ADS_CUSTOMER_ID": "${user_config.google_ads_customer_id}",
-        "GOOGLE_ADS_DEVELOPER_TOKEN": "${user_config.google_ads_developer_token}",
         "GOOGLE_ADS_LOGIN_CUSTOMER_ID": "${user_config.google_ads_login_customer_id}",
         "GOOGLE_ADS_REFRESH_TOKEN": "${user_config.google_ads_refresh_token}",
         "KEYWORD_PLANNER_BASE_URL": "${user_config.keyword_planner_base_url}",
@@ -45,13 +44,6 @@
       "type": "string",
       "title": "GOOGLE_ADS_CUSTOMER_ID",
       "description": "Sets GOOGLE_ADS_CUSTOMER_ID for the Google Keyword Planner MCP server.",
-      "sensitive": true,
-      "required": true
-    },
-    "google_ads_developer_token": {
-      "type": "string",
-      "title": "GOOGLE_ADS_DEVELOPER_TOKEN",
-      "description": "Sets GOOGLE_ADS_DEVELOPER_TOKEN for the Google Keyword Planner MCP server.",
       "sensitive": true,
       "required": true
     },

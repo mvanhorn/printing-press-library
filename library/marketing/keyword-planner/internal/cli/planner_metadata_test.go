@@ -12,7 +12,7 @@ func TestPlannerAuthMetadataBindingContract(t *testing.T) {
 		t.Fatalf("wrong authentication metadata: %v", got)
 	}
 	auth := plannerAgentAuth()
-	if len(auth.EnvVars) != 6 {
+	if len(auth.EnvVars) != 5 {
 		t.Fatalf("got %d bindings", len(auth.EnvVars))
 	}
 	tests := []struct {
@@ -21,7 +21,6 @@ func TestPlannerAuthMetadataBindingContract(t *testing.T) {
 	}{
 		{"GOOGLE_ADS_CLIENT_SECRET", true, true},
 		{"GOOGLE_ADS_REFRESH_TOKEN", true, true},
-		{"GOOGLE_ADS_DEVELOPER_TOKEN", true, true},
 		{"GOOGLE_ADS_CUSTOMER_ID", true, false},
 		{"GOOGLE_ADS_LOGIN_CUSTOMER_ID", false, false},
 	}

@@ -70,7 +70,7 @@ func TestPlannerLiveConfigNormalizesEnvironmentIDsAndSharesRuntimeSettings(t *te
 	// value is consulted by the test.
 	for _, key := range []string{
 		"GOOGLE_ADS_CLIENT_ID", "GOOGLE_ADS_CLIENT_SECRET", "GOOGLE_ADS_REFRESH_TOKEN",
-		"GOOGLE_ADS_DEVELOPER_TOKEN", "GOOGLE_ADS_CUSTOMER_ID", "GOOGLE_ADS_LOGIN_CUSTOMER_ID",
+		"GOOGLE_ADS_CUSTOMER_ID", "GOOGLE_ADS_LOGIN_CUSTOMER_ID",
 	} {
 		t.Setenv(key, "fixture-value")
 	}
