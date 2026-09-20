@@ -846,7 +846,7 @@ func TestMCPToolPageResultTextArrayFieldHintHandlesResidualInstructorsArray(t *t
 	}
 
 	pageConfig := mcpPageConfig{CursorParam: "page", ArrayField: "data"}
-	text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "", nil, nil))
+	text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "", nil, nil, ""))
 
 	var envelope struct {
 		Data       []json.RawMessage `json:"data"`
@@ -890,7 +890,7 @@ func TestMCPToolPageResultTextRespectsExplicitSelectOfFirstPageOnlyField(t *test
 
 	summaryPresent := func(t *testing.T, selected map[string]bool) bool {
 		t.Helper()
-		text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "some-cursor", selected, nil))
+		text := mcpTextContent(t, mcpToolPageResultText("GET", fixture, pageConfig, "some-cursor", selected, nil, ""))
 		var envelope struct {
 			Summary map[string]any `json:"summary"`
 		}
@@ -937,7 +937,7 @@ func TestMCPToolPageResultTextRecoversNextCursorFromPreSelectData(t *testing.T) 
 		CurrentPageNumberPath: "page",
 	}
 
-	withPreSelect := mcpTextContent(t, mcpToolPageResultText("GET", projected, pageConfig, "", nil, preSelect))
+	withPreSelect := mcpTextContent(t, mcpToolPageResultText("GET", projected, pageConfig, "", nil, preSelect, ""))
 	var withCursor struct {
 		NextCursor string `json:"next_cursor"`
 	}
@@ -948,7 +948,7 @@ func TestMCPToolPageResultTextRecoversNextCursorFromPreSelectData(t *testing.T) 
 		t.Fatalf("preSelectData should recover next_cursor for a select dropping show_next/page: %s", withPreSelect)
 	}
 
-	withoutPreSelect := mcpTextContent(t, mcpToolPageResultText("GET", projected, pageConfig, "", nil, nil))
+	withoutPreSelect := mcpTextContent(t, mcpToolPageResultText("GET", projected, pageConfig, "", nil, nil, ""))
 	var withoutCursor struct {
 		NextCursor string `json:"next_cursor"`
 	}
@@ -957,6 +957,68 @@ func TestMCPToolPageResultTextRecoversNextCursorFromPreSelectData(t *testing.T) 
 	}
 	if withoutCursor.NextCursor != "" {
 		t.Fatalf("this fixture should only recover next_cursor via preSelectData, not on its own: %s", withoutPreSelect)
+	}
+}
+
+// TestCursorLimitMismatchErrorRejectsDifferentLimit guards the fix for the
+// B10 finding on Issue #2026's follow-up: resuming a cursor with a
+// different "limit" than the one that minted it re-fetches a
+// differently-sized upstream page, so the cursor's offset silently
+// addresses the wrong records (an empty page, in the reported case, with a
+// bogus byte-budget truncation claim alongside it). cursorLimitMismatchError
+// is the guard makeAPIHandlerVerbose calls before making the upstream
+// request at all.
+func TestCursorLimitMismatchErrorRejectsDifferentLimit(t *testing.T) {
+	// More than bound.MaxItems so a real Offset-based continuation cursor
+	// gets minted, matching the shape the reported bug actually resumes.
+	items := make([]map[string]string, 0, bound.MaxItems+10)
+	for i := 0; i < bound.MaxItems+10; i++ {
+		items = append(items, map[string]string{"id": fmt.Sprintf("w%d", i)})
+	}
+	data, err := json.Marshal(items)
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+	// Mint a cursor the way a real limit=100 call would.
+	minted := bound.EndpointPageResponse("GET", data, bound.PageOptions{
+		CursorParam:  "page",
+		RequestLimit: "100",
+	})
+	var envelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(minted), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, minted)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("expected a minted cursor to resume from: %s", minted)
+	}
+
+	if msg := cursorLimitMismatchError(envelope.NextCursor, "2", true); msg == "" {
+		t.Fatal("resuming a limit=100 cursor with limit=2 should be rejected")
+	} else if !strings.Contains(msg, "limit=100") || !strings.Contains(msg, "limit=2") {
+		t.Fatalf("error message should name both limits: %q", msg)
+	}
+
+	if msg := cursorLimitMismatchError(envelope.NextCursor, "100", true); msg != "" {
+		t.Fatalf("resuming with the same limit that minted the cursor must be allowed: %q", msg)
+	}
+
+	if msg := cursorLimitMismatchError("", "2", true); msg != "" {
+		t.Fatalf("no cursor at all (first call) must never be blocked: %q", msg)
+	}
+
+	// A cursor minted with no RequestLimit tracked (endpoint has no limit
+	// param, or the cursor predates this check) must not block anything.
+	untracked := bound.EndpointPageResponse("GET", data, bound.PageOptions{CursorParam: "page"})
+	var untrackedEnvelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(untracked), &untrackedEnvelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, untracked)
+	}
+	if msg := cursorLimitMismatchError(untrackedEnvelope.NextCursor, "2", true); msg != "" {
+		t.Fatalf("a cursor with no recorded limit must not block resumption: %q", msg)
 	}
 }
 

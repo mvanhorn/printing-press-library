@@ -740,6 +740,21 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 		}
 		logUndeclaredArgs(pathTemplate, args, pathParams, knownArgs)
 
+		// A cursor's offset only addresses the right records relative to
+		// the page size (limit) in effect when it was minted -- resuming
+		// with a different limit re-fetches a differently-sized upstream
+		// page and silently skips or duplicates records (confirmed live:
+		// resuming a limit=100-minted cursor at limit=2 returned an empty
+		// page and advanced past the skipped records with no error). Catch
+		// this before spending an API call on a request we're going to
+		// reject anyway.
+		if pageConfig.CursorParam != "" && mcpCursor != "" {
+			currentLimit, limitKnown := params["limit"]
+			if msg := cursorLimitMismatchError(mcpCursor, currentLimit, limitKnown); msg != "" {
+				return mcpToolError(msg), nil
+			}
+		}
+
 		var data json.RawMessage
 		switch method {
 		case "GET":
@@ -858,7 +873,7 @@ func makeAPIHandlerVerbose(method, pathTemplate string, readOnly bool, binaryRes
 			return mcplib.NewToolResultText(string(out)), nil
 		}
 		if pageConfig.CursorParam != "" {
-			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, explicitlySelectedFields, preSelectData), nil
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor, explicitlySelectedFields, preSelectData, params["limit"]), nil
 		}
 		return mcpToolResultText(method, data), nil
 	}
@@ -900,7 +915,7 @@ func mcpToolError(message string) *mcplib.CallToolResult {
 	return mcplib.NewToolResultError(bound.Text(message))
 }
 
-func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, explicitlySelectedFields map[string]bool, preSelectData json.RawMessage) *mcplib.CallToolResult {
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, explicitlySelectedFields map[string]bool, preSelectData json.RawMessage, requestLimit string) *mcplib.CallToolResult {
 	opts := bound.PageOptions{
 		Cursor:                cursor,
 		CursorParam:           pageConfig.CursorParam,
@@ -923,6 +938,11 @@ func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPa
 		// show_next/page (or the endpoint's NextCursorPath field) must not
 		// be able to hide that more upstream data exists.
 		PreProjectionData: preSelectData,
+		// Stamped into every cursor this call mints so a later resumed
+		// call with a different limit gets rejected instead of silently
+		// addressing the wrong records -- see the CursorLimit check in
+		// makeAPIHandlerVerbose and bound.PageOptions.RequestLimit.
+		RequestLimit: requestLimit,
 	}
 	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, opts))
 }
@@ -943,6 +963,25 @@ func topLevelSelectFieldNames(selectFields string) map[string]bool {
 		names[strings.ToLower(head)] = true
 	}
 	return names
+}
+
+// cursorLimitMismatchError returns a non-empty, caller-facing error message
+// when a resumed call's limit doesn't match the limit its cursor was minted
+// with (see bound.PageOptions.RequestLimit for why this matters), or "" when
+// the call may proceed: no cursor, a cursor with no recorded limit (minted
+// before this check existed, or an endpoint with no limit parameter), or
+// limits that agree. limitKnown mirrors params["limit"]'s own comma-ok form
+// so an endpoint with no limit binding at all (limitKnown false) never
+// blocks on this, matching cursorLimit == "" that same way.
+func cursorLimitMismatchError(mcpCursor, currentLimit string, limitKnown bool) string {
+	cursorLimit, err := bound.CursorLimit(mcpCursor)
+	if err != nil || cursorLimit == "" {
+		return ""
+	}
+	if !limitKnown || currentLimit == cursorLimit {
+		return ""
+	}
+	return fmt.Sprintf("cursor was issued for limit=%s; resuming with limit=%s is not supported because a cursor's position is only valid for the page size it was minted with. Retry with limit=%s to resume where you left off, or omit cursor to start a fresh query at the new limit.", cursorLimit, currentLimit, cursorLimit)
 }
 
 func newMCPClient() (*client.Client, error) {
