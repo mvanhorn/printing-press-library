@@ -751,3 +751,94 @@ func TestLicenceHrefSchemeAllowlist(t *testing.T) {
 		}
 	}
 }
+
+// TestLicenceShortSurfacesNamesAQuietlyEmptyPage is the completeness guard for
+// the failure mode that carries no error at all.
+//
+// A page that fails to fetch is already named in surfaces_failed. This is the
+// other one: NEPRA answers HTTP 200, the body parses cleanly, and the page
+// yields nothing or half the register. Nothing errors, the surface counts as
+// read, and the run reports `source: live` over a short register. That is the
+// exact shape the gzip defect produced across all seven HTML commands, and it
+// is what this CLI's cardinal rule forbids — a measured shortfall must never
+// be indistinguishable from a genuinely small register.
+func TestLicenceShortSurfacesNamesAQuietlyEmptyPage(t *testing.T) {
+	surfaces := []licenceSurface{
+		{ID: "empty-200", EntitiesAsOf: 40},
+		{ID: "half-read", EntitiesAsOf: 40},
+		{ID: "complete", EntitiesAsOf: 2},
+	}
+	results := []licenceFetch{
+		{ok: true, entities: nil},
+		{ok: true, entities: make([]licenceEntity, 19)},
+		{ok: true, entities: make([]licenceEntity, 2)},
+	}
+	short := licenceShortSurfaces(surfaces, results)
+	if len(short) != 2 {
+		t.Fatalf("%d short surfaces, want 2 (the empty 200 and the half read); got %v", len(short), short)
+	}
+	joined := strings.Join(short, " | ")
+	for _, want := range []string{"empty-200", "half-read"} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("short surfaces do not name %s: %s", want, joined)
+		}
+	}
+	if strings.Contains(joined, "complete") {
+		t.Errorf("a page that met its floor exactly was reported short: %s", joined)
+	}
+	// The message must carry both numbers, or a reader cannot tell how far
+	// short the page fell.
+	if !strings.Contains(joined, "0 entities, below the 40") {
+		t.Errorf("the empty page's message does not state got-vs-floor: %s", joined)
+	}
+}
+
+// TestLicenceShortSurfacesTreatsTheCountAsAFloorNotAnEquality pins the
+// direction of the comparison. The register GROWS, so more entities than were
+// measured is the normal healthy case and must never be reported as a defect.
+func TestLicenceShortSurfacesTreatsTheCountAsAFloorNotAnEquality(t *testing.T) {
+	surfaces := []licenceSurface{{ID: "grew", EntitiesAsOf: 10}}
+	results := []licenceFetch{{ok: true, entities: make([]licenceEntity, 47)}}
+	if short := licenceShortSurfaces(surfaces, results); len(short) != 0 {
+		t.Fatalf("a page that grew past its floor was reported short: %v", short)
+	}
+}
+
+// TestLicenceShortSurfacesClaimsNothingWithoutAMeasuredFloor: a page carrying
+// no measured count asserts nothing about its size, so it is never reported
+// short — claiming a shortfall against a number nobody measured is the same
+// error as reporting an unmeasured value as zero.
+//
+// THIS TEST IS WRITTEN TO BE ABLE TO FAIL. An earlier version passed a page
+// with no floor AND no entities, which no mutation could break: a parsed
+// count is never negative, so `got < 0` is unreachable and the assertion held
+// with or without the code under test. Verified by mutation — deleting the
+// guard it was meant to cover left it green, which is what exposed the guard
+// itself as dead code. The version below carries entities, so turning the
+// floor comparison into an equality (`!=`) reports this page short and fails.
+func TestLicenceShortSurfacesClaimsNothingWithoutAMeasuredFloor(t *testing.T) {
+	surfaces := []licenceSurface{{ID: "never-measured", EntitiesAsOf: 0}}
+	results := []licenceFetch{{ok: true, entities: make([]licenceEntity, 5)}}
+	if short := licenceShortSurfaces(surfaces, results); len(short) != 0 {
+		t.Fatalf("a page with no measured floor was reported short: %v", short)
+	}
+}
+
+// TestLicenceShortSurfacesDoesNotDoubleCountAFailedPage: a fetch failure is
+// licenceAssemble's to name. Naming it here too would report one broken page
+// twice, in two different vocabularies.
+func TestLicenceShortSurfacesDoesNotDoubleCountAFailedPage(t *testing.T) {
+	surfaces := []licenceSurface{
+		{ID: "broken", EntitiesAsOf: 40},
+		{ID: "unrecorded", EntitiesAsOf: 40},
+	}
+	results := []licenceFetch{{ok: false, err: errLicenceTest}}
+	short := licenceShortSurfaces(surfaces, results)
+	if len(short) != 0 {
+		t.Fatalf("failed and unrecorded pages were also reported short: %v", short)
+	}
+	// They must still be named by the assembler, so nothing goes unreported.
+	if _, _, failed := licenceAssemble(surfaces, results); len(failed) != 2 {
+		t.Fatalf("%d failures from the assembler, want 2", len(failed))
+	}
+}

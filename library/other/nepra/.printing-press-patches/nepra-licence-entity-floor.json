@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "nepra-licence-entity-floor",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "A licence register page that answered HTTP 200 with an empty or truncated body parsed cleanly, yielded few or no entities, raised no error, and was counted as successfully read — so `licence` could exit 0 with a short register labelled source: live. The per-surface measured count existed but nothing ever compared against it.",
+  "reason": "Raised as a P1 by Greptile on library PR #2034 and confirmed: licenceAssemble accounts for FETCH FAILURE (!r.ok) and names every failed page in meta.surfaces_failed, but there was no accounting for the quieter case where the fetch succeeds and the page is simply short. licenceSurface already carried EntitiesAsOf — 'the accordion count measured on licenceAsOfDate ... a FLOOR: the register grows' — and licenceMeta already carried EntitiesFloor with the comment 'Coming back with fewer is the signature of a truncation', but the comparison was never made per surface. This is the exact failure shape recorded in nepra-decompress-content-encoding, where all seven HTML commands returned results:{} under an HTTP 200 with truthful live provenance; it is also what this CLI's cardinal rule forbids, since a measured shortfall must never be indistinguishable from a genuinely small register. `events` already had this guard (its COMPLETENESS warning plus --strict); licence did not.",
+  "files": [
+    "internal/cli/nepra_licence.go",
+    "internal/cli/nepra_licence_test.go",
+    "internal/cli/promoted_licence.go"
+  ],
+  "call_sites": ["licenceShortSurfaces(surfaces, results)"],
+  "reapply_after_regen": "licenceShortSurfaces and its tests live in hand-authored files and survive regeneration. TWO things in generated files must be re-applied: (1) the --strict BoolVar registration in internal/cli/promoted_licence.go, which MUST use the XxxVar form (cmd.Flags().BoolVar(&licFlagStrict, ...)) or verify-skill reports the flag as undeclared; (2) nothing else — the wiring in nepra_licence.go is hand-authored. Do NOT re-add an `EntitiesAsOf <= 0` guard inside licenceShortSurfaces: it cannot change the outcome for any input, because a parsed count is never negative and so can never fall below a floor of zero, and the test written to cover it could not fail. That was found by mutation and removed.",
+  "validated_outcome": "Before: an empty 200 produced zero entities, no error, no mention in surfaces_failed, and a register labelled source: live. After: meta.surfaces_short names every page that answered successfully but returned fewer entities than its measured floor, giving both numbers ('empty-200: 0 entities, below the 40 measured on <date>'); a COMPLETENESS line is written to stderr for each; and --strict exits non-zero. The payload is printed BEFORE the gate returns, so a caller under --strict still receives the rows and the surfaces_short evidence for the refusal rather than losing both. The measured count stays a FLOOR: a page that grew past it is never reported. MUTATION-VERIFIED three ways: `<` weakened to `<=` fails TestLicenceShortSurfacesNamesAQuietlyEmptyPage; `<` turned into `!=` fails both TestLicenceShortSurfacesTreatsTheCountAsAFloorNotAnEquality and TestLicenceShortSurfacesClaimsNothingWithoutAMeasuredFloor; dropping the !ok skip fails TestLicenceShortSurfacesDoesNotDoubleCountAFailedPage. A fourth mutation SURVIVED and that is what exposed the dead EntitiesAsOf<=0 guard described above; the test was rewritten to carry entities so it can fail. go test -count=1 ./... green on all 16 packages.",
+  "upstream_issue": "TO FILE"
+}

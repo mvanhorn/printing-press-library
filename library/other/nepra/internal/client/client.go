@@ -338,9 +338,18 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
+		// PATCHED (hand-authored, see .printing-press-patches/
+		// nepra-redirect-guard.json): refuse the hop outright before
+		// deciding anything about headers. Without this the callback
+		// returned nil for every destination — http, loopback, private,
+		// link-local — while the comment below claimed otherwise.
+		if err := nepraRedirectAllowed(req.URL, via); err != nil {
+			return err
+		}
 		// Re-stamp only when the hop stays on the origin. Custom headers
 		// are never in the set Go removes automatically, so this gate
-		// has to do the work itself. Block protocol downgrade.
+		// has to do the work itself. (Downgrades never reach here: the
+		// guard above has already refused them.)
 		if !redirectLeavesOrigin(req.URL, via) {
 			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("Authorization", h)

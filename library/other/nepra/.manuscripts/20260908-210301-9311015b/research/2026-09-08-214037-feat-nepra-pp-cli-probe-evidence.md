@@ -4,7 +4,7 @@
 
 # NEPRA plant-level generation HTML: actual schema, cross-year stability
 
-Working files (absolute): `/private/tmp/claude-501/-Users-hamzaqazi-Desktop-Personal/5916c20a-9668-41e6-8ce7-5af354a69c76/scratchpad/nepra/`
+Working files (absolute): `<run scratchpad>/nepra/`
 (`raw_<FY>.htm` = as fetched, `utf8_<FY>.htm` = transcoded, `grid.py` = rowspan/colspan-expanding parser, plus `hdr.py`/`rows.py`/`diff.py`/`fmt.py`/`sent.py`/`validate.py`/`cat.py`)
 
 ## 1. Fetch + encoding (all real numbers)
@@ -1112,7 +1112,7 @@ The moat is a one-line encoding fix that the entire ecosystem has walked past.
 
 ## 0. Method / provenance
 
-All fetches: `curl -sS --max-time 30` with the browser UA, no browser, no gstack. Byte-safe tag counting via `LC_ALL=C grep -a`; content decoded with Python `bytes.decode('cp1252')` (never UTF-8). Working files in `/private/tmp/claude-501/-Users-hamzaqazi-Desktop-Personal/5916c20a-9668-41e6-8ce7-5af354a69c76/scratchpad/nepra/`.
+All fetches: `curl -sS --max-time 30` with the browser UA, no browser, no gstack. Byte-safe tag counting via `LC_ALL=C grep -a`; content decoded with Python `bytes.decode('cp1252')` (never UTF-8). Working files in `<run scratchpad>/nepra/`.
 
 Encoding trap confirmed independently: `file main.htm` → `HTML document text, ISO-8859 text`; all four target `sheet001.htm` payloads → `ISO-8859 text`. `iconv -f WINDOWS-1252` **failed with "iconv(): Illegal byte sequence" on p19.htm** (Orders of the Authority), so `iconv` is not a safe universal pre-pass either — `cp1252` decode with `errors='replace'` in-process is the only thing that worked on every file.
 
@@ -1400,7 +1400,7 @@ All return `accept-ranges: bytes`, `server: cloudflare`, `cache-control: max-age
 
 # WHO uses NEPRA data, and what they cannot answer today
 
-All numbers below came from `curl -sS --max-time 30` with a browser UA, byte-safe reads (`LC_ALL=C grep -a` / `iconv -f WINDOWS-1252`), and PyMuPDF for PDFs. Every figure is reproducible from the artifacts in `/private/tmp/claude-501/-Users-hamzaqazi-Desktop-Personal/5916c20a-9668-41e6-8ce7-5af354a69c76/scratchpad/nepra/`.
+All numbers below came from `curl -sS --max-time 30` with a browser UA, byte-safe reads (`LC_ALL=C grep -a` / `iconv -f WINDOWS-1252`), and PyMuPDF for PDFs. Every figure is reproducible from the artifacts in `<run scratchpad>/nepra/`.
 
 ---
 

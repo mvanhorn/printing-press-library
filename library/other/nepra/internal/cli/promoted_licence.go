@@ -128,6 +128,7 @@ func newLicencePromotedCmd(flags *rootFlags) *cobra.Command {
 		licFlagTicker  string
 		licFlagSurface string
 		licFlagAll     bool
+		licFlagStrict  bool
 	)
 	cmd.Flags().StringVar(&licFlagSearch, "search", "", "Keep only entities whose published name "+
 		"contains this text, case-insensitively")
@@ -137,7 +138,11 @@ func newLicencePromotedCmd(flags *rootFlags) *cobra.Command {
 		"the crosswalk resolves only 28 of 335 register names")
 	cmd.Flags().StringVar(&licFlagSurface, "surface", "", "Read ONE catalogued register page instead of all 21")
 	cmd.Flags().BoolVar(&licFlagAll, "all", false, "Read every catalogued register page")
-	_, _, _, _, _ = licFlagSearch, licFlagFuel, licFlagTicker, licFlagSurface, licFlagAll
+	cmd.Flags().BoolVar(&licFlagStrict, "strict", false, "Exit non-zero when any page returns FEWER "+
+		"entities than the count measured on the catalogue's as-of date. The shortfall is reported in "+
+		"meta.surfaces_short and on stderr either way; this flag only changes the exit code, which is "+
+		"what makes the command usable as a completeness gate")
+	_, _, _, _, _, _ = licFlagSearch, licFlagFuel, licFlagTicker, licFlagSurface, licFlagAll, licFlagStrict
 
 	return cmd
 }

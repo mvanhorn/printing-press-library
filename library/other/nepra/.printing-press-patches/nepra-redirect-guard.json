@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "nepra-redirect-guard",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The generated CheckRedirect callback limited hop count and then returned nil for every destination, so this client would follow a redirect to http, to loopback, to a private or link-local address. A comment above it claimed 'Block protocol downgrade', but that line governs only whether the Authorization header is re-stamped; nothing refused the hop.",
+  "reason": "Raised as a P2 security finding by Greptile on library PR #2034 and confirmed by reading the code: httpClient.CheckRedirect returned an error only at 10 hops and otherwise fell through to `return nil`. redirectLeavesOrigin exists but is a HEADER decision, not a gate. This matters for this CLI specifically because every command is a read whose body is written to stdout — `reliability` and `sir` emit the fetched document directly — so an attacker-controlled or hijacked redirect turns the CLI into a fetch-and-print primitive aimed at whatever the redirect names, including a host inside the operator's own network (169.254.169.254 being the obvious one). The generated comment asserting a protection that did not exist is the same defect class as the sir text-layer claim fixed in nepra-sir-report-path: shipped text describing behaviour the code does not have.",
+  "files": [
+    "internal/client/nepra_redirect_guard.go",
+    "internal/client/nepra_redirect_guard_test.go",
+    "internal/client/client.go"
+  ],
+  "call_sites": ["nepraRedirectAllowed(req.URL, via)"],
+  "reapply_after_regen": "internal/client/nepra_redirect_guard.go and its test are hand-authored and survive regeneration. Only the THREE-line call at the TOP of the httpClient.CheckRedirect closure in the generated internal/client/client.go must be re-applied — it must run BEFORE the redirectLeavesOrigin header logic, so a refused hop never reaches it. TestClientRefusesRedirectToAnInternalHost is the guard: it drives a real off-origin redirect through a client built by New() and FAILS when the call site is missing. The unit tests on nepraRedirectAllowed alone do NOT catch a lost call site — verified by mutation. Note that test must not replace c.HTTPClient with server.Client(), because New() is where CheckRedirect is installed.",
+  "validated_outcome": "Before: the callback returned nil for every destination. After: a redirect is refused when its scheme is neither http nor https, when it downgrades https->http on any prior hop, or when it leaves the origin for a loopback, private, link-local, interface-local or unspecified IP literal. A hop that stays on the host the caller already chose is still followed, so a deliberate local mirror or an httptest base URL keeps working — SSRF is being sent somewhere you did not choose. LIMIT STATED IN THE SOURCE, not implied: the guard inspects the redirect URL only. A hostname that RESOLVES to an internal address is not caught, deliberately, because a pre-resolve check invites DNS rebinding; closing that needs a dialer Control hook, which is a transport-level change to generated code. MUTATION-VERIFIED: deleting the call site fails TestClientRefusesRedirectToAnInternalHost while every unit test stays green, which is exactly the gap this end-to-end test exists to close. TestClientStillFollowsASameOriginRedirect pins the other half, so refusing everything cannot pass. go test -count=1 ./... green on all 16 packages.",
+  "upstream_issue": "TO FILE"
+}

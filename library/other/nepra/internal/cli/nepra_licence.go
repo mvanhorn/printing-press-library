@@ -182,6 +182,11 @@ type licenceMeta struct {
 	AsOfDate       string   `json:"as_of_date"`
 	Surfaces       int      `json:"surfaces_read"`
 	SurfacesFailed []string `json:"surfaces_failed,omitempty"`
+	// SurfacesShort names pages that answered successfully but came back
+	// with FEWER entities than were measured on as_of_date. Distinct from
+	// SurfacesFailed: nothing errored, so without this the page is counted
+	// as read and the short register is labelled source: live.
+	SurfacesShort []string `json:"surfaces_short,omitempty"`
 	// Entities is what this run read; EntitiesFloor is what was measured on
 	// as_of_date. Coming back with fewer is the signature of a truncation.
 	Entities      int `json:"entities"`
@@ -295,6 +300,7 @@ func augmentLicenceCommand(cmd *cobra.Command, flags *rootFlags) {
 		flagTicker, _ := c.Flags().GetString("ticker")
 		flagSurface, _ := c.Flags().GetString("surface")
 		flagAll, _ := c.Flags().GetBool("all")
+		flagStrict, _ := c.Flags().GetBool("strict")
 		if dryRunOK(flags) {
 			return writeDryRun(c.OutOrStdout(), flags, "licence")
 		}
@@ -395,12 +401,14 @@ func augmentLicenceCommand(cmd *cobra.Command, flags *rootFlags) {
 		})
 
 		entities, artifacts, failed := licenceAssemble(surfaces, results)
+		shortSurfaces := licenceShortSurfaces(surfaces, results)
 
 		meta := licenceMeta{
 			Source:         "live",
 			AsOfDate:       licenceAsOfDate,
 			Surfaces:       len(surfaces) - len(failed),
 			SurfacesFailed: failed,
+			SurfacesShort:  shortSurfaces,
 			Entities:       len(entities),
 			Artifacts:      artifacts,
 		}
@@ -515,7 +523,23 @@ func augmentLicenceCommand(cmd *cobra.Command, flags *rootFlags) {
 			matched = make([]licenceEntity, 0)
 		}
 		report := licenceReport{Meta: meta, Results: matched}
-		return printJSONFiltered(c.OutOrStdout(), report, flags)
+		if err := printJSONFiltered(c.OutOrStdout(), report, flags); err != nil {
+			return err
+		}
+		// Warn and gate AFTER the payload is written, not before: the caller
+		// still gets the rows and meta.surfaces_short naming exactly which
+		// pages fell short, and the exit code still refuses under --strict.
+		// Returning early would withhold the evidence for the refusal.
+		for _, sfShort := range shortSurfaces {
+			fmt.Fprintf(c.ErrOrStderr(),
+				"COMPLETENESS: %s. This is how a silently truncated or empty 200 presents; "+
+					"do not treat the register as complete.\n", sfShort)
+		}
+		if flagStrict && len(shortSurfaces) > 0 {
+			return fmt.Errorf("%d of %d surfaces returned fewer entities than their measured floor",
+				len(shortSurfaces), len(surfaces))
+		}
+		return nil
 	}
 
 	// The five flags are declared in internal/cli/promoted_licence.go, on the
@@ -647,6 +671,46 @@ func licenceAssemble(surfaces []licenceSurface, results []licenceFetch) ([]licen
 		artifacts = append(artifacts, r.artifact)
 	}
 	return entities, artifacts, failed
+}
+
+// licenceShortSurfaces names every page that answered SUCCESSFULLY but came
+// back with fewer entities than the count measured on licenceAsOfDate.
+//
+// WHY THIS IS SEPARATE FROM licenceAssemble'S FAILURE LIST. A page that fails
+// to fetch is already named there. This is the other, quieter case, and it is
+// the one this CLI exists to refuse: NEPRA answers HTTP 200 with a body that
+// parses cleanly and yields nothing, or yields half the register. The parse
+// succeeds, the surface is counted as read, and the run reports `source:
+// live` over a short register with no error anywhere. That is precisely the
+// shape the gzip defect produced across all seven HTML commands — see
+// .printing-press-patches/nepra-decompress-content-encoding.json, where every
+// one of them returned results:{} under an HTTP 200 with truthful live
+// provenance. A measured shortfall must never be indistinguishable from a
+// genuinely small register.
+//
+// The measured count is a FLOOR, not an equality: the register grows, so
+// MORE entities than measured is normal and is not reported. A page carrying
+// no measured floor likewise asserts nothing and is never reported short —
+// that falls out of the comparison itself, since a parsed count is never
+// negative and so can never fall below a floor of zero. An explicit
+// EntitiesAsOf <= 0 guard was written here first and then removed: it could
+// not change the outcome for any input, and the test written to cover it
+// could not fail. Do not re-add it; use `!=` here and the floor becomes an
+// equality, which is the mutation the tests below actually pin.
+func licenceShortSurfaces(surfaces []licenceSurface, results []licenceFetch) []string {
+	var short []string
+	for i := range surfaces {
+		// Missing results and failed fetches are licenceAssemble's to name;
+		// reporting them here too would double-count one page.
+		if i >= len(results) || !results[i].ok {
+			continue
+		}
+		if got := len(results[i].entities); got < surfaces[i].EntitiesAsOf {
+			short = append(short, fmt.Sprintf("%s: %d entities, below the %d measured on %s",
+				surfaces[i].ID, got, surfaces[i].EntitiesAsOf, licenceAsOfDate))
+		}
+	}
+	return short
 }
 
 // licenceFetchAll reads the given surfaces concurrently, bounded, and returns
