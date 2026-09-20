@@ -309,6 +309,47 @@ func TestEndpointPageResponseMetadataOnlyProjectionStillGetsNextCursor(t *testin
 	}
 }
 
+// TestEndpointPageResponseMetadataOnlyProjectionStampsLimit guards a B11
+// follow-up finding: injectMetadataOnlyNextCursor (the metadata-only
+// projection path -- a select that drops the array field entirely, e.g.
+// select=next_cursor,returned_count,page) mints its own cursor independently
+// of nextPageCursor and was not stamping PageOptions.RequestLimit onto it.
+// An unstamped cursor bypasses the tools.go limit-mismatch guard entirely,
+// so resuming it at a different limit landed at the wrong position with no
+// error -- the same failure class as the original offset-mismatch bug, just
+// reached through the u-only (no local Offset) cursor shape.
+func TestEndpointPageResponseMetadataOnlyProjectionStampsLimit(t *testing.T) {
+	fixture, err := json.Marshal(map[string]any{
+		"page": 1, "show_next": true, "total": 226,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+		RequestLimit:          "100",
+	})
+
+	var envelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("expected a minted cursor: %s", text)
+	}
+	if got, err := CursorLimit(envelope.NextCursor); err != nil {
+		t.Fatalf("CursorLimit(%q): %v", envelope.NextCursor, err)
+	} else if got != "100" {
+		t.Fatalf("a metadata-only-projection cursor must carry the minting limit like any other, got CursorLimit = %q, want %q", got, "100")
+	}
+}
+
 // TestEndpointPageResponseMetadataOnlyProjectionNoCursorWhenNoMoreData
 // guards the terminal case of the same fix: show_next:false must not
 // spuriously get a next_cursor added.
@@ -413,6 +454,102 @@ func TestEndpointPageResponsePreProjectionDataRecoversNextCursorWhenSelectDropsC
 	}
 	if noOverride.NextCursor != "" {
 		t.Fatalf("this fixture should only recover next_cursor via PreProjectionData, not on its own: %s", withoutOverride)
+	}
+}
+
+// TestCursorLimitRoundTripsThroughMintedCursor guards the plumbing the
+// tools.go cursor/limit mismatch guard depends on: PageOptions.RequestLimit
+// must survive being embedded in a minted cursor and be readable back out
+// via CursorLimit, and a cursor minted with no RequestLimit must report one
+// (not error) so callers without a limit parameter, or resuming a cursor
+// minted before this field existed, are never blocked.
+func TestCursorLimitRoundTripsThroughMintedCursor(t *testing.T) {
+	items := make([]map[string]string, 0, MaxItems+10)
+	for i := 0; i < MaxItems+10; i++ {
+		items = append(items, map[string]string{"id": strconv.Itoa(i)})
+	}
+	data, err := json.Marshal(items)
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", data, PageOptions{CursorParam: "cursor", RequestLimit: "100"})
+	var envelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.NextCursor == "" {
+		t.Fatalf("expected a minted cursor: %s", text)
+	}
+	if got, err := CursorLimit(envelope.NextCursor); err != nil {
+		t.Fatalf("CursorLimit(%q): %v", envelope.NextCursor, err)
+	} else if got != "100" {
+		t.Fatalf("CursorLimit = %q, want %q", got, "100")
+	}
+
+	untracked := EndpointPageResponse("GET", data, PageOptions{CursorParam: "cursor"})
+	var untrackedEnvelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(untracked), &untrackedEnvelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, untracked)
+	}
+	if got, err := CursorLimit(untrackedEnvelope.NextCursor); err != nil {
+		t.Fatalf("CursorLimit(%q): %v", untrackedEnvelope.NextCursor, err)
+	} else if got != "" {
+		t.Fatalf("CursorLimit = %q, want empty for a cursor with no tracked limit", got)
+	}
+}
+
+// TestEndpointPageResponseOffsetBeyondFetchedBatchDoesNotClaimByteOverflow
+// guards the B10 follow-up finding on Issue #2026: resuming a cursor whose
+// Offset lands beyond the just-fetched batch -- the shape produced by
+// resuming a cursor with a different limit than minted it -- previously
+// reported a bogus byte-budget truncation on a tiny body and returned the
+// item field as JSON null instead of an empty array. tools.go's
+// cursorLimitMismatchError now rejects that call before it reaches here,
+// but this package must still degrade honestly on its own (e.g. for a
+// cursor minted before that guard existed).
+func TestEndpointPageResponseOffsetBeyondFetchedBatchDoesNotClaimByteOverflow(t *testing.T) {
+	fixture, err := json.Marshal(map[string]any{
+		"data":      []map[string]string{{"id": "w1"}, {"id": "w2"}},
+		"show_next": true,
+		"page":      1,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+	// Offset 50 is beyond this 2-item fetched batch.
+	cursor := encodeEndpointCursor(endpointCursor{Version: 1, Offset: 50})
+
+	text := EndpointPageResponse("GET", fixture, PageOptions{
+		Cursor:                cursor,
+		CursorParam:           "page",
+		ArrayField:            "data",
+		NextPageIndicatorPath: "show_next",
+		CurrentPageNumberPath: "page",
+	})
+
+	var envelope map[string]any
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	itemsRaw, ok := envelope["data"].([]any)
+	if !ok {
+		t.Fatalf(`expected "data" to be a JSON array, not null or missing: %s`, text)
+	}
+	if len(itemsRaw) != 0 {
+		t.Fatalf(`expected "data" to be empty: %s`, text)
+	}
+	for _, field := range []string{"truncated", "original_bytes", "max_bytes", "note"} {
+		if _, present := envelope[field]; present {
+			t.Fatalf("an offset beyond the fetched batch is not a byte-budget overrun and must not claim %q: %s", field, text)
+		}
+	}
+	if nc, _ := envelope["next_cursor"].(string); nc == "" {
+		t.Fatalf("more data exists upstream (show_next:true) and should still get next_cursor: %s", text)
 	}
 }
 

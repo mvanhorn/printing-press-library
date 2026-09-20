@@ -147,6 +147,18 @@ type PageOptions struct {
 	// from data. Nil is treated as "no override" and falls back to data,
 	// so callers that don't populate it see no behavior change.
 	PreProjectionData json.RawMessage
+
+	// RequestLimit is the caller's resolved "limit" query value for this
+	// specific call (the same string sent upstream), when the endpoint has
+	// one. It is stamped into every non-terminal cursor this package mints
+	// (endpointCursor.Limit) so a later resumed call can be checked against
+	// it via CursorLimit -- an offset cursor's Offset only means what it
+	// meant at mint time relative to the page size then in effect, so
+	// resuming with a different limit silently addresses the wrong
+	// records. Empty means "not tracked" and disables the check (e.g.
+	// endpoints with no limit parameter, or callers/tests that don't
+	// populate it), preserving old behavior.
+	RequestLimit string
 }
 
 // endpointCursor is an offset-based cursor: Offset positions within the
@@ -173,6 +185,14 @@ type endpointCursor struct {
 	Version        int    `json:"v"`
 	Offset         int    `json:"o,omitempty"`
 	UpstreamCursor string `json:"u,omitempty"`
+
+	// Limit is the caller's "limit" query value in effect when this cursor
+	// was minted (PageOptions.RequestLimit), present on every non-terminal
+	// cursor that has one. A cursor's Offset only addresses the right
+	// records relative to the page size that produced it -- resuming with
+	// a different limit re-fetches a differently-sized upstream page and
+	// silently skips or duplicates records. See CursorLimit.
+	Limit string `json:"l,omitempty"`
 }
 
 // EndpointResponse renders a typed endpoint response within the MCP result
@@ -201,6 +221,18 @@ func UpstreamCursor(cursor string) (string, error) {
 		return "", err
 	}
 	return state.UpstreamCursor, nil
+}
+
+// CursorLimit unwraps the "limit" value embedded in an opaque MCP cursor at
+// mint time (PageOptions.RequestLimit), or "" if the cursor predates this
+// field or the endpoint doesn't track one. Callers use it to reject a resumed
+// call whose limit no longer matches -- see endpointCursor.Limit.
+func CursorLimit(cursor string) (string, error) {
+	state, err := decodeEndpointCursor(cursor)
+	if err != nil {
+		return "", err
+	}
+	return state.Limit, nil
 }
 
 func endpointResponse(method string, data json.RawMessage, opts PageOptions) string {
@@ -403,7 +435,16 @@ func injectMetadataOnlyNextCursor(data json.RawMessage, opts PageOptions) ([]byt
 	if nextUpstream == "" {
 		return nil, false
 	}
-	cursor := encodeEndpointCursor(endpointCursor{Version: 1, UpstreamCursor: nextUpstream})
+	// Limit must be stamped here too, not just in nextPageCursor -- an
+	// upstream cursor's stride is exactly as limit-dependent as a local
+	// Offset is (u:2 means "upstream page 2," and page size is what
+	// defines a page), so a metadata-only cursor left unstamped was
+	// silently accepted at a different limit and landed at the wrong
+	// position instead of being rejected. Confirmed live (Issue #2026
+	// follow-up, B11): select=next_cursor,returned_count,page (dropping
+	// data.* entirely) minted a u-only cursor that resumed cleanly at a
+	// different limit but pointed at the wrong records.
+	cursor := encodeEndpointCursor(endpointCursor{Version: 1, UpstreamCursor: nextUpstream, Limit: opts.RequestLimit})
 	out := make(map[string]any, len(obj)+1)
 	for key, raw := range obj {
 		out[key] = raw
@@ -568,7 +609,7 @@ func boundedPageListEnvelope(field string, items []json.RawMessage, original jso
 		return out
 	}
 
-	out := fitJSONPageItems(items, start, state.UpstreamCursor, nextUpstream, build)
+	out := fitJSONPageItems(items, start, state.UpstreamCursor, nextUpstream, opts.RequestLimit, build)
 	if len(out) > MaxBytes {
 		return []byte(previewEnvelope(original, endpointPreviewNote))
 	}
@@ -616,7 +657,7 @@ const (
 	pageCutByteLimit
 )
 
-func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextUpstream string, build func([]json.RawMessage, string, string, pageCutCause) any) []byte {
+func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextUpstream, requestLimit string, build func([]json.RawMessage, string, string, pageCutCause) any) []byte {
 	remaining := len(items) - start
 	if remaining < 0 {
 		remaining = 0
@@ -626,7 +667,7 @@ func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextU
 		limit = MaxItems
 	}
 	for n := limit; n > 0; n-- {
-		next := nextPageCursor(start+n, len(items), currentUpstream, nextUpstream)
+		next := nextPageCursor(start+n, len(items), currentUpstream, nextUpstream, requestLimit)
 		// Only the very first (largest) attempt can possibly be
 		// uncut or item-limited -- any later iteration in this loop
 		// (n < limit) means bytes forced a cut below what would
@@ -649,7 +690,7 @@ func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextU
 		}
 	}
 	if start < len(items) {
-		next := nextPageCursor(start+1, len(items), currentUpstream, nextUpstream)
+		next := nextPageCursor(start+1, len(items), currentUpstream, nextUpstream, requestLimit)
 		previewLimit := maxPreviewBytes
 		for previewLimit >= 0 {
 			out, err := json.Marshal(build(nil, previewString(items[start], previewLimit), next, pageCutByteLimit))
@@ -666,13 +707,26 @@ func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextU
 			}
 		}
 	}
-	next := nextPageCursor(len(items), len(items), currentUpstream, nextUpstream)
-	out, _ := json.Marshal(build(nil, "", next, pageCutByteLimit))
+	next := nextPageCursor(len(items), len(items), currentUpstream, nextUpstream, requestLimit)
+	// remaining == 0 means this call's own batch (already scoped by
+	// start:len(items)) was empty to begin with -- nothing was cut by the
+	// byte budget, so this must not claim pageCutByteLimit the way the
+	// oversized-first-item preview branch above legitimately does.
+	// Confirmed live (Issue #2026 follow-up): resuming a cursor with a
+	// different limit than the one that minted it clamps start to
+	// len(items), lands here with remaining==0, and previously reported a
+	// false byte-budget truncation on an 111-byte body. An explicit empty
+	// slice (not nil) keeps the item field "[]" rather than "null".
+	cut := pageCutByteLimit
+	if remaining == 0 {
+		cut = pageCutNone
+	}
+	out, _ := json.Marshal(build([]json.RawMessage{}, "", next, cut))
 	return out
 }
 
-func nextPageCursor(nextOffset, itemCount int, currentUpstream, nextUpstream string) string {
-	state := endpointCursor{Version: 1}
+func nextPageCursor(nextOffset, itemCount int, currentUpstream, nextUpstream, limit string) string {
+	state := endpointCursor{Version: 1, Limit: limit}
 	switch {
 	case nextOffset < itemCount:
 		state.Offset = nextOffset

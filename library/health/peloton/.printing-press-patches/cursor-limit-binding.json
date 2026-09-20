@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "cursor-limit-binding",
+  "applied_at": "2026-09-19",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "An opaque MCP cursor's position (whether a local Offset into an already-fetched upstream page, or an UpstreamCursor page index) only means the right thing relative to the \"limit\" query value in effect when it was minted -- a page's size defines what a given offset or upstream-page-index addresses. Every non-terminal cursor this package mints (both via nextPageCursor, the boundedPageListEnvelope path, and independently via injectMetadataOnlyNextCursor, the metadata-only-projection path) now embeds PageOptions.RequestLimit as endpointCursor.Limit. tools.go's makeAPIHandlerVerbose reads it back via bound.CursorLimit before making the upstream request and rejects a resumed call whose limit argument doesn't match (cursorLimitMismatchError), instead of silently re-fetching a differently-sized upstream page and addressing the wrong records. A regen touching cursor minting must keep the stamp at BOTH mint sites -- injectMetadataOnlyNextCursor mints independently of nextPageCursor and was the one gap missed on the first pass (only offset-carrying cursors were stamped; upstream-cursor-only cursors from a metadata-only projection were not).",
+  "reason": "Live desktop testing found that resuming a cursor minted at one limit (e.g. limit=100) with a different limit (e.g. limit=2) silently returned an empty page (data: null, returned_count: 0) with a bogus byte-budget truncation claim, having skipped the records at the stale offset with no error -- confirmed on both workouts_list and classes_search. A follow-up round found the same silent-mispositioning failure on cursors minted without a local offset (an uncapped/metadata-only page), which the first pass's fix did not cover since that cursor shape is minted by a separate code path (injectMetadataOnlyNextCursor) that doesn't go through nextPageCursor.",
+  "files": [
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/bound_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go build/vet/test and verify_skill.py all green. Live desktop validation across three rounds (B10 found the bug, B11 confirmed the offset-carrying fix but found the offset-free gap, B12 confirmed both cursor forms now stamp and enforce the limit) on both workouts_list and classes_search, plus regression checks confirming Issue #2026 and the PR #2025/#2027 summary/next_cursor behavior are unaffected."
+}
