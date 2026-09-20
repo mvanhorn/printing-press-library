@@ -1,0 +1,43 @@
+{
+  "manifest_version": "0.3",
+  "name": "nepra-pp-mcp",
+  "display_name": "NEPRA",
+  "version": "0.1.0",
+  "description": "Pakistan's electricity regulator publishes the country's only plant-level power data as Excel-exported HTML that reads as empty and PDFs nobody extracts — this turns it into a queryable panel and names every gap.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nepra-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nepra-pp-mcp",
+      "args": [],
+      "env": {
+        "NEPRA_BASE_URL": "${user_config.nepra_base_url}",
+        "NEPRA_USER_AGENT": "${user_config.nepra_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "nepra_base_url": {
+      "type": "string",
+      "title": "NEPRA_BASE_URL",
+      "description": "Optional. Sets NEPRA_BASE_URL for the NEPRA MCP server. Per-instance, non-secret setting; not a credential."
+    },
+    "nepra_user_agent": {
+      "type": "string",
+      "title": "NEPRA_USER_AGENT",
+      "description": "Optional. Sets NEPRA_USER_AGENT for the NEPRA MCP server. Per-instance, non-secret setting; not a credential."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

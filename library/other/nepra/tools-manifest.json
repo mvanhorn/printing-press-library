@@ -1,0 +1,202 @@
+{
+  "api_name": "nepra",
+  "base_url": "https://nepra.org.pk",
+  "description": "Pakistan's electricity regulator publishes the country's only plant-level power data as Excel-exported HTML that reads as empty and PDFs nobody extracts — this turns it into a queryable panel and names every gap.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "nepra-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library; Pakistani power-sector research CLI)"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-US,en;q=0.9"
+    },
+    {
+      "name": "Accept-Encoding",
+      "value": "gzip, deflate"
+    }
+  ],
+  "tools": [
+    {
+      "name": "events_list",
+      "description": "The determinations feed. REQUIRES gzip: without Accept-Encoding this page silently truncates under a 30 s timeout and returns a partial list under an HTTP 200.",
+      "method": "GET",
+      "path": "/tariff/Tariff.php",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "fca_list",
+      "description": "The consolidated FCA table. Coverage is hard-bounded Jul-2018 to Jun-2022; negatives are written in accounting parentheses.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/FCA%20(2018-2022)_files/sheet001.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "generation_index",
+      "description": "The site's own generation index. INCOMPLETE — links 5 of the 7 reachable years; never use as the sole enumerator.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Main.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "generation_year",
+      "description": "Fetch one fiscal year's generation workbook payload. windows-1252 encoded; the HTTP header declares no charset. Required: fy.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/List%20of%20Companies%20Genenration%20wise%20{fy}_files/sheet001.htm",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "fy",
+          "type": "string",
+          "location": "path",
+          "description": "Fiscal year as published, e.g. 2023-24 (reachable: 2017-18 through 2023-24)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hydel_list",
+      "description": "Hydel data. Dependable capacities are pinned upstream to 'July 2018 - June 2022'.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Hydel%201/Hydel%20Data_files/sheet001.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "licence_list",
+      "description": "The licence register accordion. Key lookup must be typo-aliased: the page misspells its own column as 'Gross Capacityy', hiding the largest entry.",
+      "method": "GET",
+      "path": "/licensing/Generation%20IPPs.php",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "quarterly_list",
+      "description": "Quarterly index. FROZEN upstream at 'April 2022- June 2022 (4th Quarter)' with 'Not Yet Issued' against every DISCO; nothing on the page says it is stale.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Quarterly%20Data%20(XWD%20\u0026%20KE)_files/sheet001.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reliability_report",
+      "description": "Fetch one Performance Evaluation Report PDF. Filenames are unconstructible across years — always scrape from sources, never build the path. Required: path.",
+      "method": "GET",
+      "path": "/Standards/{path}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Report path under /Standards/ as discovered by sources; one known filename carries a load-bearing trailing space",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sir_get",
+      "description": "One State of Industry Report, returned as PDF bytes. Very large: 2025 is ~316 MB. Required: year.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/State%20of%20Industry%20Report%20{year}.pdf",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "string",
+          "location": "path",
+          "description": "Report year, e.g. 2024. Reports 2004 through 2025 are HEAD-verified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sro_list",
+      "description": "SRO notification index.",
+      "method": "GET",
+      "path": "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Notification/SRO%20Data%20Webpage_files/sheet001.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tariff_get",
+      "description": "One DISCO's tariff page. UTF-8 on this surface, unlike the generation workbooks. Rate schedules themselves are image-only PDFs and are NOT extractable. Required: disco.",
+      "method": "GET",
+      "path": "/tariff/Distribution%20{disco}.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "disco",
+          "type": "string",
+          "location": "path",
+          "description": "Distribution company name as it appears in the tariff path, e.g. LESCO, MEPCO, HAZECO",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Plant-month generation extract",
+      "command": "gen",
+      "description": "Pull every power plant's monthly generation and utilisation for a fiscal year as rows you can pipe, with unreported months kept distinct from real zeros."
+    },
+    {
+      "name": "Operator and ticker fleet panel",
+      "command": "fleet",
+      "description": "Follow one plant or a listed operator's whole fleet across the fiscal years the crosswalk has observed, through renames and re-sorted row numbers."
+    },
+    {
+      "name": "Conflict and break ledger",
+      "command": "conflicts",
+      "description": "List every place NEPRA's own published figures disagree — two sources on one key, an unexplained step inside a single series, or a row that fails its own arithmetic — showing both values and both citations without picking a winner."
+    },
+    {
+      "name": "DISCO reliability panel",
+      "command": "disco",
+      "description": "Per-distribution-company transmission losses, recovery, interruption frequency and duration against the regulator's own targets, across report years."
+    },
+    {
+      "name": "Regulatory determination feed",
+      "command": "events",
+      "description": "A dated feed of tariff determinations and orders by company, distribution company or docket, with the verbatim document link."
+    },
+    {
+      "name": "Generation licence register",
+      "command": "licence",
+      "description": "The licence register with gross capacity, plant type, fuel and the modification trail, searchable by name or fuel."
+    },
+    {
+      "name": "Fetch and staleness gate",
+      "command": "verify",
+      "description": "Assert every published NEPRA surface against status, byte floor, content checksum, in-document year token and the frozen column fingerprint, exiting non-zero when stale or drifted."
+    },
+    {
+      "name": "Capacity by status and system",
+      "command": "capacity",
+      "description": "Installed and dependable capacity broken out by plant status and system, so each headline megawatt figure is labelled and derivable."
+    },
+    {
+      "name": "Fuel cost adjustment series",
+      "command": "fca",
+      "description": "The monthly requested-versus-allowed fuel cost adjustment series with cumulative disallowance, bounded to the window the source actually covers."
+    },
+    {
+      "name": "Source catalogue and enumerator diff",
+      "command": "sources",
+      "description": "Catalogue every reachable published document with size, coverage window, text-layer flag and reachability state, and diff it against the shipped manifest."
+    }
+  ]
+}

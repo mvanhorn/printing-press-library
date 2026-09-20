@@ -1,0 +1,4682 @@
+{
+ "schema_version": 1,
+ "_what": "Curated NEPRA plant-name -> canonical plant -> listed PSX operator crosswalk. Reviewable data, not runtime inference.",
+ "_provenance": "Canonical names and aliases are the VERBATIM 'Name of Companies' cells of the NEPRA generation workbooks for FY2017-18 and FY2023-24 (cp1252-decoded, fetched 2026-09-08); see testdata/published_names.json for the raw column. parent_name / psx_ticker / confidence / evidence are hand-curated: every PSX symbol was confirmed against https://dps.psx.com.pk/company/<SYMBOL> on 2026-09-08.",
+ "_field_semantics": {
+  "canonical_name": "Whitespace-normalised form of the name published in the LATEST fiscal year in which the plant appears. Case and trailing punctuation are preserved as published.",
+  "aliases": "Every DISTINCT raw published string seen for this plant, verbatim, including U+00A0 NBSP padding and the newline+indent Excel's HTML export inserts. Resolve() indexes all of them.",
+  "parent_name": "Empty string means NO parent is asserted (unknown). It never means 'no parent exists'.",
+  "psx_ticker": "Empty string means NO ticker is asserted. Read listed_status to tell 'not listed on PSX' apart from 'listing unknown'.",
+  "listed_status": "listed | not_listed | unknown. 'unknown' is a real state and must not be collapsed to 'not_listed'.",
+  "valid_from_fy": "FIRST fiscal year in which this identity was OBSERVED in a fetched workbook. It is NOT a commissioning date: only FY2017-18 and FY2023-24 were fetched, so a valid_from_fy of 2023-24 means 'not in the FY2017-18 workbook', not 'did not exist before'.",
+  "valid_to_fy": "Empty string means the identity is still published in the latest observed fiscal year (2023-24), i.e. an OPEN interval. A non-empty value is the last fiscal year in which it was observed. IT IS A PUBLICATION INTERVAL, NOT AN OPERATING CLAIM: all 133 rows have an empty valid_to_fy, including the 13 FY2023-24 plants whose monthly block reads DELICENSED or DECOMMISSIONED. Read observed[].block_status for operating status.",
+  "confidence": "high | medium | low | unattributed - describes the parent_name/psx_ticker attribution only, NOT the plant identity. Plant identity is always high: it is a verbatim published string.",
+  "evidence": "Free text. Always starts with the workbook provenance (fiscal year, S.No, published installed capacity), then the parent research.",
+  "observed": "Per-fiscal-year appearance: S.No, the published name that year, technology, fuel, the installed-capacity string EXACTLY as published, the state of that capacity cell, and the status of the plant's MONTHLY GENERATION BLOCK. An empty installed_capacity_mw_raw means the workbook cell was blank or NBSP-only - NOT REPORTED, never zero.",
+  "observed.installed_capacity_state": "nepraparse's classification of the installed-capacity CELL: numeric | not_reported | export_to_k_electric | delicensed | decommissioned | unknown_text. It is why an unparseable capacity is distinguishable from a blank one. Measured: FY2017-18 has 11 not_reported, FY2020-21 has 3 export_to_k_electric, FY2023-24 has 0 non-numeric.",
+  "observed.block_status": "Status of the plant's TWELVE-MONTH GENERATION BLOCK in that fiscal year, as typed by nepraparse: numeric (ordinary data) | delicensed | decommissioned. THIS IS AN OPERATING-STATUS FACT AND IS NOT DERIVABLE FROM COLUMNS 0-4: it lives in the monthly block, which is why the first cut of this file omitted it and presented 13 non-operating FY2023-24 plants (3,880 MW, including the DELICENSED 1,292 MW Hub Power Company) as live capacity. A delicensed or decommissioned plant KEEPS a valid installed capacity, so capacity must never be nulled on account of it - it must be reported separately from operating capacity. Measured over 241 observations: 228 numeric, 12 delicensed, 1 decommissioned, all 13 in FY2023-24."
+ },
+ "observed_fys": [
+  "2017-18",
+  "2023-24"
+ ],
+ "held_out_fys": [
+  "2020-21"
+ ],
+ "_held_out": "The FY2020-21 workbook was deliberately NOT used to build this crosswalk, so it can serve as an out-of-sample test of the alias table. Measured: 107 of its 108 published names resolve (99.1%), 1 declines. See testdata/heldout_2020-21.json and the possible_duplicates entry for (NPPCL) - Balloki.",
+ "latest_observed_fy": "2023-24",
+ "sno_is_not_a_key": "Of the 107 plant names common to both fetched workbooks (whitespace-normalised), ZERO keep the same S.No: FY2023-24 was re-sorted by technology. Measured examples: AES Lalpir 1->36, Allai Khwar 56->8, Kot Addu (KAPCO) 9->33, Kohinoor (KEL) 12->35, Narowal 11->58. Joining fiscal years on S.No swaps plants' entire histories.",
+ "rows": [
+  {
+   "canonical_name": "AES Lalpir power limited.",
+   "aliases": [
+    "AES Lalpir power limited.",
+    "AES Lalpir power\n  limited."
+   ],
+   "parent_name": "Lalpir Power Limited",
+   "psx_ticker": "LPL",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 1 (362 MW); FY2023-24 S.No 36 (362 MW). The AES-era name. Renamed Lalpir Power Limited after the June 2010 Nishat-consortium acquisition (Wikipedia 'Lalpir Power'; brecorder). 362 MW RFO at Mehmood Kot - matches the 362 MW published in both years. PSX symbol confirmed on https://dps.psx.com.pk/company/LPL (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 1,
+     "published_name": "AES Lalpir power limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "362",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 36,
+     "published_name": "AES Lalpir power\n  limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "362",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "AES Pakgen Power Limited.",
+   "aliases": [
+    " AES Pakgen Power Limited."
+   ],
+   "parent_name": "Pakgen Power Limited",
+   "psx_ticker": "PKGP",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 2 (365 MW); FY2023-24 S.No 37 (365 MW). The AES-era name. AES Lalpir & Pakgen was acquired by a Nishat-led consortium in June 2010 and renamed Pakgen Power Limited in November 2010 (brecorder company profile; Wikipedia 'Lalpir Power'). 365 MW RFO at Mehmood Kot, Muzaffargarh - matches the 365 MW published in both FY2017-18 and FY2023-24. PSX symbol confirmed on https://dps.psx.com.pk/company/PKGP (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 2,
+     "published_name": " AES Pakgen Power Limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "365",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 37,
+     "published_name": " AES Pakgen Power Limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "365",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Saba Power Company (Pvt) Ltd.",
+   "aliases": [
+    "Saba Power Company\n  (Pvt) Ltd. "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 3 (136 MW); FY2023-24 S.No 43 (136 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 3,
+     "published_name": "Saba Power Company\n  (Pvt) Ltd. ",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "136",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 43,
+     "published_name": "Saba Power Company\n  (Pvt) Ltd. ",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "136",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Attock Gen Ltd (AGL)",
+   "aliases": [
+    "Attock Gen Ltd (AGL)"
+   ],
+   "parent_name": "Attock Group (Attock Gen Limited)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 4 (163 MW); FY2023-24 S.No 48 (163 MW). agl.com.pk / agl.com.pk/attock-group: Attock Gen Limited is the Attock Group's 165 MW IPP at Morgah, Rawalpindi and describes itself as a public UNLISTED company. 'ATGL' is not a PSX symbol (dps.psx.com.pk/company/ATGL returns Not Found), and PSX 'AGL' is Agritech Limited - see ambiguous_tokens.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 4,
+     "published_name": "Attock Gen Ltd (AGL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "163",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 48,
+     "published_name": "Attock Gen Ltd (AGL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "163",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Atlas Power Ltd (APL)",
+   "aliases": [
+    "Atlas Power Ltd (APL)"
+   ],
+   "parent_name": "Atlas Group (Atlas Power Limited)",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "low",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 5 (219 MW); FY2023-24 S.No 49 (219 MW). 219 MW RFO plant at Sheikhupura founded 2007 (gem.wiki 'Atlas Power Limited power station'). Atlas-group branded, but I could NOT verify which Atlas entity holds it or whether it is listed, so no ticker is asserted and listed_status is unknown. PSX 'APL' is Attock Petroleum Limited, a DIFFERENT company - see ambiguous_tokens.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 5,
+     "published_name": "Atlas Power Ltd (APL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "219",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 49,
+     "published_name": "Atlas Power Ltd (APL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "219",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Nishat Power Ltd (NPL)",
+   "aliases": [
+    "Nishat Power Ltd\n  (NPL)"
+   ],
+   "parent_name": "Nishat Power Limited",
+   "psx_ticker": "NPL",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 6 (200 MW); FY2023-24 S.No 53 (202 MW). NEPRA's acronym '(NPL)' coincides with the PSX symbol for the same company. PSX symbol confirmed on https://dps.psx.com.pk/company/NPL (fetched 2026-09-08). Separate listed company from Nishat Chunian Power Limited (NCPL) - do not merge.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 6,
+     "published_name": "Nishat Power Ltd\n  (NPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "200",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 53,
+     "published_name": "Nishat Power Ltd\n  (NPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "202",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Nishat Chunian Power Ltd (NCPL)",
+   "aliases": [
+    "Nishat Chunian Power\n  Ltd (NCPL)"
+   ],
+   "parent_name": "Nishat Chunian Power Limited",
+   "psx_ticker": "NCPL",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 7 (200 MW); FY2023-24 S.No 54 (209 MW). NEPRA's acronym '(NCPL)' coincides with the PSX symbol for the same company. PSX symbol confirmed on https://dps.psx.com.pk/company/NCPL (fetched 2026-09-08). Separate listed company from Nishat Power Limited (NPL) - do not merge.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 7,
+     "published_name": "Nishat Chunian Power\n  Ltd (NCPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "200",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 54,
+     "published_name": "Nishat Chunian Power\n  Ltd (NCPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "209",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Liberty Power Limited.",
+   "aliases": [
+    "Liberty Power\n  Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 8 (235 MW); FY2023-24 S.No 45 (225 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 8,
+     "published_name": "Liberty Power\n  Limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "235",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 45,
+     "published_name": "Liberty Power\n  Limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Kot Addu Power Company (KAPCO)",
+   "aliases": [
+    " Kot Addu Power Company (KAPCO)"
+   ],
+   "parent_name": "Kot Addu Power Company Limited",
+   "psx_ticker": "KAPCO",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 9 (1,601 MW); FY2023-24 S.No 33 (1,601 MW). NEPRA prints '(KAPCO)'. PSX symbol confirmed on https://dps.psx.com.pk/company/KAPCO (fetched 2026-09-08). NOTE: the generation workbook publishes KAPCO as ONE 1,601 MW row; the block-suffixed forms (Block-I/II/III) that appear on NEPRA tariff and licence surfaces are NOT separable here - see possible_duplicates.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 9,
+     "published_name": " Kot Addu Power Company (KAPCO)",
+     "technology": "THERMAL",
+     "fuel": "RFO/RLNG/HSD",
+     "installed_capacity_mw_raw": "1,601",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 33,
+     "published_name": " Kot Addu Power Company (KAPCO)",
+     "technology": "THERMAL",
+     "fuel": "RFO/RLNG/HSD",
+     "installed_capacity_mw_raw": "1,601",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Hub Power Company (HUBCO)",
+   "aliases": [
+    " Hub Power Company (HUBCO)"
+   ],
+   "parent_name": "The Hub Power Company Limited",
+   "psx_ticker": "HUBC",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 10 (1,292 MW); FY2023-24 S.No 34 (1,292 MW). NEPRA prints '(HUBCO)' in the published name. 1,292 MW RFO base plant at Hub, Balochistan, the company's own founding asset. PSX symbol confirmed on https://dps.psx.com.pk/company/HUBC (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 10,
+     "published_name": " Hub Power Company (HUBCO)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "1,292",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 34,
+     "published_name": " Hub Power Company (HUBCO)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "1,292",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Narowal Energy Ltd.",
+   "aliases": [
+    "Narowal\n  Energy Ltd. (HUBCO)",
+    "Narowal Energy Ltd."
+   ],
+   "parent_name": "The Hub Power Company Limited",
+   "psx_ticker": "HUBC",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 11 (225 MW); FY2023-24 S.No 58 (225 MW). hubpower.com/narowal-power-plant: Narowal Energy Limited is a WHOLLY OWNED HUBCO subsidiary owning the 225 MW Narowal plant. NEPRA published 'Narowal Energy Ltd. (HUBCO)' in FY2017-18 (S.No 11, 225 MW) and dropped the '(HUBCO)' suffix in FY2023-24 (S.No 58, 225 MW); no other Narowal row exists in either year, and the FY2017-18 form is absent from FY2023-24, so the two strings are the same plant. PSX symbol confirmed on https://dps.psx.com.pk/company/HUBC (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 11,
+     "published_name": "Narowal\n  Energy Ltd. (HUBCO)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 58,
+     "published_name": "Narowal Energy Ltd.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Kohinoor Energy Limited. (KEL)",
+   "aliases": [
+    " Kohinoor Energy Limited. (KEL)"
+   ],
+   "parent_name": "Kohinoor Energy Limited",
+   "psx_ticker": "KOHE",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 12 (131 MW); FY2023-24 S.No 35 (131 MW). NEPRA prints '(KEL)' for this 131 MW RFO plant near Lahore. The listed company is Kohinoor Energy Limited, PSX symbol KOHE - PSX symbol confirmed on https://dps.psx.com.pk/company/KOHE (fetched 2026-09-08). PSX symbol KEL belongs to K-Electric Limited, a DIFFERENT company; see ambiguous_tokens.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 12,
+     "published_name": " Kohinoor Energy Limited. (KEL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "131",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 35,
+     "published_name": " Kohinoor Energy Limited. (KEL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "131",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Habibullah Coastal Power Company (PVT) Limited. (HCPC)",
+   "aliases": [
+    "Habibullah\n  Coastal Power Company (PVT) Limited. (HCPC)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 13 (140 MW); FY2023-24 S.No 39 (140 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 13,
+     "published_name": "Habibullah\n  Coastal Power Company (PVT) Limited. (HCPC)",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "140",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 39,
+     "published_name": "Habibullah\n  Coastal Power Company (PVT) Limited. (HCPC)",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "140",
+     "installed_capacity_state": "numeric",
+     "block_status": "decommissioned"
+    }
+   ]
+  },
+  {
+   "canonical_name": "UCH Power Plant",
+   "aliases": [
+    "UCH Power Plant"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 14 (586 MW); FY2023-24 S.No 40 (586 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 14,
+     "published_name": "UCH Power Plant",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "586",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 40,
+     "published_name": "UCH Power Plant",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "586",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "ROUSCH Power Plant",
+   "aliases": [
+    "ROUSCH Power Plant"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 15 (450 MW); FY2023-24 S.No 41 (450 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 15,
+     "published_name": "ROUSCH Power Plant",
+     "technology": "THERMAL",
+     "fuel": "RLNG",
+     "installed_capacity_mw_raw": "450",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 41,
+     "published_name": "ROUSCH Power Plant",
+     "technology": "THERMAL",
+     "fuel": "RLNG",
+     "installed_capacity_mw_raw": "450",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Fauji Kabirwala Power Company Limited. (FKPCL)",
+   "aliases": [
+    "Fauji\n  Kabirwala Power Company Limited. (FKPCL)",
+    "Fauji Kabirwala Power\n  Company Limited. (FKPCL)"
+   ],
+   "parent_name": "Fauji group (holding vehicle unverified)",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "low",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 16 (157 MW); FY2023-24 S.No 42 (172 MW). Fauji-branded 157/172 MW gas plant at Kabirwala. The Fauji group has several listed vehicles (FFC, FFBL) and an unlisted Fauji Foundation; I could NOT establish which holds FKPCL, so no ticker is asserted.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 16,
+     "published_name": "Fauji\n  Kabirwala Power Company Limited. (FKPCL)",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "157",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 42,
+     "published_name": "Fauji Kabirwala Power\n  Company Limited. (FKPCL)",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "172",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Altern Energy Limited. (AEL)",
+   "aliases": [
+    "Altern Energy\n  Limited. (AEL)"
+   ],
+   "parent_name": "Altern Energy Limited",
+   "psx_ticker": "ALTN",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 17 (31 MW); FY2023-24 S.No 46 (31 MW). 31 MW gas plant at Attock/Fateh Jang. PSX symbol confirmed on https://dps.psx.com.pk/company/ALTN (fetched 2026-09-08). NOTE: NEPRA's acronym '(AEL)' is NOT the PSX symbol - PSX AEL is AEL Textile Limited; see ambiguous_tokens.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 17,
+     "published_name": "Altern Energy\n  Limited. (AEL)",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "31",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 46,
+     "published_name": "Altern Energy\n  Limited. (AEL)",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "31",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Davis Energen Power Limited.",
+   "aliases": [
+    "Davis Energen Power\n  Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 18 (13 MW); FY2023-24 S.No 47 (13 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 18,
+     "published_name": "Davis Energen Power\n  Limited.",
+     "technology": "THERMAL",
+     "fuel": "RLNG",
+     "installed_capacity_mw_raw": "13",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 47,
+     "published_name": "Davis Energen Power\n  Limited.",
+     "technology": "THERMAL",
+     "fuel": "RLNG",
+     "installed_capacity_mw_raw": "13",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Engro Powergen Qadirpur Ltd (EPQL)",
+   "aliases": [
+    "Engro Powergen\n  Qadirpur Ltd (EPQL)"
+   ],
+   "parent_name": "Engro Powergen Qadirpur Limited",
+   "psx_ticker": "EPQL",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 19 (226 MW); FY2023-24 S.No 50 (226 MW). NEPRA's acronym '(EPQL)' coincides with the PSX symbol for the same company. PSX symbol confirmed on https://dps.psx.com.pk/company/EPQL (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 19,
+     "published_name": "Engro Powergen\n  Qadirpur Ltd (EPQL)",
+     "technology": "THERMAL",
+     "fuel": "GAS/HSD",
+     "installed_capacity_mw_raw": "226",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 50,
+     "published_name": "Engro Powergen\n  Qadirpur Ltd (EPQL)",
+     "technology": "THERMAL",
+     "fuel": "GAS/HSD",
+     "installed_capacity_mw_raw": "226",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Saif Power Ltd (SPL)",
+   "aliases": [
+    "Saif Power Ltd (SPL)"
+   ],
+   "parent_name": "Saif Power Limited",
+   "psx_ticker": "SPWL",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 20 (225 MW); FY2023-24 S.No 51 (225 MW). 225 MW RLNG/HSD at Sahiwal. PSX symbol confirmed on https://dps.psx.com.pk/company/SPWL (fetched 2026-09-08). NOTE: NEPRA's acronym '(SPL)' is NOT the PSX symbol - PSX SPL is Sitara Peroxide Limited; see ambiguous_tokens.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 20,
+     "published_name": "Saif Power Ltd (SPL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 51,
+     "published_name": "Saif Power Ltd (SPL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Orient Power Company (Pvt) Ltd. (OPCL)",
+   "aliases": [
+    "Orient Power Company\n  (Pvt) Ltd. (OPCL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 21 (225 MW); FY2023-24 S.No 52 (225 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 21,
+     "published_name": "Orient Power Company\n  (Pvt) Ltd. (OPCL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 52,
+     "published_name": "Orient Power Company\n  (Pvt) Ltd. (OPCL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Foundation Power Company (Daharki) Ltd.",
+   "aliases": [
+    "Foundation Power\n  Company (Daharki) Ltd."
+   ],
+   "parent_name": "Fauji Foundation group (holding vehicle unverified)",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "low",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 22 (184 MW); FY2023-24 S.No 55 (184 MW). 'Foundation'-branded 184 MW gas plant at Daharki, conventionally a Fauji Foundation vehicle. Holding vehicle and listing status NOT verified, so no ticker is asserted.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 22,
+     "published_name": "Foundation Power\n  Company (Daharki) Ltd.",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "184",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 55,
+     "published_name": "Foundation Power\n  Company (Daharki) Ltd.",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "184",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Sapphire Electric Company Ltd (SECL)",
+   "aliases": [
+    "Sapphire Electric\n  Company Ltd (SECL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 23 (225 MW); FY2023-24 S.No 56 (225 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 23,
+     "published_name": "Sapphire Electric\n  Company Ltd (SECL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 56,
+     "published_name": "Sapphire Electric\n  Company Ltd (SECL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Liberty Power Tech Ltd. (LPTL)",
+   "aliases": [
+    "Liberty Power Tech\n  Ltd. (LPTL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 24 (202 MW); FY2023-24 S.No 57 (202 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 24,
+     "published_name": "Liberty Power Tech\n  Ltd. (LPTL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "202",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 57,
+     "published_name": "Liberty Power Tech\n  Ltd. (LPTL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "202",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Halmore Power Generation Company (Pvt) Ltd. (HPGCL)",
+   "aliases": [
+    "Halmore\n  Power Generation Company (Pvt) Ltd. (HPGCL)",
+    "Halmore Power\n  Generation Company (Pvt) Ltd. (HPGCL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 25 (225 MW); FY2023-24 S.No 59 (225 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 25,
+     "published_name": "Halmore\n  Power Generation Company (Pvt) Ltd. (HPGCL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 59,
+     "published_name": "Halmore Power\n  Generation Company (Pvt) Ltd. (HPGCL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "225",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "UCH-II Power (Pvt) Ltd.",
+   "aliases": [
+    "UCH-II Power (Pvt)\n  Ltd."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 26 (393 MW); FY2023-24 S.No 60 (393 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 26,
+     "published_name": "UCH-II Power (Pvt)\n  Ltd.",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "393",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 60,
+     "published_name": "UCH-II Power (Pvt)\n  Ltd.",
+     "technology": "THERMAL",
+     "fuel": "GAS",
+     "installed_capacity_mw_raw": "393",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Quaid-e-Azam Thermal Power (Pvt) Ltd. (QATPL)",
+   "aliases": [
+    "Quaid-e-Azam\n  Thermal Power (Pvt) Ltd. (QATPL)",
+    "Quaid-e-Azam Thermal\n  Power (Pvt) Ltd. (QATPL)"
+   ],
+   "parent_name": "Government of the Punjab",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 27 (1,198 MW); FY2023-24 S.No 61 (1,230 MW). Punjab-government owned generation vehicle (QATPL / QASPL / Punjab Thermal Power). Not PSX-listed. Attribution is domain knowledge, not a quote from the published name.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 27,
+     "published_name": "Quaid-e-Azam\n  Thermal Power (Pvt) Ltd. (QATPL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,198",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 61,
+     "published_name": "Quaid-e-Azam Thermal\n  Power (Pvt) Ltd. (QATPL)",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,230",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Huaneng Shandong Ruyi (Pakistan) Energy (Private) Limited. (HSRPEL)",
+   "aliases": [
+    "Huaneng\n  Shandong Ruyi (Pakistan) Energy (Private) Limited. (HSRPEL)",
+    "Huaneng Shandong Ruyi\n  (Pakistan) Energy (Private) Limited. (HSRPEL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 28 (1,320 MW); FY2023-24 S.No 62 (1,320 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 28,
+     "published_name": "Huaneng\n  Shandong Ruyi (Pakistan) Energy (Private) Limited. (HSRPEL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "1,320",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 62,
+     "published_name": "Huaneng Shandong Ruyi\n  (Pakistan) Energy (Private) Limited. (HSRPEL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "1,320",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "(NPPCL) - Haveli Bahadar Shah",
+   "aliases": [
+    "(NPPCL) - Haveli\n  Bahadar Shah"
+   ],
+   "parent_name": "National Power Parks Management Company (Private) Limited",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 29 (1,230 MW); FY2023-24 S.No 63 (1,230 MW). NEPRA prints the operator acronym '(NPPCL)'/'(NPPMCL)' as a prefix of the published row name. Federal-government owned RLNG parks (Haveli Bahadur Shah, Balloki); not PSX-listed.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 29,
+     "published_name": "(NPPCL) - Haveli\n  Bahadar Shah",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,230",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 63,
+     "published_name": "(NPPCL) - Haveli\n  Bahadar Shah",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,230",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "(NPPMCL) - Balloki",
+   "aliases": [
+    "(NPPMCL) - Balloki"
+   ],
+   "parent_name": "National Power Parks Management Company (Private) Limited",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 30 (1,223 MW); FY2023-24 S.No 66 (1,223 MW). NEPRA prints the operator acronym '(NPPCL)'/'(NPPMCL)' as a prefix of the published row name. Federal-government owned RLNG parks (Haveli Bahadur Shah, Balloki); not PSX-listed.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 30,
+     "published_name": "(NPPMCL) - Balloki",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,223",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 66,
+     "published_name": "(NPPMCL) - Balloki",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,223",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Port Qasim Electric Power Company (Private) Limited. (PQEPCL)",
+   "aliases": [
+    "Port\n  Qasim Electric Power Company (Private) Limited. (PQEPCL)",
+    "Port Qasim Electric\n  Power Company (Private) Limited. (PQEPCL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 31 (1,320 MW); FY2023-24 S.No 67 (1,320 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 31,
+     "published_name": "Port\n  Qasim Electric Power Company (Private) Limited. (PQEPCL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "1,320",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 67,
+     "published_name": "Port Qasim Electric\n  Power Company (Private) Limited. (PQEPCL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "1,320",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Engro Powergen Thar (Private) Limited. (EPTPL)",
+   "aliases": [
+    "Engro\n  Powergen Thar (Private) Limited. (EPTPL)",
+    "Engro Powergen Thar\n  (Private) Limited. (EPTPL)"
+   ],
+   "parent_name": "Engro Corporation Limited",
+   "psx_ticker": "ENGRO",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 32 (0 MW); FY2023-24 S.No 68 (660 MW). Engro Powergen Thar is the Engro group's 660 MW mine-mouth Thar lignite plant; the listed holding company is Engro Corporation Limited - PSX symbol confirmed on https://dps.psx.com.pk/company/ENGRO (fetched 2026-09-08). Engro's stake is a JV interest, not 100%, and I did not verify the exact percentage. Engro Powergen Qadirpur (EPQL) is a SEPARATE, separately listed company - do not merge.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 32,
+     "published_name": "Engro\n  Powergen Thar (Private) Limited. (EPTPL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "0",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 68,
+     "published_name": "Engro Powergen Thar\n  (Private) Limited. (EPTPL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "660",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "China Power Hub Generation Company (Private) Limited. (CPHGCL)",
+   "aliases": [
+    "China\n  Power Hub Generation Company (Private) Limited. (CPHGCL)",
+    "China Power Hub\n  Generation Company (Private) Limited. (CPHGCL)"
+   ],
+   "parent_name": "The Hub Power Company Limited",
+   "psx_ticker": "HUBC",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 33 (0 MW); FY2023-24 S.No 69 (1,320 MW). CPHGC is a HUBCO / China Power International Holdings joint venture (hubpower.com; en.wikipedia.org/wiki/Hub_Power_Company); HUBCO's holding is a minority-to-half JV stake, not control of 100% of the 1,320 MW. Treat as partial exposure. PSX symbol confirmed on https://dps.psx.com.pk/company/HUBC (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 33,
+     "published_name": "China\n  Power Hub Generation Company (Private) Limited. (CPHGCL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "0",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 69,
+     "published_name": "China Power Hub\n  Generation Company (Private) Limited. (CPHGCL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "1,320",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Southern Electric Power Company Limited. (SEPCOL)",
+   "aliases": [
+    " Southern Electric Power Company Limited.\n  (SEPCOL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 34 (135 MW); FY2023-24 S.No 38 (135 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 34,
+     "published_name": " Southern Electric Power Company Limited.\n  (SEPCOL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "135",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 38,
+     "published_name": " Southern Electric Power Company Limited.\n  (SEPCOL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "135",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Japan Power Generation Limited.",
+   "aliases": [
+    "Japan Power\n  Generation Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 35 (120 MW); FY2023-24 S.No 44 (120 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 35,
+     "published_name": "Japan Power\n  Generation Limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "120",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 44,
+     "published_name": "Japan Power\n  Generation Limited.",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "120",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Reshma Power Generation (Private) Limited. (RPGPL)",
+   "aliases": [
+    "Reshma\n  Power Generation (Private) Limited. (RPGPL)",
+    "Reshma Power\n  Generation (Private) Limited. (RPGPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 36 (97 MW); FY2023-24 S.No 64 (97 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 36,
+     "published_name": "Reshma\n  Power Generation (Private) Limited. (RPGPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "97",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 64,
+     "published_name": "Reshma Power\n  Generation (Private) Limited. (RPGPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "97",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Gulf Powergen (Private) Limited. (GPPL)",
+   "aliases": [
+    "Gulf Powergen\n  (Private) Limited. (GPPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 37 (84 MW); FY2023-24 S.No 65 (84 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 37,
+     "published_name": "Gulf Powergen\n  (Private) Limited. (GPPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "84",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 65,
+     "published_name": "Gulf Powergen\n  (Private) Limited. (GPPL)",
+     "technology": "THERMAL",
+     "fuel": "RFO",
+     "installed_capacity_mw_raw": "84",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chashma Nuclear Power Plant 1 (CHASHNUPP-I)",
+   "aliases": [
+    " Chashma Nuclear Power Plant 1\n  (CHASHNUPP-I)  "
+   ],
+   "parent_name": "Pakistan Atomic Energy Commission (PAEC)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 38 (325 MW); FY2023-24 S.No 84 (325 MW). CHASHNUPP and KANUPP units are operated by PAEC. The published NEPRA name does NOT carry the operator, so this is domain attribution rather than a quote from the source; PAEC is a federal commission with no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 38,
+     "published_name": " Chashma Nuclear Power Plant 1\n  (CHASHNUPP-I)  ",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "325",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 84,
+     "published_name": " Chashma Nuclear Power Plant 1\n  (CHASHNUPP-I)  ",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "325",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chashma Nuclear Power Plant 2 (CHASHNUPP-II)",
+   "aliases": [
+    " Chashma Nuclear Power Plant 2 (CHASHNUPP-II)"
+   ],
+   "parent_name": "Pakistan Atomic Energy Commission (PAEC)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 39 (340 MW); FY2023-24 S.No 85 (340 MW). CHASHNUPP and KANUPP units are operated by PAEC. The published NEPRA name does NOT carry the operator, so this is domain attribution rather than a quote from the source; PAEC is a federal commission with no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 39,
+     "published_name": " Chashma Nuclear Power Plant 2 (CHASHNUPP-II)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "340",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 85,
+     "published_name": " Chashma Nuclear Power Plant 2 (CHASHNUPP-II)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "340",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chashma Nuclear Power Plant 3 (CHASHNUPP-III)",
+   "aliases": [
+    " Chashma Nuclear Power Plant 3\n  (CHASHNUPP-III) "
+   ],
+   "parent_name": "Pakistan Atomic Energy Commission (PAEC)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 40 (340 MW); FY2023-24 S.No 86 (340 MW). CHASHNUPP and KANUPP units are operated by PAEC. The published NEPRA name does NOT carry the operator, so this is domain attribution rather than a quote from the source; PAEC is a federal commission with no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 40,
+     "published_name": " Chashma Nuclear Power Plant 3\n  (CHASHNUPP-III) ",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "340",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 86,
+     "published_name": " Chashma Nuclear Power Plant 3\n  (CHASHNUPP-III) ",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "340",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chashma Nuclear Power Plant 4 (CHASHNUPP-IV)",
+   "aliases": [
+    " Chashma Nuclear Power Plant 4 (CHASHNUPP-IV)"
+   ],
+   "parent_name": "Pakistan Atomic Energy Commission (PAEC)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 41 (340 MW); FY2023-24 S.No 87 (340 MW). CHASHNUPP and KANUPP units are operated by PAEC. The published NEPRA name does NOT carry the operator, so this is domain attribution rather than a quote from the source; PAEC is a federal commission with no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 41,
+     "published_name": " Chashma Nuclear Power Plant 4 (CHASHNUPP-IV)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "340",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 87,
+     "published_name": " Chashma Nuclear Power Plant 4 (CHASHNUPP-IV)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "340",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Karachi Nuclear Power Plant-II (K-2)",
+   "aliases": [
+    "Karachi Nuclear Power\n  Plant-II (K-2)"
+   ],
+   "parent_name": "Pakistan Atomic Energy Commission (PAEC)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 42 (installed capacity NOT REPORTED); FY2023-24 S.No 88 (1,100 MW). CHASHNUPP and KANUPP units are operated by PAEC. The published NEPRA name does NOT carry the operator, so this is domain attribution rather than a quote from the source; PAEC is a federal commission with no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 42,
+     "published_name": "Karachi Nuclear Power\n  Plant-II (K-2)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 88,
+     "published_name": "Karachi Nuclear Power\n  Plant-II (K-2)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "1,100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Jagran Hydropower Project",
+   "aliases": [
+    "Jagran Hydropower\n  Project "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 43 (30 MW); FY2023-24 S.No 26 (30 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 43,
+     "published_name": "Jagran Hydropower\n  Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "30",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 26,
+     "published_name": "Jagran Hydropower\n  Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "30",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Malakand - III Hydropower Project",
+   "aliases": [
+    "Malakand - III\n  Hydropower Project "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 44 (81 MW); FY2023-24 S.No 27 (81 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 44,
+     "published_name": "Malakand - III\n  Hydropower Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "81",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 27,
+     "published_name": "Malakand - III\n  Hydropower Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "81",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "New Bong Escape Hydropower Project",
+   "aliases": [
+    "New Bong Escape\n  Hydropower Project "
+   ],
+   "parent_name": "The Hub Power Company Limited",
+   "psx_ticker": "HUBC",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 45 (84 MW); FY2023-24 S.No 28 (84 MW). The 84 MW New Bong Escape run-of-river plant is owned by Laraib Energy Limited, in which HUBCO holds a ~75% controlling stake (en.wikipedia.org/wiki/Hub_Power_Company; hubpower.com). NEPRA publishes only the PROJECT name here with no company or parent suffix, so the plant-to-company link is domain attribution, not a quote from the source. PSX symbol confirmed on https://dps.psx.com.pk/company/HUBC (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 45,
+     "published_name": "New Bong Escape\n  Hydropower Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "84",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 28,
+     "published_name": "New Bong Escape\n  Hydropower Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "84",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Patrind Hydropower Project",
+   "aliases": [
+    "Patrind Hydropower\n  Project "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 46 (147 MW); FY2023-24 S.No 29 (150 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 46,
+     "published_name": "Patrind Hydropower\n  Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "147",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 29,
+     "published_name": "Patrind Hydropower\n  Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "150",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Daral Khwar (Behren) Hydropower Project",
+   "aliases": [
+    "Daral Khwar (Behren)\n  Hydropower Project "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 47 (installed capacity NOT REPORTED); FY2023-24 S.No 30 (37 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 47,
+     "published_name": "Daral Khwar (Behren)\n  Hydropower Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 30,
+     "published_name": "Daral Khwar (Behren)\n  Hydropower Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "37",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Gulpur Hydropower Project",
+   "aliases": [
+    "Gulpur Hydropower\n  Project "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 48 (installed capacity NOT REPORTED); FY2023-24 S.No 31 (103 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 48,
+     "published_name": "Gulpur Hydropower\n  Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 31,
+     "published_name": "Gulpur Hydropower\n  Project ",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "103",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tarbela Hydropower Project (WAPDA)",
+   "aliases": [
+    "Tarbela Hydropower\n  Project (WAPDA)",
+    "Tarbela Hydropower Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 49 (3,948 MW); FY2023-24 S.No 1 (3,478 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 49,
+     "published_name": "Tarbela Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "3,948",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 1,
+     "published_name": "Tarbela Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "3,478",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tarbela Ext. 04 Hydropower Project (WAPDA)",
+   "aliases": [
+    "Tarbela  Ext. 04 Hydropower Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 50 (installed capacity NOT REPORTED); FY2023-24 S.No 2 (1,410 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 50,
+     "published_name": "Tarbela  Ext. 04 Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 2,
+     "published_name": "Tarbela  Ext. 04 Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "1,410",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Mangla Hydropower Project (WAPDA)",
+   "aliases": [
+    "Mangla Hydropower\n  Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 51 (1,000 MW); FY2023-24 S.No 3 (1,070 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 51,
+     "published_name": "Mangla Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "1,000",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 3,
+     "published_name": "Mangla Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "1,070",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Ghazi Brotha Hydropower Project (WAPDA)",
+   "aliases": [
+    "Ghazi Brotha\n  Hydropower Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 52 (1,450 MW); FY2023-24 S.No 4 (1,450 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 52,
+     "published_name": "Ghazi Brotha\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "1,450",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 4,
+     "published_name": "Ghazi Brotha\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "1,450",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Warsak Hydropower Project (WAPDA)",
+   "aliases": [
+    "Warsak Hydropower\n  Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 53 (243 MW); FY2023-24 S.No 5 (243 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 53,
+     "published_name": "Warsak Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "243",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 5,
+     "published_name": "Warsak Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "243",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chashma Hydropower Project (WAPDA)",
+   "aliases": [
+    "Chashma Hydropower\n  Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 54 (184 MW); FY2023-24 S.No 6 (184 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 54,
+     "published_name": "Chashma Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "184",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 6,
+     "published_name": "Chashma Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "184",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Jinnah Hydel Power Project (WAPDA)",
+   "aliases": [
+    "Jinnah Hydel Power\n  Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 55 (96 MW); FY2023-24 S.No 7 (96 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 55,
+     "published_name": "Jinnah Hydel Power\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "96",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 7,
+     "published_name": "Jinnah Hydel Power\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "96",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Allai Khwar Hydropower Project (WAPDA)",
+   "aliases": [
+    "Allai Khwar\n  Hydropower Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 56 (121 MW); FY2023-24 S.No 8 (121 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 56,
+     "published_name": "Allai Khwar\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "121",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 8,
+     "published_name": "Allai Khwar\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "121",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Khan Khwar Hydropower Project (WAPDA)",
+   "aliases": [
+    "Khan Khwar Hydropower\n  Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 57 (72 MW); FY2023-24 S.No 9 (72 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 57,
+     "published_name": "Khan Khwar Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "72",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 9,
+     "published_name": "Khan Khwar Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "72",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Dubair Khwar Hydropower Project (WAPDA)",
+   "aliases": [
+    "Dubair Khwar\n  Hydropower Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 58 (130 MW); FY2023-24 S.No 10 (130 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 58,
+     "published_name": "Dubair Khwar\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "130",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 10,
+     "published_name": "Dubair Khwar\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "130",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Neelum Jhelum Hydropower Project (WAPDA)",
+   "aliases": [
+    "Neelum\n  Jhelum Hydropower Project (WAPDA)",
+    "Neelum Jhelum\n  Hydropower Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 59 (969 MW); FY2023-24 S.No 11 (969 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 59,
+     "published_name": "Neelum\n  Jhelum Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "969",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 11,
+     "published_name": "Neelum Jhelum\n  Hydropower Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "969",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Golen Gol Hydropower Project (WAPDA)",
+   "aliases": [
+    "Golen Gol Hydropower\n  Project (WAPDA)"
+   ],
+   "parent_name": "Pakistan Water and Power Development Authority (WAPDA)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 60 (installed capacity NOT REPORTED); FY2023-24 S.No 12 (108 MW). NEPRA prints the operator suffix '(WAPDA)' inside the published plant name itself, so the parent is read off the published string, not inferred. WAPDA is a federal statutory authority and has no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 60,
+     "published_name": "Golen Gol Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 12,
+     "published_name": "Golen Gol Hydropower\n  Project (WAPDA)",
+     "technology": "HYDEL-(WAPDA)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "108",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Quaid-e-Azam Solar Power (Private) Limited. (QASPL)",
+   "aliases": [
+    "Quaid-e-Azam\n  Solar Power (Private) Limited. (QASPL)",
+    "Quaid-e-Azam Solar\n  Power (Private) Limited. (QASPL)"
+   ],
+   "parent_name": "Government of the Punjab",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 61 (100 MW); FY2023-24 S.No 90 (100 MW). Punjab-government owned generation vehicle (QATPL / QASPL / Punjab Thermal Power). Not PSX-listed. Attribution is domain knowledge, not a quote from the published name.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 61,
+     "published_name": "Quaid-e-Azam\n  Solar Power (Private) Limited. (QASPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 90,
+     "published_name": "Quaid-e-Azam Solar\n  Power (Private) Limited. (QASPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Apollo Solar Development Pakistan Limited.",
+   "aliases": [
+    "Apollo Solar\n  Development Pakistan Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 62 (100 MW); FY2023-24 S.No 91 (100 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 62,
+     "published_name": "Apollo Solar\n  Development Pakistan Limited.",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 91,
+     "published_name": "Apollo Solar\n  Development Pakistan Limited.",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Best Green Energy Pakistan Limited. (BGEPL)",
+   "aliases": [
+    "Best Green Energy\n  Pakistan Limited. (BGEPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 63 (100 MW); FY2023-24 S.No 92 (100 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 63,
+     "published_name": "Best Green Energy\n  Pakistan Limited. (BGEPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 92,
+     "published_name": "Best Green Energy\n  Pakistan Limited. (BGEPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Crest Energy Pakistan Limited.",
+   "aliases": [
+    "Crest Energy Pakistan\n  Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 64 (100 MW); FY2023-24 S.No 93 (100 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 64,
+     "published_name": "Crest Energy Pakistan\n  Limited.",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 93,
+     "published_name": "Crest Energy Pakistan\n  Limited.",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "JDW Sugar Mills Limited. (Unit-II) Rahim Yar Khan",
+   "aliases": [
+    "JDW\n  Sugar Mills Limited. (Unit-II) Rahim Yar Khan",
+    "JDW Sugar Mills\n  Limited. (Unit-II) Rahim Yar Khan"
+   ],
+   "parent_name": "JDW Sugar Mills Limited",
+   "psx_ticker": "JDWS",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 65 (26 MW); FY2023-24 S.No 75 (26 MW). The published row name IS the listed company plus a unit qualifier. PSX symbol confirmed on https://dps.psx.com.pk/company/JDWS (fetched 2026-09-08). Unit-II (RYK) and Unit-III (Ghotki) are SEPARATE 26 MW / 27 MW bagasse rows and are kept as separate canonical plants under one ticker.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 65,
+     "published_name": "JDW\n  Sugar Mills Limited. (Unit-II) Rahim Yar Khan",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "26",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 75,
+     "published_name": "JDW Sugar Mills\n  Limited. (Unit-II) Rahim Yar Khan",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "26",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "JDW Sugar Mills Limited. (Unit-III) Ghotki",
+   "aliases": [
+    "JDW Sugar Mills\n  Limited. (Unit-III) Ghotki"
+   ],
+   "parent_name": "JDW Sugar Mills Limited",
+   "psx_ticker": "JDWS",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 66 (27 MW); FY2023-24 S.No 76 (27 MW). The published row name IS the listed company plus a unit qualifier. PSX symbol confirmed on https://dps.psx.com.pk/company/JDWS (fetched 2026-09-08). Separate canonical plant from Unit-II (RYK).",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 66,
+     "published_name": "JDW Sugar Mills\n  Limited. (Unit-III) Ghotki",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "27",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 76,
+     "published_name": "JDW Sugar Mills\n  Limited. (Unit-III) Ghotki",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "27",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "RYK Mills Limited. (RYKML)",
+   "aliases": [
+    "RYK Mills Limited.\n  (RYKML)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 67 (30 MW); FY2023-24 S.No 77 (30 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 67,
+     "published_name": "RYK Mills Limited.\n  (RYKML)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "30",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 77,
+     "published_name": "RYK Mills Limited.\n  (RYKML)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "30",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chiniot Power Limited. (CPL)",
+   "aliases": [
+    "Chiniot Power\n  Limited. (CPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 68 (63 MW); FY2023-24 S.No 78 (63 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 68,
+     "published_name": "Chiniot Power\n  Limited. (CPL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "63",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 78,
+     "published_name": "Chiniot Power\n  Limited. (CPL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "63",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Fatima Energy Limited. (FEL)",
+   "aliases": [
+    "Fatima Energy\n  Limited. (FEL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 69 (120 MW); FY2023-24 S.No 79 (120 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 69,
+     "published_name": "Fatima Energy\n  Limited. (FEL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE/COAL",
+     "installed_capacity_mw_raw": "120",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 79,
+     "published_name": "Fatima Energy\n  Limited. (FEL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE/COAL",
+     "installed_capacity_mw_raw": "120",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Hamza Sugar Mills Limited. (HSML)",
+   "aliases": [
+    "Hamza Sugar Mills\n  Limited. (HSML)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 70 (15 MW); FY2023-24 S.No 80 (15 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 70,
+     "published_name": "Hamza Sugar Mills\n  Limited. (HSML)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "15",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 80,
+     "published_name": "Hamza Sugar Mills\n  Limited. (HSML)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "15",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thal Industries Corporation Limited. (TICL) - Layyah Sugar Mills",
+   "aliases": [
+    "Thal\n  Industries Corporation Limited. (TICL) - Layyah Sugar Mills",
+    "Thal Industries\n  Corporation Limited. (TICL) - Layyah Sugar Mills"
+   ],
+   "parent_name": "The Thal Industries Corporation Limited",
+   "psx_ticker": "TICL",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 71 (25 MW); FY2023-24 S.No 81 (25 MW). The published row name IS the listed company; NEPRA's acronym '(TICL)' coincides with the PSX symbol. PSX symbol confirmed on https://dps.psx.com.pk/company/TICL (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 71,
+     "published_name": "Thal\n  Industries Corporation Limited. (TICL) - Layyah Sugar Mills",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "25",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 81,
+     "published_name": "Thal Industries\n  Corporation Limited. (TICL) - Layyah Sugar Mills",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "25",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Al-Moiz Industries Limited. (AMIL)",
+   "aliases": [
+    "Al-Moiz Industries\n  Limited. (AMIL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 72 (installed capacity NOT REPORTED); FY2023-24 S.No 82 (36 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 72,
+     "published_name": "Al-Moiz Industries\n  Limited. (AMIL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 82,
+     "published_name": "Al-Moiz Industries\n  Limited. (AMIL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "36",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Chanar Energy Limited. (CEL)",
+   "aliases": [
+    "Chanar Energy\n  Limited. (CEL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 73 (installed capacity NOT REPORTED); FY2023-24 S.No 83 (22 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 73,
+     "published_name": "Chanar Energy\n  Limited. (CEL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 83,
+     "published_name": "Chanar Energy\n  Limited. (CEL)",
+     "technology": "BIOGAS",
+     "fuel": "BAGASSE",
+     "installed_capacity_mw_raw": "22",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "FFC Energy Ltd.",
+   "aliases": [
+    "FFC Energy Ltd."
+   ],
+   "parent_name": "Fauji Fertilizer Company Limited",
+   "psx_ticker": "FFC",
+   "listed_status": "listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 74 (50 MW); FY2023-24 S.No 98 (50 MW). FFC Energy Limited is the Fauji Fertilizer Company wind vehicle at Jhimpir (published 50 MW). PSX symbol confirmed on https://dps.psx.com.pk/company/FFC (fetched 2026-09-08). I confirmed the FFC symbol and the FFC-group relationship but did not obtain a primary shareholding document, so this is medium.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 74,
+     "published_name": "FFC Energy Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 98,
+     "published_name": "FFC Energy Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Zorlu Enerji Pakistan Ltd. (ZEPL)",
+   "aliases": [
+    "Zorlu Enerji Pakistan\n  Ltd. (ZEPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 75 (56 MW); FY2023-24 S.No 99 (56 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 75,
+     "published_name": "Zorlu Enerji Pakistan\n  Ltd. (ZEPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "56",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 99,
+     "published_name": "Zorlu Enerji Pakistan\n  Ltd. (ZEPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "56",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Three Gorges First Wind Farm Pakistan (Pvt.) Ltd. (TGF)",
+   "aliases": [
+    "\n    Three Gorges First Wind Farm Pakistan (Pvt.) Ltd. (TGF)                                     "
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 76 (50 MW); FY2023-24 S.No 100 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 76,
+     "published_name": "\n    Three Gorges First Wind Farm Pakistan (Pvt.) Ltd. (TGF)                                     ",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 100,
+     "published_name": "\n    Three Gorges First Wind Farm Pakistan (Pvt.) Ltd. (TGF)                                     ",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Foundation Wind Energy-I Ltd. (FWEL-I)",
+   "aliases": [
+    "\n    Foundation Wind Energy-I Ltd. (FWEL-I)      \n                               ",
+    "\n    Foundation Wind Energy-I Ltd. (FWEL-I)                                    "
+   ],
+   "parent_name": "Fauji Foundation group (holding vehicle unverified)",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "low",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 77 (50 MW); FY2023-24 S.No 101 (50 MW). 'Foundation'-branded 50 MW Jhimpir wind farm. Holding vehicle and listing status NOT verified. DISTINCT plant from the FWEL-II row - NEPRA publishes BOTH with the base string 'Foundation Wind Energy-I Ltd.', which looks like an upstream typo; see possible_duplicates.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 77,
+     "published_name": "\n    Foundation Wind Energy-I Ltd. (FWEL-I)      \n                               ",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 101,
+     "published_name": "\n    Foundation Wind Energy-I Ltd. (FWEL-I)                                    ",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Foundation Wind Energy-I Ltd. (FWEL-II)",
+   "aliases": [
+    "Foundation Wind\n  Energy-I Ltd. (FWEL-II)                                  ",
+    "Foundation Wind\n  Energy-I Ltd. (FWEL-II)                                  "
+   ],
+   "parent_name": "Fauji Foundation group (holding vehicle unverified)",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "low",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 78 (50 MW); FY2023-24 S.No 102 (50 MW). 'Foundation'-branded 50 MW Jhimpir wind farm, second project. Holding vehicle and listing status NOT verified. DISTINCT plant from the FWEL-I row despite the identical published base string; see possible_duplicates.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 78,
+     "published_name": "Foundation Wind\n  Energy-I Ltd. (FWEL-II)                                  ",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 102,
+     "published_name": "Foundation Wind\n  Energy-I Ltd. (FWEL-II)                                  ",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Sapphire Wind Power Company Ltd. (SWPCL)",
+   "aliases": [
+    "Sapphire Wind Power\n  Company Ltd. (SWPCL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 79 (50 MW); FY2023-24 S.No 103 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 79,
+     "published_name": "Sapphire Wind Power\n  Company Ltd. (SWPCL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 103,
+     "published_name": "Sapphire Wind Power\n  Company Ltd. (SWPCL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Metro Power Company Ltd. (MPCL)",
+   "aliases": [
+    "Metro Power Company\n  Ltd. (MPCL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 80 (50 MW); FY2023-24 S.No 104 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 80,
+     "published_name": "Metro Power Company\n  Ltd. (MPCL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 104,
+     "published_name": "Metro Power Company\n  Ltd. (MPCL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Yunus Energy Ltd.",
+   "aliases": [
+    "Yunus Energy Ltd."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 81 (50 MW); FY2023-24 S.No 105 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 81,
+     "published_name": "Yunus Energy Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 105,
+     "published_name": "Yunus Energy Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tapal Wind Power Energy Private Ltd. (TWEPL)",
+   "aliases": [
+    "Tapal Wind Power\n  Energy Private Ltd. (TWEPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 82 (30 MW); FY2023-24 S.No 106 (30 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 82,
+     "published_name": "Tapal Wind Power\n  Energy Private Ltd. (TWEPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "30",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 106,
+     "published_name": "Tapal Wind Power\n  Energy Private Ltd. (TWEPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "30",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Master Wind Energy Limited. (MWEL)",
+   "aliases": [
+    "Master Wind Energy\n  Limited. (MWEL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 83 (50 MW); FY2023-24 S.No 107 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 83,
+     "published_name": "Master Wind Energy\n  Limited. (MWEL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 107,
+     "published_name": "Master Wind Energy\n  Limited. (MWEL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tenaga Generasi Ltd.",
+   "aliases": [
+    "Tenaga Generasi Ltd."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 84 (50 MW); FY2023-24 S.No 123 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 84,
+     "published_name": "Tenaga Generasi Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 123,
+     "published_name": "Tenaga Generasi Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Gul Ahmed Wind Power Ltd.",
+   "aliases": [
+    "Gul Ahmed Wind Power\n  Ltd."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 85 (50 MW); FY2023-24 S.No 109 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 85,
+     "published_name": "Gul Ahmed Wind Power\n  Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 109,
+     "published_name": "Gul Ahmed Wind Power\n  Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Hydrochina Dawood Power (Pvt.) Ltd. (HDPPL)",
+   "aliases": [
+    "Hydrochina Dawood\n  Power (Pvt.) Ltd. (HDPPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 86 (50 MW); FY2023-24 S.No 124 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 86,
+     "published_name": "Hydrochina Dawood\n  Power (Pvt.) Ltd. (HDPPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 124,
+     "published_name": "Hydrochina Dawood\n  Power (Pvt.) Ltd. (HDPPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Sachal Energy Development (Pvt) Ltd. (SEDPL)",
+   "aliases": [
+    "Sachal Energy\n  Development (Pvt) Ltd. (SEDPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 87 (50 MW); FY2023-24 S.No 111 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 87,
+     "published_name": "Sachal Energy\n  Development (Pvt) Ltd. (SEDPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 111,
+     "published_name": "Sachal Energy\n  Development (Pvt) Ltd. (SEDPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "UEP Wind Power (Pvt) Ltd.",
+   "aliases": [
+    "UEP Wind Power (Pvt)\n  Ltd."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 88 (99 MW); FY2023-24 S.No 112 (99 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 88,
+     "published_name": "UEP Wind Power (Pvt)\n  Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "99",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 112,
+     "published_name": "UEP Wind Power (Pvt)\n  Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "99",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Artistic Wind Power (Pvt.) Limited.",
+   "aliases": [
+    "Artistic Wind Power\n  (Pvt.) Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 89 (50 MW); FY2023-24 S.No 113 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 89,
+     "published_name": "Artistic Wind Power\n  (Pvt.) Limited.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 113,
+     "published_name": "Artistic Wind Power\n  (Pvt.) Limited.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Jhimpir Power (Private) Limited. (JPPL)",
+   "aliases": [
+    "Jhimpir Power\n  (Private) Limited. (JPPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 90 (50 MW); FY2023-24 S.No 114 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 90,
+     "published_name": "Jhimpir Power\n  (Private) Limited. (JPPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 114,
+     "published_name": "Jhimpir Power\n  (Private) Limited. (JPPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Hawa Energy (Private) Ltd. (HEPL)",
+   "aliases": [
+    "Hawa Energy (Private)\n  Ltd. (HEPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 91 (50 MW); FY2023-24 S.No 115 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 91,
+     "published_name": "Hawa Energy (Private)\n  Ltd. (HEPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 115,
+     "published_name": "Hawa Energy (Private)\n  Ltd. (HEPL)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Three Gorges Third Wind Farm (Private) Ltd. (TGT)",
+   "aliases": [
+    "Three\n  Gorges Third Wind Farm (Private) Ltd. (TGT)",
+    "Three Gorges Third\n  Wind Farm (Private) Ltd. (TGT)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 92 (50 MW); FY2023-24 S.No 116 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 92,
+     "published_name": "Three\n  Gorges Third Wind Farm (Private) Ltd. (TGT)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 116,
+     "published_name": "Three Gorges Third\n  Wind Farm (Private) Ltd. (TGT)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Three Gorges Second Wind Farm (Private) Ltd. (TGS)",
+   "aliases": [
+    "\n    Three Gorges Second Wind Farm (Private) Ltd. (TGS)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 93 (0 MW); FY2023-24 S.No 117 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 93,
+     "published_name": "\n    Three Gorges Second Wind Farm (Private) Ltd. (TGS)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "0",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 117,
+     "published_name": "\n    Three Gorges Second Wind Farm (Private) Ltd. (TGS)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tricon Boston Consulting Corporation (Private) Ltd-A (TBCCPL-A)",
+   "aliases": [
+    "Tricon\n  Boston Consulting Corporation (Private) Ltd-A (TBCCPL-A)",
+    "Tricon Boston\n  Consulting Corporation (Private) Ltd-A (TBCCPL-A)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 94 (installed capacity NOT REPORTED); FY2023-24 S.No 118 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 94,
+     "published_name": "Tricon\n  Boston Consulting Corporation (Private) Ltd-A (TBCCPL-A)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 118,
+     "published_name": "Tricon Boston\n  Consulting Corporation (Private) Ltd-A (TBCCPL-A)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tricon Boston Consulting Corporation (Private) Ltd-B (TBCCPL-B)",
+   "aliases": [
+    "Tricon\n  Boston Consulting Corporation (Private) Ltd-B (TBCCPL-B)",
+    "Tricon Boston\n  Consulting Corporation (Private) Ltd-B (TBCCPL-B)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 95 (installed capacity NOT REPORTED); FY2023-24 S.No 119 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 95,
+     "published_name": "Tricon\n  Boston Consulting Corporation (Private) Ltd-B (TBCCPL-B)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 119,
+     "published_name": "Tricon Boston\n  Consulting Corporation (Private) Ltd-B (TBCCPL-B)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tricon Boston Consulting Corporation (Private) Ltd-C (TBCCPL-C)",
+   "aliases": [
+    "Tricon\n  Boston Consulting Corporation (Private) Ltd-C (TBCCPL-C)",
+    "Tricon Boston\n  Consulting Corporation (Private) Ltd-C (TBCCPL-C)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 96 (installed capacity NOT REPORTED); FY2023-24 S.No 120 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 96,
+     "published_name": "Tricon\n  Boston Consulting Corporation (Private) Ltd-C (TBCCPL-C)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 120,
+     "published_name": "Tricon Boston\n  Consulting Corporation (Private) Ltd-C (TBCCPL-C)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Zephyr Power (Pvt.) Ltd.",
+   "aliases": [
+    "Zephyr Power (Pvt.)\n  Ltd."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 97 (installed capacity NOT REPORTED); FY2023-24 S.No 125 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 97,
+     "published_name": "Zephyr Power (Pvt.)\n  Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "",
+     "installed_capacity_state": "not_reported",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 125,
+     "published_name": "Zephyr Power (Pvt.)\n  Ltd.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Jamshoro Power Generation Company Limited.",
+   "aliases": [
+    "Jamshoro Power\n  Generation  Company Limited."
+   ],
+   "parent_name": "Jamshoro Power Generation Company Limited (GENCO-I)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 98 (850 MW); FY2023-24 S.No 13 (850 MW). The published row name IS the operating company. GENCO-I per NEPRA's GENCO tariff index. State-owned, no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 98,
+     "published_name": "Jamshoro Power\n  Generation  Company Limited.",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "850",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 13,
+     "published_name": "Jamshoro Power\n  Generation  Company Limited.",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "850",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Kotri Power Station",
+   "aliases": [
+    "Kotri Power Station"
+   ],
+   "parent_name": "Jamshoro Power Generation Company Limited (GENCO-I)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 99 (174 MW); FY2023-24 S.No 14 (174 MW). GENCO-I per NEPRA's own GENCO tariff index (nepra.org.pk/tariff/Generation GENCOs.php) and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO for this row.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 99,
+     "published_name": "Kotri Power Station",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "174",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 14,
+     "published_name": "Kotri Power Station",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "174",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thermal Power Station Guddu 1-4",
+   "aliases": [
+    "Thermal Power Station\n  Guddu 1-4"
+   ],
+   "parent_name": "Central Power Generation Company Limited (GENCO-II)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 100 (640 MW); FY2023-24 S.No 16 (1,350 MW). GENCO-II (Guddu/Quetta) per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 100,
+     "published_name": "Thermal Power Station\n  Guddu 1-4",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "640",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 16,
+     "published_name": "Thermal Power Station\n  Guddu 1-4",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "1,350",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thermal Power Station Guddu 5-13",
+   "aliases": [
+    "Thermal Power Station\n  Guddu 5-13"
+   ],
+   "parent_name": "Central Power Generation Company Limited (GENCO-II)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 101 (1,015 MW); FY2023-24 S.No 17 (1,035 MW). GENCO-II (Guddu/Quetta) per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 101,
+     "published_name": "Thermal Power Station\n  Guddu 5-13",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "1,015",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 17,
+     "published_name": "Thermal Power Station\n  Guddu 5-13",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "1,035",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thermal Power Station Guddu 747",
+   "aliases": [
+    "Thermal Power Station\n  Guddu 747"
+   ],
+   "parent_name": "Central Power Generation Company Limited (GENCO-II)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 102 (747 MW); FY2023-24 S.No 18 (747 MW). GENCO-II (Guddu/Quetta) per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 102,
+     "published_name": "Thermal Power Station\n  Guddu 747",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "747",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 18,
+     "published_name": "Thermal Power Station\n  Guddu 747",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "747",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thermal Power Station Quetta",
+   "aliases": [
+    "Thermal Power Station\n  Quetta"
+   ],
+   "parent_name": "Central Power Generation Company Limited (GENCO-II)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 103 (35 MW); FY2023-24 S.No 19 (35 MW). GENCO-II (Guddu/Quetta) per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 103,
+     "published_name": "Thermal Power Station\n  Quetta",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "35",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 19,
+     "published_name": "Thermal Power Station\n  Quetta",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas",
+     "installed_capacity_mw_raw": "35",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thermal Power Station Muzaffargarh",
+   "aliases": [
+    "Thermal Power Station\n  Muzaffargarh"
+   ],
+   "parent_name": "Northern Power Generation Company Limited (GENCO-III)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 104 (1,350 MW); FY2023-24 S.No 20 (1,350 MW). GENCO-III owns/operates the Muzaffargarh, Multan, Faisalabad and Nandipur thermal stations per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 104,
+     "published_name": "Thermal Power Station\n  Muzaffargarh",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "1,350",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 20,
+     "published_name": "Thermal Power Station\n  Muzaffargarh",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "1,350",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "GTPS Faisalabad",
+   "aliases": [
+    "GTPS Faisalabad"
+   ],
+   "parent_name": "Northern Power Generation Company Limited (GENCO-III)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 105 (244 MW); FY2023-24 S.No 22 (144 MW). GENCO-III owns/operates the Muzaffargarh, Multan, Faisalabad and Nandipur thermal stations per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 105,
+     "published_name": "GTPS Faisalabad",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "244",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 22,
+     "published_name": "GTPS Faisalabad",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "144",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "SPS Faisalabad",
+   "aliases": [
+    "SPS Faisalabad"
+   ],
+   "parent_name": "Northern Power Generation Company Limited (GENCO-III)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 106 (132 MW); FY2023-24 S.No 23 (132 MW). GENCO-III owns/operates the Muzaffargarh, Multan, Faisalabad and Nandipur thermal stations per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 106,
+     "published_name": "SPS Faisalabad",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "132",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 23,
+     "published_name": "SPS Faisalabad",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "132",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Nandipur Power Plant",
+   "aliases": [
+    "Nandipur Power Plant"
+   ],
+   "parent_name": "Northern Power Generation Company Limited (GENCO-III)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 107 (425 MW); FY2023-24 S.No 25 (525 MW). GENCO-III owns/operates the Muzaffargarh, Multan, Faisalabad and Nandipur thermal stations per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 107,
+     "published_name": "Nandipur Power Plant",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "425",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 25,
+     "published_name": "Nandipur Power Plant",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "525",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Lakhra Power Generation Company Limited.",
+   "aliases": [
+    "Lakhra Power\n  Generation  Company Limited."
+   ],
+   "parent_name": "Lakhra Power Generation Company Limited (GENCO-IV)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2017-18",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2017-18 S.No 108 (50 MW); FY2023-24 S.No 15 (150 MW). The published row name IS the operating company. State-owned lignite GENCO, no PSX listing.",
+   "observed": [
+    {
+     "fy": "2017-18",
+     "sno": 108,
+     "published_name": "Lakhra Power\n  Generation  Company Limited.",
+     "technology": "Coal",
+     "fuel": "Lignite Coal",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    },
+    {
+     "fy": "2023-24",
+     "sno": 15,
+     "published_name": "Lakhra Power\n  Generation  Company Limited.",
+     "technology": "Coal",
+     "fuel": "Lignite Coal",
+     "installed_capacity_mw_raw": "150",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thermal Power Station Multan",
+   "aliases": [
+    "Thermal Power Station\n  Multan"
+   ],
+   "parent_name": "Northern Power Generation Company Limited (GENCO-III)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 21 (195 MW). GENCO-III owns/operates the Muzaffargarh, Multan, Faisalabad and Nandipur thermal stations per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 21,
+     "published_name": "Thermal Power Station\n  Multan",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "195",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Shahdara",
+   "aliases": [
+    " Shahdara"
+   ],
+   "parent_name": "Northern Power Generation Company Limited (GENCO-III)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 24 (0 MW). GENCO-III owns/operates the Muzaffargarh, Multan, Faisalabad and Nandipur thermal stations per NEPRA's GENCO tariff index and Wikipedia 'Generation companies (Pakistan)'. State-owned, not listed. The published NEPRA name does not name the GENCO.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 24,
+     "published_name": " Shahdara",
+     "technology": "THERMAL",
+     "fuel": "Natural Gas/ Furnace Oil",
+     "installed_capacity_mw_raw": "0",
+     "installed_capacity_state": "numeric",
+     "block_status": "delicensed"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Karot Power Company (Pvt.) Ltd. (KPCL)",
+   "aliases": [
+    "Karot Power Company\n  (Pvt.) Ltd. (KPCL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 32 (720 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 32,
+     "published_name": "Karot Power Company\n  (Pvt.) Ltd. (KPCL)",
+     "technology": "HYDEL-(IPP)",
+     "fuel": "HYDEL",
+     "installed_capacity_mw_raw": "720",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Lucky Electric Power Company Limited (LEPCL)",
+   "aliases": [
+    "Lucky Electric Power\n  Company Limited (LEPCL)"
+   ],
+   "parent_name": "Lucky Cement Limited",
+   "psx_ticker": "LUCK",
+   "listed_status": "listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "high",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 70 (660 MW). LEPCL is a WHOLLY OWNED subsidiary of Lucky Cement Limited operating the 660 MW supercritical lignite plant at Deh Ghangiaro, Bin Qasim, Karachi (COD 21 Mar 2022) - luckyelectricpower.com/who-we-are, brecorder 'Lucky Electric commissions 660 MW coal power plant at Bin Qasim', dawn.com/news/1681170. Published installed capacity 660 MW matches. PSX symbol confirmed on https://dps.psx.com.pk/company/LUCK (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 70,
+     "published_name": "Lucky Electric Power\n  Company Limited (LEPCL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "660",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Punjab Thermal Power (Pvt) Ltd",
+   "aliases": [
+    "Punjab Thermal Power\n  (Pvt) Ltd"
+   ],
+   "parent_name": "Government of the Punjab",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 71 (1,263 MW). Punjab-government owned generation vehicle (QATPL / QASPL / Punjab Thermal Power). Not PSX-listed. Attribution is domain knowledge, not a quote from the published name.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 71,
+     "published_name": "Punjab Thermal Power\n  (Pvt) Ltd",
+     "technology": "THERMAL",
+     "fuel": "RLNG/HSD",
+     "installed_capacity_mw_raw": "1,263",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thar Energy Limited (TEL)",
+   "aliases": [
+    "Thar Energy Limited\n  (TEL)"
+   ],
+   "parent_name": "The Hub Power Company Limited",
+   "psx_ticker": "HUBC",
+   "listed_status": "listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 72 (330 MW). TEL is 60% HUBCO / 30% Fauji Fertilizer Company / 10% CMEC TEL Power Investments (hubpower.com, PACRA rating report RR_2741). 330 MW mine-mouth lignite at Thar Block II - matches the published 330 MW. HUBCO is the controlling but NOT sole owner, so ticker exposure is partial. PSX symbol confirmed on https://dps.psx.com.pk/company/HUBC (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 72,
+     "published_name": "Thar Energy Limited\n  (TEL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "330",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Thar Coal Block-I Power Generation Company (Private) Limited (TCB-I)",
+   "aliases": [
+    "Thar Coal Block-I\n  Power Generation Company (Private) Limited (TCB-I)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 73 (1,320 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 73,
+     "published_name": "Thar Coal Block-I\n  Power Generation Company (Private) Limited (TCB-I)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "1,320",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "ThalNova Power Thar (Pvt.) Limited (TPTPL)",
+   "aliases": [
+    "ThalNova Power Thar\n  (Pvt.) Limited (TPTPL)"
+   ],
+   "parent_name": "The Hub Power Company Limited",
+   "psx_ticker": "HUBC",
+   "listed_status": "listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 74 (330 MW). ThalNova Power Thar is listed among HUBCO's investee companies (hubpower.com; PACRA RR_2741) alongside TEL. 330 MW Thar Block II lignite - matches published 330 MW. HUBCO holds an indirect MINORITY interest; I did not verify the exact percentage, so this is exposure, not consolidation. PSX symbol confirmed on https://dps.psx.com.pk/company/HUBC (fetched 2026-09-08)",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 74,
+     "published_name": "ThalNova Power Thar\n  (Pvt.) Limited (TPTPL)",
+     "technology": "THERMAL- COAL",
+     "fuel": "COAL",
+     "installed_capacity_mw_raw": "330",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Karachi Nuclear Power Plant-III (K-3)",
+   "aliases": [
+    "Karachi Nuclear Power\n  Plant-III (K-3)"
+   ],
+   "parent_name": "Pakistan Atomic Energy Commission (PAEC)",
+   "psx_ticker": "",
+   "listed_status": "not_listed",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "medium",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 89 (1,100 MW). CHASHNUPP and KANUPP units are operated by PAEC. The published NEPRA name does NOT carry the operator, so this is domain attribution rather than a quote from the source; PAEC is a federal commission with no PSX listing.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 89,
+     "published_name": "Karachi Nuclear Power\n  Plant-III (K-3)",
+     "technology": "NUCLEAR",
+     "fuel": "NUCLEAR",
+     "installed_capacity_mw_raw": "1,100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Atlas Solar Limited (Formerly Zhenfa Pakistan New Energy Company Private Limited)",
+   "aliases": [
+    "Atlas Solar Limited\n  (Formerly Zhenfa Pakistan New Energy Company Private Limited)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 94 (100 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 94,
+     "published_name": "Atlas Solar Limited\n  (Formerly Zhenfa Pakistan New Energy Company Private Limited)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "100",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Helios Power (Private) Limited (HPPL)",
+   "aliases": [
+    "Helios Power\n  (Private) Limited (HPPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 95 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 95,
+     "published_name": "Helios Power\n  (Private) Limited (HPPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "HNDS Energy (Private) Limited (HEPL)",
+   "aliases": [
+    " HNDS Energy (Private) Limited (HEPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 96 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 96,
+     "published_name": " HNDS Energy (Private) Limited (HEPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Meridian Energy (Private) Limited (MEPL)",
+   "aliases": [
+    "Meridian Energy\n  (Private) Limited (MEPL)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 97 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 97,
+     "published_name": "Meridian Energy\n  (Private) Limited (MEPL)",
+     "technology": "SOLAR",
+     "fuel": "SOLAR",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Tapal Wind - II",
+   "aliases": [
+    "Tapal Wind - II"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 108 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 108,
+     "published_name": "Tapal Wind - II",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Artistic Wind - II",
+   "aliases": [
+    "Artistic Wind - II"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 110 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 110,
+     "published_name": "Artistic Wind - II",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Master Green Energy Limited.",
+   "aliases": [
+    "Master Green Energy\n  Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 121 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 121,
+     "published_name": "Master Green Energy\n  Limited.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Lucky Renewables (Pvt.) Limited (Tricom Wind Power (Pvt.) Limited)",
+   "aliases": [
+    "Lucky Renewables\n  (Pvt.) Limited (Tricom Wind Power (Pvt.) Limited)"
+   ],
+   "parent_name": "Yunus Brothers Group (holding vehicle unverified)",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "low",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 122 (50 MW). ppib.gov.pk/Wind_LuckyRenewables.htm and lucky-renewables.com confirm Lucky Renewables (Private) Limited is the former Tricom Wind Power (Private) Limited, 50 MW wind. Lucky-branded, but I could NOT verify whether it sits under LISTED Lucky Cement Limited (LUCK) or another private Yunus Brothers vehicle, so NO ticker is asserted. NOT the same company as 'Tricon Boston Consulting Corporation' (Tricom != Tricon) - see possible_duplicates.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 122,
+     "published_name": "Lucky Renewables\n  (Pvt.) Limited (Tricom Wind Power (Pvt.) Limited)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Indus Wind Energy Limited",
+   "aliases": [
+    "Indus Wind Energy\n  Limited"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 126 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 126,
+     "published_name": "Indus Wind Energy\n  Limited",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Din Energy Limited",
+   "aliases": [
+    "Din Energy Limited"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 127 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 127,
+     "published_name": "Din Energy Limited",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Liberty Wind Power I (Pvt.) Limited",
+   "aliases": [
+    "Liberty Wind Power I\n  (Pvt.) Limited"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 128 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 128,
+     "published_name": "Liberty Wind Power I\n  (Pvt.) Limited",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Gul Ahmed Electric Limited",
+   "aliases": [
+    "Gul Ahmed Electric\n  Limited"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 129 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 129,
+     "published_name": "Gul Ahmed Electric\n  Limited",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Metro Wind Power Limited - II (MWPL - II)",
+   "aliases": [
+    "Metro Wind Power\n  Limited - II (MWPL - II)"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 130 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 130,
+     "published_name": "Metro Wind Power\n  Limited - II (MWPL - II)",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "NASDA Green Energy (Pvt.) Limited",
+   "aliases": [
+    "NASDA Green Energy\n  (Pvt.) Limited"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 131 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 131,
+     "published_name": "NASDA Green Energy\n  (Pvt.) Limited",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Lakeside Energy (Pvt.) Limited.",
+   "aliases": [
+    "Lakeside Energy\n  (Pvt.) Limited."
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 132 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 132,
+     "published_name": "Lakeside Energy\n  (Pvt.) Limited.",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  },
+  {
+   "canonical_name": "Liberty Wind Power 2 (Pvt.) Limited",
+   "aliases": [
+    "Liberty Wind Power 2\n  (Pvt.) Limited"
+   ],
+   "parent_name": "",
+   "psx_ticker": "",
+   "listed_status": "unknown",
+   "valid_from_fy": "2023-24",
+   "valid_to_fy": "",
+   "confidence": "unattributed",
+   "evidence": "Published in the NEPRA generation workbook FY2023-24 S.No 133 (50 MW). No parent or PSX ticker is asserted for this plant: it was not researched, or research was inconclusive. Absence of a ticker here means UNKNOWN, never 'not listed'.",
+   "observed": [
+    {
+     "fy": "2023-24",
+     "sno": 133,
+     "published_name": "Liberty Wind Power 2\n  (Pvt.) Limited",
+     "technology": "WIND",
+     "fuel": "WIND",
+     "installed_capacity_mw_raw": "50",
+     "installed_capacity_state": "numeric",
+     "block_status": "numeric"
+    }
+   ]
+  }
+ ],
+ "ambiguous_tokens": [
+  {
+   "token": "KEL",
+   "reason": "NEPRA plant acronym collides with a DIFFERENT company's PSX symbol",
+   "candidates": [
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "Kohinoor Energy Limited. (KEL)",
+     "parent_name": "Kohinoor Energy Limited",
+     "psx_ticker": "KOHE",
+     "note": "NEPRA writes 'Kohinoor Energy Limited. (KEL)' for a 131 MW RFO plant near Lahore (FY2017-18 S.No 12, FY2023-24 S.No 35). The listed company's PSX symbol is KOHE, not KEL."
+    },
+    {
+     "kind": "psx_ticker",
+     "canonical_name": "",
+     "parent_name": "K-Electric Limited",
+     "psx_ticker": "KEL",
+     "note": "PSX symbol KEL is K-Electric Limited, the Karachi vertically integrated utility (dps.psx.com.pk/company/KEL, 2026-09-08). Its OWN generation fleet is ABSENT from the NEPRA generation workbooks - see absent_parents."
+    }
+   ],
+   "hazard": "Mapping the bare token 'KEL' to K-Electric would attribute a 131 MW RFO plant's monthly output to a KSE-100 listed utility whose generation is not in this dataset at all."
+  },
+  {
+   "token": "AGL",
+   "reason": "NEPRA plant acronym collides with a DIFFERENT company's PSX symbol",
+   "candidates": [
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "Attock Gen Ltd (AGL)",
+     "parent_name": "Attock Group (Attock Gen Limited)",
+     "psx_ticker": "",
+     "note": "163 MW RFO IPP at Morgah, Rawalpindi. Self-described public UNLISTED company (agl.com.pk); 'ATGL' is not a PSX symbol."
+    },
+    {
+     "kind": "psx_ticker",
+     "canonical_name": "",
+     "parent_name": "Agritech Limited",
+     "psx_ticker": "AGL",
+     "note": "PSX symbol AGL is Agritech Limited, a fertiliser manufacturer with no plant in this dataset (dps.psx.com.pk/company/AGL, 2026-09-08)."
+    }
+   ],
+   "hazard": "Would attribute an unlisted IPP's output to a listed fertiliser company."
+  },
+  {
+   "token": "APL",
+   "reason": "NEPRA plant acronym collides with a DIFFERENT company's PSX symbol",
+   "candidates": [
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "Atlas Power Ltd (APL)",
+     "parent_name": "Atlas Group (Atlas Power Limited)",
+     "psx_ticker": "",
+     "note": "219 MW RFO plant at Sheikhupura. Holding vehicle and listing status unverified."
+    },
+    {
+     "kind": "psx_ticker",
+     "canonical_name": "",
+     "parent_name": "Attock Petroleum Limited",
+     "psx_ticker": "APL",
+     "note": "PSX symbol APL is Attock Petroleum Limited, an oil marketing company (dps.psx.com.pk/company/APL, 2026-09-08)."
+    }
+   ],
+   "hazard": "Would attribute a power plant's output to an oil marketing company."
+  },
+  {
+   "token": "SPL",
+   "reason": "NEPRA plant acronym collides with a DIFFERENT company's PSX symbol",
+   "candidates": [
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "Saif Power Ltd (SPL)",
+     "parent_name": "Saif Power Limited",
+     "psx_ticker": "SPWL",
+     "note": "225 MW RLNG/HSD at Sahiwal. The listed company's PSX symbol is SPWL, not SPL."
+    },
+    {
+     "kind": "psx_ticker",
+     "canonical_name": "",
+     "parent_name": "Sitara Peroxide Limited",
+     "psx_ticker": "SPL",
+     "note": "PSX symbol SPL is Sitara Peroxide Limited, a chemicals manufacturer (dps.psx.com.pk/company/SPL, 2026-09-08)."
+    }
+   ],
+   "hazard": "Would attribute Saif Power's output to a chemicals manufacturer, and miss SPWL."
+  },
+  {
+   "token": "AEL",
+   "reason": "NEPRA plant acronym collides with a DIFFERENT company's PSX symbol",
+   "candidates": [
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "Altern Energy Limited. (AEL)",
+     "parent_name": "Altern Energy Limited",
+     "psx_ticker": "ALTN",
+     "note": "31 MW gas plant. The listed company's PSX symbol is ALTN, not AEL."
+    },
+    {
+     "kind": "psx_ticker",
+     "canonical_name": "",
+     "parent_name": "AEL Textile Limited",
+     "psx_ticker": "AEL",
+     "note": "PSX symbol AEL is AEL Textile Limited (dps.psx.com.pk/company/AEL, 2026-09-08)."
+    }
+   ],
+   "hazard": "Would attribute Altern Energy's output to a textile company, and miss ALTN."
+  },
+  {
+   "token": "HEPL",
+   "reason": "TWO DIFFERENT plants in the SAME FY2023-24 workbook publish the same acronym",
+   "candidates": [
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "Hawa Energy (Private) Ltd. (HEPL)",
+     "parent_name": "",
+     "psx_ticker": "",
+     "note": "FY2023-24 S.No 115, WIND, 50 MW."
+    },
+    {
+     "kind": "nepra_acronym",
+     "canonical_name": "HNDS Energy (Private) Limited (HEPL)",
+     "parent_name": "",
+     "psx_ticker": "",
+     "note": "FY2023-24 S.No 96, SOLAR, 50 MW."
+    }
+   ],
+   "hazard": "The acronym alone cannot tell a wind farm from a solar park. Not a PSX symbol either (dps.psx.com.pk/company/HEPL returns Not Found)."
+  }
+ ],
+ "absent_parents": [
+  {
+   "psx_ticker": "KEL",
+   "parent_name": "K-Electric Limited",
+   "status": "absent_from_dataset",
+   "absence_note": "K-Electric's OWN generation fleet is not in the NEPRA generation workbooks. Searching the FY2017-18 and FY2023-24 'Name of Companies' columns for BQPS, Korangi, SITE, Bin Qasim, KESC, 'K-Electric' and 'Karachi Electric' returns ZERO rows in either year (241 published names searched). This is a dataset scope limit - these workbooks cover NTDC/CPPA-G-dispatched plants - and NOT a measurement of zero generation. Any generation figure for K-Electric must come from another source.",
+   "probe_tokens": [
+    "BQPS",
+    "Korangi",
+    "SITE",
+    "Bin Qasim",
+    "KESC",
+    "K-Electric",
+    "Karachi Electric"
+   ],
+   "caveat": "The bare token 'KEL' is ambiguous: it is K-Electric's PSX symbol AND NEPRA's acronym for Kohinoor Energy Limited (PSX KOHE), a 131 MW RFO plant that IS in this dataset. PlantsForParent treats its argument as a PSX symbol only; use ResolveTicker for bare tokens and it will refuse."
+  }
+ ],
+ "possible_duplicates": [
+  {
+   "names": [
+    "Foundation Wind Energy-I Ltd. (FWEL-I)",
+    "Foundation Wind Energy-I Ltd. (FWEL-II)"
+   ],
+   "verdict": "kept_separate",
+   "suspicion": "NEPRA publishes BOTH rows with the base string 'Foundation Wind Energy-I Ltd.' and distinguishes them only by the parenthetical (FWEL-I) vs (FWEL-II). The second is almost certainly an upstream typo for 'Foundation Wind Energy-II Ltd.'. Both are 50 MW WIND and co-occur in the SAME workbook (FY2017-18 S.No 77/78; FY2023-24 S.No 101/102), so they are two different plants and MUST NOT be merged. This pair is why Resolve() refuses a parenthetical-stripped match whose base form hits more than one row."
+  },
+  {
+   "names": [
+    "(NPPMCL) - Balloki",
+    "(NPPCL) - Balloki",
+    "(NPPCL) - Haveli Bahadar Shah"
+   ],
+   "verdict": "alias_candidate_unconfirmed",
+   "suspicion": "Found by holding the FY2020-21 workbook out of this crosswalk and resolving it (testdata/heldout_2020-21.json): 107 of its 108 published names resolved and the single decline was '(NPPCL) - Balloki' (FY2020-21 S.No 30, 1,223 MW). FY2017-18 (S.No 30) and FY2023-24 (S.No 66) both publish that plant as '(NPPMCL) - Balloki' at the same 1,223 MW, so the operator acronym prefix flips between NPPCL and NPPMCL across years. It is very probably the same plant and the alias should be added - but deliberately, by a human, not by this generator, and NOT by a matcher: '(NPPCL) - Balloki' shares the exact prefix '(NPPCL) - ' with the DIFFERENT 1,230 MW plant '(NPPCL) - Haveli Bahadar Shah', so any prefix or edit-distance rule would attribute Balloki's whole history to Haveli Bahadur Shah. Resolve() declines it instead, which is why the measured out-of-sample coverage is 107/108 rather than 108/108."
+  },
+  {
+   "names": [
+    "Kot Addu Power Company (KAPCO)"
+   ],
+   "verdict": "granularity_unresolved",
+   "suspicion": "The generation workbook publishes KAPCO as a single 1,601 MW row. NEPRA's tariff and licence surfaces address Kot Addu by block (Block-I/II/III, and energy-purchase-price blocks). No block-suffixed alias is registered here, so a block-suffixed query returns not-found rather than silently rolling up to the complex. A human must decide whether block-level rows should become separate canonical plants."
+  },
+  {
+   "names": [
+    "Hawa Energy (Private) Ltd. (HEPL)",
+    "HNDS Energy (Private) Limited (HEPL)"
+   ],
+   "verdict": "kept_separate",
+   "suspicion": "Same published acronym (HEPL), different plants: Hawa is WIND (FY2023-24 S.No 115), HNDS is SOLAR (S.No 96). Names are otherwise unrelated. Recorded so nobody keys on the acronym."
+  },
+  {
+   "names": [
+    "Lucky Renewables (Pvt.) Limited (Tricom Wind Power (Pvt.) Limited)",
+    "Tricon Boston Consulting Corporation (Private) Ltd-A (TBCCPL-A)",
+    "Tricon Boston Consulting Corporation (Private) Ltd-B (TBCCPL-B)",
+    "Tricon Boston Consulting Corporation (Private) Ltd-C (TBCCPL-C)"
+   ],
+   "verdict": "kept_separate",
+   "suspicion": "'Tricom Wind Power' (Lucky Renewables' former name, per ppib.gov.pk) is one character from 'Tricon Boston Consulting Corporation'. They are different companies and all four rows co-occur in FY2023-24 (S.No 122, 118, 119, 120), each 50 MW WIND. Flagged because any edit-distance matcher will want to merge them."
+  },
+  {
+   "names": [
+    "Liberty Power Limited.",
+    "Liberty Power Tech Ltd. (LPTL)",
+    "Liberty Wind Power I (Pvt.) Limited",
+    "Liberty Wind Power 2 (Pvt.) Limited"
+   ],
+   "verdict": "kept_separate",
+   "suspicion": "Four 'Liberty' rows co-occur in FY2023-24 (S.No 45, 57, 128, 133) with different technologies and capacities (225 MW RFO, 202 MW RFO, 50 MW wind, 50 MW wind). Note also that Liberty Power Limited's published installed capacity CHANGES between years (235 MW in FY2017-18, 225 MW in FY2023-24) without a name change - a real re-rating, not a different plant. Kept as four separate plants."
+  },
+  {
+   "names": [
+    "Tapal Wind Power Energy Private Ltd. (TWEPL)",
+    "Tapal Wind - II",
+    "Artistic Wind Power (Pvt.) Limited.",
+    "Artistic Wind - II",
+    "Metro Power Company Ltd. (MPCL)",
+    "Metro Wind Power Limited - II (MWPL - II)",
+    "Gul Ahmed Wind Power Ltd.",
+    "Gul Ahmed Electric Limited",
+    "Three Gorges First Wind Farm Pakistan (Pvt.) Ltd. (TGF)",
+    "Three Gorges Second Wind Farm (Private) Ltd. (TGS)",
+    "Three Gorges Third Wind Farm (Private) Ltd. (TGT)"
+   ],
+   "verdict": "kept_separate",
+   "suspicion": "Same-sponsor phase pairs/triples that all co-occur inside the FY2023-24 workbook, each published as its own 50 MW row. Co-occurrence in one workbook is proof they are distinct units, so none may be merged; listed here because the shared sponsor prefix invites it."
+  },
+  {
+   "names": [
+    "Narowal Energy Ltd.",
+    "Narowal Energy Ltd. (HUBCO)"
+   ],
+   "verdict": "merged",
+   "suspicion": "MERGED into one canonical plant, unlike every other entry here. Justification: identical 225 MW RFO THERMAL in both years; the '(HUBCO)' form is the ONLY FY2017-18 name absent from FY2023-24 and the bare form is the ONLY FY2023-24 addition in that family; HUBCO's own site states Narowal Energy Limited is its wholly owned subsidiary owning the 225 MW Narowal plant. Recorded here so the merge is reviewable rather than invisible."
+  }
+ ]
+}

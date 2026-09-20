@@ -1,0 +1,271 @@
+name: nepra
+description: "Pakistan Bureau of Power regulation — plant-level generation, DISCO reliability, licences and fuel cost adjustment, accrued locally because the regulator publishes releases and never a series"
+version: "0.1.0"
+category: other
+base_url: "https://nepra.org.pk"
+
+# Verified 2026-09-08: every content URL returns HTTP 200 over plain Go net/http.
+# No Cloudflare challenge, no cookie, no session, no browser. A browser-sniff capture
+# (agent-browser, 124 requests) and the operator's own DevTools (280 requests, Fetch/XHR
+# filter) BOTH found zero non-telemetry XHR — the only Fetch/XHR traffic on the entire
+# site is the Cloudflare RUM beacon. There is no API; the documents are the surface.
+http_transport: standard
+
+# /robots.txt is text/plain and returns 200 (1,944 B, verified). Deliberately chosen as the
+# health path: it dodges upstream #4612, which forced a hand-written health command on both
+# the CDC and MUFAP CLIs when their health_check_path returned HTML.
+health_check_path: "/robots.txt"
+
+required_headers:
+  # Honest product identity. robots.txt carries a Cloudflare-managed named-bot Disallow
+  # block (ClaudeBot, GPTBot, CCBot, Google-Extended, ...) plus
+  # Content-Signal: search=yes,ai-train=no,use=reference. We are an operator-run client:
+  # we never impersonate a listed crawler, and the data is for reference/analysis only,
+  # never model training.
+  - name: User-Agent
+    value: "nepra-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library; Pakistani power-sector research CLI)"
+  - name: Accept
+    value: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+  # MANDATORY, load-bearing: the determinations feed silently truncates under a 30 s
+  # timeout without compression — measured 1,028 rows against 2,440 complete, under an
+  # HTTP 200. Absence of this header produces a partial list that looks successful.
+  - name: Accept-Encoding
+    value: "gzip, deflate"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/nepra-pp-cli/config.toml"
+
+cache:
+  # The determinations feed updates continuously (latest observed 7 Sep 2026) while the
+  # generation and reliability surfaces are annual. A 7-day window never falsely
+  # invalidates the annual data but does catch a new determination before a stale read.
+  enabled: true
+  stale_after: 168h
+  refresh_timeout: 60s
+
+learn:
+  # Domain vocabulary. The distribution companies are the entities agents will name, and
+  # they are referred to by acronym far more often than by full name. TESCO is seeded
+  # deliberately even though NEPRA excludes it from the reliability tables, so a query
+  # naming it resolves to an explicit "excluded on the record" answer rather than a miss.
+  entity_lookup_seeds:
+    disco:
+      - canonical: PESCO
+        aliases: [peshawar electric supply company, peshawar, kp disco]
+      - canonical: IESCO
+        aliases: [islamabad electric supply company, islamabad, rawalpindi disco]
+      - canonical: GEPCO
+        aliases: [gujranwala electric power company, gujranwala]
+      - canonical: FESCO
+        aliases: [faisalabad electric supply company, faisalabad]
+      - canonical: LESCO
+        aliases: [lahore electric supply company, lahore]
+      - canonical: MEPCO
+        aliases: [multan electric power company, multan]
+      - canonical: QESCO
+        aliases: [quetta electric supply company, quetta, balochistan disco]
+      - canonical: SEPCO
+        aliases: [sukkur electric power company, sukkur]
+      - canonical: HESCO
+        aliases: [hyderabad electric supply company, hyderabad]
+      - canonical: K-Electric
+        aliases: [ke, k electric, kelectric, karachi electric, kesc, karachi]
+      - canonical: TESCO
+        aliases: [tribal electric supply company, tribal areas]
+      - canonical: HAZECO
+        aliases: [hazara electric supply company, hazara]
+    technology:
+      - canonical: THERMAL
+        aliases: [thermal, gas fired, oil fired]
+      - canonical: "HYDEL-(WAPDA)"
+        aliases: [wapda hydel, public hydro, hydel wapda]
+      - canonical: "HYDEL-(IPP)"
+        aliases: [ipp hydel, private hydro, hydel ipp]
+      - canonical: NUCLEAR
+        aliases: [nuclear, chashma, karachi nuclear]
+      - canonical: WIND
+        aliases: [wind, wind power]
+      - canonical: SOLAR
+        aliases: [solar, pv, photovoltaic]
+      - canonical: "THERMAL- COAL"
+        aliases: [coal fired, thermal coal]
+      - canonical: BIOGAS
+        aliases: [biogas, bagasse cogen]
+  synonyms:
+    "load factor": "utilisation"
+    "plant factor": "utilisation"
+    "t and d": "tnd"
+    "transmission and distribution losses": "tnd"
+    "interruption frequency": "saifi"
+    "interruption duration": "saidi"
+    "fuel price adjustment": "fca"
+    "fuel charges adjustment": "fca"
+    "most recent": "latest"
+  stopwords:
+    - disco
+    - company
+    - limited
+
+resources:
+  generation:
+    description: "Plant-level installed and dependable capacity with monthly generation and utilisation, per fiscal year"
+    endpoints:
+      year:
+        method: GET
+        # NOTE THE UPSTREAM TYPO "Genenration" — it is load-bearing; the correctly spelled
+        # path 404s. Seven fiscal years reachable: 2017-18 .. 2023-24. FY2016-17, FY2024-25
+        # and FY2025-26 all 404 at this path and are reported unreachable, not empty.
+        path: "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/List%20of%20Companies%20Genenration%20wise%20{fy}_files/sheet001.htm"
+        description: "Fetch one fiscal year's generation workbook payload. windows-1252 encoded; the HTTP header declares no charset."
+        example: "  nepra-pp-cli generation year 2023-24"
+        happy_args: "fy=2023-24"
+        params:
+          - name: fy
+            type: string
+            required: true
+            positional: true
+            description: "Fiscal year as published, e.g. 2023-24 (reachable: 2017-18 through 2023-24)"
+        response_format: html
+        html_extract:
+          mode: page
+      index:
+        method: GET
+        path: "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Main.htm"
+        description: "The site's own generation index. INCOMPLETE — links 5 of the 7 reachable years; never use as the sole enumerator."
+        example: "  nepra-pp-cli generation index"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation"
+
+  reliability:
+    description: "DISCO Performance Evaluation Reports: T&D losses against allowed target, recovery, SAIFI, SAIDI, complaints, safety"
+    endpoints:
+      report:
+        method: GET
+        path: "/Standards/{path}"
+        description: "Fetch one Performance Evaluation Report PDF. Filenames are unconstructible across years — always scrape from sources, never build the path."
+        example: "  nepra-pp-cli reliability report '2023/PER-DISCO%20FY%202021-22%20final.pdf'"
+        happy_args: "path=2020/PER%20DISCOs%202018-19.pdf"
+        params:
+          - name: path
+            type: string
+            required: true
+            positional: true
+            description: "Report path under /Standards/ as discovered by sources; one known filename carries a load-bearing trailing space"
+        response_format: binary
+
+  licence:
+    description: "Generation licence register: gross capacity, licence number, plant type, fuel, modification trail"
+    endpoints:
+      list:
+        method: GET
+        path: "/licensing/Generation%20IPPs.php"
+        description: "The licence register accordion. Key lookup must be typo-aliased: the page misspells its own column as 'Gross Capacityy', hiding the largest entry."
+        example: "  nepra-pp-cli licence list"
+        response_format: html
+        html_extract:
+          mode: page
+
+  fca:
+    description: "Fuel cost adjustment: monthly requested versus allowed, CPPA-G and K-Electric"
+    endpoints:
+      list:
+        method: GET
+        path: "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/FCA%20(2018-2022).htm"
+        description: "The consolidated FCA table. Coverage is hard-bounded Jul-2018 to Jun-2022; negatives are written in accounting parentheses."
+        example: "  nepra-pp-cli fca list"
+        response_format: html
+        html_extract:
+          mode: page
+
+  quarterly:
+    description: "Quarterly data for ex-WAPDA DISCOs and K-Electric"
+    endpoints:
+      list:
+        method: GET
+        path: "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Quarterly%20Data%20(XWD%20&%20KE).htm"
+        description: "Quarterly index. FROZEN upstream at 'April 2022- June 2022 (4th Quarter)' with 'Not Yet Issued' against every DISCO; nothing on the page says it is stale."
+        example: "  nepra-pp-cli quarterly list"
+        response_format: html
+        html_extract:
+          mode: page
+
+  hydel:
+    description: "Hydel generation and dependable capacity"
+    endpoints:
+      list:
+        method: GET
+        path: "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Hydel%201/Hydel%20Data.htm"
+        description: "Hydel data. Dependable capacities are pinned upstream to 'July 2018 - June 2022'."
+        example: "  nepra-pp-cli hydel list"
+        response_format: html
+        html_extract:
+          mode: page
+
+  sro:
+    description: "SRO notifications"
+    endpoints:
+      list:
+        method: GET
+        path: "/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/Notification/SRO%20Data%20Webpage.htm"
+        description: "SRO notification index."
+        example: "  nepra-pp-cli sro list"
+        response_format: html
+        html_extract:
+          mode: page
+
+  tariff:
+    description: "Per-distribution-company notified tariff pages"
+    endpoints:
+      get:
+        method: GET
+        path: "/tariff/Distribution%20{disco}.php"
+        description: "One DISCO's tariff page. UTF-8 on this surface, unlike the generation workbooks. Rate schedules themselves are image-only PDFs and are NOT extractable."
+        example: "  nepra-pp-cli tariff get LESCO"
+        happy_args: "disco=LESCO"
+        params:
+          - name: disco
+            type: string
+            required: true
+            positional: true
+            description: "Distribution company name as it appears in the tariff path, e.g. LESCO, MEPCO, HAZECO"
+        response_format: html
+        html_extract:
+          mode: page
+
+  sir:
+    description: "State of Industry Report PDFs"
+    endpoints:
+      get:
+        method: GET
+        path: "/publications/State%20of%20Industry%20Reports/State%20of%20Industry%20Report%20{year}.pdf"
+        description: "One State of Industry Report. Very large (2025 is ~316 MB). sir2023.pdf has NO usable text layer — 0 bytes extract."
+        example: "  nepra-pp-cli sir get 2024"
+        happy_args: "year=2024"
+        params:
+          - name: year
+            type: string
+            required: true
+            positional: true
+            description: "Report year, e.g. 2024. Reports 2004 through 2025 are HEAD-verified."
+        response_format: binary
+
+  events:
+    description: "Tariff determinations and Authority orders"
+    endpoints:
+      list:
+        method: GET
+        path: "/tariff/Tariff.php"
+        description: "The determinations feed. REQUIRES gzip: without Accept-Encoding this page silently truncates under a 30 s timeout and returns a partial list under an HTTP 200."
+        example: "  nepra-pp-cli events list"
+        response_format: html
+        html_extract:
+          mode: page

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "nepra-excel-frameset-paths",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Four resource paths in the spec pointed at Excel 'Save as Web Page' FRAMESET wrappers rather than the data sheet inside them. Each returned HTTP 200 with about 9.6 KB and no data, so the command looked healthy and produced nothing.",
+  "reason": "fca, quarterly, hydel and sro were specified as <name>.htm, which Microsoft Excel 15 emits as a frameset whose only content is a <frame src=\"<name>_files/sheet001.htm\"> pointing at the real sheet. MEASURED: all four returned HTTP 200 at 9,612 / 9,796 / 9,587 / 9,636 bytes with 3 <tr> and 24 <td> — the wrapper's own chrome — against real sheets of 79,843 B / 572 <td> (fca), 79,672 B / 582 <td> (quarterly), 14,783 B / 126 <td> (hydel) and 40,402 B / 245 <td> (sro). The generation resource in the SAME spec already had the correct _files/sheet001.htm form, which is why the frozen 32-column workbook fingerprint was ever observed; the other four were captured one level too high. The FCA figure now matches the probe evidence exactly: 1 table, 53 <tr>, 572 <td>. This is the documented frameset-decoy trap for this site (a ~9.8 KB <frameset> returning 200 byte-identical across fiscal years) and the spec walked into it four times.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/promoted_fca.go",
+    "internal/cli/promoted_quarterly.go",
+    "internal/cli/promoted_hydel.go",
+    "internal/cli/promoted_sro.go",
+    "internal/cli/resource_paths.go"
+  ],
+  "reapply_after_regen": "spec.yaml is the source of truth and is FIXED, so a regen from it emits the corrected paths and no re-application is needed. The generated path constants were patched in place only so the current binary is correct without a full regen. If a regen is done, verify the four paths still end in _files/sheet001.htm.",
+  "validated_outcome": "All four commands now request the sheet rather than the wrapper: fca, quarterly, hydel and sro dry-run to the _files/sheet001.htm URLs and, with the decompression patch also applied, return 50 / 50 / 29 / 50 extracted links against the previous empty object. Live-verified HTTP 200 on every corrected path.",
+  "upstream_issue": "n/a - spec authoring defect in this run, not a generator defect"
+}

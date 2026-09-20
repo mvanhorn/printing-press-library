@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "nepra-events-multipage-feed",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The spec-emitted events command pointed at /tariff/Tariff.php, which returns HTTP 404 with a 9-byte body. The real determination feed is 28 catalogued accordion pages carrying ~16,400 rows, so events was hand-authored to enumerate them, extract the rows and assert completeness.",
+  "reason": "A single-endpoint spec cannot express this surface. The determination stream is spread over 7 IPP fuel pages, 11 ex-WAPDA DISCO pages, 2 K-Electric pages, WAPDA, WAPDA Hydroelectric, Upfront, Petitions, Orders of the Authority, Transmission NTDC and Market Operators, and it is the ONLY current surface on the site: it was last updated the day before the survey while all four Main.htm workbook surfaces froze in 2022. Each accordion body is a header-less three-column table (date | description | view -> PDF), and the rows are emitted as EVENTS rather than figures because the amounts live inside the linked PDFs; extracting a number from the row text would be fabrication. Three row shapes had to be handled after measuring, each of which a strict 'first cell is a date' reader loses: a date carrying stray internal whitespace ('09-12- 2009', '11-09- 2009' on GEPCO), a date fused into the description cell ahead of the text, and genuinely UNDATED determinations that still carry a document link. Undated rows are kept and flagged rather than dropped or given a neighbour's date, and they are excluded from date-window filters because they cannot be placed in time.",
+  "files": [
+    "internal/cli/nepra_events.go",
+    "internal/cli/nepra_events_catalogue.go",
+    "internal/cli/nepra_events_parse.go",
+    "internal/cli/nepra_events_test.go",
+    "internal/cli/nepra_artifact_provenance.go",
+    "internal/cli/testdata/events-ipp-short-term.php.gz",
+    "internal/cli/testdata/events-disco-gepco.php.gz",
+    "internal/cli/root.go"
+  ],
+  "reapply_after_regen": "All the nepra_events_* files, the provenance file and the two fixtures are hand-authored and survive regeneration. ONE line in the generated internal/cli/root.go must be re-applied: rootCmd.AddCommand(newNepraEventsCmd(flags)) in place of rootCmd.AddCommand(newEventsPromotedCmd(flags)). A regen silently restores the promoted command, which compiles and runs and returns a 404 — so re-check `events --surface ipp-short-term` returns 43 rows afterwards.",
+  "validated_outcome": "Live-verified against the surveyed counts. ipp-short-term returns 43 rows over 2 company accordions spanning 2016-02-04 to 2020-02-26, all 43 with a document URL and 42 naming a TRF docket — matching the survey exactly. ipp-wind returns 2,440 rows against its 2,440 floor, i.e. NOT the 1,028 the documented silent truncation produces. ke-distribution 599 and ke-generation 9, both exactly their floors. The eleven ex-WAPDA DISCOs return 3,661 determination rows plus 23 furniture rows skipped = 3,684 against the survey's raw count of 3,682, the two-row difference being feed growth since the survey date. Fixing the three awkward row shapes recovered 28 rows that a strict reader dropped. Unknown --surface and --disco values exit 2 with the known values named. Duplicates are counted and reported but NOT collapsed unless --dedup is passed, so a genuine republication is never silently dropped. Two corrections to the survey were found and recorded: ipp-waste is documented as '0 rows, empty' but publishes 1 row dated 2018-07-20, and the survey's DISCO total counts table furniture as rows.",
+  "upstream_issue": "PENDING - see _meta.json deferred_to_upstream"
+}

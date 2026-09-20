@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "nepra-disco-panel",
+  "applied_at": "2026-09-11",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The `disco` novel command (transcendence row 4) is hand-authored on top of internal/nepraper. The generated surface can only hand back a PDF blob; the per-DISCO reliability panel is coordinate-bound text inside that blob and has to be reconstructed glyph by glyph.",
+  "reason": "The ten-entity DISCO panel exists ONLY as coordinate-bound tables inside 13 unguessably-named Performance Evaluation Report PDFs. There is no HTML, no API and no CSV anywhere on the site. Four properties defeat any generated extractor. (1) The tables are found by table number, which DRIFTS: SAIFI is labelled Table 5/5/5/14/05+06/05 across six report years. (2) 79.1% of spans in these PDFs carry an advance width of ZERO, so Span.W is not a usable gap discriminator and raw-x sorting silently corrupts figures — MEPCO's 10.23 is drawn as five glyphs at DESCENDING x (476.74 -> 476.67) and renders as 32.01 under a naive sort. (3) One published path is load-bearing on a TRAILING SPACE ('...Companies%20.pdf' returns 200; without it, 404). (4) The same (metric, DISCO, year) triple is published TWICE with different values inside one report — FY2024-25 MEPCO SAIDI 3547.00 (Table 06, PDF p15) vs 1182.56 (Table 18, PDF p29), ratio 2.99942498 — and which is correct is UNKNOWABLE, so the panel must surface both with provenance and never reconcile.",
+  "files": [
+    "internal/cli/disco.go",
+    "internal/cli/disco_test.go",
+    "internal/cli/nepra_disco.go",
+    "internal/cli/nepra_disco_panel.go",
+    "internal/cli/nepra_disco_panel_test.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_disco{,_panel}.go are markerless hand-authored files and survive regeneration. internal/cli/disco.go is the generator-owned novel scaffold and is ONLY a registration seam: it declares newNovelDiscoCmd, which returns newNepraDiscoCmd(flags), and carries the `// pp:data-source live` annotation. If `generate --force` refreshes disco.go back to a TODO scaffold, addNovelCommandIfAbsent + preferImplementedNovelCommands still prefer an implemented sibling, but the seam's delegation is what makes the implementation reachable — restore it. The panel also depends on the multi-segment path-param patch (nepra-multi-segment-path-param): without it every PER PDF URL 404s and this command has no input at all.",
+  "validated_outcome": "Independently reproduced from the raw span TSVs by a separate Python line-grouper: FY2018-19 90/90 exact (30 values + 30 targets + 30 breaches) including parenthesised negatives ((0.16) -> -0.16) and correct REJECTION of 4 chart-axis labels sharing data-row baselines; FY2024-25 120/120 exact, including QESCO's SAIDI drawn as four fragments (851+6+.+45 -> 8516.45) and IESCO's SAIFI reassembled across a 17.9pt gap. TESCO is excluded ON THE RECORD by NEPRA (unreliable metering) and the roster is per-table — 10 entities in the SAIFI/SAIDI tables, 12 in FY2014-15's complaints table — so no empty 11th row is ever shown.",
+  "upstream_issue": "NONE - PDF coordinate extraction is out of scope for the generator; this is correctly CLI-local work."
+}

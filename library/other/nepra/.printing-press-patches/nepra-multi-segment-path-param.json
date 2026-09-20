@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "nepra-multi-segment-path-param",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "A path parameter whose value is itself a multi-segment sub-path must be substituted VERBATIM, not through url.PathEscape. The generated replacePathParam escaped the separator to %2F and re-encoded already-encoded spaces, so every Performance Evaluation Report URL 404'd.",
+  "reason": "internal/cli/promoted_reliability.go substitutes {path} in \"/Standards/{path}\" via the generated replacePathParam, which calls cliutil.EscapePathParam -> url.PathEscape. That is correct for a single path segment and wrong for a parameter that IS a sub-path. The spec declares this parameter as a free-form report path (\"as discovered by sources, never build the path\"), its example and happy_args are both pre-encoded, and one published filename carries a load-bearing trailing space that survives only as %20. MEASURED against the live site with an honest product UA: the generated URL https://nepra.org.pk/Standards/2020%2FPER%2520DISCOs%25202018-19.pdf returns HTTP 404 / 0 bytes, while the correct https://nepra.org.pk/Standards/2020/PER%20DISCOs%202018-19.pdf returns HTTP 200, Content-Type application/pdf, Content-Length 3024893. Because reliability is the sole fetch path for the PER PDFs, this defect made the entire input surface of internal/nepraper unreachable at runtime. cli-printing-press v4.31.7's Param struct has no attribute expressing multi-segment or verbatim path encoding (checked: In, FlagName, URLName, BodyName, Aliases, Type, Required, Positional, PathParam, GlobalScope, Default, Example, Description, Fields, Enum, Format, QueryStyle, QueryExplode, Maximum, ExclusiveMaximum), so this cannot be fixed in the spec and must be re-applied after any regen.",
+  "files": [
+    "internal/cli/nepra_encoded_subpath.go",
+    "internal/cli/nepra_encoded_subpath_test.go",
+    "internal/cli/promoted_reliability.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_encoded_subpath.go and its test are hand-authored and survive regeneration. Only the ONE call site in the generated internal/cli/promoted_reliability.go must be re-applied: replace `path = replacePathParam(path, \"path\", args[0])` with the replaceEncodedSubPath form that returns an error and wraps it in usageErr. TestReplaceEncodedSubPath fails loudly if the helper is lost; a silent regression of the call site alone is caught by the live reliability fetch, so re-run it after any regen.",
+  "validated_outcome": "The spec's own happy_args and example both now build the real published path: reliability '2020/PER%20DISCOs%202018-19.pdf' --dry-run emits GET https://nepra.org.pk/Standards/2020/PER%20DISCOs%202018-19.pdf (live HTTP 200, 3,024,893 bytes, application/pdf) where it previously emitted the 404 form. A value that is NOT already encoded is refused with exit 2 rather than repaired, because a repaired guess that 404s is indistinguishable from a document NEPRA never published: raw space, absolute path, '..' traversal, and a stray '%' not starting a valid two-hex-digit escape all exit 2 with a message naming the byte offset. Valid escapes that merely look odd (%2D) are still accepted. The other three path params are untouched controls and unchanged: tariff LESCO, sir 2024, generation year 2023-24 all still build their correct URLs. go test -count=1 ./internal/cli/ green; 16 new subtests.",
+  "upstream_issue": "PENDING - see _meta.json deferred_to_upstream"
+}

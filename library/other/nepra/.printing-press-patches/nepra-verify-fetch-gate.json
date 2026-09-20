@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "nepra-verify-fetch-gate",
+  "applied_at": "2026-09-11",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The `verify` novel command (transcendence row 7) is hand-authored. Its checksum leg in particular CANNOT be built from the generator's staleness template, because a raw-byte checksum of this host reports drift on every run for a page that has not changed.",
+  "reason": "Reachability on nepra.org.pk is adversarial in ways only a stored fingerprint catches, and three of the traps defeat a generic verify. (1) DECOYS RETURN 200: a 9,838-byte <frameset> wrapper is served byte-identical across three fiscal years, and a 9-byte 404 body is served as charset=iso-8859-1, so neither status nor a non-empty body proves the document is the right one. 'SIR Data 2025.htm' serves FY2023-24 content at md5 37c27f4d..., identical to the 2024 stub. (2) RAW CHECKSUMS ARE USELESS HERE: MEASURED on this host, two identical fetches of one determination page seconds apart returned the SAME 74,431 bytes with DIFFERENT SHA-256s, because Cloudflare's email-obfuscation filter rewrites every data-cfemail token with a fresh key per response; the same page also varies with the request's Accept header (74,431 vs 74,792). A checksum leg over raw bytes therefore reports drift on EVERY run. verify hashes NORMALISED content (sha256_content over the extracted rows) and records sha256_raw only as the bytes this fetch received, explicitly not comparable across fetches. (3) http_status is DELIBERATELY ABSENT from every artifact this CLI emits: the generated client returns the body without the status code, so recording '200' would be asserting a value never observed.",
+  "files": [
+    "internal/cli/verify.go",
+    "internal/cli/verify_test.go",
+    "internal/cli/nepra_verify_legs.go",
+    "internal/cli/nepra_verify_manifest.go",
+    "internal/cli/nepra_verify_print.go",
+    "internal/cli/nepra_verify_staleness.go",
+    "internal/cli/nepra_verify_crosscheck.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_verify_{legs,manifest,print,staleness,crosscheck}.go are markerless hand-authored files and survive regeneration. internal/cli/verify.go is the generator-owned novel scaffold holding newNovelVerifyCmd and the `// pp:data-source live` annotation; restore it if `generate --force` refreshes it back to a TODO. IF THE GENERATOR EVER GROWS ITS OWN STALENESS OR DRIFT LEG, DO NOT ADOPT IT FOR THIS CLI UNTIL IT HASHES NORMALISED CONTENT — see reason (2). The upstream deferral is already filed in _meta.json.",
+  "validated_outcome": "verify emits every top-level key unconditionally (staleness and crosscheck included) because --agent's envelope flattens a two-key {meta, results:[...]} object down to the bare array, which would otherwise drop meta.verdict. `--crosscheck iea` reports fetched:false, iea:null, delta.value_gwh:null with basis_aligned:false and the declared gap, while still emitting the real measured NEPRA side: FY2023-24 sigma_sum_gwh 126,765.10 GWh over 118 rows summed, 15 excluded, broken out as {delicensed:12, decommissioned:1, not_reported:2} — a split that independently reproduces the 3,880 / 181 / 4,061 MW capacity populations. The IEA side is refused on three independent grounds (api.iea.org/robots.txt is 'User-agent: *' / 'Disallow: /' for every agent; IEA's Terms exclude standalone datasets from their CC BY 4.0 Open Use Terms; and NEPRA's Jul-Jun fiscal years share no full period with IEA's calendar-year series, which also stops at 2023 and, unlike NEPRA's dataset, includes K-Electric's own fleet).",
+  "upstream_issue": "PENDING - the normalised-content checksum requirement is already filed in _meta.json deferred_to_upstream"
+}

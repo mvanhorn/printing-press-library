@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "nepra-declared-scope",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "doctor --scope declares, in the machine-readable surface, the eleven things this CLI deliberately does not do and the measured reason for each, with the nearest command that does answer.",
+  "reason": "Absorb-manifest row 5's parity target was bijlicheck, which openly refuses K-Electric, time-of-use and unaccountable readings — but only in its README. Putting the refusals where a machine can read them is the added value: an agent that can see WHY a thing is impossible stops asking for it and stops treating the refusal as a bug. Every entry is a measured finding rather than a policy preference, and each carries a verdict of unavailable, excluded_by_source, unverifiable or out_of_scope so the four materially different reasons for 'no' stay distinguishable.",
+  "files": [
+    "internal/cli/nepra_scope.go",
+    "internal/cli/nepra_scope_cmd.go",
+    "internal/cli/doctor.go"
+  ],
+  "reapply_after_regen": "nepra_scope.go and nepra_scope_cmd.go are hand-authored and survive regeneration. Three lines in the generated internal/cli/doctor.go must be re-applied: the showScope var, the early `if showScope { return nepraPrintScope(cmd, flags) }` branch in RunE, and the --scope flag registration.",
+  "validated_outcome": "doctor --scope returns 11 declared limits across 4 verdicts (4 unverifiable, 3 unavailable, 3 out_of_scope, 1 excluded_by_source), 7 of which name an alternative command. Also fixed in the same pass: five generated commands advertised a `list` subcommand in their Example (`nepra-pp-cli fca list`) that does not exist — the resource IS the command — for fca, sro, licence, quarterly and hydel."
+}

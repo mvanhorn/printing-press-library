@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "feature": "The generated client must decompress a response body whenever it sets Accept-Encoding itself. Either decode Content-Encoding after reading the body, or stop setting the header and let net/http decompress transparently.",
+      "reason": "internal/client/client.go sets Accept-Encoding: gzip, deflate and never decodes. Go's net/http only decompresses transparently when the Transport chose the encoding, so an explicit header returns the raw compressed stream with Content-Encoding intact. The word 'gzip' occurs exactly once in the generated client and it is that header set. Any printed CLI reading a gzip-serving host therefore hands compressed bytes to its parsers and returns an EMPTY result under an HTTP 200 with a truthful 'source: live' provenance — silent, and indistinguishable from a genuinely empty upstream. Measured on NEPRA: 6,019 compressed bytes reached the HTML parser instead of 79,843, and all seven HTML commands plus the generation-workbook fetch returned results:{}. Worked around by the hand-authored patch nepra-decompress-content-encoding, whose call site must be re-applied after every regen.",
+      "upstream_issue": "TO FILE"
+    },
+    {
+      "feature": "A path parameter that is itself a multi-segment sub-path needs a spec-level way to say so, e.g. a Param attribute `path_encoding: verbatim|segment` (default segment), so the generator substitutes it without url.PathEscape turning the separator into %2F.",
+      "reason": "cli-printing-press v4.31.7 routes EVERY path param through cliutil.EscapePathParam -> url.PathEscape in the generated replacePathParam, and the Param struct carries no attribute expressing this. Any printed CLI whose API exposes a free-form sub-path parameter therefore builds a broken URL with no warning. Measured on NEPRA: the spec's own happy_args produced /Standards/2020%2FPER%2520DISCOs%25202018-19.pdf (live HTTP 404) against a real /Standards/2020/PER%20DISCOs%202018-19.pdf (live HTTP 200, 3,024,893 bytes) — both the separator escaped and the pre-encoded spaces double-encoded. This is silent: the command compiles, runs, and returns a plausible not-found. It is currently worked around by the hand-authored patch nepra-multi-segment-path-param, which must be re-applied after every regen.",
+      "upstream_issue": "TO FILE"
+    },
+    {
+      "feature": "`happy_args` values should be validated against the parameter's own encoding contract at generate time, or at least exercised once, so an example that cannot possibly work is caught by the generator rather than by a human reading a 404.",
+      "reason": "The reliability endpoint's happy_args (path=2020/PER%20DISCOs%202018-19.pdf) is pre-encoded and was emitted verbatim into the pp:happy-args annotation, while the generated substitution re-encoded it. The phase5 gate uses happy-args to exercise commands, so the gate would have driven the broken URL and could pass on a not-found response. A generator-side round-trip of each happy_arg through its own substitution path would have surfaced this at generate time.",
+      "upstream_issue": "TO FILE"
+    },
+    {
+      "feature": "html_extract needs a TABLE mode. It currently supports only `page` and `links`, which extract <title>, <meta>, canonical <link> and <a> hrefs — so a numeric HTML table cannot be returned at all.",
+      "reason": "extractHTMLPageOrLinks walks the DOM for title/meta/link/a only. Four of this CLI's surfaces are Excel-exported data sheets whose value IS the table: FCA (1 table, 53 <tr>, 572 <td>, 48 gap-free months, 50 accounting-parenthesised negatives), quarterly (582 <td>), hydel (126 <td>) and sro (245 <td>). With mode: page they return their hyperlinks but none of their numbers, so absorb-manifest rows promising a machine-readable FCA series joinable to tariff cannot be satisfied by the generated surface. A table mode emitting rows (with colspan/rowspan expansion and a declared-charset decode) would serve every Excel-exported surface on this site and many others.",
+      "upstream_issue": "TO FILE"
+    },
+    {
+      "feature": "The client should expose the response status code and the decoded body length to the command layer, so a printed CLI can record honest per-artifact provenance.",
+      "reason": "DataProvenance carries only {source, synced_at, reason, resource_type, freshness}, and the client exposes LastContentType() but no status accessor. A command therefore cannot record the http_status that absorb-manifest row 2 promises. This CLI records url, decoded bytes, two SHA-256s, fetched_at and content_type in a hand-authored nepraArtifact and DELIBERATELY OMITS http_status rather than asserting a 200 it never observed.",
+      "upstream_issue": "TO FILE"
+    },
+    {
+      "feature": "A checksum-based staleness or drift gate must hash NORMALISED content, not raw response bytes.",
+      "reason": "MEASURED on nepra.org.pk: two identical fetches of one determination page, seconds apart, returned the same 74,431 bytes with DIFFERENT SHA-256s, because Cloudflare's email-obfuscation filter rewrites every data-cfemail token with a fresh key on each response. The same page also varies with the request's Accept header (74,431 bytes vs 74,792 for this client's own Accept). Any generated verify/staleness feature that checksums raw bytes will therefore report drift on every run for a page that has not changed. This CLI records sha256_raw for the bytes actually received AND sha256_content over the extracted rows, and only the latter is comparable across fetches — verified identical across two consecutive live fetches while the raw hash differed.",
+      "upstream_issue": "TO FILE"
+    },
+    {
+      "feature": "The three generated output wrappers must agree on what to do with a payload that already carries its own {meta, results} envelope. wrapPlatformStructuredOutput merges into it; wrapWithProvenance and wrapAgentOutput wrap unconditionally. They should share one merge helper.",
+      "reason": "Any printed CLI whose commands assemble a richer envelope than the generator can infer will ship two incompatible --agent shapes from the same binary, with no warning at generate time. MEASURED on NEPRA: licence emitted {meta:{source},results:{meta,results:[21]}} and coverage the same around 104 rows, so `jq '.results[]'` returned one opaque object instead of rows on those two commands while working correctly on eight others. Related, printOutputWithFlags hard-codes agentMeta {\"source\":\"local\"} — which is wrapAgentOutput's OWN fallback, asserted a layer too early — so a generic default silently overwrote a command's measured origin (coverage reports source \"catalogue\"). A generated CLI should not let a default outrank an observation. Separately, a command branch that answers from an in-code catalogue has no upstream document to wrap, and wrapPlatformStructuredOutput is a no-op without a platform session, so those branches emit a bare top-level array or object carrying neither .meta nor .results; the generator offers no envelope helper for a payload it did not fetch. Worked around by the hand-authored patch nepra-agent-envelope-unification, whose three call sites in internal/cli/helpers.go must be re-applied after every regen.",
+      "upstream_issue": "TO FILE"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-20T19:55:53.236058Z",
+  "printing_press_version": "4.31.7",
+  "api_name": "nepra",
+  "display_name": "NEPRA",
+  "cli_name": "nepra-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3dc442986ac27aa017d793380c19d276f63ecc757b74d293c528d7b893172b6d",
+  "run_id": "20260908-210301-9311015b",
+  "category": "other",
+  "description": "Pakistan's electricity regulator publishes the country's only plant-level power data as Excel-exported HTML that reads as empty and PDFs nobody extracts — this turns it into a queryable panel and names every gap.",
+  "mcp_binary": "nepra-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Plant-month generation extract",
+      "command": "gen",
+      "description": "Pull every power plant's monthly generation and utilisation for a fiscal year as rows you can pipe, with unreported months kept distinct from real zeros."
+    },
+    {
+      "name": "Operator and ticker fleet panel",
+      "command": "fleet",
+      "description": "Follow one plant or a listed operator's whole fleet across the fiscal years the crosswalk has observed, through renames and re-sorted row numbers."
+    },
+    {
+      "name": "Conflict and break ledger",
+      "command": "conflicts",
+      "description": "List every place NEPRA's own published figures disagree — two sources on one key, an unexplained step inside a single series, or a row that fails its own arithmetic — showing both values and both citations without picking a winner."
+    },
+    {
+      "name": "DISCO reliability panel",
+      "command": "disco",
+      "description": "Per-distribution-company transmission losses, recovery, interruption frequency and duration against the regulator's own targets, across report years."
+    },
+    {
+      "name": "Regulatory determination feed",
+      "command": "events",
+      "description": "A dated feed of tariff determinations and orders by company, distribution company or docket, with the verbatim document link."
+    },
+    {
+      "name": "Generation licence register",
+      "command": "licence",
+      "description": "The licence register with gross capacity, plant type, fuel and the modification trail, searchable by name or fuel."
+    },
+    {
+      "name": "Fetch and staleness gate",
+      "command": "verify",
+      "description": "Assert every published NEPRA surface against status, byte floor, content checksum, in-document year token and the frozen column fingerprint, exiting non-zero when stale or drifted."
+    },
+    {
+      "name": "Capacity by status and system",
+      "command": "capacity",
+      "description": "Installed and dependable capacity broken out by plant status and system, so each headline megawatt figure is labelled and derivable."
+    },
+    {
+      "name": "Fuel cost adjustment series",
+      "command": "fca",
+      "description": "The monthly requested-versus-allowed fuel cost adjustment series with cumulative disallowance, bounded to the window the source actually covers."
+    },
+    {
+      "name": "Source catalogue and enumerator diff",
+      "command": "sources",
+      "description": "Catalogue every reachable published document with size, coverage window, text-layer flag and reachability state, and diff it against the shipped manifest."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Plant-month generation extract",
+      "command": "gen",
+      "description": "Pull every power plant's monthly generation and utilisation for a fiscal year as rows you can pipe, with unreported months kept distinct from real zeros."
+    },
+    {
+      "name": "Operator and ticker fleet panel",
+      "command": "fleet",
+      "description": "Follow one plant or a listed operator's whole fleet across the fiscal years the crosswalk has observed, through renames and re-sorted row numbers."
+    },
+    {
+      "name": "Conflict and break ledger",
+      "command": "conflicts",
+      "description": "List every place NEPRA's own published figures disagree — two sources on one key, an unexplained step inside a single series, or a row that fails its own arithmetic — showing both values and both citations without picking a winner."
+    },
+    {
+      "name": "DISCO reliability panel",
+      "command": "disco",
+      "description": "Per-distribution-company transmission losses, recovery, interruption frequency and duration against the regulator's own targets, across report years."
+    },
+    {
+      "name": "Regulatory determination feed",
+      "command": "events",
+      "description": "A dated feed of tariff determinations and orders by company, distribution company or docket, with the verbatim document link."
+    },
+    {
+      "name": "Generation licence register",
+      "command": "licence",
+      "description": "The licence register with gross capacity, plant type, fuel and the modification trail, searchable by name or fuel."
+    },
+    {
+      "name": "Fetch and staleness gate",
+      "command": "verify",
+      "description": "Assert every published NEPRA surface against status, byte floor, content checksum, in-document year token and the frozen column fingerprint, exiting non-zero when stale or drifted."
+    },
+    {
+      "name": "Capacity by status and system",
+      "command": "capacity",
+      "description": "Installed and dependable capacity broken out by plant status and system, so each headline megawatt figure is labelled and derivable."
+    },
+    {
+      "name": "Fuel cost adjustment series",
+      "command": "fca",
+      "description": "The monthly requested-versus-allowed fuel cost adjustment series with cumulative disallowance, bounded to the window the source actually covers."
+    },
+    {
+      "name": "Source catalogue and enumerator diff",
+      "command": "sources",
+      "description": "Catalogue every reachable published document with size, coverage window, text-layer flag and reachability state, and diff it against the shipped manifest."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 44,
+    "total": 44,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 81
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

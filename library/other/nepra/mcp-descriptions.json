@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "sro_list": "Fetch NEPRA's SRO (Statutory Regulatory Order) notification index: the table mapping each tariff-notification date to the per-DISCO SRO numbers it was gazetted under. Takes no parameters. Returns one row per notification date with Year, SRO Date (DD-MM-YY exactly as published) and a separate SRO-number column for each distribution company (FESCO, GEPCO, HESCO, IESCO, LESCO, MEPCO, PESCO, QESCO, TESCO); blank cells mean that DISCO was not covered by that notification. Use this to resolve which SRO number applies to a DISCO on a given date, then tariff_get for that DISCO's notified tariff page.",
+    "hydel_list": "Fetch NEPRA's hydel (hydroelectric) plant register: dependable capacity per hydro station. Takes no parameters. Returns one row per plant with Sr #, Company Name, Dependable Capacity (MW) and Period. Every row's Period is pinned upstream to 'July 2018 - June 2022' — NEPRA has not reissued this sheet, so these are NOT current capacities. Use generation_year for the fiscal-year plant capacity and utilisation panel."
+  }
+}

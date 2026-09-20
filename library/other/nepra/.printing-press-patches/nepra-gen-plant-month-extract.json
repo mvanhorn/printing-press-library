@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "nepra-gen-plant-month-extract",
+  "applied_at": "2026-09-11",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The `gen` novel command (transcendence row 1) is hand-authored end to end. The generator emits only a 33-line TODO scaffold for a novel feature; the plant-month extract, its four row serialisations, its completeness assertions and its seven-year catalogue are all hand-written and must survive `generate --force`.",
+  "reason": "NEPRA publishes one fiscal year of plant-by-month generation as Excel 'Save as Web Page' output. Three properties make a generated endpoint command unable to return it. (1) ENCODING: the payload is windows-1252 and the HTTP header declares NO charset, so only the in-document <meta> carries it; the sole non-ASCII byte is 0xA0 (132 occurrences in FY2023-24), and a naive UTF-8 read of the 493,187-byte file reports ZERO <tr> and ZERO <td>. (2) GRID: the data lives behind colspan/rowspan that must be expanded onto a frozen 32-logical-column fingerprint before any cell can be addressed; the physical width is 40-vs-39 across years, pure trailing Excel padding. (3) CELL STATES: five states must never collapse to a number — numeric (including a real published 0.00), NBSP-blank NOT REPORTED, DELICENSED, DECOMMISSIONED, and 'Export to K.Electric'. Conflating blank with zero invents 11 plants x 12 months of false zeros in FY2017-18 alone (K-2 publishes 26 blanks in FY2017-18, then 16 explicit 0.00 months ALONGSIDE a non-zero Sum of 1,705.91 GWh in FY2020-21). The generated html_extract offers only `page` and `links` modes, which walk the DOM for <title>/<meta>/<link>/<a> and cannot return a table at all.",
+  "files": [
+    "internal/cli/gen.go",
+    "internal/cli/gen_test.go",
+    "internal/cli/nepra_gen_rows.go",
+    "internal/cli/nepra_gen_catalogue.go",
+    "internal/cli/nepra_gen_meta.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_gen_{rows,catalogue,meta}.go are markerless hand-authored files and survive regeneration untouched. internal/cli/gen.go is the generator-owned novel scaffold: `generate --force` preserves an IMPLEMENTED RunE body, but if it ever refreshes gen.go back to a TODO scaffold, the whole command is lost because the shapers in nepra_gen_*.go have no other caller. Re-apply by restoring gen.go's newNovelGenCmd from this run and confirming root.go still carries `addNovelCommandIfAbsent(rootCmd, newNovelGenCmd(flags))`. VERIFY WITH DATA, NOT A GREP: run `gen --fy 2023-24 --format csv | wc -l` and require 1,597 lines (1,596 plant-month rows for 133 plants + header). A regressed build returns an empty results object under an HTTP 200.",
+  "validated_outcome": "All seven reachable years fetch and parse: FY2017-18 426,282 B / 108 plants, FY2018-19 418,887 B / 108, FY2019-20 421,591 B / 108, FY2020-21 455,640 B / 108, FY2021-22 516,219 B / 125, FY2022-23 490,461 B / 130, FY2023-24 493,187 B / 133. The column order is proven PERCENT-THEN-GWh and the months FISCAL Jul->Jun by the Sum identity, which holds 118/118 on GWh and only 3/118 on '% age'. Twelve rows per plant are emitted whatever the plant's state, so a delicensed or never-reporting plant cannot vanish. NO aggregate utilisation is emitted in any grain, and meta.refusals states why. FY2016-17, FY2024-25 and FY2025-26 are 404 and exit 3 rather than returning an empty result.",
+  "upstream_issue": "PENDING - html_extract table mode is already filed in _meta.json deferred_to_upstream"
+}

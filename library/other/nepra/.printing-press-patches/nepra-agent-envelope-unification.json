@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "nepra-agent-envelope-unification",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The generated output wrappers nested a SECOND {meta, results} envelope around payloads that already carried one, and left catalogue branches with no envelope at all. Three mutually incompatible --agent shapes shipped from one CLI, so `jq '.results[]'` iterated rows on some commands, one opaque object on others, and nothing at all on the rest.",
+  "reason": "wrapPlatformStructuredOutput has always merged into an envelope the payload already owned, guarded by `envelope[\"meta\"] != nil && (envelope[\"data\"] != nil || envelope[\"results\"] != nil)`. The other two generated wrappers, wrapWithProvenance and wrapAgentOutput, did not: they wrapped unconditionally. MEASURED on this build: licence emitted {meta:{source:\"local\"}, results:{meta:{8 keys}, results:[21]}} and coverage the same shape around 104 rows, so the rows sat at .results.results[] and .results[] yielded one object. Separately, a catalogue branch has no upstream document to wrap, so events (28 surfaces), gen (11 fiscal years) and disco passed a bare Go slice or struct to wrapPlatformStructuredOutput — which is a no-op without a platform session — and emitted a bare top-level array or object carrying neither .meta nor .results. A second defect rode along: printOutputWithFlags hard-coded agentMeta {\"source\":\"local\"}, which is wrapAgentOutput's own fallback asserted one layer too early, so a generic default outranked coverage's measured source \"catalogue\". DataProvenance.Source is a TRANSPORT claim (live vs local) while a command's meta.source is a DATA-ORIGIN claim (catalogue, computed, seeded); the two are different axes and must not be collapsed.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/nepra_events.go",
+    "internal/cli/gen.go",
+    "internal/cli/nepra_disco.go",
+    "internal/cli/nepra_envelope_test.go",
+    "internal/cli/nepra_verify_test.go",
+    "internal/cli/disco_test.go",
+    "internal/cli/nepra_disco_survivors_test.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_envelope_test.go is hand-authored and survives regeneration. THREE edits to the generated internal/cli/helpers.go must be re-applied: (1) the ownedEnvelopeMerge + jsonMetaEqual helpers, inserted immediately before wrapWithProvenance; (2) the `if merged, ok := ownedEnvelopeMerge(...); ok { return merged, nil }` early return in BOTH wrapWithProvenance and wrapAgentOutput — in wrapAgentOutput it must sit BEFORE the source:\"local\" default, or that default displaces the command's measured origin; (3) printOutputWithFlags must pass nil as agentMeta, not map[string]any{\"source\":\"local\"}. The catalogue envelopes in nepra_events.go, gen.go and nepra_disco.go are in hand-authored command bodies and survive. TestOwnedEnvelopeIsMergedNotNested and TestNoRequestCommandsEmitTheStandardEnvelope are the guards.",
+  "validated_outcome": "Before: licence and coverage double-nested; events, gen and disco emitted no envelope. After: every row-returning command (capacity, coverage, events, fca, gen, hydel, licence, quarterly, sources, sro) emits {meta, results:[rows]} — measured at 10, 104, 28, 48, 11, 30, 21, 163, 63 and 19 rows respectively — and the four report commands (verify, fleet, conflicts, disco) emit {meta, results:{named sections}}, which is deliberate and now documented in README Agent Usage. No command nests a second envelope and none emits a bare top-level array or object. licence keeps all 8 of its own meta keys and coverage keeps source \"catalogue\" rather than the \"local\" default. A wrapper value that genuinely disagrees is preserved at meta.envelope_meta rather than dropped, and is absent when the two agree. MUTATION-VERIFIED four ways: (1) forcing ownedEnvelopeMerge to return false fails TestOwnedEnvelopeIsMergedNotNested on both wrappers, TestOwnedEnvelopeMergePreservesADisagreeingClaim, the coverage subtest and TestVerifyAgentModeKeepsTheVerdictAndTheSparseKeys; (2) reverting the events and gen catalogue envelopes fails exactly those two subtests; (3) reverting the disco envelope fails the disco subtest; (4) pointing a row-declared case at a report command fails the row-shape assertion. gofmt and go vet clean; go test -count=1 ./... green on all 16 packages.",
+  "upstream_issue": "TO FILE"
+}

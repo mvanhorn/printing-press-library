@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "nepra-sources-catalogue",
+  "applied_at": "2026-09-11",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The `sources` novel command (transcendence row 10) is hand-authored. It is the CLI's enumerator of last resort: NEPRA ships no working one, so every other command's required argument has to come from a curated, re-measurable catalogue rather than from a crawl.",
+  "reason": "NEPRA cannot be enumerated by any standard mechanism. BOTH sitemaps advertised in robots.txt are HTTP 404 with a nine-byte body; /sitemap.xml is 404; the directory holding the workbooks answers 403 with no autoindex; and the three index pages that DO exist are incomplete in both directions — Main.htm links 5 of the 7 reachable generation years. Filenames carry load-bearing defects a generated path template cannot express: the upstream typo 'Genenration' (not 'Generation'), 'DSICOs', '(FFinal)', a load-bearing TRAILING SPACE before .pdf, and case-sensitive extensions that flip ('.pdf' 200 / '.PDF' 404 in June, reversed in July). Consequently every other command in this CLI takes an argument the caller can only supply if they already know the answer: `generation year <fy>`, `reliability <path>`, `sir <year>`, `tariff <disco>`. This command is where those arguments come from.",
+  "files": [
+    "internal/cli/sources.go",
+    "internal/cli/sources_test.go",
+    "internal/cli/nepra_sources_catalogue.go",
+    "internal/cli/nepra_sources_diff.go",
+    "internal/cli/nepra_sources_fetch.go",
+    "internal/cli/nepra_sources_href.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_sources_{catalogue,diff,fetch,href}.go are markerless hand-authored files and survive regeneration. internal/cli/sources.go REPLACED a 33-line generated TODO scaffold and deliberately keeps the function name newNovelSourcesCmd so root.go's existing `addNovelCommandIfAbsent(rootCmd, newNovelSourcesCmd(flags))` keeps working without an edit. If `generate --force` refreshes sources.go back to a scaffold, restore it — the catalogue in nepra_sources_catalogue.go has no other caller.",
+  "validated_outcome": "With no flags the command prints the catalogue and makes NO request (verified with HTTP(S)_PROXY pointed at 127.0.0.1:1). --diff re-measures every cheap row and diffs the three index pages' href sets against the catalogue, which is what surfaces the 5-of-7 Main.htm incompleteness as data rather than prose. --fetch measures one document.",
+  "upstream_issue": "NONE - a site with no working enumerator is a per-API research finding, not a generator gap."
+}

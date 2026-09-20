@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-09-20T20:05:22.520928Z",
+  "cli_dir": "\u003ccli-dir\u003e/nepra",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260908-210301-9311015b/research/2026-09-08-214037-feat-nepra-pp-cli-probe-evidence.md",
+      "line": 816,
+      "column": 67,
+      "matched_span": "complaint@nepra.org.pk",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Line reads: \"- **musakhan123/BillAgent** - JS, 0*. Emails complaints, CCs `complaint@nepra.org.pk`.\" This is inside the crowd-sniff survey of THIRD-PARTY GitHub repositories that reference NEPRA, not captured traffic and not a customer value. complaint@nepra.org.pk is the regulator's own institutional complaints inbox, published by NEPRA on its public Consumer Affairs pages; it belongs to no natural person and is the API provider's published contact address. The adjacent bullets cite the same class of public provider endpoint (\"complaints.nepra.org.pk\", \"nepra.org.pk\")."
+    }
+  ],
+  "findings_count_before": 1
+}

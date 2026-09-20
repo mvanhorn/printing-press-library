@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "nepra-decompress-content-encoding",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The generated client sets Accept-Encoding explicitly, which turns OFF net/http's transparent decompression, and then never decompresses. Every gzipped response reached the parsers as raw compressed bytes, so EVERY live HTML command returned an empty result under an HTTP 200 with provenance 'source: live'.",
+  "reason": "internal/client/client.go sets req.Header.Set(\"Accept-Encoding\", \"gzip, deflate\") (one of the four spec-declared required_headers). Go's net/http only decompresses transparently when the Transport itself chose the encoding; once a caller sets Accept-Encoding by hand, net/http returns the raw compressed stream and leaves Content-Encoding on the response. The word 'gzip' appeared exactly once in the whole generated client — that header set — and nowhere as a decoder. MEASURED: nepra.org.pk answers these surfaces with Content-Encoding: gzip, so the FCA sheet arrived as 6,019 compressed bytes instead of 79,843 uncompressed ones; the HTML parser saw binary, produced an empty page, and the command printed {\"meta\":{\"source\":\"live\"},\"results\":{}} for a table holding 53 rows and 572 cells. ALL SEVEN HTML commands were affected (fca, sro, hydel, quarterly, licence, events, tariff) and so was generation year, which is the live input path for internal/nepraparse. The failure is the most misleading shape available: HTTP 200, a truthful 'live' provenance, and no data. Accept-Encoding cannot simply be dropped, because NEPRA silently truncates some determination pages when gzip is not requested (the Wind page returns 1,028 of 2,440 rows under an HTTP 200), so the header stays explicit and the body is decompressed instead.",
+  "files": [
+    "internal/client/nepra_content_encoding.go",
+    "internal/client/nepra_content_encoding_test.go",
+    "internal/client/client.go"
+  ],
+  "reapply_after_regen": "internal/client/nepra_content_encoding.go and its test are hand-authored and survive regeneration. Only the THREE-line call immediately after `respBody, err := io.ReadAll(resp.Body)` in the generated internal/client/client.go must be re-applied. TestClientDecompressesGzipResponse is the guard: it drives a real gzipped httptest response through the client and FAILS when the call site is missing. The unit tests on decodeContentEncoding alone do NOT catch a lost call site — verified by mutation.",
+  "validated_outcome": "Before: all seven HTML commands returned results:{} — measured. After: fca 50 links / 21,830 B, sro 50 / 22,715 B, hydel 29 / 11,150 B, quarterly 50 / 24,597 B, licence 50 with title 'NEPRA | Licences Generation IPPs', tariff LESCO with title 'NEPRA | Tariff Distribution LESCO', generation year 50 links. Mutation-verified end to end: removing the call site returns fca to results:{} and fails TestClientDecompressesGzipResponse. Unsupported encodings (br, zstd), stacked encodings, and bodies that lie about their encoding are refused with a named error rather than passed through as plaintext; identity/empty bodies and bodies net/http already decoded pass through untouched; decompression is capped at 512 MB against a compression bomb, which still clears the ~316 MB SIR PDF. go test -count=1 ./... green on all 16 packages.",
+  "upstream_issue": "PENDING - see _meta.json deferred_to_upstream"
+}

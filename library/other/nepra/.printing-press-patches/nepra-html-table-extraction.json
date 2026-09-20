@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "nepra-html-table-extraction",
+  "applied_at": "2026-09-10",
+  "base_run_id": "20260908-210301-9311015b",
+  "base_printing_press_version": "4.31.7",
+  "summary": "The generated html_extract has no TABLE mode, so four surfaces whose entire value IS a table returned their hyperlinks and none of their numbers. Added a hand-authored extractor that runs them through the sibling nepraparse package.",
+  "reason": "extractHTMLPageOrLinks supports only mode 'page' and mode 'links', and both walk the DOM for <title>, <meta>, canonical <link> and <a> hrefs only. Nothing returns table rows. FCA (1 table, 53 <tr>, 572 <td>, 48 gap-free months), quarterly (168 <tr>, 582 <td>), SRO (23 <tr>, 245 <td>) and hydel (33 <tr>, 126 <td>) are Excel 'Save as Web Page' data sheets, so the absorb-manifest promise of a machine-readable FCA series joinable to tariff could not be met by the generated surface. The extractor deliberately reuses nepraparse rather than adding a second parser: Decode handles the windows-1252 payload whose HTTP header declares no charset, and BuildGrid expands colspan/rowspan into a dense rectangle. These files are siblings of the generation workbook from the same directory and the same Excel 15 exporter, so the machinery is already correct and already tested. Header-band detection uses the ROWSPAN SIGNATURE Excel leaves behind (consecutive header rows repeat identical values at identical column indexes, and that repetition stops where data begins) plus one closing label row. The obvious 'leading rows with no numeric cell' rule was tried first and is WRONG: quarterly's data rows hold only dates and the words 'Not Yet Issued', so it swallowed 161 data rows into the header and produced a column literally named 'DISCOs Name FESCO GEPCO'.",
+  "files": [
+    "internal/cli/nepra_table_extract.go",
+    "internal/cli/nepra_table_extract_test.go",
+    "internal/cli/testdata/sheet-fca.htm.gz",
+    "internal/cli/testdata/sheet-sro.htm.gz",
+    "internal/cli/testdata/sheet-hydel.htm.gz",
+    "internal/cli/testdata/sheet-quarterly.htm.gz",
+    "internal/cli/promoted_fca.go",
+    "internal/cli/promoted_quarterly.go",
+    "internal/cli/promoted_hydel.go",
+    "internal/cli/promoted_sro.go"
+  ],
+  "reapply_after_regen": "internal/cli/nepra_table_extract.go, its test and the four testdata fixtures are hand-authored and survive regeneration. The ONE call per command must be re-applied in each of the four generated promoted_*.go files: replace the extractHTMLResponse(data, htmlExtractionOptions{Mode: \"page\", ...}) block with `data, err = extractNepraTable(data)`. TestExtractNepraTableShapes and TestFCACumulativeDisallowance run against the committed fixtures and so pass even when a call site is lost — check the four commands actually return rows after any regen.",
+  "validated_outcome": "Row counts now match the published sheets exactly: fca 48 (the 48 gap-free months), sro 19, hydel 30, quarterly 163. The strongest check is arithmetic the manifest says nobody had ever computed, recomputed from the extracted rows alone and matching every digit: CPPA-G cumulative requested 81.9748, allowed 73.1323, disallowance 8.8425 Rs/kWh, allowed below requested in 45 of 48 months, with 49 accounting-parenthesised negatives and 48 distinct year-month pairs from Jul 2018 to Jun 2022. The SRO sheet's two TESCO columns are disambiguated rather than one silently overwriting the other. A frameset wrapper, a 404 stub and prose with no table all yield zero rows or a named error rather than an empty success.",
+  "upstream_issue": "PENDING - see _meta.json deferred_to_upstream"
+}

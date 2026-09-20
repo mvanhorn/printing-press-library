@@ -1,0 +1,47 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Resources << /Font << /F1 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Resources << /Font << /F1 5 0 R >> >> /Contents 7 0 R >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Length 32 >>
+stream
+BT /F1 12 Tf 20 150 Td (A) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Length 111 >>
+stream
+BT /F1 12 Tf 20 150 Td (NEPRA sources fetch fixture line one) Tj 0 -20 Td (second line of the text layer) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Producer (nepra-pp-cli test fixture) /Creator (Nitro Pro 8) >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000000373 00000 n 
+0000000443 00000 n 
+0000000525 00000 n 
+0000000687 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R /Info 8 0 R >>
+startxref
+769
+%%EOF

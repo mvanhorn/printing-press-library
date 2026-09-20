@@ -1,0 +1,765 @@
+{
+ "_what": "HELD-OUT set: the 'Name of Companies' column of the NEPRA FY2020-21 generation workbook. This fiscal year was NOT used to build crosswalk.json, so resolving these names is a genuine out-of-sample test of the alias table.",
+ "_source": "https://nepra.org.pk/publications/State%20of%20Industry%20Reports/Detail%20of%20Generation/List%20of%20Companies%20Genenration%20wise%202020-21_files/sheet001.htm",
+ "_fetched": "2026-09-08",
+ "_note": "cp1252-decoded, verbatim cells including U+00A0 NBSP padding. An empty installed_capacity_mw_raw means the cell was blank/NBSP-only: NOT REPORTED, never zero.",
+ "fy": "2020-21",
+ "rows": [
+  {
+   "sno": 1,
+   "published_name": "AES Lalpir power limited.",
+   "installed_capacity_mw_raw": "362",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 2,
+   "published_name": " AES Pakgen Power Limited.",
+   "installed_capacity_mw_raw": "365",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 3,
+   "published_name": "Saba Power Company\n  (Pvt) Ltd. ",
+   "installed_capacity_mw_raw": "136",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 4,
+   "published_name": "Attock Gen Ltd (AGL)",
+   "installed_capacity_mw_raw": "163",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 5,
+   "published_name": "Atlas Power Ltd (APL)",
+   "installed_capacity_mw_raw": "219",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 6,
+   "published_name": "Nishat Power Ltd\n  (NPL)",
+   "installed_capacity_mw_raw": "202",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 7,
+   "published_name": "Nishat Chunian Power\n  Ltd (NCPL)",
+   "installed_capacity_mw_raw": "209",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 8,
+   "published_name": "Liberty Power\n  Limited.",
+   "installed_capacity_mw_raw": "225",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 9,
+   "published_name": " Kot Addu Power Company (KAPCO)",
+   "installed_capacity_mw_raw": "1,601",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 10,
+   "published_name": " Hub Power Company (HUBCO)",
+   "installed_capacity_mw_raw": "1,292",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 11,
+   "published_name": "Narowal Energy Ltd.\n  (HUBCO)",
+   "installed_capacity_mw_raw": "225",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 12,
+   "published_name": " Kohinoor Energy Limited. (KEL)",
+   "installed_capacity_mw_raw": "131",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 13,
+   "published_name": "Habibullah\n  Coastal Power Company (PVT) Limited. (HCPC)",
+   "installed_capacity_mw_raw": "140",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 14,
+   "published_name": "UCH Power Plant",
+   "installed_capacity_mw_raw": "586",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 15,
+   "published_name": "ROUSCH Power Plant",
+   "installed_capacity_mw_raw": "450",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 16,
+   "published_name": "Fauji\n  Kabirwala Power Company Limited. (FKPCL)",
+   "installed_capacity_mw_raw": "172",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 17,
+   "published_name": "Altern Energy\n  Limited. (AEL)",
+   "installed_capacity_mw_raw": "31",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 18,
+   "published_name": "Davis Energen Power\n  Limited.",
+   "installed_capacity_mw_raw": "13",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 19,
+   "published_name": "Engro Powergen\n  Qadirpur Ltd (EPQL)",
+   "installed_capacity_mw_raw": "226",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 20,
+   "published_name": "Saif Power Ltd (SPL)",
+   "installed_capacity_mw_raw": "225",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 21,
+   "published_name": "Orient Power Company\n  (Pvt) Ltd. (OPCL)",
+   "installed_capacity_mw_raw": "225",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 22,
+   "published_name": "Foundation Power\n  Company (Daharki) Ltd.",
+   "installed_capacity_mw_raw": "184",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 23,
+   "published_name": "Sapphire Electric\n  Company Ltd (SECL)",
+   "installed_capacity_mw_raw": "225",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 24,
+   "published_name": "Liberty Power Tech\n  Ltd. (LPTL)",
+   "installed_capacity_mw_raw": "202",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 25,
+   "published_name": "Halmore\n  Power Generation Company (Pvt) Ltd. (HPGCL)",
+   "installed_capacity_mw_raw": "225",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 26,
+   "published_name": "UCH-II Power (Pvt)\n  Ltd.",
+   "installed_capacity_mw_raw": "393",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 27,
+   "published_name": "Quaid-e-Azam\n  Thermal Power (Pvt) Ltd. (QATPL)",
+   "installed_capacity_mw_raw": "1,180",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 28,
+   "published_name": "Huaneng\n  Shandong Ruyi (Pakistan) Energy (Private) Limited. (HSRPEL)",
+   "installed_capacity_mw_raw": "1,320",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 29,
+   "published_name": "(NPPCL) - Haveli\n  Bahadar Shah",
+   "installed_capacity_mw_raw": "1,230",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 30,
+   "published_name": "(NPPCL) - Balloki",
+   "installed_capacity_mw_raw": "1,223",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 31,
+   "published_name": "Port\n  Qasim Electric Power Company (Private) Limited. (PQEPCL)",
+   "installed_capacity_mw_raw": "1,320",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 32,
+   "published_name": "Engro\n  Powergen Thar (Private) Limited. (EPTPL)",
+   "installed_capacity_mw_raw": "660",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 33,
+   "published_name": "China\n  Power Hub Generation Company (Private) Limited. (CPHGCL)",
+   "installed_capacity_mw_raw": "1,320",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 34,
+   "published_name": " Southern Electric Power Company Limited.\n  (SEPCOL)",
+   "installed_capacity_mw_raw": "135",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 35,
+   "published_name": "Japan Power\n  Generation Limited.",
+   "installed_capacity_mw_raw": "120",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 36,
+   "published_name": "Reshma\n  Power Generation (Private) Limited. (RPGPL)",
+   "installed_capacity_mw_raw": "97",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 37,
+   "published_name": "Gulf Powergen\n  (Private) Limited. (GPPL)",
+   "installed_capacity_mw_raw": "84",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 38,
+   "published_name": " Chashma Nuclear Power Plant 1\n  (CHASHNUPP-I)  ",
+   "installed_capacity_mw_raw": "325",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 39,
+   "published_name": " Chashma Nuclear Power Plant 2 (CHASHNUPP-II)",
+   "installed_capacity_mw_raw": "340",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 40,
+   "published_name": " Chashma Nuclear Power Plant 3\n  (CHASHNUPP-III) ",
+   "installed_capacity_mw_raw": "340",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 41,
+   "published_name": " Chashma Nuclear Power Plant 4 (CHASHNUPP-IV)",
+   "installed_capacity_mw_raw": "340",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 42,
+   "published_name": "Karachi Nuclear Power\n  Plant-II (K-2)",
+   "installed_capacity_mw_raw": "1,145",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 43,
+   "published_name": "Jagran Hydropower\n  Project ",
+   "installed_capacity_mw_raw": "30",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 44,
+   "published_name": "Malakand - III\n  Hydropower Project ",
+   "installed_capacity_mw_raw": "0",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 45,
+   "published_name": "New Bong Escape\n  Hydropower Project ",
+   "installed_capacity_mw_raw": "84",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 46,
+   "published_name": "Patrind Hydropower\n  Project ",
+   "installed_capacity_mw_raw": "150",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 47,
+   "published_name": "Daral Khwar (Behren)\n  Hydropower Project ",
+   "installed_capacity_mw_raw": "37",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 48,
+   "published_name": "Gulpur Hydropower\n  Project ",
+   "installed_capacity_mw_raw": "103",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 49,
+   "published_name": "Tarbela Hydropower\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "3,478",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 50,
+   "published_name": "Tarbela  Ext. 04 Hydropower Project (WAPDA)",
+   "installed_capacity_mw_raw": "1,410",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 51,
+   "published_name": "Mangla Hydropower\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "1,000",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 52,
+   "published_name": "Ghazi Brotha\n  Hydropower Project (WAPDA)",
+   "installed_capacity_mw_raw": "1,450",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 53,
+   "published_name": "Warsak Hydropower\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "243",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 54,
+   "published_name": "Chashma Hydropower\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "184",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 55,
+   "published_name": "Jinnah Hydel Power\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "96",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 56,
+   "published_name": "Allai Khwar\n  Hydropower Project (WAPDA)",
+   "installed_capacity_mw_raw": "121",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 57,
+   "published_name": "Khan Khwar Hydropower\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "72",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 58,
+   "published_name": "Dubair Khwar\n  Hydropower Project (WAPDA)",
+   "installed_capacity_mw_raw": "130",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 59,
+   "published_name": "Neelum\n  Jhelum Hydropower Project (WAPDA)",
+   "installed_capacity_mw_raw": "969",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 60,
+   "published_name": "Golen Gol Hydropower\n  Project (WAPDA)",
+   "installed_capacity_mw_raw": "108",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 61,
+   "published_name": "Quaid-e-Azam\n  Solar Power (Private) Limited. (QASPL)",
+   "installed_capacity_mw_raw": "100",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 62,
+   "published_name": "Apollo Solar\n  Development Pakistan Limited.",
+   "installed_capacity_mw_raw": "100",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 63,
+   "published_name": "Best Green Energy\n  Pakistan Limited. (BGEPL)",
+   "installed_capacity_mw_raw": "100",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 64,
+   "published_name": "Crest Energy Pakistan\n  Limited.",
+   "installed_capacity_mw_raw": "100",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 65,
+   "published_name": "JDW\n  Sugar Mills Limited. (Unit-II) Rahim Yar Khan",
+   "installed_capacity_mw_raw": "26",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 66,
+   "published_name": "JDW Sugar Mills\n  Limited. (Unit-III) Ghotki",
+   "installed_capacity_mw_raw": "27",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 67,
+   "published_name": "RYK Mills Limited.\n  (RYKML)",
+   "installed_capacity_mw_raw": "30",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 68,
+   "published_name": "Chiniot Power\n  Limited. (CPL)",
+   "installed_capacity_mw_raw": "63",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 69,
+   "published_name": "Fatima Energy\n  Limited. (FEL)",
+   "installed_capacity_mw_raw": "120",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 70,
+   "published_name": "Hamza Sugar Mills\n  Limited. (HSML)",
+   "installed_capacity_mw_raw": "15",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 71,
+   "published_name": "Thal\n  Industries Corporation Limited. (TICL) - Layyah Sugar Mills",
+   "installed_capacity_mw_raw": "25",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 72,
+   "published_name": "Al-Moiz Industries\n  Limited. (AMIL)",
+   "installed_capacity_mw_raw": "36",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 73,
+   "published_name": "Chanar Energy\n  Limited. (CEL)",
+   "installed_capacity_mw_raw": "22",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 74,
+   "published_name": "FFC Energy Ltd.",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 75,
+   "published_name": "Zorlu Enerji Pakistan\n  Ltd. (ZEPL)",
+   "installed_capacity_mw_raw": "56",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 76,
+   "published_name": "\n    Three Gorges First Wind Farm Pakistan (Pvt.) Ltd. (TGF)                                     ",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 77,
+   "published_name": "\n    Foundation Wind Energy-I Ltd. (FWEL-I)                                    ",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 78,
+   "published_name": "Foundation Wind\n  Energy-I Ltd. (FWEL-II)                \n                   ",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 79,
+   "published_name": "Sapphire Wind Power\n  Company Ltd. (SWPCL)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 80,
+   "published_name": "Metro Power Company\n  Ltd. (MPCL)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 81,
+   "published_name": "Yunus Energy Ltd.",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 82,
+   "published_name": "Tapal Wind Power\n  Energy Private Ltd. (TWEPL)",
+   "installed_capacity_mw_raw": "30",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 83,
+   "published_name": "Master Wind Energy\n  Limited. (MWEL)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 84,
+   "published_name": "Tenaga Generasi Ltd.",
+   "installed_capacity_mw_raw": "Export\n  to K.Electric",
+   "installed_capacity_state": "export_to_k_electric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 85,
+   "published_name": "Gul Ahmed Wind Power\n  Ltd.",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 86,
+   "published_name": "Hydrochina Dawood\n  Power (Pvt.) Ltd. (HDPPL)",
+   "installed_capacity_mw_raw": "Export\n  to K.Electric",
+   "installed_capacity_state": "export_to_k_electric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 87,
+   "published_name": "Sachal Energy\n  Development (Pvt) Ltd. (SEDPL)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 88,
+   "published_name": "UEP Wind Power (Pvt)\n  Ltd.",
+   "installed_capacity_mw_raw": "99",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 89,
+   "published_name": "Artistic Wind Power\n  (Pvt.) Limited.",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 90,
+   "published_name": "Jhimpir Power\n  (Private) Limited. (JPPL)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 91,
+   "published_name": "Hawa Energy (Private)\n  Ltd. (HEPL)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 92,
+   "published_name": "Three\n  Gorges Third Wind Farm (Private) Ltd. (TGT)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 93,
+   "published_name": "\n    Three Gorges Second Wind Farm (Private) Ltd. (TGS)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 94,
+   "published_name": "Tricon\n  Boston Consulting Corporation (Private) Ltd-A (TBCCPL-A)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 95,
+   "published_name": "Tricon\n  Boston Consulting Corporation (Private) Ltd-B (TBCCPL-B)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 96,
+   "published_name": "Tricon\n  Boston Consulting Corporation (Private) Ltd-C (TBCCPL-C)",
+   "installed_capacity_mw_raw": "50",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 97,
+   "published_name": "Zephyr Power (Pvt.)\n  Ltd.",
+   "installed_capacity_mw_raw": "Export\n  to K.Electric",
+   "installed_capacity_state": "export_to_k_electric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 98,
+   "published_name": "Jamshoro Power\n  Generation  Company Limited.",
+   "installed_capacity_mw_raw": "850",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 99,
+   "published_name": "Kotri Power Station",
+   "installed_capacity_mw_raw": "174",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 100,
+   "published_name": "Thermal Power Station\n  Guddu 1-4",
+   "installed_capacity_mw_raw": "640",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 101,
+   "published_name": "Thermal Power Station\n  Guddu 5-13",
+   "installed_capacity_mw_raw": "1,035",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 102,
+   "published_name": "Thermal Power Station\n  Guddu 747",
+   "installed_capacity_mw_raw": "747",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 103,
+   "published_name": "Thermal Power Station\n  Quetta",
+   "installed_capacity_mw_raw": "35",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 104,
+   "published_name": "Thermal Power Station\n  Muzaffargarh",
+   "installed_capacity_mw_raw": "1,350",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 105,
+   "published_name": "GTPS Faisalabad",
+   "installed_capacity_mw_raw": "144",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 106,
+   "published_name": "SPS Faisalabad",
+   "installed_capacity_mw_raw": "132",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 107,
+   "published_name": "Nandipur Power Plant",
+   "installed_capacity_mw_raw": "525",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  },
+  {
+   "sno": 108,
+   "published_name": "Lakhra Power\n  Generation  Company Limited.",
+   "installed_capacity_mw_raw": "150",
+   "installed_capacity_state": "numeric",
+   "block_status": "numeric"
+  }
+ ]
+}

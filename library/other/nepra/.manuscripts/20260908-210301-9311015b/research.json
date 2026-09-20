@@ -1,0 +1,365 @@
+{
+  "api_name": "nepra",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "bijlicheck",
+      "url": "https://github.com/Muhammad-Sohair/bijlicheck",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ebillpakistan.pk",
+      "url": "https://github.com/atifjan2019/ebillpakistan.pk",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ha_wapda_peak_hours",
+      "url": "https://github.com/farhanshahlabs/ha_wapda_peak_hours",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "VoltaIQ",
+      "url": "https://github.com/Noor-Rehman/VoltaIQ",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "NEPRA-Prosumer-Bill-Calculator-2025",
+      "url": "https://github.com/AE-Usama/NEPRA-Prosumer-Bill-Calculator-2025",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Solar-NetBilling-model",
+      "url": "https://github.com/harisahmadkhan/Solar-NetBilling-model-",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nepradataset",
+      "url": "https://github.com/balochasif2021-arch/nepradataset",
+      "language": "None",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-08T16:52:00Z",
+  "novel_features": [
+    {
+      "name": "Plant-month generation extract",
+      "command": "gen",
+      "description": "Pull every power plant's monthly generation and utilisation for a fiscal year as rows you can pipe, with unreported months kept distinct from real zeros.",
+      "rationale": "The published file's only non-ASCII byte makes a naive UTF-8 read report zero rows on a 493 KB document, so the data is effectively unreadable without a deliberate decode and grid expansion.",
+      "example": "nepra-pp-cli gen --fy 2023-24 --agent",
+      "why_it_matters": "Reach for this when you need the whole fiscal year at plant granularity; it is the only machine-readable form of this table that exists.",
+      "group": "The panel nobody else has"
+    },
+    {
+      "name": "Operator and ticker fleet panel",
+      "command": "fleet",
+      "description": "Follow one plant or a listed operator's whole fleet across the fiscal years the crosswalk has observed, through renames and re-sorted row numbers.",
+      "rationale": "The annual sheets share no stable key and plant names drift, so a cross-year panel is only possible from an EMBEDDED curated crosswalk of name, alias, parent and ticker, which this CLI compiles in rather than syncing.",
+      "example": "nepra-pp-cli fleet --parent HUBC --agent",
+      "why_it_matters": "Use this for any question spanning more than one fiscal year, and for mapping plants to listed operators. meta reports observed_fys against published_fys: the embedded crosswalk does not cover every published year, and the gap is stated rather than hidden.",
+      "group": "The panel nobody else has"
+    },
+    {
+      "name": "Conflict and break ledger",
+      "command": "conflicts",
+      "description": "List every place NEPRA's own published figures disagree — two sources on one key, an unexplained step inside a single series, or a row that fails its own arithmetic — showing both values and both citations without picking a winner.",
+      "rationale": "Requires keeping both vintages at page and table granularity in one store, which is the only way to print a self-contradiction side by side instead of silently choosing.",
+      "example": "nepra-pp-cli conflicts --surface per --agent",
+      "why_it_matters": "Reach for this before quoting any NEPRA figure. `--kind conflict` is the two-source case; `--kind break` is a step inside one series (those entries carry same_key=false, because there is no second source to cite); `--kind arithmetic` is a row that contradicts itself. Default is all three.",
+      "group": "Trust the number or don't"
+    },
+    {
+      "name": "DISCO reliability panel",
+      "command": "disco",
+      "description": "Per-distribution-company transmission losses, recovery, interruption frequency and duration against the regulator's own targets, across report years.",
+      "rationale": "These tables exist only as coordinate-bound text inside inconsistently named PDFs, one of which is reachable only via a filename with a trailing space.",
+      "example": "nepra-pp-cli disco --metric saidi --fy 2024-25 --agent",
+      "why_it_matters": "Use this for any per-DISCO performance question; the national averages everyone quotes hide the spread.",
+      "group": "Trust the number or don't"
+    },
+    {
+      "name": "Regulatory determination feed",
+      "command": "events",
+      "description": "A dated feed of tariff determinations and orders by company, distribution company or docket, with the verbatim document link.",
+      "rationale": "The source pages silently truncate under a timeout without compression, returning a partial list under a success status, so a correct feed needs a completeness assertion.",
+      "example": "nepra-pp-cli events --surface ipp-thermal --docket TRF-71 --agent",
+      "why_it_matters": "Use this to find which determination applies to a company and when; it returns document identity, not rates.",
+      "group": "Find the document"
+    },
+    {
+      "name": "Generation licence register",
+      "command": "licence",
+      "description": "The licence register with gross capacity, plant type, fuel and the modification trail, searchable by name or fuel.",
+      "rationale": "Key lookup has to be typo-aliased because the published page misspells its own column header, which silently hides the single largest capacity entry.",
+      "example": "nepra-pp-cli licence --fuel Coal --agent",
+      "why_it_matters": "Reach for this for licensed-capacity and plant-type questions. Search by --search or --fuel; lookup by PSX ticker is refused with exit 2 because the crosswalk resolves only 28 of 335 register names, and fleet --parent is the right instrument for an operator's generation panel.",
+      "group": "Find the document"
+    },
+    {
+      "name": "Fetch and staleness gate",
+      "command": "verify",
+      "description": "Assert every published NEPRA surface against status, byte floor, content checksum, in-document year token and the frozen column fingerprint, exiting non-zero when stale or drifted.",
+      "rationale": "This source serves a byte-identical placeholder page across different fiscal years under a success status, so only a stored fingerprint can tell real data from a decoy.",
+      "example": "nepra-pp-cli verify --fy 2023-24 --agent",
+      "why_it_matters": "Use this before trusting any extract. It is a FETCH gate, not a cache gate — nothing is stored locally — and it catches the decoys this site serves under an HTTP 200.",
+      "group": "Trust the number or don't"
+    },
+    {
+      "name": "Capacity by status and system",
+      "command": "capacity",
+      "description": "Installed and dependable capacity broken out by plant status and system, so each headline megawatt figure is labelled and derivable.",
+      "rationale": "Several incompatible capacity totals exist for the same date, and each is only reproducible once every row carries an explicit status and system label.",
+      "example": "nepra-pp-cli capacity --as-of 2024-06-30 --by status --agent",
+      "why_it_matters": "Use this when a capacity number has to reconcile; it shows which definition produces which total.",
+      "group": "The panel nobody else has"
+    },
+    {
+      "name": "Fuel cost adjustment series",
+      "command": "fca",
+      "description": "The monthly requested-versus-allowed fuel cost adjustment series with cumulative disallowance, bounded to the window the source actually covers.",
+      "rationale": "It is the only numeric tariff surface published as HTML, and its negatives are written in accounting parentheses that a naive parse sign-flips or rejects.",
+      "example": "nepra-pp-cli fca --entity cppag --cumulative --agent",
+      "why_it_matters": "Use this to see how much of a requested fuel adjustment the regulator actually allowed, month by month.",
+      "group": "Find the document"
+    },
+    {
+      "name": "Source catalogue and enumerator diff",
+      "command": "sources",
+      "description": "Catalogue every reachable published document with size, coverage window, text-layer flag and reachability state, and diff it against the shipped manifest.",
+      "rationale": "The site ships no working enumerator, its declared sitemaps are dead, and filenames carry load-bearing typos and case-sensitive extensions, so URLs must be scraped and never constructed.",
+      "example": "nepra-pp-cli sources --kind per --agent",
+      "why_it_matters": "Use this to discover what exists before fetching, and to tell an unreachable document apart from one with no data.",
+      "group": "Find the document"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Plant-month generation extract",
+      "command": "gen",
+      "description": "Pull every power plant's monthly generation and utilisation for a fiscal year as rows you can pipe, with unreported months kept distinct from real zeros.",
+      "rationale": "The published file's only non-ASCII byte makes a naive UTF-8 read report zero rows on a 493 KB document, so the data is effectively unreadable without a deliberate decode and grid expansion.",
+      "example": "nepra-pp-cli gen --fy 2023-24 --agent",
+      "why_it_matters": "Reach for this when you need the whole fiscal year at plant granularity; it is the only machine-readable form of this table that exists.",
+      "group": "The panel nobody else has"
+    },
+    {
+      "name": "Operator and ticker fleet panel",
+      "command": "fleet",
+      "description": "Follow one plant or a listed operator's whole fleet across the fiscal years the crosswalk has observed, through renames and re-sorted row numbers.",
+      "rationale": "The annual sheets share no stable key and plant names drift, so a cross-year panel is only possible from an EMBEDDED curated crosswalk of name, alias, parent and ticker, which this CLI compiles in rather than syncing.",
+      "example": "nepra-pp-cli fleet --parent HUBC --agent",
+      "why_it_matters": "Use this for any question spanning more than one fiscal year, and for mapping plants to listed operators. meta reports observed_fys against published_fys: the embedded crosswalk does not cover every published year, and the gap is stated rather than hidden.",
+      "group": "The panel nobody else has"
+    },
+    {
+      "name": "Conflict and break ledger",
+      "command": "conflicts",
+      "description": "List every place NEPRA's own published figures disagree — two sources on one key, an unexplained step inside a single series, or a row that fails its own arithmetic — showing both values and both citations without picking a winner.",
+      "rationale": "Requires keeping both vintages at page and table granularity in one store, which is the only way to print a self-contradiction side by side instead of silently choosing.",
+      "example": "nepra-pp-cli conflicts --surface per --agent",
+      "why_it_matters": "Reach for this before quoting any NEPRA figure. `--kind conflict` is the two-source case; `--kind break` is a step inside one series (those entries carry same_key=false, because there is no second source to cite); `--kind arithmetic` is a row that contradicts itself. Default is all three.",
+      "group": "Trust the number or don't"
+    },
+    {
+      "name": "DISCO reliability panel",
+      "command": "disco",
+      "description": "Per-distribution-company transmission losses, recovery, interruption frequency and duration against the regulator's own targets, across report years.",
+      "rationale": "These tables exist only as coordinate-bound text inside inconsistently named PDFs, one of which is reachable only via a filename with a trailing space.",
+      "example": "nepra-pp-cli disco --metric saidi --fy 2024-25 --agent",
+      "why_it_matters": "Use this for any per-DISCO performance question; the national averages everyone quotes hide the spread.",
+      "group": "Trust the number or don't"
+    },
+    {
+      "name": "Regulatory determination feed",
+      "command": "events",
+      "description": "A dated feed of tariff determinations and orders by company, distribution company or docket, with the verbatim document link.",
+      "rationale": "The source pages silently truncate under a timeout without compression, returning a partial list under a success status, so a correct feed needs a completeness assertion.",
+      "example": "nepra-pp-cli events --surface ipp-thermal --docket TRF-71 --agent",
+      "why_it_matters": "Use this to find which determination applies to a company and when; it returns document identity, not rates.",
+      "group": "Find the document"
+    },
+    {
+      "name": "Generation licence register",
+      "command": "licence",
+      "description": "The licence register with gross capacity, plant type, fuel and the modification trail, searchable by name or fuel.",
+      "rationale": "Key lookup has to be typo-aliased because the published page misspells its own column header, which silently hides the single largest capacity entry.",
+      "example": "nepra-pp-cli licence --fuel Coal --agent",
+      "why_it_matters": "Reach for this for licensed-capacity and plant-type questions. Search by --search or --fuel; lookup by PSX ticker is refused with exit 2 because the crosswalk resolves only 28 of 335 register names, and fleet --parent is the right instrument for an operator's generation panel.",
+      "group": "Find the document"
+    },
+    {
+      "name": "Fetch and staleness gate",
+      "command": "verify",
+      "description": "Assert every published NEPRA surface against status, byte floor, content checksum, in-document year token and the frozen column fingerprint, exiting non-zero when stale or drifted.",
+      "rationale": "This source serves a byte-identical placeholder page across different fiscal years under a success status, so only a stored fingerprint can tell real data from a decoy.",
+      "example": "nepra-pp-cli verify --fy 2023-24 --agent",
+      "why_it_matters": "Use this before trusting any extract. It is a FETCH gate, not a cache gate — nothing is stored locally — and it catches the decoys this site serves under an HTTP 200.",
+      "group": "Trust the number or don't"
+    },
+    {
+      "name": "Capacity by status and system",
+      "command": "capacity",
+      "description": "Installed and dependable capacity broken out by plant status and system, so each headline megawatt figure is labelled and derivable.",
+      "rationale": "Several incompatible capacity totals exist for the same date, and each is only reproducible once every row carries an explicit status and system label.",
+      "example": "nepra-pp-cli capacity --as-of 2024-06-30 --by status --agent",
+      "why_it_matters": "Use this when a capacity number has to reconcile; it shows which definition produces which total.",
+      "group": "The panel nobody else has"
+    },
+    {
+      "name": "Fuel cost adjustment series",
+      "command": "fca",
+      "description": "The monthly requested-versus-allowed fuel cost adjustment series with cumulative disallowance, bounded to the window the source actually covers.",
+      "rationale": "It is the only numeric tariff surface published as HTML, and its negatives are written in accounting parentheses that a naive parse sign-flips or rejects.",
+      "example": "nepra-pp-cli fca --entity cppag --cumulative --agent",
+      "why_it_matters": "Use this to see how much of a requested fuel adjustment the regulator actually allowed, month by month.",
+      "group": "Find the document"
+    },
+    {
+      "name": "Source catalogue and enumerator diff",
+      "command": "sources",
+      "description": "Catalogue every reachable published document with size, coverage window, text-layer flag and reachability state, and diff it against the shipped manifest.",
+      "rationale": "The site ships no working enumerator, its declared sitemaps are dead, and filenames carry load-bearing typos and case-sensitive extensions, so URLs must be scraped and never constructed.",
+      "example": "nepra-pp-cli sources --kind per --agent",
+      "why_it_matters": "Use this to discover what exists before fetching, and to tell an unreachable document apart from one with no data.",
+      "group": "Find the document"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "NEPRA",
+    "headline": "Pakistan's electricity regulator publishes the country's only plant-level power data as Excel-exported HTML that reads as empty and PDFs nobody extracts — this turns it into a queryable panel and names every gap.",
+    "value_prop": "NEPRA is the sole public source for monthly plant-by-plant generation and per-distribution-company reliability in Pakistan, and there is no API, no dataset and no package for any of it. This CLI extracts those releases live from the published documents, keeps unreported months distinct from measured zeros, follows plants across years despite renamed rows and re-sorted row numbers, and surfaces the places the regulator's own documents disagree with themselves instead of quietly picking one.",
+    "quickstart": [
+      {
+        "command": "nepra-pp-cli doctor",
+        "comment": "confirm the site is reachable before anything else; no credential is needed anywhere in this CLI"
+      },
+      {
+        "command": "nepra-pp-cli sources --kind gen",
+        "comment": "see which fiscal years actually exist upstream, and which are listed but unreachable"
+      },
+      {
+        "command": "nepra-pp-cli coverage --check-stale",
+        "comment": "see every surface this CLI serves, how old each measurement is, and which command answers it; exits non-zero past the window so a cron can gate on it. Makes no request"
+      },
+      {
+        "command": "nepra-pp-cli gen --fy 2023-24 --agent",
+        "comment": "the plant-by-month grid for one fiscal year as rows"
+      },
+      {
+        "command": "nepra-pp-cli verify --fy 2023-24",
+        "comment": "prove the published bytes and the 32-column layout still match what this build expects. It is a FETCH gate, not a cache gate: nothing is stored locally"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A fiscal year returns no rows and no error",
+        "fix": "Run 'nepra-pp-cli sources --kind gen' — several years are listed by the site's own index but return 404, and are reported as unreachable rather than empty."
+      },
+      {
+        "symptom": "Generation figures look like every month is zero",
+        "fix": "Unreported months are stored distinct from measured zeros. Pass --agent and read value_state; a blank month is absence of measurement, not zero output."
+      },
+      {
+        "symptom": "A plant disappears between fiscal years",
+        "fix": "Row numbers are not stable across years and names drift. Use 'nepra-pp-cli fleet --plant' which resolves aliases, rather than joining on the row number."
+      },
+      {
+        "symptom": "Two NEPRA documents give different values for the same metric",
+        "fix": "That is expected and recorded. Run 'nepra-pp-cli conflicts' to see both values with both citations; the CLI never reconciles them for you."
+      },
+      {
+        "symptom": "A distribution company is missing from reliability output",
+        "fix": "The regulator excludes one company from these tables on the record, citing unreliable metering. It returns as unavailable with that reason rather than as an empty row."
+      }
+    ],
+    "when_to_use": "Reach for this CLI for any question about Pakistani electricity generation at plant granularity, distribution-company reliability against regulatory targets, licensed capacity, or fuel cost adjustment history. It is strongest on questions that need a time series or a cross-entity join that no single published page answers — a plant's seven-year load factor, a listed operator's consolidated fleet, or which distribution company's loss gap widened most. It is also the right tool when you need to know whether a figure is contested, because it records where the regulator's own documents disagree.",
+    "anti_triggers": [
+      "Do not use this to audit or recompute a household or business electricity bill — the governing consumer tariff schedules are published as scanned images with no extractable rates, so any figure would be invented.",
+      "Do not use this for net-metering or prosumer payback simulation; that is a modelling product and this CLI carries only published regulator data.",
+      "Do not use this for load-shedding schedules or outage timetables; those are distribution-company publications, not regulator data, and are not carried here.",
+      "Do not use this for consumer-end applicable tariff rates or fuel adjustment after the published consolidated series ends — the later determinations exist only as image-only or character-corrupted documents and the CLI refuses rather than guessing.",
+      "Do not use this for circular debt, national sales or consumer-count aggregates; those live only inside very large State of Industry PDFs, one of which has no text layer at all."
+    ],
+    "recipes": [
+      {
+        "title": "One operator's fleet across every published year",
+        "command": "nepra-pp-cli fleet --parent HUBC --agent",
+        "explanation": "Follows a listed operator's plants through renames and re-sorted rows, narrowing the payload to the four fields an availability model needs."
+      },
+      {
+        "title": "Which distribution company misses its loss target by most",
+        "command": "nepra-pp-cli disco --metric tnd --fy 2024-25 --agent",
+        "explanation": "Returns actual reported losses alongside the level allowed in tariff and the breach, per company, which no published page tabulates together."
+      },
+      {
+        "title": "Check a figure is not contested before quoting it",
+        "command": "nepra-pp-cli conflicts --surface per --agent",
+        "explanation": "Lists same-key disagreements between two published documents with both citations, so a quoted number can be defended or avoided."
+      },
+      {
+        "title": "See which fiscal years and surfaces actually exist upstream",
+        "command": "nepra-pp-cli sources --diff --agent",
+        "explanation": "Diffs the live catalogue against the shipped manifest, separating genuinely unreachable documents from ones with no data."
+      },
+      {
+        "title": "Gate a published surface on bytes, decoys and the column fingerprint",
+        "command": "nepra-pp-cli verify --fy 2023-24 --check-stale --agent",
+        "explanation": "Emits a citable checksum manifest and exits non-zero if any artifact drifted or aged past its staleness window."
+      }
+    ],
+    "trigger_phrases": [
+      "pakistan power plant generation",
+      "nepra generation data",
+      "disco t\u0026d losses",
+      "saifi saidi pakistan",
+      "pakistan electricity capacity by fuel",
+      "use nepra",
+      "run nepra"
+    ]
+  }
+}
