@@ -1008,8 +1008,9 @@ func TestCursorLimitMismatchErrorRejectsDifferentLimit(t *testing.T) {
 		t.Fatalf("no cursor at all (first call) must never be blocked: %q", msg)
 	}
 
-	// A cursor minted with no RequestLimit tracked (endpoint has no limit
-	// param, or the cursor predates this check) must not block anything.
+	// A cursor minted with no RequestLimit tracked must still be rejected
+	// when the endpoint has a known limit — otherwise pre-binding cursors
+	// keep the silent mispagination hole open across deploy.
 	untracked := bound.EndpointPageResponse("GET", data, bound.PageOptions{CursorParam: "page"})
 	var untrackedEnvelope struct {
 		NextCursor string `json:"next_cursor"`
@@ -1017,8 +1018,17 @@ func TestCursorLimitMismatchErrorRejectsDifferentLimit(t *testing.T) {
 	if err := json.Unmarshal([]byte(untracked), &untrackedEnvelope); err != nil {
 		t.Fatalf("result must remain valid JSON: %v\n%s", err, untracked)
 	}
-	if msg := cursorLimitMismatchError(untrackedEnvelope.NextCursor, "2", true); msg != "" {
-		t.Fatalf("a cursor with no recorded limit must not block resumption: %q", msg)
+	if untrackedEnvelope.NextCursor == "" {
+		t.Fatalf("expected an untracked cursor to resume from: %s", untracked)
+	}
+	if msg := cursorLimitMismatchError(untrackedEnvelope.NextCursor, "2", true); msg == "" {
+		t.Fatal("a cursor with no recorded limit must be rejected on a limit-bound endpoint")
+	} else if !strings.Contains(msg, "no recorded") {
+		t.Fatalf("error message should explain the unbound cursor: %q", msg)
+	}
+	// Endpoints with no limit binding still allow unbound cursors.
+	if msg := cursorLimitMismatchError(untrackedEnvelope.NextCursor, "", false); msg != "" {
+		t.Fatalf("limitKnown=false must never block on missing cursor limit: %q", msg)
 	}
 }
 

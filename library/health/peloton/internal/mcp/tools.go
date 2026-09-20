@@ -968,15 +968,26 @@ func topLevelSelectFieldNames(selectFields string) map[string]bool {
 // cursorLimitMismatchError returns a non-empty, caller-facing error message
 // when a resumed call's limit doesn't match the limit its cursor was minted
 // with (see bound.PageOptions.RequestLimit for why this matters), or "" when
-// the call may proceed: no cursor, a cursor with no recorded limit (minted
-// before this check existed, or an endpoint with no limit parameter), or
-// limits that agree. limitKnown mirrors params["limit"]'s own comma-ok form
-// so an endpoint with no limit binding at all (limitKnown false) never
-// blocks on this, matching cursorLimit == "" that same way.
+// the call may proceed: no cursor, an endpoint with no limit parameter
+// (limitKnown false), or limits that agree. When limitKnown is true, a
+// cursor with no recorded limit (minted before this check existed) is
+// rejected — accepting it would re-open the silent mispagination this
+// guard exists to close. limitKnown mirrors params["limit"]'s own
+// comma-ok form so an endpoint with no limit binding at all never blocks
+// on this.
 func cursorLimitMismatchError(mcpCursor, currentLimit string, limitKnown bool) string {
-	cursorLimit, err := bound.CursorLimit(mcpCursor)
-	if err != nil || cursorLimit == "" {
+	if mcpCursor == "" {
 		return ""
+	}
+	cursorLimit, err := bound.CursorLimit(mcpCursor)
+	if err != nil {
+		return ""
+	}
+	if cursorLimit == "" {
+		if !limitKnown {
+			return ""
+		}
+		return "cursor has no recorded page-size limit; resuming it after limit-binding shipped is not supported because its position cannot be validated against the current limit. Omit cursor to start a fresh query."
 	}
 	if !limitKnown || currentLimit == cursorLimit {
 		return ""
