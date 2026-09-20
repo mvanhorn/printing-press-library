@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -456,6 +457,74 @@ func TestManagedBearerRefreshPreservesCachedSessionID(t *testing.T) {
 	}
 }
 
+// TestIsRefreshCredentialRejectedClassifiesStatusCodes guards the fix for a
+// Greptile finding on the bootstrap-fallback change: falling back to
+// bootstrapPelotonToken() on ANY refresh failure — including a plain
+// network timeout, a 429 (the provider already rate-limiting this client),
+// or a provider-side 5xx — fires a second password-grant request that none
+// of those conditions say anything about the refresh_token's own validity,
+// and can make things worse (fighting an active 429, doubling latency on a
+// transient blip). Only a 4xx-excluding-429 status from the token endpoint
+// itself should be treated as "this specific credential was rejected."
+func TestIsRefreshCredentialRejectedClassifiesStatusCodes(t *testing.T) {
+	cases := []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{"400 bad request", &pelotonOAuthHTTPError{statusCode: http.StatusBadRequest}, true},
+		{"401 unauthorized", &pelotonOAuthHTTPError{statusCode: http.StatusUnauthorized}, true},
+		{"403 forbidden (the live report's shape)", &pelotonOAuthHTTPError{statusCode: http.StatusForbidden}, true},
+		{"429 rate limited", &pelotonOAuthHTTPError{statusCode: http.StatusTooManyRequests}, false},
+		{"500 provider server error", &pelotonOAuthHTTPError{statusCode: http.StatusInternalServerError}, false},
+		{"503 provider unavailable", &pelotonOAuthHTTPError{statusCode: http.StatusServiceUnavailable}, false},
+		{"network-level failure, no status code", fmt.Errorf("managed Peloton OAuth request failed"), false},
+		{"wrapped network failure", fmt.Errorf("wrapping: %w", fmt.Errorf("managed Peloton OAuth request failed")), false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isRefreshCredentialRejected(tc.err); got != tc.want {
+				t.Fatalf("isRefreshCredentialRejected(%v) = %v, want %v", tc.err, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestManagedPelotonAccessTokenDoesNotBootstrapOnTransientRefreshFailure
+// guards the same fix at the managedPelotonAccessToken level: with
+// bootstrap credentials configured, a 429 from the refresh request must
+// NOT trigger a bootstrap request at all (the fixture server fails the
+// test if it receives a second, differently-shaped request), and the
+// original 429 error must survive so the caller can see it was rate
+// limited rather than getting a misleading credential-rejection story.
+func TestManagedPelotonAccessTokenDoesNotBootstrapOnTransientRefreshFailure(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "expired", RefreshToken: "still-good-refresh", ExpiresAt: oauthNow().Add(-time.Minute)}); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PELOTON_OAUTH_USERNAME", "fixture-user")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "fixture-password")
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if err := r.ParseForm(); err != nil || r.Form.Get("grant_type") != "refresh_token" {
+			t.Fatalf("transient refresh failure must not trigger a second (bootstrap) request: call %d, form=%v", calls, r.Form)
+		}
+		w.WriteHeader(http.StatusTooManyRequests)
+		_, _ = w.Write([]byte(`{"error":"rate_limited"}`))
+	}))
+	defer server.Close()
+	oauthHTTPClient, oauthTokenURL = server.Client(), server.URL
+
+	_, err := managedPelotonAccessToken()
+	if err == nil || !strings.Contains(err.Error(), "HTTP 429") {
+		t.Fatalf("expected the original 429 to survive untouched, got: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("expected exactly one request (no bootstrap fallback for a transient failure), got %d", calls)
+	}
+}
+
 // TestManagedPelotonAccessTokenFallsBackToBootstrapWhenRefreshTokenIsDead
 // guards the fix for a live report: a container's refresh_token had gone
 // permanently invalid (provider-side rotation from concurrent CLI usage
@@ -505,6 +574,14 @@ func TestManagedPelotonAccessTokenFallsBackToBootstrapWhenRefreshTokenIsDead(t *
 // unavailable" that would obscure what actually failed).
 func TestManagedPelotonAccessTokenReturnsOriginalRefreshErrorWithoutBootstrapCreds(t *testing.T) {
 	withOAuthTestState(t)
+	// Explicitly clear rather than just relying on an unset var: an
+	// ambient PELOTON_OAUTH_USERNAME/PASSWORD in the dev/CI environment
+	// would otherwise make hasBootstrapCredentials() true, silently
+	// exercising the bootstrap-also-fails path (already covered by
+	// TestManagedPelotonAccessTokenKeepsOriginalRefreshErrorWhenBootstrapAlsoFails)
+	// instead of the no-credentials-at-all path this test is named for.
+	t.Setenv("PELOTON_OAUTH_USERNAME", "")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "")
 	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "expired", RefreshToken: "dead-refresh", ExpiresAt: oauthNow().Add(-time.Minute)}); err != nil {
 		t.Fatal(err)
 	}
