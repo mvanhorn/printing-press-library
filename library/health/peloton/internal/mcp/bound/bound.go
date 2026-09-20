@@ -112,6 +112,20 @@ type PageOptions struct {
 	// the same top-level key) that the caller's own select explicitly
 	// requested, and so must be kept even on a later page. Ignored when
 	// FirstPageOnlyFields is empty. See that field's doc comment.
+	//
+	// Known gap (PR #2027 review): the caller (tools.go's
+	// topLevelSelectFieldNames) only lowercases select segments before
+	// populating this map, while cli.FilterFieldsJSON's own matching also
+	// accepts kebab-case aliases for camelCase JSON keys. A future
+	// FirstPageOnlyFields entry that is itself camelCase could have an
+	// explicit select survive projection but still get silently stripped
+	// here, because the two sides use different normalization. Currently
+	// unreachable -- every existing entry (workouts_list's "summary") is a
+	// single lowercase word -- so left as a documented gap rather than a
+	// speculative fix; see the resolution on
+	// https://github.com/mvanhorn/printing-press-library/pull/2027 for
+	// why a real fix needs the same select-path matching FilterFieldsJSON
+	// uses internally, not just a different case-folding rule.
 	KeepFirstPageOnlyFields map[string]bool
 
 	// PreProjectionData, when set, is the response body as it was before
