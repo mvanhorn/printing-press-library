@@ -13,6 +13,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -2003,7 +2005,12 @@ func TestMCPCompanionCLIAvailableRejectsUnexecutablePath(t *testing.T) {
 
 func testProfileClient(t *testing.T, baseURL string) *client.Client {
 	t.Helper()
-	c := client.New(&config.Config{BaseURL: baseURL}, time.Second, 0)
+	return testProfileClientWithToken(t, baseURL, "test-access-token")
+}
+
+func testProfileClientWithToken(t *testing.T, baseURL, accessToken string) *client.Client {
+	t.Helper()
+	c := client.New(&config.Config{BaseURL: baseURL, AccessToken: accessToken}, time.Second, 0)
 	c.NoCache = true
 	return c
 }
@@ -2015,11 +2022,11 @@ func testProfileClient(t *testing.T, baseURL string) *client.Client {
 func resetLiveProfileIDCache(t *testing.T) {
 	t.Helper()
 	liveProfileIDMu.Lock()
-	liveProfileIDCache = ""
+	liveProfileIDCache.accessToken, liveProfileIDCache.id = "", ""
 	liveProfileIDMu.Unlock()
 	t.Cleanup(func() {
 		liveProfileIDMu.Lock()
-		liveProfileIDCache = ""
+		liveProfileIDCache.accessToken, liveProfileIDCache.id = "", ""
 		liveProfileIDMu.Unlock()
 	})
 }
@@ -2184,5 +2191,77 @@ func TestResolveLiveProfileIDDoesNotCacheFailure(t *testing.T) {
 	}
 	if calls != 2 {
 		t.Fatalf("expected exactly 2 requests (one failed, one retried), got %d", calls)
+	}
+}
+
+// TestResolveLiveProfileIDCacheInvalidatesOnAccessTokenChange guards a
+// Greptile finding on the first version of this cache: it cached
+// unconditionally, so a long-running server whose persisted credential
+// bundle switches to a different Peloton account would keep returning the
+// PREVIOUS account's profile id forever, since nothing ever invalidated
+// it. installManagedPelotonBearer mints a fresh access token for every
+// client build, and a different account means a different token -- the
+// cache must treat that as a cold miss, not reuse the stale id.
+func TestResolveLiveProfileIDCacheInvalidatesOnAccessTokenChange(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") == "Bearer token-b" {
+			_, _ = w.Write([]byte(`{"id":"profile-b"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"id":"profile-a"}`))
+	}))
+	defer server.Close()
+
+	got, err := resolveLiveProfileID(context.Background(), testProfileClientWithToken(t, server.URL, "token-a"))
+	if err != nil || got != "profile-a" {
+		t.Fatalf("first account: id=%q err=%v", got, err)
+	}
+
+	// A fresh client with a different access token models the persisted
+	// bundle switching to a different account.
+	got, err = resolveLiveProfileID(context.Background(), testProfileClientWithToken(t, server.URL, "token-b"))
+	if err != nil || got != "profile-b" {
+		t.Fatalf("a changed access token must invalidate the cache, not return the previous account's stale profile: id=%q err=%v", got, err)
+	}
+}
+
+// TestResolveLiveProfileIDSerializesConcurrentColdLookups guards a second
+// Greptile finding on the first version: the lock was released before the
+// live /api/me call, so concurrent requests that all see an empty cache
+// (the common cold-start shape -- a server's first few workouts_list
+// calls arriving close together) could each fire their own upstream
+// request instead of one winning and the rest reusing its result.
+func TestResolveLiveProfileIDSerializesConcurrentColdLookups(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	var calls int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&calls, 1)
+		time.Sleep(20 * time.Millisecond) // widen the race window
+		_, _ = w.Write([]byte(`{"id":"live-profile-id"}`))
+	}))
+	defer server.Close()
+	c := testProfileClient(t, server.URL)
+
+	const n = 10
+	var wg sync.WaitGroup
+	ids := make([]string, n)
+	errs := make([]error, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			ids[i], errs[i] = resolveLiveProfileID(context.Background(), c)
+		}(i)
+	}
+	wg.Wait()
+
+	for i := range errs {
+		if errs[i] != nil || ids[i] != "live-profile-id" {
+			t.Fatalf("goroutine %d: id=%q err=%v", i, ids[i], errs[i])
+		}
+	}
+	if got := atomic.LoadInt32(&calls); got != 1 {
+		t.Fatalf("expected exactly one /api/me request across %d concurrent cold lookups, got %d", n, got)
 	}
 }

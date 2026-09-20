@@ -1039,33 +1039,48 @@ func resolveLiveProfileBindings(ctx context.Context, c *client.Client, args map[
 	return nil
 }
 
-// liveProfileIDCache memoizes resolveLiveProfileID's result for the
-// server process's lifetime. A caller's own provider id is effectively
-// immutable for that lifetime (each MCP call already builds a fresh
-// client/credentials via newMCPClient, but they all resolve to the same
-// authenticated account), so a live lookup on every omitted-user_id call
-// is pure waste -- confirmed live: an uncached lookup would cost one
-// extra upstream round-trip per page of a full workouts_list enumeration
-// (75 pages at the default page size for one real account), which is
-// exactly the kind of doubled request volume that surfaces later as
-// intermittent upstream rate limiting with no obvious cause. Only a
-// successful lookup is cached; a failure (auth hiccup, transient network
-// issue) must not stick, or every subsequent call would fail from a
-// single bad moment.
+// liveProfileIDCache memoizes resolveLiveProfileID's result for as long as
+// the resolving client's access token stays the same. A caller's own
+// provider id is immutable for a given authenticated account, so a live
+// lookup on every omitted-user_id call is pure waste -- confirmed live: an
+// uncached lookup would cost one extra upstream round-trip per page of a
+// full workouts_list enumeration (75 pages at the default page size for
+// one real account). Keyed by access token (not cached unconditionally)
+// so this can't go stale across an account switch on a long-running
+// server: if the persisted credential bundle changes to a different
+// account, installManagedPelotonBearer mints a different access token for
+// the very next client, which this cache treats as a cold miss and
+// re-resolves -- a Greptile review finding on the first version, which
+// cached unconditionally and would have kept returning the previous
+// account's id forever. Only a successful lookup is cached; a failure
+// (auth hiccup, transient network issue) must not stick, or every
+// subsequent call would fail from a single bad moment. The lock is held
+// across the network call, not just the cache read/write, so concurrent
+// cold calls serialize onto one real request instead of each seeing an
+// empty cache and firing its own (a second Greptile finding on the first
+// version).
 var (
 	liveProfileIDMu    sync.Mutex
-	liveProfileIDCache string
+	liveProfileIDCache struct {
+		accessToken string
+		id          string
+	}
 )
 
 // resolveLiveProfileID looks up the authenticated Peloton user's id via a
-// live /api/me call, memoized by liveProfileIDCache after the first
-// success.
+// live /api/me call, memoized by liveProfileIDCache for as long as c's
+// access token doesn't change. See that var's doc comment.
 func resolveLiveProfileID(ctx context.Context, c *client.Client) (string, error) {
+	currentToken := ""
+	if c != nil && c.Config != nil {
+		currentToken = c.Config.AccessToken
+	}
+
 	liveProfileIDMu.Lock()
-	cached := liveProfileIDCache
-	liveProfileIDMu.Unlock()
-	if cached != "" {
-		return cached, nil
+	defer liveProfileIDMu.Unlock()
+
+	if currentToken != "" && liveProfileIDCache.id != "" && liveProfileIDCache.accessToken == currentToken {
+		return liveProfileIDCache.id, nil
 	}
 
 	data, err := c.Get(ctx, "/api/me", nil)
@@ -1082,9 +1097,8 @@ func resolveLiveProfileID(ctx context.Context, c *client.Client) (string, error)
 		return "", fmt.Errorf("profile response omitted an id")
 	}
 
-	liveProfileIDMu.Lock()
-	liveProfileIDCache = profile.ID
-	liveProfileIDMu.Unlock()
+	liveProfileIDCache.accessToken = currentToken
+	liveProfileIDCache.id = profile.ID
 	return profile.ID, nil
 }
 
