@@ -8,15 +8,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
 )
@@ -1993,5 +1998,191 @@ func TestMCPCompanionCLIAvailableRejectsUnexecutablePath(t *testing.T) {
 	mcpCLIPathResolver = func() (string, error) { return os.Args[0], nil }
 	if !mcpCompanionCLIAvailable() {
 		t.Fatal("mcpCompanionCLIAvailable() = false for the running test binary itself, want true")
+	}
+}
+
+func testProfileClient(t *testing.T, baseURL string) *client.Client {
+	t.Helper()
+	c := client.New(&config.Config{BaseURL: baseURL}, time.Second, 0)
+	c.NoCache = true
+	return c
+}
+
+// resetLiveProfileIDCache clears resolveLiveProfileID's process-lifetime
+// memoization before and after the test, so tests exercising it don't leak
+// a cached id to (or inherit one from) any other test regardless of run
+// order.
+func resetLiveProfileIDCache(t *testing.T) {
+	t.Helper()
+	liveProfileIDMu.Lock()
+	liveProfileIDCache = ""
+	liveProfileIDMu.Unlock()
+	t.Cleanup(func() {
+		liveProfileIDMu.Lock()
+		liveProfileIDCache = ""
+		liveProfileIDMu.Unlock()
+	})
+}
+
+// TestResolveLiveProfileIDFetchesFromAPIMe guards the fix for a connector
+// handoff finding: workouts_list required a caller-supplied user_id even
+// though account_show already returns the authenticated profile's id via
+// /api/me (which needs no user_id itself). resolveLiveProfileID is the
+// live lookup that closes that gap.
+func TestResolveLiveProfileIDFetchesFromAPIMe(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/me" {
+			t.Fatalf("expected /api/me, got %s", r.URL.Path)
+		}
+		_, _ = w.Write([]byte(`{"id":"live-profile-id","username":"jim"}`))
+	}))
+	defer server.Close()
+
+	got, err := resolveLiveProfileID(context.Background(), testProfileClient(t, server.URL))
+	if err != nil || got != "live-profile-id" {
+		t.Fatalf("id=%q err=%v", got, err)
+	}
+}
+
+// TestResolveLiveProfileIDSurfacesMissingID guards against silently
+// resolving to an empty user_id if the provider's response omits one.
+func TestResolveLiveProfileIDSurfacesMissingID(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"username":"jim"}`))
+	}))
+	defer server.Close()
+
+	if _, err := resolveLiveProfileID(context.Background(), testProfileClient(t, server.URL)); err == nil {
+		t.Fatal("expected an error when the profile response omits id")
+	}
+}
+
+// TestResolveLiveProfileBindingsInjectsMissingUserID guards the actual
+// workouts_list-facing behavior: a ResolveFromLiveProfile binding the
+// caller omitted gets filled into args from a live lookup, using the same
+// key the rest of the binding pipeline (path/query/body substitution)
+// already expects.
+func TestResolveLiveProfileBindingsInjectsMissingUserID(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"id":"live-profile-id"}`))
+	}))
+	defer server.Close()
+
+	args := map[string]any{}
+	bindings := []mcpParamBinding{
+		{PublicName: "user_id", WireName: "user_id", Location: "path", ResolveFromLiveProfile: true},
+		{PublicName: "limit", WireName: "limit", Location: "query"},
+	}
+	if err := resolveLiveProfileBindings(context.Background(), testProfileClient(t, server.URL), args, bindings); err != nil {
+		t.Fatal(err)
+	}
+	if args["user_id"] != "live-profile-id" {
+		t.Fatalf("args[user_id] = %v, want live-profile-id", args["user_id"])
+	}
+}
+
+// TestResolveLiveProfileBindingsRespectsExplicitValue guards against
+// overriding a caller who deliberately named a different user_id (e.g.
+// looking up someone else's public data, where the endpoint allows it) --
+// and against spending an unnecessary live lookup at all when the caller
+// already supplied the value. The fixture server fails the test if it
+// receives any request.
+func TestResolveLiveProfileBindingsRespectsExplicitValue(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		t.Fatal("an explicitly supplied value must not trigger a live profile lookup")
+	}))
+	defer server.Close()
+
+	args := map[string]any{"user_id": "explicit-caller-id"}
+	bindings := []mcpParamBinding{{PublicName: "user_id", WireName: "user_id", Location: "path", ResolveFromLiveProfile: true}}
+	if err := resolveLiveProfileBindings(context.Background(), testProfileClient(t, server.URL), args, bindings); err != nil {
+		t.Fatal(err)
+	}
+	if args["user_id"] != "explicit-caller-id" {
+		t.Fatalf("args[user_id] = %v, want explicit-caller-id unchanged", args["user_id"])
+	}
+}
+
+// TestResolveLiveProfileBindingsSurfacesLookupFailure guards that a failed
+// live lookup produces a clear, named error rather than silently leaving
+// the binding unset (which would otherwise reach the live API as a
+// literal unresolved {user_id} path placeholder).
+func TestResolveLiveProfileBindingsSurfacesLookupFailure(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer server.Close()
+
+	args := map[string]any{}
+	bindings := []mcpParamBinding{{PublicName: "user_id", WireName: "user_id", Location: "path", ResolveFromLiveProfile: true}}
+	err := resolveLiveProfileBindings(context.Background(), testProfileClient(t, server.URL), args, bindings)
+	if err == nil || !strings.Contains(err.Error(), "user_id") {
+		t.Fatalf("expected an error naming the unresolved binding, got: %v", err)
+	}
+	if _, ok := args["user_id"]; ok {
+		t.Fatalf("args[user_id] should remain unset on lookup failure, got %v", args["user_id"])
+	}
+}
+
+// TestResolveLiveProfileIDIsMemoizedAcrossCalls guards the fix for a live
+// review finding (B14 §5): resolveLiveProfileID was not cached at all, so
+// every workouts_list call that omitted user_id cost an extra upstream
+// round-trip -- 75 extra calls for one full enumeration at the default
+// page size. A second call must reuse the first success without hitting
+// the server again.
+func TestResolveLiveProfileIDIsMemoizedAcrossCalls(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls++
+		_, _ = w.Write([]byte(`{"id":"live-profile-id"}`))
+	}))
+	defer server.Close()
+	c := testProfileClient(t, server.URL)
+
+	for i := 0; i < 3; i++ {
+		got, err := resolveLiveProfileID(context.Background(), c)
+		if err != nil || got != "live-profile-id" {
+			t.Fatalf("call %d: id=%q err=%v", i, got, err)
+		}
+	}
+	if calls != 1 {
+		t.Fatalf("expected exactly one /api/me request across 3 resolutions, got %d", calls)
+	}
+}
+
+// TestResolveLiveProfileIDDoesNotCacheFailure guards against a transient
+// failure (auth hiccup, network blip) permanently poisoning every later
+// call for the rest of the server process's lifetime.
+func TestResolveLiveProfileIDDoesNotCacheFailure(t *testing.T) {
+	resetLiveProfileIDCache(t)
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls++
+		if calls == 1 {
+			// 403, not 5xx/429: those retry internally in client.go, which
+			// would mask what this test is checking (memoization across
+			// resolveLiveProfileID calls, not the client's own retry).
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		_, _ = w.Write([]byte(`{"id":"live-profile-id"}`))
+	}))
+	defer server.Close()
+	c := testProfileClient(t, server.URL)
+
+	if _, err := resolveLiveProfileID(context.Background(), c); err == nil {
+		t.Fatal("expected the first, failing lookup to return an error")
+	}
+	got, err := resolveLiveProfileID(context.Background(), c)
+	if err != nil || got != "live-profile-id" {
+		t.Fatalf("expected the second lookup to succeed and not be poisoned by the first failure: id=%q err=%v", got, err)
+	}
+	if calls != 2 {
+		t.Fatalf("expected exactly 2 requests (one failed, one retried), got %d", calls)
 	}
 }
