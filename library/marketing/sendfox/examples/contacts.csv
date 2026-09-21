@@ -1,0 +1,4 @@
+email,first_name,last_name,status
+reader@example.com,Reader,Example,active
+new@example.com,New,Reader,active
+suppressed@example.com,Suppressed,Example,unsubscribed

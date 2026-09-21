@@ -1,0 +1,981 @@
+{
+  "commands": 139,
+  "leaves": 123,
+  "endpoint_commands": 60,
+  "help_passed": 139,
+  "rows": [
+    {
+      "command": "analytics",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "api",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "auth",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "auth logout",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "auth set-token",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "auth setup",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "auth status",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "automation-emails",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "automation-emails delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automation_emails.delete"
+    },
+    {
+      "command": "automation-emails update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automation_emails.update"
+    },
+    {
+      "command": "automations",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "automations create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automations.create"
+    },
+    {
+      "command": "automations create-email",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automations.create-email"
+    },
+    {
+      "command": "automations delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automations.delete"
+    },
+    {
+      "command": "automations get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automations.get"
+    },
+    {
+      "command": "automations list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automations.list"
+    },
+    {
+      "command": "automations update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "automations.update"
+    },
+    {
+      "command": "campaigns",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "campaigns create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.create"
+    },
+    {
+      "command": "campaigns delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.delete"
+    },
+    {
+      "command": "campaigns get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.get"
+    },
+    {
+      "command": "campaigns get-stats",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.get-stats"
+    },
+    {
+      "command": "campaigns list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.list"
+    },
+    {
+      "command": "campaigns list-engagement",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.list-engagement"
+    },
+    {
+      "command": "campaigns resend",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.resend"
+    },
+    {
+      "command": "campaigns send",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.send"
+    },
+    {
+      "command": "campaigns update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "campaigns.update"
+    },
+    {
+      "command": "capabilities",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "completion",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "completion bash",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "completion fish",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "completion powershell",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "completion zsh",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "contact-fields",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "contact-fields create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_fields.create"
+    },
+    {
+      "command": "contact-fields delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_fields.delete"
+    },
+    {
+      "command": "contact-fields get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_fields.get"
+    },
+    {
+      "command": "contact-fields list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_fields.list"
+    },
+    {
+      "command": "contact-fields update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_fields.update"
+    },
+    {
+      "command": "contact-tags",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "contact-tags create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_tags.create"
+    },
+    {
+      "command": "contact-tags delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_tags.delete"
+    },
+    {
+      "command": "contact-tags get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_tags.get"
+    },
+    {
+      "command": "contact-tags list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_tags.list"
+    },
+    {
+      "command": "contact-tags update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contact_tags.update"
+    },
+    {
+      "command": "contacts",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "contacts attach-tag",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.attach-tag"
+    },
+    {
+      "command": "contacts audit-csv",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "contacts batch-import",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.batch-import"
+    },
+    {
+      "command": "contacts bulk-wait",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "contacts create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.create"
+    },
+    {
+      "command": "contacts create-bulk-action",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.create-bulk-action"
+    },
+    {
+      "command": "contacts delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.delete"
+    },
+    {
+      "command": "contacts detach-tag",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.detach-tag"
+    },
+    {
+      "command": "contacts get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.get"
+    },
+    {
+      "command": "contacts get-activity",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.get-activity"
+    },
+    {
+      "command": "contacts get-bulk-action",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.get-bulk-action"
+    },
+    {
+      "command": "contacts import-csv",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "contacts list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.list"
+    },
+    {
+      "command": "contacts list-tags-for",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.list-tags-for"
+    },
+    {
+      "command": "contacts list-unsubscribed",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.list-unsubscribed"
+    },
+    {
+      "command": "contacts onboard",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "contacts reconcile-csv",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "contacts update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "contacts.update"
+    },
+    {
+      "command": "doctor",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "domains",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "domains create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "domains.create"
+    },
+    {
+      "command": "domains delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "domains.delete"
+    },
+    {
+      "command": "domains get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "domains.get"
+    },
+    {
+      "command": "domains list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "domains.list"
+    },
+    {
+      "command": "domains validate",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "domains.validate"
+    },
+    {
+      "command": "export",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "feedback",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "feedback list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "forms",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "forms create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "forms.create"
+    },
+    {
+      "command": "forms delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "forms.delete"
+    },
+    {
+      "command": "forms generate",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "forms get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "forms.get"
+    },
+    {
+      "command": "forms list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "forms.list"
+    },
+    {
+      "command": "forms update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "forms.update"
+    },
+    {
+      "command": "help",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "import",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "learnings candidates",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings confirm",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings forget",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings purge",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings reject",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "learnings stats",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "lists",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "lists add-contact-to",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.add-contact-to"
+    },
+    {
+      "command": "lists contacts",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "lists contacts-in",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.contacts-in"
+    },
+    {
+      "command": "lists create",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.create"
+    },
+    {
+      "command": "lists delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.delete"
+    },
+    {
+      "command": "lists get",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.get"
+    },
+    {
+      "command": "lists list-lists",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.list_lists"
+    },
+    {
+      "command": "lists remove-contact-from",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.remove-contact-from"
+    },
+    {
+      "command": "lists update",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "lists.update"
+    },
+    {
+      "command": "me",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "me.get"
+    },
+    {
+      "command": "playbook",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "playbook amend",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "playbook list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "profile",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "profile delete",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "profile list",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "profile save",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "profile show",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "profile use",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "recall",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "search",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "sql",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "sync",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "tail",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "teach",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "teach-lookup",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "teach-pattern",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "teach-playbook",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "unsubscribe",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": "unsubscribe.contact"
+    },
+    {
+      "command": "version",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "webhooks",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "which",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": false,
+      "endpoint": null
+    },
+    {
+      "command": "workflow account-snapshot",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow archive",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow audience-health",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow audience-map",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow automation-plan",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow campaign-digest",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow campaign-preflight",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow campaign-review",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow contact-dossier",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow export-bundle",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow hygiene-report",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow launch-plan",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow migration-readiness",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    },
+    {
+      "command": "workflow status",
+      "exit": 0,
+      "has_usage": true,
+      "leaf": true,
+      "endpoint": null
+    }
+  ]
+}

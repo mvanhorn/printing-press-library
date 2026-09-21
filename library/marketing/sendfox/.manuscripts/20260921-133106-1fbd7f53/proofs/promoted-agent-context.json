@@ -1,0 +1,3736 @@
+{
+  "schema_version": "4",
+  "cli": {
+    "name": "sendfox-pp-cli",
+    "description": "Operate SendFox campaigns and audiences with typed commands, local evidence and guarded plans.",
+    "version": "0.0.0-dev"
+  },
+  "auth": {
+    "mode": "bearer_token",
+    "env_vars": [
+      {
+        "name": "SENDFOX_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Set to your API credential."
+      },
+      {
+        "name": "SENDFOX_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Set to your API credential."
+      }
+    ]
+  },
+  "paths": {
+    "config_dir": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/isolated/config",
+    "data_dir": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/isolated/data",
+    "state_dir": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/isolated/state",
+    "cache_dir": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/isolated/cache"
+  },
+  "commands": [
+    {
+      "name": "analytics",
+      "use": "analytics",
+      "short": "Run analytics queries on locally synced data",
+      "annotations": {
+        "mcp:read-only": "true"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "group-by",
+          "type": "string",
+          "usage": "Field to group by"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Max groups to show",
+          "default": "25"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "usage": "Resource type to analyze"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "api",
+      "use": "api [interface]",
+      "short": "Browse API resource interfaces by raw name",
+      "annotations": {
+        "mcp:read-only": "true"
+      },
+      "runnable": true
+    },
+    {
+      "name": "auth",
+      "use": "auth",
+      "short": "Manage authentication for Sendfox",
+      "annotations": {
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "logout",
+          "use": "logout",
+          "short": "Clear stored credentials",
+          "runnable": true
+        },
+        {
+          "name": "set-token",
+          "use": "set-token",
+          "short": "Save a personal access token from stdin without echoing it",
+          "flags": [
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read one personal access token from stdin; never place secrets in command arguments",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "setup",
+          "use": "setup",
+          "short": "Print steps for obtaining a credential (use --launch to open the URL)",
+          "flags": [
+            {
+              "name": "launch",
+              "type": "bool",
+              "usage": "Open the setup URL in your default browser",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "status",
+          "use": "status",
+          "short": "Show authentication status",
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "automation-emails",
+      "use": "automation-emails",
+      "short": "Update and delete automation emails",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Remove an email from an automation",
+          "annotations": {
+            "pp:endpoint": "automation_emails.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/automation-emails/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Update an automation email",
+          "annotations": {
+            "pp:endpoint": "automation_emails.update",
+            "pp:happy-args": "id=12",
+            "pp:method": "PATCH",
+            "pp:path": "/automation-emails/{id}"
+          },
+          "flags": [
+            {
+              "name": "delay-hours",
+              "type": "int",
+              "usage": "Delay hours",
+              "default": "0"
+            },
+            {
+              "name": "from-email",
+              "type": "string",
+              "usage": "From email"
+            },
+            {
+              "name": "from-name",
+              "type": "string",
+              "usage": "From name"
+            },
+            {
+              "name": "html",
+              "type": "string",
+              "usage": "Html"
+            },
+            {
+              "name": "send-order",
+              "type": "int",
+              "usage": "Send order",
+              "default": "0"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "usage": "Subject"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "automations",
+      "use": "automations",
+      "short": "List, get, create, update, and delete automations",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Create an automation",
+          "annotations": {
+            "pp:endpoint": "automations.create",
+            "pp:happy-args": "--title=Weekly newsletter",
+            "pp:method": "POST",
+            "pp:path": "/automations",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "active",
+              "type": "bool",
+              "usage": "Active",
+              "default": "false"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Title"
+            },
+            {
+              "name": "trigger-campaign-id",
+              "type": "int",
+              "usage": "Required when trigger_type is open_campaign or click_campaign",
+              "default": "0"
+            },
+            {
+              "name": "trigger-list-id",
+              "type": "int",
+              "usage": "Required when trigger_type is apply_list",
+              "default": "0"
+            },
+            {
+              "name": "trigger-type",
+              "type": "string",
+              "usage": "Trigger type"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "create-email",
+          "use": "create-email <id>",
+          "short": "Add an email to an automation",
+          "annotations": {
+            "pp:endpoint": "automations.create-email",
+            "pp:happy-args": "--subject=A useful idea;--html=<p>Hello reader</p>;--from-name=Example Newsletter;--from-email=reader@example.com",
+            "pp:method": "POST",
+            "pp:path": "/automations/{id}/emails",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "delay-hours",
+              "type": "int",
+              "usage": "Hours to wait before sending (default 24, first email defaults to 0)",
+              "default": "0"
+            },
+            {
+              "name": "from-email",
+              "type": "string",
+              "usage": "From email"
+            },
+            {
+              "name": "from-name",
+              "type": "string",
+              "usage": "From name"
+            },
+            {
+              "name": "html",
+              "type": "string",
+              "usage": "Html"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "usage": "Subject"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Soft-deletes the automation and cancels all scheduled deliverables",
+          "annotations": {
+            "pp:endpoint": "automations.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/automations/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Returns automation with triggers, items, and campaign stats",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "automations.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/automations/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List automations",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "automations.list",
+            "pp:method": "GET",
+            "pp:path": "/automations"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Update title, trigger, or active status. Activating reschedules stale deliverables.",
+          "annotations": {
+            "pp:endpoint": "automations.update",
+            "pp:happy-args": "id=12",
+            "pp:method": "PATCH",
+            "pp:path": "/automations/{id}"
+          },
+          "flags": [
+            {
+              "name": "active",
+              "type": "bool",
+              "usage": "Active",
+              "default": "false"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Title"
+            },
+            {
+              "name": "trigger-campaign-id",
+              "type": "int",
+              "usage": "Trigger campaign id",
+              "default": "0"
+            },
+            {
+              "name": "trigger-list-id",
+              "type": "int",
+              "usage": "Trigger list id",
+              "default": "0"
+            },
+            {
+              "name": "trigger-type",
+              "type": "string",
+              "usage": "Trigger type"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns",
+      "use": "campaigns",
+      "short": "List, get, create, update, delete, and send campaigns",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Creates a campaign as a draft. To send it, use the send endpoint or provide scheduled_at.",
+          "annotations": {
+            "pp:endpoint": "campaigns.create",
+            "pp:happy-args": "--title=Weekly newsletter;--subject=A useful idea;--html=<p>Hello reader</p>;--from-name=Example Newsletter;--from-email=reader@example.com",
+            "pp:method": "POST",
+            "pp:path": "/campaigns",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "excluded-contact-tags",
+              "type": "string",
+              "usage": "Tag IDs whose contacts should be excluded from the send. Exclusion wins over inclusion."
+            },
+            {
+              "name": "excluded-lists",
+              "type": "string",
+              "usage": "List IDs whose contacts should be excluded from the send. Exclusion wins over inclusion."
+            },
+            {
+              "name": "from-email",
+              "type": "string",
+              "usage": "From email"
+            },
+            {
+              "name": "from-name",
+              "type": "string",
+              "usage": "From name"
+            },
+            {
+              "name": "html",
+              "type": "string",
+              "usage": "Email body HTML content"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Array of list IDs to send to"
+            },
+            {
+              "name": "preview-text",
+              "type": "string",
+              "usage": "Inbox preview snippet shown beneath the subject line. Optional."
+            },
+            {
+              "name": "scheduled-at",
+              "type": "string",
+              "usage": "Schedule send time (omit for draft). Must include at least one list."
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "usage": "Subject"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Title"
+            },
+            {
+              "name": "to-contact-tags",
+              "type": "string",
+              "usage": "Tag IDs whose contacts should receive the campaign. Can be combined with lists."
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Only draft campaigns (not yet sent) can be deleted. Uses soft delete.",
+          "annotations": {
+            "pp:endpoint": "campaigns.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/campaigns/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Get a specific campaign",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "campaigns.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/campaigns/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get-stats",
+          "use": "get-stats <id>",
+          "short": "Returns sent count and open/click/bounce/unsubscribe/spam counts and rates, all read from stored counters.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "campaigns.get-stats",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/campaigns/{id}/stats"
+          },
+          "flags": [
+            {
+              "name": "include-link-stats",
+              "type": "bool",
+              "usage": "When true, include the link_stats breakdown in the response",
+              "default": "false"
+            },
+            {
+              "name": "link-limit",
+              "type": "int",
+              "usage": "How many links to return in link_stats, most-clicked first. Ignored unless include_link_stats is true.",
+              "default": "50"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "Returns a paginated list of campaigns (100 per page)",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "campaigns.list",
+            "pp:method": "GET",
+            "pp:path": "/campaigns"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list-engagement",
+          "use": "list-engagement <id>",
+          "short": "Returns the contacts in one of a sent campaign's engagement groups.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "campaigns.list-engagement",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/campaigns/{id}/engagement",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            },
+            {
+              "name": "per-page",
+              "type": "int",
+              "usage": "Records per page",
+              "default": "100"
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "usage": "Which engagement group to list (one of: openers, clickers, non_openers, bounced, unsubscribed)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "resend",
+          "use": "resend <id>",
+          "short": "Creates a new draft with the original's content, sender, and exclusions",
+          "annotations": {
+            "pp:endpoint": "campaigns.resend",
+            "pp:happy-args": "--audience=non_openers",
+            "pp:method": "POST",
+            "pp:path": "/campaigns/{id}/resend",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "audience",
+              "type": "string",
+              "usage": "Audience"
+            },
+            {
+              "name": "scheduled-at",
+              "type": "string",
+              "usage": "Optional send time; omit to leave the resend as a draft"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "usage": "Optional new subject line; defaults to the original's"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Optional internal name; defaults to 'Resend: <original title>'"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "send",
+          "use": "send <id>",
+          "short": "Schedules a draft campaign for immediate sending.",
+          "annotations": {
+            "pp:endpoint": "campaigns.send",
+            "pp:happy-args": "id=12",
+            "pp:method": "POST",
+            "pp:path": "/campaigns/{id}/send"
+          },
+          "flags": [
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Only draft campaigns (not yet sent) can be updated. All fields are optional.",
+          "annotations": {
+            "pp:endpoint": "campaigns.update",
+            "pp:happy-args": "id=12",
+            "pp:method": "PATCH",
+            "pp:path": "/campaigns/{id}"
+          },
+          "flags": [
+            {
+              "name": "excluded-contact-tags",
+              "type": "string",
+              "usage": "Replaces the excluded tag audience (contacts carrying these tags are removed from the send)."
+            },
+            {
+              "name": "excluded-lists",
+              "type": "string",
+              "usage": "Replaces the excluded lists (contacts in these lists are removed from the send)."
+            },
+            {
+              "name": "from-email",
+              "type": "string",
+              "usage": "From email"
+            },
+            {
+              "name": "from-name",
+              "type": "string",
+              "usage": "From name"
+            },
+            {
+              "name": "html",
+              "type": "string",
+              "usage": "Html"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Replaces all list assignments"
+            },
+            {
+              "name": "preview-text",
+              "type": "string",
+              "usage": "Inbox preview snippet. Pass null to clear."
+            },
+            {
+              "name": "scheduled-at",
+              "type": "string",
+              "usage": "Set to null to unschedule, or a datetime to schedule"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "usage": "Subject"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Title"
+            },
+            {
+              "name": "to-contact-tags",
+              "type": "string",
+              "usage": "Replaces the included tag audience (contacts carrying these tags receive the campaign)."
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "capabilities",
+      "use": "capabilities",
+      "short": "Inspect the complete documented API and explicit parity gaps",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "local"
+      },
+      "flags": [
+        {
+          "name": "resource",
+          "type": "string",
+          "usage": "Limit discovery to one API resource family"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "completion",
+      "use": "completion",
+      "short": "Generate the autocompletion script for the specified shell",
+      "subcommands": [
+        {
+          "name": "bash",
+          "use": "bash",
+          "short": "Generate the autocompletion script for bash",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "fish",
+          "use": "fish",
+          "short": "Generate the autocompletion script for fish",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "powershell",
+          "use": "powershell",
+          "short": "Generate the autocompletion script for powershell",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "zsh",
+          "use": "zsh",
+          "short": "Generate the autocompletion script for zsh",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "contact-fields",
+      "use": "contact-fields",
+      "short": "List, get, create, update, and delete contact fields",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Creates a custom field for contacts. The `name` is auto-generated from the `label` as a slug.",
+          "annotations": {
+            "pp:endpoint": "contact_fields.create",
+            "pp:happy-args": "--label=Newsletter;--contact-field-type-id=0abe5601-7738-43c8-858f-81911ecf89ee",
+            "pp:method": "POST",
+            "pp:path": "/contact-fields",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "contact-field-type-id",
+              "type": "string",
+              "usage": "UUID of the field's data type."
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "usage": "Human-readable field label"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Permanently deletes the contact field",
+          "annotations": {
+            "pp:endpoint": "contact_fields.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/contact-fields/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Get a specific contact field",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contact_fields.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/contact-fields/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "Returns custom contact fields defined by the user (20 per page)",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contact_fields.list",
+            "pp:method": "GET",
+            "pp:path": "/contact-fields"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Updates the label and auto-regenerates the name slug.",
+          "annotations": {
+            "pp:endpoint": "contact_fields.update",
+            "pp:happy-args": "--label=Newsletter",
+            "pp:method": "PATCH",
+            "pp:path": "/contact-fields/{id}",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "label",
+              "type": "string",
+              "usage": "Label"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "contact-tags",
+      "use": "contact-tags",
+      "short": "List, get, create, update, and delete contact tags",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Creates a tag. A brand color is auto-assigned when none is provided. Tag names are unique per account.",
+          "annotations": {
+            "pp:endpoint": "contact_tags.create",
+            "pp:happy-args": "--name=Newsletter",
+            "pp:method": "POST",
+            "pp:path": "/contact-tags",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "color",
+              "type": "string",
+              "usage": "Optional brand palette hex color; auto-assigned when omitted."
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "usage": "Name"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Deletes the tag.",
+          "annotations": {
+            "pp:endpoint": "contact_tags.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/contact-tags/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Get a contact tag",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contact_tags.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/contact-tags/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "Lists the account's tags, newest first, each with its contact count.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contact_tags.list",
+            "pp:method": "GET",
+            "pp:path": "/contact-tags"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Update a contact tag",
+          "annotations": {
+            "pp:endpoint": "contact_tags.update",
+            "pp:happy-args": "id=12",
+            "pp:method": "PATCH",
+            "pp:path": "/contact-tags/{id}"
+          },
+          "flags": [
+            {
+              "name": "color",
+              "type": "string",
+              "usage": "Color"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "usage": "Name"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "use": "contacts",
+      "short": "List, get, batch, create, update, and delete contacts",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "attach-tag",
+          "use": "attach-tag <contact_id> <tag_id>",
+          "short": "Idempotent. Returns the contact's tags after the change.",
+          "annotations": {
+            "pp:endpoint": "contacts.attach-tag",
+            "pp:happy-args": "contact_id=12;tag_id=12",
+            "pp:method": "POST",
+            "pp:path": "/contacts/{contact_id}/tags/{tag_id}"
+          },
+          "flags": [
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "audit-csv",
+          "use": "audit-csv",
+          "short": "Audit CSV identities and preview guarded, suppression-aware contact creation",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--file=examples/contacts.csv;--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "file",
+              "type": "string",
+              "usage": "CSV file containing email and optional profile/suppression columns"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Local snapshot with complete contacts and unsubscribe evidence"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Comma-separated existing list IDs for new contacts"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "batch-import",
+          "use": "batch-import",
+          "short": "Import up to 1,000 contacts in a single request. Creates new contacts or updates existing ones.",
+          "annotations": {
+            "pp:endpoint": "contacts.batch-import",
+            "pp:happy-args": "--contacts=[{\"email\":\"reader@example.com\"}]",
+            "pp:method": "POST",
+            "pp:path": "/contacts/batch",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "contacts",
+              "type": "string",
+              "usage": "Contacts"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "bulk-wait",
+          "use": "bulk-wait",
+          "short": "Observe an asynchronous bulk action with a bounded request budget",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "live",
+            "pp:happy-args": "--id=12;--max-polls=1"
+          },
+          "flags": [
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Existing asynchronous bulk action ID to observe"
+            },
+            {
+              "name": "interval",
+              "type": "string",
+              "usage": "Delay between requests; timeout bounds the whole polling operation",
+              "default": "2s"
+            },
+            {
+              "name": "max-polls",
+              "type": "int",
+              "usage": "Maximum API requests before returning a resumable progress report",
+              "default": "5"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Create a new contact",
+          "annotations": {
+            "pp:endpoint": "contacts.create",
+            "pp:happy-args": "--email=user@example.com",
+            "pp:method": "POST",
+            "pp:path": "/contacts",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "contact-fields",
+              "type": "string",
+              "usage": "Contact fields"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Email"
+            },
+            {
+              "name": "first-name",
+              "type": "string",
+              "usage": "First name"
+            },
+            {
+              "name": "ip-address",
+              "type": "string",
+              "usage": "Ip address"
+            },
+            {
+              "name": "last-name",
+              "type": "string",
+              "usage": "Last name"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Array of list IDs to add the contact to"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "create-bulk-action",
+          "use": "create-bulk-action",
+          "short": "Queues one action against every contact the filter matches, applied in chunks in the background.",
+          "annotations": {
+            "pp:endpoint": "contacts.create-bulk-action",
+            "pp:happy-args": "--action=apply_tag;--target-id=1",
+            "pp:method": "POST",
+            "pp:path": "/contacts/bulk-actions",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "action",
+              "type": "string",
+              "usage": "Action"
+            },
+            {
+              "name": "filter-clicked-campaign-id",
+              "type": "int",
+              "usage": "Bulk actions only \u2014 not available on GET /contacts",
+              "default": "0"
+            },
+            {
+              "name": "filter-created-after",
+              "type": "string",
+              "usage": "Created after"
+            },
+            {
+              "name": "filter-created-before",
+              "type": "string",
+              "usage": "Created before"
+            },
+            {
+              "name": "filter-in-list-ids",
+              "type": "string",
+              "usage": "In list ids"
+            },
+            {
+              "name": "filter-last-clicked-after",
+              "type": "string",
+              "usage": "Last clicked after"
+            },
+            {
+              "name": "filter-last-clicked-before",
+              "type": "string",
+              "usage": "Last clicked before"
+            },
+            {
+              "name": "filter-last-opened-after",
+              "type": "string",
+              "usage": "Last opened after"
+            },
+            {
+              "name": "filter-last-opened-before",
+              "type": "string",
+              "usage": "Excludes contacts who never opened \u2014 use never_opened for those"
+            },
+            {
+              "name": "filter-last-sent-after",
+              "type": "string",
+              "usage": "Last sent after"
+            },
+            {
+              "name": "filter-last-sent-before",
+              "type": "string",
+              "usage": "Last sent before"
+            },
+            {
+              "name": "filter-never-clicked",
+              "type": "bool",
+              "usage": "Never clicked",
+              "default": "false"
+            },
+            {
+              "name": "filter-never-opened",
+              "type": "bool",
+              "usage": "Never opened",
+              "default": "false"
+            },
+            {
+              "name": "filter-never-sent",
+              "type": "bool",
+              "usage": "Never sent",
+              "default": "false"
+            },
+            {
+              "name": "filter-not-in-list-ids",
+              "type": "string",
+              "usage": "Not in list ids"
+            },
+            {
+              "name": "filter-not-opened-campaign-id",
+              "type": "int",
+              "usage": "Contacts the campaign sent to who did not open it. Bulk actions only \u2014 not available on GET /contacts",
+              "default": "0"
+            },
+            {
+              "name": "filter-not-tag-ids",
+              "type": "string",
+              "usage": "Not tag ids"
+            },
+            {
+              "name": "filter-opened-campaign-id",
+              "type": "int",
+              "usage": "Bulk actions only \u2014 not available on GET /contacts",
+              "default": "0"
+            },
+            {
+              "name": "filter-status",
+              "type": "string",
+              "usage": "Status"
+            },
+            {
+              "name": "filter-tag-ids",
+              "type": "string",
+              "usage": "Tag ids"
+            },
+            {
+              "name": "preview-count",
+              "type": "bool",
+              "usage": "When true, only count the matches \u2014 nothing is modified",
+              "default": "true"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "target-id",
+              "type": "int",
+              "usage": "The tag id (apply_tag/remove_tag) or list id (add_to_list/remove_from_list)",
+              "default": "0"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Soft-deletes a contact and cancels any scheduled deliverables",
+          "annotations": {
+            "pp:endpoint": "contacts.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/contacts/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "detach-tag",
+          "use": "detach-tag <contact_id> <tag_id>",
+          "short": "Remove a tag from a contact",
+          "annotations": {
+            "pp:endpoint": "contacts.detach-tag",
+            "pp:happy-args": "contact_id=12;tag_id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/contacts/{contact_id}/tags/{tag_id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Get a specific contact",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contacts.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/contacts/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get-activity",
+          "use": "get-activity <id>",
+          "short": "Returns paginated email deliverables and contact-level engagement summary",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contacts.get-activity",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/contacts/{id}/activity"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get-bulk-action",
+          "use": "get-bulk-action <id>",
+          "short": "For a dry run, matched_count is the answer and nothing was modified.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contacts.get-bulk-action",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/contacts/bulk-actions/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "import-csv",
+          "use": "import-csv",
+          "short": "Audit CSV identities and preview guarded, suppression-aware contact creation",
+          "annotations": {
+            "pp:data-source": "local",
+            "pp:happy-args": "--file=examples/contacts.csv;--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "execute",
+              "type": "bool",
+              "usage": "Apply the reviewed plan; requires --yes and complete suppression evidence",
+              "default": "false"
+            },
+            {
+              "name": "file",
+              "type": "string",
+              "usage": "CSV file containing email and optional profile/suppression columns"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Local snapshot with complete contacts and unsubscribe evidence"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Comma-separated existing list IDs for new contacts"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contacts.list",
+            "pp:method": "GET",
+            "pp:path": "/contacts"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "count-only",
+              "type": "bool",
+              "usage": "Return only the number of matching contacts, with no contact records",
+              "default": "false"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Filter by specific email"
+            },
+            {
+              "name": "filter-created-after",
+              "type": "string",
+              "usage": "Contacts created on or after this date"
+            },
+            {
+              "name": "filter-created-before",
+              "type": "string",
+              "usage": "Contacts created before this date"
+            },
+            {
+              "name": "filter-in-list-ids",
+              "type": "string",
+              "usage": "Only contacts in any of these lists"
+            },
+            {
+              "name": "filter-last-clicked-after",
+              "type": "string",
+              "usage": "Contacts whose most recent click is on or after this date"
+            },
+            {
+              "name": "filter-last-clicked-before",
+              "type": "string",
+              "usage": "Contacts whose most recent click is before this date"
+            },
+            {
+              "name": "filter-last-opened-after",
+              "type": "string",
+              "usage": "Contacts whose most recent open is on or after this date"
+            },
+            {
+              "name": "filter-last-opened-before",
+              "type": "string",
+              "usage": "Contacts whose most recent open is before this date."
+            },
+            {
+              "name": "filter-last-sent-after",
+              "type": "string",
+              "usage": "Contacts last sent to on or after this date"
+            },
+            {
+              "name": "filter-last-sent-before",
+              "type": "string",
+              "usage": "Contacts last sent to before this date"
+            },
+            {
+              "name": "filter-never-clicked",
+              "type": "bool",
+              "usage": "Only contacts who have never clicked a link",
+              "default": "false"
+            },
+            {
+              "name": "filter-never-opened",
+              "type": "bool",
+              "usage": "Only contacts who have never opened an email",
+              "default": "false"
+            },
+            {
+              "name": "filter-never-sent",
+              "type": "bool",
+              "usage": "Only contacts who have never been sent an email",
+              "default": "false"
+            },
+            {
+              "name": "filter-not-in-list-ids",
+              "type": "string",
+              "usage": "Exclude contacts in any of these lists"
+            },
+            {
+              "name": "filter-not-tag-ids",
+              "type": "string",
+              "usage": "Exclude contacts carrying any of these tags"
+            },
+            {
+              "name": "filter-status",
+              "type": "string",
+              "usage": "Engagement status (one of: active, engaged, inactive, new, unconfirmed, unsubscribed, bounced, invalid)"
+            },
+            {
+              "name": "filter-tag-ids",
+              "type": "string",
+              "usage": "Only contacts carrying any of these tags"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for paginated contacts; not used for count-only requests.",
+              "default": "1"
+            },
+            {
+              "name": "per-page",
+              "type": "int",
+              "usage": "Contacts per page",
+              "default": "100"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Search query for filtering contacts"
+            },
+            {
+              "name": "unsubscribed",
+              "type": "bool",
+              "usage": "Filter unsubscribed contacts",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list-tags-for",
+          "use": "list-tags-for <contact_id>",
+          "short": "List a contact's tags",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contacts.list-tags-for",
+            "pp:happy-args": "contact_id=12",
+            "pp:method": "GET",
+            "pp:path": "/contacts/{contact_id}/tags"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list-unsubscribed",
+          "use": "list-unsubscribed",
+          "short": "List unsubscribed contacts",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "contacts.list-unsubscribed",
+            "pp:method": "GET",
+            "pp:path": "/contacts/unsubscribed"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Search query for filtering contacts"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "onboard",
+          "use": "onboard",
+          "short": "Preview contact onboarding; explicit execution uses the documented create endpoint",
+          "flags": [
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Bare subscriber email, for example reader@example.com"
+            },
+            {
+              "name": "execute",
+              "type": "bool",
+              "usage": "Create or update the contact after review; requires --yes",
+              "default": "false"
+            },
+            {
+              "name": "first-name",
+              "type": "string",
+              "usage": "Subscriber given name to include in the request"
+            },
+            {
+              "name": "last-name",
+              "type": "string",
+              "usage": "Subscriber family name to include in the request"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Comma-separated existing list IDs to attach"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "reconcile-csv",
+          "use": "reconcile-csv",
+          "short": "Audit CSV identities and preview guarded, suppression-aware contact creation",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--file=examples/contacts.csv;--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "file",
+              "type": "string",
+              "usage": "CSV file containing email and optional profile/suppression columns"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Local snapshot with complete contacts and unsubscribe evidence"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Comma-separated existing list IDs for new contacts"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Update contact details including name, list memberships, and custom fields",
+          "annotations": {
+            "pp:endpoint": "contacts.update",
+            "pp:happy-args": "id=12",
+            "pp:method": "PATCH",
+            "pp:path": "/contacts/{id}"
+          },
+          "flags": [
+            {
+              "name": "contact-fields",
+              "type": "string",
+              "usage": "Contact fields"
+            },
+            {
+              "name": "first-name",
+              "type": "string",
+              "usage": "First name"
+            },
+            {
+              "name": "last-name",
+              "type": "string",
+              "usage": "Last name"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Array of list IDs (replaces all current list memberships)"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "doctor",
+      "use": "doctor",
+      "short": "Check CLI health",
+      "flags": [
+        {
+          "name": "fail-on",
+          "type": "string",
+          "usage": "Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never."
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "domains",
+      "use": "domains",
+      "short": "List, get, create, and delete domains",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Adds a new sender domain and creates the corresponding SendGrid whitelabel domain.",
+          "annotations": {
+            "pp:endpoint": "domains.create",
+            "pp:happy-args": "--domain=Newsletter",
+            "pp:method": "POST",
+            "pp:path": "/domains",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "domain",
+              "type": "string",
+              "usage": "Domain name (e.g., example.com). Do not include @ or protocol."
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Removes the domain from SendGrid and soft-deletes locally",
+          "annotations": {
+            "pp:endpoint": "domains.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/domains/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Returns domain details including DNS records needed for verification",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "domains.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/domains/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "Returns a paginated list of the user's whitelabel/sender domains",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "domains.list",
+            "pp:method": "GET",
+            "pp:path": "/domains"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "validate",
+          "use": "validate <id>",
+          "short": "Triggers DNS validation for the domain via SendGrid.",
+          "annotations": {
+            "pp:endpoint": "domains.validate",
+            "pp:happy-args": "id=12",
+            "pp:method": "POST",
+            "pp:path": "/domains/{id}/validate"
+          },
+          "flags": [
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "export",
+      "use": "export <resource> [id]",
+      "short": "Export data to JSONL or JSON for backup, migration, or analysis",
+      "flags": [
+        {
+          "name": "format",
+          "type": "string",
+          "usage": "Output format: jsonl or json",
+          "default": "jsonl"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum records to export (0 = unlimited)",
+          "default": "0"
+        },
+        {
+          "name": "no-cache",
+          "type": "bool",
+          "usage": "Bypass response cache for fresh data",
+          "default": "false"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "usage": "Output file path (default: stdout)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "feedback",
+      "use": "feedback [text]",
+      "short": "Record feedback about this CLI (local by default; upstream opt-in)",
+      "flags": [
+        {
+          "name": "send",
+          "type": "bool",
+          "usage": "POST to the configured feedback endpoint in addition to local write",
+          "default": "false"
+        },
+        {
+          "name": "stdin",
+          "type": "bool",
+          "usage": "Read feedback body from stdin rather than arguments",
+          "default": "false"
+        }
+      ],
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List recent feedback entries",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum number of recent entries to return",
+              "default": "20"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "forms",
+      "use": "forms",
+      "short": "List, get, create, update, and delete forms",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Creates a subscription form linked to one or more lists. Free users are limited to 1 form.",
+          "annotations": {
+            "pp:endpoint": "forms.create",
+            "pp:happy-args": "--title=Weekly newsletter;--lists=[1]",
+            "pp:method": "POST",
+            "pp:path": "/forms",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "gdpr-required",
+              "type": "bool",
+              "usage": "Whether GDPR consent checkbox is required",
+              "default": "false"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Array of list IDs to attach"
+            },
+            {
+              "name": "redirect-url",
+              "type": "string",
+              "usage": "URL to redirect to after subscription"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Title"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Soft-deletes the form",
+          "annotations": {
+            "pp:endpoint": "forms.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/forms/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "generate",
+          "use": "generate",
+          "short": "Generate a local form creation payload for review",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local"
+          },
+          "flags": [
+            {
+              "name": "gdpr-required",
+              "type": "bool",
+              "usage": "Require an explicit consent checkbox in the proposed form",
+              "default": "true"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Comma-separated list IDs receiving form signups"
+            },
+            {
+              "name": "redirect-url",
+              "type": "string",
+              "usage": "Absolute URL shown after a successful subscription"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Internal title for the proposed signup form"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Get a specific form",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "forms.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/forms/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List forms",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "forms.list",
+            "pp:method": "GET",
+            "pp:path": "/forms"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Search query for filtering forms"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Update a form",
+          "annotations": {
+            "pp:endpoint": "forms.update",
+            "pp:happy-args": "id=12",
+            "pp:method": "PATCH",
+            "pp:path": "/forms/{id}"
+          },
+          "flags": [
+            {
+              "name": "gdpr-required",
+              "type": "bool",
+              "usage": "Gdpr required",
+              "default": "false"
+            },
+            {
+              "name": "lists",
+              "type": "string",
+              "usage": "Replaces all list assignments"
+            },
+            {
+              "name": "redirect-url",
+              "type": "string",
+              "usage": "Redirect url"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "usage": "Title"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "help",
+      "use": "help [command]",
+      "short": "Help about any command",
+      "runnable": true
+    },
+    {
+      "name": "import",
+      "use": "import <resource>",
+      "short": "Import data from JSONL file via API create/upsert calls",
+      "flags": [
+        {
+          "name": "batch-size",
+          "type": "int",
+          "usage": "Records per batch (future: batch API support)",
+          "default": "1"
+        },
+        {
+          "name": "dry-run",
+          "type": "bool",
+          "usage": "Preview import without sending requests",
+          "default": "false"
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "usage": "Input JSONL file path (use - for stdin)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "learnings",
+      "use": "learnings",
+      "short": "Inspect or forget the local search_learnings table",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "candidates",
+          "use": "candidates",
+          "short": "List auto-captured improvement candidates awaiting judgment",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "class",
+              "type": "string",
+              "usage": "Filter by class (flag_alias | playbook_candidate)"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum rows to return (default: capped)",
+              "default": "0"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "usage": "Filter by status (open | confirmed | rejected | expired; empty for all)",
+              "default": "open"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "confirm",
+          "use": "confirm <id>",
+          "short": "Confirm an open candidate: print its full payload, then materialize it",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:typed-exit-codes": "0,2"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "forget",
+          "use": "forget <query>",
+          "short": "Delete learnings matching a query (use --all to wipe every rule for that query)",
+          "flags": [
+            {
+              "name": "action",
+              "type": "string",
+              "usage": "Delete only rules with this action (boost | hide | alias_of)"
+            },
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Delete every rule for the supplied query",
+              "default": "false"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "resource",
+              "type": "string",
+              "usage": "Delete only the rule for this resource_id"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List recorded learnings",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "action",
+              "type": "string",
+              "usage": "Filter by action (boost | hide | alias_of)"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum rows to return",
+              "default": "200"
+            },
+            {
+              "name": "min-confidence",
+              "type": "int",
+              "usage": "Filter by minimum confidence",
+              "default": "0"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Filter by normalized query substring"
+            },
+            {
+              "name": "resource",
+              "type": "string",
+              "usage": "Filter by resource_id"
+            },
+            {
+              "name": "source",
+              "type": "string",
+              "usage": "Filter by source (taught | manual-forget)"
+            },
+            {
+              "name": "warnings",
+              "type": "bool",
+              "usage": "Return teach-time warnings from teach.log instead of stored learning rows",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "purge",
+          "use": "purge",
+          "short": "Delete settled candidate rows (expired and confirmed; --tombstones adds rejected)",
+          "annotations": {
+            "mcp:hidden": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "tombstones",
+              "type": "bool",
+              "usage": "Also delete rejected rows (re-allows derivation of their signatures)",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "reject",
+          "use": "reject <id>",
+          "short": "Reject a candidate and tombstone its derivation signature",
+          "annotations": {
+            "pp:typed-exit-codes": "0,2"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "stats",
+          "use": "stats",
+          "short": "Report learn-loop effectiveness metrics from the local events table",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "lists",
+      "use": "lists",
+      "short": "List, get, create, add, update, delete, and remove lists",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "add-contact-to",
+          "use": "add-contact-to <list_id>",
+          "short": "Adds an existing contact to a list. If the contact is already in the list, no duplicate is created.",
+          "annotations": {
+            "pp:endpoint": "lists.add-contact-to",
+            "pp:happy-args": "--contact-id=1",
+            "pp:method": "POST",
+            "pp:path": "/lists/{list_id}/contacts",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "contact-id",
+              "type": "int",
+              "usage": "ID of the contact to add",
+              "default": "0"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "contacts",
+          "use": "contacts <list_id>",
+          "short": "List members of one list; compatibility alias for lists contacts-in",
+          "annotations": {
+            "mcp:hidden": "true",
+            "mcp:read-only": "true",
+            "pp:happy-args": "list_id=12",
+            "pp:method": "GET",
+            "pp:path": "/lists/{list_id}/contacts"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Search query for filtering contacts"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "contacts-in",
+          "use": "contacts-in <list_id>",
+          "short": "Get contacts in a list",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "lists.contacts-in",
+            "pp:happy-args": "list_id=12",
+            "pp:method": "GET",
+            "pp:path": "/lists/{list_id}/contacts"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Search query for filtering contacts"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "create",
+          "use": "create",
+          "short": "Create a new contact list",
+          "annotations": {
+            "pp:endpoint": "lists.create",
+            "pp:happy-args": "--name=Newsletter",
+            "pp:method": "POST",
+            "pp:path": "/lists",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "name",
+              "type": "string",
+              "usage": "Name"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "delete",
+          "use": "delete <id>",
+          "short": "Soft-deletes a list. Returns 409 if the list is used by forms, landing pages, or automations.",
+          "annotations": {
+            "pp:endpoint": "lists.delete",
+            "pp:happy-args": "id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/lists/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "get",
+          "use": "get <id>",
+          "short": "Returns list details including average open and click rates",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "lists.get",
+            "pp:happy-args": "id=12",
+            "pp:method": "GET",
+            "pp:path": "/lists/{id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "list-lists",
+          "use": "list-lists",
+          "short": "List contact lists",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "lists.list_lists",
+            "pp:method": "GET",
+            "pp:path": "/lists"
+          },
+          "flags": [
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Fetch all pages",
+              "default": "false"
+            },
+            {
+              "name": "page",
+              "type": "string",
+              "usage": "Page number for the documented paginated response.",
+              "default": "1"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Search query for filtering lists"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "remove-contact-from",
+          "use": "remove-contact-from <list_id> <contact_id>",
+          "short": "Remove a contact from a list",
+          "annotations": {
+            "pp:endpoint": "lists.remove-contact-from",
+            "pp:happy-args": "list_id=12;contact_id=12",
+            "pp:method": "DELETE",
+            "pp:path": "/lists/{list_id}/contacts/{contact_id}"
+          },
+          "runnable": true
+        },
+        {
+          "name": "update",
+          "use": "update <id>",
+          "short": "Update a contact list",
+          "annotations": {
+            "pp:endpoint": "lists.update",
+            "pp:happy-args": "--name=Newsletter",
+            "pp:method": "PATCH",
+            "pp:path": "/lists/{id}",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "name",
+              "type": "string",
+              "usage": "Name"
+            },
+            {
+              "name": "stdin",
+              "type": "bool",
+              "usage": "Read request body as JSON from stdin",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "me",
+      "use": "me",
+      "short": "Get current user information",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:endpoint": "me.get",
+        "pp:method": "GET",
+        "pp:path": "/me"
+      },
+      "runnable": true
+    },
+    {
+      "name": "playbook",
+      "use": "playbook",
+      "short": "Inspect or amend stored CLI playbooks",
+      "annotations": {
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "amend",
+          "use": "amend",
+          "short": "Append a note to an existing playbook (LLM-fired self-correction, silent)",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:happy-args": "--query=find items in category;--add-note=example correction",
+            "pp:typed-exit-codes": "0,2"
+          },
+          "flags": [
+            {
+              "name": "add-note",
+              "type": "string",
+              "usage": "The note text to append to the family's playbook (required)"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Database path (default: standard cache location)"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "The exact recall query whose family should be amended (required)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List stored playbooks (query_family, content presence, last observed)",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Database path (default: standard cache location)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "use": "profile",
+      "short": "Named sets of flags saved for reuse",
+      "annotations": {
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "delete",
+          "use": "delete <name>",
+          "short": "Remove a profile",
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List saved profiles",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "runnable": true
+        },
+        {
+          "name": "save",
+          "use": "save <name> [--<flag> <value> ...]",
+          "short": "Save the current invocation's non-default flags as a named profile",
+          "flags": [
+            {
+              "name": "description",
+              "type": "string",
+              "usage": "Short description shown in 'profile list'"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "show",
+          "use": "show <name>",
+          "short": "Show a profile's values as JSON",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "runnable": true
+        },
+        {
+          "name": "use",
+          "use": "use <name>",
+          "short": "Print the flag values a profile will apply (does not execute anything)",
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "recall",
+      "use": "recall <query>",
+      "short": "Check prior learnings for a query before running discovery (LLM-fired, pre-discovery)",
+      "annotations": {
+        "mcp:read-only": "true"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "debug-mismatches",
+          "type": "bool",
+          "usage": "Include cross-entity mismatches in the envelope under mismatches[]",
+          "default": "false"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum number of learnings to return",
+          "default": "10"
+        },
+        {
+          "name": "min-confidence",
+          "type": "int",
+          "usage": "Minimum confidence to include in results",
+          "default": "1"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "search",
+      "use": "search <query>",
+      "short": "Search locally synced data",
+      "annotations": {
+        "mcp:hidden": "true"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum results to return",
+          "default": "50"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "usage": "Filter by resource type"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "sql",
+      "use": "sql [query]",
+      "short": "Run a bounded read-only SQL query against the local mirror",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "local"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "Path to a local SQLite mirror created by sync"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum result rows; query timeout also bounds computation",
+          "default": "100"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "usage": "Single SELECT or WITH query; resources table stores JSON in data"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "sync",
+      "use": "sync",
+      "short": "Sync API data to local SQLite for offline search and analysis",
+      "flags": [
+        {
+          "name": "concurrency",
+          "type": "int",
+          "usage": "Number of parallel sync workers",
+          "default": "4"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "full",
+          "type": "bool",
+          "usage": "Full resync (ignore previous checkpoint)",
+          "default": "false"
+        },
+        {
+          "name": "global-param",
+          "type": "stringArray",
+          "usage": "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.",
+          "default": "[]"
+        },
+        {
+          "name": "latest-only",
+          "type": "bool",
+          "usage": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).",
+          "default": "false"
+        },
+        {
+          "name": "max-pages",
+          "type": "int",
+          "usage": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)",
+          "default": "0"
+        },
+        {
+          "name": "no-prune",
+          "type": "bool",
+          "usage": "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns after a complete walk)",
+          "default": "false"
+        },
+        {
+          "name": "param",
+          "type": "stringArray",
+          "usage": "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) \u2014 overriding them corrupts resume state.",
+          "default": "[]"
+        },
+        {
+          "name": "resource-param",
+          "type": "stringArray",
+          "usage": "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.",
+          "default": "[]"
+        },
+        {
+          "name": "resources",
+          "type": "stringSlice",
+          "usage": "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).",
+          "default": "[]"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "usage": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)"
+        },
+        {
+          "name": "strict",
+          "type": "bool",
+          "usage": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).",
+          "default": "false"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "tail",
+      "use": "tail [resource]",
+      "short": "Stream live changes by polling the API at regular intervals",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:no-error-path-probe": "true"
+      },
+      "flags": [
+        {
+          "name": "follow",
+          "type": "bool",
+          "usage": "Keep running (set --follow=false for single poll)",
+          "default": "true"
+        },
+        {
+          "name": "interval",
+          "type": "duration",
+          "usage": "Poll interval",
+          "default": "10s"
+        },
+        {
+          "name": "resource",
+          "type": "string",
+          "usage": "Resource type to tail"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach",
+      "use": "teach",
+      "short": "Record a query -> resource mapping for future recall (LLM-fired, silent)",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--query=find items in category;--resource-type=items;--resource=GROUP-category",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "no-validate",
+          "type": "bool",
+          "usage": "Suppress teach-time resource-shape validation (warnings to teach.log)",
+          "default": "false"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "usage": "Optional free-form note recorded in the audit log"
+        },
+        {
+          "name": "playbook-file",
+          "type": "string",
+          "usage": "Optional path to a JSON playbook recording the CLI choreography for this query family"
+        },
+        {
+          "name": "playbook-json",
+          "type": "string",
+          "usage": "Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)"
+        },
+        {
+          "name": "playbook-notes",
+          "type": "string",
+          "usage": "Optional inline gotchas/workarounds for this query family (stored alongside the playbook)"
+        },
+        {
+          "name": "playbook-notes-file",
+          "type": "string",
+          "usage": "Optional path to a markdown file with playbook notes"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "usage": "User's original natural-language question (required)"
+        },
+        {
+          "name": "quiet",
+          "type": "bool",
+          "usage": "Silent on success (default true \u2014 designed for background invocation)",
+          "default": "true"
+        },
+        {
+          "name": "resource",
+          "type": "stringSlice",
+          "usage": "Resource ID \u2014 repeat for multiple (required)",
+          "default": "[]"
+        },
+        {
+          "name": "resource-type",
+          "type": "string",
+          "usage": "Resource type (required; e.g. matches a row in the local resources table)"
+        },
+        {
+          "name": "venue",
+          "type": "string",
+          "usage": "Optional venue scope tag stored with the learning"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach-lookup",
+      "use": "teach-lookup",
+      "short": "Install a manual entity-lookup row (kind, canonical, value)",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--kind=country;--canonical=United States;--value=USA",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "canonical",
+          "type": "string",
+          "usage": "Canonical entity name (required)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "usage": "Entity kind, e.g. country, team (required, must not be a computed kind)"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "usage": "Value/alias that should resolve to the canonical (required)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach-pattern",
+      "use": "teach-pattern",
+      "short": "Install a manual generalization pattern (query_template, resource_template, entity_kind)",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--query-template=items in {entity};--resource-template=GROUP-{entity:category};--resource-type=items;--entity-kind=category;--strategy=substitute",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "entity-kind",
+          "type": "string",
+          "usage": "Entity kind name registered in entity_lookups (required)"
+        },
+        {
+          "name": "query-template",
+          "type": "string",
+          "usage": "Query template with {entity} placeholder (required)"
+        },
+        {
+          "name": "resource-template",
+          "type": "string",
+          "usage": "Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)"
+        },
+        {
+          "name": "resource-type",
+          "type": "string",
+          "usage": "Resource type for substituted IDs (required)"
+        },
+        {
+          "name": "strategy",
+          "type": "string",
+          "usage": "Substitution strategy: substitute | substitute-then-search-prefix (default substitute)"
+        },
+        {
+          "name": "venue",
+          "type": "string",
+          "usage": "Optional venue scope tag"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach-playbook",
+      "use": "teach-playbook",
+      "short": "Record a CLI playbook + free-text notes for a query family",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--query=find items in category;--notes=example playbook note",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "Database path (default: standard cache location)"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "usage": "Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file"
+        },
+        {
+          "name": "notes-file",
+          "type": "string",
+          "usage": "Path to a markdown file with the notes"
+        },
+        {
+          "name": "playbook-file",
+          "type": "string",
+          "usage": "Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)"
+        },
+        {
+          "name": "playbook-json",
+          "type": "string",
+          "usage": "Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "usage": "Example query that anchors the family (required)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "unsubscribe",
+      "use": "unsubscribe",
+      "short": "Unsubscribe a contact by email",
+      "annotations": {
+        "pp:endpoint": "unsubscribe.contact",
+        "pp:happy-args": "--email=user@example.com",
+        "pp:method": "PATCH",
+        "pp:path": "/unsubscribe",
+        "pp:requires-input": "true"
+      },
+      "flags": [
+        {
+          "name": "email",
+          "type": "string",
+          "usage": "Email"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "version",
+      "use": "version",
+      "short": "Print version",
+      "runnable": true
+    },
+    {
+      "name": "webhooks",
+      "use": "webhooks",
+      "short": "Explain the public API gap for webhook management and event delivery",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true"
+      },
+      "runnable": true
+    },
+    {
+      "name": "which",
+      "use": "which [query]",
+      "short": "Find the command that implements a capability",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum number of matches to return",
+          "default": "3"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "workflow",
+      "use": "workflow",
+      "short": "Compound workflows that combine multiple API operations",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "account-snapshot",
+          "use": "account-snapshot",
+          "short": "Compatibility path for the current local evidence workflow",
+          "annotations": {
+            "mcp:hidden": "true",
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "archive",
+          "use": "archive",
+          "short": "Sync all resources to local store for offline access and search",
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "full",
+              "type": "bool",
+              "usage": "Full re-archive (ignore previous sync state)",
+              "default": "false"
+            },
+            {
+              "name": "max-pages",
+              "type": "int",
+              "usage": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)",
+              "default": "0"
+            },
+            {
+              "name": "timeout",
+              "type": "duration",
+              "usage": "Maximum time to spend archiving (0 = no timeout)",
+              "default": "30m0s"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "audience-health",
+          "use": "audience-health",
+          "short": "Find duplicate, invalid, suppressed and unassigned contacts from local evidence.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "audience-map",
+          "use": "audience-map",
+          "short": "Compatibility path for the current local evidence workflow",
+          "annotations": {
+            "mcp:hidden": "true",
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "automation-plan",
+          "use": "automation-plan",
+          "short": "Validate a versioned automation definition and produce inactive creation steps.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "campaign-digest",
+          "use": "campaign-digest",
+          "short": "Compatibility path for the current local evidence workflow",
+          "annotations": {
+            "mcp:hidden": "true",
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "audience",
+              "type": "string",
+              "usage": "Documented engagement cohort: non_openers, openers or clickers",
+              "default": "non_openers"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "campaign-preflight",
+          "use": "campaign-preflight",
+          "short": "Check draft content, targeting, suppression evidence and sender readiness before any send.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "campaign-review",
+          "use": "campaign-review",
+          "short": "Combine campaign metrics, link performance and engagement cohorts into an auditable resend plan.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "audience",
+              "type": "string",
+              "usage": "Documented engagement cohort: non_openers, openers or clickers",
+              "default": "non_openers"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "contact-dossier",
+          "use": "contact-dossier",
+          "short": "Join contact details, memberships, tags and available engagement into one support packet.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json;--id=1"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "export-bundle",
+          "use": "export-bundle",
+          "short": "Produce a local inventory bundle with per-resource completeness and provenance.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "hygiene-report",
+          "use": "hygiene-report",
+          "short": "Compatibility path for the current local evidence workflow",
+          "annotations": {
+            "mcp:hidden": "true",
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "launch-plan",
+          "use": "launch-plan",
+          "short": "Compatibility path for the current local evidence workflow",
+          "annotations": {
+            "mcp:hidden": "true",
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "migration-readiness",
+          "use": "migration-readiness",
+          "short": "Compare local platform snapshots with suppression, mapping, delta and cutover gates.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:data-source": "local",
+            "pp:happy-args": "--input=examples/snapshot.json"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Local SQLite mirror created by sync; no network refresh"
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "usage": "Exact normalized email for a single contact dossier"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Contact or campaign ID to select from the supplied evidence"
+            },
+            {
+              "name": "input",
+              "type": "string",
+              "usage": "Version 1 local JSON/YAML evidence snapshot, or Markdown YAML frontmatter"
+            },
+            {
+              "name": "kit",
+              "type": "string",
+              "usage": "Normalized Kit JSON/YAML snapshot, including explicit suppression evidence"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum findings, activity, links and recipient samples printed; counts remain complete",
+              "default": "100"
+            },
+            {
+              "name": "previous",
+              "type": "string",
+              "usage": "Previous Kit snapshot used to compute the late-change delta"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "status",
+          "use": "status",
+          "short": "Show local archive status and sync state for all resources",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    }
+  ],
+  "available_profiles": [],
+  "feedback_endpoint_configured": false,
+  "learn_protocol": "1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) && recall \"$QUERY\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm <id> only after the trial verified the behavior. Reject a wrong candidate with learnings reject <id>.\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) && teach --query \"$QUERY\"; do not splice it into a shell command.\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate."
+}

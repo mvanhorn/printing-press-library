@@ -1,0 +1,11 @@
+{
+  "printing_press_bin": "/Users/cathrynlavery/.local/bin/cli-printing-press",
+  "local_verifier_override": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired",
+  "phase3_transcendence_rows_planned": 7,
+  "phase3_transcendence_rows_built": 7,
+  "phase3_transcendence_rows_missing": [],
+  "prior_sub60_reprint": true,
+  "partial_transcendence_override": "none",
+  "mode": "mid-pipeline",
+  "live_auth_authorized": false
+}

@@ -1,0 +1,16 @@
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 39,
+    "run_id": "20260921-133106-1fbd7f53",
+    "phase": "20-promote-and-archive",
+    "event": "completed",
+    "phase_file": "phases/20-promote-and-archive.md",
+    "next": "21-next-steps",
+    "evidence": [
+      "/Users/cathrynlavery/printing-press/library/sendfox"
+    ],
+    "recorded_at": "2026-09-21T19:18:32.977129Z"
+  },
+  "recorded": true
+}

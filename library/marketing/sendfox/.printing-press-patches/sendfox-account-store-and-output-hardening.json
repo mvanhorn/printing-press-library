@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "sendfox-account-store-and-output-hardening",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260921-133106-1fbd7f53",
+  "base_printing_press_version": "4.32.4",
+  "summary": "Isolate CLI and MCP local stores by credential scope, suppress ANSI color on redirected output, and publish accurate catalog copy.",
+  "reason": "A legacy unscoped database cannot be safely attributed to an authenticated account, every local-data interface must resolve the same scoped store, redirected output must remain free of terminal escape sequences, and the website must describe the full product rather than its former narrow API surface.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_security_test.go",
+    "internal/cli/root.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "Distinct credentials resolve distinct scoped databases for both CLI and MCP, redirected --human-friendly output contains no ANSI escapes, and registry generation selects the explicit SendFox catalog description."
+}

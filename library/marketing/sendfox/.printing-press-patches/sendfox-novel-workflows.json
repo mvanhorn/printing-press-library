@@ -1,21 +1,20 @@
 {
+  "schema_version": 2,
   "id": "sendfox-novel-workflows",
-  "description": "Add SendFox-specific compound workflow commands, public API capability matrix, CSV audit/reconciliation, safe bulk contact import/onboarding, signup-form and webhook handoffs, visible core resource commands, and SENDFOX_API_TOKEN alias support.",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260921-133106-1fbd7f53",
+  "base_printing_press_version": "4.32.4",
+  "summary": "Rebuild prior compounds against the current 60-operation contract; preserve CSV safety, auth setup, compatibility command names and explicit webhook gap. Campaign creation now uses documented draft creation.",
+  "reason": "Replace obsolete 11-operation assumptions while retaining valuable prior workflows. Original patch is archived in prior research and the baseline backup.",
   "files": [
-    "internal/cli/sendfox_novel_commands.go",
-    "internal/cli/sendfox_novel_helpers.go",
-    "internal/cli/sendfox_agent_commands.go",
-    "internal/cli/sendfox_novel_helpers_test.go",
-    "internal/config/config.go",
-    "internal/config/config_test.go",
-    "internal/cli/channel_workflow.go",
-    "internal/cli/campaigns.go",
-    "internal/cli/contacts.go",
-    "internal/cli/lists.go",
-    "internal/cli/root.go",
+    "internal/cli/sendfox_absorbed.go",
+    "internal/cli/sendfox_evidence.go",
+    "internal/cli/sendfox_compatibility.go",
+    "internal/cli/sendfox_agent_commands_test.go",
+    "internal/cli/auth_test.go",
+    "internal/config/sendfox_token.go",
     "README.md",
-    "SKILL.md",
-    ".printing-press.json"
+    "SKILL.md"
   ],
-  "upstream_shape": "single-cli SendFox ergonomics over a very small official endpoint surface; campaign and webhook writes are dashboard handoffs, not fake API calls"
+  "validated_outcome": "Ported tests enforce normalized CSV identity handling, canonical auth and present campaign creation / absent webhook API; full local regression required."
 }

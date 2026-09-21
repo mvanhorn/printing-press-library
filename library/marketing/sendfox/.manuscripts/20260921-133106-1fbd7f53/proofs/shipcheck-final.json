@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-09-21T19:06:18Z",
+  "elapsed_ms": 177889,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:06:18Z",
+      "elapsed_ms": 91082,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired verify --dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli --write-manifest /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/.printing-press.json --spec /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research/sendfox-enriched.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:07:49Z",
+      "elapsed_ms": 2827,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired validate-narrative --strict --full-examples --research /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research/research.json --binary /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/build/stage/bin/sendfox-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:07:52Z",
+      "elapsed_ms": 41959,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired dogfood --dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli --spec /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research/sendfox-enriched.yaml --research-dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:08:34Z",
+      "elapsed_ms": 3362,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired workflow-verify --dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:08:37Z",
+      "elapsed_ms": 233,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired apify-audit --dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli --research-dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:08:38Z",
+      "elapsed_ms": 31515,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired verify-skill --dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-21T19:09:09Z",
+      "elapsed_ms": 6894,
+      "command": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/printing-press-verifier/cli-printing-press-repaired scorecard --dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli --write-manifest /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/.printing-press.json --research-dir /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research --spec /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research/sendfox-enriched.yaml"
+    }
+  ]
+}

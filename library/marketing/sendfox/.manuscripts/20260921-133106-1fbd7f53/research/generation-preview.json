@@ -1,0 +1,10 @@
+{
+  "dry_run": true,
+  "endpoint_count": 60,
+  "name": "sendfox",
+  "output_dir": "/Users/cathrynlavery/printing-press/library/sendfox",
+  "resource_count": 20,
+  "spec_files": [
+    "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/research/sendfox-live.yaml"
+  ]
+}

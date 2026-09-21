@@ -1,0 +1,130 @@
+{
+  "count": 41,
+  "limit": 100,
+  "rows": [
+    {
+      "name": "resources"
+    },
+    {
+      "name": "sync_state"
+    },
+    {
+      "name": "search_learnings"
+    },
+    {
+      "name": "sqlite_sequence"
+    },
+    {
+      "name": "entity_lookups"
+    },
+    {
+      "name": "search_patterns"
+    },
+    {
+      "name": "learning_playbooks"
+    },
+    {
+      "name": "learn_candidates"
+    },
+    {
+      "name": "learn_events"
+    },
+    {
+      "name": "automation_emails"
+    },
+    {
+      "name": "automations"
+    },
+    {
+      "name": "campaigns"
+    },
+    {
+      "name": "campaigns_fts"
+    },
+    {
+      "name": "campaigns_fts_data"
+    },
+    {
+      "name": "campaigns_fts_idx"
+    },
+    {
+      "name": "campaigns_fts_docsize"
+    },
+    {
+      "name": "campaigns_fts_config"
+    },
+    {
+      "name": "contact_fields"
+    },
+    {
+      "name": "contact_fields_fts"
+    },
+    {
+      "name": "contact_fields_fts_data"
+    },
+    {
+      "name": "contact_fields_fts_idx"
+    },
+    {
+      "name": "contact_fields_fts_docsize"
+    },
+    {
+      "name": "contact_fields_fts_config"
+    },
+    {
+      "name": "contact_tags"
+    },
+    {
+      "name": "contacts"
+    },
+    {
+      "name": "domains"
+    },
+    {
+      "name": "forms"
+    },
+    {
+      "name": "forms_fts"
+    },
+    {
+      "name": "forms_fts_data"
+    },
+    {
+      "name": "forms_fts_idx"
+    },
+    {
+      "name": "forms_fts_docsize"
+    },
+    {
+      "name": "forms_fts_config"
+    },
+    {
+      "name": "lists"
+    },
+    {
+      "name": "me"
+    },
+    {
+      "name": "unsubscribe"
+    },
+    {
+      "name": "resources_fts"
+    },
+    {
+      "name": "resources_fts_data"
+    },
+    {
+      "name": "resources_fts_idx"
+    },
+    {
+      "name": "resources_fts_content"
+    },
+    {
+      "name": "resources_fts_docsize"
+    },
+    {
+      "name": "resources_fts_config"
+    }
+  ],
+  "truncated": false
+}

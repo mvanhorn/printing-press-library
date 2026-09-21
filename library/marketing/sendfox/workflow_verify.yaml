@@ -1,0 +1,70 @@
+workflows:
+- name: Local SendFox operating evidence
+  primary: true
+  steps:
+  - command: workflow campaign-preflight --input examples/snapshot.json --max-age
+      0
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data
+  - command: workflow campaign-review --input examples/snapshot.json --max-age 0
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data
+  - command: workflow audience-health --input examples/snapshot.json --max-age 0
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data
+  - command: workflow contact-dossier --input examples/snapshot.json --max-age 0 --id
+      1
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data
+  - command: workflow automation-plan --input examples/snapshot.json --max-age 0
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data
+  - command: workflow export-bundle --input examples/snapshot.json --max-age 0
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data
+  - command: workflow migration-readiness --input examples/snapshot.json --max-age
+      0
+    mode: local
+    expect_fields:
+    - schema_version
+    - workflow
+    - blockers
+    - unknowns
+    - proposed_actions
+    - data

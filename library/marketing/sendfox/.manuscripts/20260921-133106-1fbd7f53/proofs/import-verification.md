@@ -1,0 +1,1 @@
+Imported module sendfox-pp-cli built successfully with GOWORK=off and installed Go 1.26.8 before generation. This validates only the imported prior baseline. No account doctor/smoke invocation was performed.

@@ -1,0 +1,299 @@
+{
+  "version": 1,
+  "summary": {
+    "total": 16,
+    "pending": 0,
+    "resolved": 16,
+    "accepted": 0
+  },
+  "findings": [
+    {
+      "id": "contacts.list.params.filter[status]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[status]",
+      "current_public_name": "filter-status",
+      "type": "string",
+      "description": "Engagement status",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[last_opened_after]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[last_opened_after]",
+      "current_public_name": "filter-last-opened-after",
+      "type": "string",
+      "description": "Contacts whose most recent open is on or after this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[last_opened_before]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[last_opened_before]",
+      "current_public_name": "filter-last-opened-before",
+      "type": "string",
+      "description": "Contacts whose most recent open is before this date. Excludes contacts who never opened — use filter[never_opened] for those.",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[last_clicked_after]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[last_clicked_after]",
+      "current_public_name": "filter-last-clicked-after",
+      "type": "string",
+      "description": "Contacts whose most recent click is on or after this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[last_clicked_before]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[last_clicked_before]",
+      "current_public_name": "filter-last-clicked-before",
+      "type": "string",
+      "description": "Contacts whose most recent click is before this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[last_sent_after]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[last_sent_after]",
+      "current_public_name": "filter-last-sent-after",
+      "type": "string",
+      "description": "Contacts last sent to on or after this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[last_sent_before]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[last_sent_before]",
+      "current_public_name": "filter-last-sent-before",
+      "type": "string",
+      "description": "Contacts last sent to before this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[created_after]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[created_after]",
+      "current_public_name": "filter-created-after",
+      "type": "string",
+      "description": "Contacts created on or after this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[created_before]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[created_before]",
+      "current_public_name": "filter-created-before",
+      "type": "string",
+      "description": "Contacts created before this date",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[never_opened]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[never_opened]",
+      "current_public_name": "filter-never-opened",
+      "type": "bool",
+      "description": "Only contacts who have never opened an email",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[never_clicked]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[never_clicked]",
+      "current_public_name": "filter-never-clicked",
+      "type": "bool",
+      "description": "Only contacts who have never clicked a link",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[never_sent]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[never_sent]",
+      "current_public_name": "filter-never-sent",
+      "type": "bool",
+      "description": "Only contacts who have never been sent an email",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[in_list_ids]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[in_list_ids]",
+      "current_public_name": "filter-in-list-ids",
+      "type": "array",
+      "description": "Only contacts in any of these lists",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[not_in_list_ids]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[not_in_list_ids]",
+      "current_public_name": "filter-not-in-list-ids",
+      "type": "array",
+      "description": "Exclude contacts in any of these lists",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[tag_ids]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[tag_ids]",
+      "current_public_name": "filter-tag-ids",
+      "type": "array",
+      "description": "Only contacts carrying any of these tags",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    },
+    {
+      "id": "contacts.list.params.filter[not_tag_ids]",
+      "resource": "contacts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "filter[not_tag_ids]",
+      "current_public_name": "filter-not-tag-ids",
+      "type": "array",
+      "description": "Exclude contacts carrying any of these tags",
+      "endpoint_path": "/contacts",
+      "endpoint_description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).\n\nSupports engagement filtering through `filter[...]` query parameters, so you can answer\nquestions like \"who last opened over a year ago\" without paging the whole account. All\nfilter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —\nthe cheapest way to size an audience before acting on it.",
+      "reasons": [
+        "operator-like-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official SendFox v1.4.0 filter[...] parameter descriptions; preserve filter namespace, verify generated kebab flags during build.",
+      "skip_reason": "Meaningful documented filter name; generated normalized filter-* flags preserve semantics without an unsupported OpenAPI rename extension."
+    }
+  ]
+}

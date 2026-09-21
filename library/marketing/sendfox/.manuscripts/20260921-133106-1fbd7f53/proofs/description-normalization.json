@@ -1,0 +1,16 @@
+{
+  "source_sha256_unchanged": "e9c1a272f79238e2f94f857092a932002c64f21299304b930e33f5ca2e79b991",
+  "normalized_fields": [
+    "GET /contacts description",
+    "POST /contacts/bulk-actions description",
+    "POST /campaigns description",
+    "POST /campaigns/{id}/send description",
+    "GET /campaigns/{id}/stats description",
+    "POST /forms description",
+    "POST /contact-fields description",
+    "PATCH /contact-fields/{id} description",
+    "POST /domains description",
+    "POST /domains/{id}/validate description"
+  ],
+  "count": 10
+}

@@ -1,0 +1,113 @@
+{
+  "live_check": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 7,
+    "features": [
+      {
+        "name": "Audience health",
+        "command": "workflow audience-health",
+        "example": "sendfox-pp-cli workflow audience-health --input examples/snapshot.json --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Campaign preflight",
+        "command": "workflow campaign-preflight",
+        "example": "sendfox-pp-cli workflow campaign-preflight --input examples/snapshot.json --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Campaign review",
+        "command": "workflow campaign-review",
+        "example": "sendfox-pp-cli workflow campaign-review --input examples/snapshot.json --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Contact dossier",
+        "command": "workflow contact-dossier",
+        "example": "sendfox-pp-cli workflow contact-dossier --input examples/snapshot.json --id 1 --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Automation plan",
+        "command": "workflow automation-plan",
+        "example": "sendfox-pp-cli workflow automation-plan --input examples/snapshot.json --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Export bundle",
+        "command": "workflow export-bundle",
+        "example": "sendfox-pp-cli workflow export-bundle --input examples/snapshot.json --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Migration readiness",
+        "command": "workflow migration-readiness",
+        "example": "sendfox-pp-cli workflow migration-readiness --input examples/snapshot.json --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      }
+    ],
+    "binary_refresh": {
+      "action": "rebuilt",
+      "stage_path": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/build/stage/bin/sendfox-pp-cli",
+      "binary_path": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/build/stage/bin/sendfox-pp-cli",
+      "reason": "staged binary was older than Go sources"
+    },
+    "ran_at": "2026-09-21T19:02:30.882851Z",
+    "status": "available",
+    "checked": 7,
+    "evaluated": 0,
+    "pass_rate_pct": 0
+  },
+  "scorecard": {
+    "api_name": "sendfox",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 10,
+      "terminal_ux": 10,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 8,
+      "mcp_description_quality": 0,
+      "mcp_token_efficiency": 0,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 10,
+      "mcp_surface_strategy": 10,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 10,
+      "vision": 10,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 10,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 5,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 97,
+      "percentage": 97
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "MCP: 60 tools (0 public, 60 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_description_quality",
+      "mcp_token_efficiency",
+      "live_api_verification"
+    ]
+  }
+}

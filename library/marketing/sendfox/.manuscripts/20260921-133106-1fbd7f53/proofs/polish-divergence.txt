@@ -1,0 +1,243 @@
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: .gitignore
+Files catalog/library/marketing/sendfox/.golangci.yml and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/.golangci.yml differ
+Files catalog/library/marketing/sendfox/.goreleaser.yaml and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/.goreleaser.yaml differ
+Only in catalog/library/marketing/sendfox: .manuscripts
+Only in catalog/library/marketing/sendfox/.printing-press-patches: catalog-go-1265-vuln-floor.json
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/.printing-press-patches: sendfox-current-contract-and-evidence-safety.json
+Only in catalog/library/marketing/sendfox/.printing-press-patches: sendfox-novel-workflows.json
+Files catalog/library/marketing/sendfox/.printing-press.json and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/.printing-press.json differ
+Files catalog/library/marketing/sendfox/AGENTS.md and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/AGENTS.md differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: CLAUDE.md
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: EVIDENCE.md
+Files catalog/library/marketing/sendfox/LICENSE and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/LICENSE differ
+Files catalog/library/marketing/sendfox/Makefile and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/Makefile differ
+Files catalog/library/marketing/sendfox/NOTICE and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/NOTICE differ
+Files catalog/library/marketing/sendfox/README.md and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/README.md differ
+Files catalog/library/marketing/sendfox/SKILL.md and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/SKILL.md differ
+Files catalog/library/marketing/sendfox/agentcookie.toml and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/agentcookie.toml differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: apify-actor-audit-report.json
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: build
+Files catalog/library/marketing/sendfox/cmd/sendfox-pp-cli/main.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/cmd/sendfox-pp-cli/main.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/cmd/sendfox-pp-mcp: http_auth_test.go
+Files catalog/library/marketing/sendfox/cmd/sendfox-pp-mcp/main.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/cmd/sendfox-pp-mcp/main.go differ
+Files catalog/library/marketing/sendfox/dogfood-results.json and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/dogfood-results.json differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: examples
+Files catalog/library/marketing/sendfox/internal/cache/cache.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cache/cache.go differ
+Files catalog/library/marketing/sendfox/internal/cli/agent_context.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/agent_context.go differ
+Files catalog/library/marketing/sendfox/internal/cli/analytics.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/analytics.go differ
+Files catalog/library/marketing/sendfox/internal/cli/api_discovery.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/api_discovery.go differ
+Files catalog/library/marketing/sendfox/internal/cli/auth.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/auth.go differ
+Only in catalog/library/marketing/sendfox/internal/cli: auth_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automation_emails.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automation_emails_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automation_emails_update.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations_create-email.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations_create.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations_get.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations_list.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: automations_update.go
+Files catalog/library/marketing/sendfox/internal/cli/campaigns.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/campaigns.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_create.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_get-stats.go
+Files catalog/library/marketing/sendfox/internal/cli/campaigns_get.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/campaigns_get.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_list-engagement.go
+Files catalog/library/marketing/sendfox/internal/cli/campaigns_list.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/campaigns_list.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_resend.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_send.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: campaigns_update.go
+Files catalog/library/marketing/sendfox/internal/cli/channel_workflow.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/channel_workflow.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_fields.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_fields_create.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_fields_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_fields_get.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_fields_list.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_fields_update.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_tags.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_tags_create.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_tags_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_tags_get.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_tags_list.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contact_tags_update.go
+Files catalog/library/marketing/sendfox/internal/cli/contacts.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/contacts.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_attach-tag.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_batch-import.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_create-bulk-action.go
+Files catalog/library/marketing/sendfox/internal/cli/contacts_create.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/contacts_create.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_detach-tag.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_get-activity.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_get-bulk-action.go
+Files catalog/library/marketing/sendfox/internal/cli/contacts_get.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/contacts_get.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_list-tags-for.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_list-unsubscribed.go
+Files catalog/library/marketing/sendfox/internal/cli/contacts_list.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/contacts_list.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: contacts_update.go
+Files catalog/library/marketing/sendfox/internal/cli/data_source.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/data_source.go differ
+Files catalog/library/marketing/sendfox/internal/cli/deliver.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/deliver.go differ
+Files catalog/library/marketing/sendfox/internal/cli/doctor.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/doctor.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: domains.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: domains_create.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: domains_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: domains_get.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: domains_list.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: domains_validate.go
+Files catalog/library/marketing/sendfox/internal/cli/export.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/export.go differ
+Files catalog/library/marketing/sendfox/internal/cli/feedback.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/feedback.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: forms.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: forms_create.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: forms_delete.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: forms_get.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: forms_list.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: forms_update.go
+Files catalog/library/marketing/sendfox/internal/cli/helpers.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/helpers.go differ
+Files catalog/library/marketing/sendfox/internal/cli/import.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/import.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: learn_init.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: learn_init_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: learnings_candidates.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: learnings_candidates_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: learnings_stats.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: learnings_stats_test.go
+Files catalog/library/marketing/sendfox/internal/cli/lists.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/lists.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: lists_add-contact-to.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: lists_contacts-in.go
+Only in catalog/library/marketing/sendfox/internal/cli: lists_contacts.go
+Only in catalog/library/marketing/sendfox/internal/cli: lists_contacts_remove-from-list.go
+Files catalog/library/marketing/sendfox/internal/cli/lists_create.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/lists_create.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: lists_delete.go
+Files catalog/library/marketing/sendfox/internal/cli/lists_get.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/lists_get.go differ
+Files catalog/library/marketing/sendfox/internal/cli/lists_list_lists.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/lists_list_lists.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: lists_remove-contact-from.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: lists_update.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: platform_cli_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: platform_client.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: platform_window.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: platform_window_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: playbook_init.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: playbook_init_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: playbooks
+Files catalog/library/marketing/sendfox/internal/cli/profile.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/profile.go differ
+Files catalog/library/marketing/sendfox/internal/cli/promoted_me.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/promoted_me.go differ
+Files catalog/library/marketing/sendfox/internal/cli/promoted_unsubscribe.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/promoted_unsubscribe.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: resource_paths.go
+Files catalog/library/marketing/sendfox/internal/cli/root.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/root.go differ
+Files catalog/library/marketing/sendfox/internal/cli/root_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/root_test.go differ
+Files catalog/library/marketing/sendfox/internal/cli/search.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/search.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_absorbed.go
+Only in catalog/library/marketing/sendfox/internal/cli: sendfox_agent_commands.go
+Only in catalog/library/marketing/sendfox/internal/cli: sendfox_agent_commands_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_bulk.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_evidence.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_evidence_acceptance_test.go
+Only in catalog/library/marketing/sendfox/internal/cli: sendfox_novel_commands.go
+Only in catalog/library/marketing/sendfox/internal/cli: sendfox_novel_helpers.go
+Only in catalog/library/marketing/sendfox/internal/cli: sendfox_novel_helpers_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_pagination_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_policy.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: sendfox_sql.go
+Files catalog/library/marketing/sendfox/internal/cli/sync.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/sync.go differ
+Files catalog/library/marketing/sendfox/internal/cli/sync_hint.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/sync_hint.go differ
+Files catalog/library/marketing/sendfox/internal/cli/sync_hint_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/sync_hint_test.go differ
+Files catalog/library/marketing/sendfox/internal/cli/sync_numeric_id_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/sync_numeric_id_test.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: tail.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: teach.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: teach_playbook.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: teach_playbook_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: teach_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: version.go
+Files catalog/library/marketing/sendfox/internal/cli/which.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/which.go differ
+Files catalog/library/marketing/sendfox/internal/cli/which_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli/which_test.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_audience_health.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_audience_health_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_automation_plan.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_automation_plan_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_campaign_preflight.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_campaign_preflight_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_campaign_review.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_campaign_review_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_contact_dossier.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_contact_dossier_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_export_bundle.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_export_bundle_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_migration_readiness.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cli: workflow_migration_readiness_test.go
+Files catalog/library/marketing/sendfox/internal/client/client.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client/client.go differ
+Files catalog/library/marketing/sendfox/internal/client/client_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client/client_test.go differ
+Files catalog/library/marketing/sendfox/internal/client/client_verify_short_circuit_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client/client_verify_short_circuit_test.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client: platform_budget_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client: platform_rate_limit_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client: sendfox_safety.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/client: sendfox_safety_test.go
+Files catalog/library/marketing/sendfox/internal/cliutil/cliutil_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/cliutil_test.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: credentials.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: credentials_perms_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: credentials_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: creds_perms_eval.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: creds_perms_eval_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: creds_perms_unix.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: creds_perms_windows.go
+Files catalog/library/marketing/sendfox/internal/cliutil/duration.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/duration.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/duration_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/duration_test.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/extractnumber.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/extractnumber.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/extractnumber_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/extractnumber_test.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/fanout.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/fanout.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: filelock.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: filelock_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: filelock_unix.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: filelock_windows.go
+Files catalog/library/marketing/sendfox/internal/cliutil/jwtshape.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/jwtshape.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/jwtshape_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/jwtshape_test.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/odata_date.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/odata_date.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/odata_date_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/odata_date_test.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: paths.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: paths_test.go
+Files catalog/library/marketing/sendfox/internal/cliutil/probe.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/probe.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/ratelimit.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/ratelimit.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil: testenv
+Files catalog/library/marketing/sendfox/internal/cliutil/text.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/text.go differ
+Files catalog/library/marketing/sendfox/internal/cliutil/verifyenv.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/cliutil/verifyenv.go differ
+Files catalog/library/marketing/sendfox/internal/config/config.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/config/config.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/config: config_perms_test.go
+Only in catalog/library/marketing/sendfox/internal/config: config_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal: contract
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal: evidence
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal: learn
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: bound
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/classify.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/classify.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/cli_path.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/cli_path.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/names.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/names.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/shellout.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/shellout.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/shellout_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/shellout_test.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/typemap.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/typemap.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/cobratree/walker.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/cobratree/walker.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: code_orch.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: code_orch_writebody_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: intents.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: platform_gate.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: platform_gate_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp: sendfox_contract_test.go
+Files catalog/library/marketing/sendfox/internal/mcp/tools.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/tools.go differ
+Files catalog/library/marketing/sendfox/internal/mcp/tools_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/mcp/tools_test.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal: platform
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: candidates.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: candidates_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: events.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: events_test.go
+Files catalog/library/marketing/sendfox/internal/store/extras.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store/extras.go differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: learnings.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: learnings_test.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: playbooks.go
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store: playbooks_test.go
+Files catalog/library/marketing/sendfox/internal/store/schema_version_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store/schema_version_test.go differ
+Files catalog/library/marketing/sendfox/internal/store/store.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store/store.go differ
+Files catalog/library/marketing/sendfox/internal/store/upsert_batch_test.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/store/upsert_batch_test.go differ
+Files catalog/library/marketing/sendfox/internal/types/types.go and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/internal/types/types.go differ
+Files catalog/library/marketing/sendfox/manifest.json and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/manifest.json differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: sendfox-pp-cli
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: sendfox-pp-mcp
+Files catalog/library/marketing/sendfox/spec.yaml and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/spec.yaml differ
+Files catalog/library/marketing/sendfox/tools-manifest.json and /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/tools-manifest.json differ
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: workflow-verify-report.json
+Only in /Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli: workflow_verify.yaml

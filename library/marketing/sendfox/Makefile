@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/sendfox-pp-cli ./cmd/sendfox-pp-cli
+	go build -trimpath -o bin/sendfox-pp-cli$(BIN_EXT) ./cmd/sendfox-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/sendfox-pp-mcp ./cmd/sendfox-pp-mcp
+	go build -trimpath -o bin/sendfox-pp-mcp$(BIN_EXT) ./cmd/sendfox-pp-mcp
 
 install-mcp:
 	go install ./cmd/sendfox-pp-mcp

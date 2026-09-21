@@ -1,0 +1,253 @@
+{
+  "api_name": "sendfox",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Activepieces SendFox",
+      "url": "https://github.com/activepieces/activepieces",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Pipedream SendFox",
+      "url": "https://github.com/PipedreamHQ/pipedream",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-21T18:33:43.96936Z",
+  "novel_features": [
+    {
+      "name": "Audience health",
+      "command": "workflow audience-health",
+      "description": "Find duplicate, invalid, suppressed and unassigned contacts from local evidence.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow audience-health --input examples/snapshot.json --agent",
+      "why_it_matters": "Find duplicate, invalid, suppressed and unassigned contacts from local evidence.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "workflow campaign-preflight",
+      "description": "Check draft content, targeting, suppression evidence and sender readiness before any send.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow campaign-preflight --input examples/snapshot.json --agent",
+      "why_it_matters": "Check draft content, targeting, suppression evidence and sender readiness before any send.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Campaign review",
+      "command": "workflow campaign-review",
+      "description": "Combine campaign metrics, link performance and engagement cohorts into an auditable resend plan.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow campaign-review --input examples/snapshot.json --agent",
+      "why_it_matters": "Combine campaign metrics, link performance and engagement cohorts into an auditable resend plan.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Contact dossier",
+      "command": "workflow contact-dossier",
+      "description": "Join contact details, memberships, tags and available engagement into one support packet.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow contact-dossier --input examples/snapshot.json --id 1 --agent",
+      "why_it_matters": "Join contact details, memberships, tags and available engagement into one support packet.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Automation plan",
+      "command": "workflow automation-plan",
+      "description": "Validate a versioned automation definition and produce inactive creation steps.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow automation-plan --input examples/snapshot.json --agent",
+      "why_it_matters": "Validate a versioned automation definition and produce inactive creation steps.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Export bundle",
+      "command": "workflow export-bundle",
+      "description": "Produce a local inventory bundle with per-resource completeness and provenance.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow export-bundle --input examples/snapshot.json --agent",
+      "why_it_matters": "Produce a local inventory bundle with per-resource completeness and provenance.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Migration readiness",
+      "command": "workflow migration-readiness",
+      "description": "Compare local platform snapshots with suppression, mapping, delta and cutover gates.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow migration-readiness --input examples/snapshot.json --agent",
+      "why_it_matters": "Compare local platform snapshots with suppression, mapping, delta and cutover gates.",
+      "group": "Migration evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Audience health",
+      "command": "workflow audience-health",
+      "description": "Find duplicate, invalid, suppressed and unassigned contacts from local evidence.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow audience-health --input examples/snapshot.json --agent",
+      "why_it_matters": "Find duplicate, invalid, suppressed and unassigned contacts from local evidence.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "workflow campaign-preflight",
+      "description": "Check draft content, targeting, suppression evidence and sender readiness before any send.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow campaign-preflight --input examples/snapshot.json --agent",
+      "why_it_matters": "Check draft content, targeting, suppression evidence and sender readiness before any send.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Campaign review",
+      "command": "workflow campaign-review",
+      "description": "Combine campaign metrics, link performance and engagement cohorts into an auditable resend plan.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow campaign-review --input examples/snapshot.json --agent",
+      "why_it_matters": "Combine campaign metrics, link performance and engagement cohorts into an auditable resend plan.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Contact dossier",
+      "command": "workflow contact-dossier",
+      "description": "Join contact details, memberships, tags and available engagement into one support packet.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow contact-dossier --input examples/snapshot.json --id 1 --agent",
+      "why_it_matters": "Join contact details, memberships, tags and available engagement into one support packet.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Automation plan",
+      "command": "workflow automation-plan",
+      "description": "Validate a versioned automation definition and produce inactive creation steps.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow automation-plan --input examples/snapshot.json --agent",
+      "why_it_matters": "Validate a versioned automation definition and produce inactive creation steps.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Export bundle",
+      "command": "workflow export-bundle",
+      "description": "Produce a local inventory bundle with per-resource completeness and provenance.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow export-bundle --input examples/snapshot.json --agent",
+      "why_it_matters": "Produce a local inventory bundle with per-resource completeness and provenance.",
+      "group": "SendFox operations"
+    },
+    {
+      "name": "Migration readiness",
+      "command": "workflow migration-readiness",
+      "description": "Compare local platform snapshots with suppression, mapping, delta and cutover gates.",
+      "rationale": "Combines local artifacts and cross-resource evidence with explicit missing-data gates.",
+      "example": "sendfox-pp-cli workflow migration-readiness --input examples/snapshot.json --agent",
+      "why_it_matters": "Compare local platform snapshots with suppression, mapping, delta and cutover gates.",
+      "group": "Migration evidence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SENDFOX_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "SendFox",
+    "headline": "Operate SendFox campaigns and audiences with typed commands, local evidence and guarded plans.",
+    "value_prop": "Manage the current SendFox API from a predictable CLI and compact MCP surface. Combine campaign, audience and automation evidence locally; evaluate migration readiness without changing an account.",
+    "quickstart": [
+      {
+        "command": "sendfox-pp-cli doctor --dry-run",
+        "comment": "Check the local CLI without account access."
+      },
+      {
+        "command": "sendfox-pp-cli which campaigns --agent",
+        "comment": "Discover supported campaign commands."
+      },
+      {
+        "command": "sendfox-pp-cli workflow campaign-preflight --input examples/snapshot.json --agent",
+        "comment": "Inspect a static campaign readiness report."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429",
+        "fix": "Reduce --rate-limit and honor Retry-After; concurrent processes share the account budget."
+      },
+      {
+        "symptom": "HTTP 402 or 403 account_restricted",
+        "fix": "Check the paid REST plan and account status; do not retry with altered credentials."
+      }
+    ],
+    "when_to_use": "Use this CLI for SendFox audience operations, campaign preparation and reports, automation definitions and deterministic local export comparisons. Inspect plans and completeness before acting.",
+    "anti_triggers": [
+      "Do not use for webhook delivery or purchases/orders: absent from the public contract.",
+      "Do not use a readiness report as authorization to send, activate, change DNS/forms or migrate."
+    ],
+    "recipes": [
+      {
+        "title": "Audience audit",
+        "command": "sendfox-pp-cli workflow audience-health --input examples/snapshot.json --agent",
+        "explanation": "Report hygiene issues using local snapshot evidence."
+      },
+      {
+        "title": "Export inventory",
+        "command": "sendfox-pp-cli workflow export-bundle --input examples/snapshot.json --agent --select data.counts",
+        "explanation": "Select only resource counts from the evidence bundle."
+      },
+      {
+        "title": "Migration evidence",
+        "command": "sendfox-pp-cli workflow migration-readiness --input examples/snapshot.json --agent",
+        "explanation": "Produce a fail-closed readiness report; missing Kit evidence remains unknown."
+      },
+      {
+        "title": "Campaign preflight",
+        "command": "sendfox-pp-cli workflow campaign-preflight --input examples/snapshot.json --agent",
+        "explanation": "Check content, targeting and sender evidence without sending."
+      },
+      {
+        "title": "Campaign review",
+        "command": "sendfox-pp-cli workflow campaign-review --input examples/snapshot.json --agent",
+        "explanation": "Read counters and links and produce an unscheduled resend plan."
+      },
+      {
+        "title": "Contact dossier",
+        "command": "sendfox-pp-cli workflow contact-dossier --input examples/snapshot.json --id 1 --agent",
+        "explanation": "Join the selected synthetic contact with memberships and activity."
+      },
+      {
+        "title": "Inactive automation",
+        "command": "sendfox-pp-cli workflow automation-plan --input examples/snapshot.json --agent",
+        "explanation": "Compile dependent creation requests with active=false."
+      },
+      {
+        "title": "CSV audit",
+        "command": "sendfox-pp-cli contacts audit-csv --file examples/contacts.csv --agent",
+        "explanation": "Inspect malformed, duplicate and suppressed rows before any import."
+      },
+      {
+        "title": "Draft request preview",
+        "command": "sendfox-pp-cli campaigns create --title \"September notes\" --subject \"September notes\" --from-email \"editor@example.com\" --from-name \"Example Editor\" --html \"\u003cp\u003eNews\u003c/p\u003e\" --dry-run --agent",
+        "explanation": "Validate and preview a draft request; no account request is made."
+      }
+    ],
+    "trigger_phrases": [
+      "preflight a SendFox campaign",
+      "audit SendFox audience",
+      "plan an inactive SendFox automation",
+      "use sendfox",
+      "run sendfox"
+    ]
+  }
+}

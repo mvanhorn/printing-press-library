@@ -1,0 +1,14 @@
+{
+  "body": {
+    "email": "reader@example.com",
+    "first_name": "",
+    "last_name": "",
+    "lists": [
+      12
+    ]
+  },
+  "execute": false,
+  "method": "POST",
+  "note": "Existing contact/list semantics and suppression must be reviewed before execution.",
+  "path": "/contacts"
+}

@@ -1,0 +1,499 @@
+{
+  "schema_version": 1,
+  "resources": {
+    "contacts": {
+      "items": [
+        {
+          "id": 1,
+          "email": "reader@example.com",
+          "first_name": "Reader",
+          "unsubscribed_at": null
+        },
+        {
+          "id": 2,
+          "email": "suppressed@example.com",
+          "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 2,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "unsubscribed": {
+      "items": [
+        {
+          "id": 2,
+          "email": "suppressed@example.com",
+          "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "lists": {
+      "items": [
+        {
+          "id": 12,
+          "name": "Newsletter"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "memberships": {
+      "items": [
+        {
+          "contact_id": 1,
+          "list_id": 12
+        },
+        {
+          "contact_id": 2,
+          "list_id": 12
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 2,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "tags": {
+      "items": [
+        {
+          "id": 3,
+          "name": "Reader"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "contact_tags": {
+      "items": [
+        {
+          "contact_id": 1,
+          "tag_id": 3
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "contact_fields": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "campaigns": {
+      "items": [
+        {
+          "id": 42,
+          "title": "Issue 42",
+          "subject": "A useful idea",
+          "status": "sent",
+          "lists": [
+            12
+          ]
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "campaign_stats": {
+      "items": [
+        {
+          "campaign_id": 42,
+          "sent_count": 2,
+          "unique_open_count": 1,
+          "unique_click_count": 1,
+          "open_rate": 50,
+          "click_rate": 50,
+          "link_stats": [
+            {
+              "url": "https://example.com/story",
+              "clicks": 1
+            }
+          ]
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "engagement": {
+      "items": [
+        {
+          "campaign_id": 42,
+          "type": "non_openers",
+          "contact_id": 1,
+          "email": "reader@example.com"
+        },
+        {
+          "campaign_id": 42,
+          "type": "non_openers",
+          "contact_id": 2,
+          "email": "suppressed@example.com"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 2,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "activity": {
+      "items": [
+        {
+          "contact_id": 1,
+          "campaign_id": 42,
+          "type": "sent"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "forms": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "domains": {
+      "items": [
+        {
+          "id": 8,
+          "domain": "example.com",
+          "validated_at": "2026-09-21T18:48:22.330293Z",
+          "dns": {}
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "automations": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "automation_emails": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    }
+  },
+  "campaign": {
+    "id": 42,
+    "title": "Issue 43",
+    "subject": "A useful idea",
+    "html": "<p>Hello <a href=\"https://example.com/story\">reader</a></p>",
+    "from_name": "Example Newsletter",
+    "from_email": "newsletter@example.com",
+    "lists": [
+      12
+    ]
+  },
+  "automation": {
+    "title": "Welcome",
+    "trigger_type": "apply_list",
+    "trigger_list_id": 12,
+    "active": false,
+    "emails": [
+      {
+        "subject": "Welcome",
+        "html": "<p>Hello</p>",
+        "from_name": "Example Newsletter",
+        "from_email": "newsletter@example.com"
+      },
+      {
+        "subject": "Next idea",
+        "html": "<p>Next</p>",
+        "from_name": "Example Newsletter",
+        "from_email": "newsletter@example.com"
+      }
+    ]
+  },
+  "kit": {
+    "schema_version": 1,
+    "resources": {
+      "contacts": {
+        "items": [
+          {
+            "id": 1,
+            "email": "reader@example.com",
+            "first_name": "Reader",
+            "unsubscribed_at": null
+          },
+          {
+            "id": 2,
+            "email": "suppressed@example.com",
+            "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "unsubscribed": {
+        "items": [
+          {
+            "id": 2,
+            "email": "suppressed@example.com",
+            "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "lists": {
+        "items": [
+          {
+            "id": 12,
+            "name": "Newsletter"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "tags": {
+        "items": [
+          {
+            "id": 3,
+            "name": "Reader"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contact_fields": {
+        "items": [],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "forms": {
+        "items": [],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "automations": {
+        "items": [],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      }
+    }
+  },
+  "previous": {
+    "schema_version": 1,
+    "resources": {
+      "contacts": {
+        "items": [
+          {
+            "id": 1,
+            "email": "reader@example.com",
+            "first_name": "Reader",
+            "unsubscribed_at": null
+          },
+          {
+            "id": 2,
+            "email": "suppressed@example.com",
+            "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "unsubscribed": {
+        "items": [
+          {
+            "id": 2,
+            "email": "suppressed@example.com",
+            "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "lists": {
+        "items": [
+          {
+            "id": 12,
+            "name": "Newsletter"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "tags": {
+        "items": [
+          {
+            "id": 3,
+            "name": "Reader"
+          }
+        ],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contact_fields": {
+        "items": [],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "forms": {
+        "items": [],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "automations": {
+        "items": [],
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      }
+    }
+  },
+  "mappings": [
+    {
+      "kind": "lists",
+      "source": "12",
+      "target": "12",
+      "approved": true
+    },
+    {
+      "kind": "tags",
+      "source": "3",
+      "target": "3",
+      "approved": true
+    }
+  ]
+}

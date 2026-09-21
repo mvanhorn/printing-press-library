@@ -1,0 +1,298 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "schema_version": 1,
+    "workflow": "migration-readiness",
+    "ready": false,
+    "findings": [],
+    "blockers": [],
+    "unknowns": [
+      "Live links, current sending-domain readiness, pilot delivery and sequence progress remain unverified"
+    ],
+    "source_evidence": {
+      "activity": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "automation_emails": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "automations": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "campaign_stats": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "campaigns": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contact_fields": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contact_tags": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contacts": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "domains": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "engagement": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "forms": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "lists": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "memberships": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "tags": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "unsubscribed": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      }
+    },
+    "proposed_actions": [
+      {
+        "execute": false,
+        "steps": [
+          "inventory",
+          "approve mappings",
+          "suppression audit",
+          "offline pilot validation",
+          "late-change delta",
+          "human cutover review"
+        ],
+        "type": "migration_plan"
+      }
+    ],
+    "data": {
+      "api_gaps": [
+        "webhooks",
+        "purchases_orders",
+        "snippets_templates",
+        "public_posts_feed",
+        "growth_aggregate_analytics",
+        "richer_behavioral_filters",
+        "automation_enrollment_sequence_progress"
+      ],
+      "cutover_checklist": [
+        "Approve mappings and all declared API gaps",
+        "Verify unsubscribe/suppression parity and refresh late-change delta",
+        "Validate pilot counts, samples, exclusions and links",
+        "Verify sending domain, timezone and account entitlement",
+        "Human approval before form/DNS changes, sends or automation activation",
+        "Retain original provider until acceptance and rollback prerequisites are signed off"
+      ],
+      "delta": {
+        "added": [],
+        "available": true,
+        "changed": [],
+        "complete": true,
+        "missing_now": [],
+        "newly_suppressed": [],
+        "note": "Missing rows are observations, never deletion instructions."
+      },
+      "mapping_suggestions": [],
+      "mapping_validation": [
+        {
+          "approved": true,
+          "issue": "",
+          "kind": "lists",
+          "source": "12",
+          "target": "12"
+        },
+        {
+          "approved": true,
+          "issue": "",
+          "kind": "tags",
+          "source": "3",
+          "target": "3"
+        }
+      ],
+      "pilot_validation": {
+        "actual_sends_verified": false,
+        "domain_evidence": [
+          {
+            "dns": {},
+            "domain": "example.com",
+            "id": 8,
+            "validated_at": "2026-09-21T18:48:22.330293Z"
+          }
+        ],
+        "sample": [
+          {
+            "email": "reader@example.com",
+            "first_name": "Reader",
+            "id": 1,
+            "unsubscribed_at": null
+          },
+          {
+            "email": "suppressed@example.com",
+            "id": 2,
+            "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+          }
+        ],
+        "source_count": 2,
+        "target_count": 2
+      },
+      "reconciliation": {
+        "input_count": 2,
+        "skip_count": 2,
+        "skips": [
+          {
+            "email": "reader@example.com",
+            "reason": "already_exists",
+            "row": null
+          },
+          {
+            "email": "suppressed@example.com",
+            "reason": "suppressed",
+            "row": null
+          }
+        ],
+        "to_create": [],
+        "to_create_count": 0
+      },
+      "rollback_artifact": {
+        "automatic_rollback": false,
+        "limits": [
+          "Cannot unsend messages",
+          "Cannot restore unsupported sequence progress",
+          "No tombstone/change-feed guarantee"
+        ],
+        "manual_prerequisites": [
+          "Keep original exports and provider configuration",
+          "Record IDs of any subsequently authorized creations",
+          "Preserve suppression updates on both providers"
+        ],
+        "source_ids": [
+          "1",
+          "2"
+        ],
+        "source_snapshot_sha256": "8adf0ef971a1d0716ad45aaf8198d0e15f3acf94543a3fd00f7c6020238d8758",
+        "target_ids": [
+          "1",
+          "2"
+        ],
+        "target_snapshot_sha256": "76ac94bd5ed6eef70a4e480329442381a328444ea0e79c68726fc5a16e5d6f08"
+      },
+      "suppression_audit": {
+        "conflicts": [],
+        "source_count": 1,
+        "target_count": 1
+      }
+    }
+  }
+}

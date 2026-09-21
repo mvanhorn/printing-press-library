@@ -1,0 +1,14 @@
+{
+  "approval_required": true,
+  "body": {
+    "gdpr_required": true,
+    "lists": [
+      12
+    ],
+    "title": "Newsletter"
+  },
+  "execute": false,
+  "method": "POST",
+  "note": "Use forms create with explicit approvals after review. Never put the API token in browser HTML.",
+  "path": "/forms"
+}

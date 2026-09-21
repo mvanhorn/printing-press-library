@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "id": "sendfox-current-contract-and-evidence-safety",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260921-133106-1fbd7f53",
+  "base_printing_press_version": "4.32.4",
+  "summary": "Keep complete SendFox contract validation, explicit mutation approval, safe read-only retries and fail-closed local evidence workflows across reprints.",
+  "reason": "Draft defaults and suppression/completeness evidence are necessary for agent operation; absent API capabilities must never be inferred or simulated. API pagination metadata overrides local page-size guesses.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/sendfox_absorbed.go",
+    "internal/cli/sendfox_bulk.go",
+    "internal/cli/sendfox_compatibility.go",
+    "internal/cli/sendfox_csv_audit_csv.go",
+    "internal/cli/sendfox_csv_import_csv.go",
+    "internal/cli/sendfox_csv_reconcile_csv.go",
+    "internal/cli/sendfox_evidence.go",
+    "internal/cli/sendfox_policy.go",
+    "internal/cli/sendfox_sql.go",
+    "internal/cli/sync.go",
+    "internal/client/client.go",
+    "internal/client/sendfox_safety.go",
+    "internal/config/sendfox_token.go",
+    "internal/contract/contract.go",
+    "internal/contract/operations.json",
+    "internal/evidence/audience.go",
+    "internal/evidence/campaign.go",
+    "internal/evidence/plans.go",
+    "internal/evidence/snapshot.go",
+    "internal/mcp/code_orch.go"
+  ],
+  "validated_outcome": "60/60 documented operations exercised against a loopback mock; seven evidence workflows have behavioral and negative tests. Live behavior unverified."
+}

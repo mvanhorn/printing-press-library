@@ -2,8 +2,8 @@
 # See docs/spec-agentcookie-secrets-bus-v2-adoption.md
 schema_version = 2
 name = "sendfox-pp-cli"
-display_name = "Sendfox"
-description = "SendFox email marketing API for authenticated user details, contact lists, contacts, unsubscribe operations"
+display_name = "SendFox"
+description = "Operate SendFox campaigns and audiences with typed commands, local evidence and guarded plans."
 project_kind = "cli"
 
 [secrets.file]

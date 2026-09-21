@@ -1,58 +1,28 @@
 package cli
 
-import "testing"
+import (
+	"github.com/mvanhorn/printing-press-library/library/marketing/sendfox/internal/contract"
+	"github.com/mvanhorn/printing-press-library/library/marketing/sendfox/internal/evidence"
+	"testing"
+)
 
 func TestAuditCSVContactsFindsInvalidAndDuplicateEmails(t *testing.T) {
-	report := auditCSVContacts([]csvContact{
-		{Email: "Reader@example.com", FirstName: "Jane"},
-		{Email: "bad-email"},
-		{Email: "reader@example.com", FirstName: "Dupe"},
-	}, []int{123})
-
-	if got := report["valid_emails"]; got != 2 {
-		t.Fatalf("valid_emails = %v, want 2", got)
+	r := evidence.ReconcileCSV([]evidence.Row{{"email": "Reader@example.com"}, {"email": "bad-email"}, {"email": "reader@example.com"}}, evidence.Snapshot{})
+	reasons := map[string]int{}
+	for _, row := range r.Data["skips"].([]evidence.Row) {
+		reasons[row["reason"].(string)]++
 	}
-	if got := report["invalid_count"]; got != 1 {
-		t.Fatalf("invalid_count = %v, want 1", got)
-	}
-	if got := report["duplicate_count"]; got != 1 {
-		t.Fatalf("duplicate_count = %v, want 1", got)
+	if reasons["invalid_email"] != 1 || reasons["duplicate_input"] != 1 || r.Data["to_create_count"] != 1 {
+		t.Fatal(r.Data)
 	}
 }
-
-func TestLaunchPlanDoesNotInventCampaignWriteAPI(t *testing.T) {
-	plan := launchPlanPayload(123, "June newsletter", "https://example.com", "subscribers.csv", nil)
-	if got := plan["api_gap"]; got == "" {
-		t.Fatal("expected api_gap to call out dashboard-only campaign writes")
+func TestCapabilitiesReflectCurrentCampaignAPIAndWebhookGap(t *testing.T) {
+	if op, _ := contract.Match("POST", "/campaigns"); op == nil {
+		t.Fatal("current campaign creation missing")
 	}
-	commands, ok := plan["commands"].([]string)
-	if !ok || len(commands) == 0 {
-		t.Fatalf("commands missing: %#v", plan["commands"])
-	}
-	for _, cmd := range commands {
-		if cmd == "" {
-			t.Fatal("empty launch-plan command")
+	for _, method := range []string{"GET", "POST", "DELETE"} {
+		if op, _ := contract.Match(method, "/webhooks"); op != nil {
+			t.Fatal("invented webhook capability")
 		}
-	}
-}
-
-func TestCapabilitiesIncludeDashboardOnlyHandoffs(t *testing.T) {
-	var sawCampaigns, sawWebhooks bool
-	for _, cap := range sendfoxCapabilities() {
-		switch cap.Resource {
-		case "campaigns":
-			sawCampaigns = true
-			if cap.Create || cap.MutationOK {
-				t.Fatalf("campaigns should not advertise public create support: %#v", cap)
-			}
-		case "webhooks":
-			sawWebhooks = true
-			if cap.PublicAPI {
-				t.Fatalf("webhooks should be dashboard handoff-only: %#v", cap)
-			}
-		}
-	}
-	if !sawCampaigns || !sawWebhooks {
-		t.Fatalf("expected campaign and webhook capability rows")
 	}
 }

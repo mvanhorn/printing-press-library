@@ -1,0 +1,7 @@
+tools-audit: 2 pending finding(s)
+
+KIND                  COMMAND          FILE:LINE                       EVIDENCE
+thin-short            list             platform_client.go:517          List client profiles
+thin-short            list             teach.go:868                    List recorded learnings
+
+next: thin-short on list (platform_client.go:517)

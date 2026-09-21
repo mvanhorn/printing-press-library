@@ -1,0 +1,2816 @@
+openapi: 3.0.3
+info:
+  title: SendFox API
+  description: |
+    # Introduction
+    SendFox's REST API lets you manage contacts, campaigns, lists, automations, and forms programmatically. It uses OAuth 2.0 for authentication.
+
+    Compatible with AI agents (Claude, ChatGPT, etc.) via the OpenAPI spec. Available at `GET /openapi.yaml`.
+
+    # Authentication
+    ### Personal Access Token
+    Create a personal access token at https://sendfox.com/account/oauth. Once created, use it in the `Authorization` header:
+    ```
+    Authorization: Bearer {TOKEN}
+    ```
+
+    ### OAuth 2.0 Client
+    For integrations that require user authentication, create an OAuth 2.0 client at https://sendfox.com/account/oauth
+
+    * Authorization URL: https://sendfox.com/oauth/authorize
+    * Access Token URL: https://sendfox.com/oauth/token
+
+    # Rate Limits
+    API requests are limited to **60 requests per minute** per authenticated user. Rate limit status is returned in response headers:
+    - `X-RateLimit-Limit`: Maximum requests per minute
+    - `X-RateLimit-Remaining`: Remaining requests in current window
+    - `Retry-After`: Seconds until rate limit resets (only on 429 responses)
+
+    # Error Responses
+    All error responses use standard HTTP status codes and Laravel's default error format:
+    - `message`: Human-readable error description
+    - `errors`: Field-level validation errors (on 422 responses)
+
+    # Plans & API Access
+    API access requires a **Lifetime** or **Empire** plan. Free users cannot use the API.
+
+    Accounts restricted by SendFox cannot use authenticated API endpoints. These requests return `403 Forbidden` with the error code `account_restricted` and a link to the account status page.
+  version: 1.4.0
+  x-logo:
+    url: /img/sendfox-logo.svg
+servers:
+  - url: https://api.sendfox.com
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://sendfox.com/oauth/authorize
+          tokenUrl: https://sendfox.com/oauth/token
+          scopes: {}
+
+  responses:
+    Forbidden:
+      description: >-
+        Forbidden. Most often an ownership/authorization failure (Laravel's
+        default `{"message": "..."}` shape). If the account is restricted by
+        SendFox, the response instead carries the structured
+        `account_restricted` body with a link to the account status page.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/Error'
+              - $ref: '#/components/schemas/AccountRestrictedError'
+
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        ip_address:
+          type: string
+        unsubscribed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - email
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        subject:
+          type: string
+        preview_text:
+          type: string
+          maxLength: 191
+          nullable: true
+          description: Inbox preview snippet shown beneath the subject line in most email clients.
+        html:
+          type: string
+        from_name:
+          type: string
+        from_email:
+          type: string
+          format: email
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        timezone:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - title
+        - subject
+        - html
+        - from_name
+        - from_email
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Human-readable error description
+        errors:
+          type: object
+          description: Field-level validation errors (on 422 responses)
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    AccountRestrictedError:
+      type: object
+      required:
+        - error
+        - code
+        - account_status_url
+      properties:
+        error:
+          type: string
+          example: API access is unavailable while the account is restricted.
+        code:
+          type: string
+          enum:
+            - account_restricted
+        account_status_url:
+          type: string
+          format: uri
+          example: https://sendfox.com/account/status
+
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        landing_page_id:
+          type: integer
+          nullable: true
+        redirect_url:
+          type: string
+          nullable: true
+        gdpr_required:
+          type: boolean
+        url:
+          type: string
+          description: Public subscribe URL
+        lists:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactList'
+          description: Attached lists (included on create/update)
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - title
+        - lists
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        contacts_count:
+          type: integer
+        contact_limit:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserContactField:
+      type: object
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+          description: Human-readable field label
+        name:
+          type: string
+          description: Machine-readable slug (auto-generated from label)
+        type:
+          type: string
+          enum: [text, number, date]
+          description: Field type
+      required:
+        - label
+
+    WhitelabelDomain:
+      type: object
+      properties:
+        id:
+          type: integer
+        domain:
+          type: string
+        sendgrid_whitelabel_domain_id:
+          type: integer
+          nullable: true
+        validated_at:
+          type: string
+          format: date-time
+          nullable: true
+        dns:
+          type: object
+          description: DNS records from SendGrid (included on show)
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - domain
+
+    ContactList:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        user_id:
+          type: integer
+        average_email_open_percent:
+          type: number
+          format: float
+        average_email_click_percent:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - name
+
+    ContactTag:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        name:
+          type: string
+        color:
+          type: string
+          description: Brand palette hex color (e.g. "#FF644D").
+        contacts_count:
+          type: integer
+          description: Number of contacts carrying the tag (included on list/show).
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - name
+
+    Automation:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        title:
+          type: string
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        automation_triggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationTrigger'
+        automation_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutomationItem'
+
+    AutomationTrigger:
+      type: object
+      properties:
+        id:
+          type: integer
+        automation_id:
+          type: integer
+        type:
+          type: string
+          enum: [apply_list, open_campaign, click_campaign]
+        list_id:
+          type: integer
+          nullable: true
+        campaign_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AutomationItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        automation_id:
+          type: integer
+        campaign_id:
+          type: integer
+        delay_hours:
+          type: integer
+        send_order:
+          type: integer
+        campaign:
+          $ref: '#/components/schemas/Campaign'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ContactFilter:
+      type: object
+      description: >-
+        An engagement filter over the account's contacts. Every condition is AND-ed. Omitting the
+        object entirely means "all contacts".
+      properties:
+        status:
+          type: string
+          enum: [active, engaged, inactive, new, unconfirmed, unsubscribed, bounced, invalid]
+        last_opened_after:
+          type: string
+          format: date-time
+        last_opened_before:
+          type: string
+          format: date-time
+          description: Excludes contacts who never opened — use never_opened for those
+        last_clicked_after:
+          type: string
+          format: date-time
+        last_clicked_before:
+          type: string
+          format: date-time
+        last_sent_after:
+          type: string
+          format: date-time
+        last_sent_before:
+          type: string
+          format: date-time
+        created_after:
+          type: string
+          format: date-time
+        created_before:
+          type: string
+          format: date-time
+        never_opened:
+          type: boolean
+        never_clicked:
+          type: boolean
+        never_sent:
+          type: boolean
+        in_list_ids:
+          type: array
+          items:
+            type: integer
+        not_in_list_ids:
+          type: array
+          items:
+            type: integer
+        tag_ids:
+          type: array
+          items:
+            type: integer
+        not_tag_ids:
+          type: array
+          items:
+            type: integer
+        opened_campaign_id:
+          type: integer
+          description: Bulk actions only — not available on GET /contacts
+        not_opened_campaign_id:
+          type: integer
+          description: >-
+            Contacts the campaign sent to who did not open it. Bulk actions only — not available
+            on GET /contacts
+        clicked_campaign_id:
+          type: integer
+          description: Bulk actions only — not available on GET /contacts
+
+    BulkContactAction:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        action:
+          type: string
+          enum: [apply_tag, remove_tag, add_to_list, remove_from_list]
+        target_id:
+          type: integer
+        dry_run:
+          type: boolean
+        filter:
+          type: string
+          description: Human-readable rendering of the filter that was applied
+        matched_count:
+          type: integer
+          nullable: true
+          description: Number of contacts the filter matched; null until counted
+        processed_count:
+          type: integer
+        error:
+          type: string
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    CampaignStats:
+      type: object
+      properties:
+        link_stats:
+          type: array
+          description: >-
+            The campaign's links ranked by click count, most-clicked first. Present only when
+            include_link_stats is true — it is the one part of this payload that queries rather
+            than reading a stored counter.
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              clicks:
+                type: integer
+        sent_count:
+          type: integer
+        unique_open_count:
+          type: integer
+        unique_click_count:
+          type: integer
+        unsubscribe_count:
+          type: integer
+        bounce_count:
+          type: integer
+        spam_count:
+          type: integer
+        open_rate:
+          type: number
+          format: float
+        click_rate:
+          type: number
+          format: float
+        unsubscribe_rate:
+          type: number
+          format: float
+        bounce_rate:
+          type: number
+          format: float
+        spam_rate:
+          type: number
+          format: float
+
+    BatchResult:
+      type: object
+      properties:
+        created:
+          type: integer
+        updated:
+          type: integer
+
+security:
+  - oauth2: []
+
+paths:
+  /contacts:
+    get:
+      operationId: listContacts
+      tags:
+        - Contacts
+      summary: List contacts
+      description: |
+        Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`).
+
+        Supports engagement filtering through `filter[...]` query parameters, so you can answer
+        questions like "who last opened over a year ago" without paging the whole account. All
+        filter conditions are AND-ed. Pass `count_only=true` to get just the number of matches —
+        the cheapest way to size an audience before acting on it.
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search query for filtering contacts
+        - name: unsubscribed
+          in: query
+          schema:
+            type: boolean
+          description: Filter unsubscribed contacts
+        - name: email
+          in: query
+          schema:
+            type: string
+          description: Filter by specific email
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+          description: Contacts per page
+        - name: count_only
+          in: query
+          schema:
+            type: boolean
+          description: Return only the number of matching contacts, with no contact records
+        - name: filter[status]
+          in: query
+          schema:
+            type: string
+            enum: [active, engaged, inactive, new, unconfirmed, unsubscribed, bounced, invalid]
+          description: Engagement status
+        - name: filter[last_opened_after]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts whose most recent open is on or after this date
+        - name: filter[last_opened_before]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: >-
+            Contacts whose most recent open is before this date. Excludes contacts who never
+            opened — use filter[never_opened] for those.
+        - name: filter[last_clicked_after]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts whose most recent click is on or after this date
+        - name: filter[last_clicked_before]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts whose most recent click is before this date
+        - name: filter[last_sent_after]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts last sent to on or after this date
+        - name: filter[last_sent_before]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts last sent to before this date
+        - name: filter[created_after]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts created on or after this date
+        - name: filter[created_before]
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Contacts created before this date
+        - name: filter[never_opened]
+          in: query
+          schema:
+            type: boolean
+          description: Only contacts who have never opened an email
+        - name: filter[never_clicked]
+          in: query
+          schema:
+            type: boolean
+          description: Only contacts who have never clicked a link
+        - name: filter[never_sent]
+          in: query
+          schema:
+            type: boolean
+          description: Only contacts who have never been sent an email
+        - name: filter[in_list_ids]
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+          description: Only contacts in any of these lists
+        - name: filter[not_in_list_ids]
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+          description: Exclude contacts in any of these lists
+        - name: filter[tag_ids]
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+          description: Only contacts carrying any of these tags
+        - name: filter[not_tag_ids]
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+          description: Exclude contacts carrying any of these tags
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Contact'
+                      current_page:
+                        type: integer
+                      total:
+                        type: integer
+                      per_page:
+                        type: integer
+                  - type: object
+                    description: Returned when count_only is true
+                    properties:
+                      count:
+                        type: integer
+                      filter:
+                        type: string
+                        description: Human-readable rendering of the filter that was applied
+        '401':
+          description: Unauthorized
+        '422':
+          description: Invalid filter, or a list/tag id the account does not own
+    post:
+      operationId: createContact
+      tags:
+        - Contacts
+      summary: Create a new contact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                ip_address:
+                  type: string
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of list IDs to add the contact to
+                contact_fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: Contact created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Contact limit exceeded
+
+  /contacts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getContact
+      tags:
+        - Contacts
+      summary: Get a specific contact
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact not found
+    patch:
+      operationId: updateContact
+      tags:
+        - Contacts
+      summary: Update a contact
+      description: Update contact details including name, list memberships, and custom fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of list IDs (replaces all current list memberships)
+                contact_fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+                        nullable: true
+      responses:
+        '200':
+          description: Contact updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteContact
+      tags:
+        - Contacts
+      summary: Delete a contact
+      description: Soft-deletes a contact and cancels any scheduled deliverables
+      responses:
+        '200':
+          description: Contact deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact not found
+
+  /contacts/{id}/activity:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getContactActivity
+      tags:
+        - Contacts
+      summary: Get email activity for a contact
+      description: Returns paginated email deliverables and contact-level engagement summary
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contact:
+                    type: object
+                    properties:
+                      last_sent_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      last_opened_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      last_clicked_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      unsubscribed_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      bounced_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                  deliverables:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            campaign_title:
+                              type: string
+                            campaign_id:
+                              type: integer
+                            sent_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                            opened_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                            clicked_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                            bounced_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                            unsubscribed_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                            spam_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact not found
+
+  /contacts/batch:
+    post:
+      operationId: batchImportContacts
+      tags:
+        - Contacts
+      summary: Batch import contacts
+      description: Import up to 1,000 contacts in a single request. Creates new contacts or updates existing ones.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contacts
+              properties:
+                contacts:
+                  type: array
+                  maxItems: 1000
+                  items:
+                    type: object
+                    required:
+                      - email
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                      first_name:
+                        type: string
+                      last_name:
+                        type: string
+                      lists:
+                        type: array
+                        items:
+                          type: integer
+      responses:
+        '200':
+          description: Batch import results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResult'
+        '402':
+          description: Contact limit would be exceeded
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /contacts/bulk-actions:
+    post:
+      operationId: createBulkContactAction
+      tags:
+        - Contacts
+      summary: Apply a tag or list change to every contact matching a filter
+      description: |
+        Queues one action against every contact the filter matches, applied in chunks in the
+        background. Returns immediately with an id to poll.
+
+        **Run with `dry_run: true` first.** A dry run reports how many contacts match and changes
+        nothing — it is the only way to catch a filter that matches more than intended, and a bulk
+        write is not undoable. An empty filter (which would match the whole account) is rejected
+        unless it is a dry run.
+
+        Per-campaign conditions (`opened_campaign_id`, `not_opened_campaign_id`,
+        `clicked_campaign_id`) are available here but not on `GET /contacts`, because they are
+        resolved in the background rather than inside a request.
+
+        Bulk delete and bulk unsubscribe are deliberately not offered.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+                - target_id
+              properties:
+                action:
+                  type: string
+                  enum: [apply_tag, remove_tag, add_to_list, remove_from_list]
+                target_id:
+                  type: integer
+                  description: The tag id (apply_tag/remove_tag) or list id (add_to_list/remove_from_list)
+                dry_run:
+                  type: boolean
+                  default: false
+                  description: When true, only count the matches — nothing is modified
+                filter:
+                  $ref: '#/components/schemas/ContactFilter'
+      responses:
+        '202':
+          description: Queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkContactAction'
+        '403':
+          description: The account is restricted
+        '422':
+          description: >-
+            Invalid filter, an unowned target or filter id, or an empty filter on a non-dry run
+
+  /contacts/bulk-actions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getBulkContactAction
+      tags:
+        - Contacts
+      summary: Check the progress of a bulk contact action
+      description: >-
+        For a dry run, matched_count is the answer and nothing was modified. A run whose match set
+        exceeds the per-request ceiling fails without applying anything.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkContactAction'
+        '404':
+          description: Not found
+
+  /contacts/unsubscribed:
+    get:
+      operationId: listUnsubscribedContacts
+      tags:
+        - Contacts
+      summary: List unsubscribed contacts
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search query for filtering contacts
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+
+  /unsubscribe:
+    patch:
+      operationId: unsubscribeContact
+      tags:
+        - Contacts
+      summary: Unsubscribe a contact by email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '200':
+          description: Contact unsubscribed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /contact-tags:
+    get:
+      operationId: listContactTags
+      tags:
+        - Contact Tags
+      summary: List contact tags
+      description: Lists the account's tags, newest first, each with its contact count. Distinct from the legacy /tags endpoints, which operate on lists.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContactTag'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '401':
+          description: Unauthorized
+    post:
+      operationId: createContactTag
+      tags:
+        - Contact Tags
+      summary: Create a contact tag
+      description: Creates a tag. A brand color is auto-assigned when none is provided. Tag names are unique per account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 191
+                color:
+                  type: string
+                  description: Optional brand palette hex color; auto-assigned when omitted.
+              required:
+                - name
+      responses:
+        '201':
+          description: Tag created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactTag'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Validation error (duplicate name or invalid color)
+
+  /contact-tags/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getContactTag
+      tags:
+        - Contact Tags
+      summary: Get a contact tag
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactTag'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Tag not found
+    patch:
+      operationId: updateContactTag
+      tags:
+        - Contact Tags
+      summary: Update a contact tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 191
+                color:
+                  type: string
+      responses:
+        '200':
+          description: Tag updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactTag'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteContactTag
+      tags:
+        - Contact Tags
+      summary: Delete a contact tag
+      description: Deletes the tag. Tagged contacts are kept — only the tag and its attachments (including campaign audience use) are removed.
+      responses:
+        '200':
+          description: Tag deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Tag not found
+
+  /contacts/{contact_id}/tags:
+    parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listContactTagsForContact
+      tags:
+        - Contact Tags
+      summary: List a contact's tags
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactTag'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact not found
+
+  /contacts/{contact_id}/tags/{tag_id}:
+    parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: tag_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: attachContactTag
+      tags:
+        - Contact Tags
+      summary: Attach a tag to a contact
+      description: Idempotent. Returns the contact's tags after the change.
+      responses:
+        '200':
+          description: Tag attached
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactTag'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact or tag not found
+    delete:
+      operationId: detachContactTag
+      tags:
+        - Contact Tags
+      summary: Remove a tag from a contact
+      responses:
+        '200':
+          description: Tag removed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactTag'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact or tag not found
+
+  /campaigns:
+    get:
+      operationId: listCampaigns
+      tags:
+        - Campaigns
+      summary: List campaigns
+      description: Returns a paginated list of campaigns (100 per page)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Campaign'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+    post:
+      operationId: createCampaign
+      tags:
+        - Campaigns
+      summary: Create a new campaign
+      description: |
+        Creates a campaign as a draft. To send it, use the send endpoint or provide scheduled_at.
+        Subject lines cannot start with "RE:" or "FWD:".
+        At least one list is required if scheduled_at is provided.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 191
+                subject:
+                  type: string
+                  maxLength: 191
+                preview_text:
+                  type: string
+                  maxLength: 191
+                  nullable: true
+                  description: Inbox preview snippet shown beneath the subject line. Optional.
+                html:
+                  type: string
+                  maxLength: 1000000
+                  description: Email body HTML content
+                from_name:
+                  type: string
+                  maxLength: 191
+                from_email:
+                  type: string
+                  format: email
+                  maxLength: 191
+                scheduled_at:
+                  type: string
+                  format: date-time
+                  description: Schedule send time (omit for draft). Must include at least one list.
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of list IDs to send to
+                excluded_lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: List IDs whose contacts should be excluded from the send. Exclusion wins over inclusion.
+                to_contact_tags:
+                  type: array
+                  items:
+                    type: integer
+                  description: Tag IDs whose contacts should receive the campaign. Can be combined with lists.
+                excluded_contact_tags:
+                  type: array
+                  items:
+                    type: integer
+                  description: Tag IDs whose contacts should be excluded from the send. Exclusion wins over inclusion.
+              required:
+                - title
+                - subject
+                - html
+                - from_name
+                - from_email
+      responses:
+        '201':
+          description: Campaign created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '403':
+          description: Forbidden (not subscribed or cannot schedule)
+        '422':
+          description: Validation error or configuration required (e.g., timezone not set)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /campaigns/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getCampaign
+      tags:
+        - Campaigns
+      summary: Get a specific campaign
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Campaign not found
+    patch:
+      operationId: updateCampaign
+      tags:
+        - Campaigns
+      summary: Update a draft campaign
+      description: Only draft campaigns (not yet sent) can be updated. All fields are optional.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 191
+                subject:
+                  type: string
+                  maxLength: 191
+                preview_text:
+                  type: string
+                  maxLength: 191
+                  nullable: true
+                  description: Inbox preview snippet. Pass null to clear.
+                html:
+                  type: string
+                  maxLength: 1000000
+                from_name:
+                  type: string
+                  maxLength: 191
+                from_email:
+                  type: string
+                  format: email
+                  maxLength: 191
+                scheduled_at:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Set to null to unschedule, or a datetime to schedule
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Replaces all list assignments
+                excluded_lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Replaces the excluded lists (contacts in these lists are removed from the send).
+                to_contact_tags:
+                  type: array
+                  items:
+                    type: integer
+                  description: Replaces the included tag audience (contacts carrying these tags receive the campaign).
+                excluded_contact_tags:
+                  type: array
+                  items:
+                    type: integer
+                  description: Replaces the excluded tag audience (contacts carrying these tags are removed from the send).
+      responses:
+        '200':
+          description: Campaign updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: >-
+            Campaign already sent, or a scheduled_at was supplied for a confirmation
+            (double opt-in) email. A confirmation email is delivered to each contact as
+            they subscribe and cannot be scheduled; its content can still be updated.
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteCampaign
+      tags:
+        - Campaigns
+      summary: Delete a draft campaign
+      description: Only draft campaigns (not yet sent) can be deleted. Uses soft delete.
+      responses:
+        '200':
+          description: Campaign deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Campaign already sent
+
+  /campaigns/{id}/send:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: sendCampaign
+      tags:
+        - Campaigns
+      summary: Send a campaign immediately
+      description: |
+        Schedules a draft campaign for immediate sending. The campaign must:
+        - Not already be sent or scheduled
+        - Have at least one list assigned
+        - Not be a confirmation (double opt-in) email — those are delivered to each
+          contact as they subscribe, never as a broadcast
+        - The user must not be in a warmup/throttle period
+
+        All existing abuse prevention applies automatically: content approval workflow,
+        sending throttles, spam detection, and bounce rate monitoring.
+      responses:
+        '200':
+          description: Campaign scheduled for sending
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '400':
+          description: Campaign has no lists assigned
+        '403':
+          description: Forbidden (cannot send; a large campaign is already scheduled and must finish first)
+        '409':
+          description: >-
+            Campaign already sent or scheduled, or the campaign is a confirmation
+            (double opt-in) email, which is sent to each contact as they subscribe.
+
+  /campaigns/{id}/stats:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getCampaignStats
+      tags:
+        - Campaigns
+      summary: Get campaign performance statistics
+      description: >-
+        Returns sent count and open/click/bounce/unsubscribe/spam counts and rates, all read from
+        stored counters.
+
+
+        Pass `include_link_stats=true` to also get `link_stats` — the campaign's links ranked by
+        click count. That part is opt-in because it counts rows in `email_link_clicks` once per
+        link rather than reading a counter, so leaving it off keeps this endpoint as cheap as it
+        has always been.
+      parameters:
+        - name: include_link_stats
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: When true, include the link_stats breakdown in the response
+        - name: link_limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: >-
+            How many links to return in link_stats, most-clicked first. Ignored unless
+            include_link_stats is true.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignStats'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Campaign not found
+
+  /campaigns/{id}/engagement:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listCampaignEngagement
+      tags:
+        - Campaigns
+      summary: List the contacts behind a campaign's engagement
+      description: >-
+        Returns the contacts in one of a sent campaign's engagement groups. non_openers covers
+        contacts the campaign actually sent to who did not open it — queued and cancelled
+        deliverables are excluded, since they never had the chance.
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [openers, clickers, non_openers, bounced, unsubscribed]
+          description: Which engagement group to list
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+          description: Records per page
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        contact_id:
+                          type: integer
+                        email:
+                          type: string
+                        first_name:
+                          type: string
+                          nullable: true
+                        last_name:
+                          type: string
+                          nullable: true
+                        sent_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        opened_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        clicked_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        bounced_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        unsubscribed_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Campaign not found
+
+  /campaigns/{id}/resend:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: resendCampaign
+      tags:
+        - Campaigns
+      summary: Clone a sent campaign at part of its original audience
+      description: >-
+        Creates a new draft with the original's content, sender, and exclusions, aimed at the
+        chosen slice of the original audience. Omit scheduled_at to leave it as a draft. The
+        source campaign's lists are deliberately not carried over — the engagement segment is
+        the audience.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - audience
+              properties:
+                audience:
+                  type: string
+                  enum: [non_openers, openers, clickers]
+                subject:
+                  type: string
+                  maxLength: 191
+                  description: Optional new subject line; defaults to the original's
+                title:
+                  type: string
+                  maxLength: 191
+                  description: 'Optional internal name; defaults to "Resend: <original title>"'
+                scheduled_at:
+                  type: string
+                  format: date-time
+                  description: Optional send time; omit to leave the resend as a draft
+      responses:
+        '201':
+          description: Draft created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Campaign not found
+        '422':
+          description: The campaign has not been sent, or scheduling is unavailable
+
+  /forms:
+    get:
+      operationId: listForms
+      tags:
+        - Forms
+      summary: List forms
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search query for filtering forms
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Form'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '401':
+          description: Unauthorized
+    post:
+      operationId: createForm
+      tags:
+        - Forms
+      summary: Create a new form
+      description: |
+        Creates a subscription form linked to one or more lists.
+        Free users are limited to 1 form.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 191
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of list IDs to attach
+                redirect_url:
+                  type: string
+                  format: uri
+                  nullable: true
+                  description: URL to redirect to after subscription
+                gdpr_required:
+                  type: boolean
+                  description: Whether GDPR consent checkbox is required
+              required:
+                - title
+                - lists
+      responses:
+        '201':
+          description: Form created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        '403':
+          description: Forbidden (free user form limit reached)
+        '422':
+          description: Validation error
+
+  /forms/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getForm
+      tags:
+        - Forms
+      summary: Get a specific form
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Form not found
+    patch:
+      operationId: updateForm
+      tags:
+        - Forms
+      summary: Update a form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 191
+                lists:
+                  type: array
+                  items:
+                    type: integer
+                  description: Replaces all list assignments
+                redirect_url:
+                  type: string
+                  format: uri
+                  nullable: true
+                gdpr_required:
+                  type: boolean
+      responses:
+        '200':
+          description: Form updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteForm
+      tags:
+        - Forms
+      summary: Delete a form
+      description: Soft-deletes the form
+      responses:
+        '200':
+          description: Form deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /me:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - Users
+      summary: Get current user information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /contact-fields:
+    get:
+      operationId: listContactFields
+      tags:
+        - Contact Fields
+      summary: List user contact fields
+      description: Returns custom contact fields defined by the user (20 per page)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserContactField'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '401':
+          description: Unauthorized
+    post:
+      operationId: createContactField
+      tags:
+        - Contact Fields
+      summary: Create a custom contact field
+      description: |
+        Creates a custom field for contacts. The `name` is auto-generated from the `label` as a slug.
+
+        `contact_field_type_id` is a fixed UUID identifying the field's data type. It is the same
+        for every account, and the type *names* are not accepted as input:
+
+        | Type   | `contact_field_type_id`                |
+        | ------ | -------------------------------------- |
+        | text   | `0abe5601-7738-43c8-858f-81911ecf89ee` |
+        | number | `e43c6471-b3ff-4541-80c5-964c62decd15` |
+        | date   | `fe7dd76c-5113-4159-bc7c-0dbf0ed8d404` |
+
+        The value is immutable after creation and is not returned by any endpoint - responses
+        carry the human-readable `type` (`text`, `number`, `date`) instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  maxLength: 191
+                  description: Human-readable field label
+                contact_field_type_id:
+                  type: string
+                  description: >-
+                    UUID of the field's data type. Must be one of the enumerated values below;
+                    the names `text`, `number` and `date` are not accepted.
+                  enum:
+                    - 0abe5601-7738-43c8-858f-81911ecf89ee
+                    - e43c6471-b3ff-4541-80c5-964c62decd15
+                    - fe7dd76c-5113-4159-bc7c-0dbf0ed8d404
+                  example: 0abe5601-7738-43c8-858f-81911ecf89ee
+              required:
+                - label
+                - contact_field_type_id
+      responses:
+        '201':
+          description: Contact field created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserContactField'
+        '422':
+          description: Validation error
+
+  /contact-fields/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getContactField
+      tags:
+        - Contact Fields
+      summary: Get a specific contact field
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserContactField'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact field not found
+    patch:
+      operationId: updateContactField
+      tags:
+        - Contact Fields
+      summary: Update a contact field label
+      description: |
+        Updates the label and auto-regenerates the name slug.
+        Note: `contact_field_type_id` is immutable and cannot be changed after creation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  maxLength: 191
+              required:
+                - label
+      responses:
+        '200':
+          description: Contact field updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserContactField'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteContactField
+      tags:
+        - Contact Fields
+      summary: Delete a contact field
+      description: Permanently deletes the contact field
+      responses:
+        '200':
+          description: Contact field deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /lists:
+    get:
+      operationId: listContactLists
+      tags:
+        - Lists
+      summary: List contact lists
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search query for filtering lists
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContactList'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '401':
+          description: Unauthorized
+    post:
+      operationId: createContactList
+      tags:
+        - Lists
+      summary: Create a new contact list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: List created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+
+  /lists/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getContactList
+      tags:
+        - Lists
+      summary: Get a specific contact list
+      description: Returns list details including average open and click rates
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: List not found
+    patch:
+      operationId: updateContactList
+      tags:
+        - Lists
+      summary: Update a contact list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 191
+              required:
+                - name
+      responses:
+        '200':
+          description: List updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactList'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteContactList
+      tags:
+        - Lists
+      summary: Delete a contact list
+      description: Soft-deletes a list. Returns 409 if the list is used by forms, landing pages, or automations.
+      responses:
+        '200':
+          description: List deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: List is in use
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  usages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        id:
+                          type: integer
+                        title:
+                          type: string
+        '404':
+          description: List not found
+
+  /lists/{list_id}/contacts:
+    parameters:
+      - name: list_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: listContactsInList
+      tags:
+        - Lists
+      summary: Get contacts in a list
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          description: Search query for filtering contacts
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: addContactToList
+      tags:
+        - Lists
+      summary: Add a contact to a list
+      description: Adds an existing contact to a list. If the contact is already in the list, no duplicate is created.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contact_id:
+                  type: integer
+                  description: ID of the contact to add
+              required:
+                - contact_id
+      responses:
+        '200':
+          description: Contact added to list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact not found
+        '422':
+          description: Validation error
+
+  /lists/{list_id}/contacts/{contact_id}:
+    parameters:
+      - name: list_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      operationId: removeContactFromList
+      tags:
+        - Lists
+      summary: Remove a contact from a list
+      responses:
+        '200':
+          description: Contact removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Contact or list not found
+
+  /domains:
+    get:
+      operationId: listDomains
+      tags:
+        - Domains
+      summary: List sender domains
+      description: Returns a paginated list of the user's whitelabel/sender domains
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WhitelabelDomain'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '401':
+          description: Unauthorized
+    post:
+      operationId: createDomain
+      tags:
+        - Domains
+      summary: Add a sender domain
+      description: |
+        Adds a new sender domain and creates the corresponding SendGrid whitelabel domain.
+        Requires an active subscription and SendGrid subuser.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain:
+                  type: string
+                  maxLength: 191
+                  description: Domain name (e.g., example.com). Do not include @ or protocol.
+              required:
+                - domain
+      responses:
+        '201':
+          description: Domain created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhitelabelDomain'
+        '403':
+          description: Forbidden (not subscribed or no SendGrid subuser)
+        '422':
+          description: Validation error (invalid domain, already taken, or already exists)
+
+  /domains/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getDomain
+      tags:
+        - Domains
+      summary: Get domain with DNS records
+      description: Returns domain details including DNS records needed for verification
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhitelabelDomain'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Domain not found
+    delete:
+      operationId: deleteDomain
+      tags:
+        - Domains
+      summary: Delete a sender domain
+      description: Removes the domain from SendGrid and soft-deletes locally
+      responses:
+        '200':
+          description: Domain deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /domains/{id}/validate:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: validateDomain
+      tags:
+        - Domains
+      summary: Validate domain DNS records
+      description: |
+        Triggers DNS validation for the domain via SendGrid.
+        Returns whether validation passed and any errors for specific DNS records.
+      responses:
+        '200':
+          description: Domain validated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  valid:
+                    type: boolean
+                  domain:
+                    $ref: '#/components/schemas/WhitelabelDomain'
+        '400':
+          description: Validation failed (DNS records not configured correctly)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  valid:
+                    type: boolean
+                  validation_errors:
+                    type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /automations:
+    get:
+      operationId: listAutomations
+      tags:
+        - Automations
+      summary: List automations
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Automation'
+                  current_page:
+                    type: integer
+                  total:
+                    type: integer
+                  per_page:
+                    type: integer
+        '401':
+          description: Unauthorized
+    post:
+      operationId: createAutomation
+      tags:
+        - Automations
+      summary: Create an automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                trigger_type:
+                  type: string
+                  enum: [apply_list, open_campaign, click_campaign]
+                trigger_list_id:
+                  type: integer
+                  description: Required when trigger_type is apply_list
+                trigger_campaign_id:
+                  type: integer
+                  description: Required when trigger_type is open_campaign or click_campaign
+                active:
+                  type: boolean
+      responses:
+        '201':
+          description: Automation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automation'
+        '402':
+          description: Payment Required (API access requires a paid plan)
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+
+  /automations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getAutomation
+      tags:
+        - Automations
+      summary: Get a specific automation
+      description: Returns automation with triggers, items, and campaign stats
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automation'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Automation not found
+    patch:
+      operationId: updateAutomation
+      tags:
+        - Automations
+      summary: Update an automation
+      description: Update title, trigger, or active status. Activating reschedules stale deliverables.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                active:
+                  type: boolean
+                trigger_type:
+                  type: string
+                  enum: [apply_list, open_campaign, click_campaign]
+                trigger_list_id:
+                  type: integer
+                trigger_campaign_id:
+                  type: integer
+      responses:
+        '200':
+          description: Automation updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automation'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteAutomation
+      tags:
+        - Automations
+      summary: Delete an automation
+      description: Soft-deletes the automation and cancels all scheduled deliverables
+      responses:
+        '200':
+          description: Automation deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Automation not found
+
+  /automations/{id}/emails:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      operationId: createAutomationEmail
+      tags:
+        - Automations
+      summary: Add an email to an automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subject
+                - html
+                - from_name
+                - from_email
+              properties:
+                subject:
+                  type: string
+                html:
+                  type: string
+                from_name:
+                  type: string
+                from_email:
+                  type: string
+                  format: email
+                delay_hours:
+                  type: integer
+                  minimum: 0
+                  maximum: 5000
+                  description: Hours to wait before sending (default 24, first email defaults to 0)
+      responses:
+        '201':
+          description: Automation email created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomationItem'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+
+  /automation-emails/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      operationId: updateAutomationEmail
+      tags:
+        - Automations
+      summary: Update an automation email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject:
+                  type: string
+                html:
+                  type: string
+                from_name:
+                  type: string
+                from_email:
+                  type: string
+                  format: email
+                delay_hours:
+                  type: integer
+                  minimum: 0
+                  maximum: 5000
+                send_order:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Automation email updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutomationItem'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Validation error
+    delete:
+      operationId: deleteAutomationEmail
+      tags:
+        - Automations
+      summary: Remove an email from an automation
+      responses:
+        '200':
+          description: Automation email deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Automation email not found
+
+x-tagGroups:
+  -
+    name: Resources
+    tags:
+      - Contacts
+      - Campaigns
+      - Lists
+      - Forms
+      - Automations
+      - Domains
+      - Users
+      - Contact Fields

@@ -1,16 +1,28 @@
 {
   "api_name": "sendfox",
   "base_url": "https://api.sendfox.com",
-  "description": "SendFox email marketing API for authenticated user details, contact lists,\ncontacts, unsubscribe operations, and campaign reads.",
+  "description": "Operate SendFox campaigns and audiences with typed commands, local evidence and guarded plans.",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "bearer_token",
     "header": "Authorization",
     "env_vars": [
+      "SENDFOX_API_TOKEN",
       "SENDFOX_BEARER_AUTH"
     ],
     "env_var_specs": [
+      {
+        "name": "SENDFOX_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
       {
         "name": "SENDFOX_BEARER_AUTH",
         "kind": "per_call",
@@ -18,28 +30,393 @@
         "sensitive": true,
         "inferred": true
       }
-    ]
+    ],
+    "key_url": "https://sendfox.com/account/oauth"
   },
   "required_headers": [],
   "tools": [
     {
-      "name": "campaigns_get",
-      "description": "Get campaign by ID. Required: campaign_id. Returns the Campaign.",
-      "method": "GET",
-      "path": "/campaigns/{campaign_id}",
+      "name": "automation_emails_delete",
+      "description": "Remove an email from an automation. Required: id. Returns the AutomationEmailsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/automation-emails/{id}",
       "params": [
         {
-          "name": "campaign_id",
+          "name": "id",
           "type": "int",
           "location": "path",
-          "description": "Campaign id",
+          "description": "Id",
           "required": true
         }
       ]
     },
     {
+      "name": "automation_emails_update",
+      "description": "Update an automation email. Required: id. Optional: delay_hours, from_email, from_name (plus 3 more). Returns the updated AutomationItem.",
+      "method": "PATCH",
+      "path": "/automation-emails/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "delay_hours",
+          "type": "int",
+          "location": "body",
+          "description": "Delay hours"
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "From email"
+        },
+        {
+          "name": "from_name",
+          "type": "string",
+          "location": "body",
+          "description": "From name"
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Html"
+        },
+        {
+          "name": "send_order",
+          "type": "int",
+          "location": "body",
+          "description": "Send order"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        }
+      ]
+    },
+    {
+      "name": "automations_create",
+      "description": "Create an automation. Required: title. Optional: active, trigger_campaign_id, trigger_list_id (plus 1 more). Returns the new Automation.",
+      "method": "POST",
+      "path": "/automations",
+      "params": [
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "trigger_campaign_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required when trigger_type is open_campaign or click_campaign"
+        },
+        {
+          "name": "trigger_list_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required when trigger_type is apply_list"
+        },
+        {
+          "name": "trigger_type",
+          "type": "string",
+          "location": "body",
+          "description": "Trigger type"
+        }
+      ]
+    },
+    {
+      "name": "automations_create-email",
+      "description": "Add an email to an automation. Required: id, from_email, from_name, html, subject. Optional: delay_hours. Returns the new AutomationItem.",
+      "method": "POST",
+      "path": "/automations/{id}/emails",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "delay_hours",
+          "type": "int",
+          "location": "body",
+          "description": "Hours to wait before sending (default 24, first email defaults to 0)"
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "From email",
+          "required": true
+        },
+        {
+          "name": "from_name",
+          "type": "string",
+          "location": "body",
+          "description": "From name",
+          "required": true
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Html",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_delete",
+      "description": "Soft-deletes the automation and cancels all scheduled deliverables. Required: id. Returns the AutomationsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/automations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_get",
+      "description": "Returns automation with triggers, items, and campaign stats. Required: id.",
+      "method": "GET",
+      "path": "/automations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_list",
+      "description": "List automations. Optional: page (default: 1). Returns array of Automation.",
+      "method": "GET",
+      "path": "/automations",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "automations_update",
+      "description": "Update title, trigger, or active status. Activating reschedules stale deliverables. Required: id. Optional: active, title, trigger_campaign_id (plus 2 more). Returns the updated Automation.",
+      "method": "PATCH",
+      "path": "/automations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "trigger_campaign_id",
+          "type": "int",
+          "location": "body",
+          "description": "Trigger campaign id"
+        },
+        {
+          "name": "trigger_list_id",
+          "type": "int",
+          "location": "body",
+          "description": "Trigger list id"
+        },
+        {
+          "name": "trigger_type",
+          "type": "string",
+          "location": "body",
+          "description": "Trigger type"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create",
+      "description": "Creates a campaign as a draft. To send it, use the send endpoint or provide scheduled_at. Subject lines cannot start with 'RE:' or 'FWD:'. At least one list is required if scheduled_at is provided. Required: from_email, from_name, html, subject, title. Optional: excluded_contact_tags, excluded_lists, lists (plus 3 more). Returns the new Campaign.",
+      "method": "POST",
+      "path": "/campaigns",
+      "params": [
+        {
+          "name": "excluded_contact_tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tag IDs whose contacts should be excluded from the send. Exclusion wins over inclusion."
+        },
+        {
+          "name": "excluded_lists",
+          "type": "array",
+          "location": "body",
+          "description": "List IDs whose contacts should be excluded from the send. Exclusion wins over inclusion."
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "From email",
+          "required": true
+        },
+        {
+          "name": "from_name",
+          "type": "string",
+          "location": "body",
+          "description": "From name",
+          "required": true
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Email body HTML content",
+          "required": true
+        },
+        {
+          "name": "lists",
+          "type": "array",
+          "location": "body",
+          "description": "Array of list IDs to send to"
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "Inbox preview snippet shown beneath the subject line. Optional."
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule send time (omit for draft). Must include at least one list."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "to_contact_tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tag IDs whose contacts should receive the campaign. Can be combined with lists."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete",
+      "description": "Only draft campaigns (not yet sent) can be deleted. Uses soft delete. Required: id. Returns the CampaignsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get",
+      "description": "Get a specific campaign. Required: id. Returns the Campaign.",
+      "method": "GET",
+      "path": "/campaigns/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get-stats",
+      "description": "Returns sent count and open/click/bounce/unsubscribe/spam counts and rates, all read from stored counters. Pass `include_link_stats=true` to also get `link_stats` — the campaign's links ranked by click count. That part is opt-in because it counts rows in `email_link_clicks` once per link rather than reading a counter, so leaving it off keeps this endpoint as cheap as it has always been. Required: id. Optional: include_link_stats (default: false), link_limit (default: 50).",
+      "method": "GET",
+      "path": "/campaigns/{id}/stats",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_link_stats",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, include the link_stats breakdown in the response"
+        },
+        {
+          "name": "link_limit",
+          "type": "int",
+          "location": "query",
+          "description": "How many links to return in link_stats, most-clicked first. Ignored unless include_link_stats is true."
+        }
+      ]
+    },
+    {
       "name": "campaigns_list",
-      "description": "List campaigns. Optional: page. Returns array of Campaign.",
+      "description": "Returns a paginated list of campaigns (100 per page). Optional: page (default: 1).",
       "method": "GET",
       "path": "/campaigns",
       "params": [
@@ -47,22 +424,894 @@
           "name": "page",
           "type": "int",
           "location": "query",
-          "description": "Page number for paginated responses"
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list-engagement",
+      "description": "Returns the contacts in one of a sent campaign's engagement groups. non_openers covers contacts the campaign actually sent to who did not open it — queued and cancelled deliverables are excluded, since they never had the chance. Required: id, type. Optional: per_page (default: 100), page (default: 1).",
+      "method": "GET",
+      "path": "/campaigns/{id}/engagement",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Which engagement group to list",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Records per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_resend",
+      "description": "Creates a new draft with the original's content, sender, and exclusions, aimed at the chosen slice of the original audience. Omit scheduled_at to leave it as a draft. The source campaign's lists are deliberately not carried over — the engagement segment is the audience. Required: id, audience. Optional: scheduled_at, subject, title. Returns the new Campaign.",
+      "method": "POST",
+      "path": "/campaigns/{id}/resend",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "audience",
+          "type": "string",
+          "location": "body",
+          "description": "Audience",
+          "required": true
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "Optional send time; omit to leave the resend as a draft"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Optional new subject line; defaults to the original's"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Optional internal name; defaults to 'Resend: \u003coriginal title\u003e'"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_send",
+      "description": "Schedules a draft campaign for immediate sending. The campaign must: - Not already be sent or scheduled - Have at least one list assigned - Not be a confirmation (double opt-in) email — those are delivered to each contact as they subscribe, never as a broadcast - The user must not be in a warmup/throttle period All existing abuse prevention applies automatically: content approval workflow, sending throttles, spam detection, and bounce rate monitoring. Required: id. Returns the new Campaign.",
+      "method": "POST",
+      "path": "/campaigns/{id}/send",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update",
+      "description": "Only draft campaigns (not yet sent) can be updated. All fields are optional. Required: id. Optional: excluded_contact_tags, excluded_lists, from_email (plus 8 more). Returns the updated Campaign.",
+      "method": "PATCH",
+      "path": "/campaigns/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "excluded_contact_tags",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the excluded tag audience (contacts carrying these tags are removed from the send)."
+        },
+        {
+          "name": "excluded_lists",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the excluded lists (contacts in these lists are removed from the send)."
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "From email"
+        },
+        {
+          "name": "from_name",
+          "type": "string",
+          "location": "body",
+          "description": "From name"
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Html"
+        },
+        {
+          "name": "lists",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces all list assignments"
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "Inbox preview snippet. Pass null to clear."
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "Set to null to unschedule, or a datetime to schedule"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "to_contact_tags",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces the included tag audience (contacts carrying these tags receive the campaign)."
+        }
+      ]
+    },
+    {
+      "name": "contact_fields_create",
+      "description": "Creates a custom field for contacts. The `name` is auto-generated from the `label` as a slug. `contact_field_type_id` is a fixed UUID identifying the field's data type. It is the same for every account, and the type *names* are not accepted as input: | Type | `contact_field_type_id` | | ------ | -------------------------------------- | | text | `0abe5601-7738-43c8-858f-81911ecf89ee` | | number | `e43c6471-b3ff-4541-80c5-964c62decd15` | | date | `fe7dd76c-5113-4159-bc7c-0dbf0ed8d404` | The value is immutable after creation and is not returned by any endpoint - responses carry the human-readable `type` (`text`, `number`, `date`) instead. Required: contact_field_type_id, label. Returns the new UserContactField.",
+      "method": "POST",
+      "path": "/contact-fields",
+      "params": [
+        {
+          "name": "contact_field_type_id",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the field's data type. Must be one of the enumerated values below; the names `text`, `number` and `date` are not accepted.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable field label",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_fields_delete",
+      "description": "Permanently deletes the contact field. Required: id. Returns the ContactFieldsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/contact-fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_fields_get",
+      "description": "Get a specific contact field. Required: id. Returns the UserContactField.",
+      "method": "GET",
+      "path": "/contact-fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_fields_list",
+      "description": "Returns custom contact fields defined by the user (20 per page). Optional: page (default: 1).",
+      "method": "GET",
+      "path": "/contact-fields",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "contact_fields_update",
+      "description": "Updates the label and auto-regenerates the name slug. Note: `contact_field_type_id` is immutable and cannot be changed after creation. Required: id, label. Returns the updated UserContactField.",
+      "method": "PATCH",
+      "path": "/contact-fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Label",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_tags_create",
+      "description": "Creates a tag. A brand color is auto-assigned when none is provided. Tag names are unique per account. Required: name. Optional: color. Returns the new ContactTag.",
+      "method": "POST",
+      "path": "/contact-tags",
+      "params": [
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Optional brand palette hex color; auto-assigned when omitted."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_tags_delete",
+      "description": "Deletes the tag. Tagged contacts are kept — only the tag and its attachments (including campaign audience use) are removed. Required: id. Returns the ContactTagsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/contact-tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_tags_get",
+      "description": "Get a contact tag. Required: id. Returns the ContactTag.",
+      "method": "GET",
+      "path": "/contact-tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact_tags_list",
+      "description": "Lists the account's tags, newest first, each with its contact count. Distinct from the legacy /tags endpoints, which operate on lists. Optional: page (default: 1). Returns array of ContactTag.",
+      "method": "GET",
+      "path": "/contact-tags",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "contact_tags_update",
+      "description": "Update a contact tag. Required: id. Optional: color, name. Returns the updated ContactTag.",
+      "method": "PATCH",
+      "path": "/contact-tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "contacts_attach-tag",
+      "description": "Idempotent. Returns the contact's tags after the change. Required: contact_id, tag_id.",
+      "method": "POST",
+      "path": "/contacts/{contact_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_batch-import",
+      "description": "Import up to 1,000 contacts in a single request. Creates new contacts or updates existing ones. Required: contacts. Returns the new BatchResult.",
+      "method": "POST",
+      "path": "/contacts/batch",
+      "params": [
+        {
+          "name": "contacts",
+          "type": "array",
+          "location": "body",
+          "description": "Contacts",
+          "required": true
         }
       ]
     },
     {
       "name": "contacts_create",
-      "description": "Create a contact. Required: email. Optional: first_name, last_name, lists. Returns array of int.",
+      "description": "Create a new contact. Required: email. Optional: contact_fields, first_name, ip_address (plus 2 more). Returns the new Contact.",
       "method": "POST",
       "path": "/contacts",
       "params": [
+        {
+          "name": "contact_fields",
+          "type": "array",
+          "location": "body",
+          "description": "Contact fields"
+        },
         {
           "name": "email",
           "type": "string",
           "location": "body",
           "description": "Email",
           "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "ip_address",
+          "type": "string",
+          "location": "body",
+          "description": "Ip address"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "lists",
+          "type": "array",
+          "location": "body",
+          "description": "Array of list IDs to add the contact to"
+        }
+      ]
+    },
+    {
+      "name": "contacts_create-bulk-action",
+      "description": "Queues one action against every contact the filter matches, applied in chunks in the background. Returns immediately with an id to poll. **Run with `dry_run: true` first.** A dry run reports how many contacts match and changes nothing — it is the only way to catch a filter that matches more than intended, and a bulk write is not undoable. An empty filter (which would match the whole account) is rejected unless it is a dry run. Per-campaign conditions (`opened_campaign_id`, `not_opened_campaign_id`, `clicked_campaign_id`) are available here but not on `GET /contacts`, because they are resolved in the background rather than inside a request. Bulk delete and bulk unsubscribe are deliberately not offered. Required: action, target_id. Optional: dry_run (default: false), filter.",
+      "method": "POST",
+      "path": "/contacts/bulk-actions",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        },
+        {
+          "name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, only count the matches — nothing is modified"
+        },
+        {
+          "name": "filter-clicked-campaign-id",
+          "wire_name": "filter.clicked_campaign_id",
+          "type": "int",
+          "location": "body",
+          "description": "Bulk actions only — not available on GET /contacts"
+        },
+        {
+          "name": "filter-created-after",
+          "wire_name": "filter.created_after",
+          "type": "string",
+          "location": "body",
+          "description": "Created after"
+        },
+        {
+          "name": "filter-created-before",
+          "wire_name": "filter.created_before",
+          "type": "string",
+          "location": "body",
+          "description": "Created before"
+        },
+        {
+          "name": "filter-in-list-ids",
+          "wire_name": "filter.in_list_ids",
+          "type": "array",
+          "location": "body",
+          "description": "In list ids"
+        },
+        {
+          "name": "filter-last-clicked-after",
+          "wire_name": "filter.last_clicked_after",
+          "type": "string",
+          "location": "body",
+          "description": "Last clicked after"
+        },
+        {
+          "name": "filter-last-clicked-before",
+          "wire_name": "filter.last_clicked_before",
+          "type": "string",
+          "location": "body",
+          "description": "Last clicked before"
+        },
+        {
+          "name": "filter-last-opened-after",
+          "wire_name": "filter.last_opened_after",
+          "type": "string",
+          "location": "body",
+          "description": "Last opened after"
+        },
+        {
+          "name": "filter-last-opened-before",
+          "wire_name": "filter.last_opened_before",
+          "type": "string",
+          "location": "body",
+          "description": "Excludes contacts who never opened — use never_opened for those"
+        },
+        {
+          "name": "filter-last-sent-after",
+          "wire_name": "filter.last_sent_after",
+          "type": "string",
+          "location": "body",
+          "description": "Last sent after"
+        },
+        {
+          "name": "filter-last-sent-before",
+          "wire_name": "filter.last_sent_before",
+          "type": "string",
+          "location": "body",
+          "description": "Last sent before"
+        },
+        {
+          "name": "filter-never-clicked",
+          "wire_name": "filter.never_clicked",
+          "type": "bool",
+          "location": "body",
+          "description": "Never clicked"
+        },
+        {
+          "name": "filter-never-opened",
+          "wire_name": "filter.never_opened",
+          "type": "bool",
+          "location": "body",
+          "description": "Never opened"
+        },
+        {
+          "name": "filter-never-sent",
+          "wire_name": "filter.never_sent",
+          "type": "bool",
+          "location": "body",
+          "description": "Never sent"
+        },
+        {
+          "name": "filter-not-in-list-ids",
+          "wire_name": "filter.not_in_list_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Not in list ids"
+        },
+        {
+          "name": "filter-not-opened-campaign-id",
+          "wire_name": "filter.not_opened_campaign_id",
+          "type": "int",
+          "location": "body",
+          "description": "Contacts the campaign sent to who did not open it. Bulk actions only — not available on GET /contacts"
+        },
+        {
+          "name": "filter-not-tag-ids",
+          "wire_name": "filter.not_tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Not tag ids"
+        },
+        {
+          "name": "filter-opened-campaign-id",
+          "wire_name": "filter.opened_campaign_id",
+          "type": "int",
+          "location": "body",
+          "description": "Bulk actions only — not available on GET /contacts"
+        },
+        {
+          "name": "filter-status",
+          "wire_name": "filter.status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "filter-tag-ids",
+          "wire_name": "filter.tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids"
+        },
+        {
+          "name": "target_id",
+          "type": "int",
+          "location": "body",
+          "description": "The tag id (apply_tag/remove_tag) or list id (add_to_list/remove_from_list)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Soft-deletes a contact and cancels any scheduled deliverables. Required: id. Returns the ContactsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_detach-tag",
+      "description": "Remove a tag from a contact. Required: contact_id, tag_id. Returns array of ContactTag. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{contact_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Get a specific contact. Required: id. Returns the Contact.",
+      "method": "GET",
+      "path": "/contacts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get-activity",
+      "description": "Returns paginated email deliverables and contact-level engagement summary. Required: id.",
+      "method": "GET",
+      "path": "/contacts/{id}/activity",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get-bulk-action",
+      "description": "For a dry run, matched_count is the answer and nothing was modified. A run whose match set exceeds the per-request ceiling fails without applying anything. Required: id. Returns the BulkContactAction.",
+      "method": "GET",
+      "path": "/contacts/bulk-actions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "Returns a paginated list of contacts (100 per page by default, up to 1000 via `per_page`). Supports engagement filtering through `filter[...]` query parameters, so you can answer questions like 'who last opened over a year ago' without paging the whole account. All filter conditions are AND-ed. Pass `count_only=true` to get just the number of matches — the cheapest way to size an audience before acting on it. Optional: query, unsubscribed, email (plus 19 more).",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering contacts"
+        },
+        {
+          "name": "unsubscribed",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter unsubscribed contacts"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by specific email"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Contacts per page"
+        },
+        {
+          "name": "count_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only the number of matching contacts, with no contact records"
+        },
+        {
+          "name": "filter-status",
+          "wire_name": "filter[status]",
+          "type": "string",
+          "location": "query",
+          "description": "Engagement status"
+        },
+        {
+          "name": "filter-last-opened-after",
+          "wire_name": "filter[last_opened_after]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts whose most recent open is on or after this date"
+        },
+        {
+          "name": "filter-last-opened-before",
+          "wire_name": "filter[last_opened_before]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts whose most recent open is before this date. Excludes contacts who never opened — use filter[never_opened] for those."
+        },
+        {
+          "name": "filter-last-clicked-after",
+          "wire_name": "filter[last_clicked_after]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts whose most recent click is on or after this date"
+        },
+        {
+          "name": "filter-last-clicked-before",
+          "wire_name": "filter[last_clicked_before]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts whose most recent click is before this date"
+        },
+        {
+          "name": "filter-last-sent-after",
+          "wire_name": "filter[last_sent_after]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts last sent to on or after this date"
+        },
+        {
+          "name": "filter-last-sent-before",
+          "wire_name": "filter[last_sent_before]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts last sent to before this date"
+        },
+        {
+          "name": "filter-created-after",
+          "wire_name": "filter[created_after]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts created on or after this date"
+        },
+        {
+          "name": "filter-created-before",
+          "wire_name": "filter[created_before]",
+          "type": "string",
+          "location": "query",
+          "description": "Contacts created before this date"
+        },
+        {
+          "name": "filter-never-opened",
+          "wire_name": "filter[never_opened]",
+          "type": "bool",
+          "location": "query",
+          "description": "Only contacts who have never opened an email"
+        },
+        {
+          "name": "filter-never-clicked",
+          "wire_name": "filter[never_clicked]",
+          "type": "bool",
+          "location": "query",
+          "description": "Only contacts who have never clicked a link"
+        },
+        {
+          "name": "filter-never-sent",
+          "wire_name": "filter[never_sent]",
+          "type": "bool",
+          "location": "query",
+          "description": "Only contacts who have never been sent an email"
+        },
+        {
+          "name": "filter-in-list-ids",
+          "wire_name": "filter[in_list_ids]",
+          "type": "array",
+          "location": "query",
+          "description": "Only contacts in any of these lists"
+        },
+        {
+          "name": "filter-not-in-list-ids",
+          "wire_name": "filter[not_in_list_ids]",
+          "type": "array",
+          "location": "query",
+          "description": "Exclude contacts in any of these lists"
+        },
+        {
+          "name": "filter-tag-ids",
+          "wire_name": "filter[tag_ids]",
+          "type": "array",
+          "location": "query",
+          "description": "Only contacts carrying any of these tags"
+        },
+        {
+          "name": "filter-not-tag-ids",
+          "wire_name": "filter[not_tag_ids]",
+          "type": "array",
+          "location": "query",
+          "description": "Exclude contacts carrying any of these tags"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for paginated contacts; not used for count-only requests."
+        }
+      ]
+    },
+    {
+      "name": "contacts_list-tags-for",
+      "description": "List a contact's tags. Required: contact_id. Returns array of ContactTag.",
+      "method": "GET",
+      "path": "/contacts/{contact_id}/tags",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "int",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list-unsubscribed",
+      "description": "List unsubscribed contacts. Optional: query, page (default: 1). Returns array of Contact.",
+      "method": "GET",
+      "path": "/contacts/unsubscribed",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering contacts"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "contacts_update",
+      "description": "Update contact details including name, list memberships, and custom fields. Required: id. Optional: contact_fields, first_name, last_name (plus 1 more). Returns the updated Contact.",
+      "method": "PATCH",
+      "path": "/contacts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "contact_fields",
+          "type": "array",
+          "location": "body",
+          "description": "Contact fields"
         },
         {
           "name": "first_name",
@@ -80,48 +1329,259 @@
           "name": "lists",
           "type": "array",
           "location": "body",
-          "description": "Lists"
+          "description": "Array of list IDs (replaces all current list memberships)"
         }
       ]
     },
     {
-      "name": "contacts_get",
-      "description": "Get a contact by ID. Required: contact_id. Returns array of int.",
-      "method": "GET",
-      "path": "/contacts/{contact_id}",
+      "name": "domains_create",
+      "description": "Adds a new sender domain and creates the corresponding SendGrid whitelabel domain. Requires an active subscription and SendGrid subuser. Required: domain. Returns the new WhitelabelDomain.",
+      "method": "POST",
+      "path": "/domains",
       "params": [
         {
-          "name": "contact_id",
-          "type": "int",
-          "location": "path",
-          "description": "Contact id",
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name (e.g., example.com). Do not include @ or protocol.",
           "required": true
         }
       ]
     },
     {
-      "name": "contacts_list",
-      "description": "List contacts or find a contact by email. Optional: page, email.",
+      "name": "domains_delete",
+      "description": "Removes the domain from SendGrid and soft-deletes locally. Required: id. Returns the DomainsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/domains/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Returns domain details including DNS records needed for verification. Required: id.",
       "method": "GET",
-      "path": "/contacts",
+      "path": "/domains/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "Returns a paginated list of the user's whitelabel/sender domains. Optional: page (default: 1).",
+      "method": "GET",
+      "path": "/domains",
       "params": [
         {
           "name": "page",
           "type": "int",
           "location": "query",
-          "description": "Page number for paginated responses"
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "domains_validate",
+      "description": "Triggers DNS validation for the domain via SendGrid. Returns whether validation passed and any errors for specific DNS records. Required: id.",
+      "method": "POST",
+      "path": "/domains/{id}/validate",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_create",
+      "description": "Creates a subscription form linked to one or more lists. Free users are limited to 1 form. Required: lists, title. Optional: gdpr_required, redirect_url. Returns array of ContactList.",
+      "method": "POST",
+      "path": "/forms",
+      "params": [
+        {
+          "name": "gdpr_required",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether GDPR consent checkbox is required"
         },
         {
-          "name": "email",
+          "name": "lists",
+          "type": "array",
+          "location": "body",
+          "description": "Array of list IDs to attach",
+          "required": true
+        },
+        {
+          "name": "redirect_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to redirect to after subscription"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_delete",
+      "description": "Soft-deletes the form. Required: id. Returns the FormsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/forms/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_get",
+      "description": "Get a specific form. Required: id. Returns array of ContactList.",
+      "method": "GET",
+      "path": "/forms/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_list",
+      "description": "List forms. Optional: query, page (default: 1). Returns array of Form.",
+      "method": "GET",
+      "path": "/forms",
+      "params": [
+        {
+          "name": "query",
           "type": "string",
           "location": "query",
-          "description": "Contact email address to find"
+          "description": "Search query for filtering forms"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
+        }
+      ]
+    },
+    {
+      "name": "forms_update",
+      "description": "Update a form. Required: id. Optional: gdpr_required, lists, redirect_url (plus 1 more). Returns array of ContactList.",
+      "method": "PATCH",
+      "path": "/forms/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "gdpr_required",
+          "type": "bool",
+          "location": "body",
+          "description": "Gdpr required"
+        },
+        {
+          "name": "lists",
+          "type": "array",
+          "location": "body",
+          "description": "Replaces all list assignments"
+        },
+        {
+          "name": "redirect_url",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect url"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "lists_add-contact-to",
+      "description": "Adds an existing contact to a list. If the contact is already in the list, no duplicate is created. Required: list_id, contact_id. Returns the new Contact.",
+      "method": "POST",
+      "path": "/lists/{list_id}/contacts",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "List id",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the contact to add",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_contacts-in",
+      "description": "Get contacts in a list. Required: list_id. Optional: query, page (default: 1). Returns array of Contact.",
+      "method": "GET",
+      "path": "/lists/{list_id}/contacts",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "List id",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering contacts"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for the documented paginated response."
         }
       ]
     },
     {
       "name": "lists_create",
-      "description": "Create a contact list. Required: name. Returns the new List.",
+      "description": "Create a new contact list. Required: name. Returns the new ContactList.",
       "method": "POST",
       "path": "/lists",
       "params": [
@@ -135,37 +1595,58 @@
       ]
     },
     {
-      "name": "lists_get",
-      "description": "Get a contact list by ID. Required: list_id. Returns the List.",
-      "method": "GET",
-      "path": "/lists/{list_id}",
+      "name": "lists_delete",
+      "description": "Soft-deletes a list. Returns 409 if the list is used by forms, landing pages, or automations. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/lists/{id}",
       "params": [
         {
-          "name": "list_id",
+          "name": "id",
           "type": "int",
           "location": "path",
-          "description": "List id",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_get",
+      "description": "Returns list details including average open and click rates. Required: id.",
+      "method": "GET",
+      "path": "/lists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
           "required": true
         }
       ]
     },
     {
       "name": "lists_list_lists",
-      "description": "List contact lists. Optional: page. Returns array of List.",
+      "description": "List contact lists. Optional: query, page (default: 1). Returns array of ContactList.",
       "method": "GET",
       "path": "/lists",
       "params": [
         {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for filtering lists"
+        },
+        {
           "name": "page",
           "type": "int",
           "location": "query",
-          "description": "Page number for paginated responses"
+          "description": "Page number for the documented paginated response."
         }
       ]
     },
     {
-      "name": "lists_contacts_remove-from-list",
-      "description": "Remove a contact from a list. Required: list_id, contact_id. Returns the GenericResponse. Destructive.",
+      "name": "lists_remove-contact-from",
+      "description": "Remove a contact from a list. Required: list_id, contact_id. Returns the Contact. Destructive.",
       "method": "DELETE",
       "path": "/lists/{list_id}/contacts/{contact_id}",
       "params": [
@@ -186,15 +1667,37 @@
       ]
     },
     {
+      "name": "lists_update",
+      "description": "Update a contact list. Required: id, name. Returns the updated ContactList.",
+      "method": "PATCH",
+      "path": "/lists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "me_get",
-      "description": "Get authenticated user. Returns the User.",
+      "description": "Get current user information. Returns the User.",
       "method": "GET",
       "path": "/me",
       "params": []
     },
     {
       "name": "unsubscribe_contact",
-      "description": "Unsubscribe a contact by email. Required: email. Returns the updated GenericResponse.",
+      "description": "Unsubscribe a contact by email. Required: email. Returns the updated Contact.",
       "method": "PATCH",
       "path": "/unsubscribe",
       "params": [
@@ -206,6 +1709,48 @@
           "required": true
         }
       ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Audience health",
+      "command": "workflow audience-health",
+      "description": "Find duplicate, invalid, suppressed and unassigned contacts, plus engagement recency cohorts with never-versus-unknown evidence."
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "workflow campaign-preflight",
+      "description": "Check draft content, targeting, suppression evidence and sender readiness before any send."
+    },
+    {
+      "name": "Campaign review",
+      "command": "workflow campaign-review",
+      "description": "Combine campaign metrics, recipient-weighted benchmarks, trends, link performance and engagement cohorts into an auditable resend plan."
+    },
+    {
+      "name": "Contact dossier",
+      "command": "workflow contact-dossier",
+      "description": "Join contact details, memberships, tags and available engagement into one support packet."
+    },
+    {
+      "name": "Automation plan",
+      "command": "workflow automation-plan",
+      "description": "Validate a versioned automation definition and produce inactive creation steps."
+    },
+    {
+      "name": "Export bundle",
+      "command": "workflow export-bundle",
+      "description": "Produce a read-only local inventory bundle with per-resource completeness, provenance and deterministic hashes."
+    },
+    {
+      "name": "Growth report",
+      "command": "workflow growth-report",
+      "description": "Calculate timestamped audience growth from one snapshot and exact observed list joins, leaves, retention and net growth from two."
+    },
+    {
+      "name": "Migration readiness",
+      "command": "workflow migration-readiness",
+      "description": "Compare local platform snapshots with suppression, mapping, delta and cutover gates."
     }
   ]
 }

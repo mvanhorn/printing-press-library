@@ -1,0 +1,542 @@
+[
+  {
+    "method": "GET",
+    "path": "/contacts",
+    "operation_id": "listContacts",
+    "summary": "List contacts",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/contacts",
+    "operation_id": "createContact",
+    "summary": "Create a new contact",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contacts/{id}",
+    "operation_id": "getContact",
+    "summary": "Get a specific contact",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/contacts/{id}",
+    "operation_id": "updateContact",
+    "summary": "Update a contact",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/contacts/{id}",
+    "operation_id": "deleteContact",
+    "summary": "Delete a contact",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contacts/{id}/activity",
+    "operation_id": "getContactActivity",
+    "summary": "Get email activity for a contact",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/contacts/batch",
+    "operation_id": "batchImportContacts",
+    "summary": "Batch import contacts",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/contacts/bulk-actions",
+    "operation_id": "createBulkContactAction",
+    "summary": "Apply a tag or list change to every contact matching a filter",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contacts/bulk-actions/{id}",
+    "operation_id": "getBulkContactAction",
+    "summary": "Check the progress of a bulk contact action",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contacts/unsubscribed",
+    "operation_id": "listUnsubscribedContacts",
+    "summary": "List unsubscribed contacts",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/unsubscribe",
+    "operation_id": "unsubscribeContact",
+    "summary": "Unsubscribe a contact by email",
+    "tags": [
+      "Contacts"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contact-tags",
+    "operation_id": "listContactTags",
+    "summary": "List contact tags",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/contact-tags",
+    "operation_id": "createContactTag",
+    "summary": "Create a contact tag",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contact-tags/{id}",
+    "operation_id": "getContactTag",
+    "summary": "Get a contact tag",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/contact-tags/{id}",
+    "operation_id": "updateContactTag",
+    "summary": "Update a contact tag",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/contact-tags/{id}",
+    "operation_id": "deleteContactTag",
+    "summary": "Delete a contact tag",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contacts/{contact_id}/tags",
+    "operation_id": "listContactTagsForContact",
+    "summary": "List a contact's tags",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/contacts/{contact_id}/tags/{tag_id}",
+    "operation_id": "attachContactTag",
+    "summary": "Attach a tag to a contact",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/contacts/{contact_id}/tags/{tag_id}",
+    "operation_id": "detachContactTag",
+    "summary": "Remove a tag from a contact",
+    "tags": [
+      "Contact Tags"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/campaigns",
+    "operation_id": "listCampaigns",
+    "summary": "List campaigns",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/campaigns",
+    "operation_id": "createCampaign",
+    "summary": "Create a new campaign",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/campaigns/{id}",
+    "operation_id": "getCampaign",
+    "summary": "Get a specific campaign",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/campaigns/{id}",
+    "operation_id": "updateCampaign",
+    "summary": "Update a draft campaign",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/campaigns/{id}",
+    "operation_id": "deleteCampaign",
+    "summary": "Delete a draft campaign",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/campaigns/{id}/send",
+    "operation_id": "sendCampaign",
+    "summary": "Send a campaign immediately",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/campaigns/{id}/stats",
+    "operation_id": "getCampaignStats",
+    "summary": "Get campaign performance statistics",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/campaigns/{id}/engagement",
+    "operation_id": "listCampaignEngagement",
+    "summary": "List the contacts behind a campaign's engagement",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/campaigns/{id}/resend",
+    "operation_id": "resendCampaign",
+    "summary": "Clone a sent campaign at part of its original audience",
+    "tags": [
+      "Campaigns"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/forms",
+    "operation_id": "listForms",
+    "summary": "List forms",
+    "tags": [
+      "Forms"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/forms",
+    "operation_id": "createForm",
+    "summary": "Create a new form",
+    "tags": [
+      "Forms"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/forms/{id}",
+    "operation_id": "getForm",
+    "summary": "Get a specific form",
+    "tags": [
+      "Forms"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/forms/{id}",
+    "operation_id": "updateForm",
+    "summary": "Update a form",
+    "tags": [
+      "Forms"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/forms/{id}",
+    "operation_id": "deleteForm",
+    "summary": "Delete a form",
+    "tags": [
+      "Forms"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/me",
+    "operation_id": "getCurrentUser",
+    "summary": "Get current user information",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contact-fields",
+    "operation_id": "listContactFields",
+    "summary": "List user contact fields",
+    "tags": [
+      "Contact Fields"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/contact-fields",
+    "operation_id": "createContactField",
+    "summary": "Create a custom contact field",
+    "tags": [
+      "Contact Fields"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/contact-fields/{id}",
+    "operation_id": "getContactField",
+    "summary": "Get a specific contact field",
+    "tags": [
+      "Contact Fields"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/contact-fields/{id}",
+    "operation_id": "updateContactField",
+    "summary": "Update a contact field label",
+    "tags": [
+      "Contact Fields"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/contact-fields/{id}",
+    "operation_id": "deleteContactField",
+    "summary": "Delete a contact field",
+    "tags": [
+      "Contact Fields"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/lists",
+    "operation_id": "listContactLists",
+    "summary": "List contact lists",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/lists",
+    "operation_id": "createContactList",
+    "summary": "Create a new contact list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/lists/{id}",
+    "operation_id": "getContactList",
+    "summary": "Get a specific contact list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/lists/{id}",
+    "operation_id": "updateContactList",
+    "summary": "Update a contact list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/lists/{id}",
+    "operation_id": "deleteContactList",
+    "summary": "Delete a contact list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/lists/{list_id}/contacts",
+    "operation_id": "listContactsInList",
+    "summary": "Get contacts in a list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/lists/{list_id}/contacts",
+    "operation_id": "addContactToList",
+    "summary": "Add a contact to a list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/lists/{list_id}/contacts/{contact_id}",
+    "operation_id": "removeContactFromList",
+    "summary": "Remove a contact from a list",
+    "tags": [
+      "Lists"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/domains",
+    "operation_id": "listDomains",
+    "summary": "List sender domains",
+    "tags": [
+      "Domains"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/domains",
+    "operation_id": "createDomain",
+    "summary": "Add a sender domain",
+    "tags": [
+      "Domains"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/domains/{id}",
+    "operation_id": "getDomain",
+    "summary": "Get domain with DNS records",
+    "tags": [
+      "Domains"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/domains/{id}",
+    "operation_id": "deleteDomain",
+    "summary": "Delete a sender domain",
+    "tags": [
+      "Domains"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/domains/{id}/validate",
+    "operation_id": "validateDomain",
+    "summary": "Validate domain DNS records",
+    "tags": [
+      "Domains"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/automations",
+    "operation_id": "listAutomations",
+    "summary": "List automations",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/automations",
+    "operation_id": "createAutomation",
+    "summary": "Create an automation",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/automations/{id}",
+    "operation_id": "getAutomation",
+    "summary": "Get a specific automation",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/automations/{id}",
+    "operation_id": "updateAutomation",
+    "summary": "Update an automation",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/automations/{id}",
+    "operation_id": "deleteAutomation",
+    "summary": "Delete an automation",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/automations/{id}/emails",
+    "operation_id": "createAutomationEmail",
+    "summary": "Add an email to an automation",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/automation-emails/{id}",
+    "operation_id": "updateAutomationEmail",
+    "summary": "Update an automation email",
+    "tags": [
+      "Automations"
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/automation-emails/{id}",
+    "operation_id": "deleteAutomationEmail",
+    "summary": "Remove an email from an automation",
+    "tags": [
+      "Automations"
+    ]
+  }
+]

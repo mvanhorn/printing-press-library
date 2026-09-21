@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/sendfox-pp-cli
+/sendfox-pp-cli.exe
+/sendfox-pp-mcp
+/sendfox-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,111 @@
+{
+  "dir": "\u003ccli-dir\u003e/sendfox-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 5,
+    "valid": 5,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 27,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 122,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 143,
+      "registered": 143
+    },
+    "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 7,
+      "mapped_steps": 0,
+      "unmapped_steps": [
+        "workflow audience-health --input examples/snapshot.json --max-age 0",
+        "workflow automation-plan --input examples/snapshot.json --max-age 0",
+        "workflow campaign-preflight --input examples/snapshot.json --max-age 0",
+        "workflow campaign-review --input examples/snapshot.json --max-age 0",
+        "workflow contact-dossier --input examples/snapshot.json --max-age 0 --id 1",
+        "workflow export-bundle --input examples/snapshot.json --max-age 0",
+        "workflow migration-readiness --input examples/snapshot.json --max-age 0"
+      ],
+      "detail": "0/7 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 7,
+    "found": 7
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 7,
+    "exempted_via_store": 7
+  },
+  "description_drift_check": {
+    "expected": "Operate SendFox campaigns and audiences with typed commands, local evidence and guarded plans."
+  },
+  "source_client_check": {
+    "checked": 14
+  },
+  "print_json_filtered_check": {
+    "checked": 114
+  },
+  "test_presence": {
+    "checked": 4
+  },
+  "naming_check": {
+    "checked": 114
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "7 unmapped workflow steps: workflow audience-health --input examples/snapshot.json --max-age 0, workflow automation-plan --input examples/snapshot.json --max-age 0, workflow campaign-preflight --input examples/snapshot.json --max-age 0, workflow campaign-review --input examples/snapshot.json --max-age 0, workflow contact-dossier --input examples/snapshot.json --max-age 0 --id 1, workflow export-bundle --input examples/snapshot.json --max-age 0, workflow migration-readiness --input examples/snapshot.json --max-age 0"
+  ]
+}

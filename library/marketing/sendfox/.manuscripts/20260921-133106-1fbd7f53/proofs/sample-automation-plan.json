@@ -1,0 +1,217 @@
+{
+  "meta": {
+    "source": "local"
+  },
+  "results": {
+    "schema_version": 1,
+    "workflow": "automation-plan",
+    "ready": true,
+    "findings": [],
+    "blockers": [],
+    "unknowns": [],
+    "source_evidence": {
+      "activity": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "automation_emails": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "automations": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "campaign_stats": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "campaigns": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contact_fields": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contact_tags": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "contacts": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "domains": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "engagement": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "forms": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 0,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "lists": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "memberships": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 2,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "tags": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      },
+      "unsubscribed": {
+        "items": null,
+        "source": "synthetic fixture; no account data",
+        "observed_at": "2026-09-21T18:48:22.330293Z",
+        "complete": true,
+        "capped": false,
+        "total": 1,
+        "pages": 1,
+        "scopes_complete": true
+      }
+    },
+    "proposed_actions": [
+      {
+        "body": {
+          "active": false,
+          "title": "Welcome",
+          "trigger_list_id": 12,
+          "trigger_type": "apply_list"
+        },
+        "capture": "automation",
+        "execute": false,
+        "method": "POST",
+        "path": "/automations",
+        "step": "automation"
+      },
+      {
+        "body": {
+          "delay_hours": 0,
+          "from_email": "newsletter@example.com",
+          "from_name": "Example Newsletter",
+          "html": "\u003cp\u003eHello\u003c/p\u003e",
+          "subject": "Welcome"
+        },
+        "depends_on": "automation",
+        "execute": false,
+        "method": "POST",
+        "path": "/automations/${automation.id}/emails",
+        "step": "email_1"
+      },
+      {
+        "body": {
+          "delay_hours": 24,
+          "from_email": "newsletter@example.com",
+          "from_name": "Example Newsletter",
+          "html": "\u003cp\u003eNext\u003c/p\u003e",
+          "subject": "Next idea"
+        },
+        "depends_on": "automation",
+        "execute": false,
+        "method": "POST",
+        "path": "/automations/${automation.id}/emails",
+        "step": "email_2"
+      }
+    ],
+    "data": {
+      "active": false,
+      "email_count": 2,
+      "limitations": [
+        "Enrollment/progress transfer is absent from the public API.",
+        "Activation may reschedule stale deliverables; activation is excluded from this plan."
+      ],
+      "symbolic_references": true
+    }
+  }
+}

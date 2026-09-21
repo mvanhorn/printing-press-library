@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "live-dogfood-fixture-and-dry-run-contracts",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260921-133106-1fbd7f53",
+  "base_printing_press_version": "4.32.4",
+  "summary": "Keep read-only live verification from mistaking synthetic IDs for account resources, and make dry-run JSON deterministic across local and workflow commands.",
+  "reason": "The first authenticated publish gate exposed fixture-only 404s and several commands that accepted --dry-run while emitting normal output. Agents need resource-aware verification and one consistent dry_run envelope without account mutations.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/contacts_get-bulk-action.go",
+    "internal/cli/doctor.go",
+    "internal/cli/domains_get.go",
+    "internal/cli/feedback.go",
+    "internal/cli/live_gate_regression_test.go",
+    "internal/cli/profile.go",
+    "internal/cli/promoted_unsubscribe.go",
+    "internal/cli/sendfox_bulk.go",
+    "internal/cli/sendfox_compatibility.go",
+    "internal/cli/sendfox_evidence.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Targeted regression tests require valid JSON dry-run envelopes, prohibit hard-coded live IDs for resource lookups, and require an executable webhook-gap example. Full authenticated gate must be rerun."
+}

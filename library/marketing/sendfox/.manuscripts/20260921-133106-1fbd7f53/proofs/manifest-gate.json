@@ -1,0 +1,112 @@
+[
+  {
+    "command": "analytics",
+    "passed": true,
+    "usage": "sendfox-pp-cli analytics [flags]"
+  },
+  {
+    "command": "capabilities",
+    "passed": true,
+    "usage": "sendfox-pp-cli capabilities [flags]"
+  },
+  {
+    "command": "contacts audit-csv",
+    "passed": true,
+    "usage": "sendfox-pp-cli contacts audit-csv [flags]"
+  },
+  {
+    "command": "contacts import-csv",
+    "passed": true,
+    "usage": "sendfox-pp-cli contacts import-csv [flags]"
+  },
+  {
+    "command": "contacts onboard",
+    "passed": true,
+    "usage": "sendfox-pp-cli contacts onboard [flags]"
+  },
+  {
+    "command": "contacts reconcile-csv",
+    "passed": true,
+    "usage": "sendfox-pp-cli contacts reconcile-csv [flags]"
+  },
+  {
+    "command": "forms generate",
+    "passed": true,
+    "usage": "sendfox-pp-cli forms generate [flags]"
+  },
+  {
+    "command": "search",
+    "passed": true,
+    "usage": "sendfox-pp-cli search <query> [flags]"
+  },
+  {
+    "command": "sql",
+    "passed": true,
+    "usage": "sendfox-pp-cli sql [query] [flags]"
+  },
+  {
+    "command": "sync",
+    "passed": true,
+    "usage": "sendfox-pp-cli sync [flags]"
+  },
+  {
+    "command": "workflow account-snapshot",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow account-snapshot [flags]"
+  },
+  {
+    "command": "workflow audience-health",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow audience-health [flags]"
+  },
+  {
+    "command": "workflow audience-map",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow audience-map [flags]"
+  },
+  {
+    "command": "workflow automation-plan",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow automation-plan [flags]"
+  },
+  {
+    "command": "workflow campaign-digest",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow campaign-digest [flags]"
+  },
+  {
+    "command": "workflow campaign-preflight",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow campaign-preflight [flags]"
+  },
+  {
+    "command": "workflow campaign-review",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow campaign-review [flags]"
+  },
+  {
+    "command": "workflow contact-dossier",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow contact-dossier [flags]"
+  },
+  {
+    "command": "workflow export-bundle",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow export-bundle [flags]"
+  },
+  {
+    "command": "workflow hygiene-report",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow hygiene-report [flags]"
+  },
+  {
+    "command": "workflow launch-plan",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow launch-plan [flags]"
+  },
+  {
+    "command": "workflow migration-readiness",
+    "passed": true,
+    "usage": "sendfox-pp-cli workflow migration-readiness [flags]"
+  }
+]

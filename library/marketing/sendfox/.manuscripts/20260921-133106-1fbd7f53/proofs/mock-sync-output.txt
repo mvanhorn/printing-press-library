@@ -1,0 +1,160 @@
+{
+  "sync_exit": 0,
+  "sync_output": "{\n  \"duration_ms\": 7,\n  \"errored\": 0,\n  \"resources\": 1,\n  \"success\": 1,\n  \"total_records\": 21,\n  \"warned\": 0\n}\n",
+  "requests": [
+    "/contact-fields",
+    "/contact-fields?page=2"
+  ],
+  "records": 21,
+  "sql": {
+    "count": 1,
+    "limit": 100,
+    "rows": [
+      {
+        "count": 21
+      }
+    ],
+    "truncated": false
+  },
+  "search_exit": 0,
+  "search": {
+    "meta": {
+      "reason": "no_search_endpoint",
+      "resource_type": "search",
+      "source": "local"
+    },
+    "results": [
+      {
+        "id": 1,
+        "label": "Preference 1",
+        "name": "preference_1",
+        "type": "text"
+      },
+      {
+        "id": 2,
+        "label": "Preference 2",
+        "name": "preference_2",
+        "type": "text"
+      },
+      {
+        "id": 3,
+        "label": "Preference 3",
+        "name": "preference_3",
+        "type": "text"
+      },
+      {
+        "id": 4,
+        "label": "Preference 4",
+        "name": "preference_4",
+        "type": "text"
+      },
+      {
+        "id": 5,
+        "label": "Preference 5",
+        "name": "preference_5",
+        "type": "text"
+      },
+      {
+        "id": 6,
+        "label": "Preference 6",
+        "name": "preference_6",
+        "type": "text"
+      },
+      {
+        "id": 7,
+        "label": "Preference 7",
+        "name": "preference_7",
+        "type": "text"
+      },
+      {
+        "id": 8,
+        "label": "Preference 8",
+        "name": "preference_8",
+        "type": "text"
+      },
+      {
+        "id": 9,
+        "label": "Preference 9",
+        "name": "preference_9",
+        "type": "text"
+      },
+      {
+        "id": 10,
+        "label": "Preference 10",
+        "name": "preference_10",
+        "type": "text"
+      },
+      {
+        "id": 11,
+        "label": "Preference 11",
+        "name": "preference_11",
+        "type": "text"
+      },
+      {
+        "id": 12,
+        "label": "Preference 12",
+        "name": "preference_12",
+        "type": "text"
+      },
+      {
+        "id": 13,
+        "label": "Preference 13",
+        "name": "preference_13",
+        "type": "text"
+      },
+      {
+        "id": 14,
+        "label": "Preference 14",
+        "name": "preference_14",
+        "type": "text"
+      },
+      {
+        "id": 15,
+        "label": "Preference 15",
+        "name": "preference_15",
+        "type": "text"
+      },
+      {
+        "id": 16,
+        "label": "Preference 16",
+        "name": "preference_16",
+        "type": "text"
+      },
+      {
+        "id": 17,
+        "label": "Preference 17",
+        "name": "preference_17",
+        "type": "text"
+      },
+      {
+        "id": 18,
+        "label": "Preference 18",
+        "name": "preference_18",
+        "type": "text"
+      },
+      {
+        "id": 19,
+        "label": "Preference 19",
+        "name": "preference_19",
+        "type": "text"
+      },
+      {
+        "id": 20,
+        "label": "Preference 20",
+        "name": "preference_20",
+        "type": "text"
+      },
+      {
+        "id": 21,
+        "label": "Preference 21",
+        "name": "preference_21",
+        "type": "text"
+      }
+    ]
+  },
+  "rejected_mutating_sql": true,
+  "analytics": {
+    "count": 21,
+    "resource_type": "contact_fields"
+  }
+}

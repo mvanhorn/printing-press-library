@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "resources": {
+    "contacts": {
+      "items": [
+        {
+          "id": 1,
+          "email": "reader@example.com",
+          "first_name": "Reader",
+          "unsubscribed_at": null
+        },
+        {
+          "id": 2,
+          "email": "suppressed@example.com",
+          "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 2,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "unsubscribed": {
+      "items": [
+        {
+          "id": 2,
+          "email": "suppressed@example.com",
+          "unsubscribed_at": "2026-09-21T18:48:22.330293Z"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "lists": {
+      "items": [
+        {
+          "id": 12,
+          "name": "Newsletter"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "tags": {
+      "items": [
+        {
+          "id": 3,
+          "name": "Reader"
+        }
+      ],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 1,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "contact_fields": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "forms": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    },
+    "automations": {
+      "items": [],
+      "source": "synthetic fixture; no account data",
+      "observed_at": "2026-09-21T18:48:22.330293Z",
+      "complete": true,
+      "capped": false,
+      "total": 0,
+      "pages": 1,
+      "scopes_complete": true
+    }
+  }
+}

@@ -1,0 +1,644 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 83,
+    "passed": 83,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": false,
+    "data_pipeline_detail": "FAIL: 62 domain tables created but 0 rows after sync (mock mode)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "FAIL",
+    "results": [
+      {
+        "command": "resource-path:tail",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "resource-path:export",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "resource-path:import",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "agent-context",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "analytics",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "auth",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "automation-emails",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "automations",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "campaigns",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "capabilities",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "contact-fields",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "contact-tags",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "contacts",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "domains",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "export",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "feedback",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "forms",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "import",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "learnings",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "lists",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "me",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "playbook",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "profile",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "recall",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "search",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sql",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sync",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tail",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-lookup",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-pattern",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-playbook",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "unsubscribe",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "workflow",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "automation-emails delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "automation-emails update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "automations create-email",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "automations delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "automations get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "automations update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns get-stats",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns list-engagement",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns resend",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns send",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "campaigns update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contact-fields delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contact-fields get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contact-fields update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contact-tags delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contact-tags get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contact-tags update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts attach-tag",
+        "positionals": [
+          "mock-value",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts detach-tag",
+        "positionals": [
+          "mock-value",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts get-activity",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts get-bulk-action",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts list-tags-for",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "contacts update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "domains delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "domains get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "domains validate",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "forms delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "forms get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "forms update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings confirm",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings forget",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings reject",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists add-contact-to",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists contacts-in",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists delete",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists get",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists remove-contact-from",
+        "positionals": [
+          "mock-value",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists update",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile delete",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile save",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile show",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile use",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "/Users/cathrynlavery/printing-press/.runstate/printing-press-c52790a1/runs/20260921-133106-1fbd7f53/working/sendfox-pp-cli/sendfox-pp-cli"
+  }
+}

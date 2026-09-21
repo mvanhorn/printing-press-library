@@ -1,0 +1,716 @@
+{
+  "operations": 60,
+  "passed": 60,
+  "results": [
+    {
+      "id": "automation_emails.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/automation-emails/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "automation_emails.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/automation-emails/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "automations.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/automations",
+        "body": {
+          "active": false,
+          "title": "Newsletter"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "automations.create-email",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/automations/12/emails",
+        "body": {
+          "from_email": "reader@example.com",
+          "from_name": "Newsletter",
+          "html": "<p>Hello</p>",
+          "subject": "News"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "automations.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/automations/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "automations.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/automations/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "automations.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/automations?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "automations.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/automations/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/campaigns",
+        "body": {
+          "from_email": "reader@example.com",
+          "from_name": "Newsletter",
+          "html": "<p>Hello</p>",
+          "subject": "News",
+          "title": "Newsletter"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/campaigns/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/campaigns/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.get-stats",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/campaigns/12/stats?link_limit=50",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/campaigns?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.list-engagement",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/campaigns/12/engagement?page=1&per_page=100&type=openers",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.resend",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/campaigns/12/resend",
+        "body": {
+          "audience": "non_openers"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.send",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/campaigns/12/send",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "campaigns.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/campaigns/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_fields.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/contact-fields",
+        "body": {
+          "contact_field_type_id": "0abe5601-7738-43c8-858f-81911ecf89ee",
+          "label": "Reader"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_fields.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/contact-fields/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_fields.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contact-fields/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_fields.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contact-fields?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_fields.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/contact-fields/12",
+        "body": {
+          "label": "Reader"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_tags.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/contact-tags",
+        "body": {
+          "name": "Reader"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_tags.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/contact-tags/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_tags.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contact-tags/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_tags.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contact-tags?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contact_tags.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/contact-tags/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.attach-tag",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/contacts/12/tags/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.batch-import",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/contacts/batch",
+        "body": {
+          "contacts": [
+            {
+              "email": "reader@example.com"
+            }
+          ]
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/contacts",
+        "body": {
+          "email": "reader@example.com"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.create-bulk-action",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/contacts/bulk-actions",
+        "body": {
+          "action": "apply_tag",
+          "dry_run": true,
+          "target_id": 1
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/contacts/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.detach-tag",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/contacts/12/tags/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contacts/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.get-activity",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contacts/12/activity",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.get-bulk-action",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contacts/bulk-actions/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contacts?page=1&per_page=100",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.list-tags-for",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contacts/12/tags",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.list-unsubscribed",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/contacts/unsubscribed?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "contacts.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/contacts/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "domains.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/domains",
+        "body": {
+          "domain": "Reader"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "domains.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/domains/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "domains.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/domains/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "domains.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/domains?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "domains.validate",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/domains/12/validate",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "forms.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/forms",
+        "body": {
+          "lists": [
+            1
+          ],
+          "title": "Newsletter"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "forms.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/forms/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "forms.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/forms/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "forms.list",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/forms?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "forms.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/forms/12",
+        "body": {}
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.add-contact-to",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/lists/12/contacts",
+        "body": {
+          "contact_id": 1
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.contacts-in",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/lists/12/contacts?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.create",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "POST",
+        "path": "/lists",
+        "body": {
+          "name": "Reader"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.delete",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/lists/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/lists/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.list_lists",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/lists?page=1",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.remove-contact-from",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "DELETE",
+        "path": "/lists/12/contacts/12",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "lists.update",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/lists/12",
+        "body": {
+          "name": "Reader"
+        }
+      },
+      "error": ""
+    },
+    {
+      "id": "me.get",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "GET",
+        "path": "/me",
+        "body": null
+      },
+      "error": ""
+    },
+    {
+      "id": "unsubscribe.contact",
+      "passed": true,
+      "exit": 0,
+      "request": {
+        "method": "PATCH",
+        "path": "/unsubscribe",
+        "body": {
+          "email": "reader@example.com"
+        }
+      },
+      "error": ""
+    }
+  ]
+}

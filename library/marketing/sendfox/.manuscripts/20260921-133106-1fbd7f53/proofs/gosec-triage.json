@@ -1,0 +1,252 @@
+{
+  "raw_before": 40,
+  "raw_after": 35,
+  "unresolved_novel_findings": 0,
+  "findings": [
+    {
+      "file": "internal/client/client.go",
+      "line": "346",
+      "rule": "G119",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "False positive: redirect callback only re-adds Authorization if redirectLeavesOrigin is false; origin departure strips it."
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule": "G101",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "False positive: environment variable names / protocol identifiers, not embedded credential values."
+    },
+    {
+      "file": "cmd/sendfox-pp-mcp/main.go",
+      "line": "36",
+      "rule": "G101",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "False positive: environment variable names / protocol identifiers, not embedded credential values."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "210",
+      "rule": "G703",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Local teach --input path is intentionally user-selected. MCP/local callers already operate with local filesystem access; no remote public endpoint exposed by default."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "75",
+      "rule": "G204",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "OS-specific browser opener uses exec.Command arguments without a shell; auth URL is fixed by contract."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "73",
+      "rule": "G204",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "OS-specific browser opener uses exec.Command arguments without a shell; auth URL is fixed by contract."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "71",
+      "rule": "G204",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "OS-specific browser opener uses exec.Command arguments without a shell; auth URL is fixed by contract."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "4705-4708",
+      "rule": "G201",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Query identifiers are escaped/validated or fixed fragments; user values use bound parameters. No untrusted SQL interpolation found."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "4402-4405",
+      "rule": "G201",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Query identifiers are escaped/validated or fixed fragments; user values use bound parameters. No untrusted SQL interpolation found."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1561",
+      "rule": "G201",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Query identifiers are escaped/validated or fixed fragments; user values use bound parameters. No untrusted SQL interpolation found."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1537",
+      "rule": "G201",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Query identifiers are escaped/validated or fixed fragments; user values use bound parameters. No untrusted SQL interpolation found."
+    },
+    {
+      "file": "internal/store/learnings.go",
+      "line": "609",
+      "rule": "G202",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Query identifiers are escaped/validated or fixed fragments; user values use bound parameters. No untrusted SQL interpolation found."
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule": "G202",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Query identifiers are escaped/validated or fixed fragments; user values use bound parameters. No untrusted SQL interpolation found."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "253",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/learn/teach_log.go",
+      "line": "112",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/learn/playbooks.go",
+      "line": "73",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "246",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/cli/teach_playbook.go",
+      "line": "376",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "150",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "127",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "201",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "internal/cli/export.go",
+      "line": "88",
+      "rule": "G304",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Intentional local file interface: caller-selected config, export, profile or learning files. Does not fetch remote paths."
+    },
+    {
+      "file": "cmd/sendfox-pp-mcp/main.go",
+      "line": "86-89",
+      "rule": "G112",
+      "disposition": "template_followup",
+      "reason": "Template follow-up: generated MCP HTTP server lacks ReadHeaderTimeout. Default loopback and explicit caller token reduce exposure; prefer stdio until upstream hardened."
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "line": "265",
+      "rule": "G117",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "SessionKey is an internal learning-session correlation identifier, not an authentication secret."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule": "G302",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Directory permissions 0700/0755 are intentional; no new secret-file broadening."
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule": "G302",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Directory permissions 0700/0755 are intentional; no new secret-file broadening."
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule": "G302",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Directory permissions 0700/0755 are intentional; no new secret-file broadening."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "695",
+      "rule": "G302",
+      "disposition": "reviewed_not_exploitable_in_current_interface",
+      "reason": "Directory permissions 0700/0755 are intentional; no new secret-file broadening."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "4493",
+      "rule": "G104",
+      "disposition": "template_followup",
+      "reason": "Generated framework cleanup/diagnostic error ignored; template reliability follow-up. Current novel rows.Close errors fixed and tested."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "4236",
+      "rule": "G104",
+      "disposition": "template_followup",
+      "reason": "Generated framework cleanup/diagnostic error ignored; template reliability follow-up. Current novel rows.Close errors fixed and tested."
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "line": "278",
+      "rule": "G104",
+      "disposition": "template_followup",
+      "reason": "Generated framework cleanup/diagnostic error ignored; template reliability follow-up. Current novel rows.Close errors fixed and tested."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1380",
+      "rule": "G104",
+      "disposition": "template_followup",
+      "reason": "Generated framework cleanup/diagnostic error ignored; template reliability follow-up. Current novel rows.Close errors fixed and tested."
+    }
+  ]
+}

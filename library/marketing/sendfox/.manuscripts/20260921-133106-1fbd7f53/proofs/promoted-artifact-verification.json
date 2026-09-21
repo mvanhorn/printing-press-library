@@ -1,0 +1,11 @@
+{
+  "library": "/Users/cathrynlavery/printing-press/library/sendfox",
+  "source_inputs_matching": 272,
+  "changed_source_inputs": [],
+  "cli_sha256": "a80099a893861bc7c0603befe1a0ba0886100b7faccb4fdb6074296f236629ba",
+  "mcp_sha256": "0b6f0669af5d4dd585d4b5a2c967aa7f4785420d08e4d32494c1285376e10047",
+  "bundle_sha256": "0a9f1555cf6763017ecd15111939f9f417a216d465bad1302fe949943d396e1c",
+  "agent_context_json": true,
+  "local_workflow_json": true,
+  "live_verified": false
+}

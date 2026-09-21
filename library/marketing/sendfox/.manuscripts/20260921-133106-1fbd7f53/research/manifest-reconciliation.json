@@ -1,0 +1,17 @@
+{
+  "prior_tool_count": 11,
+  "new_tool_count": 60,
+  "preserved_http_operations": 8,
+  "intent": "Accept current spec-derived operations and enriched auth/MCP metadata. Prior workflow metadata reconciled in brainstorm; not yet implemented. No library promotion performed.",
+  "new_mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "new_auth_env_names": [
+    "SENDFOX_API_TOKEN",
+    "SENDFOX_BEARER_AUTH"
+  ],
+  "old_auth_env_names": [
+    "SENDFOX_BEARER_AUTH"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "reprint-release-version-layout",
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260921-133106-1fbd7f53",
+  "base_printing_press_version": "4.32.4",
+  "summary": "Preserve the published release-ledger version declaration while sharing it with the reprinted MCP server.",
+  "reason": "Reprints must not reset or relocate the catalog-managed runtime version in a feature PR; post-merge release automation owns the next version stamp.",
+  "files": [
+    "cmd/sendfox-pp-mcp/main.go",
+    "internal/cli/root.go",
+    "internal/cli/version.go"
+  ],
+  "validated_outcome": "The release-ledger guard sees no runtime version change, while CLI and MCP binaries report the same preserved version through cli.Version()."
+}
