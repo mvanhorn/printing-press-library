@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T16:01:26.626177Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "apptweak",
+  "display_name": "AppTweak",
+  "cli_name": "apptweak-pp-cli",
+  "creator": {
+    "handle": "rk-labs-tech",
+    "name": "Ryan Kelley"
+  },
+  "owner": "rk-labs-tech",
+  "printer": "rk-labs-tech",
+  "printer_name": "Ryan Kelley",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:91e95ea2aef9caee929cddce9a63122fe50290f4d836b734167b99ece20ef2b3",
+  "run_id": "20260528-190526",
+  "category": "developer-tools",
+  "description": "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do.",
+  "mcp_binary": "apptweak-pp-mcp",
+  "mcp_tool_count": 30,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "APPTWEAK_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-Country Keyword Rank Fan-Out",
+      "command": "keywords rank-fanout",
+      "description": "Check keyword rankings across many countries in one command — no MCP tool or competitor offers multi-country fan-out."
+    },
+    {
+      "name": "Competitor Metadata Diff",
+      "command": "apps metadata-diff",
+      "description": "Compare metadata between two app versions or two competitor apps to spot ASO experiments."
+    },
+    {
+      "name": "Keyword Basket Tracker",
+      "command": "keywords track",
+      "description": "Sync and alert on ranking changes for a saved keyword basket across apps and countries."
+    },
+    {
+      "name": "Review Sentiment Pipeline",
+      "command": "reviews sentiment",
+      "description": "Aggregate review ratings by keyword term — find what topics drive 1-star vs 5-star reviews."
+    },
+    {
+      "name": "Paid vs Organic Keyword Gap",
+      "command": "keywords paid-organic-gap",
+      "description": "Find keywords a competitor bids on where your app doesn't rank organically — ASA opportunity map."
+    },
+    {
+      "name": "Credits Monitor",
+      "command": "credits status",
+      "description": "Check remaining API credits and burn rate before running expensive bulk queries."
+    }
+  ]
+}
