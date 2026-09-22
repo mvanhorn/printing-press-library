@@ -13,7 +13,7 @@
   "call_sites": [
     "remainingCartQuantity("
   ],
-  "validated_outcome": "Verified live against siteapi.shopper.com.br on the Compra Unica storefront: adding 3 units then removing with --quantity 3 now empties the line in one command instead of leaving 2 behind; the cart was returned to empty after the test. TestRemainingCartQuantityReadsLineQuantity pins the live response shape (including absent/null/unparseable bodies) and TestRemoveRepeatCount pins the loop arithmetic, so collapsing this back into a single call fails the suite. A --stdin body is still sent verbatim exactly once.",
+  "validated_outcome": "Verified live against siteapi.shopper.com.br on the Compra Unica storefront: adding 3 units then removing with --quantity 3 now empties the line in one command instead of leaving 2 behind; the cart was returned to empty after the test. TestRemainingCartQuantityReadsLineQuantity pins the live response shape (including absent/null/unparseable bodies) and TestRemoveRepeatCount pins the loop arithmetic, so collapsing this back into a single call fails the suite. A --stdin body is still sent verbatim exactly once. `--dry-run` renders the request once and notes on stderr how many times it would be sent, rather than echoing N identical blocks.",
   "deferred_to_upstream": [
     {
       "feature": "The generator should be able to record that a sniffed mutate endpoint ignores one of its own documented body fields, so the emitted command compensates instead of reporting a silent partial write.",

@@ -88,6 +88,13 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 			if !stdinBody && bodyQuantity > 1 {
 				repeats = bodyQuantity
 			}
+			if flags.dryRun && repeats > 1 {
+				// Dry-run renders the request once and says how many times it
+				// would be sent; echoing an identical block N times buries the
+				// one thing the reader is checking.
+				fmt.Fprintf(os.Stderr, "note: this request would be sent %d times (one per unit removed)\n", repeats)
+				repeats = 1
+			}
 			var data json.RawMessage
 			var statusCode int
 			removed := 0
