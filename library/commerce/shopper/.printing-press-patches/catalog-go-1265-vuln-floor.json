@@ -1,4 +1,5 @@
 {
+  "schema_version": 2,
   "id": "catalog-go-1265-vuln-floor",
   "summary": "Raise the published CLI Go toolchain floor to 1.26.5 so the GO-2026-5856 crypto/tls fix is enforced by go install.",
   "reason": "Go 1.26.5 carries the standard-library fix for GO-2026-5856; the catalog-wide docs floor must match each module go directive so users do not build published CLIs with a vulnerable Go toolchain.",

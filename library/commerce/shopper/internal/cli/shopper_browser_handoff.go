@@ -14,6 +14,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/spf13/cobra"
 )
@@ -255,6 +256,15 @@ Use this to discover available stores before switching --store.`,
 			data, err := c.Get(cmd.Context(), "/features/stores", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// PATCH: store-cluster-truth. cluster_id is not derivable from the
+			// store id, so the CLI's baked table can silently drift from the
+			// API — which is exactly how `unica` and `pet` ended up pinned to
+			// cluster 3 while the API said 1, routing --store reads to a cart
+			// bucket the website never opens. Every `stores` run now compares
+			// the two and names any disagreement on stderr.
+			for _, line := range client.StoreCatalogDrift(data) {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: store table drift — %s\n", line)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), data, flags)
 		},

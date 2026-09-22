@@ -16,6 +16,9 @@ func newCartCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newCartAddCmd(flags))
+	// PATCH: cart-list-items. /cart/summary returns totals only; list-items reads
+	// GET /cart/list for the actual basket contents.
+	cmd.AddCommand(newCartListItemsCmd(flags))
 	cmd.AddCommand(newCartListSummaryCmd(flags))
 	cmd.AddCommand(newCartRemoveCmd(flags))
 	return cmd

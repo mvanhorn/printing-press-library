@@ -78,6 +78,16 @@ These capabilities aren't available in any other tool for this API.
   shopper-pp-cli cashback optimize --tier 2399 --store programada --agent
   ```
 
+### Basket contents
+
+- **`cart list-items`** — Lists what is actually in the basket: product, department, quantity, unit price and line total, with paused lines reported separately.
+
+  Reads `GET /cart/list`, the endpoint behind the web basket page. `cart list-summary` reads `GET /cart/summary`, which returns totals only and carries no item array — so it can tell you the basket costs R$ 27,96 but never what made it up. `basket diff`, `price-watch --only-basket` and any agent reasoning about basket contents read through this command.
+
+  ```bash
+  shopper-pp-cli cart list-items --store programada --agent
+  ```
+
 ### Local state that compounds
 - **`price-watch`** — Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.
 
@@ -119,8 +129,9 @@ These capabilities aren't available in any other tool for this API.
 **cart** — Cart: view summary, add products, remove products
 
 - `shopper-pp-cli cart add` — Add a product to the cart or increase its quantity
-- `shopper-pp-cli cart list-summary` — Show current basket: items, quantities, totals, cashback, and minimum-order status
-- `shopper-pp-cli cart remove` — Remove a product from the cart or decrease its quantity
+- `shopper-pp-cli cart list-items` — List the products actually in the cart (name, quantity, unit price, line total)
+- `shopper-pp-cli cart list-summary` — Show basket TOTALS only (value, cashback tier, minimum-order status) — use `cart list-items` for the contents
+- `shopper-pp-cli cart remove` — Remove units of a product; `--quantity N` removes N units
 
 **catalog** — Product catalog: search, departments, banners, suggestions
 
@@ -243,6 +254,34 @@ These commands are declared by the spec author and require separate hand-written
 - `shopper-pp-cli payment cards` — Show saved payment card count and open card-management in the browser (card add/delete is browser-required
 
 ## Recipes
+
+### See what is actually in the basket
+
+`cart list-summary` answers "how much", `cart list-items` answers "what". Line totals are sorted biggest-first, and paused products are listed apart so they never inflate the active count.
+
+```bash
+shopper-pp-cli cart list-items --store programada --agent
+```
+
+### Remove several units of one product
+
+`POST /cart/remove` decrements a line by exactly one unit per call and ignores the `quantity` it is given, so the CLI issues one call per unit and stops early once the line is empty.
+
+```bash
+# Take 3 units of product 36756 off the Compra Unica basket.
+shopper-pp-cli cart remove --id 36756 --quantity 3 --store unica --agent
+
+# Confirm the line is gone.
+shopper-pp-cli cart list-items --store unica --agent
+```
+
+### Confirm the CLI store table still matches the API
+
+`cluster_id` is an independent dimension, not a copy of the store id — five of the six storefronts share cluster 1 and only the ultra-fast pair sits on cluster 11. `stores` compares the CLI's baked table against the live payload and prints a `store table drift` warning on stderr if they disagree.
+
+```bash
+shopper-pp-cli stores --agent 2>drift.txt; cat drift.txt
+```
 
 ### Check if the edit window is still open
 

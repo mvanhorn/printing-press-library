@@ -10,17 +10,28 @@
 // file is the single source of truth for that mapping; the --store global flag
 // and the SHOPPER_STORE env var both route through ResolveStore.
 //
-// Store map confirmed live via GET /features/stores (2026-08-03):
-//   programada (mensal):  store_id=1, cluster_id=1, with_recurrence=true
-//   fresh:                store_id=2, cluster_id=1, with_recurrence=true
-//   unica (pontual):      store_id=3, cluster_id=3, with_recurrence=false
-//   pet:                  store_id=5, cluster_id=3, with_recurrence=true
+// PATCH: store-cluster-truth. cluster_id is an INDEPENDENT dimension from the
+// store id — it is NOT a copy of it. Only GET /features/stores (`cluster_id`)
+// is authoritative. Five of the six storefronts share cluster 1; only the two
+// ultra-fast ones sit on cluster 11. Sending a store's own id as its cluster
+// (the pre-patch value for `unica`) routes every request to a cart bucket the
+// website never opens, so the CLI and the browser disagree about the basket.
+//
+// Store map re-confirmed live via GET /features/stores (2026-09-22):
+//   programada (mensal):  store_id=1, cluster_id=1,  with_recurrence=true
+//   fresh:                store_id=2, cluster_id=1,  with_recurrence=true
+//   unica (pontual):      store_id=3, cluster_id=1,  with_recurrence=false
+//   pet:                  store_id=5, cluster_id=1,  with_recurrence=true
 //   now:                  store_id=6, cluster_id=11, with_recurrence=false, ultra_fast=true
 //   now-bebidas:          store_id=8, cluster_id=11, with_recurrence=false, ultra_fast=true
+//
+// `stores` cross-checks this table against the live payload on every run and
+// prints a drift warning (see StoreCatalogDrift) so it cannot silently rot again.
 
 package client
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
@@ -41,8 +52,8 @@ type Store struct {
 var shopperStores = map[string]Store{
 	"programada":  {StoreID: "1", ClusterID: "1", Subdomain: "programada", WithRecurrence: true, UltraFast: false},
 	"fresh":       {StoreID: "2", ClusterID: "1", Subdomain: "fresh", WithRecurrence: true, UltraFast: false},
-	"unica":       {StoreID: "3", ClusterID: "3", Subdomain: "unica", WithRecurrence: false, UltraFast: false},
-	"pet":         {StoreID: "5", ClusterID: "3", Subdomain: "pet", WithRecurrence: true, UltraFast: false},
+	"unica":       {StoreID: "3", ClusterID: "1", Subdomain: "unica", WithRecurrence: false, UltraFast: false},
+	"pet":         {StoreID: "5", ClusterID: "1", Subdomain: "pet", WithRecurrence: true, UltraFast: false},
 	"now":         {StoreID: "6", ClusterID: "11", Subdomain: "now", WithRecurrence: false, UltraFast: true},
 	"now-bebidas": {StoreID: "8", ClusterID: "11", Subdomain: "now-bebidas", WithRecurrence: false, UltraFast: true},
 }
@@ -139,13 +150,13 @@ func ShopperRequiredHeaders() map[string]string {
 		store.ClusterID = v
 	}
 	return map[string]string{
-		"app-os-x-version":             "web:1002",
-		"x-store-id":                   store.StoreID,
-		"x-cluster-id":                 store.ClusterID,
+		"app-os-x-version": "web:1002",
+		"x-store-id":       store.StoreID,
+		"x-cluster-id":     store.ClusterID,
 		// Cache-key sentinel: canonicalRepresentationHeaders includes headers
 		// whose normalized name contains "api-version", making responses from
 		// different storefronts hash to different cache files.
-		"x-shopper-store-api-version":  "store=" + store.StoreID + "/cluster=" + store.ClusterID,
+		"x-shopper-store-api-version": "store=" + store.StoreID + "/cluster=" + store.ClusterID,
 	}
 }
 
@@ -193,4 +204,72 @@ func SetStoreHeaders(c *Client, st Store) {
 	// header whose normalized name contains "api-version". This sentinel makes
 	// the cache key unique per storefront without affecting API routing.
 	c.Config.Headers["x-shopper-store-api-version"] = "store=" + st.StoreID + "/cluster=" + st.ClusterID
+}
+
+// PATCH: store-cluster-truth. StoreFor resolves a store selector to its Store
+// record, falling back to Programada when the selector is empty or unknown.
+// Callers that need the storefront's real properties (ultra-fast, recurrence)
+// must read them from here rather than re-deriving them from a local switch —
+// a duplicated table is exactly how the cluster_id values drifted.
+func StoreFor(sel string) Store {
+	if st, ok := ResolveStore(sel); ok {
+		return st
+	}
+	return shopperStores["programada"]
+}
+
+// liveStore is the subset of one GET /features/stores row that this file bakes
+// into shopperStores. Field names match the live payload verbatim.
+type liveStore struct {
+	Number              int    `json:"number"`
+	Subdomain           string `json:"subdomain"`
+	ClusterID           int    `json:"cluster_id"`
+	WithRecurrence      bool   `json:"with_recurrence"`
+	IsUltraFastDelivery bool   `json:"is_ultra_fast_delivery"`
+}
+
+type liveStoresEnvelope struct {
+	Stores []liveStore `json:"stores"`
+}
+
+// StoreCatalogDrift compares the baked shopperStores table against a raw
+// GET /features/stores response body and returns one line per disagreement.
+// An empty slice means the table still matches the API. A body that cannot be
+// parsed yields no lines — drift reporting is best-effort and must never turn
+// a working read into an error.
+//
+// PATCH: store-cluster-truth. The original table carried cluster_id=3 for
+// `unica` and `pet` (the API says 1 for both), and nothing compared the two.
+// This is the guard that makes the same drift visible the next time it happens.
+func StoreCatalogDrift(body []byte) []string {
+	var env liveStoresEnvelope
+	if json.Unmarshal(body, &env) != nil || len(env.Stores) == 0 {
+		return nil
+	}
+	var drift []string
+	for _, live := range env.Stores {
+		baked, ok := shopperStores[strings.ToLower(live.Subdomain)]
+		if !ok {
+			drift = append(drift, "storefront "+live.Subdomain+" (store "+strconv.Itoa(live.Number)+
+				", cluster "+strconv.Itoa(live.ClusterID)+") is live but missing from the CLI store table")
+			continue
+		}
+		if baked.StoreID != strconv.Itoa(live.Number) {
+			drift = append(drift, live.Subdomain+": store id is "+strconv.Itoa(live.Number)+
+				" live, CLI table says "+baked.StoreID)
+		}
+		if baked.ClusterID != strconv.Itoa(live.ClusterID) {
+			drift = append(drift, live.Subdomain+": cluster_id is "+strconv.Itoa(live.ClusterID)+
+				" live, CLI table says "+baked.ClusterID)
+		}
+		if baked.WithRecurrence != live.WithRecurrence {
+			drift = append(drift, live.Subdomain+": with_recurrence is "+strconv.FormatBool(live.WithRecurrence)+
+				" live, CLI table says "+strconv.FormatBool(baked.WithRecurrence))
+		}
+		if baked.UltraFast != live.IsUltraFastDelivery {
+			drift = append(drift, live.Subdomain+": is_ultra_fast_delivery is "+strconv.FormatBool(live.IsUltraFastDelivery)+
+				" live, CLI table says "+strconv.FormatBool(baked.UltraFast))
+		}
+	}
+	return drift
 }

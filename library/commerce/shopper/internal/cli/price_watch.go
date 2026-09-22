@@ -87,20 +87,15 @@ First run: captures price baseline; no alerts yet (no history to compare).`,
 
 			var toSnapshot []store.PriceSnapshot
 			if flagOnlyBasket {
-				cartData, cerr := c.Get(cmd.Context(), "/cart/summary", nil)
+				// PATCH: cart-list-items. --only-basket used to read
+				// GET /cart/summary, which has no item array, so it snapshotted
+				// nothing and price-watch silently tracked an empty set. The
+				// basket contents come from GET /cart/list.
+				cartView, cerr := fetchCartItems(cmd, c, flags)
 				if cerr != nil {
-					return classifyAPIError(cerr, flags)
+					return cerr
 				}
-				cartItems := extractCartItems(cartData)
-				for _, item := range cartItems {
-					toSnapshot = append(toSnapshot, store.PriceSnapshot{
-						ProductID:  item.ID,
-						Name:       item.Name,
-						PriceCents: int64(math.Round(item.Price * 100)),
-						UnitLabel:  parseUnitLabel(item.Name),
-						PackGrams:  parsePackGrams(item.Name),
-					})
-				}
+				toSnapshot = append(toSnapshot, basketPriceSnapshots(cartView)...)
 			} else {
 				var searchData json.RawMessage
 				searchData, _, _ = c.PostQueryWithParams(cmd.Context(), "/catalog/search", nil,
@@ -108,22 +103,17 @@ First run: captures price baseline; no alerts yet (no history to compare).`,
 				if searchData != nil {
 					toSnapshot = append(toSnapshot, parseCatalogProducts(searchData)...)
 				}
-				cartData, cerr := c.Get(cmd.Context(), "/cart/summary", nil)
+				// PATCH: cart-list-items. Same fix as --only-basket: the
+				// basket half of the default snapshot set reads GET /cart/list.
+				cartView, cerr := fetchCartItems(cmd, c, flags)
 				if cerr == nil {
-					cartItems := extractCartItems(cartData)
 					seen := make(map[string]bool)
-					for _, s := range toSnapshot {
-						seen[s.ProductID] = true
+					for _, snap := range toSnapshot {
+						seen[snap.ProductID] = true
 					}
-					for _, item := range cartItems {
-						if !seen[item.ID] {
-							toSnapshot = append(toSnapshot, store.PriceSnapshot{
-								ProductID:  item.ID,
-								Name:       item.Name,
-								PriceCents: int64(math.Round(item.Price * 100)),
-								UnitLabel:  parseUnitLabel(item.Name),
-								PackGrams:  parsePackGrams(item.Name),
-							})
+					for _, snap := range basketPriceSnapshots(cartView) {
+						if !seen[snap.ProductID] {
+							toSnapshot = append(toSnapshot, snap)
 						}
 					}
 				}
@@ -304,6 +294,28 @@ func parseCatalogProducts(data json.RawMessage) []store.PriceSnapshot {
 			PriceCents: int64(math.Round(price * 100)),
 			UnitLabel:  parseUnitLabel(name),
 			PackGrams:  parsePackGrams(name),
+		})
+	}
+	return out
+}
+
+// basketPriceSnapshots turns the live basket view into price-history rows.
+// The tracked price is the UNIT price, not the line total, so a quantity change
+// never reads as a price move.
+//
+// PATCH: cart-list-items.
+func basketPriceSnapshots(view cartItemsView) []store.PriceSnapshot {
+	out := make([]store.PriceSnapshot, 0, len(view.Items))
+	for _, item := range view.Items {
+		if item.ID == 0 || item.UnitPrice <= 0 {
+			continue
+		}
+		out = append(out, store.PriceSnapshot{
+			ProductID:  strconv.FormatInt(item.ID, 10),
+			Name:       item.Name,
+			PriceCents: int64(math.Round(item.UnitPrice * 100)),
+			UnitLabel:  parseUnitLabel(item.Name),
+			PackGrams:  parsePackGrams(item.Name),
 		})
 	}
 	return out

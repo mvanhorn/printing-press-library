@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -103,12 +104,22 @@ Run 'shopper-pp-cli checkout open --store <store>' to open the checkout page.`,
 				calData, _ := c.Get(cmd.Context(), "/delivery/v2/calendar", nil)
 				cal := buildChargeCalendar(delivData, calData, 0, false)
 				view.ChargeCalendar = cal.NextDelivery
-			} else if !isSubscriptionStore(storeName) {
+			} else {
+				// PATCH: store-cluster-truth. Ultra-fast is a property of the
+				// storefront (is_ultra_fast_delivery), not the inverse of
+				// "has a recurring basket". `unica` is neither a subscription
+				// store nor ultra-fast, and used to be mislabelled as both
+				// ultra-fast and browser-slot-selected.
 				if view.Delivery == nil {
 					view.Delivery = &checkoutDelivery{}
 				}
-				view.Delivery.IsUltraFast = true
-				view.Note = "Ultra-fast delivery (now/now-bebidas): delivery slot is selected at checkout in the browser."
+				if isUltraFastStore(storeName) {
+					view.Delivery.IsUltraFast = true
+					view.Note = "Ultra-fast delivery (now/now-bebidas): delivery slot is selected at checkout in the browser."
+				} else {
+					view.Delivery.IsUltraFast = false
+					view.Note = "One-off store (unica): no recurring cycle or charge calendar; the delivery slot is chosen at checkout in the browser."
+				}
 			}
 
 			storesData, storesErr := c.Get(cmd.Context(), "/features/stores", nil)
@@ -222,31 +233,30 @@ func extractPaymentParams(data json.RawMessage, storeName string) *checkoutPayme
 }
 
 // isSubscriptionStore returns true for stores with recurring basket cycles.
+//
+// PATCH: store-cluster-truth. Was a local switch duplicating the store table in
+// internal/client. It now reads with_recurrence from the single source of truth,
+// so adding or re-classifying a storefront cannot leave this predicate behind.
 func isSubscriptionStore(s string) bool {
-	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "programada", "mensal", "1", "fresh", "2", "pet", "5":
-		return true
-	}
-	return false
+	return client.StoreFor(s).WithRecurrence
+}
+
+// isUltraFastStore returns true only for the storefronts the API itself marks
+// is_ultra_fast_delivery (now, now-bebidas).
+//
+// PATCH: store-cluster-truth. checkout preview used to treat "not a subscription
+// store" as "ultra fast", which wrongly reported is_ultra_fast=true for `unica`
+// — a one-off store that the API reports as is_ultra_fast_delivery=false.
+func isUltraFastStore(s string) bool {
+	return client.StoreFor(s).UltraFast
 }
 
 // resolveSubdomain maps a store name to its web subdomain.
+//
+// PATCH: store-cluster-truth. Delegates to the single store table rather than
+// carrying its own copy of the name/id aliases.
 func resolveSubdomain(s string) string {
-	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "programada", "mensal", "1":
-		return "programada"
-	case "fresh", "2":
-		return "fresh"
-	case "unica", "pontual", "3":
-		return "unica"
-	case "pet", "5":
-		return "pet"
-	case "now", "6":
-		return "now"
-	case "now-bebidas", "nowbebidas", "8":
-		return "now-bebidas"
-	}
-	return "programada"
+	return client.StoreFor(s).Subdomain
 }
 
 // storeMatchesSubdomain checks if an API internal store name matches a user input.

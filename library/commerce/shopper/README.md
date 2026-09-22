@@ -176,6 +176,15 @@ These capabilities aren't available in any other tool for this API.
   shopper-pp-cli cashback optimize --tier 2399 --store programada --agent
   ```
 
+### Basket contents
+- **`cart list-items`** - Lists what is actually in the basket: product, department, quantity, unit price and line total, with paused lines reported separately.
+
+  _Reads `GET /cart/list`, the endpoint behind the web basket page. `cart list-summary` reads `GET /cart/summary`, which returns totals only and carries no item array - it can say the basket costs R$ 27,96 but never what made it up._
+
+  ```bash
+  shopper-pp-cli cart list-items --store programada --agent
+  ```
+
 ### Local state that compounds
 - **`price-watch`** — Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.
 
@@ -209,6 +218,31 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
+
+### See what is actually in the basket
+
+`cart list-summary` answers "how much", `cart list-items` answers "what". Lines are sorted biggest-first, and paused products are listed apart so they never inflate the active count.
+
+```bash
+shopper-pp-cli cart list-items --store programada --agent
+```
+
+### Remove several units of one product
+
+`POST /cart/remove` decrements a line by exactly one unit per call and ignores the `quantity` it is given, so the CLI issues one call per unit and stops early once the line is empty.
+
+```bash
+shopper-pp-cli cart remove --id 36756 --quantity 3 --store unica --agent
+shopper-pp-cli cart list-items --store unica --agent
+```
+
+### Confirm the CLI store table still matches the API
+
+`cluster_id` is an independent dimension, not a copy of the store id - five of the six storefronts share cluster 1 and only the ultra-fast pair (`now`, `now-bebidas`) sits on cluster 11. `stores` compares the CLI's baked table against the live payload and warns on stderr if they disagree.
+
+```bash
+shopper-pp-cli stores --agent 2>drift.txt; cat drift.txt
+```
 
 ### Check if the edit window is still open
 
@@ -313,11 +347,12 @@ Saved delivery addresses with per-address available-store information
 
 ### cart
 
-Cart: view summary, add products, remove products
+Cart: list contents, view totals, add products, remove products
 
 - **`shopper-pp-cli cart add`** - Add a product to the cart or increase its quantity
-- **`shopper-pp-cli cart list-summary`** - Show current basket: items, quantities, totals, cashback, and minimum-order status
-- **`shopper-pp-cli cart remove`** - Remove a product from the cart or decrease its quantity
+- **`shopper-pp-cli cart list-items`** - List the products actually in the cart (name, quantity, unit price, line total)
+- **`shopper-pp-cli cart list-summary`** - Show basket TOTALS only (value, cashback tier, minimum-order status) - use `cart list-items` for the contents
+- **`shopper-pp-cli cart remove`** - Remove units of a product; `--quantity N` removes N units
 
 ### catalog
 

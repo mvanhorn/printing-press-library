@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "cart-remove-quantity",
+  "applied_at": "2026-09-22",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Make `cart remove --quantity N` actually remove N units by issuing one POST /cart/remove per unit, stopping early when the API reports the line is empty.",
+  "reason": "POST /cart/remove ignores the `quantity` field in its body and always decrements the line by exactly one unit. The generated command sent {\"id\":N,\"quantity\":M} once and reported success, so `--quantity 5` silently removed a single unit and the caller had no way to tell. Verified live on 2026-09-22: a 3-unit line sent {\"id\":36756,\"quantity\":3} answered {\"quantity\":2} (one unit removed), and {\"quantity\":0} also removed exactly one. POST /cart/add does honour quantity, so only the remove side needs the loop.",
+  "files": [
+    "internal/cli/cart_remove.go",
+    "internal/cli/cart_remove_test.go"
+  ],
+  "call_sites": [
+    "remainingCartQuantity("
+  ],
+  "validated_outcome": "Verified live against siteapi.shopper.com.br on the Compra Unica storefront: adding 3 units then removing with --quantity 3 now empties the line in one command instead of leaving 2 behind; the cart was returned to empty after the test. TestRemainingCartQuantityReadsLineQuantity pins the live response shape (including absent/null/unparseable bodies) and TestRemoveRepeatCount pins the loop arithmetic, so collapsing this back into a single call fails the suite. A --stdin body is still sent verbatim exactly once.",
+  "deferred_to_upstream": [
+    {
+      "feature": "The generator should be able to record that a sniffed mutate endpoint ignores one of its own documented body fields, so the emitted command compensates instead of reporting a silent partial write.",
+      "reason": "The spec (and the API's own field name) promise a quantity-aware remove; only live dogfooding shows it is per-unit. Nothing in the generated command could detect the mismatch."
+    }
+  ]
+}

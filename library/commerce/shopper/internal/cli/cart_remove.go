@@ -20,7 +20,7 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "remove",
 		Short:       "Remove a product from the cart or decrease its quantity",
-		Example:     "  shopper-pp-cli cart remove",
+		Example:     "  shopper-pp-cli cart remove --id 36756 --quantity 3 --store unica",
 		Annotations: map[string]string{"pp:endpoint": "cart.remove", "pp:method": "POST", "pp:path": "/cart/remove"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -76,9 +76,39 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["quantity"] = bodyQuantity
 				}
 			}
-			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
-			if err != nil {
-				return classifyAPIError(err, flags)
+			// PATCH: cart-remove-quantity. POST /cart/remove IGNORES the
+			// `quantity` field: it always decrements the line by exactly one
+			// (verified live 2026-09-22 — a cart holding 3 units answered
+			// {"quantity":2} to a {"id":..,"quantity":3} body, and a body of
+			// {"quantity":0} also removed one). /cart/add honours quantity, so
+			// only the remove side needs this. Issue one request per unit so
+			// `--quantity N` removes N, and stop early when the API reports the
+			// line is already empty rather than firing pointless writes.
+			repeats := 1
+			if !stdinBody && bodyQuantity > 1 {
+				repeats = bodyQuantity
+			}
+			var data json.RawMessage
+			var statusCode int
+			removed := 0
+			for i := 0; i < repeats; i++ {
+				data, statusCode, err = c.PostWithParams(cmd.Context(), path, params, body)
+				if err != nil {
+					// A later call failing after earlier ones succeeded must
+					// not be reported as "nothing happened": say how many
+					// units actually came off before surfacing the API error.
+					if removed > 0 {
+						fmt.Fprintf(os.Stderr, "warning: removed %d of %d unit(s) before the request failed\n", removed, repeats)
+					}
+					return classifyAPIError(err, flags)
+				}
+				removed++
+				if remainingCartQuantity(data) == 0 {
+					break
+				}
+			}
+			if repeats > 1 && removed < repeats {
+				fmt.Fprintf(os.Stderr, "note: removed %d unit(s); the line was already empty before the remaining %d\n", removed, repeats-removed)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -228,8 +258,26 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&bodyId, "id", 0, "Product ID to remove")
-	cmd.Flags().IntVar(&bodyQuantity, "quantity", 0, "Quantity to remove (decrements; full qty removes the line)")
+	// PATCH: cart-remove-quantity. The API decrements one unit per call, so the
+	// CLI sends one call per unit; the flag description says what the user gets.
+	cmd.Flags().IntVar(&bodyQuantity, "quantity", 0, "Number of units to remove (sent as one API call per unit; passing the full line quantity removes the line)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+// remainingCartQuantity reads the line quantity left after a /cart/remove call.
+// The endpoint answers {"quantity":<new line quantity>, "product":{...}}, so a
+// zero means the line is gone and further decrements would be no-ops.
+// It returns -1 when the field is absent, which callers treat as "keep going".
+//
+// PATCH: cart-remove-quantity.
+func remainingCartQuantity(data json.RawMessage) int {
+	var resp struct {
+		Quantity *int `json:"quantity"`
+	}
+	if len(data) == 0 || json.Unmarshal(data, &resp) != nil || resp.Quantity == nil {
+		return -1
+	}
+	return *resp.Quantity
 }

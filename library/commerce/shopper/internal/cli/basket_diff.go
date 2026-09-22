@@ -1,14 +1,14 @@
 // Copyright 2026 educrvz and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel command: basket snapshot diff.
-// Snapshots /cart/summary items to local SQLite and diffs across cycles.
+// Snapshots GET /cart/list items to local SQLite and diffs across cycles.
 // pp:data-source auto
 
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 	"github.com/spf13/cobra"
@@ -90,12 +90,18 @@ since the previous snapshot.`,
 				return err
 			}
 
-			cartData, err := c.Get(cmd.Context(), "/cart/summary", nil)
+			// PATCH: cart-list-items. basket diff used to snapshot
+			// GET /cart/summary, which carries totals only and no item array
+			// at all — extractCartItems always came back empty, so every run
+			// reported "no changes" no matter what moved in the basket. The
+			// items live behind GET /cart/list, the same endpoint that backs
+			// `cart list-items`.
+			cartView, err := fetchCartItems(cmd, c, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return err
 			}
 
-			currentItems := extractCartItems(cartData)
+			currentItems := cartSnapshotItems(cartView)
 
 			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("shopper-pp-cli"))
 			if err != nil {
@@ -153,37 +159,30 @@ since the previous snapshot.`,
 	return cmd
 }
 
-func extractCartItems(data json.RawMessage) []store.CartSnapshotItem {
-	var top map[string]json.RawMessage
-	if json.Unmarshal(data, &top) != nil {
-		return nil
-	}
-
-	var rawItems []json.RawMessage
-	for _, key := range []string{"items", "data", "products", "cart_items", "cartItems"} {
-		if raw, ok := top[key]; ok {
-			if json.Unmarshal(raw, &rawItems) == nil && len(rawItems) > 0 {
-				break
-			}
-		}
-	}
-
-	items := make([]store.CartSnapshotItem, 0, len(rawItems))
-	for _, raw := range rawItems {
-		var obj map[string]any
-		if json.Unmarshal(raw, &obj) != nil {
+// cartSnapshotItems converts the live basket view into snapshot rows.
+//
+// PATCH: cart-list-items. Replaces extractCartItems, which probed
+// GET /cart/summary for "items"/"data"/"products" keys that endpoint never
+// returns. Paused products are excluded: they are deliberately skipped for the
+// upcoming cycle, so counting them would report a phantom drop the moment a
+// user pauses a line.
+func cartSnapshotItems(view cartItemsView) []store.CartSnapshotItem {
+	items := make([]store.CartSnapshotItem, 0, len(view.Items))
+	for _, it := range view.Items {
+		if it.ID == 0 {
 			continue
 		}
-		item := store.CartSnapshotItem{
-			ID:    extractAnyString(obj, "id", "productId", "product_id"),
-			Name:  extractAnyString(obj, "name", "title", "description"),
-			Qty:   extractAnyFloat(obj, "qty", "quantity", "count"),
-			Price: extractAnyFloat(obj, "price", "unit_price", "preco"),
-		}
-		if item.ID == "" {
-			continue
-		}
-		items = append(items, item)
+		items = append(items, store.CartSnapshotItem{
+			ID:   strconv.FormatInt(it.ID, 10),
+			Name: it.Name,
+			Qty:  it.Quantity,
+			// Price is what diffCartSnapshots compares for price_changed, so it
+			// must be the UNIT price. Storing the line total here makes every
+			// quantity change also report a phantom price move (dropping one of
+			// two units read as a 50% price cut).
+			Price:     it.UnitPrice,
+			UnitPrice: it.UnitPrice,
+		})
 	}
 	return items
 }

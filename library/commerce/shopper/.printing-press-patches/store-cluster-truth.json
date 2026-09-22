@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "store-cluster-truth",
+  "applied_at": "2026-09-22",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Correct the baked cluster_id for `unica` and `pet` (both cluster 1, not 3), stop treating \"not a subscription store\" as \"ultra-fast\" in `checkout preview`, fold the duplicated store tables in internal/cli back into internal/client, and warn on `stores` when the baked table drifts from GET /features/stores.",
+  "reason": "cluster_id is an independent dimension of a Shopper storefront, not a copy of the store id, and only GET /features/stores is authoritative. The store table pinned `unica` to cluster 3 (its own store id) and `pet` to cluster 3 as well, while the API reports cluster 1 for both. Every `--store unica` and `--store pet` read therefore carried x-cluster-id + x-shopper-store-api-version for a cart bucket the website never opens, so the CLI and the browser disagreed about the basket; `programada` only worked because 1 == 1. Separately, `checkout preview` derived is_ultra_fast as !isSubscriptionStore, so `unica` — which has no recurring basket and is not ultra-fast — was reported as is_ultra_fast=true with an ultra-fast delivery note. Both defects came from local copies of the store table drifting from the real one, so the copies are removed and a drift check now runs on every `stores` call.",
+  "files": [
+    "internal/client/shopper_headers.go",
+    "internal/client/shopper_headers_test.go",
+    "internal/cli/checkout_preview.go",
+    "internal/cli/checkout_preview_test.go",
+    "internal/cli/shopper_browser_handoff.go"
+  ],
+  "call_sites": [
+    "StoreCatalogDrift(",
+    "client.StoreFor(",
+    "isUltraFastStore("
+  ],
+  "validated_outcome": "GET /features/stores on 2026-09-22 returns programada=1/1, fresh=2/1, pet=5/1, unica=3/1, now=6/11, now-bebidas=8/11 — the table now matches all six. TestClusterIDIsNeverCopiedFromStoreID fails if any cluster is set to its own store id again; TestStoreCatalogDriftDetectsClusterMismatch feeds the live payload shape and asserts a moved cluster, an unknown storefront, and an unparseable body are each handled; TestUnicaIsNeitherSubscriptionNorUltraFast pins that unica is neither recurring nor ultra-fast. Confirmed live that `features list-toggle --store unica` returns EXPRESS_DELIVERY under both cluster 1 and cluster 3 — that toggle is genuine storefront configuration (unica's own `toggles` list in /features/stores contains it) and is NOT a symptom of the cluster bug, so no change was made there.",
+  "deferred_to_upstream": [
+    {
+      "feature": "A sniffed multi-tenant API whose tenant selector spans several request headers should have the generator capture the whole header tuple from the discovery endpoint, instead of leaving a hand-maintained constant table that can silently disagree with the API.",
+      "reason": "x-store-id and x-cluster-id are independent dimensions the generator flattened into one hand-edited map; nothing compared that map against the endpoint (GET /features/stores) that actually publishes both values."
+    }
+  ]
+}

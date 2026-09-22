@@ -30,3 +30,58 @@ func TestNovelCheckoutPreviewHelpWires(t *testing.T) {
 		}
 	}
 }
+
+// TestUnicaIsNeitherSubscriptionNorUltraFast is the regression guard for the
+// bug this patch fixes: `checkout preview` treated "not a subscription store"
+// as "ultra fast", so `--store unica` reported is_ultra_fast=true even though
+// GET /features/stores says is_ultra_fast_delivery=false for that storefront.
+//
+// PATCH: store-cluster-truth.
+func TestUnicaIsNeitherSubscriptionNorUltraFast(t *testing.T) {
+	if isSubscriptionStore("unica") {
+		t.Error("unica has no recurring basket")
+	}
+	if isUltraFastStore("unica") {
+		t.Error("unica is not ultra-fast — only now and now-bebidas are")
+	}
+	if isUltraFastStore("pontual") {
+		t.Error("the `pontual` alias must resolve to unica, which is not ultra-fast")
+	}
+	for _, name := range []string{"now", "now-bebidas", "6", "8"} {
+		if !isUltraFastStore(name) {
+			t.Errorf("%s should be ultra-fast", name)
+		}
+		if isSubscriptionStore(name) {
+			t.Errorf("%s has no recurring basket", name)
+		}
+	}
+	for _, name := range []string{"programada", "mensal", "1", "fresh", "2", "pet", "5"} {
+		if !isSubscriptionStore(name) {
+			t.Errorf("%s should be a subscription store", name)
+		}
+		if isUltraFastStore(name) {
+			t.Errorf("%s is not ultra-fast", name)
+		}
+	}
+}
+
+// TestResolveSubdomainCoversEveryStorefront pins the subdomain mapping after it
+// was folded into the single store table.
+//
+// PATCH: store-cluster-truth.
+func TestResolveSubdomainCoversEveryStorefront(t *testing.T) {
+	cases := map[string]string{
+		"programada": "programada", "mensal": "programada", "1": "programada",
+		"fresh": "fresh", "2": "fresh",
+		"unica": "unica", "pontual": "unica", "3": "unica",
+		"pet": "pet", "5": "pet",
+		"now": "now", "6": "now",
+		"now-bebidas": "now-bebidas", "nowbebidas": "now-bebidas", "8": "now-bebidas",
+		"": "programada", "bogus": "programada",
+	}
+	for in, want := range cases {
+		if got := resolveSubdomain(in); got != want {
+			t.Errorf("resolveSubdomain(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

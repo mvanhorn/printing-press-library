@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "cart-list-items",
+  "applied_at": "2026-09-22",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add `cart list-items` (GET /cart/list) and repoint `basket diff` and `price-watch --only-basket` at it, so the CLI can read what is in the basket and not only what it costs.",
+  "reason": "GET /cart/summary — the only cart read the sniffed spec captured — returns totals only (totalCart, totalAmount, minValue, cashback fields) and carries no item array under any key. Three surfaces read it for items via extractCartItems and therefore always received an empty list: `basket diff` captured empty baselines and reported \"no changes\" no matter what moved, `price-watch --only-basket` snapshotted nothing, and no command existed to list the basket at all. The web basket page reads GET /cart/list, which returns {departments:[{id,name,quantity,products:[...]}], paused:{products:[...]}, total_items, total_value, recurrent_cart_id}; the in-basket count is `cartQuantity` because the cart reuses the catalog product object. That endpoint is now the single item source.",
+  "files": [
+    "internal/cli/cart_list_items.go",
+    "internal/cli/cart_list_items_test.go",
+    "internal/cli/cart.go",
+    "internal/cli/basket_diff.go",
+    "internal/cli/price_watch.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "newCartListItemsCmd(",
+    "fetchCartItems(",
+    "cartSnapshotItems(",
+    "basketPriceSnapshots("
+  ],
+  "validated_outcome": "GET /cart/list verified live on 2026-09-22 across all six storefronts; a 3-unit line added to the Compra Unica basket appeared as departments[].products[].cartQuantity=3 with priceRaw=6.99 and total_items=3, and vanished after cleanup. The MCP server surfaces the new command automatically as the `cart_list_items` tool (cobra-tree derived, no manifest edit needed). Tests decode the captured live body and pin that empty departments produce no rows, paused products stay out of the active list and its value, out-of-stock survives, line totals sort biggest-first, snapshot rows drop id-less entries, and price-watch tracks the UNIT price rather than the line total so a quantity change never reads as a price move.",
+  "deferred_to_upstream": [
+    {
+      "feature": "spec.yaml should carry GET /cart/list so the basket-contents read is generated (with sync, search and MCP support) rather than hand-written, the way /orders/orders still is not.",
+      "reason": "Missing endpoint in the captured spec: the sniff caught /cart/summary but not the /cart/list call behind the web basket page, so the spec describes a cart API that cannot enumerate the cart."
+    }
+  ]
+}
