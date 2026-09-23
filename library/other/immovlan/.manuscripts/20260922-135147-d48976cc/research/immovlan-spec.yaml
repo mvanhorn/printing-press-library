@@ -1,0 +1,184 @@
+name: immovlan
+description: "Search Immovlan (Belgian real-estate listings, Rossel) and track prices locally"
+version: "0.1.0"
+category: other
+base_url: "https://immovlan.be"
+http_transport: standard
+health_check_path: "/fr/immobilier?transactiontypes=a-vendre&propertytypes=maison&towns=1030-schaerbeek"
+required_headers:
+  - name: Accept
+    value: "text/html,application/xhtml+xml"
+  - name: Accept-Language
+    value: "fr"
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/immovlan-pp-cli/config.toml"
+learn:
+  entity_lookup_seeds:
+    commune:
+      - canonical: Schaerbeek
+        aliases: [schaarbeek, "1030"]
+      - canonical: Ixelles
+        aliases: [elsene, "1050"]
+      - canonical: Bruxelles
+        aliases: [brussels, brussel, "1000"]
+      - canonical: Saint-Gilles
+        aliases: [sint-gillis, "1060"]
+      - canonical: Anderlecht
+        aliases: ["1070"]
+      - canonical: Molenbeek-Saint-Jean
+        aliases: [molenbeek, sint-jans-molenbeek, "1080"]
+      - canonical: Uccle
+        aliases: [ukkel, "1180"]
+      - canonical: Forest
+        aliases: [vorst, "1190"]
+      - canonical: Etterbeek
+        aliases: ["1040"]
+      - canonical: Saint-Josse-ten-Noode
+        aliases: [saint-josse, sint-joost, "1210"]
+      - canonical: Liège
+        aliases: [liege, luik, "4000"]
+      - canonical: Namur
+        aliases: [namen, "5000"]
+      - canonical: Charleroi
+        aliases: ["6000"]
+      - canonical: Leuven
+        aliases: [louvain, "3000"]
+    property_type:
+      - canonical: maison
+        aliases: [house, huis]
+      - canonical: appartement
+        aliases: [apartment, flat]
+      - canonical: terrain
+        aliases: [land, grond, plot]
+      - canonical: garage
+        aliases: [parking]
+      - canonical: kot
+        aliases: [studentroom, student room]
+  ticker_patterns:
+    - "^[A-Za-z]{3}[0-9]{5,8}$"
+  synonyms:
+    "a louer": "à louer"
+    "te huur": "à louer"
+    "a vendre": "à vendre"
+    "te koop": "à vendre"
+    "vente publique": "en-vente-publique"
+resources:
+  listings:
+    description: "Immovlan listings: server-rendered search pages (20 cards per page) and detail pages"
+    endpoints:
+      search:
+        method: GET
+        path: "/fr/immobilier"
+        description: "Search listings; returns the detail links of one result page (20 per page). Use the promoted 'find' command for parsed cards."
+        example: "  immovlan-pp-cli listings search --transaction-types a-vendre --property-types maison,appartement --towns 1030 --epc-ratings bad,poor"
+        happy_args: "--transaction-types=a-vendre;--property-types=maison;--towns=1030"
+        params:
+          - name: transactiontypes
+            type: string
+            description: "Transaction: a-vendre, a-louer, en-vente-publique (notary sales), en-colocation (comma-separated)"
+            flag_name: transaction-types
+            example: "a-vendre"
+          - name: propertytypes
+            type: string
+            description: "Property types, comma-separated: maison, appartement, terrain, garage, kot"
+            flag_name: property-types
+            example: "maison,appartement"
+          - name: towns
+            type: string
+            description: "Postal codes or town slugs, comma-separated (1030,1210 or 1030-schaerbeek); Immovlan ignores municipals="
+            example: "1030"
+          - name: epcratings
+            type: string
+            description: "EPC/PEB bands, comma-separated: unknown, bad (F/G), poor (D/E), good (B/C), excellent (A)"
+            flag_name: epc-ratings
+          - name: minprice
+            type: int
+            description: "Minimum price in EUR (monthly rent for a-louer)"
+            flag_name: min-price
+          - name: maxprice
+            type: int
+            description: "Maximum price in EUR (monthly rent for a-louer)"
+            flag_name: max-price
+          - name: minbedrooms
+            type: int
+            description: "Minimum number of bedrooms"
+            flag_name: min-bedrooms
+          - name: maxbedrooms
+            type: int
+            description: "Maximum number of bedrooms"
+            flag_name: max-bedrooms
+          - name: sortby
+            type: string
+            description: "Sort field: price, nrOfBedrooms, totalSurface, zipCode (omit for newest first)"
+            flag_name: sort-by
+            enum: [price, nrOfBedrooms, totalSurface, zipCode]
+          - name: sortdirection
+            type: string
+            description: "ascending or descending (with --sort-by)"
+            flag_name: sort-direction
+            enum: [ascending, descending]
+          - name: page
+            type: int
+            description: "Result page (20 listings per page)"
+            default: 1
+        response:
+          type: array
+          item: SearchLink
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/fr/detail"]
+        pagination:
+          type: offset
+          page_param: page
+          page_size: 20
+      get:
+        method: GET
+        path: "/fr/detail/{reference}"
+        description: "Fetch one listing page by reference (e.g. vbe69761); Immovlan redirects to the canonical URL. Returns the schema.org JSON-LD RealEstateListing."
+        example: "  immovlan-pp-cli listings get vbe69761"
+        happy_args: "reference=vbe69761"
+        params:
+          - name: reference
+            type: string
+            required: true
+            positional: true
+            description: "Listing reference (VBE…, RBU…, RBW…) or the tail of a detail URL"
+            example: "vbe69761"
+        response:
+          type: object
+          item: ListingLD
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: 'script[type="application/ld+json"]'
+types:
+  SearchLink:
+    fields:
+      - name: url
+        type: string
+      - name: text
+        type: string
+  ListingLD:
+    fields:
+      - name: "@type"
+        type: string
+      - name: url
+        type: string
+      - name: name
+        type: string
+      - name: datePosted
+        type: string
+      - name: description
+        type: string
+      - name: mainEntity
+        type: object
+      - name: offers
+        type: object
+      - name: image
+        type: array

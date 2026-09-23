@@ -1,0 +1,107 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-23T09:23:40.062903Z",
+  "printing_press_version": "4.32.4",
+  "api_name": "immovlan",
+  "display_name": "Immovlan",
+  "cli_name": "immovlan-pp-cli",
+  "creator": {
+    "handle": "sambassio",
+    "name": "sambassio"
+  },
+  "owner": "sambassio",
+  "printer": "sambassio",
+  "printer_name": "sambassio",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:8e9d3d7814c4b2edc5121a7088302e9db6cc040951a74f12b268128cc9b33ee8",
+  "run_id": "20260922-135147-d48976cc",
+  "category": "other",
+  "description": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+  "mcp_binary": "immovlan-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only."
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "List PEB F or G properties that are currently rented: owners who can no longer re-let in Brussels since 2026."
+    },
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Fill missing detail fields (PEB letter, street, geo, rented, cadastral income, agency software) for many stored listings in one resumable pass."
+    },
+    {
+      "name": "Division candidates",
+      "command": "split-candidates",
+      "description": "Houses large enough to divide, ranked by €/m² within their postcode, with land, year, PEB and rented flags."
+    },
+    {
+      "name": "Re-listing detector",
+      "command": "relisted",
+      "description": "Listings that came back under a new reference, with their true first-seen date and price at each reference."
+    },
+    {
+      "name": "Agency leaderboard",
+      "command": "agencies",
+      "description": "Which agencies list in a zone, their PEB F/G share, private-seller share and the CRM software behind each feed."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only."
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "List PEB F or G properties that are currently rented: owners who can no longer re-let in Brussels since 2026."
+    },
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Fill missing detail fields (PEB letter, street, geo, rented, cadastral income, agency software) for many stored listings in one resumable pass."
+    },
+    {
+      "name": "Division candidates",
+      "command": "split-candidates",
+      "description": "Houses large enough to divide, ranked by €/m² within their postcode, with land, year, PEB and rented flags."
+    },
+    {
+      "name": "Re-listing detector",
+      "command": "relisted",
+      "description": "Listings that came back under a new reference, with their true first-seen date and price at each reference."
+    },
+    {
+      "name": "Agency leaderboard",
+      "command": "agencies",
+      "description": "Which agencies list in a zone, their PEB F/G share, private-seller share and the CRM software behind each feed."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 45,
+    "total": 45,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

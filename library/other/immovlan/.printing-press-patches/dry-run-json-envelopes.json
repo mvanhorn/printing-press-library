@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "dry-run-json-envelopes",
+  "applied_at": "2026-09-23",
+  "base_run_id": "20260922-135147-d48976cc",
+  "base_printing_press_version": "4.32.4",
+  "summary": "doctor, feedback list and profile list honour --dry-run --json with the standard {dry_run:true} envelope instead of running (doctor) or printing a bare [] (feedback/profile).",
+  "reason": "The full live dogfood matrix (json_fidelity / dry_run_json checks) fails these three generated commands; every other command already routes through dryRunOK/writeDryRun. Machine gap filed for retro; patched here so the CLI can pass the Phase 5 gate.",
+  "files": ["internal/cli/doctor.go", "internal/cli/feedback.go", "internal/cli/profile.go"],
+  "markers": ["pp-patch: dry-run-json-envelopes"]
+}

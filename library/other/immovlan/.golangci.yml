@@ -1,0 +1,16 @@
+linters:
+  enable:
+    - errorlint
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - bodyclose
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

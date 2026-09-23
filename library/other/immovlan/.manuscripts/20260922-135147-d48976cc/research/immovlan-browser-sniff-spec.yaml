@@ -1,0 +1,95 @@
+name: immovlan
+description: Discovered API spec for immovlan
+version: 0.1.0
+base_url: https://immovlan.be
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/immovlan-pp-cli/config.toml
+resources:
+    fr:
+        description: Operations on immobilier
+        endpoints:
+            get_vbe69490:
+                method: GET
+                path: /fr/detail/maison/a-vendre/{a_vendre_id}/schaerbeek/vbe69490
+                description: Fetch structured metadata from /fr/detail/maison/a-vendre/{a_vendre_id}/schaerbeek/vbe69490
+                params:
+                    - name: a_vendre_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The a_vendre_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_immobilier:
+                method: GET
+                path: /fr/immobilier
+                description: Fetch structured links from /fr/immobilier
+                params:
+                    - name: epcratings
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: maxprice
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: minprice
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: propertytypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: towns
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: transactiontypes
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

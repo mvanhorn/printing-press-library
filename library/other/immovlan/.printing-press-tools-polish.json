@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-09-23T09:21:40.971901Z",
+  "cli_dir": "\u003ccli-dir\u003e/immovlan-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (platform_client.go); \"List client profiles\" is precise for the profile-name list it returns; needs generator-template fix for a parameter-aware Short"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go); learnings list Short omits its --query/--warnings filters; needs generator-template fix"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-23T09:05:07.642707Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:868"
+  }
+}

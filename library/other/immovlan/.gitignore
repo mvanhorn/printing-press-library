@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/immovlan-pp-cli
+/immovlan-pp-cli.exe
+/immovlan-pp-mcp
+/immovlan-pp-mcp.exe
+/bin/
+/build/
+/dist/

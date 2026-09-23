@@ -1,0 +1,158 @@
+{
+  "api_name": "immovlan",
+  "base_url": "https://immovlan.be",
+  "description": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "text/html,application/xhtml+xml"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "fr"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "listings_get",
+      "description": "Fetch one listing page by reference (e.g. vbe69761); Immovlan redirects to the canonical URL. Returns the schema.org JSON-LD RealEstateListing. Required: reference.",
+      "method": "GET",
+      "path": "/fr/detail/{reference}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "path",
+          "description": "Listing reference (VBE…, RBU…, RBW…) or the tail of a detail URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_search",
+      "description": "Search listings; returns the detail links of one result page (20 per page). Use the promoted 'find' command for parsed cards. Optional: transaction-types, property-types, towns (plus 8 more).",
+      "method": "GET",
+      "path": "/fr/immobilier",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "transaction-types",
+          "wire_name": "transactiontypes",
+          "type": "string",
+          "location": "query",
+          "description": "Transaction: a-vendre, a-louer, en-vente-publique (notary sales), en-colocation (comma-separated)"
+        },
+        {
+          "name": "property-types",
+          "wire_name": "propertytypes",
+          "type": "string",
+          "location": "query",
+          "description": "Property types, comma-separated: maison, appartement, terrain, garage, kot"
+        },
+        {
+          "name": "towns",
+          "type": "string",
+          "location": "query",
+          "description": "Postal codes or town slugs, comma-separated (1030,1210 or 1030-schaerbeek); Immovlan ignores municipals="
+        },
+        {
+          "name": "epc-ratings",
+          "wire_name": "epcratings",
+          "type": "string",
+          "location": "query",
+          "description": "EPC/PEB bands, comma-separated: unknown, bad (F/G), poor (D/E), good (B/C), excellent (A)"
+        },
+        {
+          "name": "min-price",
+          "wire_name": "minprice",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum price in EUR (monthly rent for a-louer)"
+        },
+        {
+          "name": "max-price",
+          "wire_name": "maxprice",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum price in EUR (monthly rent for a-louer)"
+        },
+        {
+          "name": "min-bedrooms",
+          "wire_name": "minbedrooms",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of bedrooms"
+        },
+        {
+          "name": "max-bedrooms",
+          "wire_name": "maxbedrooms",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of bedrooms"
+        },
+        {
+          "name": "sort-by",
+          "wire_name": "sortby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field: price, nrOfBedrooms, totalSurface, zipCode (omit for newest first)"
+        },
+        {
+          "name": "sort-direction",
+          "wire_name": "sortdirection",
+          "type": "string",
+          "location": "query",
+          "description": "ascending or descending (with --sort-by)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page (20 listings per page)"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only."
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "List PEB F or G properties that are currently rented: owners who can no longer re-let in Brussels since 2026."
+    },
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Fill missing detail fields (PEB letter, street, geo, rented, cadastral income, agency software) for many stored listings in one resumable pass."
+    },
+    {
+      "name": "Division candidates",
+      "command": "split-candidates",
+      "description": "Houses large enough to divide, ranked by €/m² within their postcode, with land, year, PEB and rented flags."
+    },
+    {
+      "name": "Re-listing detector",
+      "command": "relisted",
+      "description": "Listings that came back under a new reference, with their true first-seen date and price at each reference."
+    },
+    {
+      "name": "Agency leaderboard",
+      "command": "agencies",
+      "description": "Which agencies list in a zone, their PEB F/G share, private-seller share and the CRM software behind each feed."
+    }
+  ]
+}

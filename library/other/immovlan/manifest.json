@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "immovlan-pp-mcp",
+  "display_name": "Immovlan",
+  "version": "0.1.0",
+  "description": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/immovlan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/immovlan-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
