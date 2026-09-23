@@ -100,7 +100,7 @@ func TestTripleKey(t *testing.T) {
 	if k := tripleKey("1030", nil, iptr(2), "x"); k != "" {
 		t.Errorf("nil surface = %q", k)
 	}
-	if !priceWithin(fptr(310000), fptr(300000), 0.15) || priceWithin(fptr(600000), fptr(300000), 0.15) || !priceWithin(nil, nil, 0.15) || priceWithin(fptr(1), nil, 0.15) {
+	if !priceWithin(fptr(310000), fptr(300000), 0.15) || priceWithin(fptr(600000), fptr(300000), 0.15) || priceWithin(nil, nil, 0.15) || priceWithin(fptr(1), nil, 0.15) {
 		t.Error("priceWithin")
 	}
 	k1 := tripleKey("1030", fptr(200), nil, "Agence Immobilière Trop Longue")

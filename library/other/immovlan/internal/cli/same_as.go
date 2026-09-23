@@ -343,9 +343,11 @@ func matchSameAs(rows []store.StoredListing, immoRows []immowebRow, unmatchedOnl
 // Immoweb price) still accepted for a surface+bedrooms+agency match.
 const sameAsPriceTolerance = 0.15
 
+// priceWithin requires two usable prices: without them the surface+bedrooms+
+// agency key alone would pair distinct units of one development.
 func priceWithin(a, b *float64, tol float64) bool {
 	if a == nil || b == nil || *b <= 0 {
-		return a == nil && b == nil
+		return false
 	}
 	d := *a - *b
 	if d < 0 {

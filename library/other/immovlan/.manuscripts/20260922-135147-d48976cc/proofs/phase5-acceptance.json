@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "61b32ffe6a876ad4d238a68e8bff5d85db4c1f937e8d4f923ea3f09613d3f816",
+  "source_fingerprint": "e4d26c775acb6a037e06df80b2654b078c39e26d533071ba9af59640f99b1bec",
   "source_files": {
     "cmd/immovlan-pp-cli/main.go": "096d687c5888eb09fe25e62728dbbe53df3421905dcf04876b52b56305f6dd51",
     "cmd/immovlan-pp-mcp/http_auth_test.go": "62811b19c2aa1ab7d47ce338e5833bc6747b66d6f6d2ac183be89f107daf6890",
@@ -36,7 +36,7 @@
     "internal/cli/helpers.go": "96a13b532d774df4d22d072f2cae864ddcc1cbf3ce5975b3deb2c05600d5af51",
     "internal/cli/html_extract.go": "6a65f4f6035fbc2130f5f2410ecdbb7a43e3f492fbcebdeb8e23629b80eb0273",
     "internal/cli/immovlan_common.go": "9fe5bab164ac809f0546b59923899f2f3da43a7fd3bfe27a15a535e402ae5023",
-    "internal/cli/immovlan_logic_test.go": "1910c6d9367c611d150443c74649af1aa3601240548210bfa42c39674b1c0330",
+    "internal/cli/immovlan_logic_test.go": "6625aea1976b236e95892a45d52928446bcf6bcd4a513b029b3dbde91c3c2bec",
     "internal/cli/learn_init.go": "6f17fbd92e919553b1be7a2574d6fd2d51752929634fd9640ef566c50269830f",
     "internal/cli/learn_init_test.go": "89d36170536b9d2c27f4e011b0d37747c99b0d0481165dce4a22dc0ac049f156",
     "internal/cli/learnings_candidates.go": "1faf9a917b4cf934efd62d3fac9a37e2e68c3ffc9a8b579de2a2fb23119b47c3",
@@ -62,7 +62,7 @@
     "internal/cli/resource_paths.go": "697ba58014756279a90030049685e4c2e63a8e69707afb2e4312b98dd734603e",
     "internal/cli/root.go": "933a48426251798486d9e493081671bbb7253d08bddee572aeb9643c5044677e",
     "internal/cli/root_test.go": "e68e32d8d3486a4def16077e66d3608cde06b08cdba78bdba8976b123755001b",
-    "internal/cli/same_as.go": "a6b362ac5fd0685cea685ff339cd0e53eb6cefb2b2fde3d044afbf4d9d7da4d7",
+    "internal/cli/same_as.go": "62a580009856d7ad4ae3c15b57d7f4d59027e391f98e68728c25b8a557b5bd9e",
     "internal/cli/same_as_test.go": "38971d33e6d92b7e5a27291b637aa1e3904fb848e3e31c450ff236a340774e5f",
     "internal/cli/saved.go": "08619b26453002df70563b6fba766b279af195e7912d68020cdc0b74b3f7bd41",
     "internal/cli/show.go": "5e0c7284a0de2929d19f29a9d73a5e3e05ad404833274866dda0e790709f0be5",
