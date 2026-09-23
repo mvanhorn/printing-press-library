@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1266-vuln-floor",
+  "applied_at": "2026-09-23",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Raise the published CLI Go toolchain floor to 1.26.6 for current standard-library security fixes.",
+  "reason": "Go 1.26.6 fixes reachable net/url, crypto/tls, encoding/asn1, and net/http vulnerabilities reported by govulncheck.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "govulncheck reports no reachable vulnerabilities."
+}
