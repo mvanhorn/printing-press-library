@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "html-fallback-enforces-stop-limits",
+  "applied_at": "2026-09-23",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Server-rendered Google Flights fallback results must obey requested stop limits for both directions, even when the returned page includes broader itineraries.",
+  "reason": "The tfs URL encodes a stop limit, but its rendered payload can still include connecting flights. Without a parsed-leg backstop, a non_stop query can silently return connections.",
+  "files": [
+    "internal/gflights/html_fallback.go",
+    "internal/gflights/html_fallback_test.go"
+  ],
+  "validated_outcome": "Captured mixed-itinerary HTML and per-direction regression tests pass; go test ./..., go build ./..., go vet ./..., and verify-skill all pass."
+}
