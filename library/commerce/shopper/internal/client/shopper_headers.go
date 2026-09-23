@@ -101,8 +101,11 @@ func StorefrontURL(sel string) string {
 }
 
 // ResolveStore turns a user-supplied store selector into its header id pair.
-// It accepts a canonical name, a known alias, or a raw numeric store id.
-// The bool is false when the selector matches nothing.
+// It accepts a canonical name, a known alias, or a known numeric store id.
+// Unknown numeric ids return false: they have no subdomain, and accepting
+// them built checkout URLs like https://.shopper.com.br/shop/checkout.
+// The bool is false when the selector matches nothing. Raw id overrides still
+// go through SHOPPER_STORE_ID and SHOPPER_CLUSTER_ID.
 func ResolveStore(sel string) (Store, bool) {
 	s := strings.ToLower(strings.TrimSpace(sel))
 	if s == "" {
@@ -114,14 +117,13 @@ func ResolveStore(sel string) (Store, bool) {
 	if st, ok := shopperStores[s]; ok {
 		return st, true
 	}
-	// Raw numeric store id.
+	// Known numeric store id only. Unknown ids are not a storefront.
 	if _, err := strconv.Atoi(s); err == nil {
 		for _, st := range shopperStores {
 			if st.StoreID == s {
 				return st, true
 			}
 		}
-		return Store{StoreID: s, ClusterID: "1"}, true
 	}
 	return Store{}, false
 }
@@ -235,8 +237,9 @@ type liveStoresEnvelope struct {
 // StoreCatalogDrift compares the baked shopperStores table against a raw
 // GET /features/stores response body and returns one line per disagreement.
 // An empty slice means the table still matches the API. A body that cannot be
-// parsed yields no lines — drift reporting is best-effort and must never turn
-// a working read into an error.
+// parsed, or a catalog with no store rows, yields no lines — drift reporting
+// is best-effort and must never turn a working read into an error. A non-empty
+// catalog that omits a baked storefront reports that deletion.
 //
 // PATCH: store-cluster-truth. The original table carried cluster_id=3 for
 // `unica` and `pet` (the API says 1 for both), and nothing compared the two.
@@ -246,9 +249,14 @@ func StoreCatalogDrift(body []byte) []string {
 	if json.Unmarshal(body, &env) != nil || len(env.Stores) == 0 {
 		return nil
 	}
+	seen := make(map[string]struct{}, len(env.Stores))
 	var drift []string
 	for _, live := range env.Stores {
-		baked, ok := shopperStores[strings.ToLower(live.Subdomain)]
+		sub := strings.ToLower(live.Subdomain)
+		if sub != "" {
+			seen[sub] = struct{}{}
+		}
+		baked, ok := shopperStores[sub]
 		if !ok {
 			drift = append(drift, "storefront "+live.Subdomain+" (store "+strconv.Itoa(live.Number)+
 				", cluster "+strconv.Itoa(live.ClusterID)+") is live but missing from the CLI store table")
@@ -270,6 +278,15 @@ func StoreCatalogDrift(body []byte) []string {
 			drift = append(drift, live.Subdomain+": is_ultra_fast_delivery is "+strconv.FormatBool(live.IsUltraFastDelivery)+
 				" live, CLI table says "+strconv.FormatBool(baked.UltraFast))
 		}
+	}
+	// Walk the baked table too. A storefront the API dropped or renamed is
+	// otherwise still selectable, with no warning, because the loop above
+	// only sees rows the live catalog still returns.
+	for _, name := range StoreNames() {
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		drift = append(drift, name+": baked storefront is missing from the live catalog")
 	}
 	return drift
 }

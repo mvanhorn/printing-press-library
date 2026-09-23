@@ -100,27 +100,16 @@ Run 'shopper-pp-cli checkout open --store <store>' to open the checkout page.`,
 				view.Note = "cart, delivery, and payment data unavailable — authenticate first: shopper-pp-cli auth set-token <token>"
 			}
 
+			// Subscription storefronts only grow a charge calendar when delivery
+			// summary succeeded. A delivery error must not fall through into the
+			// one-off/unica label — that branch is only for non-subscription stores.
+			var nextDelivery *chargeCalendarEntry
 			if isSubscriptionStore(storeName) && delivErr == nil {
 				calData, _ := c.Get(cmd.Context(), "/delivery/v2/calendar", nil)
 				cal := buildChargeCalendar(delivData, calData, 0, false)
-				view.ChargeCalendar = cal.NextDelivery
-			} else {
-				// PATCH: store-cluster-truth. Ultra-fast is a property of the
-				// storefront (is_ultra_fast_delivery), not the inverse of
-				// "has a recurring basket". `unica` is neither a subscription
-				// store nor ultra-fast, and used to be mislabelled as both
-				// ultra-fast and browser-slot-selected.
-				if view.Delivery == nil {
-					view.Delivery = &checkoutDelivery{}
-				}
-				if isUltraFastStore(storeName) {
-					view.Delivery.IsUltraFast = true
-					view.Note = "Ultra-fast delivery (now/now-bebidas): delivery slot is selected at checkout in the browser."
-				} else {
-					view.Delivery.IsUltraFast = false
-					view.Note = "One-off store (unica): no recurring cycle or charge calendar; the delivery slot is chosen at checkout in the browser."
-				}
+				nextDelivery = cal.NextDelivery
 			}
+			applyCheckoutStoreMode(&view, storeName, delivErr, nextDelivery)
 
 			storesData, storesErr := c.Get(cmd.Context(), "/features/stores", nil)
 			if storesErr == nil {
@@ -232,6 +221,34 @@ func extractPaymentParams(data json.RawMessage, storeName string) *checkoutPayme
 	return nil
 }
 
+// applyCheckoutStoreMode attaches the charge calendar for a subscription
+// storefront when delivery summary succeeded, and labels non-subscription
+// storefronts as ultra-fast or one-off. A delivery failure on a subscription
+// store leaves notes and delivery alone, so a transient /delivery/summary
+// error is not reported as "One-off store (unica)".
+func applyCheckoutStoreMode(view *checkoutPreviewView, storeName string, delivErr error, nextDelivery *chargeCalendarEntry) {
+	if isSubscriptionStore(storeName) {
+		if delivErr == nil {
+			view.ChargeCalendar = nextDelivery
+		}
+		return
+	}
+	// PATCH: store-cluster-truth. Ultra-fast is a property of the
+	// storefront (is_ultra_fast_delivery), not the inverse of
+	// "has a recurring basket". `unica` is neither a subscription
+	// store nor ultra-fast.
+	if view.Delivery == nil {
+		view.Delivery = &checkoutDelivery{}
+	}
+	if isUltraFastStore(storeName) {
+		view.Delivery.IsUltraFast = true
+		view.Note = "Ultra-fast delivery (now/now-bebidas): delivery slot is selected at checkout in the browser."
+	} else {
+		view.Delivery.IsUltraFast = false
+		view.Note = "One-off store (unica): no recurring cycle or charge calendar; the delivery slot is chosen at checkout in the browser."
+	}
+}
+
 // isSubscriptionStore returns true for stores with recurring basket cycles.
 //
 // PATCH: store-cluster-truth. Was a local switch duplicating the store table in
@@ -256,7 +273,12 @@ func isUltraFastStore(s string) bool {
 // PATCH: store-cluster-truth. Delegates to the single store table rather than
 // carrying its own copy of the name/id aliases.
 func resolveSubdomain(s string) string {
-	return client.StoreFor(s).Subdomain
+	if sub := client.StoreFor(s).Subdomain; sub != "" {
+		return sub
+	}
+	// Known storefronts always carry a subdomain. This keeps checkout URLs
+	// from becoming https://.shopper.com.br/... when a selector has none.
+	return "programada"
 }
 
 // storeMatchesSubdomain checks if an API internal store name matches a user input.

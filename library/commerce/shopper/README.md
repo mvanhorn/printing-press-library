@@ -7,6 +7,7 @@ shopper-pp-cli covers all six Shopper storefronts (Compra Programada, Fresh, Pet
 Learn more at [Shopper](https://siteapi.shopper.com.br).
 
 Created by [@educrvz](https://github.com/educrvz) (educrvz).
+Contributors: [@henriquedc-ai](https://github.com/henriquedc-ai) (Henrique Dantas), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

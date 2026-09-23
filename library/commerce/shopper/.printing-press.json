@@ -9,6 +9,16 @@
     "handle": "educrvz",
     "name": "educrvz"
   },
+  "contributors": [
+    {
+      "handle": "henriquedc-ai",
+      "name": "Henrique Dantas"
+    },
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "educrvz",
   "printer": "educrvz",
   "printer_name": "educrvz",

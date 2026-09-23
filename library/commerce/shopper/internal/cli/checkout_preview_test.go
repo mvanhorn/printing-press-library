@@ -6,6 +6,7 @@ package cli
 
 import (
 	"bytes"
+	"errors"
 	"strings"
 	"testing"
 )
@@ -77,11 +78,95 @@ func TestResolveSubdomainCoversEveryStorefront(t *testing.T) {
 		"pet": "pet", "5": "pet",
 		"now": "now", "6": "now",
 		"now-bebidas": "now-bebidas", "nowbebidas": "now-bebidas", "8": "now-bebidas",
-		"": "programada", "bogus": "programada",
+		"": "programada", "bogus": "programada", "99": "programada",
 	}
 	for in, want := range cases {
 		if got := resolveSubdomain(in); got != want {
 			t.Errorf("resolveSubdomain(%q) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+// TestCheckoutURLNeverHasEmptySubdomain pins the host label used by checkout
+// preview. An unknown numeric id used to resolve with an empty subdomain and
+// produce https://.shopper.com.br/shop/checkout.
+func TestCheckoutURLNeverHasEmptySubdomain(t *testing.T) {
+	for _, in := range []string{"", "99", "bogus", "unica", "programada", "1", "now"} {
+		sub := resolveSubdomain(in)
+		if sub == "" {
+			t.Errorf("resolveSubdomain(%q) is empty", in)
+		}
+		url := "https://" + sub + ".shopper.com.br/shop/checkout"
+		if strings.HasPrefix(url, "https://.") || strings.Contains(url, "://.") {
+			t.Errorf("checkout URL for %q = %s", in, url)
+		}
+	}
+}
+
+// TestSubscriptionDeliveryFailureDoesNotRelabelAsOneOff is the P1 guard for
+// checkout preview: a /delivery/summary failure on programada, fresh, or pet
+// must not overwrite notes with the one-off/unica label, and must not attach
+// a charge calendar.
+func TestSubscriptionDeliveryFailureDoesNotRelabelAsOneOff(t *testing.T) {
+	authNote := "cart, delivery, and payment data unavailable — authenticate first: shopper-pp-cli auth set-token <token>"
+	next := &chargeCalendarEntry{DeliveryDate: "2026-10-01"}
+	for _, store := range []string{"programada", "fresh", "pet", "mensal", "1", "5"} {
+		view := checkoutPreviewView{Store: store, Note: authNote}
+		applyCheckoutStoreMode(&view, store, errors.New("delivery summary failed"), next)
+		if view.Note != authNote {
+			t.Errorf("%s: note = %q, want the delivery-error note left untouched", store, view.Note)
+		}
+		if strings.Contains(view.Note, "One-off") || strings.Contains(view.Note, "unica") || strings.Contains(view.Note, "Ultra-fast") {
+			t.Errorf("%s: delivery failure mislabeled the store: %q", store, view.Note)
+		}
+		if view.ChargeCalendar != nil {
+			t.Errorf("%s: charge calendar set despite delivery error", store)
+		}
+		if view.Delivery != nil {
+			t.Errorf("%s: delivery struct invented on a subscription error: %+v", store, view.Delivery)
+		}
+	}
+}
+
+// TestSubscriptionDeliverySuccessKeepsCalendar attaches the calendar only when
+// delivery summary succeeded, and does not replace an existing note.
+func TestSubscriptionDeliverySuccessKeepsCalendar(t *testing.T) {
+	next := &chargeCalendarEntry{DeliveryDate: "2026-10-01"}
+	view := checkoutPreviewView{Store: "programada", Note: "keep-me"}
+	applyCheckoutStoreMode(&view, "programada", nil, next)
+	if view.ChargeCalendar != next {
+		t.Fatalf("calendar = %+v, want the supplied next delivery", view.ChargeCalendar)
+	}
+	if view.Note != "keep-me" {
+		t.Fatalf("note = %q, want it left untouched", view.Note)
+	}
+	if view.Delivery != nil && view.Delivery.IsUltraFast {
+		t.Fatal("programada marked ultra-fast")
+	}
+}
+
+// TestNonSubscriptionCheckoutKeepsModeLabel keeps the ultra-fast and one-off
+// notes for stores that are not on a recurring cycle, including when delivery
+// summary failed.
+func TestNonSubscriptionCheckoutKeepsModeLabel(t *testing.T) {
+	unica := checkoutPreviewView{Store: "unica"}
+	applyCheckoutStoreMode(&unica, "unica", errors.New("delivery summary failed"), &chargeCalendarEntry{})
+	if unica.Delivery == nil || unica.Delivery.IsUltraFast {
+		t.Fatalf("unica delivery = %+v, want one-off and not ultra-fast", unica.Delivery)
+	}
+	if !strings.Contains(unica.Note, "One-off store (unica)") {
+		t.Fatalf("unica note = %q", unica.Note)
+	}
+	if unica.ChargeCalendar != nil {
+		t.Fatal("unica must not grow a charge calendar")
+	}
+
+	now := checkoutPreviewView{Store: "now"}
+	applyCheckoutStoreMode(&now, "now", nil, nil)
+	if now.Delivery == nil || !now.Delivery.IsUltraFast {
+		t.Fatalf("now delivery = %+v, want ultra-fast", now.Delivery)
+	}
+	if !strings.Contains(now.Note, "Ultra-fast") {
+		t.Fatalf("now note = %q", now.Note)
 	}
 }

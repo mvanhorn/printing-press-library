@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "subscription-delivery-error-and-known-store-ids",
+  "applied_at": "2026-09-23",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "A delivery-summary failure on a subscription storefront must not be labeled one-off/unica; only known storefronts resolve, so checkout URLs always have a subdomain; catalog drift also reports baked stores the live catalog dropped.",
+  "reason": "checkout preview treated every result that was not (subscription and delivery-ok) as a one-off store, so a transient /delivery/summary error on programada, fresh, or pet overwrote the note with unica text. ResolveStore accepted unknown numeric ids as a store with an empty subdomain, and checkout preview built https://.shopper.com.br/shop/checkout. Drift only walked live rows, so a storefront removed from GET /features/stores stayed selectable with no warning. An unparseable or empty catalog still reports nothing.",
+  "files": [
+    "internal/cli/checkout_preview.go",
+    "internal/cli/checkout_preview_test.go",
+    "internal/client/shopper_headers.go",
+    "internal/client/shopper_headers_test.go"
+  ],
+  "call_sites": [
+    "applyCheckoutStoreMode(",
+    "ResolveStore("
+  ],
+  "validated_outcome": "TestSubscriptionDeliveryFailureDoesNotRelabelAsOneOff keeps the auth note and skips the charge calendar when delivery summary fails for programada/fresh/pet. TestNonSubscriptionCheckoutKeepsModeLabel still marks unica one-off and now ultra-fast. TestUnknownNumericStoreIDIsRejected and TestCheckoutURLNeverHasEmptySubdomain reject store id 99 and refuse an empty host label. TestStoreCatalogDriftDetectsClusterMismatch reports a baked storefront missing from a non-empty live catalog, and still returns nil for unparseable and empty bodies."
+}

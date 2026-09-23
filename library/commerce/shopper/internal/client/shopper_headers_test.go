@@ -4,6 +4,7 @@
 package client
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 
@@ -54,7 +55,7 @@ func TestResolveStore(t *testing.T) {
 		{"2", "2", "1", true},            // raw id maps to known cluster
 		{"5", "5", "1", true},            // raw id keeps pet's cluster 1
 		{"6", "6", "11", true},           // raw id maps to now cluster 11
-		{"99", "99", "1", true},          // unknown id defaults cluster 1
+		{"99", "", "", false},            // unknown numeric id is not a storefront
 		{"bogus", "", "", false},
 		{"", "", "", false},
 	}
@@ -213,22 +214,62 @@ func TestStoreCatalogDriftDetectsClusterMismatch(t *testing.T) {
 		t.Errorf("clean payload reported drift: %v", drift)
 	}
 
-	// The API moves unica to a new cluster: the CLI must say so.
-	moved := []byte(`{"stores":[{"number":3,"subdomain":"unica","cluster_id":7,"with_recurrence":false,"is_ultra_fast_delivery":false}]}`)
+	// The API moves unica to a new cluster: the CLI must say so, and must not
+	// also treat the rest of a complete catalog as deleted.
+	moved := bytes.Replace(clean, []byte(`"subdomain":"unica","cluster_id":1`), []byte(`"subdomain":"unica","cluster_id":7`), 1)
 	drift := StoreCatalogDrift(moved)
 	if len(drift) != 1 || !strings.Contains(drift[0], "cluster_id is 7") {
 		t.Errorf("moved cluster drift = %v, want one line naming cluster_id 7", drift)
 	}
 
-	// A brand-new storefront the table does not know about.
-	added := []byte(`{"stores":[{"number":9,"subdomain":"vinhos","cluster_id":11,"with_recurrence":false,"is_ultra_fast_delivery":true}]}`)
+	// A brand-new storefront the table does not know about, alongside the
+	// stores the CLI already bakes.
+	added := bytes.Replace(clean, []byte(`"stores":[`), []byte(`"stores":[{"number":9,"subdomain":"vinhos","cluster_id":11,"with_recurrence":false,"is_ultra_fast_delivery":true},`), 1)
 	if drift := StoreCatalogDrift(added); len(drift) != 1 || !strings.Contains(drift[0], "missing from the CLI store table") {
 		t.Errorf("new storefront drift = %v, want a missing-store line", drift)
 	}
 
-	// Best-effort: garbage must never turn a working `stores` read into noise.
+	// A baked storefront the live catalog dropped.
+	petRow := []byte(`{"number":5,"subdomain":"pet","cluster_id":1,"with_recurrence":true,"is_ultra_fast_delivery":false},`)
+	deleted := bytes.Replace(clean, petRow, nil, 1)
+	drift = StoreCatalogDrift(deleted)
+	if len(drift) != 1 || !strings.Contains(drift[0], "pet:") || !strings.Contains(drift[0], "missing from the live catalog") {
+		t.Errorf("deleted storefront drift = %v, want one line naming pet missing from the live catalog", drift)
+	}
+
+	// Best-effort: garbage, and an empty catalog, must never turn a working
+	// `stores` read into a mass-deletion warning.
 	if drift := StoreCatalogDrift([]byte(`not json`)); drift != nil {
 		t.Errorf("unparseable body reported drift: %v", drift)
+	}
+	if drift := StoreCatalogDrift([]byte(`{"stores":[]}`)); drift != nil {
+		t.Errorf("empty catalog reported drift: %v", drift)
+	}
+}
+
+// TestUnknownNumericStoreIDIsRejected guards checkout URL construction.
+// ResolveStore("99") used to return a Store with an empty subdomain, and
+// checkout preview built https://.shopper.com.br/shop/checkout.
+func TestUnknownNumericStoreIDIsRejected(t *testing.T) {
+	st, ok := ResolveStore("99")
+	if ok {
+		t.Fatalf("ResolveStore(99) = %+v, want rejected", st)
+	}
+	if st.StoreID != "" || st.ClusterID != "" || st.Subdomain != "" {
+		t.Fatalf("rejected selector returned %+v, want the zero Store", st)
+	}
+	got := StoreFor("99")
+	if got.Subdomain == "" {
+		t.Fatal("StoreFor(99) subdomain is empty")
+	}
+	if got.Subdomain != "programada" || got.StoreID != "1" {
+		t.Fatalf("StoreFor(99) = %+v, want the programada fallback", got)
+	}
+	for _, id := range []string{"1", "2", "3", "5", "6", "8"} {
+		known, ok := ResolveStore(id)
+		if !ok || known.Subdomain == "" {
+			t.Errorf("ResolveStore(%q) = %+v, %v; known ids must keep a subdomain", id, known, ok)
+		}
 	}
 }
 
