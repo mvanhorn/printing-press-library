@@ -97,11 +97,14 @@ func TestParseHelpers(t *testing.T) {
 }
 
 func TestTripleKey(t *testing.T) {
-	if k := tripleKey("1030", nil, fptr(100), iptr(2), "x"); k != "" {
-		t.Errorf("nil price = %q", k)
+	if k := tripleKey("1030", nil, iptr(2), "x"); k != "" {
+		t.Errorf("nil surface = %q", k)
 	}
-	k1 := tripleKey("1030", fptr(500000), fptr(200), nil, "Agence Immobilière Trop Longue")
-	k2 := tripleKey("1030", fptr(500000), fptr(200), nil, "AGENCE IMMOBILIERE trop longue")
+	if !priceWithin(fptr(310000), fptr(300000), 0.15) || priceWithin(fptr(600000), fptr(300000), 0.15) || !priceWithin(nil, nil, 0.15) || priceWithin(fptr(1), nil, 0.15) {
+		t.Error("priceWithin")
+	}
+	k1 := tripleKey("1030", fptr(200), nil, "Agence Immobilière Trop Longue")
+	k2 := tripleKey("1030", fptr(200), nil, "AGENCE IMMOBILIERE trop longue")
 	if k1 == "" || k1 != k2 || !strings.HasSuffix(k1, "|-1|agence immob") {
 		t.Errorf("tripleKey = %q vs %q", k1, k2)
 	}
@@ -169,11 +172,21 @@ func TestGroupRelisted(t *testing.T) {
 	if _, ok := byCurrent["VBE5"]; ok {
 		t.Error("sibling units must not be grouped")
 	}
-	// same home, both live, compatible: grouped even without a gone date
-	a := stored("VBE8", "1030|max|57", "", "2026-07-01T00:00:00Z", "", 400000, "appartement", 2, 95)
+	// two live references at one address are never linked by address alone (sibling units)
+	live1 := stored("VBE8", "1030|max|57", "", "2026-07-01T00:00:00Z", "", 400000, "appartement", 2, 95)
+	live2 := stored("VBE9", "1030|max|57", "", "2026-09-01T00:00:00Z", "", 390000, "appartement", 2, 100)
+	if gs := groupRelisted([]store.StoredListing{live1, live2}, now); len(gs) != 0 {
+		t.Errorf("live siblings must not group by address: %+v", gs)
+	}
+	// ...but identical photos on two live references a month apart do link them
+	live1.PhotoHash, live2.PhotoHash = "ph8", "ph8"
+	if gs := groupRelisted([]store.StoredListing{live1, live2}, now); len(gs) != 1 || gs[0].MatchedBy != "photos" {
+		t.Errorf("live pair with identical photos = %+v", gs)
+	}
+	a := stored("VBE8", "1030|max|57", "", "2026-07-01T00:00:00Z", "2026-08-20T00:00:00Z", 400000, "appartement", 2, 95)
 	b := stored("VBE9", "1030|max|57", "", "2026-09-01T00:00:00Z", "", 390000, "appartement", 2, 100)
 	if gs := groupRelisted([]store.StoredListing{a, b}, now); len(gs) != 1 {
-		t.Errorf("compatible live pair = %d groups", len(gs))
+		t.Errorf("gone-then-back pair = %d groups", len(gs))
 	}
 	if gs := groupRelisted([]store.StoredListing{a}, now); len(gs) != 0 {
 		t.Error("single ref is not a group")
@@ -186,6 +199,7 @@ func TestGroupRelisted(t *testing.T) {
 	// address chain A,B,C with photos only on A,B: one group, current = C
 	c := stored("VBE10", "1030|max|57", "", "2026-09-15T00:00:00Z", "", 385000, "appartement", 2, 100)
 	a2, b2 := a, b
+	b2.GoneAt = "2026-09-10T00:00:00Z"
 	a2.PhotoHash, b2.PhotoHash = "ph9", "ph9"
 	if gs := groupRelisted([]store.StoredListing{c, a2, b2}, now); len(gs) != 1 || gs[0].Current != "VBE10" || len(gs[0].Refs) != 3 {
 		t.Errorf("photo sub-chain must not duplicate the address group: %+v", gs)
@@ -205,9 +219,9 @@ func TestGroupRelisted(t *testing.T) {
 		t.Errorf("same-day live pair must not group: %+v", gs)
 	}
 	// the site's created_at orders references, not the scrape order
-	e1 := stored("VBE15", "1030|max|60", "", "2026-09-10T00:00:00Z", "", 400000, "appartement", 2, 95)
+	e1 := stored("VBE15", "1030|max|60", "ph15", "2026-09-10T00:00:00Z", "", 400000, "appartement", 2, 95)
 	e1.CreatedAt = "2026-09-08T00:00:00Z"
-	e2 := stored("VBE16", "1030|max|60", "", "2026-09-10T00:00:00Z", "", 390000, "appartement", 2, 95)
+	e2 := stored("VBE16", "1030|max|60", "ph15", "2026-09-10T00:00:00Z", "", 390000, "appartement", 2, 95)
 	e2.CreatedAt = "2026-06-01T00:00:00Z"
 	if gs := groupRelisted([]store.StoredListing{e1, e2}, now); len(gs) != 1 || gs[0].Current != "VBE15" || gs[0].FirstListed != "2026-06-01T00:00:00Z" {
 		t.Errorf("created_at must order the chain: %+v", gs)
@@ -231,7 +245,8 @@ func TestMatchSameAs(t *testing.T) {
 	immo := []immowebRow{
 		{ID: 10, Street: "Rue Thiefry 54", PostalCode: "1030", Price: fptr(520000), GoneAt: "2026-08-01"},
 		{ID: 11, Street: "Rue Thiéfry, 54", PostalCode: "1030", Price: fptr(510000)},
-		{ID: 12, PostalCode: "1030", Price: fptr(300000), Surface: fptr(90), Bedrooms: iptr(2), Agency: "BETA"},
+		{ID: 12, PostalCode: "1030", Price: fptr(310000), Surface: fptr(90), Bedrooms: iptr(2), Agency: "BETA"},
+		{ID: 13, PostalCode: "1030", Price: fptr(600000), Surface: fptr(90), Bedrooms: iptr(2), Agency: "BETA"},
 	}
 	res, matched, unmatched, noStreet := matchSameAs([]store.StoredListing{r1, r2, r3}, immo, false, false)
 	if matched != 2 || unmatched != 1 || noStreet != 2 || len(res) != 3 {
@@ -240,8 +255,8 @@ func TestMatchSameAs(t *testing.T) {
 	if m := res[0].Match; m == nil || m.ImmowebID != 11 || m.MatchedBy != "address" || m.Confidence != "high" || m.ImmowebGone || m.DeltaEUR == nil || *m.DeltaEUR != -10000 || *m.DeltaPct != -2 {
 		t.Errorf("address match must prefer the live row: %+v", m)
 	}
-	if m := res[1].Match; m == nil || m.ImmowebID != 12 || m.MatchedBy != "price_surface_agency" || m.DeltaEUR == nil || *m.DeltaEUR != 0 {
-		t.Errorf("triple match = %+v", m)
+	if m := res[1].Match; m == nil || m.ImmowebID != 12 || m.MatchedBy != "surface_bedrooms_agency" || m.DeltaEUR == nil || *m.DeltaEUR != -10000 {
+		t.Errorf("triple match must tolerate a price gap and skip the +100%% row: %+v", m)
 	}
 	if res[2].Match != nil || res[2].MatchStatus != "none" {
 		t.Error("VBE3 must be unmatched")
@@ -252,7 +267,7 @@ func TestMatchSameAs(t *testing.T) {
 	if only, _, _, _ := matchSameAs([]store.StoredListing{r1, r2, r3}, immo, true, false); len(only) != 1 || only[0].ID != "VBE3" {
 		t.Errorf("--unmatched = %+v", only)
 	}
-	if gap, _, _, _ := matchSameAs([]store.StoredListing{r1, r2, r3}, immo, false, true); len(gap) != 1 || gap[0].ID != "VBE1" {
+	if gap, _, _, _ := matchSameAs([]store.StoredListing{r1, r2, r3}, immo, false, true); len(gap) != 2 || gap[0].ID != "VBE1" || gap[1].ID != "VBE2" {
 		t.Errorf("--price-gap = %+v", gap)
 	}
 }

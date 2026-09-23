@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -71,15 +72,19 @@ large datasets as it has no memory pressure.`,
 			var writer *bufio.Writer
 			var outFile *os.File
 			if outputFile != "" {
-				f, err := os.Create(outputFile)
+				// pp-patch: export-atomic-write — stream into a temp file next to
+				// the destination and rename on success so an interrupted export
+				// never leaves a partial file at the requested path.
+				f, err := os.CreateTemp(filepath.Dir(outputFile), "."+filepath.Base(outputFile)+".*.part")
 				if err != nil {
 					return fmt.Errorf("creating output file: %w", err)
 				}
 				outFile = f
 				writer = bufio.NewWriter(f)
 				defer func() {
-					if err != nil && outFile != nil {
+					if outFile != nil {
 						_ = outFile.Close()
+						_ = os.Remove(outFile.Name())
 					}
 				}()
 			} else {
@@ -90,10 +95,15 @@ large datasets as it has no memory pressure.`,
 					return fmt.Errorf("flushing export: %w", err)
 				}
 				if outFile != nil {
+					tmp := outFile.Name()
 					if err := outFile.Close(); err != nil {
 						return fmt.Errorf("closing export file: %w", err)
 					}
 					outFile = nil
+					if err := os.Rename(tmp, outputFile); err != nil {
+						_ = os.Remove(tmp)
+						return fmt.Errorf("finalizing export file: %w", err)
+					}
 				}
 				return nil
 			}

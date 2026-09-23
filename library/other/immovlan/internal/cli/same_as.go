@@ -36,7 +36,7 @@ type sameAsMatch struct {
 	ImmowebID    int64    `json:"immoweb_id"`
 	ImmowebURL   string   `json:"immoweb_url"`
 	ImmowebPrice *float64 `json:"immoweb_price,omitempty"`
-	MatchedBy    string   `json:"matched_by"`          // address | price_surface_agency
+	MatchedBy    string   `json:"matched_by"`          // address | surface_bedrooms_agency
 	Confidence   string   `json:"confidence"`          // high | medium
 	DeltaEUR     *float64 `json:"delta_eur,omitempty"` // immovlan − immoweb
 	DeltaPct     *float64 `json:"delta_pct,omitempty"`
@@ -53,7 +53,7 @@ type sameAsRow struct {
 	ImmowebURL   string   `json:"immoweb_url"`
 	ImmowebPrice *float64 `json:"immoweb_price"`
 	DeltaPct     *float64 `json:"delta_pct"`           // immovlan vs immoweb asking price, %
-	MatchStatus  string   `json:"match_status"`        // address | price_surface_agency | none
+	MatchStatus  string   `json:"match_status"`        // address | surface_bedrooms_agency | none
 	GoneStatus   string   `json:"immoweb_gone_status"` // live | gone | none
 }
 
@@ -278,7 +278,7 @@ func matchSameAs(rows []store.StoredListing, immoRows []immowebRow, unmatchedOnl
 		if k := store.AddrKey(ir.PostalCode, ir.Street); k != "" {
 			byAddr[k] = append(byAddr[k], ir)
 		}
-		if k := tripleKey(ir.PostalCode, ir.Price, ir.Surface, ir.Bedrooms, ir.Agency); k != "" {
+		if k := tripleKey(ir.PostalCode, ir.Surface, ir.Bedrooms, ir.Agency); k != "" {
 			byTriple[k] = append(byTriple[k], ir)
 		}
 	}
@@ -291,8 +291,17 @@ func matchSameAs(rows []store.StoredListing, immoRows []immowebRow, unmatchedOnl
 		by, conf := "", ""
 		if k := r.AddrKey; k != "" && len(byAddr[k]) > 0 {
 			cands, by, conf = byAddr[k], "address", "high"
-		} else if k := tripleKey(r.PostalCode, r.Price, r.Surface, r.Bedrooms, r.Agency); k != "" && len(byTriple[k]) > 0 {
-			cands, by, conf = byTriple[k], "price_surface_agency", "medium"
+		} else if k := tripleKey(r.PostalCode, r.Surface, r.Bedrooms, r.Agency); k != "" {
+			// same postcode, surface, bedrooms and agency; the asking price may
+			// differ between portals, so it filters (±15 %) instead of keying.
+			for _, c := range byTriple[k] {
+				if priceWithin(r.Price, c.Price, sameAsPriceTolerance) {
+					cands = append(cands, c)
+				}
+			}
+			if len(cands) > 0 {
+				by, conf = "surface_bedrooms_agency", "medium"
+			}
 		}
 		if len(cands) > 0 {
 			cands = append([]immowebRow(nil), cands...)
@@ -330,8 +339,25 @@ func matchSameAs(rows []store.StoredListing, immoRows []immowebRow, unmatchedOnl
 	return results, matched, unmatched, withoutStreet
 }
 
-func tripleKey(pc string, price, surface *float64, beds *int, agency string) string {
-	if price == nil || surface == nil || *price <= 0 || *surface <= 0 {
+// sameAsPriceTolerance is the largest asking-price gap (relative to the
+// Immoweb price) still accepted for a surface+bedrooms+agency match.
+const sameAsPriceTolerance = 0.15
+
+func priceWithin(a, b *float64, tol float64) bool {
+	if a == nil || b == nil || *b <= 0 {
+		return a == nil && b == nil
+	}
+	d := *a - *b
+	if d < 0 {
+		d = -d
+	}
+	return d <= *b*tol
+}
+
+// tripleKey identifies a home without its price: postcode, living surface,
+// bedrooms and agency.
+func tripleKey(pc string, surface *float64, beds *int, agency string) string {
+	if surface == nil || *surface <= 0 {
 		return ""
 	}
 	b := -1
@@ -342,5 +368,5 @@ func tripleKey(pc string, price, surface *float64, beds *int, agency string) str
 	if len(a) > 12 {
 		a = a[:12]
 	}
-	return fmt.Sprintf("%s|%.0f|%.0f|%d|%s", pc, *price, *surface, b, a)
+	return fmt.Sprintf("%s|%.0f|%d|%s", pc, *surface, b, a)
 }

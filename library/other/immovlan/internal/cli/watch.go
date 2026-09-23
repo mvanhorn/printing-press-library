@@ -217,8 +217,14 @@ func runWatch(ctx context.Context, c *client.Client, db *store.Store, ss store.S
 		fetched = append(fetched, sp.Items...)
 		// A short page is not the last one (promoted cards are skipped by the
 		// parser); only the pagination says whether more pages exist.
-		if !sp.HasNext || len(sp.Items) == 0 {
+		if !sp.HasNext {
 			complete = true
+			break
+		}
+		if len(sp.Items) == 0 {
+			// every card unparsable on a page that says more follow: stop, but
+			// do not treat the walk as complete (nothing may be marked gone).
+			rep.Note = fmt.Sprintf("page %d had no parsable listing; disappearances not evaluated this run", page)
 			break
 		}
 	}

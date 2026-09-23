@@ -116,9 +116,12 @@ Paste an immovlan.be search URL with --url to start from a search built on the s
 					}
 				}
 				fetched = append(fetched, sp.Items...)
-				if !sp.HasNext || len(sp.Items) == 0 {
+				if !sp.HasNext {
 					view.TotalIsExact = true
 					break
+				}
+				if len(sp.Items) == 0 {
+					break // unparsable page: keep the estimate, do not claim exactness
 				}
 			}
 			view.Fetched = len(fetched)

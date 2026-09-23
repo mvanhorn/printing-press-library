@@ -138,7 +138,18 @@ func extractHTMLPageOrLinks(raw []byte, opts htmlExtractionOptions) (json.RawMes
 
 	switch strings.ToLower(strings.TrimSpace(opts.Mode)) {
 	case "links":
-		data, err := json.Marshal(page.Links)
+		// pp-patch: html-links-dedupe — a listing card links to the same detail
+		// page from its image, title and button; report each URL once.
+		seen := map[string]bool{}
+		unique := page.Links[:0]
+		for _, link := range page.Links {
+			if seen[link.URL] {
+				continue
+			}
+			seen[link.URL] = true
+			unique = append(unique, link)
+		}
+		data, err := json.Marshal(unique)
 		return json.RawMessage(data), err
 	default:
 		data, err := json.Marshal(page)

@@ -171,15 +171,21 @@ func listedAt(m store.StoredListing) time.Time {
 // bedrooms and surface (±10 %) agree and the two were published at least
 // minRelistGap apart. Concurrently-live sibling units in a building and
 // duplicate ads posted together fail these tests.
-func sameHome(older, newer store.StoredListing) bool {
+func sameHome(older, newer store.StoredListing, viaPhotos bool) bool {
 	if older.Deal != "" && newer.Deal != "" && older.Deal != newer.Deal {
 		return false // a sale that comes back as a rental is not a re-listing
 	}
 	if older.GoneAt != "" && older.GoneAt <= newer.FirstSeen {
 		return true
 	}
+	// Both still live: an address key cannot tell sibling units in one
+	// building apart (identical type, bedrooms and surface are the norm in a
+	// new build), so only identical photos may link two live references.
+	if !viaPhotos {
+		return false
+	}
 	if listedAt(newer).Sub(listedAt(older)) < minRelistGap {
-		return false // both live and posted within a week: a duplicate ad or a sibling, not a comeback
+		return false // posted within a week: a duplicate ad, not a comeback
 	}
 	if older.Type != "" && newer.Type != "" && older.Type != newer.Type {
 		return false
@@ -246,7 +252,7 @@ func groupRelisted(rows []store.StoredListing, now time.Time) []relistGroup {
 		for _, m := range uniq {
 			placed := false
 			for i := range chains {
-				if sameHome(chains[i][len(chains[i])-1], m) {
+				if sameHome(chains[i][len(chains[i])-1], m, keyKind[key] == "photos") {
 					chains[i] = append(chains[i], m)
 					placed = true
 					break

@@ -148,7 +148,7 @@ These capabilities aren't available in any other tool for this API.
 ### Cross-portal intelligence
 - **`same-as`** — Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only.
 
-  _Use it to dedupe a cross-portal sourcing run or to find Immovlan exclusives before calling an agency. Requires immoweb-pp-cli's local store (`--immoweb-db` or `$IMMOWEB_PP_DB`); run `enrich --missing street` first so addresses can match. Every row carries flat `immoweb_id` (0 when Immovlan-only), `immoweb_url`, `immoweb_price`, `delta_pct`, `match_status` (address / price_surface_agency / none) and `immoweb_gone_status`; the nested `immoweb` object exists on matched rows only and is dropped by `--agent` compaction, so agents read the flat fields._
+  _Use it to dedupe a cross-portal sourcing run or to find Immovlan exclusives before calling an agency. Requires immoweb-pp-cli's local store (`--immoweb-db` or `$IMMOWEB_PP_DB`); run `enrich --missing street` first so addresses can match. Every row carries flat `immoweb_id` (0 when Immovlan-only), `immoweb_url`, `immoweb_price`, `delta_pct`, `match_status` (address / surface_bedrooms_agency / none) and `immoweb_gone_status`; the nested `immoweb` object exists on matched rows only and is dropped by `--agent` compaction, so agents read the flat fields._
 
   ```bash
   immovlan-pp-cli same-as --all --unmatched --postcode 1030 --agent

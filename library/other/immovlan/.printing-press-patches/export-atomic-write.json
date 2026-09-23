@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "export-atomic-write",
+  "applied_at": "2026-09-23",
+  "base_run_id": "20260922-135147-d48976cc",
+  "base_printing_press_version": "4.32.4",
+  "summary": "export --output streams into a temp file beside the destination and renames it on success, so an interrupted export never leaves a partial file at the requested path.",
+  "reason": "Greptile P2 on the publish PR; a downstream job could read a truncated export as complete. Generator template gap, filed for retro.",
+  "files": ["internal/cli/export.go"],
+  "markers": ["pp-patch: export-atomic-write"]
+}
