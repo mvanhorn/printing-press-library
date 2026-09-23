@@ -9,6 +9,9 @@ import (
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // TestNovelCheckoutPreviewHelpWires smoke-tests that the checkout preview command
@@ -78,21 +81,78 @@ func TestResolveSubdomainCoversEveryStorefront(t *testing.T) {
 		"pet": "pet", "5": "pet",
 		"now": "now", "6": "now",
 		"now-bebidas": "now-bebidas", "nowbebidas": "now-bebidas", "8": "now-bebidas",
-		"": "programada", "bogus": "programada", "99": "programada",
 	}
 	for in, want := range cases {
-		if got := resolveSubdomain(in); got != want {
+		got, err := resolveSubdomain(in)
+		if err != nil {
+			t.Errorf("resolveSubdomain(%q) error = %v", in, err)
+			continue
+		}
+		if got != want {
 			t.Errorf("resolveSubdomain(%q) = %q, want %q", in, got, want)
 		}
 	}
 }
 
+// TestUnknownStoreDoesNotOpenProgramada rejects selectors that are not a
+// storefront. StoreFor falls back to Programada; browser URLs must not.
+func TestUnknownStoreDoesNotOpenProgramada(t *testing.T) {
+	for _, in := range []string{"99", "bogus", "not-a-store", ""} {
+		got, err := resolveSubdomain(in)
+		if err == nil {
+			t.Fatalf("resolveSubdomain(%q) = %q, nil; want an error", in, got)
+		}
+		if got != "" {
+			t.Fatalf("resolveSubdomain(%q) = %q, want no subdomain on error", in, got)
+		}
+	}
+	url, err := storefrontPageURL("99", "/shop/checkout")
+	if err == nil || url != "" {
+		t.Fatalf("storefrontPageURL(99) = %q, %v; want error and no URL", url, err)
+	}
+	if strings.Contains(url, "programada") || strings.Contains(url, "shopper.com.br") {
+		t.Fatalf("unknown store produced a storefront URL: %s", url)
+	}
+	// A blank --store is the default storefront, not an unknown selector.
+	blank, err := storefrontPageURL("", "/shop/checkout")
+	if err != nil {
+		t.Fatalf("blank store: %v", err)
+	}
+	if blank != "https://programada.shopper.com.br/shop/checkout" {
+		t.Fatalf("blank store URL = %s", blank)
+	}
+	unica, err := storefrontPageURL("unica", "/shop/checkout")
+	if err != nil || unica != "https://unica.shopper.com.br/shop/checkout" {
+		t.Fatalf("unica URL = %q, %v", unica, err)
+	}
+}
+
+// TestOpenStorefrontPageRejectsUnknownStore fails closed before any browser
+// launch. checkout open and the delivery/subscription handoffs share this path.
+func TestOpenStorefrontPageRejectsUnknownStore(t *testing.T) {
+	cmd := &cobra.Command{}
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	err := openStorefrontPage(cmd, &rootFlags{store: "99"}, "/shop/checkout")
+	if err == nil {
+		t.Fatal("openStorefrontPage(--store 99) succeeded")
+	}
+	if strings.Contains(out.String(), "programada") || strings.Contains(out.String(), "shopper.com.br") {
+		t.Fatalf("unknown store wrote a storefront URL: %s", out.String())
+	}
+}
+
 // TestCheckoutURLNeverHasEmptySubdomain pins the host label used by checkout
-// preview. An unknown numeric id used to resolve with an empty subdomain and
-// produce https://.shopper.com.br/shop/checkout.
+// preview. An unknown numeric id must not resolve, and a known storefront
+// with an empty subdomain must not produce https://.shopper.com.br.
 func TestCheckoutURLNeverHasEmptySubdomain(t *testing.T) {
-	for _, in := range []string{"", "99", "bogus", "unica", "programada", "1", "now"} {
-		sub := resolveSubdomain(in)
+	for _, in := range []string{"unica", "programada", "1", "now"} {
+		sub, err := resolveSubdomain(in)
+		if err != nil {
+			t.Errorf("resolveSubdomain(%q) error = %v", in, err)
+			continue
+		}
 		if sub == "" {
 			t.Errorf("resolveSubdomain(%q) is empty", in)
 		}
@@ -100,6 +160,17 @@ func TestCheckoutURLNeverHasEmptySubdomain(t *testing.T) {
 		if strings.HasPrefix(url, "https://.") || strings.Contains(url, "://.") {
 			t.Errorf("checkout URL for %q = %s", in, url)
 		}
+	}
+	if _, err := resolveSubdomain("99"); err == nil {
+		t.Fatal("resolveSubdomain(99) succeeded")
+	}
+	fallback := knownStoreSubdomain(client.Store{StoreID: "1"})
+	url := "https://" + fallback + ".shopper.com.br/shop/checkout"
+	if fallback == "" || strings.Contains(url, "://.") {
+		t.Fatalf("empty-subdomain fallback URL = %s", url)
+	}
+	if knownStoreSubdomain(client.Store{Subdomain: "pet"}) != "pet" {
+		t.Fatal("known subdomain was replaced")
 	}
 }
 

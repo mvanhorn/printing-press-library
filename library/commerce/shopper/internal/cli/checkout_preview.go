@@ -72,6 +72,10 @@ Run 'shopper-pp-cli checkout open --store <store>' to open the checkout page.`,
 			if storeName == "" {
 				storeName = "programada"
 			}
+			checkoutURL, err := storefrontPageURL(storeName, "/shop/checkout")
+			if err != nil {
+				return err
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
@@ -80,7 +84,7 @@ Run 'shopper-pp-cli checkout open --store <store>' to open the checkout page.`,
 
 			view := checkoutPreviewView{
 				Store:           storeName,
-				CheckoutURL:     "https://" + resolveSubdomain(storeName) + ".shopper.com.br/shop/checkout",
+				CheckoutURL:     checkoutURL,
 				BrowserRequired: "Order confirmation requires a browser session. Run 'shopper-pp-cli checkout open --store " + storeName + "' to open the checkout page.",
 			}
 
@@ -268,17 +272,44 @@ func isUltraFastStore(s string) bool {
 	return client.StoreFor(s).UltraFast
 }
 
-// resolveSubdomain maps a store name to its web subdomain.
+// resolveSubdomain maps a known store selector to its web subdomain.
+// Unknown selectors are an error so browser handoffs cannot silently open
+// Programada. StoreFor's unknown-selector fallback is intentionally not used
+// here. A known storefront with an empty subdomain still falls back to
+// programada so the host label is never blank.
 //
 // PATCH: store-cluster-truth. Delegates to the single store table rather than
 // carrying its own copy of the name/id aliases.
-func resolveSubdomain(s string) string {
-	if sub := client.StoreFor(s).Subdomain; sub != "" {
-		return sub
+func resolveSubdomain(s string) (string, error) {
+	st, ok := client.ResolveStore(s)
+	if !ok {
+		return "", fmt.Errorf("unknown store %q: choose one of %s, or a known store id", s, strings.Join(client.StoreNames(), ", "))
 	}
-	// Known storefronts always carry a subdomain. This keeps checkout URLs
-	// from becoming https://.shopper.com.br/... when a selector has none.
+	return knownStoreSubdomain(st), nil
+}
+
+// knownStoreSubdomain is the host label for a store ResolveStore already
+// accepted. An empty subdomain (no current storefront) stays on programada
+// rather than producing https://.shopper.com.br.
+func knownStoreSubdomain(st client.Store) string {
+	if st.Subdomain != "" {
+		return st.Subdomain
+	}
 	return "programada"
+}
+
+// storefrontPageURL builds https://<subdomain>.shopper.com.br<path>.
+// A blank selector is the default storefront (programada). Any other unknown
+// selector fails closed instead of opening Programada.
+func storefrontPageURL(storeName, path string) (string, error) {
+	if strings.TrimSpace(storeName) == "" {
+		storeName = "programada"
+	}
+	sub, err := resolveSubdomain(storeName)
+	if err != nil {
+		return "", err
+	}
+	return "https://" + sub + ".shopper.com.br" + path, nil
 }
 
 // storeMatchesSubdomain checks if an API internal store name matches a user input.

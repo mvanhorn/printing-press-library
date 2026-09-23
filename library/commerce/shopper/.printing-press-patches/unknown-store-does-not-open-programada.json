@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "unknown-store-does-not-open-programada",
+  "applied_at": "2026-09-23",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Browser handoff URLs resolve only known storefronts and error on an unknown selector instead of opening Programada; a known store with an empty subdomain still uses programada so the host is never blank.",
+  "reason": "resolveSubdomain used StoreFor, which falls back to Programada for unknown selectors. checkout open and the delivery, subscription, and card handoffs do not all go through newClient, so --store 99 silently opened programada.shopper.com.br. A blank --store remains the default storefront.",
+  "files": [
+    "internal/cli/checkout_preview.go",
+    "internal/cli/checkout_preview_test.go",
+    "internal/cli/checkout.go",
+    "internal/cli/shopper_browser_handoff.go"
+  ],
+  "call_sites": [
+    "storefrontPageURL(",
+    "resolveSubdomain("
+  ],
+  "validated_outcome": "TestUnknownStoreDoesNotOpenProgramada and TestOpenStorefrontPageRejectsUnknownStore fail --store 99 with no storefront URL. TestCheckoutURLNeverHasEmptySubdomain still refuses an empty host label, including the known-store empty-subdomain fallback."
+}

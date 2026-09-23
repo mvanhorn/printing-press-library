@@ -49,6 +49,14 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "quantity")
 				}
 			}
+			// Reject an explicit non-positive quantity before any client or
+			// POST. /cart/remove ignores the body quantity and always removes
+			// one unit, so --quantity 0 or a negative would otherwise still
+			// delete a unit. An unset flag stays "remove one".
+			repeats, err := cartRemoveRepeatCount(stdinBody, cmd.Flags().Changed("quantity"), bodyQuantity)
+			if err != nil {
+				return usageErr(err)
+			}
 			path := "/cart/remove"
 			c, err := flags.newClient()
 			if err != nil {
@@ -84,10 +92,6 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 			// only the remove side needs this. Issue one request per unit so
 			// `--quantity N` removes N, and stop early when the API reports the
 			// line is already empty rather than firing pointless writes.
-			repeats := 1
-			if !stdinBody && bodyQuantity > 1 {
-				repeats = bodyQuantity
-			}
 			if flags.dryRun && repeats > 1 {
 				// Dry-run renders the request once and says how many times it
 				// would be sent; echoing an identical block N times buries the
@@ -271,6 +275,21 @@ func newCartRemoveCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+// cartRemoveRepeatCount is how many POST /cart/remove calls to send.
+// The API decrements exactly one unit per call and ignores the quantity
+// field. An explicit quantity below 1 is an error: leaving it as one call
+// would still remove a unit. An unset flag removes one unit. A stdin body
+// is sent once, verbatim, and is not quantity-checked.
+func cartRemoveRepeatCount(stdinBody, quantitySet bool, quantity int) (int, error) {
+	if !stdinBody && quantitySet && quantity < 1 {
+		return 0, fmt.Errorf("--quantity must be at least 1 (got %d)", quantity)
+	}
+	if !stdinBody && quantity > 1 {
+		return quantity, nil
+	}
+	return 1, nil
 }
 
 // remainingCartQuantity reads the line quantity left after a /cart/remove call.

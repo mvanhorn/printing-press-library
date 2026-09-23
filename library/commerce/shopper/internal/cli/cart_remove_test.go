@@ -39,31 +39,42 @@ func TestRemainingCartQuantityReadsLineQuantity(t *testing.T) {
 
 // TestRemoveRepeatCount documents the loop arithmetic the fix depends on:
 // because the API decrements exactly one unit per call regardless of the
-// `quantity` body field, `--quantity N` has to issue N calls. Anything that
-// turns this back into a single call silently reintroduces the bug where
-// `--quantity 5` removed one unit.
+// `quantity` body field, `--quantity N` has to issue N calls. An explicit
+// quantity below 1 is rejected before any request — leaving it as one call
+// would still remove a unit. An unset flag still removes one.
 func TestRemoveRepeatCount(t *testing.T) {
-	repeats := func(stdinBody bool, quantity int) int {
-		r := 1
-		if !stdinBody && quantity > 1 {
-			r = quantity
-		}
-		return r
-	}
 	cases := []struct {
-		stdin bool
-		qty   int
-		want  int
+		name    string
+		stdin   bool
+		set     bool
+		qty     int
+		want    int
+		wantErr bool
 	}{
-		{false, 3, 3},
-		{false, 1, 1},
-		{false, 0, 1},  // unset flag still sends the single generated call
-		{false, -2, 1}, // a negative never means "loop backwards"
-		{true, 9, 1},   // a raw stdin body is sent verbatim, exactly once
+		{"three units", false, true, 3, 3, false},
+		{"one unit", false, true, 1, 1, false},
+		{"unset flag removes one", false, false, 0, 1, false},
+		{"explicit zero is rejected", false, true, 0, 0, true},
+		{"explicit negative is rejected", false, true, -2, 0, true},
+		{"stdin zero is one verbatim call", true, true, 0, 1, false},
+		{"stdin negative is one verbatim call", true, true, -2, 1, false},
+		{"stdin large quantity is still one call", true, false, 9, 1, false},
 	}
 	for _, c := range cases {
-		if got := repeats(c.stdin, c.qty); got != c.want {
-			t.Errorf("repeats(stdin=%v, qty=%d) = %d, want %d", c.stdin, c.qty, got, c.want)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			got, err := cartRemoveRepeatCount(c.stdin, c.set, c.qty)
+			if c.wantErr {
+				if err == nil {
+					t.Fatalf("cartRemoveRepeatCount(stdin=%v, set=%v, qty=%d) = %d, nil; want error", c.stdin, c.set, c.qty, got)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("cartRemoveRepeatCount(stdin=%v, set=%v, qty=%d) error = %v", c.stdin, c.set, c.qty, err)
+			}
+			if got != c.want {
+				t.Fatalf("cartRemoveRepeatCount(stdin=%v, set=%v, qty=%d) = %d, want %d", c.stdin, c.set, c.qty, got, c.want)
+			}
+		})
 	}
 }

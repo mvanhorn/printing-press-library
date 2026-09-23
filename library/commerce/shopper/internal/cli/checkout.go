@@ -46,11 +46,10 @@ totals and delivery date before opening the checkout page.`,
 			"pp:no-error-path-probe": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			storeName := flags.store
-			if storeName == "" {
-				storeName = "programada"
+			url, err := storefrontPageURL(flags.store, "/shop/checkout")
+			if err != nil {
+				return err
 			}
-			url := "https://" + resolveSubdomain(storeName) + ".shopper.com.br/shop/checkout"
 
 			if cliutil.IsVerifyEnv() {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{

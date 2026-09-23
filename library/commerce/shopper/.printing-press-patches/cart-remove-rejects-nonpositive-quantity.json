@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "cart-remove-rejects-nonpositive-quantity",
+  "applied_at": "2026-09-23",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "An explicit cart remove quantity below 1 is rejected before any request; an unset quantity still removes one unit, and a stdin body is still sent once.",
+  "reason": "POST /cart/remove ignores the quantity field and always decrements one unit. Treating --quantity 0 or a negative as a single call therefore deleted a unit. The check runs before the client is built so the invalid value never reaches the API.",
+  "files": [
+    "internal/cli/cart_remove.go",
+    "internal/cli/cart_remove_test.go"
+  ],
+  "call_sites": [
+    "cartRemoveRepeatCount("
+  ],
+  "validated_outcome": "TestRemoveRepeatCount rejects an explicit 0 and a negative, keeps an unset flag at one call, and still sends a stdin body exactly once."
+}
