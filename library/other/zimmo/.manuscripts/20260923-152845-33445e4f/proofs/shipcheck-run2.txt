@@ -1,0 +1,222 @@
+
+=== verify ===
+
+Verification verdict WARN (pass rate 98%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/09/23 16:29:24 fix loop: help registration for resource-path:export requires manual fix
+2026/09/23 16:29:24 fix loop: skip help_fail for resource-path:export: manual registration required
+2026/09/23 16:29:24 fix loop: execution failure for agency requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for agency: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for comps requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for comps: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for find requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for find: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for geocode requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for geocode: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for locality-price requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for locality-price: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for photos requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for photos: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for playbook requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for playbook: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for profile requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for profile: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for same-as requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for same-as: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for shortlist requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for shortlist: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for show requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for show: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for sub-locality-price requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for sub-locality-price: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for workflow requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for workflow: manual execution fix required
+2026/09/23 16:29:24 fix loop: execution failure for yield requires manual fix
+2026/09/23 16:29:24 fix loop: skip exec_fail for yield: manual execution fix required
+Runtime Verification: ~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/zimmo-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       FAIL   FAIL     FAIL     0/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agency                         write        PASS   PASS     FAIL     2/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+comps                          read         PASS   PASS     FAIL     2/3
+dealers                        read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+drops                          read         PASS   PASS     PASS     3/3
+dump                           read         PASS   PASS     PASS     3/3
+enrich                         write        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+find                           read         PASS   PASS     FAIL     2/3
+geocode                        write        PASS   PASS     FAIL     2/3
+import                         data-layer   PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+listings                       read         PASS   PASS     PASS     3/3
+locality-price                 read         PASS   PASS     FAIL     2/3
+motivated                      read         PASS   PASS     PASS     3/3
+peb-trap                       read         PASS   PASS     PASS     3/3
+photos                         write        PASS   PASS     FAIL     2/3
+places                         write        PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     FAIL     2/3
+prices                         read         PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+same-as                        read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+shortlist                      write        PASS   PASS     FAIL     2/3
+show                           read         PASS   PASS     FAIL     2/3
+sub-locality-price             read         PASS   PASS     FAIL     2/3
+sublocalities                  read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+underpriced                    read         PASS   PASS     PASS     3/3
+watch                          write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       write        PASS   PASS     FAIL     2/3
+yield                          read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS dealers get
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS listings get
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS watch rm
+  PASS watch run
+  PASS watch save
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 98% (54/55 passed, 1 critical)
+Verdict: WARN
+
+Fix Loop: 1 iterations, improved: false
+  Iteration 1: 98% -> 98% (+0%), 15 fixes applied
+
+=== validate-narrative ===
+OK: 9 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec ~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/research/zimmo-openapi.yaml overridden by bundled ~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/spec.yaml
+Dogfood Report: zimmo-pp-cli
+================================
+
+Path Validity:     2/2 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    5 dead (WARN)
+  - handleBinaryResponseDelivery (defined, never called)
+  - readSecretFromStdin (defined, never called)
+  - retainCLIQueryParams (defined, never called)
+  - retainExplicitQueryParams (defined, never called)
+  - successfulNoop (defined, never called)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 5 dead helper functions found
+
+=== workflow-verify ===
+Workflow Verification: zimmo-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== zimmo-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: zimmo
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           5/10
+  Auth Protocol           N/A
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               1/5
+
+  Total: 85/100 - Grade A
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Passed: 6/6  (100% pass rate, 1 skipped)
+
+Gaps:
+  - dead_code scored 1/5 - needs improvement
+  - MCP: 10 tools (10 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         10.147s
+  validate-narrative  PASS    0         300ms
+  dogfood           PASS    0         5.805s
+  workflow-verify   PASS    0         168ms
+  apify-audit       PASS    0         43ms
+  verify-skill      PASS    0         4.794s
+  scorecard         PASS    0         5.267s
+
+Verdict: PASS (7/7 legs passed)

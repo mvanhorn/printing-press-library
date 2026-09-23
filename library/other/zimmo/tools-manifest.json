@@ -1,0 +1,238 @@
+{
+  "api_name": "zimmo",
+  "base_url": "https://search-api.zimmo.be",
+  "description": "Belgian real estate from Zimmo with exact addresses, sold comps, commune prices per m² and a local store for deal sourcing.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "dealers_get",
+      "description": "Get one real-estate agency (dealer) by UUID. Required: id. Returns the Dealer.",
+      "method": "GET",
+      "path": "/dealers/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dealers_search",
+      "description": "Search agencies (filter by category, placeId; sort by distance). Returns the new DealersSearchResponse.",
+      "method": "POST",
+      "path": "/dealers/search",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "geocode_geocode",
+      "description": "Geocode a Belgian address to coordinates and place ids. Required: address. Returns the GeocodeGeocodeResponse.",
+      "method": "GET",
+      "path": "/geocode",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "query",
+          "description": "Address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_get",
+      "description": "Get one listing by Zimmo code (e.g. LAISZ) or listing UUID. Required: id. Returns the Listing.",
+      "method": "GET",
+      "path": "/listings/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_property-count",
+      "description": "Total number of active properties on Zimmo. Returns the ListingsPropertyCountResponse.",
+      "method": "GET",
+      "path": "/listings/property-count",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "listings_search",
+      "description": "Search listings with a Zimmo filter object (status, placeId, postalCode, category, price, bedrooms, energyLabel, text). Optional: filter, paging, sorting. Returns the new SearchResponse.",
+      "method": "POST",
+      "path": "/listings/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter"
+        },
+        {
+          "name": "paging-from",
+          "wire_name": "paging.from",
+          "type": "int",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "paging-size",
+          "wire_name": "paging.size",
+          "type": "int",
+          "location": "body",
+          "description": "Size"
+        },
+        {
+          "name": "sorting",
+          "type": "array",
+          "location": "body",
+          "description": "Sorting"
+        }
+      ]
+    },
+    {
+      "name": "locality-price_locality_price",
+      "description": "Price per m² for a commune (by property type) with monthly history. Required: placeId, startDate. Returns the LocalityPrice.",
+      "method": "GET",
+      "path": "/locality-price/{placeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "placeId",
+          "type": "int",
+          "location": "path",
+          "description": "Place id",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "History start date YYYY-MM-DD (Zimmo requires it)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_find",
+      "description": "Resolve a postcode and/or commune name to Zimmo place ids. Optional: postalCode, name. Returns array of PlacesFindItem.",
+      "method": "GET",
+      "path": "/places/by-postal-code-and-or-name",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "postalCode",
+          "type": "string",
+          "location": "query",
+          "description": "Postal code"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "sub-locality-price_sub_locality_price",
+      "description": "Price per m² for a sub-locality with monthly history. Required: placeId, startDate. Returns the LocalityPrice.",
+      "method": "GET",
+      "path": "/sub-locality-price/{placeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "placeId",
+          "type": "int",
+          "location": "path",
+          "description": "Place id",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "History start date YYYY-MM-DD (Zimmo requires it)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sublocalities_search",
+      "description": "Search sub-localities (deelgemeenten) by keyword. Required: keyword. Optional: locale (default: fr). Returns the SublocalitiesSearchResponse.",
+      "method": "GET",
+      "path": "/sublocalities",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Refresh stored listings from Zimmo, resumably: status changes, price history, EPC, flood and planning flags, GPS."
+    },
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Find the Immoweb or Immovlan twin of a Zimmo listing and the price gap between portals."
+    },
+    {
+      "name": "Sold comps",
+      "command": "comps",
+      "description": "Sold or rented listings around one property with median €/m² and the subject's gap to it."
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "Energy-poor stored listings (EPC F/G or high kWh/m²), rented ones first with their rent, showing Zimmo's renovation-obligation flag."
+    },
+    {
+      "name": "Underpriced vs commune",
+      "command": "underpriced",
+      "description": "Rank stored for-sale houses and apartments by discount to their commune's €/m² (viager, whole buildings and service flats skipped)."
+    },
+    {
+      "name": "Gross rental yield",
+      "command": "yield",
+      "description": "Gross rental yield of sale listings: the published rent when let, otherwise rentals of similar surface in the same postcode and type."
+    },
+    {
+      "name": "Motivated seller score",
+      "command": "motivated",
+      "description": "Rank listings by seller pressure: days on market, total price cut, re-listing, EPC."
+    }
+  ]
+}

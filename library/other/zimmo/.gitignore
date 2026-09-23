@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/zimmo-pp-cli
+/zimmo-pp-cli.exe
+/zimmo-pp-mcp
+/zimmo-pp-mcp.exe
+/bin/
+/build/
+/dist/

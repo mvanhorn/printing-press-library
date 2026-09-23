@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-23T14:56:12.273414Z",
+  "printing_press_version": "4.32.4",
+  "api_name": "zimmo",
+  "display_name": "Zimmo",
+  "cli_name": "zimmo-pp-cli",
+  "creator": {
+    "handle": "sambassio",
+    "name": "sambassio"
+  },
+  "owner": "sambassio",
+  "printer": "sambassio",
+  "printer_name": "sambassio",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:d749e10acf9af022befea7f69b95c421c65424710b4ac0ed39cd4029a6de03c7",
+  "run_id": "20260923-152845-33445e4f",
+  "category": "other",
+  "description": "Belgian real estate from Zimmo with exact addresses, sold comps, commune prices per m² and a local store for deal sourcing.",
+  "mcp_binary": "zimmo-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_preference": "anonymousJwt",
+  "novel_features": [
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Refresh stored listings from Zimmo, resumably: status changes, price history, EPC, flood and planning flags, GPS."
+    },
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Find the Immoweb or Immovlan twin of a Zimmo listing and the price gap between portals."
+    },
+    {
+      "name": "Sold comps",
+      "command": "comps",
+      "description": "Sold or rented listings around one property with median €/m² and the subject's gap to it."
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "Energy-poor stored listings (EPC F/G or high kWh/m²), rented ones first with their rent, showing Zimmo's renovation-obligation flag."
+    },
+    {
+      "name": "Underpriced vs commune",
+      "command": "underpriced",
+      "description": "Rank stored for-sale houses and apartments by discount to their commune's €/m² (viager, whole buildings and service flats skipped)."
+    },
+    {
+      "name": "Gross rental yield",
+      "command": "yield",
+      "description": "Gross rental yield of sale listings: the published rent when let, otherwise rentals of similar surface in the same postcode and type."
+    },
+    {
+      "name": "Motivated seller score",
+      "command": "motivated",
+      "description": "Rank listings by seller pressure: days on market, total price cut, re-listing, EPC."
+    }
+  ]
+}

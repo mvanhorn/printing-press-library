@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "zimmo-pp-cli"
+display_name = "Zimmo"
+description = "Belgian real estate from Zimmo with exact addresses, sold comps, commune prices per m² and a local store for deal sourcing."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/zimmo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ZIMMO_TOKEN = true

@@ -1,0 +1,231 @@
+openapi: 3.0.3
+info:
+  title: Zimmo
+  x-website: https://www.zimmo.be
+  x-auth-note: "No credential: the CLI mints Zimmo's anonymous web token automatically; ZIMMO_TOKEN overrides it."
+  description: "Search Zimmo (Belgian real-estate portal): listings with exact address, EPC and sold history, commune price per m², agencies. Public data via an auto-minted anonymous token."
+  version: "0.1.0"
+servers:
+  - url: https://search-api.zimmo.be
+x-category: other
+x-learn:
+  entity_lookup_seeds:
+    commune:
+      - { canonical: Bruxelles, aliases: [brussel, brussels, "1000"] }
+      - { canonical: Ixelles, aliases: [elsene, "1050"] }
+      - { canonical: Schaerbeek, aliases: [schaarbeek, "1030"] }
+      - { canonical: Saint-Gilles, aliases: [sint-gillis, "1060"] }
+      - { canonical: Anderlecht, aliases: ["1070"] }
+      - { canonical: Molenbeek-Saint-Jean, aliases: [molenbeek, "1080"] }
+      - { canonical: Uccle, aliases: [ukkel, "1180"] }
+      - { canonical: Forest, aliases: [vorst, "1190"] }
+      - { canonical: Etterbeek, aliases: ["1040"] }
+      - { canonical: Saint-Josse-ten-Noode, aliases: [saint-josse, sint-joost, "1210"] }
+      - { canonical: Liège, aliases: [liege, luik, "4000"] }
+      - { canonical: Namur, aliases: [namen, "5000"] }
+      - { canonical: Charleroi, aliases: ["6000"] }
+      - { canonical: Leuven, aliases: [louvain, "3000"] }
+      - { canonical: Gent, aliases: [gand, ghent, "9000"] }
+      - { canonical: Antwerpen, aliases: [anvers, antwerp, "2000"] }
+    property_type:
+      - { canonical: HOUSE, aliases: [maison, huis, house] }
+      - { canonical: APARTMENT, aliases: [appartement, flat, apartment] }
+      - { canonical: PLOT, aliases: [terrain, grond, land] }
+      - { canonical: GARAGE, aliases: [parking] }
+      - { canonical: COMMERCIAL, aliases: [commerce, bureau, handelspand] }
+    status:
+      - { canonical: FOR_SALE, aliases: [a vendre, à vendre, te koop, sale] }
+      - { canonical: TO_RENT, aliases: [a louer, à louer, te huur, rent] }
+      - { canonical: SOLD, aliases: [vendu, verkocht] }
+      - { canonical: RENTED, aliases: [loué, verhuurd] }
+  ticker_patterns:
+    - "^[A-Z]{5}$"
+paths:
+  /listings/search:
+    post:
+      operationId: searchListings
+      tags: [listings]
+      summary: Search listings with a Zimmo filter object (status, placeId, postalCode, category, price, bedrooms, energyLabel, text)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SearchRequest' }
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchResponse' }
+  /listings/{id}:
+    get:
+      operationId: getListing
+      tags: [listings]
+      summary: Get one listing by Zimmo code (e.g. LAISZ) or listing UUID
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string }, example: LAISZ }
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Listing' }
+  /listings/property-count:
+    get:
+      operationId: propertyCount
+      tags: [listings]
+      summary: Total number of active properties on Zimmo
+      responses:
+        '200':
+          description: Count
+          content:
+            application/json:
+              schema: { type: object, properties: { count: { type: integer } } }
+  /dealers/{id}:
+    get:
+      operationId: getDealer
+      tags: [dealers]
+      summary: Get one real-estate agency (dealer) by UUID
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string }, example: b3f3119c-dfa5-4397-b653-605944f1c3a1 }
+      responses:
+        '200':
+          description: Dealer
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Dealer' }
+  /dealers/search:
+    post:
+      operationId: searchDealers
+      tags: [dealers]
+      summary: Search agencies (filter by category, placeId; sort by distance)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Dealers
+          content:
+            application/json:
+              schema: { type: object }
+  /places/by-postal-code-and-or-name:
+    get:
+      operationId: findPlaces
+      tags: [places]
+      x-pp-syncable: false
+      summary: Resolve a postcode and/or commune name to Zimmo place ids
+      servers: [{ url: https://geo-api.zimmo.be }]
+      parameters:
+        - { name: postalCode, in: query, schema: { type: string }, example: "1050" }
+        - { name: name, in: query, schema: { type: string }, example: ixelles }
+      responses:
+        '200':
+          description: Places
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlacesResponse' }
+  /geocode:
+    get:
+      operationId: geocode
+      tags: [places]
+      x-pp-example: 'zimmo-pp-cli geocode --address "Rue Neuve 1 1000 Bruxelles"'
+      summary: Geocode a Belgian address to coordinates and place ids
+      servers: [{ url: https://geo-api.zimmo.be }]
+      parameters:
+        - { name: address, in: query, required: true, schema: { type: string }, example: "Rue Neuve 1 1000 Bruxelles" }
+      responses:
+        '200':
+          description: Geocode result
+          content:
+            application/json:
+              schema: { type: object }
+  /sublocalities:
+    get:
+      operationId: searchSublocalities
+      tags: [places]
+      summary: Search sub-localities (deelgemeenten) by keyword
+      servers: [{ url: https://geo-api.zimmo.be }]
+      parameters:
+        - { name: keyword, in: query, required: true, schema: { type: string }, example: ixelles }
+        - { name: locale, in: query, schema: { type: string, default: fr } }
+      responses:
+        '200':
+          description: Sub-localities
+          content:
+            application/json:
+              schema: { type: object }
+  /locality-price/{placeId}:
+    get:
+      operationId: localityPrice
+      tags: [prices]
+      summary: Price per m² for a commune (by property type) with monthly history
+      servers: [{ url: https://score-api.zimmo.be }]
+      parameters:
+        - { name: placeId, in: path, required: true, schema: { type: integer }, example: 72 }
+        - { name: startDate, in: query, required: true, description: "History start date YYYY-MM-DD (Zimmo requires it)", schema: { type: string }, example: "2024-01-01" }
+      responses:
+        '200':
+          description: Locality price
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LocalityPrice' }
+  /sub-locality-price/{placeId}:
+    get:
+      operationId: subLocalityPrice
+      tags: [prices]
+      summary: Price per m² for a sub-locality with monthly history
+      servers: [{ url: https://score-api.zimmo.be }]
+      parameters:
+        - { name: placeId, in: path, required: true, schema: { type: integer }, example: 748 }
+        - { name: startDate, in: query, required: true, description: "History start date YYYY-MM-DD (Zimmo requires it)", schema: { type: string }, example: "2024-01-01" }
+      responses:
+        '200':
+          description: Sub-locality price
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LocalityPrice' }
+components:
+  schemas:
+    SearchRequest:
+      type: object
+      properties:
+        paging: { type: object, properties: { from: { type: integer }, size: { type: integer } } }
+        sorting: { type: array, items: { type: object, properties: { type: { type: string, enum: [PRICE, DATE, DISTANCE] }, order: { type: string, enum: [ASC, DESC] } } } }
+        filter: { type: object }
+    SearchResponse:
+      type: object
+      properties:
+        total: { type: integer }
+        searchAfter: { type: array, items: {} }
+        listings: { type: array, items: { $ref: '#/components/schemas/Listing' } }
+    Listing:
+      type: object
+      properties:
+        id: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        estate: { type: object }
+        dealer: { $ref: '#/components/schemas/Dealer' }
+        enriched: { type: object }
+        extra: { type: object, properties: { zimmoCode: { type: string } } }
+        files: { type: object }
+    Dealer:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        phoneNumber: { type: string }
+        website: { type: string }
+        category: { type: string }
+        location: { type: object }
+        enriched: { type: object }
+    PlacesResponse:
+      type: object
+      properties:
+        places: { type: array, items: { type: object, properties: { id: { type: integer }, translations: { type: object }, administrativeArea: { type: object } } } }
+    LocalityPrice:
+      type: object
+      properties:
+        pricePerSquareMeter: { type: object }

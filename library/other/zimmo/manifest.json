@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "zimmo-pp-mcp",
+  "display_name": "Zimmo",
+  "version": "0.1.0",
+  "description": "Belgian real estate from Zimmo with exact addresses, sold comps, commune prices per m² and a local store for deal sourcing.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zimmo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zimmo-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "api_name": "zimmo",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "bot-scrape-zimmo",
+      "url": "https://github.com/Joffreybvn/bot-scrape-zimmo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-23T13:53:22Z",
+  "novel_features": [
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Refresh stored listings from Zimmo, resumably: status changes, price history, EPC, flood and planning flags, GPS.",
+      "rationale": "Detail fields live only on the per-listing endpoint; the local store tracks what is missing.",
+      "example": "zimmo-pp-cli enrich --missing epc,flood --top 200",
+      "why_it_matters": "Run it before peb-trap or motivated so their filters see detail fields.",
+      "group": "Deal sourcing"
+    },
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Find the Immoweb or Immovlan twin of a Zimmo listing and the price gap between portals.",
+      "rationale": "Joins the Zimmo store with the immoweb-pp-cli and immovlan-pp-cli stores using Zimmo's exact address.",
+      "example": "zimmo-pp-cli same-as --all --unmatched --agent",
+      "why_it_matters": "Dedupe leads across Belgian portals without refetching anything.",
+      "group": "Cross-portal"
+    },
+    {
+      "name": "Sold comps",
+      "command": "comps",
+      "description": "Sold or rented listings around one property with median €/m² and the subject's gap to it.",
+      "rationale": "Zimmo exposes SOLD listings with rooftop GPS; no portal UI ranks them by distance with stats.",
+      "example": "zimmo-pp-cli comps LAISZ --radius 800m --months 24 --agent",
+      "why_it_matters": "Median sold €/m² around the subject and its gap to it; Zimmo lists few sold properties, so the result widens to the postcode when thin.",
+      "group": "Valuation"
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "Energy-poor stored listings (EPC F/G or high kWh/m²), rented ones first with their rent, showing Zimmo's renovation-obligation flag.",
+      "rationale": "Numeric EPC and renovation obligation are Zimmo-only fields filled by enrich.",
+      "example": "zimmo-pp-cli peb-trap --postcode 1030 --max-price 450000",
+      "why_it_matters": "Surfaces owners under pressure to sell.",
+      "group": "Deal sourcing"
+    },
+    {
+      "name": "Underpriced vs commune",
+      "command": "underpriced",
+      "description": "Rank stored for-sale houses and apartments by discount to their commune's €/m² (viager, whole buildings and service flats skipped).",
+      "rationale": "Joins the local store with Zimmo's per-commune €/m² series.",
+      "example": "zimmo-pp-cli underpriced --postcode 1050 --type apartment --below 15",
+      "why_it_matters": "Turns thousands of listings into a short list of apparent bargains.",
+      "group": "Valuation"
+    },
+    {
+      "name": "Gross rental yield",
+      "command": "yield",
+      "description": "Gross rental yield of sale listings: the published rent when let, otherwise rentals of similar surface in the same postcode and type.",
+      "rationale": "Pairs sale listings with RENTED/TO_RENT €/m² from the same commune and bedroom band.",
+      "example": "zimmo-pp-cli yield --all --postcode 1060 --min 5",
+      "why_it_matters": "Buy-to-let screening without a spreadsheet.",
+      "group": "Valuation"
+    },
+    {
+      "name": "Motivated seller score",
+      "command": "motivated",
+      "description": "Rank listings by seller pressure: days on market, total price cut, re-listing, EPC.",
+      "rationale": "Uses Zimmo's full price history and exact address to spot re-listings.",
+      "example": "zimmo-pp-cli motivated --postcode 1030 --min-days 120",
+      "why_it_matters": "Finds negotiable deals first.",
+      "group": "Deal sourcing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Refresh stored listings from Zimmo, resumably: status changes, price history, EPC, flood and planning flags, GPS.",
+      "rationale": "Detail fields live only on the per-listing endpoint; the local store tracks what is missing.",
+      "example": "zimmo-pp-cli enrich --missing epc,flood --top 200",
+      "why_it_matters": "Run it before peb-trap or motivated so their filters see detail fields.",
+      "group": "Deal sourcing"
+    },
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Find the Immoweb or Immovlan twin of a Zimmo listing and the price gap between portals.",
+      "rationale": "Joins the Zimmo store with the immoweb-pp-cli and immovlan-pp-cli stores using Zimmo's exact address.",
+      "example": "zimmo-pp-cli same-as --all --unmatched --agent",
+      "why_it_matters": "Dedupe leads across Belgian portals without refetching anything.",
+      "group": "Cross-portal"
+    },
+    {
+      "name": "Sold comps",
+      "command": "comps",
+      "description": "Sold or rented listings around one property with median €/m² and the subject's gap to it.",
+      "rationale": "Zimmo exposes SOLD listings with rooftop GPS; no portal UI ranks them by distance with stats.",
+      "example": "zimmo-pp-cli comps LAISZ --radius 800m --months 24 --agent",
+      "why_it_matters": "Median sold €/m² around the subject and its gap to it; Zimmo lists few sold properties, so the result widens to the postcode when thin.",
+      "group": "Valuation"
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "Energy-poor stored listings (EPC F/G or high kWh/m²), rented ones first with their rent, showing Zimmo's renovation-obligation flag.",
+      "rationale": "Numeric EPC and renovation obligation are Zimmo-only fields filled by enrich.",
+      "example": "zimmo-pp-cli peb-trap --postcode 1030 --max-price 450000",
+      "why_it_matters": "Surfaces owners under pressure to sell.",
+      "group": "Deal sourcing"
+    },
+    {
+      "name": "Underpriced vs commune",
+      "command": "underpriced",
+      "description": "Rank stored for-sale houses and apartments by discount to their commune's €/m² (viager, whole buildings and service flats skipped).",
+      "rationale": "Joins the local store with Zimmo's per-commune €/m² series.",
+      "example": "zimmo-pp-cli underpriced --postcode 1050 --type apartment --below 15",
+      "why_it_matters": "Turns thousands of listings into a short list of apparent bargains.",
+      "group": "Valuation"
+    },
+    {
+      "name": "Gross rental yield",
+      "command": "yield",
+      "description": "Gross rental yield of sale listings: the published rent when let, otherwise rentals of similar surface in the same postcode and type.",
+      "rationale": "Pairs sale listings with RENTED/TO_RENT €/m² from the same commune and bedroom band.",
+      "example": "zimmo-pp-cli yield --all --postcode 1060 --min 5",
+      "why_it_matters": "Buy-to-let screening without a spreadsheet.",
+      "group": "Valuation"
+    },
+    {
+      "name": "Motivated seller score",
+      "command": "motivated",
+      "description": "Rank listings by seller pressure: days on market, total price cut, re-listing, EPC.",
+      "rationale": "Uses Zimmo's full price history and exact address to spot re-listings.",
+      "example": "zimmo-pp-cli motivated --postcode 1030 --min-days 120",
+      "why_it_matters": "Finds negotiable deals first.",
+      "group": "Deal sourcing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zimmo",
+    "headline": "Belgian real estate from Zimmo with exact addresses, sold comps, commune prices per m² and a local store for deal sourcing.",
+    "value_prop": "Search Zimmo's listings, including sold and rented ones, from the terminal with no account. Listings you find are stored locally, which powers comps, underpriced, peb-trap, yield and motivated, and same-as matches them against the immoweb-pp-cli and immovlan-pp-cli stores.",
+    "auth_narrative": "No account or key. The CLI mints Zimmo's anonymous web token automatically (valid 24 hours) and caches it.",
+    "quickstart": [
+      {
+        "command": "zimmo-pp-cli doctor",
+        "comment": "Check connectivity; the anonymous token is minted on first use"
+      },
+      {
+        "command": "zimmo-pp-cli places --postal-code 1050",
+        "comment": "Resolve a postcode to Zimmo place ids"
+      },
+      {
+        "command": "zimmo-pp-cli find --postcode 1050 --type apartment --max-price 400000",
+        "comment": "Search and store matching listings"
+      },
+      {
+        "command": "zimmo-pp-cli show LAISZ",
+        "comment": "Read one listing in full by its Zimmo code"
+      },
+      {
+        "command": "zimmo-pp-cli prices --postcode 1050",
+        "comment": "Commune price per m² with its monthly history"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 JWT Token not found",
+        "fix": "Run the command again: the CLI re-mints Zimmo's anonymous token automatically; set ZIMMO_TOKEN only to force one"
+      },
+      {
+        "symptom": "curl gets a Cloudflare 403 but the CLI works",
+        "fix": "Expected: Cloudflare challenges curl's TLS fingerprint, not Go's"
+      },
+      {
+        "symptom": "comps returns few sold listings",
+        "fix": "Zimmo only shows listings agencies mark as sold; widen --radius or --months, or use prices for the commune €/m²"
+      },
+      {
+        "symptom": "peb-trap, underpriced, motivated or same-as return nothing",
+        "fix": "They read the local store: store listings first with `zimmo-pp-cli watch run --all`; a one-off `zimmo-pp-cli find --postcode 1050` also works. `sync` does not load listings"
+      }
+    ],
+    "when_to_use": "Use this CLI for Belgian property search, valuation and deal sourcing from Zimmo: listings for sale or rent, sold comparables, commune price per m², agencies, and daily watches. It pairs with immoweb-pp-cli and immovlan-pp-cli for cross-portal work.",
+    "anti_triggers": [
+      "Contacting agencies or submitting forms on Zimmo",
+      "Managing a Zimmo account, favourites or saved searches on the website",
+      "Real-estate markets outside Belgium"
+    ],
+    "recipes": [
+      {
+        "title": "Cheap flats in Ixelles",
+        "command": "zimmo-pp-cli find --postcode 1050 --type apartment --max-price 300000 --agent --select listings.zimmo_code,listings.price,listings.surface_m2,listings.epc,listings.address",
+        "explanation": "Narrow a large listing payload to the fields that matter."
+      },
+      {
+        "title": "Sold comps for a lead",
+        "command": "zimmo-pp-cli comps LAISZ --radius 800m --months 24",
+        "explanation": "Sold listings nearby with median price per m²; widens to the postcode when the radius is thin."
+      },
+      {
+        "title": "Daily PEB hunt",
+        "command": "zimmo-pp-cli peb-trap --postcode 1030 --max-price 450000 --json",
+        "explanation": "Reads the local store: run `zimmo-pp-cli watch run --all` first; a one-off `zimmo-pp-cli find --epc F,G` also works. Energy-poor listings, rented ones first with their current rent."
+      },
+      {
+        "title": "Daily alert",
+        "command": "zimmo-pp-cli watch run --all --json",
+        "explanation": "New, cheaper and gone listings for every saved search since the last run."
+      }
+    ],
+    "trigger_phrases": [
+      "search zimmo",
+      "sold prices near this address",
+      "price per m2 in Ixelles",
+      "find PEB G houses in Schaerbeek",
+      "use zimmo"
+    ]
+  }
+}
