@@ -788,6 +788,7 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 var (
 	unsubscribeFullTagPattern = regexp.MustCompile(`(?is)\{%\s*unsubscribe(?:\s+(?:'[^']*'|"[^"]*"))?\s*%\}`)
 	unsubscribeURLTagPattern  = regexp.MustCompile(`(?is)\{%\s*unsubscribe_link\s*%\}`)
+	hrefBeforeTagPattern      = regexp.MustCompile(`(?is)(?:^|\s)href\s*=\s*(?:"[^"]*$|'[^']*$)`)
 	nonRenderedHTMLPatterns   = []*regexp.Regexp{
 		regexp.MustCompile(`(?is)<!--.*?-->`),
 		regexp.MustCompile(`(?is)<head\b[^>]*>.*?</head\s*>`),
@@ -833,20 +834,12 @@ func tagInsideHref(htmlBody string, tagStart int) bool {
 		return false
 	}
 	prefix := htmlBody[:tagStart]
-	lowerPrefix := strings.ToLower(prefix)
-	hrefStart := strings.LastIndex(lowerPrefix, "href")
-	if hrefStart < 0 {
+	openTag := strings.LastIndex(prefix, "<")
+	closeTag := strings.LastIndex(prefix, ">")
+	if openTag < 0 || openTag < closeTag {
 		return false
 	}
-	value := strings.TrimSpace(prefix[hrefStart+len("href"):])
-	if !strings.HasPrefix(value, "=") {
-		return false
-	}
-	value = strings.TrimSpace(value[1:])
-	if len(value) == 0 || (value[0] != '\'' && value[0] != '"') {
-		return false
-	}
-	return !strings.Contains(value[1:], value[:1])
+	return hrefBeforeTagPattern.MatchString(prefix[openTag+1:])
 }
 
 func qaChecks() []string {
