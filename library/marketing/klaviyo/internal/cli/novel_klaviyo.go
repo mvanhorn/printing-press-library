@@ -788,6 +788,13 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 var (
 	unsubscribeFullTagPattern = regexp.MustCompile(`(?is)\{%\s*unsubscribe(?:\s+(?:'[^']*'|"[^"]*"))?\s*%\}`)
 	unsubscribeURLTagPattern  = regexp.MustCompile(`(?is)\{%\s*unsubscribe_link\s*%\}`)
+	nonRenderedHTMLPatterns   = []*regexp.Regexp{
+		regexp.MustCompile(`(?is)<!--.*?-->`),
+		regexp.MustCompile(`(?is)<head\b[^>]*>.*?</head\s*>`),
+		regexp.MustCompile(`(?is)<script\b[^>]*>.*?</script\s*>`),
+		regexp.MustCompile(`(?is)<style\b[^>]*>.*?</style\s*>`),
+		regexp.MustCompile(`(?is)<template\b[^>]*>.*?</template\s*>`),
+	}
 )
 
 func unsubscribeCompliance(htmlBody string) (string, string) {
@@ -795,15 +802,16 @@ func unsubscribeCompliance(htmlBody string) (string, string) {
 		return "warn", "No HTML supplied; unsubscribe-link validation needs --html or template evidence."
 	}
 
-	fullTags := unsubscribeFullTagPattern.FindAllStringIndex(htmlBody, -1)
-	urlTags := unsubscribeURLTagPattern.FindAllStringIndex(htmlBody, -1)
+	renderedHTML := renderedHTMLSource(htmlBody)
+	fullTags := unsubscribeFullTagPattern.FindAllStringIndex(renderedHTML, -1)
+	urlTags := unsubscribeURLTagPattern.FindAllStringIndex(renderedHTML, -1)
 	for _, match := range fullTags {
-		if tagInsideHref(htmlBody, match[0]) {
+		if tagInsideHref(renderedHTML, match[0]) {
 			return "fail", "The {% unsubscribe %} tag renders a complete link and cannot be used in href; use {% unsubscribe_link %} as the URL instead."
 		}
 	}
 	for _, match := range urlTags {
-		if !tagInsideHref(htmlBody, match[0]) {
+		if !tagInsideHref(renderedHTML, match[0]) {
 			return "fail", "The {% unsubscribe_link %} tag must be used as an href URL."
 		}
 	}
@@ -811,6 +819,13 @@ func unsubscribeCompliance(htmlBody string) (string, string) {
 		return "fail", "No Klaviyo unsubscribe tag found; add {% unsubscribe %} as text or {% unsubscribe_link %} inside href."
 	}
 	return "pass", "Klaviyo unsubscribe tag is present and used in a supported position."
+}
+
+func renderedHTMLSource(htmlBody string) string {
+	for _, pattern := range nonRenderedHTMLPatterns {
+		htmlBody = pattern.ReplaceAllString(htmlBody, "")
+	}
+	return htmlBody
 }
 
 func tagInsideHref(htmlBody string, tagStart int) bool {

@@ -95,6 +95,9 @@ func TestUnsubscribeCompliance(t *testing.T) {
 		{name: "full link tag in href", html: `<a href="{% unsubscribe %}">Unsubscribe</a>`, wantStatus: "fail"},
 		{name: "custom full link tag in href", html: `<a href="{% unsubscribe 'Stop' %}">Unsubscribe</a>`, wantStatus: "fail"},
 		{name: "URL tag outside href", html: `<p>{% unsubscribe_link %}</p>`, wantStatus: "fail"},
+		{name: "full link tag in comment", html: `<!-- {% unsubscribe %} -->`, wantStatus: "fail"},
+		{name: "URL tag in non-rendered template", html: `<template><a href="{% unsubscribe_link %}">Unsubscribe</a></template>`, wantStatus: "fail"},
+		{name: "hidden and visible tags", html: `<!-- {% unsubscribe %} --><a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "pass"},
 		{name: "missing tag", html: `<p>Hello</p>`, wantStatus: "fail"},
 		{name: "missing HTML evidence", wantStatus: "warn"},
 	}
