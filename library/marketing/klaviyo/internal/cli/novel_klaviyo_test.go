@@ -83,6 +83,49 @@ func TestNovelCommandsRegistered(t *testing.T) {
 	}
 }
 
+func TestUnsubscribeCompliance(t *testing.T) {
+	tests := []struct {
+		name       string
+		html       string
+		wantStatus string
+	}{
+		{name: "full link tag", html: `<p>{% unsubscribe %}</p>`, wantStatus: "pass"},
+		{name: "custom full link tag", html: `<p>{% unsubscribe 'Stop these emails' %}</p>`, wantStatus: "pass"},
+		{name: "URL tag in href", html: `<a href="{% unsubscribe_link %}">Unsubscribe</a>`, wantStatus: "pass"},
+		{name: "full link tag in href", html: `<a href="{% unsubscribe %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "custom full link tag in href", html: `<a href="{% unsubscribe 'Stop' %}">Unsubscribe</a>`, wantStatus: "fail"},
+		{name: "URL tag outside href", html: `<p>{% unsubscribe_link %}</p>`, wantStatus: "fail"},
+		{name: "missing tag", html: `<p>Hello</p>`, wantStatus: "fail"},
+		{name: "missing HTML evidence", wantStatus: "warn"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotStatus, _ := unsubscribeCompliance(tt.html)
+			if gotStatus != tt.wantStatus {
+				t.Fatalf("status = %q, want %q", gotStatus, tt.wantStatus)
+			}
+		})
+	}
+}
+
+func TestCampaignDeployRejectsBrokenUnsubscribeTag(t *testing.T) {
+	cmd := newCampaignsDeployCmd(&rootFlags{})
+	cmd.SetArgs([]string{
+		"--template-html", `<a href="{% unsubscribe %}">Unsubscribe</a>`,
+		"--campaign-name", "Compliance test",
+		"--list-id", "list-1",
+		"--subject", "Compliance test",
+		"--from-email", "sender@example.com",
+		"--from-label", "Sender",
+	})
+
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "campaign compliance preflight failed") {
+		t.Fatalf("error = %v, want compliance preflight failure", err)
+	}
+}
+
 func TestNovelLocalAnalytics(t *testing.T) {
 	rows := []resourceRow{
 		{
@@ -328,7 +371,7 @@ func TestNovelPlanningHelpers(t *testing.T) {
 	if strategy["summary"] == "" {
 		t.Fatalf("strategy missing summary: %#v", strategy)
 	}
-	gate := qaGate(`<a href="https://example.com">Shop</a> SAVE20 {{ first_name|default:'there' }}`, "SAVE20", "America/Chicago")
+	gate := qaGate(`<a href="https://example.com">Shop</a> SAVE20 {{ first_name|default:'there' }} <p>{% unsubscribe %}</p>`, "SAVE20", "America/Chicago")
 	if gate["verdict"] != "warn" {
 		t.Fatalf("qaGate verdict = %#v", gate)
 	}
