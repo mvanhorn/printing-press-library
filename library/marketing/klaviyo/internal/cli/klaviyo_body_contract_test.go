@@ -20,9 +20,14 @@ func TestCampaignCreatePreservesNestedRequestBody(t *testing.T) {
 					"included": []any{"list-1"},
 					"excluded": []any{},
 				},
-				"campaign-messages": map[string]any{
-					"email": map[string]any{"template_id": "template-1"},
-				},
+				"campaign-messages": map[string]any{"data": []any{
+					map[string]any{
+						"type": "campaign-message",
+						"attributes": map[string]any{
+							"definition": map[string]any{"channel": "email"},
+						},
+					},
+				}},
 				"send_options": map[string]any{"use_smart_sending": false},
 			},
 		},
@@ -41,11 +46,37 @@ func TestCampaignCreatePreservesNestedRequestBody(t *testing.T) {
 		"--data-type", "campaign",
 		"--data-attributes-name", "Contract test",
 		"--data-attributes-audiences", `{"included":["list-1"],"excluded":[]}`,
-		"--data-attributes-campaign-messages", `{"email":{"template_id":"template-1"}}`,
+		"--data-attributes-campaign-messages", `{"data":[{"type":"campaign-message","attributes":{"definition":{"channel":"email"}}}]}`,
 		"--data-attributes-send-options", `{"use_smart_sending":false}`,
 	})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("execute campaigns create: %v", err)
+	}
+}
+
+func TestParseCampaignObjectOrNull(t *testing.T) {
+	tests := []struct {
+		name    string
+		value   string
+		wantErr bool
+	}{
+		{name: "object", value: `{"method":"immediate"}`},
+		{name: "null", value: `null`},
+		{name: "string", value: `"immediate"`, wantErr: true},
+		{name: "array", value: `[]`, wantErr: true},
+		{name: "invalid JSON", value: `immediate`, wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := parseCampaignObjectOrNull("data-attributes-send-strategy", tt.value)
+			if tt.wantErr && err == nil {
+				t.Fatal("expected validation error")
+			}
+			if !tt.wantErr && err != nil {
+				t.Fatalf("unexpected validation error: %v", err)
+			}
+		})
 	}
 }
 

@@ -90,37 +90,25 @@ func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 					nestedDataAttributes["name"] = bodyDataAttributesName
 				}
 				if cmd.Flags().Changed("data-attributes-send-options") || bodyDataAttributesSendOptions != "" {
-					if json.Valid([]byte(bodyDataAttributesSendOptions)) {
-						var parsed any
-						if err := json.Unmarshal([]byte(bodyDataAttributesSendOptions), &parsed); err != nil {
-							return fmt.Errorf("parsing --data-attributes-send-options JSON: %w", err)
-						}
-						nestedDataAttributes["send_options"] = parsed
-					} else {
-						nestedDataAttributes["send_options"] = bodyDataAttributesSendOptions
+					parsed, err := parseCampaignObjectOrNull("data-attributes-send-options", bodyDataAttributesSendOptions)
+					if err != nil {
+						return err
 					}
+					nestedDataAttributes["send_options"] = parsed
 				}
 				if cmd.Flags().Changed("data-attributes-send-strategy") || bodyDataAttributesSendStrategy != "" {
-					if json.Valid([]byte(bodyDataAttributesSendStrategy)) {
-						var parsed any
-						if err := json.Unmarshal([]byte(bodyDataAttributesSendStrategy), &parsed); err != nil {
-							return fmt.Errorf("parsing --data-attributes-send-strategy JSON: %w", err)
-						}
-						nestedDataAttributes["send_strategy"] = parsed
-					} else {
-						nestedDataAttributes["send_strategy"] = bodyDataAttributesSendStrategy
+					parsed, err := parseCampaignObjectOrNull("data-attributes-send-strategy", bodyDataAttributesSendStrategy)
+					if err != nil {
+						return err
 					}
+					nestedDataAttributes["send_strategy"] = parsed
 				}
 				if cmd.Flags().Changed("data-attributes-tracking-options") || bodyDataAttributesTrackingOptions != "" {
-					if json.Valid([]byte(bodyDataAttributesTrackingOptions)) {
-						var parsed any
-						if err := json.Unmarshal([]byte(bodyDataAttributesTrackingOptions), &parsed); err != nil {
-							return fmt.Errorf("parsing --data-attributes-tracking-options JSON: %w", err)
-						}
-						nestedDataAttributes["tracking_options"] = parsed
-					} else {
-						nestedDataAttributes["tracking_options"] = bodyDataAttributesTrackingOptions
+					parsed, err := parseCampaignObjectOrNull("data-attributes-tracking-options", bodyDataAttributesTrackingOptions)
+					if err != nil {
+						return err
 					}
+					nestedDataAttributes["tracking_options"] = parsed
 				}
 				if len(nestedDataAttributes) > 0 {
 					bodyMap["attributes"] = nestedDataAttributes
@@ -207,4 +195,18 @@ func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+func parseCampaignObjectOrNull(flagName, value string) (any, error) {
+	var parsed any
+	if err := json.Unmarshal([]byte(value), &parsed); err != nil {
+		return nil, fmt.Errorf("parsing --%s JSON: %w", flagName, err)
+	}
+	if parsed == nil {
+		return nil, nil
+	}
+	if _, ok := parsed.(map[string]any); !ok {
+		return nil, fmt.Errorf("--%s must be a JSON object or null, got JSON %T", flagName, parsed)
+	}
+	return parsed, nil
 }
