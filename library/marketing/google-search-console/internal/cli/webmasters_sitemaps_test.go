@@ -65,6 +65,11 @@ func TestWebmastersSitemapsEncodeFeedpath(t *testing.T) {
 			if !strings.Contains(gotRequestURI, "%2F%2Fusenoreply.com%2Fsitemap.xml") {
 				t.Fatalf("feedpath slashes were not URL-encoded on the wire: got request URI %q, want it to contain %q", gotRequestURI, "%2F%2Fusenoreply.com%2Fsitemap.xml")
 			}
+			// Encoded exactly once: a second pass turns "%2F" into "%252F", and
+			// Google then rejects the literal "https:%2F%2F..." as unprocessable.
+			if strings.Contains(gotRequestURI, "%25") {
+				t.Fatalf("feedpath was percent-encoded twice on the wire: %q", gotRequestURI)
+			}
 			if strings.Contains(gotRequestURI, "sitemaps/https://") {
 				t.Fatalf("feedpath scheme reached the wire raw: %q", gotRequestURI)
 			}

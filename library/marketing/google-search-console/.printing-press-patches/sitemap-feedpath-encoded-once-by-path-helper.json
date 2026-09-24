@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "sitemap-feedpath-encoded-once-by-path-helper",
+  "applied_at": "2026-09-24",
+  "base_run_id": "20260509-053752",
+  "base_printing_press_version": "4.2.0",
+  "summary": "The sitemaps {feedpath} (an absolute sitemap URL) is percent-encoded exactly once, by the shared path-parameter helper; commands must not pre-escape it.",
+  "reason": "Once replacePathParam began encoding every path parameter, the earlier command-level url.PathEscape made feedpath double-encoded (%252F), and Google rejects submit/get/delete with HTTP 400 \"Could not process sitemap\".",
+  "files": [
+    "internal/cli/webmasters_submit-sitemap.go",
+    "internal/cli/webmasters_get-sitemap.go",
+    "internal/cli/webmasters_delete-sitemap.go",
+    "internal/cli/webmasters_sitemaps_test.go"
+  ],
+  "validated_outcome": "webmasters_sitemaps_test.go asserts %2F on the wire and no %25; a live submit-sitemap against sc-domain property returns 204 and get-sitemap reports 0 errors."
+}

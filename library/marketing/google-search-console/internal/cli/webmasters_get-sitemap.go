@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -33,7 +32,8 @@ func newWebmastersGetSitemapCmd(flags *rootFlags) *cobra.Command {
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("feedpath is required\nUsage: %s <%s>", cmd.CommandPath(), "feedpath"))
 			}
-			path = replacePathParam(path, "feedpath", url.PathEscape(args[1]))
+			// replacePathParam percent-encodes the value; escaping here too sent "%252F"
+			path = replacePathParam(path, "feedpath", args[1])
 			params := map[string]string{}
 			data, err := c.Get(path, params)
 			if err != nil {
