@@ -4,6 +4,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -33,10 +34,7 @@ func init() {
 		defer cancel()
 		tok, err := zimmo.AnonymousToken(ctx, nil)
 		if err != nil {
-			// Surface the real cause on the first API call instead of a
-			// confusing 401: return nothing here, the request will fail
-			// with the API's own message.
-			return nil
+			return fmt.Errorf("minting anonymous Zimmo token: %w", err)
 		}
 		c.Config.AuthHeaderVal = "Bearer " + tok
 		if c.Config.AuthSource == "" {

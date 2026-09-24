@@ -340,16 +340,21 @@ func matchSiblings(l zimmo.Listing, idx siblingIndex) sameAsRow {
 	key := store.AddrKey(l.PostalCode, l.Street+" "+l.Number)
 	if key != "" {
 		cands := idx.byAddr[key]
-		// Several units at one address: keep those agreeing on surface or
-		// price when any does.
+		// Several units at one address: a high-confidence match needs
+		// surface or price agreement. If none is close, do not claim every
+		// flat at that street number is this property. A single listing at
+		// the number still matches on the address alone.
 		var close []siblingRow
 		for _, c := range cands {
 			if within(c.Surface, l.Surface, 0.05) || within(c.Price, l.Price, 0.05) {
 				close = append(close, c)
 			}
 		}
-		if len(close) > 0 {
+		switch {
+		case len(close) > 0:
 			cands = close
+		case len(cands) > 1:
+			cands = nil
 		}
 		for _, c := range cands {
 			add(c, "address", "high")

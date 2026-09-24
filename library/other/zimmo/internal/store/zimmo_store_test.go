@@ -88,3 +88,37 @@ func TestZimmoStoreRoundTrip(t *testing.T) {
 		t.Errorf("empty result set clears the seen-set: %+v", seen)
 	}
 }
+
+func TestMergeZimmoSearchSeenKeepsUnscannedHistory(t *testing.T) {
+	ctx := context.Background()
+	s, err := OpenWithContext(ctx, filepath.Join(t.TempDir(), "z.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if err := s.EnsureZimmoSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+	t0 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	later := t0.Add(31 * 24 * time.Hour)
+	p1, p2 := 200000.0, 210000.0
+	if err := s.SaveZimmoSearch(ctx, "w", zimmo.Criteria{Postcodes: []string{"1030"}}, t0); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.MergeZimmoSearchSeen(ctx, "w", []zimmo.Listing{{Code: "OLD01", Price: &p1}}, t0); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.MergeZimmoSearchSeen(ctx, "w", []zimmo.Listing{{Code: "PAGE1", Price: &p2}}, later); err != nil {
+		t.Fatal(err)
+	}
+	seen, err := s.ZimmoSearchSeen(ctx, "w")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := seen["OLD01"]; !ok {
+		t.Fatalf("an incomplete scan must keep listings on pages it did not revisit: %+v", seen)
+	}
+	if _, ok := seen["PAGE1"]; !ok {
+		t.Fatalf("the scanned page must be recorded: %+v", seen)
+	}
+}

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/other/zimmo/internal/cliutil/testenv"
+	"github.com/mvanhorn/printing-press-library/library/other/zimmo/internal/zimmo"
 )
 
 // TestNovelUnderpricedHelpWires smoke-tests that the underpriced command
@@ -31,5 +32,18 @@ func TestNovelUnderpricedHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("underpriced --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestTypeSpecificCommunePPM2SkipsMixedAverage(t *testing.T) {
+	mixed := zimmo.LocalityPrice{Price: 4000, Types: []zimmo.TypePrice{{Type: "HOUSE", Price: 5000, Count: 12}}}
+	if price, n, ok := typeSpecificCommunePPM2(mixed, "APARTMENT"); ok || price != 0 || n != 0 {
+		t.Fatalf("missing apartment price must not fall back to the all-types average, got %v %d %v", price, n, ok)
+	}
+	if price, n, ok := typeSpecificCommunePPM2(mixed, "HOUSE"); !ok || price != 5000 || n != 12 {
+		t.Fatalf("type-specific house price must be used, got %v %d %v", price, n, ok)
+	}
+	if _, _, ok := typeSpecificCommunePPM2(zimmo.LocalityPrice{Price: 4000}, "HOUSE"); ok {
+		t.Fatal("all-types price alone is not a house or apartment benchmark")
 	}
 }

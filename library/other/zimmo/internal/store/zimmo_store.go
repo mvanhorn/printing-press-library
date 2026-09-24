@@ -569,8 +569,10 @@ ON CONFLICT(search_name, code) DO UPDATE SET last_seen=excluded.last_seen, last_
 }
 
 // MergeZimmoSearchSeen records the listings an incomplete run saw without
-// dropping the others, then prunes entries unseen for 30 days so a search
-// that never completes cannot grow without bound.
+// dropping the others. It does not prune: a truncated scan never revisits
+// later pages, so an age cutoff would delete listings that may still be
+// present and a later scan would report them as new. Only a complete scan
+// (ReplaceZimmoSearchSeen) may remove codes that were not seen.
 func (s *Store) MergeZimmoSearchSeen(ctx context.Context, name string, current []zimmo.Listing, at time.Time) error {
 	now := at.UTC().Format(time.RFC3339)
 	s.lockForWrite()
@@ -586,10 +588,6 @@ ON CONFLICT(search_name, code) DO UPDATE SET last_seen=excluded.last_seen, last_
 			name, l.Code, now, now, nullF(l.Price)); err != nil {
 			return err
 		}
-	}
-	cutoff := at.Add(-30 * 24 * time.Hour).UTC().Format(time.RFC3339)
-	if _, err := tx.ExecContext(ctx, `DELETE FROM zm_search_seen WHERE search_name = ? AND last_seen < ?`, name, cutoff); err != nil {
-		return err
 	}
 	if _, err := tx.ExecContext(ctx, `UPDATE zm_saved SET last_run_at = ? WHERE name = ?`, now, name); err != nil {
 		return err

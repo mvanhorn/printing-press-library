@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "incomplete-watch-scan-keeps-unseen-history",
+  "applied_at": "2026-09-24",
+  "base_run_id": "20260923-152845-33445e4f",
+  "base_printing_press_version": "4.32.4",
+  "summary": "An incomplete watch scan merges the pages it saw and does not prune older seen-set rows; only a complete scan may drop codes that were not seen.",
+  "reason": "A search larger than the page limit never revisits later pages, so a 30-day prune deletes listings that are still present and a later scan reports them as new.",
+  "files": ["internal/store/zimmo_store.go"],
+  "validated_outcome": "TestMergeZimmoSearchSeenKeepsUnscannedHistory: a merge 31 days later keeps the unscanned code and records the scanned page."
+}

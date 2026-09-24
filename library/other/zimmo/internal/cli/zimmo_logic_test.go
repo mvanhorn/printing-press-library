@@ -106,6 +106,32 @@ func TestMatchSiblings(t *testing.T) {
 	}
 }
 
+func TestMatchSiblingsMultiUnitWithoutCloseCandidate(t *testing.T) {
+	l := zimmo.Listing{Code: "FLAT1", Street: "Rue X", Number: "5", PostalCode: "1060", Price: fp(250000), Surface: fp(80)}
+	sibs := []siblingRow{
+		{Portal: "immoweb", ID: "a", Street: "Rue X 5", PostalCode: "1060", Price: fp(140000), Surface: fp(40)},
+		{Portal: "immoweb", ID: "b", Street: "Rue X 5", PostalCode: "1060", Price: fp(420000), Surface: fp(140)},
+		{Portal: "immovlan", ID: "c", Street: "Rue X 5", PostalCode: "1060", Price: fp(255000), Surface: fp(82)},
+	}
+	for i := range sibs {
+		sibs[i].AddrKey = store.AddrKey(sibs[i].PostalCode, sibs[i].Street)
+	}
+	row := matchSiblings(l, indexSiblings(sibs))
+	if len(row.Matches) != 1 || row.Matches[0].ID != "c" || row.Matches[0].Confidence != "high" {
+		t.Fatalf("only the close unit is a high-confidence match, got %+v", row.Matches)
+	}
+	far := zimmo.Listing{Code: "FLAT2", Street: "Rue X", Number: "5", PostalCode: "1060", Price: fp(900000), Surface: fp(200)}
+	if r := matchSiblings(far, indexSiblings(sibs[:2])); r.MatchStatus != "zimmo_only" || len(r.Matches) != 0 {
+		t.Fatalf("no close unit must not mark every flat at the number as the same property: %+v", r.Matches)
+	}
+	only := []siblingRow{{Portal: "immoweb", ID: "solo", Street: "Rue Y 1", PostalCode: "1050", Price: fp(100000), Surface: fp(30)}}
+	only[0].AddrKey = store.AddrKey(only[0].PostalCode, only[0].Street)
+	unique := zimmo.Listing{Code: "HOUSE", Street: "Rue Y", Number: "1", PostalCode: "1050", Price: fp(300000), Surface: fp(180)}
+	if r := matchSiblings(unique, indexSiblings(only)); len(r.Matches) != 1 || r.Matches[0].Confidence != "high" {
+		t.Fatalf("a single listing at the street number still matches on address: %+v", r.Matches)
+	}
+}
+
 func TestPebTrapRows(t *testing.T) {
 	ls := []store.StoredListing{
 		stored(zimmo.Listing{Code: "F1", EPC: "F", EPCKWh: fp(450)}),

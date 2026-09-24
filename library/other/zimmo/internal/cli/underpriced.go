@@ -134,8 +134,8 @@ comparables; use 'comps' instead.`,
 				if lp == nil {
 					continue
 				}
-				ref, n, _ := lp.ForType(l.Type)
-				if ref <= 0 {
+				ref, n, ok := typeSpecificCommunePPM2(*lp, l.Type)
+				if !ok {
 					continue
 				}
 				disc := pct1((ref - *l.PricePerM2) / ref)
@@ -180,6 +180,16 @@ comparables; use 'comps' instead.`,
 	cmd.Flags().BoolVar(&includeSpecial, "include-special", false, "Keep viager/bare-ownership/shared sales, whole buildings and service flats")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local store path (default: the CLI's data.db)")
 	return cmd
+}
+
+// typeSpecificCommunePPM2 returns the commune €/m² for one property type.
+// The all-types average is not a benchmark for a house or an apartment.
+func typeSpecificCommunePPM2(lp zimmo.LocalityPrice, category string) (float64, int, bool) {
+	price, n, specific := lp.ForType(category)
+	if !specific || price <= 0 {
+		return 0, 0, false
+	}
+	return price, n, true
 }
 
 // communePrice returns the cached €/m² of a listing's commune; with a nil
