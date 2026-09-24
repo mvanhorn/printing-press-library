@@ -167,8 +167,9 @@ func (s *Store) UpsertZimmoListings(ctx context.Context, listings []zimmo.Listin
 		}
 		// A search result is thinner than an enriched listing: fields the new
 		// payload lacks (description, documents, price history, flags...) are
-		// kept from the stored JSON instead of being erased.
-		if hasPrev {
+		// kept from the stored JSON instead of being erased. A detail fetch
+		// (show / enrich) is authoritative and replaces the stored JSON.
+		if hasPrev && !detail {
 			data = mergeListingJSON([]byte(prev), data)
 		}
 		var lastPrice sql.NullFloat64
