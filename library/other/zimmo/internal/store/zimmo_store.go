@@ -151,20 +151,25 @@ func (s *Store) UpsertZimmoListings(ctx context.Context, listings []zimmo.Listin
 		if l.Code == "" {
 			continue
 		}
+		var prev string
+		hasPrev := tx.QueryRowContext(ctx, `SELECT data FROM zm_listings WHERE code = ?`, l.Code).Scan(&prev) == nil
 		// Keep geocoded or rooftop coordinates when the incoming ones are
 		// coarser (a search result after an enrich geocode).
-		if l.GeoPrecision != "ROOFTOP" {
-			var prev string
-			if tx.QueryRowContext(ctx, `SELECT data FROM zm_listings WHERE code = ?`, l.Code).Scan(&prev) == nil {
-				var old zimmo.Listing
-				if json.Unmarshal([]byte(prev), &old) == nil && old.Lat != nil && (old.GeoPrecision == "ROOFTOP" || old.GeoPrecision == "GEOCODED") {
-					l.Lat, l.Lng, l.GeoPrecision = old.Lat, old.Lng, old.GeoPrecision
-				}
+		if hasPrev && l.GeoPrecision != "ROOFTOP" {
+			var old zimmo.Listing
+			if json.Unmarshal([]byte(prev), &old) == nil && old.Lat != nil && (old.GeoPrecision == "ROOFTOP" || old.GeoPrecision == "GEOCODED") {
+				l.Lat, l.Lng, l.GeoPrecision = old.Lat, old.Lng, old.GeoPrecision
 			}
 		}
 		data, err := json.Marshal(l)
 		if err != nil {
 			return fail(err)
+		}
+		// A search result is thinner than an enriched listing: fields the new
+		// payload lacks (description, documents, price history, flags...) are
+		// kept from the stored JSON instead of being erased.
+		if hasPrev {
+			data = mergeListingJSON([]byte(prev), data)
 		}
 		var lastPrice sql.NullFloat64
 		_ = tx.QueryRowContext(ctx, `SELECT price FROM zm_price_obs WHERE code = ? ORDER BY observed_at DESC LIMIT 1`, l.Code).Scan(&lastPrice)
@@ -218,6 +223,35 @@ ON CONFLICT(code) DO UPDATE SET
 		}
 	}
 	return nil
+}
+
+// mergeListingJSON overlays next on prev: every key next carries with a
+// non-empty value wins; keys next omits or leaves empty (null, "", [], {})
+// keep prev's value. Invalid JSON on either side returns next unchanged.
+func mergeListingJSON(prev, next []byte) []byte {
+	var p, n map[string]json.RawMessage
+	if json.Unmarshal(prev, &p) != nil || json.Unmarshal(next, &n) != nil {
+		return next
+	}
+	for k, v := range p {
+		nv, ok := n[k]
+		if !ok || isEmptyJSON(nv) {
+			n[k] = v
+		}
+	}
+	out, err := json.Marshal(n)
+	if err != nil {
+		return next
+	}
+	return out
+}
+
+func isEmptyJSON(v json.RawMessage) bool {
+	switch strings.TrimSpace(string(v)) {
+	case "", "null", `""`, "[]", "{}":
+		return true
+	}
+	return false
 }
 
 func nullS(s string) any {

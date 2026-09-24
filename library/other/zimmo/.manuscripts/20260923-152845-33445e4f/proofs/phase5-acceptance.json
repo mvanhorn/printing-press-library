@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "414ea325daef8d61faa435c3170c96328a0d5eb94e6beabbbd910392de7ac032",
+  "source_fingerprint": "7608b5b56e7a717c079f461cc39c9207220b167f03e9f26312691c55d6c7a0b2",
   "source_files": {
     "cmd/zimmo-pp-cli/main.go": "c30ed98b3fc78ab0650542406e3ffc532d93a71940787d458b4455691cb6bca5",
     "cmd/zimmo-pp-mcp/http_auth_test.go": "62811b19c2aa1ab7d47ce338e5833bc6747b66d6f6d2ac183be89f107daf6890",
@@ -198,11 +198,13 @@
     "internal/store/schema_version_test.go": "8d18d68190907374685813c1fdb185dc9f6fd6ea5fdd733fe365c29188dfa054",
     "internal/store/store.go": "7f591ab76b43c9de88b1a235757c99060c3702a756532c1873a84f3e6d065ad9",
     "internal/store/upsert_batch_test.go": "ac930a296235274dac0d4030ec1d712663d8a252aa705ac5b4b4b2e5b003c483",
-    "internal/store/zimmo_store.go": "f362bf8297b725295b88110f1de4807bc348ed735b0bdf6125b8fc965547eccc",
+    "internal/store/zimmo_merge_test.go": "134ccbf1704e3e38a9212ff97a65fc0544bc6d6a7f041c774bbfff5031188b45",
+    "internal/store/zimmo_store.go": "31da91338e93ecacf4d756e232633c685f3caab75eb239d57b2047928eb05336",
     "internal/store/zimmo_store_test.go": "7cdd2271d00b4eb396663808ff8b093c35fd6c4dff68a8786916e53d0be8051d",
     "internal/types/types.go": "a37cc3911b14126769dec4f76ff1c5da1c123a8c9d3bd990b13851275bd53560",
     "internal/zimmo/client.go": "2ee89062fefa9c612cb38393d99ef73ac8f44129b3b2b6751dd7ffb2df547436",
-    "internal/zimmo/criteria.go": "5dfeede56189785079f40d7133ff39880e8f5d8c7090401ae2cb2007f76e3aa2",
+    "internal/zimmo/criteria.go": "95527f717db68459b850f0b1f4e62d8086628e40a71975761dd60de14254701f",
+    "internal/zimmo/epc_enum_test.go": "29d3bfaa41f662235bd179a7f20106d0e9ffe233918ba4d3ac0641620c5fdcad",
     "internal/zimmo/listing.go": "51d6e99aaa9c90aaebea27f992de998ed06130c142cf7b1ff91be902f1ebb715",
     "internal/zimmo/token.go": "28a80789d0e76959eb542035928bf1de7a63deeee929305a438226ceaf76537b",
     "internal/zimmo/zimmo_test.go": "e1a4674623dbc9e5c0a49381bb21d5be9c7703b7034d8eb09e9e344437533551",

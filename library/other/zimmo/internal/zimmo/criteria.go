@@ -116,12 +116,33 @@ func ParseEPC(csv string) ([]string, error) {
 
 // expandEPC adds Zimmo's +/- variants of each letter (D -> D, D_PLUS,
 // D_MINUS; A also A_PLUS_PLUS) so a letter filter matches every label.
+// zimmoEnergyLabels is the energyLabel enumeration the search API accepts
+// (checked live 2026-09-23): F and G have no +/- variants, and the API
+// rejects the whole request (HTTP 400) when one unknown value is sent.
+var zimmoEnergyLabels = map[string]bool{
+	"A_PLUS_PLUS": true, "A_PLUS": true, "A": true, "A_MINUS": true,
+	"B_PLUS": true, "B": true, "B_MINUS": true,
+	"C_PLUS": true, "C": true, "C_MINUS": true,
+	"D_PLUS": true, "D": true, "D_MINUS": true,
+	"E_PLUS": true, "E": true, "E_MINUS": true,
+	"F": true, "G": true, "X": true,
+}
+
 func expandEPC(letters []string) []string {
 	out := make([]string, 0, len(letters)*3)
+	seen := map[string]bool{}
+	add := func(v string) {
+		if zimmoEnergyLabels[v] && !seen[v] {
+			seen[v] = true
+			out = append(out, v)
+		}
+	}
 	for _, l := range letters {
-		out = append(out, l, l+"_PLUS", l+"_MINUS")
+		add(l)
+		add(l + "_PLUS")
+		add(l + "_MINUS")
 		if l == "A" {
-			out = append(out, "A_PLUS_PLUS")
+			add("A_PLUS_PLUS")
 		}
 	}
 	return out

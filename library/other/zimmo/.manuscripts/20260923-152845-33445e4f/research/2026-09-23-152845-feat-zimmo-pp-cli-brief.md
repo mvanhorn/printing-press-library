@@ -2,7 +2,7 @@
 
 ## API Identity
 - Domain: zimmo.be — Belgian real-estate portal (Zimmo Group), ~86k active properties (60k for sale, rest to rent), FR/NL/EN.
-- Users: buyers/renters, investors sourcing deals (the investor client, Brussels), agents, market analysts; the tool builder builds sourcing tools for clients (sibling CLIs immoweb-pp-cli, immovlan-pp-cli).
+- Users: buyers/renters, investors sourcing deals (Arnaud, Brussels), agents, market analysts; Samuel builds sourcing tools for clients (sibling CLIs immoweb-pp-cli, immovlan-pp-cli).
 - Data profile: structured JSON listings (exact address + rooftop GPS, rooms with surfaces, EPC letter + kWh/m² value, flooding, planning, construction year, condition, price, documents, photos, dealer with reviews), SOLD/RENTED historical listings, locality €/m² with monthly history.
 - No official public API. The Angular SSR site talks to a family of JSON micro-services, all reachable with plain Go HTTP (probe-reachability: standard_http; curl alone gets a Cloudflare challenge because of its TLS fingerprint, Go stdlib does not).
 
@@ -21,7 +21,7 @@
 1. Search a commune/postcode with type, price, bedrooms, EPC filters → table/JSON; all pages into a local store.
 2. Show one listing by zimmo code (LAISZ) or URL: full specs, EPC, flooding, rooms, dealer, price history.
 3. Market price: €/m² for a commune with monthly history; compare a listing's €/m² to its commune.
-4. Watch saved searches daily: new / price cut / gone (sold) — the client's sourcing cron.
+4. Watch saved searches daily: new / price cut / gone (sold) — Arnaud's sourcing cron.
 5. Sold comps: SOLD/RENTED listings for a commune (the site exposes them), for valuation.
 
 ## Table Stakes (Apify zimmo scrapers, immoweb/immovlan siblings)

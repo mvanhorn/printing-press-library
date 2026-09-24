@@ -33,7 +33,7 @@ Verification verdict WARN (pass rate 98%, threshold 80%). Running fix loop (max 
 2026/09/23 16:28:13 fix loop: skip exec_fail for workflow: manual execution fix required
 2026/09/23 16:28:13 fix loop: execution failure for yield requires manual fix
 2026/09/23 16:28:13 fix loop: skip exec_fail for yield: manual execution fix required
-Runtime Verification: ~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/zimmo-pp-cli
+Runtime Verification: /Users/Szpil/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/zimmo-pp-cli
 Mode: mock
 
 COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
@@ -108,8 +108,8 @@ DONE: 8 ok, 1 missing, 0 empty-words, 0 failed-examples, 0 unsupported
 narrative validation failed
 
 === dogfood ===
-dogfood: using spec ~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/spec.yaml (bundled)
-dogfood: caller --spec=~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/research/zimmo-openapi.yaml overridden by bundled ~/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/spec.yaml
+dogfood: using spec /Users/Szpil/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=/Users/Szpil/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/research/zimmo-openapi.yaml overridden by bundled /Users/Szpil/printing-press/.runstate/workspace-8a5edab2/runs/20260923-152845-33445e4f/working/zimmo-pp-cli/spec.yaml
 Dogfood Report: zimmo-pp-cli
 ================================
 
