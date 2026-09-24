@@ -381,9 +381,11 @@ func flightsFromHTML(html, currency string) ([]Flight, int) {
 	return best, bestOutboundCount
 }
 
-// searchViaHTML is the fallback search path. Filters Google's RPC accepted
-// but the tfs URL cannot express (airlines, time window) are applied
-// client-side; page prices are per-person already, so no group-total divide.
+// searchViaHTML is the fallback search path. Airlines and time windows are
+// applied client-side because the tfs URL cannot express them. Stop limits
+// are also enforced locally because Google may include broader results even
+// when the tfs URL requests a limit. Page prices are per-person already, so
+// no group-total divide is needed.
 // The returned note discloses the fallback and, when the requested sort key
 // has no client-side equivalent, the unhonored sort.
 func searchViaHTML(ctx context.Context, opts SearchOptions, currencyCode string) ([]Flight, string, error) {
@@ -478,10 +480,13 @@ func legTime(f Flight, arrival bool) string {
 	return f.Legs[0].DepartureTime
 }
 
-// filterFlightsClientSide applies the airline and time-window filters the
-// fallback URL cannot encode.
+// filterFlightsClientSide enforces filters on the parsed fallback rows. In
+// particular, a requested stop limit must hold even if Google ignores the
+// limit encoded in the tfs URL.
 func filterFlightsClientSide(flights []Flight, opts SearchOptions) []Flight {
-	if len(opts.Airlines) == 0 && opts.TimeWindow == "" {
+	// searchViaHTML validated MaxStops while building the page URL.
+	maxStops, _ := mapMaxStops(opts.MaxStops)
+	if len(opts.Airlines) == 0 && opts.TimeWindow == "" && maxStops == maxStopsAny {
 		return flights
 	}
 	allowed := map[string]bool{}
@@ -497,6 +502,12 @@ func filterFlightsClientSide(flights []Flight, opts SearchOptions) []Flight {
 	}
 	out := flights[:0]
 	for _, f := range flights {
+		// Each parsed leg is one flight segment; one leg means nonstop.
+		// Exclude rows without parsed legs when a stop limit is requested,
+		// because their stop count cannot be verified.
+		if maxStops != maxStopsAny && (len(f.Legs) == 0 || len(f.Legs) > maxStops) {
+			continue
+		}
 		if len(allowed) > 0 {
 			ok := len(f.Legs) > 0
 			for _, leg := range f.Legs {

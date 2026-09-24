@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "klaviyo-unsubscribe-preflight",
+  "applied_at": "2026-09-23",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Campaign QA and deployment reject missing or broken Klaviyo unsubscribe tags.",
+  "reason": "The full-link unsubscribe tag breaks when used inside href, while tags hidden in non-rendered HTML do not provide a usable opt-out link.",
+  "files": [
+    "internal/cli/novel_klaviyo.go",
+    "internal/cli/novel_klaviyo_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "QA reports a dedicated unsubscribe finding, campaign deployment blocks invalid placement before API activity, and tests cover visible, broken, missing, and non-rendered tags.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/2050"
+}

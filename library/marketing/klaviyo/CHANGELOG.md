@@ -2,6 +2,14 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.9.3 - 2026-09-23
+
+- fix(klaviyo): block broken unsubscribe links (#2051).
+
+## 2026.9.2 - 2026-09-23
+
+- fix(klaviyo): preserve nested campaign write bodies (#2049).
+
 ## 2026.9.1 - 2026-09-11
 
 - fix: fail closed on ambiguous fleet write retries (#1978).

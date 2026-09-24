@@ -382,6 +382,75 @@ func TestFilterFlightsClientSide(t *testing.T) {
 	}
 }
 
+func TestFilterFlightsClientSideEnforcesStopLimit(t *testing.T) {
+	mk := func(segments int) Flight {
+		return Flight{Legs: make([]Leg, segments), Stops: max0(segments - 1)}
+	}
+	// A rendered page can include connections even when its tfs URL asks for
+	// nonstops. Apply the same backstop to each round-trip direction bucket.
+	for _, direction := range []string{"outbound", "return"} {
+		rows := []Flight{mk(1), mk(2), mk(3), mk(0)}
+		for i := range rows {
+			rows[i].Direction = direction
+		}
+		for _, tc := range []struct {
+			requested string
+			want      int
+		}{
+			{"non_stop", 1},
+			{"one_stop", 2},
+			{"two_plus_stops", 3},
+			{"any", 4},
+		} {
+			got := filterFlightsClientSide(append([]Flight(nil), rows...), SearchOptions{MaxStops: tc.requested})
+			if len(got) != tc.want {
+				t.Fatalf("%s %s: got %d rows, want %d", direction, tc.requested, len(got), tc.want)
+			}
+			for _, f := range got {
+				if tc.requested == "non_stop" && len(f.Legs) != 1 {
+					t.Fatalf("%s: nonstop search returned %d segments", direction, len(f.Legs))
+				}
+			}
+		}
+	}
+}
+
+func TestSearchViaHTMLNonstopFiltersBroaderRenderedPage(t *testing.T) {
+	html := wrapDs1HTML(loadFixture(t, "aus_lax_embedded_ds1.json"))
+	parsed, _ := flightsFromHTML(html, "USD")
+	var nonstop, connecting int
+	for _, f := range parsed {
+		if len(f.Legs) == 1 {
+			nonstop++
+		} else if len(f.Legs) > 1 {
+			connecting++
+		}
+	}
+	if nonstop == 0 || connecting == 0 {
+		t.Fatalf("fixture needs mixed nonstop and connecting rows: nonstop=%d connecting=%d", nonstop, connecting)
+	}
+
+	// Simulate Google returning the broader page even though the requested
+	// tfs URL carries a non-stop limit.
+	origFetch := fetchSearchPage
+	defer func() { fetchSearchPage = origFetch }()
+	fetchSearchPage = func(context.Context, string) (string, error) { return html, nil }
+	got, _, err := searchViaHTML(context.Background(), SearchOptions{
+		Origin: "AUS", Destination: "LAX", DepartureDate: "2026-07-15", MaxStops: "non_stop",
+	}, "USD")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != nonstop {
+		t.Fatalf("got %d nonstop rows, want %d; rendered page had %d connections", len(got), nonstop, connecting)
+	}
+	for _, f := range got {
+		if len(f.Legs) != 1 {
+			t.Fatalf("nonstop search returned %d segments", len(f.Legs))
+		}
+	}
+}
+
 // PATCH(review-2026-07-31): a 429 across the whole per-day fallback fan-out
 // must surface as the typed rate-limit error, not a generic all-days failure.
 func TestDatesViaHTMLAllRateLimitedReturnsErrRateLimited(t *testing.T) {

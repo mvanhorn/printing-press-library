@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -56,6 +57,9 @@ func newCampaignsDeployCmd(flags *rootFlags) *cobra.Command {
 					return printJSONFiltered(cmd.OutOrStdout(), campaignDeployResult{DryRun: true, Steps: []string{"create_template", "create_campaign", "assign_template"}}, flags)
 				}
 				return usageErr(fmt.Errorf("required flags: --template-html or --template-file, --campaign-name, --list-id, --subject, --from-email, --from-label"))
+			}
+			if status, detail := unsubscribeCompliance(templateHTML); status != "pass" {
+				return fmt.Errorf("campaign compliance preflight failed: %s", detail)
 			}
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
@@ -764,7 +768,9 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 	} else {
 		add("token_fallbacks", "pass", "No template tokens found.")
 	}
-	add("compliance", "warn", "Confirm unsubscribe, sender identity, and physical address in Klaviyo preview.")
+	complianceStatus, complianceDetail := unsubscribeCompliance(htmlBody)
+	add("unsubscribe", complianceStatus, complianceDetail)
+	add("compliance", "warn", "Confirm sender identity and physical address in Klaviyo preview.")
 	add("deliverability", "warn", "Confirm inbox preview, image weight, and spam-risk terms before launch.")
 	verdict := "pass"
 	for _, f := range findings {
@@ -779,8 +785,65 @@ func qaGate(htmlBody, offer, timezone string) map[string]any {
 	return map[string]any{"verdict": verdict, "findings": findings}
 }
 
+var (
+	unsubscribeFullTagPattern = regexp.MustCompile(`(?is)\{%\s*unsubscribe(?:\s+(?:'[^']*'|"[^"]*"))?\s*%\}`)
+	unsubscribeURLTagPattern  = regexp.MustCompile(`(?is)\{%\s*unsubscribe_link\s*%\}`)
+	hrefBeforeTagPattern      = regexp.MustCompile(`(?is)(?:^|\s)href\s*=\s*(?:"[^"]*$|'[^']*$)`)
+	nonRenderedHTMLPatterns   = []*regexp.Regexp{
+		regexp.MustCompile(`(?is)<!--.*?-->`),
+		regexp.MustCompile(`(?is)<head\b[^>]*>.*?</head\s*>`),
+		regexp.MustCompile(`(?is)<script\b[^>]*>.*?</script\s*>`),
+		regexp.MustCompile(`(?is)<style\b[^>]*>.*?</style\s*>`),
+		regexp.MustCompile(`(?is)<template\b[^>]*>.*?</template\s*>`),
+	}
+)
+
+func unsubscribeCompliance(htmlBody string) (string, string) {
+	if strings.TrimSpace(htmlBody) == "" {
+		return "warn", "No HTML supplied; unsubscribe-link validation needs --html or template evidence."
+	}
+
+	renderedHTML := renderedHTMLSource(htmlBody)
+	fullTags := unsubscribeFullTagPattern.FindAllStringIndex(renderedHTML, -1)
+	urlTags := unsubscribeURLTagPattern.FindAllStringIndex(renderedHTML, -1)
+	for _, match := range fullTags {
+		if tagInsideHref(renderedHTML, match[0]) {
+			return "fail", "The {% unsubscribe %} tag renders a complete link and cannot be used in href; use {% unsubscribe_link %} as the URL instead."
+		}
+	}
+	for _, match := range urlTags {
+		if !tagInsideHref(renderedHTML, match[0]) {
+			return "fail", "The {% unsubscribe_link %} tag must be used as an href URL."
+		}
+	}
+	if len(fullTags) == 0 && len(urlTags) == 0 {
+		return "fail", "No Klaviyo unsubscribe tag found; add {% unsubscribe %} as text or {% unsubscribe_link %} inside href."
+	}
+	return "pass", "Klaviyo unsubscribe tag is present and used in a supported position."
+}
+
+func renderedHTMLSource(htmlBody string) string {
+	for _, pattern := range nonRenderedHTMLPatterns {
+		htmlBody = pattern.ReplaceAllString(htmlBody, "")
+	}
+	return htmlBody
+}
+
+func tagInsideHref(htmlBody string, tagStart int) bool {
+	if tagStart <= 0 || tagStart > len(htmlBody) {
+		return false
+	}
+	prefix := htmlBody[:tagStart]
+	openTag := strings.LastIndex(prefix, "<")
+	closeTag := strings.LastIndex(prefix, ">")
+	if openTag < 0 || openTag < closeTag {
+		return false
+	}
+	return hrefBeforeTagPattern.MatchString(prefix[openTag+1:])
+}
+
 func qaChecks() []string {
-	return []string{"links", "offer", "dates", "timezone", "token_fallbacks", "compliance", "deliverability"}
+	return []string{"links", "offer", "dates", "timezone", "token_fallbacks", "unsubscribe", "compliance", "deliverability"}
 }
 
 func jsonAPIBody(kind string, attrs map[string]any, relationships map[string]any) map[string]any {

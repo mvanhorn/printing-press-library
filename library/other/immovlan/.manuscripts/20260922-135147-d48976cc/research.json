@@ -1,0 +1,216 @@
+{
+  "api_name": "immovlan",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-22T12:30:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only.",
+      "rationale": "Joins this CLI's local store with immoweb-pp-cli's local store by address, photos and price+surface; no portal knows the other.",
+      "example": "immovlan-pp-cli same-as --all --unmatched --postcode 1030 --agent",
+      "why_it_matters": "Use it to dedupe a cross-portal sourcing run or to find Immovlan exclusives before calling an agency.",
+      "group": "Cross-portal intelligence"
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "List PEB F or G properties that are currently rented: owners who can no longer re-let in Brussels since 2026.",
+      "rationale": "Needs the detail-page PEB letter and the rented flag together, which no site filter exposes.",
+      "example": "immovlan-pp-cli peb-trap --postcode 1030,1210 --max-price 2500000 --agent",
+      "why_it_matters": "Use it when the question is which sellers are structurally motivated, not merely cheap.",
+      "group": "Motivated-seller signals"
+    },
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Fill missing detail fields (PEB letter, street, geo, rented, cadastral income, agency software) for many stored listings in one resumable pass.",
+      "rationale": "Search cards only carry bands and no address; the store remembers what is already known so only gaps are fetched.",
+      "example": "immovlan-pp-cli enrich --missing epc,rented --top 150 --agent",
+      "why_it_matters": "Run it after find and before peb-trap, same-as or split-candidates so their inputs exist.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Division candidates",
+      "command": "split-candidates",
+      "description": "Houses large enough to divide, ranked by €/m² within their postcode, with land, year, PEB and rented flags.",
+      "rationale": "Immovlan has no surface filter; the ranking needs the whole stored area.",
+      "example": "immovlan-pp-cli split-candidates --min-surface 200 --postcode 1030 --agent",
+      "why_it_matters": "Use it for a trader who divides houses into apartments; find cannot filter by surface.",
+      "group": "Motivated-seller signals"
+    },
+    {
+      "name": "Re-listing detector",
+      "command": "relisted",
+      "description": "Listings that came back under a new reference, with their true first-seen date and price at each reference.",
+      "rationale": "The site resets the Nouveau ribbon and datePosted per reference; only the local history links them.",
+      "example": "immovlan-pp-cli relisted --since 90d --postcode 1030 --agent",
+      "why_it_matters": "Use it to expose a fake Nouveau before negotiating on ancienneté.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agency leaderboard",
+      "command": "agencies",
+      "description": "Which agencies list in a zone, their PEB F/G share, private-seller share and the CRM software behind each feed.",
+      "rationale": "Group-by on the local store plus the dataLayer software field captured during enrich.",
+      "example": "immovlan-pp-cli agencies --postcode 1030 --epc F,G --agent",
+      "why_it_matters": "Use it to see which feeds are syndicated (likely also on Immoweb) versus Rossel-exclusive.",
+      "group": "Cross-portal intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-portal match",
+      "command": "same-as",
+      "description": "Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only.",
+      "rationale": "Joins this CLI's local store with immoweb-pp-cli's local store by address, photos and price+surface; no portal knows the other.",
+      "example": "immovlan-pp-cli same-as --all --unmatched --postcode 1030 --agent",
+      "why_it_matters": "Use it to dedupe a cross-portal sourcing run or to find Immovlan exclusives before calling an agency.",
+      "group": "Cross-portal intelligence"
+    },
+    {
+      "name": "PEB trap",
+      "command": "peb-trap",
+      "description": "List PEB F or G properties that are currently rented: owners who can no longer re-let in Brussels since 2026.",
+      "rationale": "Needs the detail-page PEB letter and the rented flag together, which no site filter exposes.",
+      "example": "immovlan-pp-cli peb-trap --postcode 1030,1210 --max-price 2500000 --agent",
+      "why_it_matters": "Use it when the question is which sellers are structurally motivated, not merely cheap.",
+      "group": "Motivated-seller signals"
+    },
+    {
+      "name": "Bulk detail enrichment",
+      "command": "enrich",
+      "description": "Fill missing detail fields (PEB letter, street, geo, rented, cadastral income, agency software) for many stored listings in one resumable pass.",
+      "rationale": "Search cards only carry bands and no address; the store remembers what is already known so only gaps are fetched.",
+      "example": "immovlan-pp-cli enrich --missing epc,rented --top 150 --agent",
+      "why_it_matters": "Run it after find and before peb-trap, same-as or split-candidates so their inputs exist.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Division candidates",
+      "command": "split-candidates",
+      "description": "Houses large enough to divide, ranked by €/m² within their postcode, with land, year, PEB and rented flags.",
+      "rationale": "Immovlan has no surface filter; the ranking needs the whole stored area.",
+      "example": "immovlan-pp-cli split-candidates --min-surface 200 --postcode 1030 --agent",
+      "why_it_matters": "Use it for a trader who divides houses into apartments; find cannot filter by surface.",
+      "group": "Motivated-seller signals"
+    },
+    {
+      "name": "Re-listing detector",
+      "command": "relisted",
+      "description": "Listings that came back under a new reference, with their true first-seen date and price at each reference.",
+      "rationale": "The site resets the Nouveau ribbon and datePosted per reference; only the local history links them.",
+      "example": "immovlan-pp-cli relisted --since 90d --postcode 1030 --agent",
+      "why_it_matters": "Use it to expose a fake Nouveau before negotiating on ancienneté.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agency leaderboard",
+      "command": "agencies",
+      "description": "Which agencies list in a zone, their PEB F/G share, private-seller share and the CRM software behind each feed.",
+      "rationale": "Group-by on the local store plus the dataLayer software field captured during enrich.",
+      "example": "immovlan-pp-cli agencies --postcode 1030 --epc F,G --agent",
+      "why_it_matters": "Use it to see which feeds are syndicated (likely also on Immoweb) versus Rossel-exclusive.",
+      "group": "Cross-portal intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Immovlan",
+    "headline": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+    "value_prop": "Reads the same server-rendered pages the immovlan.be site serves, with no login, and stores every result in SQLite. Field names mirror immoweb-pp-cli so a sourcing job can merge both portals, and same-as tells you which listings exist only on Immovlan. enrich fills the detail fields the search cards never show, and peb-trap, split-candidates and relisted answer the questions a property trader asks before calling an agency.",
+    "quickstart": [
+      {
+        "command": "immovlan-pp-cli doctor --dry-run",
+        "comment": "Confirm immovlan.be answers plain HTTP from this machine"
+      },
+      {
+        "command": "immovlan-pp-cli find --type maison,appartement --deal sale --postcode 1030,1210 --epc F,G --min-price 500000 --max-price 2500000 --pages 3 --agent",
+        "comment": "Search Schaerbeek and Saint-Josse for bad-PEB sales; every result lands in the local store"
+      },
+      {
+        "command": "immovlan-pp-cli show vbe69761 --agent",
+        "comment": "Read one listing: PEB letter, street, surfaces, year, cadastral income, seller, datePosted"
+      },
+      {
+        "command": "immovlan-pp-cli enrich --missing epc,rented --top 100 --agent",
+        "comment": "Fill detail fields for the stored listings that lack them"
+      },
+      {
+        "command": "immovlan-pp-cli peb-trap --postcode 1030,1210 --agent",
+        "comment": "Rented F/G properties: owners who cannot re-let since 2026"
+      },
+      {
+        "command": "immovlan-pp-cli same-as --all --unmatched --postcode 1030 --agent",
+        "comment": "Listings that are not on Immoweb (reads immoweb-pp-cli's store)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 on every command",
+        "fix": "Immovlan blocks headless browsers, not plain HTTP: keep the default Chrome User-Agent (do not override --user-agent) and run from a normal network; check with immovlan-pp-cli doctor"
+      },
+      {
+        "symptom": "find returns fewer listings than the site shows",
+        "fix": "The result count is rendered client-side; raise --pages (20 per page) and watch total_matching, which is estimated from the pagination"
+      },
+      {
+        "symptom": "epc is a band (bad/poor) instead of a letter",
+        "fix": "Cards carry the band only when the watermark is missing; run immovlan-pp-cli enrich --missing epc to read the letter from the detail page"
+      },
+      {
+        "symptom": "same-as reports no immoweb store",
+        "fix": "Install immoweb-pp-cli and run a find or pull there first, or point --immoweb-db at its SQLite file"
+      },
+      {
+        "symptom": "show cannot find a reference",
+        "fix": "Use the reference from the listing URL (vbe…, rbu…, rbw…) or paste the full URL; withdrawn listings return 404"
+      }
+    ],
+    "when_to_use": "Reach for this CLI when a task needs Belgian listings from Immovlan: searching a commune with price, bedroom and PEB filters, reading a listing's full details, tracking what is new or cheaper, or crossing Immovlan with Immoweb for a property trader's sourcing. It is the second portal next to immoweb-pp-cli in the brussels-peb-hunter job.",
+    "anti_triggers": [
+      "Do not use it to contact sellers or agencies, place bids, or fill site forms (Turnstile-protected).",
+      "Do not use it for Immoweb, Zimmo or Biddit data; use immoweb-pp-cli or the Biddit feed in the sourcing job.",
+      "Do not use it for sold prices or market medians; Immovlan shows asking prices only."
+    ],
+    "recipes": [
+      {
+        "title": "Bad-PEB houses for sale in two communes, newest first",
+        "command": "immovlan-pp-cli find --type maison --deal sale --postcode 1030,1210 --epc F,G --pages 5 --agent --select id,url,price,surface_m2,price_per_m2,epc,locality",
+        "explanation": "One line per listing with the fields the sourcing job needs; --select keeps the payload small."
+      },
+      {
+        "title": "Rented PEB traps after enrichment",
+        "command": "immovlan-pp-cli enrich --missing epc,rented --top 200 --agent && immovlan-pp-cli peb-trap --postcode 1030 --agent",
+        "explanation": "enrich reads the detail pages once; peb-trap then filters locally."
+      },
+      {
+        "title": "Immovlan exclusives",
+        "command": "immovlan-pp-cli same-as --all --unmatched --postcode 1030 --agent",
+        "explanation": "Joins with immoweb-pp-cli's store; unmatched rows are listings only Immovlan carries."
+      },
+      {
+        "title": "What changed since the last run of a saved search",
+        "command": "immovlan-pp-cli saved add sch-fg --type maison,appartement --deal sale --postcode 1030 && immovlan-pp-cli watch sch-fg --agent",
+        "explanation": "First run is a baseline; later runs report new, price-changed and gone listings since the previous run."
+      },
+      {
+        "title": "Notary sales on Immovlan",
+        "command": "immovlan-pp-cli find --deal public-sale --postcode 1030,1080 --agent",
+        "explanation": "Immovlan's own public-sale feed, next to Biddit."
+      }
+    ],
+    "trigger_phrases": [
+      "search immovlan",
+      "what is for sale on immovlan in schaerbeek",
+      "PEB F houses on immovlan",
+      "is this immovlan listing also on immoweb",
+      "immovlan exclusives",
+      "use immovlan",
+      "run immovlan"
+    ]
+  }
+}

@@ -113,12 +113,12 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   klaviyo-pp-cli plan brief-to-strategy --brief ./brief.md --json
   ```
-- **`plan qa-gate`** — Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags.
+- **`plan qa-gate`** — Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, unsubscribe placement, compliance, and deliverability flags.
 
   _Agents can block risky campaign launches with explicit findings instead of vague review notes._
 
   ```bash
-  klaviyo-pp-cli plan qa-gate --campaign-id CAMPAIGN_ID --json
+  klaviyo-pp-cli plan qa-gate --campaign-id CAMPAIGN_ID --html ./email.html --json
   ```
 
 ## Command Reference
@@ -579,10 +579,10 @@ Locate the Placed Order metric before attribution or cohort work.
 ### Run a launch QA gate
 
 ```bash
-klaviyo-pp-cli plan qa-gate --campaign-id CAMPAIGN_ID --json
+klaviyo-pp-cli plan qa-gate --campaign-id CAMPAIGN_ID --html ./email.html --json
 ```
 
-Review offer, link, compliance, date, and deliverability findings before launch.
+Review offer, link, unsubscribe, compliance, date, and deliverability findings before launch. A missing or broken unsubscribe tag fails the gate, and `campaigns deploy` enforces the same check before creating a template. Use `{% unsubscribe %}` as standalone text or `{% unsubscribe_link %}` inside `href`.
 
 ## Auth Setup
 

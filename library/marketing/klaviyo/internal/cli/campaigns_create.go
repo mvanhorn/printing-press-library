@@ -14,6 +14,13 @@ import (
 
 func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsCampaign string
+	var bodyDataAttributesAudiences string
+	var bodyDataAttributesCampaignMessages string
+	var bodyDataAttributesName string
+	var bodyDataAttributesSendOptions string
+	var bodyDataAttributesSendStrategy string
+	var bodyDataAttributesTrackingOptions string
+	var bodyDataType string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -23,6 +30,18 @@ func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "campaigns.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
+				if !cmd.Flags().Changed("data-attributes-audiences") && bodyDataAttributesAudiences == "" && !flags.dryRun {
+					return fmt.Errorf("required flag %q not set", "data-attributes-audiences")
+				}
+				if !cmd.Flags().Changed("data-attributes-campaign-messages") && bodyDataAttributesCampaignMessages == "" && !flags.dryRun {
+					return fmt.Errorf("required flag %q not set", "data-attributes-campaign-messages")
+				}
+				if !cmd.Flags().Changed("data-attributes-name") && bodyDataAttributesName == "" && !flags.dryRun {
+					return fmt.Errorf("required flag %q not set", "data-attributes-name")
+				}
+				if !cmd.Flags().Changed("data-type") && bodyDataType == "" && !flags.dryRun {
+					return fmt.Errorf("required flag %q not set", "data-type")
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -42,7 +61,61 @@ func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = map[string]any{"data": bodyMap}
+				nestedDataAttributes := map[string]any{}
+				if cmd.Flags().Changed("data-attributes-audiences") || bodyDataAttributesAudiences != "" {
+					var parsed any
+					if err := json.Unmarshal([]byte(bodyDataAttributesAudiences), &parsed); err != nil {
+						return fmt.Errorf("parsing --data-attributes-audiences JSON: %w", err)
+					}
+					asMap, ok := parsed.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--data-attributes-audiences must be a JSON object, got JSON %T", parsed)
+					}
+					nestedDataAttributes["audiences"] = asMap
+				}
+				if cmd.Flags().Changed("data-attributes-campaign-messages") || bodyDataAttributesCampaignMessages != "" {
+					var parsed any
+					if err := json.Unmarshal([]byte(bodyDataAttributesCampaignMessages), &parsed); err != nil {
+						return fmt.Errorf("parsing --data-attributes-campaign-messages JSON: %w", err)
+					}
+					asMap, ok := parsed.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--data-attributes-campaign-messages must be a JSON object, got JSON %T", parsed)
+					}
+					nestedDataAttributes["campaign-messages"] = asMap
+				}
+				if cmd.Flags().Changed("data-attributes-name") || bodyDataAttributesName != "" {
+					nestedDataAttributes["name"] = bodyDataAttributesName
+				}
+				if cmd.Flags().Changed("data-attributes-send-options") || bodyDataAttributesSendOptions != "" {
+					parsed, err := parseCampaignObjectOrNull("data-attributes-send-options", bodyDataAttributesSendOptions)
+					if err != nil {
+						return err
+					}
+					nestedDataAttributes["send_options"] = parsed
+				}
+				if cmd.Flags().Changed("data-attributes-send-strategy") || bodyDataAttributesSendStrategy != "" {
+					parsed, err := parseCampaignObjectOrNull("data-attributes-send-strategy", bodyDataAttributesSendStrategy)
+					if err != nil {
+						return err
+					}
+					nestedDataAttributes["send_strategy"] = parsed
+				}
+				if cmd.Flags().Changed("data-attributes-tracking-options") || bodyDataAttributesTrackingOptions != "" {
+					parsed, err := parseCampaignObjectOrNull("data-attributes-tracking-options", bodyDataAttributesTrackingOptions)
+					if err != nil {
+						return err
+					}
+					nestedDataAttributes["tracking_options"] = parsed
+				}
+				if len(nestedDataAttributes) > 0 {
+					bodyMap["attributes"] = nestedDataAttributes
+				}
+				if cmd.Flags().Changed("data-type") || bodyDataType != "" {
+					bodyMap["type"] = bodyDataType
+				}
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
@@ -112,7 +185,28 @@ func newCampaignsCreateCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsCampaign, "fields-campaign", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+	cmd.Flags().StringVar(&bodyDataAttributesAudiences, "data-attributes-audiences", "", "Audiences")
+	cmd.Flags().StringVar(&bodyDataAttributesCampaignMessages, "data-attributes-campaign-messages", "", "The messages associated with the campaign")
+	cmd.Flags().StringVar(&bodyDataAttributesName, "data-attributes-name", "", "The campaign name")
+	cmd.Flags().StringVar(&bodyDataAttributesSendOptions, "data-attributes-send-options", "", "Options to use when sending a campaign")
+	cmd.Flags().StringVar(&bodyDataAttributesSendStrategy, "data-attributes-send-strategy", "", "The send strategy for the campaign")
+	cmd.Flags().StringVar(&bodyDataAttributesTrackingOptions, "data-attributes-tracking-options", "", "The tracking options associated with the campaign")
+	cmd.Flags().StringVar(&bodyDataType, "data-type", "", "Type")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+func parseCampaignObjectOrNull(flagName, value string) (any, error) {
+	var parsed any
+	if err := json.Unmarshal([]byte(value), &parsed); err != nil {
+		return nil, fmt.Errorf("parsing --%s JSON: %w", flagName, err)
+	}
+	if parsed == nil {
+		return nil, nil
+	}
+	if _, ok := parsed.(map[string]any); !ok {
+		return nil, fmt.Errorf("--%s must be a JSON object or null, got JSON %T", flagName, parsed)
+	}
+	return parsed, nil
 }

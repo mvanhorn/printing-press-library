@@ -1,0 +1,237 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://immovlan.be/fr",
+    "captured_at": "2026-09-22T12:05:02Z",
+    "entry_count": 5,
+    "api_entry_count": 0,
+    "noise_entry_count": 5,
+    "host_distribution": {
+      "immovlan.be": 5
+    }
+  },
+  "reachability": {
+    "mode": "browser_required",
+    "confidence": 0.9,
+    "reasons": [
+      "CAPTCHA challenge observed"
+    ],
+    "evidence": [
+      {
+        "entry_index": 0,
+        "method": "GET",
+        "host": "immovlan.be",
+        "path": "/fr/immobilier",
+        "status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "immovlan.be",
+        "path": "/fr/immobilier",
+        "status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 2,
+        "method": "GET",
+        "host": "immovlan.be",
+        "path": "/fr/immobilier",
+        "status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 3,
+        "method": "GET",
+        "host": "immovlan.be",
+        "path": "/fr/immobilier",
+        "status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 4,
+        "method": "GET",
+        "host": "immovlan.be",
+        "path": "/fr/detail/maison/a-vendre/1030/schaerbeek/vbe69490",
+        "status": 200,
+        "content_type": "text/html; charset=utf-8",
+        "reason": "CAPTCHA marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/detail/maison/a-vendre/1030/schaerbeek/vbe69490",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/detail/maison/a-vendre/1030/schaerbeek/vbe69490",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    },
+    {
+      "label": "captcha",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/immobilier",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "immovlan.be",
+          "path": "/fr/detail/maison/a-vendre/1030/schaerbeek/vbe69490",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "CAPTCHA marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [],
+  "generation_hints": [
+    "requires_page_context",
+    "requires_protected_client"
+  ]
+}

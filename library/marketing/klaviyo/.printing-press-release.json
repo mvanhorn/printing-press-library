@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "klaviyo",
   "cli_name": "klaviyo-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.9.3",
+  "released_at": "2026-09-23T16:02:37Z",
+  "source_commit": "5bb1f7fc0d5df8cd83e88201be56458811c0eb00",
   "printing_press_version": "3.5.0",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(klaviyo): block broken unsubscribe links",
+      "pr": 2051,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2051",
+      "commit": "5bb1f7fc0d5df8cd83e88201be56458811c0eb00"
     }
   ]
 }

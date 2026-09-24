@@ -8955,6 +8955,10 @@
         {
           "handle": "giuseppebisemi",
           "name": "Giuseppe Bisemi"
+        },
+        {
+          "handle": "patricksrail",
+          "name": "Patrick Srail"
         }
       ],
       "mcp": {
@@ -12768,6 +12772,55 @@
       }
     },
     {
+      "name": "immovlan",
+      "category": "other",
+      "api": "Immovlan",
+      "description": "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+      "search_terms": [
+        "immovlan",
+        "immovlan-pp-cli",
+        "Search Immovlan from the terminal with every site filter, keep a local history, and cross it with Immoweb: exclusives, re-listings, rented PEB F/G traps and division candidates.",
+        "Cross-portal match",
+        "same-as",
+        "Tell whether a stored Immovlan listing is also on Immoweb, at what price, or is Immovlan-only.",
+        "PEB trap",
+        "peb-trap",
+        "List PEB F or G properties that are currently rented: owners who can no longer re-let in Brussels since 2026.",
+        "Bulk detail enrichment",
+        "enrich",
+        "Fill missing detail fields (PEB letter, street, geo, rented, cadastral income, agency software) for many stored listings in one resumable pass.",
+        "Division candidates",
+        "split-candidates",
+        "Houses large enough to divide, ranked by €/m² within their postcode, with land, year, PEB and rented flags.",
+        "Re-listing detector",
+        "relisted",
+        "Listings that came back under a new reference, with their true first-seen date and price at each reference.",
+        "Agency leaderboard",
+        "agencies",
+        "Which agencies list in a zone, their PEB F/G share, private-seller share and the CRM software behind each feed."
+      ],
+      "path": "library/other/immovlan",
+      "printer": "sambassio",
+      "printer_name": "sambassio",
+      "creator": {
+        "handle": "sambassio",
+        "name": "sambassio"
+      },
+      "mcp": {
+        "binary": "immovlan-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "immoweb",
       "category": "other",
       "api": "Immoweb",
@@ -14108,9 +14161,9 @@
       "path": "library/marketing/klaviyo",
       "release": {
         "cli_name": "klaviyo-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.9.3",
+        "released_at": "2026-09-23T16:02:37Z",
+        "source_commit": "5bb1f7fc0d5df8cd83e88201be56458811c0eb00"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
@@ -23752,9 +23805,9 @@
       "path": "library/commerce/shopper",
       "release": {
         "cli_name": "shopper-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.9.2",
+        "released_at": "2026-09-23T09:42:47Z",
+        "source_commit": "92dfe60ac9e6577753e9dde6bf2072e4139b9279"
       },
       "printer": "educrvz",
       "printer_name": "educrvz",

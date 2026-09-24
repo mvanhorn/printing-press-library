@@ -13,6 +13,9 @@ import (
 
 func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFieldsCampaignMessage string
+	var bodyDataID string
+	var bodyDataRelationshipsTemplate string
+	var bodyDataType string
 
 	cmd := &cobra.Command{
 		Use:         "campaign-message-assign-template",
@@ -21,6 +24,15 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 		Example:     "  klaviyo-pp-cli campaign-message-assign-template",
 		Annotations: map[string]string{"pp:endpoint": "campaign-message-assign-template.assign-template-to-campaign-message"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("data-id") && bodyDataID == "" && !flags.dryRun {
+				return fmt.Errorf("required flag %q not set", "data-id")
+			}
+			if !cmd.Flags().Changed("data-relationships-template") && bodyDataRelationshipsTemplate == "" && !flags.dryRun {
+				return fmt.Errorf("required flag %q not set", "data-relationships-template")
+			}
+			if !cmd.Flags().Changed("data-type") && bodyDataType == "" && !flags.dryRun {
+				return fmt.Errorf("required flag %q not set", "data-type")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -31,7 +43,29 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
+			bodyMap := map[string]any{}
+			body := map[string]any{"data": bodyMap}
+			if cmd.Flags().Changed("data-id") || bodyDataID != "" {
+				bodyMap["id"] = bodyDataID
+			}
+			nestedDataRelationships := map[string]any{}
+			if cmd.Flags().Changed("data-relationships-template") || bodyDataRelationshipsTemplate != "" {
+				var parsed any
+				if err := json.Unmarshal([]byte(bodyDataRelationshipsTemplate), &parsed); err != nil {
+					return fmt.Errorf("parsing --data-relationships-template JSON: %w", err)
+				}
+				asMap, ok := parsed.(map[string]any)
+				if !ok {
+					return fmt.Errorf("--data-relationships-template must be a JSON object, got JSON %T", parsed)
+				}
+				nestedDataRelationships["template"] = asMap
+			}
+			if len(nestedDataRelationships) > 0 {
+				bodyMap["relationships"] = nestedDataRelationships
+			}
+			if cmd.Flags().Changed("data-type") || bodyDataType != "" {
+				bodyMap["type"] = bodyDataType
+			}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -86,6 +120,9 @@ func newCampaignMessageAssignTemplatePromotedCmd(flags *rootFlags) *cobra.Comman
 		},
 	}
 	cmd.Flags().StringVar(&flagFieldsCampaignMessage, "fields-campaign-message", "", "For more information please visit https://developers.klaviyo.com/en/v2026-04-15/reference/api-overview#sparse-fieldsets")
+	cmd.Flags().StringVar(&bodyDataID, "data-id", "", "The message ID to assign")
+	cmd.Flags().StringVar(&bodyDataRelationshipsTemplate, "data-relationships-template", "", "Template relationship object")
+	cmd.Flags().StringVar(&bodyDataType, "data-type", "", "Type")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 
