@@ -441,20 +441,27 @@ func isExpensesCreate404DefectError(err error) bool {
 func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, reportId, expenseTypeCode, paymentTypeId, transactionDate string, amount float64, vendor, businessPurpose string) (json.RawMessage, int, error) {
 	const stepTimeout = 10 * time.Second
 
-	// PATCH(amend-2026-09-15: Greptile review, "Fallback Discards Requested
-	// Fields") -- Transaction Date and Payment Type used to only warn and
-	// then proceed to save with Concur's form defaults (today, Cash)
-	// regardless of what was requested. --date is a REQUIRED flag on this
-	// command, so silently substituting today's date -- or a different
-	// payment type than explicitly asked for -- created an expense with
-	// materially wrong data while still reporting success. Reject before
-	// opening the browser at all: both checks are static (no browser state
-	// needed to know they'll be violated), so failing here also avoids
-	// wasting a browser session on a request already known to be unable to
-	// honor what was asked.
-	if transactionDate != "" && transactionDate != time.Now().Format("2006-01-02") {
-		return nil, 0, fmt.Errorf("cannot honor --date %s via the browser fallback: the Transaction Date field has no stable accessible name to target reliably (confirmed live: unlabeled input, placeholder-only) and would silently default to today instead -- creating an expense dated today when %s was requested is a real correctness bug, not an acceptable substitution. Wait for the underlying API defect to be fixed, or set the date manually in Concur after a same-day creation only", transactionDate, transactionDate)
-	}
+	// PATCH(amend-2026-09-24: Transaction Date IS fillable, and Concur does
+	// NOT reliably default it to today) -- this function used to refuse any
+	// --date other than today outright, on the belief that the Transaction
+	// Date field "has no stable accessible name to target reliably
+	// (confirmed live: unlabeled input, placeholder-only)". CONFIRMED LIVE
+	// 2026-09-24 that belief is wrong: a snapshot of the real New Expense
+	// form shows a proper `LabelText "Transaction Date"` associated with
+	// the textbox, and `agent-browser fill` on it works cleanly. Separately
+	// (and more importantly) ALSO confirmed live that the field does NOT
+	// reliably arrive pre-filled with today's date -- a same-day create
+	// attempt on a report that had a prior failed/interrupted attempt
+	// against the identical URL left the field genuinely empty, tripping
+	// Concur's own "you must provide valid information for: Transaction
+	// Date" validation on Save. Silently trusting an assumed default here
+	// was already fragile even under the old today-only restriction this
+	// comment is replacing; explicitly filling the field removes that
+	// fragility entirely rather than narrowing it. See the Transaction Date
+	// fill step below, and --help's note on this command for the same
+	// history. Payment Type's own restriction is unchanged: changing it
+	// away from Concur's form default (Cash) still has no live
+	// confirmation either way.
 	if paymentTypeId != "" && !strings.EqualFold(paymentTypeId, "CASH") {
 		return nil, 0, fmt.Errorf("cannot honor --payment-type %s via the browser fallback: changing Payment Type away from Concur's form default (Cash) was not verified live, so this refuses rather than silently saving with Cash when a different type was explicitly requested. Wait for the underlying API defect to be fixed, or set the payment type manually in Concur after creation with Cash only if that's actually acceptable", paymentTypeId)
 	}
@@ -511,6 +518,26 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		}
 	}
 
+	// PATCH(amend-2026-09-24: explicitly fill Transaction Date via the
+	// calendar picker instead of trusting an assumed default) -- see this
+	// function's header comment above for the live confirmation that the
+	// field is NOT reliably pre-populated with today's date. A same-session
+	// follow-up live test also found that a first fix attempt using plain
+	// `fill` (assumed safe from an earlier test that, in hindsight, only
+	// happened to start from an empty field) APPENDED instead of replacing
+	// once the field already carried a value from a prior same-URL SPA
+	// visit -- see fillTransactionDate's doc comment
+	// (browser_fallback_helpers.go) for the full investigation and why the
+	// calendar picker, not any text-editing variant, is what reliably
+	// replaces this specific field's value.
+	parsedDate, err := time.Parse("2006-01-02", transactionDate)
+	if err != nil {
+		return nil, 0, fmt.Errorf("--date %q is not a valid YYYY-MM-DD date: %w", transactionDate, err)
+	}
+	if err := fillTransactionDate(parsedDate); err != nil {
+		return nil, 0, fmt.Errorf("could not set Transaction Date to %q -- refusing to save without it: %w", transactionDate, err)
+	}
+
 	amountRef, err := waitForRef("Amount", "textbox", stepTimeout)
 	if err != nil {
 		return nil, 0, fmt.Errorf("could not find the Amount field -- expense type code %q may not be valid, or Concur's form structure has changed: %w", expenseTypeCode, err)
@@ -534,7 +561,15 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		if err != nil {
 			return nil, 0, fmt.Errorf("could not find the Vendor Description field to set --vendor %q -- refusing to save without it: %w", vendor, err)
 		}
-		if _, err := runAgentBrowser("fill", "@"+vendorRef, vendor); err != nil {
+		// PATCH(amend-2026-09-24: use clearAndFillField, not plain fill) --
+		// see that helper's doc comment (browser_fallback_helpers.go) for
+		// the live-confirmed append bug on this form's Business Purpose
+		// field. Applied here too even though this specific field was not
+		// the one caught appending, per that comment's "cheap insurance"
+		// rationale -- a brand-new expense's Vendor Description starts
+		// empty, so this is a no-op cost on the create path today, but
+		// keeps the two fallbacks' field-filling behavior consistent.
+		if err := clearAndFillField(vendorRef, vendor); err != nil {
 			return nil, 0, fmt.Errorf("found the Vendor Description field but could not fill it with --vendor %q -- refusing to save without it: %w", vendor, err)
 		}
 	}
@@ -544,7 +579,7 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		if err != nil {
 			return nil, 0, fmt.Errorf("could not find the Business Purpose field to set --business-purpose %q -- refusing to save without it: %w", businessPurpose, err)
 		}
-		if _, err := runAgentBrowser("fill", "@"+purposeRef, businessPurpose); err != nil {
+		if err := clearAndFillField(purposeRef, businessPurpose); err != nil {
 			return nil, 0, fmt.Errorf("found the Business Purpose field but could not fill it with --business-purpose %q -- refusing to save without it: %w", businessPurpose, err)
 		}
 	}
@@ -553,7 +588,10 @@ func createExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	if err != nil {
 		return nil, 0, fmt.Errorf("could not find the Save Expense button: %w", err)
 	}
-	if _, err := runAgentBrowser("click", "@"+saveRef); err != nil {
+	// PATCH(amend-2026-09-24: bounded retry against a fresh ref) -- see
+	// clickWithNavigationRetry's doc comment (browser_fallback_helpers.go)
+	// for the live-confirmed timing race this guards against.
+	if err := clickWithNavigationRetry(saveRef, "/expenses/new", "Save Expense", "button", stepTimeout); err != nil {
 		return nil, 0, err
 	}
 
@@ -633,20 +671,37 @@ func expenseIDSet(expenses []json.RawMessage) map[string]bool {
 }
 
 // expenseAmountAndType extracts an expense's transaction amount and
-// expense-type code, tolerating either a flat number/string or the nested
-// object shape ({"transactionAmount":{"value":...}},
-// {"expenseType":{"code":...}}) -- this session did not independently
-// re-confirm the exact live response shape for these two fields
-// specifically (only that expenseId is a flat string, which every diff
-// call site actually needs), so this stays defensive about either shape
-// rather than assuming one.
-func expenseAmountAndType(raw json.RawMessage) (amount float64, hasAmount bool, typeCode string, hasType bool) {
+// expense-type identifiers, tolerating either a flat number/string or the
+// nested object shape ({"transactionAmount":{"value":...}},
+// {"expenseType":{"id":...,"code":...}}).
+//
+// PATCH(amend-2026-09-24: match against expenseType.id, not just .code) --
+// the doc comment this replaces admitted "this session did not
+// independently re-confirm the exact live response shape for these two
+// fields specifically", and that unconfirmed guess was wrong. CONFIRMED
+// LIVE 2026-09-24 on a real created expense: expenseType.code is a broad
+// spend-category grouping ("OTHER" for Fitness, expense type id "01000"),
+// NOT the specific type id --type/expenseTypeCode actually carries. Every
+// diffNewExpense call compares its expectedTypeCode parameter (which is
+// always a --type-shaped id like "01000", per extractExpenseFallbackParams
+// reading expenseType.code out of the REQUEST body, which this file's own
+// F1 fix already established uses "code" as the request-side key name for
+// what the id actually is) against .code alone, which can never match
+// once expenseType really is an id-vs-category split like Fitness's --
+// every create through this fallback for such a type would silently
+// report "no new expense... none match" even on a fully successful save,
+// exactly reproduced this session. Extracting BOTH id and code and
+// matching if EITHER equals expectedTypeCode is the safe fix: it resolves
+// the id-vs-category split confirmed live for Fitness, without assuming
+// every other expense type necessarily has the same split (a type where
+// code and id happen to be equal still matches fine either way).
+func expenseAmountAndType(raw json.RawMessage) (amount float64, hasAmount bool, typeID, typeCode string, hasType bool) {
 	var e struct {
 		TransactionAmount any `json:"transactionAmount"`
 		ExpenseType       any `json:"expenseType"`
 	}
 	if json.Unmarshal(raw, &e) != nil {
-		return 0, false, "", false
+		return 0, false, "", "", false
 	}
 	switch v := e.TransactionAmount.(type) {
 	case float64:
@@ -658,13 +713,18 @@ func expenseAmountAndType(raw json.RawMessage) (amount float64, hasAmount bool, 
 	}
 	switch v := e.ExpenseType.(type) {
 	case string:
-		typeCode, hasType = v, v != ""
+		typeID, hasType = v, v != ""
 	case map[string]any:
+		if id, ok := v["id"].(string); ok && id != "" {
+			typeID = id
+			hasType = true
+		}
 		if code, ok := v["code"].(string); ok && code != "" {
-			typeCode, hasType = code, true
+			typeCode = code
+			hasType = true
 		}
 	}
-	return amount, hasAmount, typeCode, hasType
+	return amount, hasAmount, typeID, typeCode, hasType
 }
 
 // diffNewExpense finds the expense this call's Save Expense click created,
@@ -706,14 +766,17 @@ func diffNewExpense(before, after []json.RawMessage, beforeIDs map[string]bool, 
 
 	var matching []json.RawMessage
 	for _, raw := range newOnes {
-		amount, hasAmount, typeCode, hasType := expenseAmountAndType(raw)
+		amount, hasAmount, typeID, typeCode, hasType := expenseAmountAndType(raw)
 		if !hasAmount || !hasType {
 			continue
 		}
 		if amount < expectedAmount-amountEpsilon || amount > expectedAmount+amountEpsilon {
 			continue
 		}
-		if typeCode != expectedTypeCode {
+		// See expenseAmountAndType's doc comment: match against EITHER
+		// id or code, since which one actually equals the submitted
+		// --type value is confirmed live to differ per expense type.
+		if typeID != expectedTypeCode && typeCode != expectedTypeCode {
 			continue
 		}
 		matching = append(matching, raw)

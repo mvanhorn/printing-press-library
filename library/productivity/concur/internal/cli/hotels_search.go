@@ -197,6 +197,38 @@ type agentBrowserSnapshotEnvelope struct {
 	} `json:"data"`
 }
 
+// agentBrowserSessionName pins every agent-browser invocation from this CLI
+// to one dedicated, named session instead of agent-browser's implicit
+// "default" session.
+//
+// CONFIRMED LIVE 2026-09-24: on agent-browser 0.35.0, plain `agent-browser
+// open <url>` (no --session) intermittently fails outright with "Auto-launch
+// failed: All CDP discovery methods failed for 127.0.0.1:9222: ... EOF while
+// parsing a value" -- NOT a connection-refused (nothing listening), but an
+// EOF from something that IS listening on 9222 and isn't a valid CDP target
+// (confirmed via `lsof -i :9222`: the operator's own regular, already-running
+// Chrome, unrelated to this CLI or agent-browser, coincidentally also has
+// something bound to that port). The exact same command with an explicit
+// --session <name> reliably launches agent-browser's own isolated
+// Chrome-for-Testing instance instead of attempting that reuse-discovery at
+// all. Reproduced 3/3 times on the bare "default" session, 0/3 times with a
+// named session, immediately after `agent-browser close --all` + doctor
+// reporting a clean environment either way -- so this is not stale-daemon
+// state (this file's other CDP-port plumbing already handles that via
+// refreshActiveCDPPort/detectDedicatedConcurBrowser); it's specific to
+// whatever "default" triggers that a named session does not. Filed as
+// upstream agent-browser feedback; this constant is the client-side
+// workaround until/unless that's fixed there.
+//
+// Deliberately a fixed, single name (not per-command or per-PID): every
+// browser-fallback command in this file and its siblings
+// (expenses_create.go, reports_create.go, and any future fallback) must
+// share the SAME browser tab/window across the several agent-browser calls
+// one fallback invocation makes (open, snapshot, fill, click, ...) -- a
+// per-invocation-unique name would defeat that persistence and launch a
+// fresh browser on every single call.
+const agentBrowserSessionName = "concur-pp-cli"
+
 // runAgentBrowser shells out to the agent-browser CLI, which must already be
 // installed and on PATH. The browser session it drives persists across
 // calls via agent-browser's own daemon, matching how it was used
@@ -205,6 +237,7 @@ func runAgentBrowser(args ...string) ([]byte, error) {
 	if _, err := exec.LookPath("agent-browser"); err != nil {
 		return nil, fmt.Errorf("agent-browser not found on PATH -- required for hotel search (npm install -g agent-browser && agent-browser install)")
 	}
+	args = append([]string{"--session", agentBrowserSessionName}, args...)
 	if activeCDPPort != "" {
 		args = append([]string{"--cdp", activeCDPPort}, args...)
 	}

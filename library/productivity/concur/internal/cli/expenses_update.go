@@ -7,8 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"strconv"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/concur/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +23,7 @@ func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyBusinessPurpose string
 	var bodyComment string
 	var bodyCustomData string
+	var bodyTransactionAmount float64
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -121,10 +126,42 @@ func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					bodyMap["customData"] = parsedCustomData
 				}
+				// PATCH(amend-2026-09-24: add --amount) -- transactionAmount
+				// was not a field this command could touch at all before
+				// today; added alongside the browser-fallback fix below
+				// since editing an expense's amount after the fact (e.g.
+				// correcting an ExpenseIt-imported receipt total down to a
+				// policy cap) is exactly the scenario that fallback exists
+				// for. Flat top-level field per the same shape confirmed
+				// live for expenses create's transactionAmount.
+				if cmd.Flags().Changed("amount") {
+					bodyMap["transactionAmount"] = bodyTransactionAmount
+				}
 			}
+			// PATCH(amend-2026-09-24: fallback to browser automation on the
+			// confirmed-live expenses-update backend defect) -- reuses
+			// isExpensesCreate404DefectError (expenses_create.go): its
+			// signature check (HTTP 404, "No static resource", path
+			// containing "/expenses") matches this endpoint's identical
+			// live failure body byte-for-byte, just with an expense_id
+			// suffix on the path instead of ending at "/expenses" -- both
+			// contain the "/expenses" substring the check tests for. This
+			// is the same underlying backend defect on the sibling mutation
+			// path (POST .../expenses vs PATCH .../expenses/{id}), not a
+			// coincidentally-similar different bug, so sharing the detector
+			// rather than duplicating it is deliberate.
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				if isExpensesCreate404DefectError(err) && !flags.dryRun {
+					purpose, comment, hasCustomData, amount, hasAmount := extractExpenseUpdateFallbackParams(body)
+					if comment != "" || hasCustomData {
+						return fmt.Errorf("cannot honor --comment/--custom-fields via the browser fallback for expense %s: only --purpose and --amount have been verified live on Concur's expense-edit form. Wait for the underlying API defect to be fixed, or set these fields manually in Concur", args[0])
+					}
+					data, statusCode, err = updateExpenseViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, flagReportId, args[0], purpose, amount, hasAmount)
+				}
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -279,7 +316,239 @@ func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyBusinessPurpose, "purpose", "", "Business purpose for this expense")
 	cmd.Flags().StringVar(&bodyComment, "comment", "", "Comment/note on this expense")
 	cmd.Flags().StringVar(&bodyCustomData, "custom-fields", "", "JSON-encoded custom/list field values (id/value pairs)")
+	cmd.Flags().Float64Var(&bodyTransactionAmount, "amount", 0.0, "Transaction amount -- edits the claimed amount (e.g. to correct an imported receipt total down to a reimbursement cap); verified live via the browser fallback only (see known-issue note), same as --purpose")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
 }
+
+// extractExpenseUpdateFallbackParams reads the fields the browser fallback
+// needs out of the already-constructed request body map, mirroring
+// extractExpenseFallbackParams's rationale in expenses_create.go: reading
+// from the body (not the raw flag variables) is what lets the fallback work
+// for both the flag-driven input path and a --stdin caller, whose flag
+// variables are always empty.
+func extractExpenseUpdateFallbackParams(body any) (businessPurpose, comment string, hasCustomData bool, amount float64, hasAmount bool) {
+	bm, ok := body.(map[string]any)
+	if !ok {
+		return "", "", false, 0, false
+	}
+	if bp, ok := bm["businessPurpose"].(string); ok {
+		businessPurpose = bp
+	}
+	if c, ok := bm["comment"].(string); ok {
+		comment = c
+	}
+	_, hasCustomData = bm["customData"]
+	switch v := bm["transactionAmount"].(type) {
+	case float64:
+		amount, hasAmount = v, true
+	case json.Number:
+		amount, _ = v.Float64()
+		hasAmount = true
+	}
+	return businessPurpose, comment, hasCustomData, amount, hasAmount
+}
+
+// updateExpenseViaBrowserFallback drives Concur's real expense-edit form via
+// agent-browser when the direct HTTP PATCH hits the confirmed-live backend
+// defect shared with expenses create (see isExpensesCreate404DefectError's
+// doc comment in expenses_create.go).
+//
+// The direct edit URL
+// (https://<host>/nui/expense/reports/<report_id>/expenses/<expense_id>) was
+// confirmed live 2026-09-24 by navigating it directly on a real expense and
+// finding it renders the SAME edit form expenses create's fallback fills,
+// pre-populated with that expense's current values -- simpler than the
+// click-through-the-report-row path a prior investigation session's manual
+// workaround notes described, and confirmed to actually submit a real
+// PATCH-equivalent update via its own Save Expense button (verified via a
+// same-session before/after GET on the same expense_id: both businessPurpose
+// and transactionAmount changed to the values this fallback filled).
+func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, reportId, expenseId, businessPurpose string, amount float64, hasAmount bool) (json.RawMessage, int, error) {
+	const stepTimeout = 10 * time.Second
+
+	host, err := resolveReportsUIHost(c.RequestBaseURL())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	editURL := fmt.Sprintf(
+		"https://%s/nui/expense/reports/%s/expenses/%s",
+		host, url.PathEscape(reportId), url.PathEscape(expenseId),
+	)
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "HTTP API returned the confirmed expenses-update backend defect (see 'concur-pp-cli expenses update --help' known-issue note). Falling back to browser automation...\n")
+
+	if port := refreshActiveCDPPort(); port != "" {
+		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
+	}
+
+	if _, err := runAgentBrowser("open", editURL); err != nil {
+		return nil, 0, err
+	}
+	time.Sleep(1500 * time.Millisecond)
+
+	refs, err := agentBrowserSnapshotRefs()
+	if err != nil {
+		return nil, 0, err
+	}
+	if _, ok := findRef(refs, "sign in", ""); ok {
+		if activeCDPPort != "" {
+			return nil, 0, fmt.Errorf("the dedicated Concur browser on CDP port %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", activeCDPPort)
+		}
+		return nil, 0, fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
+	}
+
+	// Mirror expenses_create.go / reports_create.go's interstitial-dismiss
+	// step -- the same one-time-per-session promotional dialog can render
+	// on any Concur page load.
+	if ref, ok := findRef(refs, "close", "button"); ok {
+		_, _ = runAgentBrowser("click", "@"+ref)
+		time.Sleep(300 * time.Millisecond)
+		if refs2, err := agentBrowserSnapshotRefs(); err == nil {
+			if _, stillOpen := findRef(refs2, "close", "button"); stillOpen {
+				_, _ = runAgentBrowser("press", "Escape")
+				time.Sleep(300 * time.Millisecond)
+			}
+		}
+	}
+
+	// Abort BEFORE the irreversible Save click if a requested field can't
+	// be found/filled, mirroring expenses_create.go's F2-amend rationale:
+	// the browser session is still in a safe, nothing-committed state to
+	// fail out of at this point.
+	if businessPurpose != "" {
+		purposeRef, err := waitForRef("Business Purpose", "textbox", stepTimeout)
+		if err != nil {
+			return nil, 0, fmt.Errorf("could not find the Business Purpose field to set --purpose %q -- refusing to save without it: %w", businessPurpose, err)
+		}
+		if err := clearAndFillField(purposeRef, businessPurpose); err != nil {
+			return nil, 0, fmt.Errorf("found the Business Purpose field but could not fill it with --purpose %q -- refusing to save without it: %w", businessPurpose, err)
+		}
+	}
+
+	if hasAmount {
+		amountRef, err := waitForRef("Amount", "textbox", stepTimeout)
+		if err != nil {
+			return nil, 0, fmt.Errorf("could not find the Amount field to set --amount %.2f -- refusing to save without it: %w", amount, err)
+		}
+		if err := clearAndFillField(amountRef, strconv.FormatFloat(amount, 'f', 2, 64)); err != nil {
+			return nil, 0, fmt.Errorf("found the Amount field but could not fill it with --amount %.2f -- refusing to save without it: %w", amount, err)
+		}
+	}
+
+	saveRef, err := waitForRef("Save Expense", "button", stepTimeout)
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not find the Save Expense button: %w", err)
+	}
+	// PATCH(amend-2026-09-24: bounded retry against a fresh ref) -- see
+	// clickWithNavigationRetry's doc comment (browser_fallback_helpers.go)
+	// for the live-confirmed timing race this guards against. A
+	// successful save here navigates away to the plain report URL
+	// (/expenses/reports/{id}, no /expenses/{expense_id} suffix) --
+	// confirmed live 2026-09-24 by comparing a failed (stayed on the edit
+	// URL) vs. successful (navigated away) attempt against this exact
+	// expense.
+	editURLMarker := "/expenses/" + expenseId
+	if err := clickWithNavigationRetry(saveRef, editURLMarker, "Save Expense", "button", stepTimeout); err != nil {
+		return nil, 0, err
+	}
+
+	// From this point on the click is irreversible -- mirror
+	// expensesCreatePartialSuccessError's rationale: every error path below
+	// wraps in expensesUpdatePartialSuccessError so a caller (including a
+	// human re-running by hand) knows the expense may already carry the new
+	// values even though this call is about to report an error.
+	time.Sleep(1 * time.Second)
+
+	expensePath := "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}"
+	expensePath = replacePathParam(expensePath, "user_id", formatCLIParamValue(userId))
+	expensePath = replacePathParam(expensePath, "context_type", formatCLIParamValue(contextType))
+	expensePath = replacePathParam(expensePath, "report_id", formatCLIParamValue(reportId))
+	expensePath = replacePathParam(expensePath, "expense_id", formatCLIParamValue(expenseId))
+
+	updated, err := c.GetNoCache(cmd.Context(), expensePath, nil)
+	if err != nil {
+		return nil, 0, &expensesUpdatePartialSuccessError{
+			reportId:  reportId,
+			expenseId: expenseId,
+			cause:     fmt.Errorf("fetching expense after browser fallback save: %w", err),
+		}
+	}
+
+	// PATCH(amend-2026-09-24: verify the fetched values actually match what
+	// was requested, instead of trusting a successful GET as proof of a
+	// successful save) -- CONFIRMED LIVE 2026-09-24 this was a real,
+	// live-reproduced false-success bug, not a theoretical one: a run that
+	// hit the exact click-timing race clickWithNavigationRetry now guards
+	// against (before this fix existed) filled both fields correctly on
+	// screen, clicked Save once, never actually saved (stayed on the edit
+	// URL), and this function still returned status 200 success with the
+	// stale pre-edit values from the GET -- because a GET succeeding is
+	// not the same fact as a save having happened. This mirrors this
+	// CLI's own filing-procedure skill doc's Step 8 warning almost
+	// exactly ("Do not treat reports submit's own zero exit code as proof
+	// by itself") for the sibling update path.
+	if err := verifyExpenseUpdateApplied(updated, businessPurpose, amount, hasAmount); err != nil {
+		return nil, 0, &expensesUpdatePartialSuccessError{
+			reportId:  reportId,
+			expenseId: expenseId,
+			cause:     err,
+		}
+	}
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "Expense updated successfully via browser.\n")
+	return updated, 200, nil
+}
+
+// verifyExpenseUpdateApplied checks that a re-fetched expense's fields
+// actually reflect what updateExpenseViaBrowserFallback's caller requested,
+// for every field that was actually requested (an empty businessPurpose or
+// !hasAmount means that field was not part of THIS request, so it is not
+// checked). See the call site's PATCH comment for the live-reproduced
+// false-success bug this exists to catch.
+func verifyExpenseUpdateApplied(raw json.RawMessage, wantPurpose string, wantAmount float64, checkAmount bool) error {
+	var got struct {
+		BusinessPurpose   string `json:"businessPurpose"`
+		TransactionAmount struct {
+			Value float64 `json:"value"`
+		} `json:"transactionAmount"`
+	}
+	if err := json.Unmarshal(raw, &got); err != nil {
+		return fmt.Errorf("parsing re-fetched expense to verify the save applied: %w", err)
+	}
+	if wantPurpose != "" && got.BusinessPurpose != wantPurpose {
+		return fmt.Errorf("save did not actually apply: requested Business Purpose %q but the re-fetched expense still shows %q -- the Save Expense click may not have registered", wantPurpose, got.BusinessPurpose)
+	}
+	const amountEpsilon = 0.005 // tolerates float round-tripping, not a real amount difference
+	if checkAmount && (got.TransactionAmount.Value < wantAmount-amountEpsilon || got.TransactionAmount.Value > wantAmount+amountEpsilon) {
+		return fmt.Errorf("save did not actually apply: requested Amount %.2f but the re-fetched expense still shows %.2f -- the Save Expense click may not have registered", wantAmount, got.TransactionAmount.Value)
+	}
+	return nil
+}
+
+// expensesUpdatePartialSuccessError signals that the browser fallback's
+// irreversible Save Expense click already fired before a later step
+// (re-fetching the expense to return as this call's response) failed. The
+// expense's fields almost certainly already reflect the new values even
+// though this call returns an error. Mirrors expensesCreatePartialSuccessError
+// and reportsCreatePartialSuccessError's rationale: callers must not treat
+// this like an ordinary failure and blindly retry, since Concur's Save
+// Expense is not idempotent the way a well-behaved PATCH would be -- a blind
+// retry re-opens the form and could re-submit stale local field values over
+// a change made by someone else in between.
+type expensesUpdatePartialSuccessError struct {
+	reportId  string
+	expenseId string
+	cause     error
+}
+
+func (e *expensesUpdatePartialSuccessError) Error() string {
+	return fmt.Sprintf(
+		"the browser fallback's Save Expense click already fired before this failure, so expense %s on report %s may already carry the new values even though that could not be confirmed -- run 'expenses get %s --report-id %s' or check the Concur web UI before retrying (retrying blindly risks overwriting a concurrent change): %v",
+		e.expenseId, e.reportId, e.expenseId, e.reportId, e.cause,
+	)
+}
+
+func (e *expensesUpdatePartialSuccessError) Unwrap() error { return e.cause }

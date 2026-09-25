@@ -5,10 +5,15 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"strings"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/concur/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -101,9 +106,28 @@ func newReportsSubmitCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 			}
+			// PATCH(amend-2026-09-24: fallback to browser automation on the
+			// confirmed-live reports-submit backend defect) -- POST
+			// .../reports/{id}/submit returns HTTP 405 "Method Not Allowed"
+			// live regardless of request body, even on a fully clean,
+			// zero-exception report with a valid policyId. Tested PUT,
+			// PATCH, and DELETE against the identical URL too (a live,
+			// already-submitted report, so a rejection was expected either
+			// way and safe to test against): PUT and DELETE also 405,
+			// PATCH 404s with the same "No static resource" signature
+			// expenses create/update hit -- so this is not a wrong-HTTP-verb
+			// client bug with some OTHER correct verb waiting to be found;
+			// no verb reaches this action server-side. The vendored spec
+			// documents POST as correct, confirming this is a live backend
+			// regression/defect, not a spec or client error.
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				if isReportsSubmit405DefectError(err) && !flags.dryRun {
+					data, statusCode, err = submitReportViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, args[0])
+				}
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -258,3 +282,182 @@ func newReportsSubmitCmd(flags *rootFlags) *cobra.Command {
 
 	return cmd
 }
+
+// isReportsSubmit405DefectError detects the exact live-confirmed signature:
+// HTTP 405 on a path containing "/submit". See the PATCH comment at this
+// function's call site for why this is a live backend defect rather than a
+// wrong-HTTP-verb client bug -- every verb was tried, none succeed.
+func isReportsSubmit405DefectError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == 405 {
+		return strings.Contains(apiErr.Body, "/submit")
+	}
+	return false
+}
+
+// submitReportViaBrowserFallback drives Concur's real report-detail page's
+// Submit Report action via agent-browser when the direct HTTP POST hits the
+// confirmed-live backend defect (see isReportsSubmit405DefectError).
+//
+// The report URL (https://<host>/nui/expense/reports/<report_id>) and the
+// two-step Submit Report flow below -- a page-level "Submit Report" button
+// opens a "Report Totals" confirmation dialog containing a SECOND, separate
+// "Submit Report" button (Dialog Actions toolbar, alongside "Cancel") -- were
+// confirmed live 2026-09-24 by driving the real form and reading its
+// accessible structure. The two buttons sharing an identical name and role
+// while the dialog is open is what waitForRefExcluding
+// (browser_fallback_helpers.go) exists to disambiguate; see that helper's
+// doc comment for the live-reproduced failure mode it prevents.
+func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, reportId string) (json.RawMessage, int, error) {
+	const stepTimeout = 10 * time.Second
+
+	host, err := resolveReportsUIHost(c.RequestBaseURL())
+	if err != nil {
+		return nil, 0, err
+	}
+
+	reportURL := fmt.Sprintf("https://%s/nui/expense/reports/%s", host, url.PathEscape(reportId))
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "HTTP API returned the confirmed reports-submit backend defect (see 'concur-pp-cli reports submit --help' known-issue note). Falling back to browser automation...\n")
+
+	if port := refreshActiveCDPPort(); port != "" {
+		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
+	}
+
+	if _, err := runAgentBrowser("open", reportURL); err != nil {
+		return nil, 0, err
+	}
+	time.Sleep(1500 * time.Millisecond)
+
+	refs, err := agentBrowserSnapshotRefs()
+	if err != nil {
+		return nil, 0, err
+	}
+	if _, ok := findRef(refs, "sign in", ""); ok {
+		if activeCDPPort != "" {
+			return nil, 0, fmt.Errorf("the dedicated Concur browser on CDP port %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", activeCDPPort)
+		}
+		return nil, 0, fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
+	}
+
+	// Mirror expenses_create.go / reports_create.go's interstitial-dismiss
+	// step -- the same one-time-per-session promotional dialog can render
+	// on any Concur page load.
+	if ref, ok := findRef(refs, "close", "button"); ok {
+		_, _ = runAgentBrowser("click", "@"+ref)
+		time.Sleep(300 * time.Millisecond)
+		if refs2, err := agentBrowserSnapshotRefs(); err == nil {
+			if _, stillOpen := findRef(refs2, "close", "button"); stillOpen {
+				_, _ = runAgentBrowser("press", "Escape")
+				time.Sleep(300 * time.Millisecond)
+			}
+		}
+	}
+
+	submitRef, err := waitForRef("Submit Report", "button", stepTimeout)
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not find the Submit Report button -- the report may already be submitted, or Concur's form structure has changed: %w", err)
+	}
+	if _, err := runAgentBrowser("click", "@"+submitRef); err != nil {
+		return nil, 0, err
+	}
+
+	confirmRef, err := waitForRefExcluding("Submit Report", "button", submitRef, stepTimeout)
+	if err != nil {
+		return nil, 0, fmt.Errorf("clicked Submit Report but could not find the confirmation dialog's own Submit Report button: %w", err)
+	}
+
+	// From here on the click is irreversible -- mirror
+	// reportsCreatePartialSuccessError / expensesCreatePartialSuccessError's
+	// rationale: every error path below wraps in
+	// reportsSubmitPartialSuccessError.
+	if _, err := runAgentBrowser("click", "@"+confirmRef); err != nil {
+		return nil, 0, &reportsSubmitPartialSuccessError{
+			reportId: reportId,
+			cause:    fmt.Errorf("clicking confirmation dialog's Submit Report button: %w", err),
+		}
+	}
+	time.Sleep(1500 * time.Millisecond)
+
+	// PATCH(amend-2026-09-24: bounded retry if the dialog is still open) --
+	// CONFIRMED LIVE 2026-09-24 on the sibling expenses-update fallback
+	// that a click using a ref captured immediately beforehand can
+	// silently fail to register (see clickWithNavigationRetry's doc
+	// comment, browser_fallback_helpers.go); applying the same bounded
+	// retry here proactively rather than waiting to reproduce the
+	// analogous failure live on this flow too. Re-checks for the dialog's
+	// own "Cancel" button (unambiguous: only present while the
+	// confirmation dialog is still open) rather than reusing
+	// clickWithNavigationRetry as-is, since that helper's staleURLSubstr
+	// check doesn't fit a two-click same-page dialog flow where the URL
+	// may not change until the SECOND click actually lands.
+	if refs, err := agentBrowserSnapshotRefs(); err == nil {
+		if _, dialogStillOpen := findRef(refs, "Cancel", "button"); dialogStillOpen {
+			retryConfirmRef, err := waitForRefExcluding("Submit Report", "button", submitRef, 3*time.Second)
+			if err == nil {
+				if _, err := runAgentBrowser("click", "@"+retryConfirmRef); err != nil {
+					return nil, 0, &reportsSubmitPartialSuccessError{
+						reportId: reportId,
+						cause:    fmt.Errorf("retrying confirmation dialog's Submit Report button click: %w", err),
+					}
+				}
+				time.Sleep(1500 * time.Millisecond)
+			}
+		}
+	}
+
+	reportPath := "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}"
+	reportPath = replacePathParam(reportPath, "user_id", formatCLIParamValue(userId))
+	reportPath = replacePathParam(reportPath, "context_type", formatCLIParamValue(contextType))
+	reportPath = replacePathParam(reportPath, "report_id", formatCLIParamValue(reportId))
+
+	updated, err := c.GetNoCache(cmd.Context(), reportPath, nil)
+	if err != nil {
+		return nil, 0, &reportsSubmitPartialSuccessError{
+			reportId: reportId,
+			cause:    fmt.Errorf("fetching report after browser fallback submit: %w", err),
+		}
+	}
+
+	// Confirm the submit actually registered before reporting success,
+	// rather than trusting the click sequence alone -- this exact
+	// false-positive detection failure mode is called out explicitly in
+	// this CLI's own filing-procedure skill doc (Step 8: "Do not treat
+	// reports submit's own zero exit code as proof by itself").
+	var reportStatus struct {
+		IsSubmitted bool `json:"isSubmitted"`
+	}
+	if json.Unmarshal(updated, &reportStatus) == nil && !reportStatus.IsSubmitted {
+		return nil, 0, &reportsSubmitPartialSuccessError{
+			reportId: reportId,
+			cause:    fmt.Errorf("clicked both Submit Report buttons and the browser navigated away from the form, but the report's isSubmitted field is still false -- the submission may not have actually registered"),
+		}
+	}
+
+	fmt.Fprintf(cmd.ErrOrStderr(), "Report submitted successfully via browser.\n")
+	return updated, 200, nil
+}
+
+// reportsSubmitPartialSuccessError signals that the browser fallback's
+// confirmation-dialog Submit Report click may have already fired before a
+// later step failed. Mirrors reportsCreatePartialSuccessError /
+// expensesCreatePartialSuccessError's rationale: callers must not treat
+// this like an ordinary failure and blindly retry, since a second real
+// submit attempt on an already-submitted report is not a safe no-op to
+// assume without checking.
+type reportsSubmitPartialSuccessError struct {
+	reportId string
+	cause    error
+}
+
+func (e *reportsSubmitPartialSuccessError) Error() string {
+	return fmt.Sprintf(
+		"the browser fallback's Submit Report confirmation click may have already fired before this failure -- run 'reports get %s' to check approvalStatus/isSubmitted before retrying (retrying blindly risks a duplicate submission attempt): %v",
+		e.reportId, e.cause,
+	)
+}
+
+func (e *reportsSubmitPartialSuccessError) Unwrap() error { return e.cause }

@@ -185,6 +185,19 @@ arg1="$1"
 arg2="$2"
 arg3="$3"
 
+# PATCH(amend-2026-09-24): runAgentBrowser now always prepends
+# "--session <name>" (browser_fallback_helpers.go's agentBrowserSessionName
+# fix). Shift positional args past it so this mock's existing checks
+# (which pre-date that change) still see the real command in arg1/arg2/
+# arg3. The separate direct --cdp detection call
+# (detectDedicatedConcurBrowser) does not go through runAgentBrowser and
+# is deliberately left unshifted below.
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
+
 if [ "$arg1" = "--cdp" ]; then
 	echo '{"success": false}'
 	exit 0
@@ -409,6 +422,19 @@ func TestReportsCreate_BrowserFallback_DismissesInterstitial(t *testing.T) {
 arg1="$1"
 arg2="$2"
 
+# PATCH(amend-2026-09-24): runAgentBrowser now always prepends
+# "--session <name>" (browser_fallback_helpers.go's agentBrowserSessionName
+# fix). Shift positional args past it so this mock's existing checks
+# (which pre-date that change) still see the real command in arg1/arg2/
+# arg3. The separate direct --cdp detection call
+# (detectDedicatedConcurBrowser) does not go through runAgentBrowser and
+# is deliberately left unshifted below.
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
+
 if [ "$arg1" = "--cdp" ]; then
 	echo '{"success": false}'
 	exit 0
@@ -538,6 +564,19 @@ func TestReportsCreate_BrowserFallback_EscapeFallbackWhenCloseDoesNotDismiss(t *
 	mockScript := `#!/bin/bash
 arg1="$1"
 arg2="$2"
+
+# PATCH(amend-2026-09-24): runAgentBrowser now always prepends
+# "--session <name>" (browser_fallback_helpers.go's agentBrowserSessionName
+# fix). Shift positional args past it so this mock's existing checks
+# (which pre-date that change) still see the real command in arg1/arg2/
+# arg3. The separate direct --cdp detection call
+# (detectDedicatedConcurBrowser) does not go through runAgentBrowser and
+# is deliberately left unshifted below.
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
 
 if [ "$arg1" = "--cdp" ]; then
 	echo '{"success": false}'

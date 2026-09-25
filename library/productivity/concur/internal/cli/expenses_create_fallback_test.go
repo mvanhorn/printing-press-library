@@ -239,27 +239,39 @@ func TestDiffNewExpense(t *testing.T) {
 
 // TestExpenseAmountAndType covers both response shapes this session
 // found evidence for: a flat number/string (used in earlier ad hoc mock
-// bodies in this file) and the nested {"value":...}/{"code":...} shape PR
-// #1940's F2 finding confirmed live for this same response. Defensive
-// tolerance of either shape matters because this session did not
-// independently re-verify these two specific fields' live shape.
+// bodies in this file) and the nested {"value":...}/{"id":...,"code":...}
+// shape.
+//
+// PATCH(amend-2026-09-24: cover id vs code separately) -- CONFIRMED LIVE
+// 2026-09-24 that expenseType.code is a broad spend-category grouping
+// ("OTHER" for Fitness's type id "01000"), NOT necessarily equal to the
+// specific type id/code a caller submitted -- see expenseAmountAndType's
+// updated doc comment in expenses_create.go for the full live finding this
+// replaces the old single-typeCode test coverage with.
 func TestExpenseAmountAndType(t *testing.T) {
 	t.Run("flat shape", func(t *testing.T) {
-		amount, hasAmount, typeCode, hasType := expenseAmountAndType(json.RawMessage(`{"transactionAmount":50,"expenseType":"CELPH"}`))
-		if !hasAmount || amount != 50 || !hasType || typeCode != "CELPH" {
-			t.Errorf("got (%v, %v, %q, %v)", amount, hasAmount, typeCode, hasType)
+		amount, hasAmount, typeID, typeCode, hasType := expenseAmountAndType(json.RawMessage(`{"transactionAmount":50,"expenseType":"CELPH"}`))
+		if !hasAmount || amount != 50 || !hasType || typeID != "CELPH" || typeCode != "" {
+			t.Errorf("got (%v, %v, %q, %q, %v)", amount, hasAmount, typeID, typeCode, hasType)
 		}
 	})
 
-	t.Run("nested shape", func(t *testing.T) {
-		amount, hasAmount, typeCode, hasType := expenseAmountAndType(json.RawMessage(`{"transactionAmount":{"value":50,"currencyCode":"USD"},"expenseType":{"code":"CELPH","name":"Mobile/Cellular Phone"}}`))
-		if !hasAmount || amount != 50 || !hasType || typeCode != "CELPH" {
-			t.Errorf("got (%v, %v, %q, %v)", amount, hasAmount, typeCode, hasType)
+	t.Run("nested shape with id and code both present and different", func(t *testing.T) {
+		amount, hasAmount, typeID, typeCode, hasType := expenseAmountAndType(json.RawMessage(`{"transactionAmount":{"value":50,"currencyCode":"USD"},"expenseType":{"id":"01000","code":"OTHER","name":"Fitness"}}`))
+		if !hasAmount || amount != 50 || !hasType || typeID != "01000" || typeCode != "OTHER" {
+			t.Errorf("got (%v, %v, %q, %q, %v)", amount, hasAmount, typeID, typeCode, hasType)
+		}
+	})
+
+	t.Run("nested shape with only code present", func(t *testing.T) {
+		amount, hasAmount, typeID, typeCode, hasType := expenseAmountAndType(json.RawMessage(`{"transactionAmount":{"value":50,"currencyCode":"USD"},"expenseType":{"code":"CELPH","name":"Mobile/Cellular Phone"}}`))
+		if !hasAmount || amount != 50 || !hasType || typeID != "" || typeCode != "CELPH" {
+			t.Errorf("got (%v, %v, %q, %q, %v)", amount, hasAmount, typeID, typeCode, hasType)
 		}
 	})
 
 	t.Run("missing fields report false, not zero-value false positives", func(t *testing.T) {
-		_, hasAmount, _, hasType := expenseAmountAndType(json.RawMessage(`{}`))
+		_, hasAmount, _, _, hasType := expenseAmountAndType(json.RawMessage(`{}`))
 		if hasAmount || hasType {
 			t.Errorf("expected both hasAmount and hasType false for an empty object, got hasAmount=%v hasType=%v", hasAmount, hasType)
 		}
@@ -297,18 +309,54 @@ func TestExpensesCreate_BrowserFallback(t *testing.T) {
 arg1="$1"
 arg2="$2"
 
+# PATCH(amend-2026-09-24): runAgentBrowser now always prepends
+# "--session <name>" (browser_fallback_helpers.go's agentBrowserSessionName
+# fix). Shift positional args past it so this mock's existing checks
+# (which pre-date that change) still see the real command in arg1/arg2/
+# arg3. The separate direct --cdp detection call
+# (detectDedicatedConcurBrowser) does not go through runAgentBrowser and
+# is deliberately left unshifted below.
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
+
 if [ "$arg1" = "--cdp" ]; then
 	echo '{"success": false}'
 	exit 0
 fi
 
 if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
-	echo "https://us2.concursolutions.com/nui/expense/reports/mock-report/expenses/new?expenseTypeId=CELPH"
+	# PATCH(amend-2026-09-24): reflect navigation after Save Expense is
+	# clicked (checking the same $MOCK_STATE_FILE the click handler below
+	# already touches) instead of always returning the "new expense" URL
+	# unconditionally. clickWithNavigationRetry (browser_fallback_helpers.go)
+	# now calls "get url" to confirm a save actually navigated away, and
+	# retries (bounded) if it's still on this URL -- an unconditionally
+	# static "still on /expenses/new" response made every save look like
+	# it never registered, exhausting all retries and failing this test
+	# even though the click itself was mocked as successful.
+	if [ -f "$MOCK_STATE_FILE" ]; then
+		echo "https://us2.concursolutions.com/nui/expense/reports/mock-report"
+	else
+		echo "https://us2.concursolutions.com/nui/expense/reports/mock-report/expenses/new?expenseTypeId=CELPH"
+	fi
 	exit 0
 fi
 
 if [ "$arg1" = "snapshot" ]; then
-	echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Amount","role":"textbox"},"e2":{"name":"Vendor Description","role":"textbox"},"e3":{"name":"Save Expense","role":"button"},"e4":{"name":"Business Purpose","role":"textbox"}}}}'
+	# PATCH(amend-2026-09-24): expenses create's fallback now fills
+	# Transaction Date via the calendar picker (fillTransactionDate,
+	# browser_fallback_helpers.go) before Amount/Vendor/Business Purpose.
+	# Adds an "Open calendar" button and day buttons for every date this
+	# test file's cases actually submit -- the two fixed test dates
+	# (2026-09-15, 2020-01-01) plus today (computed live, for the cases
+	# using time.Now()) -- so fillTransactionDate finds a matching day on
+	# its first snapshot and never needs to exercise real month
+	# navigation against this mock.
+	today_name=$(date +"%A %B %-d, %Y")
+	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Vendor Description\",\"role\":\"textbox\"},\"e3\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e4\":{\"name\":\"Business Purpose\",\"role\":\"textbox\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e7\":{\"name\":\"Tuesday September 15, 2026\",\"role\":\"button\"},\"e8\":{\"name\":\"Wednesday January 1, 2020\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"}}}}"
 	exit 0
 fi
 
@@ -575,12 +623,19 @@ exit 0
 
 // TestExpensesCreate_BrowserFallback_RejectsUnhonorableFields covers the
 // Greptile review finding "Fallback Discards Requested Fields": a
-// historical --date or non-Cash --payment-type used to only warn, then
-// save with Concur's form defaults (today, Cash) anyway and report
-// success -- creating an expense whose required date or requested payment
-// type silently didn't match what was asked for. Both are now rejected
-// BEFORE the browser is even opened (both checks are static), verified
-// here by asserting zero agent-browser invocations occurred.
+// non-Cash --payment-type used to only warn, then save with Concur's form
+// default (Cash) anyway and report success -- creating an expense whose
+// requested payment type silently didn't match what was asked for. That
+// check is rejected BEFORE the browser is even opened (it's static),
+// verified here by asserting zero agent-browser invocations occurred.
+//
+// PATCH(amend-2026-09-24): --date no longer belongs in this test. It used
+// to have an identical historical-date rejection, on the belief the
+// Transaction Date field couldn't be reliably filled -- CONFIRMED LIVE
+// 2026-09-24 that belief was wrong (see fillTransactionDate's doc comment,
+// browser_fallback_helpers.go); --date is honored via the calendar picker
+// now, covered instead by TestExpensesCreate_BrowserFallback's own
+// date-handling coverage.
 func TestExpensesCreate_BrowserFallback_RejectsUnhonorableFields(t *testing.T) {
 	tmpDir := t.TempDir()
 	mockBinPath := filepath.Join(tmpDir, "agent-browser")
@@ -617,11 +672,6 @@ func TestExpensesCreate_BrowserFallback_RejectsUnhonorableFields(t *testing.T) {
 		extraArgs  []string
 		wantErrSub string
 	}{
-		{
-			name:       "historical date is rejected",
-			extraArgs:  []string{"--date", "2020-01-01"},
-			wantErrSub: "cannot honor --date",
-		},
 		{
 			name:       "non-Cash payment type is rejected",
 			extraArgs:  []string{"--date", time.Now().Format("2006-01-02"), "--payment-type", "COMP"},
@@ -681,6 +731,19 @@ func TestExpensesCreate_BrowserFallback_AbortsWhenFieldNotFillable(t *testing.T)
 arg1="$1"
 arg2="$2"
 
+# PATCH(amend-2026-09-24): runAgentBrowser now always prepends
+# "--session <name>" (browser_fallback_helpers.go's agentBrowserSessionName
+# fix). Shift positional args past it so this mock's existing checks
+# (which pre-date that change) still see the real command in arg1/arg2/
+# arg3. The separate direct --cdp detection call
+# (detectDedicatedConcurBrowser) does not go through runAgentBrowser and
+# is deliberately left unshifted below.
+if [ "$arg1" = "--session" ]; then
+	arg1="$3"
+	arg2="$4"
+	arg3="$5"
+fi
+
 if [ "$arg1" = "--cdp" ]; then
 	echo '{"success": false}'
 	exit 0
@@ -692,7 +755,15 @@ if [ "$arg1" = "get" ] && [ "$arg2" = "url" ]; then
 fi
 
 if [ "$arg1" = "snapshot" ]; then
-	echo '{"success":true,"data":{"origin":"https://us2.concursolutions.com","refs":{"e1":{"name":"Amount","role":"textbox"},"e2":{"name":"Save Expense","role":"button"}}}}'
+	# PATCH(amend-2026-09-24): add calendar-picker refs (Transaction Date
+	# fill now runs before Amount) but deliberately still omit Business
+	# Purpose entirely -- this test's whole point is verifying the
+	# fallback aborts BEFORE the Save Expense click when a requested
+	# field (Business Purpose, per this test's own --business-purpose
+	# "gym" flag) can't be found, and that behavior must survive adding
+	# calendar support for the field checked earlier in the flow.
+	today_name=$(date +"%A %B %-d, %Y")
+	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"}}}}"
 	exit 0
 fi
 
