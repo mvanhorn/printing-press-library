@@ -51,10 +51,6 @@
   ],
   "deferred_to_upstream": [
     {
-      "feature": "expenses create: Transaction Date field targeting in the browser fallback",
-      "reason": "Confirmed live 2026-09-15 that the Transaction Date input has no stable accessible name (unlabeled, placeholder \"MM/DD/YYYY\" only) -- agent-browser's ref model is name/role based, so this field can't be targeted reliably. Per the review-fixes above, a --date other than today is now REJECTED rather than silently defaulted. Superseding this requires either a more specific live-confirmed selector strategy for unlabeled fields, or an agent-browser capability for placeholder-based targeting -- at which point --date could be honored instead of rejected."
-    },
-    {
       "feature": "expenses create: Payment Type change in the browser fallback",
       "reason": "Concur's form defaults Payment Type to Cash, matching this CLI's own default, so the common case never needs to touch it. Changing it to a different value was not verified live in this session. Per the review-fixes above, a non-Cash --payment-type is now REJECTED rather than silently defaulted to Cash. Superseding this requires live-verifying the Payment Type dropdown interaction."
     },

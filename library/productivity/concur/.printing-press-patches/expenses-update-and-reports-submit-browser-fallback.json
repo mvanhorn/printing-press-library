@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "id": "expenses-update-and-reports-submit-browser-fallback",
+  "applied_at": "2026-09-24",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "feat(concur): add browser-automation fallbacks for expenses update (404) and reports submit (405) on confirmed-live backend defects, plus fix three latent bugs found live-testing them: expenses create's Transaction Date was wrongly believed unfillable and today-only, its own success-diff compared the wrong expenseType field, and a click-timing race could report false success on any of these fallbacks.",
+  "reason": "expenses-create-browser-fallback.json (this CLI's prior patch) fixed an analogous 404 defect for expenses create and left two sibling mutation paths unaddressed: PATCH .../expenses/{id} (expenses update) hits the IDENTICAL 404 'No static resource' signature, and POST .../reports/{id}/submit (reports submit) hits a different-shaped 405 with the same root cause -- every HTTP verb (POST/PUT/PATCH/DELETE) was tested live against a real, fully-valid, zero-exception report ready to submit, and none reach the action server-side. Building and live-testing both new fallbacks against a real tenant surfaced three additional live findings that superseded parts of the PRIOR patch's own record: (1) the prior patch's deferred_to_upstream item claiming Transaction Date 'has no stable accessible name' was wrong -- it has a proper 'Transaction Date' label, confirmed live by reading the real form's accessible structure; that same session also found the field does NOT reliably arrive pre-filled with today's date either (a same-URL SPA re-visit left it genuinely empty), so trusting an assumed default was never actually safe even under the old today-only restriction. fillTransactionDate (browser_fallback_helpers.go) now drives the calendar picker's day buttons -- confirmed live to be what actually replaces the field's value (ordinary text-clearing does not: Home+Shift+End+Backspace and 25x plain Backspace both left an existing value in place) -- so --date honors ANY date, not just today, removing the prior patch's rejection entirely. (2) expenseAmountAndType's type-code comparison (used by diffNewExpense to confirm which expense a Save click created) compared the new expense's expenseType.code against the specific type id --type submits; confirmed live on a real Fitness expense that .code is a broad spend-category grouping ('OTHER') distinct from the type id ('01000'), which can never match for a type where they differ -- reproduced live as a fully successful creation being silently reported as a failure. Now matches against either id or code. (3) a Save/Submit click using a ref captured immediately beforehand via the same waitForRef pattern already proven reliable elsewhere in this fallback family could still silently fail to register -- reproduced live on a fully, correctly-filled create-fallback form (a manual re-click on a freshly re-snapshotted ref for the identical button, moments later, worked and the expense saved correctly with no duplicate). clickWithNavigationRetry adds a bounded, URL-reverifying retry loop; expenses update additionally verifies the re-fetched expense's fields actually match what was requested (verifyExpenseUpdateApplied) rather than trusting a successful GET as proof a save happened, after a live run demonstrated exactly that gap: fields filled correctly on screen, Save clicked, nothing actually saved, and the command still reported success against stale pre-edit values.",
+  "files": [
+    "internal/cli/browser_fallback_helpers.go",
+    "internal/cli/expenses_create.go",
+    "internal/cli/expenses_create_fallback_test.go",
+    "internal/cli/expenses_update.go",
+    "internal/cli/expenses_update_fallback_test.go",
+    "internal/cli/hotels_search.go",
+    "internal/cli/reports_create_fallback_test.go",
+    "internal/cli/reports_submit.go",
+    "internal/cli/reports_submit_fallback_test.go"
+  ],
+  "call_sites": [
+    "isExpensesCreate404DefectError(err) && !flags.dryRun (reused as-is in expenses_update.go: identical 404 signature on the sibling PATCH path, not a coincidentally-similar different bug)",
+    "isReportsSubmit405DefectError(err) && !flags.dryRun",
+    "fillTransactionDate(parsedDate)",
+    "clickWithNavigationRetry(saveRef, \"/expenses/new\", \"Save Expense\", \"button\", stepTimeout)",
+    "waitForRefExcluding(\"Submit Report\", \"button\", submitRef, stepTimeout)",
+    "verifyExpenseUpdateApplied(updated, businessPurpose, hasPurpose, amount, hasAmount)",
+    "extractExpenseUpdateFallbackParams(body) -- now also returns hasPurpose",
+    "agentBrowserSessionName / runAgentBrowser's unconditional --session prepend"
+  ],
+  "validated_outcome": "go build/vet clean; gofmt clean; full go test ./internal/cli/... passes (new TestExpensesUpdate_BrowserFallback and TestReportsSubmit_BrowserFallback command-level suites, each covering the defect-triggers-fallback success path, a non-matching-defect negative case, and a false-success-prevention case; 5 existing browser-fallback mocks updated for the --session flag shift and expenses create's new calendar-picker interaction). Both new fallbacks (and the create-path fixes) were also exercised live against a real Concur tenant on a disposable test report: created an expense dated 2+ months in the past, edited its business purpose and amount, and submitted the report -- each step verified via a follow-up GET, not just the mutating call's own reported success.",
+  "review_fixes": [
+    {
+      "finding": "Older expense dates are rejected (Greptile P1)",
+      "fix": "fillTransactionDate's initial fixed 24-step (2-year) calendar-navigation bound rejected any genuinely valid date further out than that from wherever the calendar happened to be showing when it opened -- which is NOT reliably 'today' per this same patch's finding (1) above. Now reads the calendar's actual displayed month/year up front and sizes the bound to the real distance being navigated (plus a small margin), so any real --date is reachable while a genuinely broken calendar (unresponsive navigation) is still bounded rather than looping forever."
+    },
+    {
+      "finding": "Submission success is unverified (Greptile P2)",
+      "fix": "reports submit's post-click verification used to act only when json.Unmarshal SUCCEEDED and isSubmitted was explicitly false; a decode failure or a response shape lacking isSubmitted (the vendored spec's documented Report schema names approvalStatus instead) fell through that guard and reported success with no verification having actually happened. Restructured to fail closed: success requires affirmatively confirming submission via isSubmitted OR a non-'Not Submitted' approvalStatus; a decode failure or neither signal confirming submission is now always treated as unverified and reported as a failure."
+    },
+    {
+      "finding": "Empty purpose is ignored (Greptile P2)",
+      "fix": "expenses update --purpose \"\" put an empty businessPurpose in the PATCH body, but the browser fallback's businessPurpose != \"\" check couldn't distinguish 'not requested' from 'requested empty' -- both look identical as a bare string -- so it silently skipped the field and still reported success. extractExpenseUpdateFallbackParams now also returns hasPurpose (key presence in the body map, not value non-emptiness). Because Business Purpose is a required field on Concur's real form, an explicit clear-to-empty request is now rejected up front with a clear reason instead of being silently dropped or opened in the browser only to fail there."
+    },
+    {
+      "finding": "New mutation fallbacks lack tests (Greptile P2)",
+      "fix": "Added expenses_update_fallback_test.go and reports_submit_fallback_test.go, command-level tests with mocked agent-browser binaries mirroring the existing create-fallback test pattern. The submit test's mock specifically models the live-confirmed two-button ambiguity (an identical 'Submit Report' name+role on both the page and its own confirmation dialog) that motivated waitForRefExcluding, so a regression back to plain findRef/waitForRef (non-deterministic under Go map iteration) would fail this suite instead of only failing unpredictably live."
+    },
+    {
+      "finding": "Browser guidance is outdated (Greptile P2)",
+      "fix": "README.md and SKILL.md's 'Browser-automation fallback for expense creation' sections still said Transaction Date had no stable accessible name and was rejected for anything but today -- both now false per this patch. Updated both, and added new subsections documenting the expenses-update and reports-submit fallbacks (including the two-button submit-dialog disambiguation and the --purpose \"\" rejection), which weren't documented at all before this patch."
+    }
+  ],
+  "supersedes": [
+    {
+      "patch": "expenses-create-browser-fallback.json",
+      "deferred_item": "expenses create: Transaction Date field targeting in the browser fallback",
+      "why": "That entry's claim (Transaction Date has no stable accessible name) was confirmed live to be wrong, and its proposed resolution path (a placeholder-based targeting capability) turned out not to be what was needed -- the calendar picker's day buttons, not any refinement of text-field targeting, are what actually work. Removed from that file since it no longer reads true after this patch."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "expenses update: --comment / --custom-fields via the browser fallback",
+      "reason": "Only --purpose and --amount have been verified live on Concur's expense-edit form. Rejected the same way expenses create rejects a non-Cash --payment-type, rather than guessing at unverified field locations."
+    },
+    {
+      "feature": "expenses update HTTP 404 and reports submit HTTP 405 on fully-valid requests (the underlying Concur-backend defects themselves)",
+      "reason": "This patch works around both defects via browser automation; it does not fix either, which live in Concur's backend, not this CLI. If Concur fixes either server-side, the corresponding isExpensesCreate404DefectError / isReportsSubmit405DefectError check simply stops matching and the pure-HTTP path keeps working as originally generated."
+    }
+  ]
+}

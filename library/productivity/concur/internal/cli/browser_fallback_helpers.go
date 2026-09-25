@@ -234,7 +234,35 @@ func fillTransactionDate(target time.Time) error {
 
 	dayName := fmt.Sprintf("%s %s %d, %d", target.Weekday(), target.Month(), target.Day(), target.Year())
 
-	const maxMonthClicks = 24 // generous bound; a legitimate expense date is never ~2 years off
+	// PATCH(Greptile review, "Older expense dates are rejected") -- a fixed
+	// 24-step (2-year) bound rejected any genuinely valid date further out
+	// than that from wherever the calendar happens to be showing when it
+	// opens (which this function's own doc comment above already
+	// establishes is NOT reliably "today" -- it can carry stale state from
+	// a prior same-URL SPA visit). --date has no policy-driven range limit
+	// of its own, so this loop bound must not impose one either. Reads the
+	// calendar's own displayed month/year up front and sizes the bound to
+	// the ACTUAL distance being navigated (with a small safety margin for
+	// the loop's own step-by-step drift), so any real date this session
+	// verified live -- weeks, months, or years away -- is reachable, while
+	// still bounding a genuinely broken calendar (navigation buttons that
+	// stop responding) rather than looping forever.
+	initialRefs, err := agentBrowserSnapshotRefs()
+	if err != nil {
+		return fmt.Errorf("reading initial calendar state: %w", err)
+	}
+	shownMonth0, shownYear0, err := readDisplayedCalendarMonth(initialRefs)
+	if err != nil {
+		return err
+	}
+	monthsAway0 := (target.Year()-shownYear0)*12 + (int(target.Month()) - int(shownMonth0))
+	if monthsAway0 < 0 {
+		monthsAway0 = -monthsAway0
+	}
+	maxMonthClicks := monthsAway0 + 3 // small margin for the loop's own re-reads
+	if maxMonthClicks < 12 {
+		maxMonthClicks = 12 // floor: still bounds a genuinely broken calendar
+	}
 	for i := 0; i < maxMonthClicks; i++ {
 		refs, err := agentBrowserSnapshotRefs()
 		if err != nil {

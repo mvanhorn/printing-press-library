@@ -355,8 +355,16 @@ if [ "$arg1" = "snapshot" ]; then
 	# using time.Now()) -- so fillTransactionDate finds a matching day on
 	# its first snapshot and never needs to exercise real month
 	# navigation against this mock.
+	# PATCH(Greptile review, "Older expense dates are rejected" fix):
+	# fillTransactionDate now ALWAYS reads the calendar header's displayed
+	# month/year up front (to size its navigation bound dynamically instead
+	# of a fixed step cap) before checking for a matching day button, so
+	# the mock must supply valid header month/year buttons even though the
+	# day button match still succeeds immediately with no real navigation.
 	today_name=$(date +"%A %B %-d, %Y")
-	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Vendor Description\",\"role\":\"textbox\"},\"e3\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e4\":{\"name\":\"Business Purpose\",\"role\":\"textbox\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e7\":{\"name\":\"Tuesday September 15, 2026\",\"role\":\"button\"},\"e8\":{\"name\":\"Wednesday January 1, 2020\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"}}}}"
+	today_month=$(date +"%B")
+	today_year=$(date +"%Y")
+	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Vendor Description\",\"role\":\"textbox\"},\"e3\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e4\":{\"name\":\"Business Purpose\",\"role\":\"textbox\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e7\":{\"name\":\"Tuesday September 15, 2026\",\"role\":\"button\"},\"e8\":{\"name\":\"Wednesday January 1, 2020\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"},\"eA\":{\"name\":\"September\",\"role\":\"button\"},\"eB\":{\"name\":\"2026\",\"role\":\"button\"},\"eC\":{\"name\":\"$today_month\",\"role\":\"button\"},\"eD\":{\"name\":\"$today_year\",\"role\":\"button\"}}}}"
 	exit 0
 fi
 
@@ -763,7 +771,9 @@ if [ "$arg1" = "snapshot" ]; then
 	# "gym" flag) can't be found, and that behavior must survive adding
 	# calendar support for the field checked earlier in the flow.
 	today_name=$(date +"%A %B %-d, %Y")
-	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"}}}}"
+	today_month=$(date +"%B")
+	today_year=$(date +"%Y")
+	echo "{\"success\":true,\"data\":{\"origin\":\"https://us2.concursolutions.com\",\"refs\":{\"e1\":{\"name\":\"Amount\",\"role\":\"textbox\"},\"e2\":{\"name\":\"Save Expense\",\"role\":\"button\"},\"e5\":{\"name\":\"Transaction Date\",\"role\":\"textbox\"},\"e6\":{\"name\":\"Open calendar, Transaction Date\",\"role\":\"button\"},\"e9\":{\"name\":\"$today_name\",\"role\":\"button\"},\"eC\":{\"name\":\"$today_month\",\"role\":\"button\"},\"eD\":{\"name\":\"$today_year\",\"role\":\"button\"}}}}"
 	exit 0
 fi
 

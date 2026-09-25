@@ -427,13 +427,36 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 	// false-positive detection failure mode is called out explicitly in
 	// this CLI's own filing-procedure skill doc (Step 8: "Do not treat
 	// reports submit's own zero exit code as proof by itself").
+	//
+	// PATCH(Greptile review, "Submission success is unverified") -- the
+	// original version of this check only acted when Unmarshal SUCCEEDED
+	// and isSubmitted was explicitly false; a decode failure (or a
+	// response shape lacking isSubmitted entirely, which the vendored
+	// spec's documented Report schema doesn't list -- it names
+	// approvalStatus instead, per that review comment) fell through the
+	// `== nil` guard and reported success with NO verification having
+	// actually happened. Restructured to fail closed: verification must
+	// affirmatively confirm submission via isSubmitted OR a
+	// non-"Not Submitted" approvalStatus (both confirmed live this
+	// session as real, populated fields on a real Report response); any
+	// other outcome -- decode failure, or neither signal confirming
+	// submission -- is treated as unverified and reported as a failure,
+	// never as success.
 	var reportStatus struct {
-		IsSubmitted bool `json:"isSubmitted"`
+		IsSubmitted    bool   `json:"isSubmitted"`
+		ApprovalStatus string `json:"approvalStatus"`
 	}
-	if json.Unmarshal(updated, &reportStatus) == nil && !reportStatus.IsSubmitted {
+	verifyErr := json.Unmarshal(updated, &reportStatus)
+	confirmedSubmitted := verifyErr == nil &&
+		(reportStatus.IsSubmitted || (reportStatus.ApprovalStatus != "" && reportStatus.ApprovalStatus != "Not Submitted"))
+	if !confirmedSubmitted {
+		cause := fmt.Errorf("clicked both Submit Report buttons and the browser navigated away from the form, but the re-fetched report's isSubmitted/approvalStatus fields do not confirm submission (isSubmitted=%v, approvalStatus=%q) -- the submission may not have actually registered", reportStatus.IsSubmitted, reportStatus.ApprovalStatus)
+		if verifyErr != nil {
+			cause = fmt.Errorf("clicked both Submit Report buttons and the browser navigated away from the form, but the re-fetched report could not be parsed to verify submission, so success cannot be confirmed: %w", verifyErr)
+		}
 		return nil, 0, &reportsSubmitPartialSuccessError{
 			reportId: reportId,
-			cause:    fmt.Errorf("clicked both Submit Report buttons and the browser navigated away from the form, but the report's isSubmitted field is still false -- the submission may not have actually registered"),
+			cause:    cause,
 		}
 	}
 

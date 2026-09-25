@@ -153,11 +153,23 @@ func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				if isExpensesCreate404DefectError(err) && !flags.dryRun {
-					purpose, comment, hasCustomData, amount, hasAmount := extractExpenseUpdateFallbackParams(body)
+					purpose, hasPurpose, comment, hasCustomData, amount, hasAmount := extractExpenseUpdateFallbackParams(body)
 					if comment != "" || hasCustomData {
 						return fmt.Errorf("cannot honor --comment/--custom-fields via the browser fallback for expense %s: only --purpose and --amount have been verified live on Concur's expense-edit form. Wait for the underlying API defect to be fixed, or set these fields manually in Concur", args[0])
 					}
-					data, statusCode, err = updateExpenseViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, flagReportId, args[0], purpose, amount, hasAmount)
+					// PATCH(Greptile review, "Empty purpose is ignored") --
+					// Business Purpose is a REQUIRED field on Concur's real
+					// expense-edit form (confirmed live: every snapshot this
+					// session captured showed it `required`), so a request
+					// to clear it to "" would only fail Concur's own
+					// client-side validation on Save -- not a bug in this
+					// fallback to route around, but a real constraint worth
+					// rejecting clearly up front rather than opening a
+					// browser session to discover it via a timeout.
+					if hasPurpose && purpose == "" {
+						return fmt.Errorf("cannot honor --purpose \"\" via the browser fallback for expense %s: Business Purpose is a required field on Concur's expense-edit form and cannot be cleared. Set a non-empty --purpose, or clear it manually in Concur if your policy genuinely allows an empty value", args[0])
+					}
+					data, statusCode, err = updateExpenseViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, flagReportId, args[0], purpose, hasPurpose, amount, hasAmount)
 				}
 				if err != nil {
 					return classifyAPIError(err, flags)
@@ -328,13 +340,25 @@ func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 // from the body (not the raw flag variables) is what lets the fallback work
 // for both the flag-driven input path and a --stdin caller, whose flag
 // variables are always empty.
-func extractExpenseUpdateFallbackParams(body any) (businessPurpose, comment string, hasCustomData bool, amount float64, hasAmount bool) {
+//
+// PATCH(Greptile review, "Empty purpose is ignored") -- hasPurpose reports
+// whether the caller's body sets "businessPurpose" AT ALL, independent of
+// its value. The old caller-side check (`businessPurpose != ""`) could not
+// tell "no --purpose flag" apart from "--purpose \"\" to explicitly clear
+// it" -- both produced an empty string, so a request to CLEAR the field
+// looked identical to "field not requested" and was silently skipped while
+// still reporting success. Checking key presence in the body map (which
+// the flag path always sets once cmd.Flags().Changed("purpose") is true,
+// per this file's body-construction block above, and a --stdin caller sets
+// explicitly by including the key) is what makes the two distinguishable.
+func extractExpenseUpdateFallbackParams(body any) (businessPurpose string, hasPurpose bool, comment string, hasCustomData bool, amount float64, hasAmount bool) {
 	bm, ok := body.(map[string]any)
 	if !ok {
-		return "", "", false, 0, false
+		return "", false, "", false, 0, false
 	}
 	if bp, ok := bm["businessPurpose"].(string); ok {
 		businessPurpose = bp
+		hasPurpose = true
 	}
 	if c, ok := bm["comment"].(string); ok {
 		comment = c
@@ -347,7 +371,7 @@ func extractExpenseUpdateFallbackParams(body any) (businessPurpose, comment stri
 		amount, _ = v.Float64()
 		hasAmount = true
 	}
-	return businessPurpose, comment, hasCustomData, amount, hasAmount
+	return businessPurpose, hasPurpose, comment, hasCustomData, amount, hasAmount
 }
 
 // updateExpenseViaBrowserFallback drives Concur's real expense-edit form via
@@ -365,7 +389,7 @@ func extractExpenseUpdateFallbackParams(body any) (businessPurpose, comment stri
 // PATCH-equivalent update via its own Save Expense button (verified via a
 // same-session before/after GET on the same expense_id: both businessPurpose
 // and transactionAmount changed to the values this fallback filled).
-func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, reportId, expenseId, businessPurpose string, amount float64, hasAmount bool) (json.RawMessage, int, error) {
+func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags *rootFlags, userId, contextType, reportId, expenseId, businessPurpose string, hasPurpose bool, amount float64, hasAmount bool) (json.RawMessage, int, error) {
 	const stepTimeout = 10 * time.Second
 
 	host, err := resolveReportsUIHost(c.RequestBaseURL())
@@ -418,7 +442,17 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	// be found/filled, mirroring expenses_create.go's F2-amend rationale:
 	// the browser session is still in a safe, nothing-committed state to
 	// fail out of at this point.
-	if businessPurpose != "" {
+	// PATCH(Greptile review, "Empty purpose is ignored") -- checks
+	// hasPurpose (was the field requested at all), not
+	// businessPurpose != "" (which the caller-side guard above already
+	// guarantees is non-empty whenever hasPurpose is true, since a
+	// requested-empty clear is rejected before this function is ever
+	// called -- see that guard's comment for why clearing a required
+	// field isn't honorable here). Kept as an explicit separate
+	// parameter rather than collapsing back to the string check so this
+	// function's own behavior stays correct even if a future caller
+	// changes.
+	if hasPurpose {
 		purposeRef, err := waitForRef("Business Purpose", "textbox", stepTimeout)
 		if err != nil {
 			return nil, 0, fmt.Errorf("could not find the Business Purpose field to set --purpose %q -- refusing to save without it: %w", businessPurpose, err)
@@ -490,7 +524,7 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 	// CLI's own filing-procedure skill doc's Step 8 warning almost
 	// exactly ("Do not treat reports submit's own zero exit code as proof
 	// by itself") for the sibling update path.
-	if err := verifyExpenseUpdateApplied(updated, businessPurpose, amount, hasAmount); err != nil {
+	if err := verifyExpenseUpdateApplied(updated, businessPurpose, hasPurpose, amount, hasAmount); err != nil {
 		return nil, 0, &expensesUpdatePartialSuccessError{
 			reportId:  reportId,
 			expenseId: expenseId,
@@ -504,11 +538,23 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 
 // verifyExpenseUpdateApplied checks that a re-fetched expense's fields
 // actually reflect what updateExpenseViaBrowserFallback's caller requested,
-// for every field that was actually requested (an empty businessPurpose or
-// !hasAmount means that field was not part of THIS request, so it is not
+// for every field that was actually requested (checkPurpose/checkAmount
+// false means that field was not part of THIS request, so it is not
 // checked). See the call site's PATCH comment for the live-reproduced
 // false-success bug this exists to catch.
-func verifyExpenseUpdateApplied(raw json.RawMessage, wantPurpose string, wantAmount float64, checkAmount bool) error {
+//
+// PATCH(Greptile review, "Empty purpose is ignored") -- checkPurpose is a
+// separate bool rather than inferring "was purpose requested" from
+// wantPurpose != "", for the same reason updateExpenseViaBrowserFallback's
+// own hasPurpose parameter exists: an empty wantPurpose is structurally
+// ambiguous between "not requested" and "requested empty", and this
+// function must not skip verifying a real request just because its value
+// happens to be the empty string. (In practice the caller-side guard in
+// expenses_update.go's RunE currently rejects an empty --purpose before
+// this function is ever reached at all, since Business Purpose is a
+// required field on Concur's form -- but this function's own correctness
+// should not depend on that guard remaining in place.)
+func verifyExpenseUpdateApplied(raw json.RawMessage, wantPurpose string, checkPurpose bool, wantAmount float64, checkAmount bool) error {
 	var got struct {
 		BusinessPurpose   string `json:"businessPurpose"`
 		TransactionAmount struct {
@@ -518,7 +564,7 @@ func verifyExpenseUpdateApplied(raw json.RawMessage, wantPurpose string, wantAmo
 	if err := json.Unmarshal(raw, &got); err != nil {
 		return fmt.Errorf("parsing re-fetched expense to verify the save applied: %w", err)
 	}
-	if wantPurpose != "" && got.BusinessPurpose != wantPurpose {
+	if checkPurpose && got.BusinessPurpose != wantPurpose {
 		return fmt.Errorf("save did not actually apply: requested Business Purpose %q but the re-fetched expense still shows %q -- the Save Expense click may not have registered", wantPurpose, got.BusinessPurpose)
 	}
 	const amountEpsilon = 0.005 // tolerates float round-tripping, not a real amount difference
