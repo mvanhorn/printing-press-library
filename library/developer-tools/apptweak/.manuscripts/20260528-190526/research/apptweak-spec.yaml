@@ -1,0 +1,1150 @@
+openapi: "3.0.0"
+info:
+  title: AppTweak API
+  version: "1.0"
+  description: >
+    Direct access to more than 5 million apps from Apple App Store and Google Play
+    Store in 100+ countries. ASO intelligence platform for keyword rankings,
+    app metadata, reviews, category charts, and paid search intelligence.
+  x-cli-description: >
+    Every AppTweak endpoint as a local-first CLI — keyword rankings, competitor
+    metadata diffs, review mining, chart tracking, and paid keyword intelligence,
+    all piped through SQLite for offline analysis and CSV export.
+
+servers:
+  - url: https://public-api.apptweak.com/api/public/store
+    description: Store data API
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-apptweak-key
+      x-auth-env-vars:
+        - APPTWEAK_API_KEY
+  schemas:
+    AppList:
+      type: string
+      description: "Comma-separated app IDs. iOS: numeric (e.g. 284882215). Android: package name (e.g. com.facebook.katana)"
+    KeywordList:
+      type: string
+      description: "Comma-separated keyword strings"
+    CountryCode:
+      type: string
+      description: "ISO Alpha-2 country code (e.g. us, gb, de, fr)"
+    Device:
+      type: string
+      enum: [iphone, ipad, android]
+      description: "Target device/store"
+    DateStr:
+      type: string
+      description: "Date in YYYY-MM-DD format"
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /apps/metadata.json:
+    get:
+      operationId: getAppMetadata
+      summary: Get current app metadata
+      description: "Title, subtitle, description, screenshots, ratings, developer info, languages, in-app purchases, and more."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Comma-separated app IDs"
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "ISO Alpha-2 country code"
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+          description: "Target device"
+        - name: language
+          in: query
+          schema:
+            type: string
+          description: "ISO Alpha-2 language code"
+      responses:
+        "200":
+          description: App metadata
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/metadata/history.json:
+    get:
+      operationId: getAppMetadataHistory
+      summary: Get historical app metadata changes
+      description: "Track title, subtitle, description changes over a date range."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Start date YYYY-MM-DD"
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "End date YYYY-MM-DD"
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical metadata
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/metrics/current.json:
+    get:
+      operationId: getAppMetricsCurrent
+      summary: Get current app performance metrics
+      description: "Estimated downloads, revenues, and App Power score."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+      responses:
+        "200":
+          description: App metrics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/metrics/history.json:
+    get:
+      operationId: getAppMetricsHistory
+      summary: Get historical app performance metrics
+      description: "Downloads, revenues, and App Power score over a date range."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical metrics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/category-rankings/current.json:
+    get:
+      operationId: getAppCategoryRankingCurrent
+      summary: Get current category chart position
+      description: "Current free, paid, or grossing chart position for one or more apps."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+      responses:
+        "200":
+          description: Category ranking
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/category-rankings/history.json:
+    get:
+      operationId: getAppCategoryRankingHistory
+      summary: Get historical category chart ranking
+      description: "Track category chart position over time."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical category rankings
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/keyword-rankings/current.json:
+    get:
+      operationId: getAppKeywordRankingsCurrent
+      summary: Get current keyword rankings for an app
+      description: "Rank position for a list of keywords across a country and device."
+      tags: [keywords]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Comma-separated keywords"
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current keyword rankings
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/keyword-rankings/history.json:
+    get:
+      operationId: getAppKeywordRankingsHistory
+      summary: Get historical keyword rankings for an app
+      description: "Track keyword rank positions over time — core ASO monitoring endpoint."
+      tags: [keywords]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical keyword rankings
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/reviews/displayed.json:
+    get:
+      operationId: getAppReviewsDisplayed
+      summary: Get top displayed reviews
+      description: "Reviews currently displayed in the App Store or Google Play for an app."
+      tags: [reviews]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: language
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [recent, helpful, critical]
+      responses:
+        "200":
+          description: Displayed reviews
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/reviews/search.json:
+    get:
+      operationId: searchAppReviews
+      summary: Search reviews by keyword, rating, or date
+      description: "Search through review text, filter by rating or date range. Requires tracked app."
+      tags: [reviews]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Up to 5 app IDs (requires tracked app)"
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: word
+          in: query
+          schema:
+            type: string
+          description: "Keyword to search in review text"
+        - name: rating
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          description: "Filter by star rating"
+        - name: date_from
+          in: query
+          schema:
+            type: string
+        - name: date_to
+          in: query
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching reviews
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/reviews/stats.json:
+    get:
+      operationId: getAppReviewStats
+      summary: Get aggregate review statistics
+      description: "Rating distribution, average rating, review count over a date range."
+      tags: [reviews]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Review statistics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/featured.json:
+    get:
+      operationId: getAppFeaturedContent
+      summary: Get App Store featured placements
+      description: "When and in which editorial lists an app was featured (iOS only)."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          schema:
+            type: string
+            enum: [iphone, ipad]
+        - name: start_date
+          in: query
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Featured placements
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/paid-keywords.json:
+    get:
+      operationId: getAppPaidKeywords
+      summary: Get Apple Search Ads bid keywords for an app
+      description: "Keywords an app bids on in Apple Search Ads — competitor paid strategy intelligence."
+      tags: [keywords]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          schema:
+            type: string
+            enum: [iphone, ipad]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paid keywords
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /apps/twin.json:
+    get:
+      operationId: getAppTwin
+      summary: Find equivalent app on other platform
+      description: "Find the Android equivalent of an iOS app or vice versa."
+      tags: [apps]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+      responses:
+        "200":
+          description: Platform twin app
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/metrics/current.json:
+    get:
+      operationId: getKeywordMetricsCurrent
+      summary: Get current keyword metrics
+      description: "Search volume, difficulty score, and brand score for keywords."
+      tags: [keywords]
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Keyword metrics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/metrics/history.json:
+    get:
+      operationId: getKeywordMetricsHistory
+      summary: Get historical keyword metrics
+      description: "Search volume and difficulty score trends over time."
+      tags: [keywords]
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical keyword metrics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/search/current.json:
+    get:
+      operationId: getKeywordLiveSearchCurrent
+      summary: Get current live search results for a keyword
+      description: "Apps appearing in search results right now for a given keyword."
+      tags: [keywords]
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current SERP results
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/search/ads/current.json:
+    get:
+      operationId: getKeywordLiveSearchAdsCurrent
+      summary: Get current ads for a keyword
+      description: "Apps running Apple Search Ads for a keyword right now."
+      tags: [keywords]
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          schema:
+            type: string
+            enum: [iphone, ipad]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current keyword ads
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/search/history.json:
+    get:
+      operationId: getKeywordSearchHistory
+      summary: Get historical SERP for a keyword
+      description: "How search results for a keyword changed over time."
+      tags: [keywords]
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical SERP
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/suggestions/by-app.json:
+    get:
+      operationId: getKeywordSuggestionsByApp
+      summary: Get keyword suggestions for an app
+      description: "Keyword ideas based on an app's install patterns — top installs, trending, or volume change."
+      tags: [keywords]
+      parameters:
+        - name: apps
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [top_installs, trending, volume_change]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Keyword suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/suggestions/by-category.json:
+    get:
+      operationId: getKeywordSuggestionsByCategory
+      summary: Get top keywords in a category
+      description: "Highest-volume and trending keywords for an App Store category."
+      tags: [keywords]
+      parameters:
+        - name: category
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Category keyword suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /keywords/share-of-voice.json:
+    get:
+      operationId: getKeywordsShareOfVoice
+      summary: Get Apple Search Ads impression share by keyword
+      description: "Ad impression share across all bidders for a keyword — identify dominant advertisers."
+      tags: [keywords]
+      parameters:
+        - name: keywords
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          schema:
+            type: string
+            enum: [iphone, ipad]
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Share of voice data
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /charts/top/current.json:
+    get:
+      operationId: getTopChartsCurrent
+      summary: Get current App Store top chart
+      description: "Current free, paid, or grossing chart for a category and country."
+      tags: [charts]
+      parameters:
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: chart_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [free, paid, grossing]
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: "App Store category ID"
+      responses:
+        "200":
+          description: Top chart
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /charts/top/history.json:
+    get:
+      operationId: getTopChartsHistory
+      summary: Get historical top chart rankings
+      description: "How the free/paid/grossing chart changed over a date range."
+      tags: [charts]
+      parameters:
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: chart_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [free, paid, grossing]
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Historical chart
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /charts/dna/current.json:
+    get:
+      operationId: getDnaChartsCurrent
+      summary: Get top chart by DNA segment
+      description: "AppTweak's proprietary DNA sub-genre taxonomy charts — more granular than official categories."
+      tags: [charts]
+      parameters:
+        - name: dna
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "DNA segment ID"
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: chart_type
+          in: query
+          schema:
+            type: string
+            enum: [free, paid]
+      responses:
+        "200":
+          description: DNA chart
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /charts/conversion-rate-benchmarks.json:
+    get:
+      operationId: getConversionRateBenchmarks
+      summary: Get category conversion rate benchmarks
+      description: "Industry average conversion rates by category — benchmark your app's store listing performance."
+      tags: [charts]
+      parameters:
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Conversion benchmarks
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /charts/category-metrics.json:
+    get:
+      operationId: getCategoryMetrics
+      summary: Get category-level aggregate metrics
+      description: "Aggregate downloads, revenue, and top performers for an App Store category."
+      tags: [charts]
+      parameters:
+        - name: country
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Category metrics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /utils/countries.json:
+    get:
+      operationId: getSupportedCountries
+      summary: Get supported countries
+      description: "List all countries supported for a given store."
+      tags: [utils]
+      parameters:
+        - name: device
+          in: query
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+      responses:
+        "200":
+          description: Countries list
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /utils/languages.json:
+    get:
+      operationId: getSupportedLanguages
+      summary: Get supported languages
+      description: "List all supported language codes."
+      tags: [utils]
+      parameters:
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: device
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Languages list
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /utils/dnas.json:
+    get:
+      operationId: getDnaList
+      summary: Get DNA classification list
+      description: "AppTweak's proprietary DNA sub-genre taxonomy identifiers."
+      tags: [utils]
+      parameters:
+        - name: device
+          in: query
+          schema:
+            type: string
+            enum: [iphone, ipad, android]
+      responses:
+        "200":
+          description: DNA list
+          content:
+            application/json:
+              schema:
+                type: object
