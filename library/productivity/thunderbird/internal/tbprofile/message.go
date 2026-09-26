@@ -491,16 +491,59 @@ var (
 	blankRunRE  = regexp.MustCompile(`\n\s*\n+`)
 )
 
-// HTMLToText converts an HTML body to readable plain text.
+var (
+	htmlBlockTagRE  = regexp.MustCompile(`(?i)<(/?)(blockquote|div)(?:\s[^>]*)?>`)
+	htmlQuoteDivRE  = regexp.MustCompile(`(?i)\bclass\s*=\s*["']?[^"'>]*\bgmail_quote\b`)
+	quoteOpen       = "\n\x01"
+	quoteClose      = "\n\x02"
+	quoteMarkerRepl = strings.NewReplacer("\x01", "", "\x02", "")
+)
+
+// markQuotes tags blockquote and Gmail quote-div boundaries so HTMLToText can prefix quoted lines with "> ".
+func markQuotes(s string) string {
+	var b strings.Builder
+	var stack []bool
+	last := 0
+	for _, m := range htmlBlockTagRE.FindAllStringSubmatchIndex(s, -1) {
+		b.WriteString(s[last:m[1]])
+		last = m[1]
+		tag := s[m[0]:m[1]]
+		closing := m[3] > m[2]
+		quote := strings.EqualFold(s[m[4]:m[5]], "blockquote") || htmlQuoteDivRE.MatchString(tag)
+		switch {
+		case closing && len(stack) > 0:
+			if stack[len(stack)-1] {
+				b.WriteString(quoteClose)
+			}
+			stack = stack[:len(stack)-1]
+		case !closing && !strings.HasSuffix(tag, "/>"):
+			stack = append(stack, quote)
+			if quote {
+				b.WriteString(quoteOpen)
+			}
+		}
+	}
+	b.WriteString(s[last:])
+	return b.String()
+}
+
+// HTMLToText converts an HTML body to readable plain text; quoted blocks become "> " lines.
 func HTMLToText(s string) string {
 	s = htmlDropRE.ReplaceAllString(s, " ")
+	s = markQuotes(s)
 	s = htmlBreakRE.ReplaceAllString(s, "\n")
 	s = htmlTagRE.ReplaceAllString(s, "")
 	s = html.UnescapeString(s)
 	s = spacesRE.ReplaceAllString(s, " ")
 	lines := strings.Split(s, "\n")
+	depth := 0
 	for i, l := range lines {
-		lines[i] = strings.TrimSpace(l)
+		depth += strings.Count(l, "\x01") - strings.Count(l, "\x02")
+		l = strings.TrimSpace(quoteMarkerRepl.Replace(l))
+		if l != "" && depth > 0 {
+			l = strings.Repeat("> ", depth) + l
+		}
+		lines[i] = l
 	}
 	s = blankRunRE.ReplaceAllString(strings.Join(lines, "\n"), "\n\n")
 	return strings.TrimSpace(s)

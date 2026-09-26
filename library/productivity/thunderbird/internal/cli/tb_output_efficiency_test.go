@@ -5,11 +5,13 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/tbprofile"
 )
 
 const tbInlineMessages = `From - Fri Jan 10 09:00:00 2025
@@ -85,6 +87,18 @@ Content-Transfer-Encoding: base64
 R0lGREFUQQ==
 --R1--
 
+From - Sun Jan 12 09:00:00 2025
+X-Mozilla-Status: 0001
+Message-ID: <q3@example.com>
+Date: Sun, 12 Jan 2025 09:00:00 +0000
+From: Bob Sample <bob@example.com>
+To: Mario Esempio <mario@example.com>
+Subject: Re: Riunione
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+<div dir="ltr">Confermo per lunedì.</div><br><div class="gmail_quote"><div dir="ltr" class="gmail_attr">On Sat, Jan 11, 2025 at 9:00 AM Mario Esempio &lt;mario@example.com&gt; wrote:<br></div><blockquote class="gmail_quote">Ci vediamo lunedì?<br>Mario</blockquote></div>
+
 `
 
 func tbSetupInline(t *testing.T) tbSliceB {
@@ -123,6 +137,11 @@ func TestTBShowNoQuotes(t *testing.T) {
 	out, _, err = tbRun(t, s.home, "messages", "show", q1, "--no-quotes", "--json")
 	if got := tbDecode[tbMessageDetail](t, out).BodyText; err != nil || got != "Confermo l'offerta.\n\n--\nMario Esempio" {
 		t.Fatalf("--no-quotes body = %q (%v)", got, err)
+	}
+	q3 := tbID("INBOX", "q3@example.com")
+	out, _, err = tbRun(t, s.home, "messages", "show", q3, "--no-quotes", "--json")
+	if got := tbDecode[tbMessageDetail](t, out).BodyText; err != nil || got != "Confermo per lunedì." {
+		t.Errorf("HTML-only reply --no-quotes body = %q (%v)", got, err)
 	}
 	out, _, err = tbRun(t, s.home, "messages", "show", q1, "--no-quotes", "--human-friendly")
 	if err != nil || strings.Contains(out, "ha scritto") || !strings.Contains(out, "Mario Esempio") {
@@ -399,5 +418,85 @@ func TestTBStoreFormatUpgrade(t *testing.T) {
 	tbCheckUpgraded(t, db)
 	if sum := tbSync(t, db, s.profile, tbSyncOptions{MaxNewMessages: 1}); sum.FormatUpgrade || sum.Capped {
 		t.Errorf("after the capped upgrade converged: %+v", sum)
+	}
+}
+
+func TestTBStoreFormat2UpgradesForHTMLQuotes(t *testing.T) {
+	s := tbSetupInline(t)
+	db := tbOpenStoreRW(t, s.home)
+	defer db.Close()
+	if err := db.SetTBMeta("store_format", "2"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.DB().Exec(`UPDATE resources SET data = json_set(data,'$.body_text','stale') WHERE resource_type = 'messages' AND json_extract(data,'$.message_id') = 'q3@example.com'`); err != nil {
+		t.Fatal(err)
+	}
+	if sum := tbSync(t, db, s.profile, tbSyncOptions{}); !sum.FormatUpgrade || sum.UpgradePending {
+		t.Fatalf("a format 2 store must re-parse once: %+v", sum)
+	}
+	if body := tbMessagesByMsgID(t, db)["q3@example.com"].BodyText; !strings.Contains(body, "> > Ci vediamo") {
+		t.Errorf("stored HTML body after upgrade = %q", body)
+	}
+}
+
+// tbGhostEntry lists a mailbox file that vanishes before sync can stat it.
+type tbGhostEntry struct{ os.DirEntry }
+
+func (tbGhostEntry) Name() string { return "Ghost" }
+
+func tbGhostFolder(name string) ([]os.DirEntry, error) {
+	entries, err := os.ReadDir(name)
+	if err != nil || filepath.Base(name) != "imap.example.com" {
+		return entries, err
+	}
+	for _, e := range entries {
+		if e.Name() == "INBOX" {
+			return append(entries, tbGhostEntry{e}), nil
+		}
+	}
+	return entries, nil
+}
+
+func TestTBStoreFormatUpgradeUnreadable(t *testing.T) {
+	for _, tt := range []struct {
+		name     string
+		readDir  tbprofile.DirReader
+		q1Frozen bool
+	}{
+		{"account", tbDenyDir("imap.example.com"), true},
+		{"subtree", tbDenyDir("Archives.sbd"), false},
+		{"folder", tbGhostFolder, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			tbStoreFormatUpgradeUnreadable(t, tt.readDir, tt.q1Frozen)
+		})
+	}
+}
+
+func tbStoreFormatUpgradeUnreadable(t *testing.T, readDir tbprofile.DirReader, q1Frozen bool) {
+	s := tbSetupInline(t)
+	db := tbOpenStoreRW(t, s.home)
+	defer db.Close()
+	tbDowngradeStore(t, db)
+	sum := tbSync(t, db, s.profile, tbSyncOptions{ReadDir: readDir})
+	if !sum.FormatUpgrade || !sum.UpgradePending || len(sum.Warnings) == 0 {
+		t.Fatalf("upgrade with unreadable mail must stay pending: %+v", sum)
+	}
+	if v, ok, _ := db.GetTBMeta("store_format"); ok {
+		t.Fatalf("store format recorded as %s although some mail was not re-parsed", v)
+	}
+	if q1 := tbMessagesByMsgID(t, db)["q1@example.com"]; q1Frozen && q1.AttachmentCount != 3 {
+		t.Fatalf("unreadable account rows must be kept as they were: %+v", q1)
+	}
+	sum = tbSync(t, db, s.profile, tbSyncOptions{})
+	if !sum.FormatUpgrade || sum.UpgradePending {
+		t.Fatalf("readable again: the upgrade must run and complete: %+v", sum)
+	}
+	tbCheckUpgraded(t, db)
+	if v, _, _ := db.GetTBMeta("store_format"); v != strconv.Itoa(tbStoreFormat) {
+		t.Errorf("store format = %q", v)
+	}
+	if sum := tbSync(t, db, s.profile, tbSyncOptions{}); sum.FormatUpgrade || sum.FoldersScanned != 0 {
+		t.Errorf("after the upgrade: %+v", sum)
 	}
 }

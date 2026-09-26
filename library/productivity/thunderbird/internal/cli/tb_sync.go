@@ -37,8 +37,8 @@ type tbSyncOptions struct {
 	OnUpgrade      func()
 }
 
-// tbStoreFormat 2 added attachment inline flags and inline-free attachment counts.
-const tbStoreFormat = 2
+// tbStoreFormat 2 added attachment inline flags and inline-free attachment counts; 3 renders HTML quotes as "> " lines.
+const tbStoreFormat = 3
 
 type tbSyncSummary struct {
 	Profile         string         `json:"profile"`
@@ -53,6 +53,7 @@ type tbSyncSummary struct {
 	FlagsUpdated    int            `json:"flags_updated"`
 	Capped          bool           `json:"capped"`
 	FormatUpgrade   bool           `json:"format_upgrade,omitempty"`
+	UpgradePending  bool           `json:"upgrade_pending,omitempty"`
 	Warnings        []string       `json:"warnings"`
 	ElapsedMS       int64          `json:"elapsed_ms"`
 	ProfileNotFound bool           `json:"profile_not_found,omitempty"`
@@ -198,6 +199,8 @@ type tbSyncRun struct {
 	sum       *tbSyncSummary
 	synced    map[string]bool
 	protected []string
+	// unread is set when an account, subtree or folder could not be read, so its old rows were kept as they were.
+	unread bool
 }
 
 func (s *tbSyncRun) warn(format string, a ...any) {
@@ -325,8 +328,9 @@ func runTBSync(ctx context.Context, db *store.Store, profileDir string, opts tbS
 	if err := s.b.flushAll(); err != nil {
 		return nil, err
 	}
-	// A capped upgrade leaves old rows behind, so the next sync must re-parse again.
-	if parseMail && !(old && sum.Capped) {
+	// A capped upgrade or one that skipped unreadable mail leaves old rows behind, so the next sync must re-parse again.
+	sum.UpgradePending = old && (sum.Capped || s.unread)
+	if parseMail && !sum.UpgradePending {
 		if err := db.SetTBMeta("store_format", strconv.Itoa(tbStoreFormat)); err != nil {
 			return nil, err
 		}
@@ -389,12 +393,12 @@ func (s *tbSyncRun) discoverFolders(accounts []tbprofile.Account) []tbDiscovered
 		fs, skipped, err := tbprofile.DiscoverFolders(a.Server.Directory, a.Key, s.opts.ReadDir)
 		if err != nil {
 			s.warn("account %s: %v", a.Key, err)
-			s.protected = append(s.protected, a.Key+":")
+			s.protected, s.unread = append(s.protected, a.Key+":"), true
 			continue
 		}
 		for _, sk := range skipped {
 			s.warn("account %s folder %s: %v", a.Key, sk.Prefix, sk.Err)
-			s.protected = append(s.protected, tbFolderKey(a.Key, sk.Prefix)+"/")
+			s.protected, s.unread = append(s.protected, tbFolderKey(a.Key, sk.Prefix)+"/"), true
 		}
 		for _, f := range fs {
 			out = append(out, tbDiscoveredFolder{a, f})
@@ -659,6 +663,7 @@ func (s *tbSyncRun) ingestFolder(acc tbprofile.Account, f tbprofile.Folder, iden
 	info, err := os.Stat(f.MboxPath)
 	if err != nil {
 		s.warn("folder %s/%s: %v", acc.Key, f.Path, err)
+		s.unread = true
 		return res, nil
 	}
 	key := tbFolderKey(acc.Key, f.Path)
@@ -1063,7 +1068,7 @@ func runTBSyncCommand(cmd *cobra.Command, flags *rootFlags, resourcesCSV string,
 	}
 	defer db.Close()
 	opts := tbSyncOptions{Resources: selected, Full: full, OnUpgrade: func() {
-		fmt.Fprintln(cmd.ErrOrStderr(), "store format upgrade: re-parsing every folder once to recompute inline attachments")
+		fmt.Fprintln(cmd.ErrOrStderr(), "store format upgrade: re-parsing every folder once (inline attachments, quoted HTML)")
 	}}
 	if cliutil.IsDogfoodEnv() {
 		opts.MaxNewMessages = tbDogfoodMaxNewMessages
