@@ -345,8 +345,14 @@ func tbReplaceFile(p string, data []byte) error {
 		return err
 	}
 	if err := os.Rename(tmpName, p); err != nil {
-		_ = os.Remove(tmpName)
-		return err
+		// Windows refuses to rename over a read-only file; os.Remove used to clear that bit implicitly.
+		if fi, lerr := os.Lstat(p); lerr == nil && fi.Mode().IsRegular() && fi.Mode().Perm()&0o200 == 0 && os.Chmod(p, 0o600) == nil {
+			err = os.Rename(tmpName, p)
+		}
+		if err != nil {
+			_ = os.Remove(tmpName)
+			return err
+		}
 	}
 	return nil
 }

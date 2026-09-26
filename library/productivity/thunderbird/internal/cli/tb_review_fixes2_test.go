@@ -38,6 +38,20 @@ func TestTBForcedReplaceKeepsOriginalOnWriteFailure(t *testing.T) {
 	}
 }
 
+func TestTBForcedReplaceOverReadOnlyFile(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "report.pdf")
+	if err := os.WriteFile(p, []byte("original"), 0o400); err != nil {
+		t.Fatal(err)
+	}
+	if err := tbWriteNewFile(p, []byte("replacement"), true); err != nil {
+		t.Fatalf("forced replace of read-only file: %v", err)
+	}
+	if got, _ := os.ReadFile(p); string(got) != "replacement" {
+		t.Fatalf("want replacement, got %q", got)
+	}
+}
+
 func TestTBStorePathSameThroughSymlink(t *testing.T) {
 	real := t.TempDir()
 	link := filepath.Join(t.TempDir(), "profile-link")

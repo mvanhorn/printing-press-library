@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "e93bdcb014019626efc253e9ed7f0f09a7fe975a6143aaa65cfa4ce7c7819ce4",
+  "source_fingerprint": "fbc397c1c88bfd87c6dba3f5c0a55e1ea5759a0618f05ba923338e2feabe3849",
   "source_files": {
     "cmd/thunderbird-pp-cli/main.go": "4486f474add86786037ba166a41617b4b0ebff0192336376b488712ffac970a2",
     "cmd/thunderbird-pp-mcp/http_auth_test.go": "7501e6e789a970d80755a72292074236a1f63609f221bf6334f94cb30ee14301",
@@ -68,7 +68,7 @@
     "internal/cli/sync_hint_test.go": "948145350772bc3e119360574f05c6e8516dded568b8d29566a41eff27e6410a",
     "internal/cli/sync_numeric_id_test.go": "4ba77d26949daec09db6b1460707ea89535674d139fa018bb234b9642a28b561",
     "internal/cli/tb_accounts.go": "cc1bdf6d03c74f4a1ecca830c1113c1b1432ee9c3991cafe5471aa2a2caab732",
-    "internal/cli/tb_attachments.go": "ebdc6ac060f158012e7330d85dfcb7498aab857649ea96ca76d833c40a46628b",
+    "internal/cli/tb_attachments.go": "524e8c2fd5993989e84f3c96753ef7b35824f09d72ec5792e5de343ccd0cb08e",
     "internal/cli/tb_bulk_test.go": "46e5516873f5ddd897ea53fd77f11baab8556f4943861187202aa0e96028b283",
     "internal/cli/tb_calendar.go": "a3bd7e2620c6d1ceb59e328c58a5be6dd01c3edab4db82cbc33982e76b033807",
     "internal/cli/tb_commands_test.go": "2b0161195a122b9df5fe9d0fa8c6204a0743c59bff8e5380fad15b1a14be51fc",
@@ -91,7 +91,7 @@
     "internal/cli/tb_r1_cli_test.go": "a01efb5d0ac85383a2cc012ebe4b7b4411b50731f561a1b29173b9f4760c63f9",
     "internal/cli/tb_r2_test.go": "b8d4d0d875b76a10b0089005b1bfacf36c5c6b757295ca8c7422d4ff87b30e55",
     "internal/cli/tb_r3_test.go": "a05457574d7c5606029ae4872a207d06f38f0fc1151cba21b1d1691a84ab7735",
-    "internal/cli/tb_review_fixes2_test.go": "ad76503916f0d7f57daa4bfc9d4ce2be941228082c87bcddd1272d21ae6cdba3",
+    "internal/cli/tb_review_fixes2_test.go": "bb0c2cad1447f5862c7fa4270f9eb82848a80039be5ef97d46ff8aefe3e71db4",
     "internal/cli/tb_review_fixes_test.go": "46dfdceff032b4927ec999b813f032ee4a4363f211039b017d866e85d72a7f18",
     "internal/cli/tb_slice_b_test.go": "0489d8de6dca83fb338fdd37a896bb31eee27143057b8bc61acf454eb3b63d8f",
     "internal/cli/tb_slice_c_test.go": "3cc870bb828893a1cb952da1902156b5acfc7740c33f1271877a1915970d6c93",
