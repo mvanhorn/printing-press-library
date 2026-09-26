@@ -52,7 +52,7 @@ func tbScopeWhere(folder, account string) (string, []any) {
 }
 
 func newNovelLargestCmd(flags *rootFlags) *cobra.Command {
-	var attachments bool
+	var attachments, includeInline bool
 	var folder, account string
 	var limit int
 
@@ -62,7 +62,8 @@ func newNovelLargestCmd(flags *rootFlags) *cobra.Command {
 		Long: `Use this command to find the individual messages or attachments using the most space. Do NOT use it for per-folder totals; use 'folders' instead.
 
 Messages are ranked by their size in the mbox (the raw RFC822 bytes);
-with --attachments, attachments are ranked by their decoded size.`,
+with --attachments, attachments are ranked by their decoded size, skipping
+inline parts (signature logos, cid: images) unless --include-inline.`,
 		Example: strings.Trim(`
   thunderbird-pp-cli largest --attachments --limit 20 --agent
   thunderbird-pp-cli largest --folder INBOX --account account1 --limit 10`, "\n"),
@@ -85,16 +86,20 @@ with --attachments, attachments are ranked by their decoded size.`,
 			human := wantsHumanTable(cmd.OutOrStdout(), flags)
 			if attachments {
 				q := `SELECT data FROM resources WHERE resource_type = 'attachments'`
+				if !includeInline {
+					q += ` AND COALESCE(json_extract(data,'$.inline'),0) = 0`
+				}
 				if where != "" {
 					q += " AND " + where
 				}
 				q += " ORDER BY " + order
-				if limit > 0 {
-					q += fmt.Sprintf(" LIMIT %d", limit)
-				}
 				docs, err := tbScanDocs[tbAttachmentDoc](db, q, qargs...)
 				if err != nil {
 					return err
+				}
+				docs = tbVisibleAttachments(docs, includeInline)
+				if limit > 0 && len(docs) > limit {
+					docs = docs[:limit]
 				}
 				rows := make([]tbLargestAttachmentRow, 0, len(docs))
 				for _, d := range docs {
@@ -132,6 +137,7 @@ with --attachments, attachments are ranked by their decoded size.`,
 		},
 	}
 	cmd.Flags().BoolVar(&attachments, "attachments", false, "Rank attachments by decoded size instead of whole messages")
+	cmd.Flags().BoolVar(&includeInline, "include-inline", false, "With --attachments, also rank inline parts (signature logos, cid: images)")
 	cmd.Flags().StringVar(&folder, "folder", "", "Only this folder (leaf name like INBOX or path like Archives/2025, case-insensitive)")
 	cmd.Flags().StringVar(&account, "account", "", "Only this account (key like account1 or account name)")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum rows to show (0 = all)")

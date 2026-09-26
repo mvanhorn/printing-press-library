@@ -28,6 +28,7 @@ type Attachment struct {
 	Filename    string `json:"filename"`
 	ContentType string `json:"content_type"`
 	SizeBytes   int64  `json:"size_bytes"`
+	Inline      bool   `json:"inline,omitempty"`
 }
 
 // Message is a parsed RFC822 message.
@@ -267,6 +268,7 @@ func ParseMessage(raw []byte) *Message {
 	m.AuthResults = strings.Join(h.Values("Authentication-Results"), "\n")
 	var plain, htmlText string
 	m.Attachments = make([]Attachment, 0)
+	var cids []string
 	walkParts(h, body, 0, func(p leafPart) {
 		if p.attachment {
 			m.Attachments = append(m.Attachments, Attachment{
@@ -274,7 +276,9 @@ func ParseMessage(raw []byte) *Message {
 				Filename:    p.filename,
 				ContentType: p.mediaType,
 				SizeBytes:   decodedSize(p.encoding, p.body),
+				Inline:      strings.HasPrefix(p.mediaType, "image/") && (p.disposition == "inline" || p.disposition == "" && p.contentID != ""),
 			})
+			cids = append(cids, p.contentID)
 			return
 		}
 		switch p.mediaType {
@@ -288,6 +292,12 @@ func ParseMessage(raw []byte) *Message {
 			}
 		}
 	})
+	refs := strings.ToLower(htmlText + "\n" + plain)
+	for i, cid := range cids {
+		if cid != "" && m.Attachments[i].ContentType != "message/rfc822" && strings.Contains(refs, "cid:"+cid) {
+			m.Attachments[i].Inline = true
+		}
+	}
 	text := plain
 	if strings.TrimSpace(text) == "" && htmlText != "" {
 		text = HTMLToText(htmlText)
@@ -297,13 +307,15 @@ func ParseMessage(raw []byte) *Message {
 }
 
 type leafPart struct {
-	header     textproto.MIMEHeader
-	mediaType  string
-	params     map[string]string
-	encoding   string
-	filename   string
-	attachment bool
-	body       []byte
+	header      textproto.MIMEHeader
+	mediaType   string
+	params      map[string]string
+	encoding    string
+	filename    string
+	attachment  bool
+	disposition string
+	contentID   string
+	body        []byte
 }
 
 func walkParts(h textproto.MIMEHeader, body []byte, depth int, visit func(leafPart)) {
@@ -334,13 +346,15 @@ func walkParts(h textproto.MIMEHeader, body []byte, depth int, visit func(leafPa
 		attachment = true
 	}
 	visit(leafPart{
-		header:     h,
-		mediaType:  mediaType,
-		params:     params,
-		encoding:   strings.ToLower(strings.TrimSpace(h.Get("Content-Transfer-Encoding"))),
-		filename:   filename,
-		attachment: attachment,
-		body:       body,
+		header:      h,
+		mediaType:   mediaType,
+		params:      params,
+		encoding:    strings.ToLower(strings.TrimSpace(h.Get("Content-Transfer-Encoding"))),
+		filename:    filename,
+		attachment:  attachment,
+		disposition: disp,
+		contentID:   strings.ToLower(strings.Trim(strings.TrimSpace(h.Get("Content-Id")), "<>")),
+		body:        body,
 	})
 }
 

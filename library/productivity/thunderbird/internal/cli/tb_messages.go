@@ -39,6 +39,7 @@ type tbMessageRow struct {
 	SizeBytes       int64  `json:"size_bytes"`
 	Flags           string `json:"flags"`
 	Direction       string `json:"direction,omitempty"`
+	TotalMessages   int    `json:"total_messages,omitempty"`
 }
 
 func tbRowFromDoc(d tbMessageDoc) tbMessageRow {

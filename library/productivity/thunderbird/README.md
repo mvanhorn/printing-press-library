@@ -188,6 +188,15 @@ thunderbird-pp-cli search "contratto" --agent --select id,subject,from_addr,date
 
 Narrow search results to the fields an agent needs, then open one with messages show.
 
+### Read a long conversation cheaply
+
+```bash
+thunderbird-pp-cli threads show 3f9a1c2b7d4e --last 5 --agent --select id,date,direction,from_addr,total_messages
+thunderbird-pp-cli messages show 3f9a1c2b7d4e --no-quotes --agent
+```
+
+Take only the latest messages of the thread, then read each without the quoted history. Inline signature images are already left out of attachment lists; `sync --full` recomputes the inline flag on stores synced by older versions.
+
 ### Who owes whom
 
 ```bash
@@ -279,8 +288,8 @@ Accounts and identities configured in Thunderbird
 
 Attachments of a message
 
-- **`thunderbird-pp-cli attachments list`** - List the attachments of a message (index, filename, type, decoded size)
-- **`thunderbird-pp-cli attachments save`** - Decode and save a message's attachments into a directory (`--output <dir>`)
+- **`thunderbird-pp-cli attachments list`** - List the attachments of a message (index, filename, type, decoded size); inline signature logos and `cid:` images are hidden unless `--include-inline`
+- **`thunderbird-pp-cli attachments save`** - Decode and save a message's attachments into a directory (`--output <dir>`); without `--index` inline parts are skipped unless `--include-inline`, `--index N` saves any part by its original index
 
 ### calendar
 
@@ -320,7 +329,7 @@ Mail folders across all accounts
 
 Messages indexed from the Thunderbird profile's mbox stores
 
-- **`thunderbird-pp-cli messages show`** - Show one message with headers, flags, text body and attachments (`get` is an alias)
+- **`thunderbird-pp-cli messages show`** - Show one message with headers, flags, text body and attachments (`get` is an alias); `--no-quotes` keeps only the new text of the body, `--include-inline` also lists inline parts
 - **`thunderbird-pp-cli messages list`** - List indexed messages, newest first
 - **`thunderbird-pp-cli messages auth`** - Show SPF, DKIM and DMARC verdicts of a message
 - **`thunderbird-pp-cli messages export`** - Export messages as the original .eml or as JSON
@@ -329,7 +338,7 @@ Messages indexed from the Thunderbird profile's mbox stores
 
 Conversations across folders
 
-- **`thunderbird-pp-cli threads show`** - Show every message of a thread in chronological order with direction in/out
+- **`thunderbird-pp-cli threads show`** - Show every message of a thread in chronological order with direction in/out; `--last N` keeps the N most recent, every row carries `total_messages`
 
 ### Store and profile
 

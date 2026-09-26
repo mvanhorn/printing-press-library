@@ -60,9 +60,26 @@ func tbStoredAttachments(db *store.Store, messageID string) []tbprofile.Attachme
 		return out
 	}
 	for _, a := range docs {
-		out = append(out, tbprofile.Attachment{Index: a.Index, Filename: a.Filename, ContentType: a.ContentType, SizeBytes: a.SizeBytes})
+		out = append(out, tbprofile.Attachment{Index: a.Index, Filename: a.Filename, ContentType: a.ContentType, SizeBytes: a.SizeBytes, Inline: tbAttInline(a)})
 	}
 	return out
+}
+
+// tbTrimDetail applies the show-only views; messages export keeps the full detail.
+func tbTrimDetail(det *tbMessageDetail, noQuotes, includeInline bool) {
+	if noQuotes {
+		det.BodyText = tbprofile.StripQuoted(det.BodyText)
+	}
+	if includeInline {
+		return
+	}
+	kept := make([]tbprofile.Attachment, 0, len(det.Attachments))
+	for _, a := range det.Attachments {
+		if !a.Inline {
+			kept = append(kept, a)
+		}
+	}
+	det.Attachments = kept
 }
 
 func tbPrintDetail(cmd *cobra.Command, det tbMessageDetail) error {
@@ -92,7 +109,11 @@ func tbPrintDetail(cmd *cobra.Command, det tbMessageDetail) error {
 	if len(det.Attachments) > 0 {
 		fmt.Fprintln(w, "\nAttachments:")
 		for _, a := range det.Attachments {
-			fmt.Fprintf(w, "  [%d] %s (%s, %s)\n", a.Index, a.Filename, a.ContentType, tbHumanBytes(a.SizeBytes))
+			inline := ""
+			if a.Inline {
+				inline = ", inline"
+			}
+			fmt.Fprintf(w, "  [%d] %s (%s, %s%s)\n", a.Index, a.Filename, a.ContentType, tbHumanBytes(a.SizeBytes), inline)
 		}
 	}
 	fmt.Fprintf(w, "\n%s\n", det.BodyText)

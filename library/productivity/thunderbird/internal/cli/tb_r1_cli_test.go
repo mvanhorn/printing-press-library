@@ -112,7 +112,7 @@ func TestTBSaveCollisionNeverReusesAName(t *testing.T) {
 		"--B\nContent-Disposition: attachment; filename=a.txt\n\none\n" +
 		"--B\nContent-Disposition: attachment; filename=a-2.txt\n\ntwo\n" +
 		"--B\nContent-Disposition: attachment; filename=a.txt\n\nthree\n--B--\n"
-	files, payloads, err := tbExtractForSave(&tbMessageDoc{ID: "m"}, []byte(raw), t.TempDir(), -1)
+	files, payloads, err := tbExtractForSave(&tbMessageDoc{ID: "m"}, []byte(raw), t.TempDir(), -1, false)
 	if err != nil || len(files) != 3 {
 		t.Fatalf("files %+v err %v", files, err)
 	}

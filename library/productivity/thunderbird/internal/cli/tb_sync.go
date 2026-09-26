@@ -105,6 +105,7 @@ type tbAttachmentDoc struct {
 	Date        string `json:"date"`
 	FromAddr    string `json:"from_addr"`
 	Subject     string `json:"subject"`
+	Inline      *bool  `json:"inline,omitempty"`
 }
 
 type tbFolderDoc struct {
@@ -871,7 +872,7 @@ func (s *tbSyncRun) addMessage(acc tbprofile.Account, f tbprofile.Folder, key st
 		ad := tbAttachmentDoc{
 			ID: doc.ID + ":" + strconv.Itoa(a.Index), MessageID: doc.ID, Index: a.Index, Filename: a.Filename,
 			ContentType: a.ContentType, SizeBytes: a.SizeBytes, Account: acc.Key, Folder: f.Name, FolderPath: f.Path,
-			FolderKey: key, Date: doc.Date, FromAddr: doc.FromAddr, Subject: doc.Subject,
+			FolderKey: key, Date: doc.Date, FromAddr: doc.FromAddr, Subject: doc.Subject, Inline: &a.Inline,
 		}
 		keepAtts[ad.ID] = true
 		if err := s.b.add("attachments", ad); err != nil {
@@ -888,12 +889,18 @@ func tbBuildMessageDoc(acc tbprofile.Account, f tbprofile.Folder, key string, ra
 	if root != "" {
 		threadID = tbprofile.ThreadID(root)
 	}
+	attCount := 0
+	for _, a := range m.Attachments {
+		if !a.Inline {
+			attCount++
+		}
+	}
 	return tbMessageDoc{
 		ID: id, Account: acc.Key, AccountName: acc.Name(), Folder: f.Name, FolderPath: f.Path, FolderKey: key,
 		Date: tbFormatTime(m.Date), FromAddr: m.FromAddr, FromName: m.FromName, To: m.To, Cc: m.Cc, Subject: m.Subject,
 		MessageID: m.MessageID, InReplyTo: m.InReplyTo, References: m.References, ThreadID: threadID, ThreadRoot: root,
 		Read: m.Read, Replied: m.Replied, Flagged: m.Flagged, Forwarded: m.Forwarded, Outgoing: identityEmails[m.FromAddr],
-		SizeBytes: raw.Length, HasAttachments: len(m.Attachments) > 0, AttachmentCount: len(m.Attachments),
+		SizeBytes: raw.Length, HasAttachments: attCount > 0, AttachmentCount: attCount,
 		ListID: m.ListID, ListUnsubscribe: m.ListUnsubscribe, Automated: m.Automated, AuthResults: m.AuthResults, BodyText: m.BodyText,
 		MboxPath: f.MboxPath, Offset: raw.Offset, Length: raw.Length,
 	}

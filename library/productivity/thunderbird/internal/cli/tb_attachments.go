@@ -41,6 +41,28 @@ func tbMessageAttachments(db *store.Store, messageID string) ([]tbAttachmentDoc,
 	return out, nil
 }
 
+// tbAttInline falls back to a filename heuristic for docs synced before the inline field existed.
+func tbAttInline(a tbAttachmentDoc) bool {
+	if a.Inline != nil {
+		return *a.Inline
+	}
+	return tbprofile.LikelyInline(a.Filename, a.ContentType)
+}
+
+// tbVisibleAttachments resolves inline on every doc and drops inline ones unless includeInline.
+func tbVisibleAttachments(docs []tbAttachmentDoc, includeInline bool) []tbAttachmentDoc {
+	out := make([]tbAttachmentDoc, 0, len(docs))
+	for _, a := range docs {
+		inline := tbAttInline(a)
+		if inline && !includeInline {
+			continue
+		}
+		a.Inline = &inline
+		out = append(out, a)
+	}
+	return out
+}
+
 func newTBAttachmentsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "attachments",
@@ -53,12 +75,17 @@ func newTBAttachmentsCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newTBAttachmentsListCmd(flags *rootFlags) *cobra.Command {
+	var includeInline bool
 	cmd := &cobra.Command{
 		Use:   "list <message-id>",
 		Short: "List the attachments of a message (index, filename, type, decoded size)",
+		Long: `List the real attachments of a message. Inline parts (signature logos, images
+embedded in the HTML body via cid:) are hidden unless --include-inline; indexes
+are the original ones, so gaps mean hidden inline parts. Stores synced before
+inline detection use a filename heuristic; sync --full recomputes it exactly.`,
 		Example: strings.Trim(`
   thunderbird-pp-cli attachments list 3f9a1c2b7d4e
-  thunderbird-pp-cli attachments list 3f9a1c2b7d4e --json`, "\n"),
+  thunderbird-pp-cli attachments list 3f9a1c2b7d4e --include-inline --json`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "local", "pp:typed-exit-codes": "0,2,3", "pp:happy-args": "message-id=0123456789ab"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -79,21 +106,27 @@ func newTBAttachmentsListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows, err := tbMessageAttachments(db, d.ID)
+			docs, err := tbMessageAttachments(db, d.ID)
 			if err != nil {
 				return err
 			}
+			rows := tbVisibleAttachments(docs, includeInline)
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 			tw := newTabWriter(tbHumanOut(cmd))
 			fmt.Fprintln(tw, "INDEX\tFILENAME\tTYPE\tSIZE")
 			for _, a := range rows {
-				fmt.Fprintf(tw, "%d\t%s\t%s\t%s\n", a.Index, a.Filename, a.ContentType, tbHumanBytes(a.SizeBytes))
+				name := a.Filename
+				if *a.Inline {
+					name += " (inline)"
+				}
+				fmt.Fprintf(tw, "%d\t%s\t%s\t%s\n", a.Index, name, a.ContentType, tbHumanBytes(a.SizeBytes))
 			}
 			return tw.Flush()
 		},
 	}
+	cmd.Flags().BoolVar(&includeInline, "include-inline", false, "Also list inline parts (signature logos, cid: images embedded in the body)")
 	return cmd
 }
 
@@ -116,14 +149,16 @@ type tbSavePlan struct {
 func newTBAttachmentsSaveCmd(flags *rootFlags) *cobra.Command {
 	var outDir string
 	var index int
-	var force bool
+	var force, includeInline bool
 	cmd := &cobra.Command{
 		Use:   "save <message-id>",
 		Short: "Decode and save a message's attachments into a directory",
 		Long: `Decode attachments from the original mbox bytes and write them into --output.
 File names are sanitized (no path separators or reserved names); an existing
 file is never overwritten unless --force is given. --dry-run prints the files
-that would be written without touching the disk.`,
+that would be written without touching the disk. Without --index only real
+attachments are saved (inline signature logos and cid: images are skipped
+unless --include-inline); --index N saves any part by its original index.`,
 		Example: strings.Trim(`
   thunderbird-pp-cli attachments save 3f9a1c2b7d4e --output ./attachments
   thunderbird-pp-cli attachments save 3f9a1c2b7d4e --index 0 -o ./attachments --dry-run`, "\n"),
@@ -133,7 +168,7 @@ that would be written without touching the disk.`,
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
-				if plan, err := tbPlanAttachmentSave(cmd, args, outDir, index); err == nil {
+				if plan, err := tbPlanAttachmentSave(cmd, args, outDir, index, includeInline); err == nil {
 					return tbPrintSave(cmd, flags, tbSavePlan{DryRun: true, Files: plan})
 				}
 				return writeDryRun(cmd.OutOrStdout(), flags, "attachments save")
@@ -157,7 +192,7 @@ that would be written without touching the disk.`,
 			if err != nil {
 				return err
 			}
-			files, payloads, err := tbExtractForSave(d, raw, outDir, index)
+			files, payloads, err := tbExtractForSave(d, raw, outDir, index, includeInline)
 			if err != nil {
 				return err
 			}
@@ -185,11 +220,12 @@ that would be written without touching the disk.`,
 	tbOutputDirFlag(cmd, &outDir, "Directory to write the attachments into (created if missing)")
 	cmd.Flags().IntVar(&index, "index", -1, "Save only the attachment with this index (from attachments list)")
 	cmd.Flags().BoolVar(&force, "force", false, "Overwrite existing files")
+	cmd.Flags().BoolVar(&includeInline, "include-inline", false, "Without --index, also save inline parts (signature logos, cid: images)")
 	return cmd
 }
 
 // tbPlanAttachmentSave is the read-only part of save for --dry-run.
-func tbPlanAttachmentSave(cmd *cobra.Command, args []string, outDir string, index int) ([]tbSavedAttachment, error) {
+func tbPlanAttachmentSave(cmd *cobra.Command, args []string, outDir string, index int, includeInline bool) ([]tbSavedAttachment, error) {
 	if len(args) != 1 || strings.TrimSpace(outDir) == "" {
 		return nil, errors.New("incomplete")
 	}
@@ -206,12 +242,13 @@ func tbPlanAttachmentSave(cmd *cobra.Command, args []string, outDir string, inde
 	if err != nil {
 		return nil, err
 	}
-	files, _, err := tbExtractForSave(d, raw, outDir, index)
+	files, _, err := tbExtractForSave(d, raw, outDir, index, includeInline)
 	return files, err
 }
 
-func tbExtractForSave(d *tbMessageDoc, raw []byte, outDir string, index int) ([]tbSavedAttachment, [][]byte, error) {
-	count := len(tbprofile.ParseMessage(raw).Attachments)
+func tbExtractForSave(d *tbMessageDoc, raw []byte, outDir string, index int, includeInline bool) ([]tbSavedAttachment, [][]byte, error) {
+	atts := tbprofile.ParseMessage(raw).Attachments
+	count := len(atts)
 	if count == 0 {
 		return nil, nil, notFoundErr(fmt.Errorf("message %s has no attachments", d.ID))
 	}
@@ -222,8 +259,13 @@ func tbExtractForSave(d *tbMessageDoc, raw []byte, outDir string, index int) ([]
 		}
 		indexes = []int{index}
 	} else {
-		for i := 0; i < count; i++ {
-			indexes = append(indexes, i)
+		for _, a := range atts {
+			if includeInline || !a.Inline {
+				indexes = append(indexes, a.Index)
+			}
+		}
+		if len(indexes) == 0 {
+			return nil, nil, notFoundErr(fmt.Errorf("message %s has only inline parts (%d); use --include-inline or --index", d.ID, count))
 		}
 	}
 	used := map[string]bool{}

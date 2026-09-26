@@ -13,7 +13,7 @@ import (
 )
 
 func newMessagesGetCmd(flags *rootFlags) *cobra.Command {
-	var raw, headers bool
+	var raw, headers, noQuotes, includeInline bool
 	cmd := &cobra.Command{
 		Use:     "show <id>",
 		Aliases: []string{"get"},
@@ -21,10 +21,15 @@ func newMessagesGetCmd(flags *rootFlags) *cobra.Command {
 		Long: `Show one message by its store id (from messages list) or its RFC Message-ID.
 The body and attachment list are read from the original mbox bytes; --raw
 prints the original RFC822 message exactly as stored, --headers adds every
-header.`,
+header. --no-quotes keeps only the new text of the body (drops "> " quoted
+lines with their "On ... wrote:" attribution and cuts Outlook "From:/Sent:"
+blocks and "-----Original Message-----"); use it to read replies cheaply.
+Inline parts (signature logos, cid: images) are hidden from attachments
+unless --include-inline.`,
 		Example: strings.Trim(`
   thunderbird-pp-cli messages show 3f9a1c2b7d4e
-  thunderbird-pp-cli messages show 3f9a1c2b7d4e --headers --json
+  thunderbird-pp-cli messages show 3f9a1c2b7d4e --no-quotes --json
+  thunderbird-pp-cli messages show 3f9a1c2b7d4e --headers --include-inline --json
   thunderbird-pp-cli messages show 3f9a1c2b7d4e --raw > message.eml`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "local", "pp:typed-exit-codes": "0,2,3", "pp:happy-args": "id=0123456789ab"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -60,6 +65,7 @@ header.`,
 				rawBytes, stored = nil, tbStoredAttachments(db, d.ID)
 			}
 			det := tbBuildDetail(d, rawBytes, headers, stored)
+			tbTrimDetail(&det, noQuotes, includeInline)
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), det, flags)
 			}
@@ -68,5 +74,7 @@ header.`,
 	}
 	cmd.Flags().BoolVar(&raw, "raw", false, "Print the original RFC822 message from the mbox")
 	cmd.Flags().BoolVar(&headers, "headers", false, "Include every header")
+	cmd.Flags().BoolVar(&noQuotes, "no-quotes", false, "Return only the new text of the body, without quoted history")
+	cmd.Flags().BoolVar(&includeInline, "include-inline", false, "Also list inline parts (signature logos, cid: images embedded in the body)")
 	return cmd
 }
