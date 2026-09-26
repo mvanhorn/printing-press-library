@@ -305,9 +305,7 @@ func tbWriteNewFile(p string, data []byte, force bool) error {
 			if fi.IsDir() {
 				return fmt.Errorf("refusing to overwrite directory %s", p)
 			}
-			if err := os.Remove(p); err != nil {
-				return err
-			}
+			return tbReplaceFile(p, data)
 		}
 	}
 	f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
@@ -317,11 +315,40 @@ func tbWriteNewFile(p string, data []byte, force bool) error {
 	if err != nil {
 		return err
 	}
-	if _, err := f.Write(data); err != nil {
+	if err := tbWriteData(f, data); err != nil {
 		_ = f.Close()
+		_ = os.Remove(p)
 		return err
 	}
 	return f.Close()
+}
+
+var tbWriteData = func(f *os.File, data []byte) error {
+	_, err := f.Write(data)
+	return err
+}
+
+// tbReplaceFile writes beside the target and renames over it, so a failed write keeps the original and a symlink is replaced, not followed.
+func tbReplaceFile(p string, data []byte) error {
+	tmp, err := os.CreateTemp(filepath.Dir(p), "."+filepath.Base(p)+".*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	if err := tbWriteData(tmp, data); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+	if err := os.Rename(tmpName, p); err != nil {
+		_ = os.Remove(tmpName)
+		return err
+	}
+	return nil
 }
 
 // tbOutputDirFlag uses --output/-o because the MCP shell-out blocks that name; --out stays as a deprecated alias.

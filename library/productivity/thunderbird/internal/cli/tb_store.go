@@ -36,6 +36,9 @@ func tbStoreDBPath(dataDir, profileDir string) string {
 	if err != nil {
 		p = filepath.Clean(profileDir)
 	}
+	if real, err := filepath.EvalSymlinks(p); err == nil {
+		p = real
+	}
 	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" {
 		p = strings.ToLower(p)
 	}
