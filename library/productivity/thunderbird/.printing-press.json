@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-26T12:07:00.6613899Z",
+  "printing_press_version": "4.32.4",
+  "api_name": "thunderbird",
+  "display_name": "Thunderbird",
+  "cli_name": "thunderbird-pp-cli",
+  "creator": {
+    "handle": "Bri1003",
+    "name": "Edoardo Manco"
+  },
+  "owner": "bri1003",
+  "printer": "Bri1003",
+  "printer_name": "Edoardo Manco",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d95e14326fc85210a0e020c65c8e598a306d5973c63959b444a5b3eba3e86487",
+  "run_id": "20260925-192552-b6baa964",
+  "category": "productivity",
+  "description": "Search, read and audit the mail Thunderbird already downloaded — offline, read-only, no credentials.",
+  "mcp_binary": "thunderbird-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Awaiting reply",
+      "command": "awaiting-reply",
+      "description": "See every thread where someone is waiting on your answer, across all accounts, oldest first."
+    },
+    {
+      "name": "Correspondents ranking",
+      "command": "contacts top",
+      "description": "Rank the people you exchange mail with by volume and recency, and spot frequent ones missing from your address book."
+    },
+    {
+      "name": "Filters audit",
+      "command": "filters audit",
+      "description": "Check every message filter: how often it matches, whether it is disabled, and whether its target folder still exists."
+    },
+    {
+      "name": "Largest items",
+      "command": "largest",
+      "description": "Find the biggest messages or attachments across all accounts and folders."
+    },
+    {
+      "name": "Newsletters and bulk senders",
+      "command": "newsletters",
+      "description": "List mailing lists and bulk senders by volume and how much of their mail you never read."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Awaiting reply",
+      "command": "awaiting-reply",
+      "description": "See every thread where someone is waiting on your answer, across all accounts, oldest first."
+    },
+    {
+      "name": "Correspondents ranking",
+      "command": "contacts top",
+      "description": "Rank the people you exchange mail with by volume and recency, and spot frequent ones missing from your address book."
+    },
+    {
+      "name": "Filters audit",
+      "command": "filters audit",
+      "description": "Check every message filter: how often it matches, whether it is disabled, and whether its target folder still exists."
+    },
+    {
+      "name": "Largest items",
+      "command": "largest",
+      "description": "Find the biggest messages or attachments across all accounts and folders."
+    },
+    {
+      "name": "Newsletters and bulk senders",
+      "command": "newsletters",
+      "description": "List mailing lists and bulk senders by volume and how much of their mail you never read."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 48,
+    "total": 48,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A",
+      "total": 81
+    }
+  }
+}

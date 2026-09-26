@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/thunderbird-pp-cli
+/thunderbird-pp-cli.exe
+/thunderbird-pp-mcp
+/thunderbird-pp-mcp.exe
+/bin/
+/build/
+/dist/

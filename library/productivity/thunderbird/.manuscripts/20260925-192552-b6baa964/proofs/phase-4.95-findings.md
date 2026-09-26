@@ -1,0 +1,11 @@
+# Phase 4.95 local code review
+- Review path chosen: direct subagent dispatch (correctness, security, maintainability reviewers; opus-medium), all three re-run every round.
+- Autofix summary: 25 findings autofixed in round 1, 18 in round 2, 2 in round 3; see build-log sections "Phase 4.95 round 1/2/3 autofix" (no git repo; the build log carries per-finding status, requirement→test tables and mutation tables).
+- Convergence: round 3 security and maintainability PASS; correctness round 3 found N1/N2 (capped-sync edge cases), fixed in round 3 autofix with tests + mutations. Stopped at the 3-round cap with 0 known findings outstanding.
+- Template-shape / out-of-scope retro candidates:
+  - generated internal/cli/helpers.go `--csv`/`--plain` writers (writeCSVRows, plainCellValue) emit raw C0/C1 control characters from data; `--json` leaves C1 raw. Should apply cliutil.ScrubTerminal in the template. Not patched in place.
+  - dogfood rewrites internal/cli/which.go without gofmt.
+  - internal/mcp/cobratree blockedDestinationFlags covers o/output/db but not `out`; CLI flags renamed to --output to comply.
+  - verify-skill does not see flags declared in another file.
+- Surface-to-user findings: none.
+- /simplify: not run separately; the maintainability reviewer ran three rounds with duplication/dead-code scope.

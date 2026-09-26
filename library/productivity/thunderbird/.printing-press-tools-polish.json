@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-26T12:05:25.8464657Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (platform client profiles); needs generator-template fix"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (learn loop teach.go); needs generator-template fix"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-09-26T11:42:02.2454201Z"
+  }
+}

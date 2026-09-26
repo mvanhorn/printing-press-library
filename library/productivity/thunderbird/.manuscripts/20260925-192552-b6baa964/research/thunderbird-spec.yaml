@@ -1,0 +1,65 @@
+name: thunderbird
+description: "Search, read and audit the mail Thunderbird already downloaded — offline, read-only, no credentials."
+version: "0.1.0"
+source: local-sqlite
+category: productivity
+auth:
+  type: none
+# learn no-entities escape: folder and account names are user-specific and localized (e.g. "Posta inviata"), so there is no stable canonical vocabulary to seed
+resources:
+  messages:
+    description: "Messages indexed from the Thunderbird profile's mbox stores"
+    endpoints:
+      list:
+        method: GET
+        path: "/messages"
+        description: "List indexed messages, newest first"
+        params:
+          - name: folder
+            type: string
+            description: "Folder name or path filter"
+          - name: account
+            type: string
+            description: "Account (server host) filter"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max messages to return"
+      get:
+        method: GET
+        path: "/messages/{id}"
+        description: "Show one message with headers, text body and attachments"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Message id from list/search output"
+  folders:
+    description: "Mail folders across all accounts"
+    endpoints:
+      list:
+        method: GET
+        path: "/folders"
+        description: "List folders with total, unread, size and offline status"
+  accounts:
+    description: "Accounts and identities configured in Thunderbird"
+    endpoints:
+      list:
+        method: GET
+        path: "/accounts"
+        description: "List accounts and identities from prefs.js"
+  contacts:
+    description: "Address book contacts"
+    endpoints:
+      list:
+        method: GET
+        path: "/contacts"
+        description: "List address book contacts"
+  filters:
+    description: "Message filter rules"
+    endpoints:
+      list:
+        method: GET
+        path: "/filters"
+        description: "List message filter rules per account"

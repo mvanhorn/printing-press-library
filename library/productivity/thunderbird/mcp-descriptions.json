@@ -1,0 +1,10 @@
+{
+  "descriptions": {
+    "accounts_list": "List the mail accounts configured in the local Thunderbird profile, with server type, host and sending identities (name and email). Takes no parameters. Reads the synced store and falls back to parsing prefs.js. Use the returned account key (e.g. account1) as the account filter for messages_list.",
+    "contacts_list": "List contacts from every local Thunderbird address book, including Collected Addresses, with display name and email addresses. Takes no parameters; read-only and offline. Use it to resolve a person's address before filtering messages by sender.",
+    "filters_list": "List every message filter rule of every Thunderbird account in execution order: enabled state, first action and its target folder, a readable condition summary, and how many terms can be evaluated locally. Takes no parameters. Use it to see why mail lands in a folder.",
+    "folders_list": "List every mail folder of every Thunderbird account with message and unread counts, mbox size and whether it is stored offline. Takes no parameters. Folders kept only on the server show offline=false and 0 messages; use folder names from here as the folder filter for messages_list.",
+    "messages_get": "Show one indexed Thunderbird message with its headers, plain-text body and attachment list, read from the original mbox bytes. Required: id (the store id from messages_list or search, or the RFC Message-ID). Returns a single message object; use messages_list first to find the id.",
+    "messages_list": "List messages indexed from the local Thunderbird profile, newest first, with id, date, sender, subject, folder and read/flag state. Optional: folder (name or path), account (account key like account1, or account name), limit (default 25). Requires a prior sync; use messages_get with a returned id for the body."
+  }
+}

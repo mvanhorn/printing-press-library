@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "endpoint-commands-read-the-local-thunderbird-store",
+  "applied_at": "2026-09-25",
+  "base_run_id": "20260925-192552-b6baa964",
+  "base_printing_press_version": "4.32.4",
+  "summary": "The generated endpoint commands messages list, messages show, accounts and folders, and the generated sync command, run local implementations: their RunE bodies call the hand-owned tb_*.go helpers (store queries, mbox reads, prefs.js fallback), sync runs runTBSync over the Thunderbird profile, and defaultSyncResources/knownSyncResourceNames return tbResourceTypes, and the human output of search, accounts and folders is written through tbHumanOut (a tbSafeWriter sink) so mail-borne C0/C1 control characters (which encoding/json leaves raw for C1) never reach the terminal. defaultDBPathInDir (helpers.go) returns tbDefaultStorePath, one store per Thunderbird profile, because account and folder ids repeat across profiles and a shared data.db let one profile's sync prune another's rows. Shared helpers (tbAccountRow, tbAccountMatches, tbMessageDetail, tbBuildDetail, tbPrintDetail, tbStoredAttachments, tbTrimDetail) live in hand-owned files, so only the command bodies differ from the print; messages show also adds --no-quotes and --include-inline, applied by tbTrimDetail.",
+  "reason": "The spec is local-sqlite with no HTTP API: the generator emits these commands against an HTTP client and a paginated API sync that cannot reach a Thunderbird profile on disk, so a fresh print would bring back commands that fail with a network error instead of reading the local store.",
+  "files": [
+    "internal/cli/messages_list.go",
+    "internal/cli/messages_get.go",
+    "internal/cli/promoted_accounts.go",
+    "internal/cli/promoted_folders.go",
+    "internal/cli/sync.go",
+    "internal/cli/search.go",
+    "internal/cli/tb_sync.go",
+    "internal/cli/tb_accounts.go",
+    "internal/cli/tb_message_detail.go",
+    "internal/cli/helpers.go"
+  ],
+  "call_sites": [
+    "scope, qargs := tbScopeWhere(folder, account)",
+    "rawBytes, rawErr := tbReadRaw(d)",
+    "rows = append(rows, tbAccountRowFromPrefs(a))",
+    "if tbAccountMatches(account, d.Account, d.AccountName) {",
+    "return runTBSyncCommand(cmd, flags, resources, full, dbPath)",
+    "func defaultSyncResources() []string {",
+    "fmt.Fprintln(tbHumanOut(cmd), string(r))",
+    "tw := newTabWriter(tbHumanOut(cmd))",
+    "\"mcp:local-write\": \"true\", \"pp:data-source\": \"local\"",
+    "return tbDefaultStorePath(dir)"
+  ],
+  "validated_outcome": "tb_slice_b_test.go and tb_commands_test.go run messages list/show, accounts and folders against the tbtest fixture store; tb_sync_test.go and tb_sync_r1_test.go cover sync; TestTBSyncAnnotatedLocalWrite checks the sync annotation; TestTBHumanOutputSanitized and TestTBHumanOutputSanitizedAtSink check the human sink; TestTBProfilesSyncIntoSeparateStores checks the per-profile store path; TestTBShowNoQuotes and TestTBInlineAttachments cover the messages show --no-quotes and --include-inline flags."
+}

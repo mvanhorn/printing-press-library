@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "thunderbird-pp-mcp",
+  "display_name": "Thunderbird",
+  "version": "0.1.0",
+  "description": "Search, read and audit the mail Thunderbird already downloaded — offline, read-only, no credentials.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/thunderbird-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/thunderbird-pp-mcp",
+      "args": [],
+      "env": {
+        "THUNDERBIRD_BASE_URL": "${user_config.thunderbird_base_url}"
+      }
+    }
+  },
+  "user_config": {
+    "thunderbird_base_url": {
+      "type": "string",
+      "title": "THUNDERBIRD_BASE_URL",
+      "description": "Sets THUNDERBIRD_BASE_URL for the Thunderbird MCP server. Per-instance, non-secret setting; not a credential.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

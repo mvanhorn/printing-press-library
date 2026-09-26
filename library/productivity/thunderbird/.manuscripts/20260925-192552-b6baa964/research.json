@@ -1,0 +1,217 @@
+{
+  "api_name": "thunderbird",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "avikalpa/thunderbird-cli",
+      "url": "https://github.com/avikalpa/thunderbird-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mudler/thunderbird-mcp",
+      "url": "https://github.com/mudler/thunderbird-mcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vitalio-sh/thunderbird-cli",
+      "url": "https://github.com/vitalio-sh/thunderbird-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lanterieur/thunderbird-sqlite-eml",
+      "url": "https://github.com/lanterieur/thunderbird-sqlite-eml",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-25T17:32:59Z",
+  "novel_features": [
+    {
+      "name": "Awaiting reply",
+      "command": "awaiting-reply",
+      "description": "See every thread where someone is waiting on your answer, across all accounts, oldest first.",
+      "rationale": "Requires reconstructed threads joined with your identities, localized Sent folders and Thunderbird's replied flag, which only exist together in the local store.",
+      "example": "thunderbird-pp-cli awaiting-reply --since 14d --agent",
+      "why_it_matters": "Reach for this when asked what mail still needs a reply instead of scanning recent messages.",
+      "group": "Inbox intelligence"
+    },
+    {
+      "name": "Correspondents ranking",
+      "command": "contacts top",
+      "description": "Rank the people you exchange mail with by volume and recency, and spot frequent ones missing from your address book.",
+      "rationale": "Joins inbound and outbound messages with your identities and address-book cards in the local store.",
+      "example": "thunderbird-pp-cli contacts top --since 180d --agent",
+      "why_it_matters": "Use it to answer who someone is to the user and when they last talked.",
+      "group": "Inbox intelligence"
+    },
+    {
+      "name": "Filters audit",
+      "command": "filters audit",
+      "description": "Check every message filter: how often it matches, whether it is disabled, and whether its target folder still exists.",
+      "rationale": "Parses Thunderbird's msgFilterRules.dat and evaluates rules against the locally indexed mail.",
+      "example": "thunderbird-pp-cli filters audit --since 90d --agent",
+      "why_it_matters": "Use it when mail lands in the wrong folder or to clean up dead filter rules.",
+      "group": "Mailbox hygiene"
+    },
+    {
+      "name": "Largest items",
+      "command": "largest",
+      "description": "Find the biggest messages or attachments across all accounts and folders.",
+      "rationale": "Ranks by on-disk mbox size and decoded attachment size, which no single folder view exposes.",
+      "example": "thunderbird-pp-cli largest --attachments --limit 20 --agent",
+      "why_it_matters": "Use it to free disk or mailbox quota.",
+      "group": "Mailbox hygiene"
+    },
+    {
+      "name": "Newsletters and bulk senders",
+      "command": "newsletters",
+      "description": "List mailing lists and bulk senders by volume and how much of their mail you never read.",
+      "rationale": "Combines List-Id headers with Thunderbird's read flags from the local store.",
+      "example": "thunderbird-pp-cli newsletters --since 90d --min 3 --agent",
+      "why_it_matters": "Use it to pick unsubscribe candidates.",
+      "group": "Mailbox hygiene"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Awaiting reply",
+      "command": "awaiting-reply",
+      "description": "See every thread where someone is waiting on your answer, across all accounts, oldest first.",
+      "rationale": "Requires reconstructed threads joined with your identities, localized Sent folders and Thunderbird's replied flag, which only exist together in the local store.",
+      "example": "thunderbird-pp-cli awaiting-reply --since 14d --agent",
+      "why_it_matters": "Reach for this when asked what mail still needs a reply instead of scanning recent messages.",
+      "group": "Inbox intelligence"
+    },
+    {
+      "name": "Correspondents ranking",
+      "command": "contacts top",
+      "description": "Rank the people you exchange mail with by volume and recency, and spot frequent ones missing from your address book.",
+      "rationale": "Joins inbound and outbound messages with your identities and address-book cards in the local store.",
+      "example": "thunderbird-pp-cli contacts top --since 180d --agent",
+      "why_it_matters": "Use it to answer who someone is to the user and when they last talked.",
+      "group": "Inbox intelligence"
+    },
+    {
+      "name": "Filters audit",
+      "command": "filters audit",
+      "description": "Check every message filter: how often it matches, whether it is disabled, and whether its target folder still exists.",
+      "rationale": "Parses Thunderbird's msgFilterRules.dat and evaluates rules against the locally indexed mail.",
+      "example": "thunderbird-pp-cli filters audit --since 90d --agent",
+      "why_it_matters": "Use it when mail lands in the wrong folder or to clean up dead filter rules.",
+      "group": "Mailbox hygiene"
+    },
+    {
+      "name": "Largest items",
+      "command": "largest",
+      "description": "Find the biggest messages or attachments across all accounts and folders.",
+      "rationale": "Ranks by on-disk mbox size and decoded attachment size, which no single folder view exposes.",
+      "example": "thunderbird-pp-cli largest --attachments --limit 20 --agent",
+      "why_it_matters": "Use it to free disk or mailbox quota.",
+      "group": "Mailbox hygiene"
+    },
+    {
+      "name": "Newsletters and bulk senders",
+      "command": "newsletters",
+      "description": "List mailing lists and bulk senders by volume and how much of their mail you never read.",
+      "rationale": "Combines List-Id headers with Thunderbird's read flags from the local store.",
+      "example": "thunderbird-pp-cli newsletters --since 90d --min 3 --agent",
+      "why_it_matters": "Use it to pick unsubscribe candidates.",
+      "group": "Mailbox hygiene"
+    }
+  ],
+  "narrative": {
+    "display_name": "Thunderbird",
+    "headline": "Search, read and audit the mail Thunderbird already downloaded — offline, read-only, no credentials.",
+    "value_prop": "Indexes your Thunderbird profile (mbox stores, address book, filters) into a local full-text store you can query while Thunderbird is running. Adds what no other Thunderbird tool has: awaiting-reply, correspondent ranking, filters audit and bulk-mail triage.",
+    "auth_narrative": "No authentication. The CLI reads your local Thunderbird profile read-only and never touches passwords, key4.db or logins.json. It auto-detects the default profile; override with --profile or THUNDERBIRD_PROFILE.",
+    "quickstart": [
+      {
+        "command": "thunderbird-pp-cli doctor",
+        "comment": "Check that the profile is found and readable"
+      },
+      {
+        "command": "thunderbird-pp-cli sync",
+        "comment": "Index mail, contacts and filters into the local store"
+      },
+      {
+        "command": "thunderbird-pp-cli search \"invoice\" --limit 10",
+        "comment": "Full-text search across every account"
+      },
+      {
+        "command": "thunderbird-pp-cli awaiting-reply --since 14d",
+        "comment": "Threads still waiting on your answer"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Profile not found",
+        "fix": "Pass --profile \u003cpath to profile dir\u003e or set THUNDERBIRD_PROFILE"
+      },
+      {
+        "symptom": "A folder shows 0 messages",
+        "fix": "Enable offline sync for that folder in Thunderbird (Folder Properties \u003e Synchronization), then run sync again"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to find, read, summarize or triage the user's email that Thunderbird has stored locally, without IMAP credentials. It is safe to run while Thunderbird is open and never modifies the profile. Run `sync` first (and again to pick up new mail): search and the audit commands read the local store, which only holds folders Thunderbird keeps for offline use.",
+    "anti_triggers": [
+      "Sending, moving, flagging or deleting mail — drafts open prefilled in Thunderbird and you press Send yourself",
+      "Mail in folders Thunderbird has not synced for offline use",
+      "Webmail-only accounts not configured in Thunderbird"
+    ],
+    "recipes": [
+      {
+        "title": "Find and read a mail",
+        "command": "thunderbird-pp-cli search \"contratto\" --agent --select id,subject,from_addr,date",
+        "explanation": "Narrow search results to the fields an agent needs, then open one with messages show."
+      },
+      {
+        "title": "Who owes whom",
+        "command": "thunderbird-pp-cli awaiting-reply --since 7d --agent",
+        "explanation": "Threads where the last message is inbound and you have not replied."
+      },
+      {
+        "title": "Unsubscribe candidates",
+        "command": "thunderbird-pp-cli newsletters --since 90d --agent",
+        "explanation": "Bulk senders ranked by volume and unread share."
+      },
+      {
+        "title": "Draft a reply without sending",
+        "command": "thunderbird-pp-cli drafts reply \"3f9a1c2e7b40\" --body \"Thanks, confirmed.\" --agent",
+        "explanation": "Prints the prefilled reply fields and the thunderbird -compose command line; add --open to open the compose window. Nothing is ever sent."
+      }
+    ],
+    "trigger_phrases": [
+      "search my thunderbird mail",
+      "what emails need a reply",
+      "find the email from",
+      "who do I email most",
+      "use thunderbird-pp-cli"
+    ]
+  }
+}
