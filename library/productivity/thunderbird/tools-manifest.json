@@ -1,0 +1,115 @@
+{
+  "api_name": "thunderbird",
+  "base_url": "",
+  "description": "Search, read and audit the mail Thunderbird already downloaded — offline, read-only, no credentials.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_list",
+      "description": "List accounts and identities from prefs.js.",
+      "method": "GET",
+      "path": "/accounts",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "contacts_list",
+      "description": "List address book contacts.",
+      "method": "GET",
+      "path": "/contacts",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "filters_list",
+      "description": "List message filter rules per account.",
+      "method": "GET",
+      "path": "/filters",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "folders_list",
+      "description": "List folders with total, unread, size and offline status.",
+      "method": "GET",
+      "path": "/folders",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "messages_get",
+      "description": "Show one message with headers, text body and attachments. Required: id.",
+      "method": "GET",
+      "path": "/messages/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id from list/search output",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "List indexed messages, newest first. Optional: folder, account, limit (default: 25).",
+      "method": "GET",
+      "path": "/messages",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "query",
+          "description": "Folder name or path filter"
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "query",
+          "description": "Account (server host) filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max messages to return"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Awaiting reply",
+      "command": "awaiting-reply",
+      "description": "See every thread where someone is waiting on your answer, across all accounts, oldest first."
+    },
+    {
+      "name": "Correspondents ranking",
+      "command": "contacts top",
+      "description": "Rank the people you exchange mail with by volume and recency, and spot frequent ones missing from your address book."
+    },
+    {
+      "name": "Filters audit",
+      "command": "filters audit",
+      "description": "Check every message filter: how often it matches, whether it is disabled, and whether its target folder still exists."
+    },
+    {
+      "name": "Largest items",
+      "command": "largest",
+      "description": "Find the biggest messages or attachments across all accounts and folders."
+    },
+    {
+      "name": "Newsletters and bulk senders",
+      "command": "newsletters",
+      "description": "List mailing lists and bulk senders by volume and how much of their mail you never read."
+    }
+  ]
+}

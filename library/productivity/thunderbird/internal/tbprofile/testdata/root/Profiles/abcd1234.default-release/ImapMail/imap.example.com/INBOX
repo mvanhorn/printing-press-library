@@ -1,0 +1,113 @@
+From - Mon Jan 06 09:00:00 2025
+X-Mozilla-Status: 0003
+X-Mozilla-Status2: 00000000
+Message-ID: <m1@example.com>
+Date: Mon, 06 Jan 2025 09:00:00 +0100
+From: Alice Example <alice@example.com>
+To: Bob Example <bob@example.com>
+Subject: Project kickoff
+Authentication-Results: mx.example.com; spf=pass smtp.mailfrom=example.com;
+ dkim=pass header.d=example.com; dmarc=pass header.from=example.com
+Content-Type: text/plain; charset=utf-8
+
+Hi Bob, the kickoff is on Monday.
+
+From - Tue Jan 07 10:00:00 2025
+X-Mozilla-Status: 0004
+Message-ID: <m2@example.com>
+Date: Tue, 07 Jan 2025 10:00:00 +0000
+From: Carol Example <carol@example.com>
+To: bob@example.com
+Cc: dave@example.com, "Erin E." <erin@example.com>
+Subject: Budget question
+Content-Type: text/plain
+
+Can you check the budget?
+
+From the desk of Carol, nothing else.
+
+From - Wed Jan 08 11:00:00 2025
+X-Mozilla-Status: 0009
+Message-ID: <m3@example.com>
+Date: Wed, 08 Jan 2025 11:00:00 +0000
+From: Deleted Sender <gone@example.com>
+To: bob@example.com
+Subject: Expunged message
+
+This message was expunged.
+
+From - Thu Jan 09 12:00:00 2025
+X-Mozilla-Status: 0001
+Message-ID: <m4@example.com>
+Date: Thu, 09 Jan 2025 12:00:00 +0000
+From: Frank Example <frank@example.com>
+To: bob@example.com
+Subject: Report attached
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY42"
+
+This is a multi-part message in MIME format.
+--BOUNDARY42
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Here is the report from the Caf=C3=A9.
+--BOUNDARY42
+Content-Type: application/pdf; name="report.pdf"
+Content-Disposition: attachment; filename="report.pdf"
+Content-Transfer-Encoding: base64
+
+SGVsbG8gYXR0YWNo
+bWVudCB3b3JsZCE=
+--BOUNDARY42--
+
+From - Fri Jan 10 13:00:00 2025
+X-Mozilla-Status: 0001
+Message-ID: <m5@example.com>
+Date: Fri, 10 Jan 2025 13:00:00 +0000
+From: =?iso-8859-1?Q?Jos=E9_Example?= <jose@example.com>
+To: bob@example.com
+Subject: =?iso-8859-1?Q?Caf=E9_cr=E8me?=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Un caf=E9 cr=E8me, s'il vous pla=EEt.
+
+From - Sat Jan 11 14:00:00 2025
+X-Mozilla-Status: 0000
+Message-ID: <m6@example.com>
+Date: Sat, 11 Jan 2025 14:00:00 +0000
+From: Example News <news@example.com>
+To: bob@example.com
+Subject: Weekly newsletter
+List-Id: Example News <news.example.com>
+List-Unsubscribe: <mailto:unsubscribe@example.com>, <https://news.example.com/unsub>
+Content-Type: text/html; charset=utf-8
+
+<html><head><style>p{color:red}</style></head><body><p>Top stories &amp; updates</p><p>Read more</p></body></html>
+
+From - Sun Jan 12 15:00:00 2025
+X-Mozilla-Status: 0001
+Message-ID: <m7@example.com>
+In-Reply-To: <m1@example.com>
+References: <m1@example.com>
+Date: Sun, 12 Jan 2025 15:00:00 +0000
+From: Alice Example <alice@example.com>
+To: bob@example.com
+Subject: Re: Project kickoff
+
+Adding the agenda.
+
+From - Mon Jan 13 16:00:00 2025
+X-Mozilla-Status: 0001
+Message-ID: <m8@example.com>
+In-Reply-To: <m7@example.com>
+References: <m1@example.com>
+ <m7@example.com>
+Date: Mon, 13 Jan 2025 16:00:00 +0000
+From: Carol Example <carol@example.com>
+To: bob@example.com, alice@example.com
+Subject: Re: Project kickoff
+
+Sounds good.
+

@@ -1,0 +1,14 @@
+name: thunderbird
+description: "Probe"
+version: "0.1.0"
+source: local-sqlite
+auth:
+  type: none
+resources:
+  messages:
+    description: "Messages"
+    endpoints:
+      list:
+        method: GET
+        path: "/messages"
+        description: "List messages"
