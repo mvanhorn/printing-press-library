@@ -37,8 +37,8 @@ type tbSyncOptions struct {
 	OnUpgrade      func()
 }
 
-// tbStoreFormat 2 added attachment inline flags and inline-free attachment counts; 3 renders HTML quotes as "> " lines.
-const tbStoreFormat = 3
+// tbStoreFormat 2 added attachment inline flags and inline-free attachment counts; 3 renders HTML quotes as "> " lines; 4 keeps plain blockquotes as body text.
+const tbStoreFormat = 4
 
 type tbSyncSummary struct {
 	Profile         string         `json:"profile"`

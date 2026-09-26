@@ -27,6 +27,9 @@ func TestHTMLToTextQuotes(t *testing.T) {
 		{"plain html unchanged", `<p>Ciao Anna,</p><div>il valore deve essere &gt; 10</div><blockquote-like>x</blockquote-like><p>A presto</p>`,
 			"Ciao Anna,\nil valore deve essere > 10\nxA presto",
 			"Ciao Anna,\nil valore deve essere > 10\nxA presto"},
+		{"plain blockquote is new text", `<p>Come da contratto:</p><blockquote>Il pagamento avviene a 30 giorni.</blockquote><p>Mario</p>`,
+			"Come da contratto:\nIl pagamento avviene a 30 giorni.\nMario",
+			"Come da contratto:\nIl pagamento avviene a 30 giorni.\nMario"},
 		{"unbalanced closing tags", `<p>Testo</p></div></blockquote><p>Fine</p>`, "Testo\n\nFine", "Testo\n\nFine"},
 	}
 	for _, tt := range tests {

@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "95db707137cd2c7fd97275f0cc286474e0d40a84fddc8c3e2dbfabcc1e53cf0c",
+  "source_fingerprint": "d2a2d70dd2f9faf24c52f9505313e4effb95d5ab559fa92f30cf5e1d969cbcd7",
   "source_files": {
     "cmd/thunderbird-pp-cli/main.go": "4486f474add86786037ba166a41617b4b0ebff0192336376b488712ffac970a2",
     "cmd/thunderbird-pp-mcp/http_auth_test.go": "7501e6e789a970d80755a72292074236a1f63609f221bf6334f94cb30ee14301",
@@ -98,7 +98,7 @@
     "internal/cli/tb_slice_c_test.go": "3cc870bb828893a1cb952da1902156b5acfc7740c33f1271877a1915970d6c93",
     "internal/cli/tb_stats.go": "d861c95fedfcfdb05e99c4b7828efae6691d718df6364f1bbd48a02813b5ced1",
     "internal/cli/tb_store.go": "e4f90825ef60aa9d0382ac774c999b73cd09649b36f4347fa4c82f656e9b0607",
-    "internal/cli/tb_sync.go": "c570561ba5da2885adaad314375c893fc15b9c15f57180897ab57b115ada9372",
+    "internal/cli/tb_sync.go": "7b0b314d715b6debe55fa16c40b0de22fde5cce6b76856dab205839525c3f257",
     "internal/cli/tb_sync_r1_test.go": "c2741b32733285a2e346fd00b56c48e73ea226298c4146b0bd3e31a858caacd7",
     "internal/cli/tb_sync_test.go": "56631ee85d63698ef579871312f96fcd8fa0921e17120548033a092458dba01b",
     "internal/cli/tb_threads.go": "b3263b40f46eb30986dc55868ebd52de9471af45de6dd8b0e9d312d4d4a8e4cb",
@@ -219,11 +219,11 @@
     "internal/tbprofile/filters.go": "acacb4862890c91c844eb572ff469e07e783f32523b09c8de212392a06cb085f",
     "internal/tbprofile/folders.go": "28247880b36a70fcd5cf377b4b27108e036336c86237e8dd0f2f7f552ba66b18",
     "internal/tbprofile/folders_test.go": "040f1edff0347f2725ef6b5e86acd3a68a61f4154fc3fe7aa71ceebc00f0a380",
-    "internal/tbprofile/html_quotes_test.go": "8b0775946c4d3fc84b7ceb8669b9806cc721be9240bf083fb0b25fbb463b33f8",
+    "internal/tbprofile/html_quotes_test.go": "d769a00afb949a75bb95aacf38f21444b3f02a7f11fe34b5c21a7b02cd6486d4",
     "internal/tbprofile/mbox.go": "19bb27d238c86d4cebcf274c080cae9fa373187d68376345321d8e6db3254f2a",
     "internal/tbprofile/mbox_resume_test.go": "13a22d4ac3f7a62efaedca22747bdfa96a0fd00384ef3146c232dd4ac6b5a93d",
     "internal/tbprofile/mbox_test.go": "31fd8209537e2a04913d20f4ea290b75a1ea7b0d68e33e0e50048328b5f5ff57",
-    "internal/tbprofile/message.go": "fab11eb9dd334e628076b32b6a4cf75a3731b95ee7592013b65b021526e7b47e",
+    "internal/tbprofile/message.go": "f37e810ac58ddcfbdb7053bd2d86873743a91427aae0745d65b872d441546486",
     "internal/tbprofile/message_r1_test.go": "d40207c00961350a5c7c7a20b715b281e8c821d65be4aacaee20d0183f3827f1",
     "internal/tbprofile/message_test.go": "2e1e090cf02b0711a6d08c0b95e7b4800a598f7ced3b136cf3638918ef73dba4",
     "internal/tbprofile/prefs.go": "df99da998b4c9b78b9871250ccfb3fe69fca043f6ea214e2df7332b344c9fc81",

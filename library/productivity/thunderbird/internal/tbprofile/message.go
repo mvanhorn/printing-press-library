@@ -485,7 +485,7 @@ func decodeText(p leafPart) string {
 
 var (
 	htmlDropRE  = regexp.MustCompile(`(?is)<(script|style|head)[^>]*>.*?</(script|style|head)>`)
-	htmlBreakRE = regexp.MustCompile(`(?i)<(br|/p|/div|/tr|/li|/h[1-6]|/table)[^>]*>`)
+	htmlBreakRE = regexp.MustCompile(`(?i)<(br|/p|/div|/tr|/li|/h[1-6]|/table)[^>]*>|(?i)</blockquote\s*>`)
 	htmlTagRE   = regexp.MustCompile(`(?s)<[^>]*>`)
 	spacesRE    = regexp.MustCompile(`[ \t\x{00a0}]+`)
 	blankRunRE  = regexp.MustCompile(`\n\s*\n+`)
@@ -494,6 +494,7 @@ var (
 var (
 	htmlBlockTagRE  = regexp.MustCompile(`(?i)<(/?)(blockquote|div)(?:\s[^>]*)?>`)
 	htmlQuoteDivRE  = regexp.MustCompile(`(?i)\bclass\s*=\s*["']?[^"'>]*\bgmail_quote\b`)
+	htmlCiteRE      = regexp.MustCompile(`(?i)\btype\s*=\s*["']?cite\b`)
 	quoteOpen       = "\n\x01"
 	quoteClose      = "\n\x02"
 	quoteMarkerRepl = strings.NewReplacer("\x01", "", "\x02", "")
@@ -509,7 +510,8 @@ func markQuotes(s string) string {
 		last = m[1]
 		tag := s[m[0]:m[1]]
 		closing := m[3] > m[2]
-		quote := strings.EqualFold(s[m[4]:m[5]], "blockquote") || htmlQuoteDivRE.MatchString(tag)
+		// A plain <blockquote> can be new text; only reply-marked quotes are history.
+		quote := (strings.EqualFold(s[m[4]:m[5]], "blockquote") && htmlCiteRE.MatchString(tag)) || htmlQuoteDivRE.MatchString(tag)
 		switch {
 		case closing && len(stack) > 0:
 			if stack[len(stack)-1] {
