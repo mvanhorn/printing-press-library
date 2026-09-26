@@ -52,6 +52,28 @@ func TestTBForcedReplaceOverReadOnlyFile(t *testing.T) {
 	}
 }
 
+func TestTBForcedReplaceRestoresModeWhenRetryFails(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "report.pdf")
+	if err := os.WriteFile(p, []byte("original"), 0o400); err != nil {
+		t.Fatal(err)
+	}
+	before, _ := os.Lstat(p)
+	prev := tbRename
+	tbRename = func(string, string) error { return errors.New("sharing violation") }
+	defer func() { tbRename = prev }()
+	if err := tbWriteNewFile(p, []byte("replacement"), true); err == nil {
+		t.Fatal("want error when retry fails")
+	}
+	after, _ := os.Lstat(p)
+	if after.Mode().Perm() != before.Mode().Perm() {
+		t.Fatalf("mode changed: %v -> %v", before.Mode().Perm(), after.Mode().Perm())
+	}
+	if got, _ := os.ReadFile(p); string(got) != "original" {
+		t.Fatalf("original lost: %q", got)
+	}
+}
+
 func TestTBStorePathSameThroughSymlink(t *testing.T) {
 	real := t.TempDir()
 	link := filepath.Join(t.TempDir(), "profile-link")
