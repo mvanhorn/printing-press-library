@@ -16,8 +16,8 @@ var (
 	inlineNameRE  = regexp.MustCompile(`(?i)^image\d+\.(png|jpe?g|gif)$|logo|facebook|linkedin|twitter|instagram|firma|signature`)
 )
 
-// StripQuoted returns only the new text of a message body: ">" quoted lines and their attribution are
-// removed, and everything from an Outlook-style header block or "Original Message" separator is cut.
+// StripQuoted returns only the new text of a message body: ">" quoted lines and the attribution line right
+// above them are removed, and everything from an Outlook-style header block or "Original Message" separator is cut.
 func StripQuoted(text string) string {
 	lines := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
 	drop := make([]bool, len(lines))
@@ -27,20 +27,15 @@ func StripQuoted(text string) string {
 		switch {
 		case strings.HasPrefix(lines[i], ">"):
 			drop[i] = true
-		case attribEndRE.MatchString(t):
+		case attribEndRE.MatchString(t) && nextQuoted(lines, i+1):
 			start := i
 			if !attribStartRE.MatchString(t) && i > 0 && attribStartRE.MatchString(strings.TrimSpace(lines[i-1])) {
 				start = i - 1
 			}
-			if !attribStartRE.MatchString(strings.TrimSpace(lines[start])) {
-				continue
-			}
-			if nextQuoted(lines, i+1) {
+			if attribStartRE.MatchString(strings.TrimSpace(lines[start])) {
 				for j := start; j <= i; j++ {
 					drop[j] = true
 				}
-			} else {
-				end = start
 			}
 		case origMsgRE.MatchString(t), hdrFromRE.MatchString(t) && outlookBlock(lines, i):
 			end = i

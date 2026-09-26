@@ -179,7 +179,7 @@ thunderbird-pp-cli threads show 3f9a1c2b7d4e --last 5 --agent --select id,date,d
 thunderbird-pp-cli messages show 3f9a1c2b7d4e --no-quotes --agent
 ```
 
-Take only the latest messages of the thread, then read each without the quoted history. Inline signature images are already left out of attachment lists; `sync --full` recomputes the inline flag on stores synced by older versions.
+Take only the latest messages of the thread, then read each without the quoted history. Inline signature images are already left out of attachment lists; on a store built by an older version, the next `sync` re-parses every folder once to compute the inline flag.
 
 ### Who owes whom
 

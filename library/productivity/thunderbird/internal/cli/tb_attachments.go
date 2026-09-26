@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -16,13 +17,26 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/tbprofile"
 	"github.com/spf13/cobra"
+	"modernc.org/sqlite"
 )
 
 func init() {
 	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
 		addNovelCommandIfAbsent(root, newTBAttachmentsCmd(flags))
 	})
+	// Lets SQL apply the same read-time fallback as tbAttInline, so ORDER BY + LIMIT stay in SQLite.
+	sqlite.MustRegisterDeterministicScalarFunction("tb_likely_inline", 2, func(_ *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		name, _ := args[0].(string)
+		ct, _ := args[1].(string)
+		if tbprofile.LikelyInline(name, ct) {
+			return int64(1), nil
+		}
+		return int64(0), nil
+	})
 }
+
+// tbSQLNotInline matches attachment rows that are not inline, falling back to the filename heuristic when the field is missing.
+const tbSQLNotInline = `NOT COALESCE(json_extract(data,'$.inline'), tb_likely_inline(json_extract(data,'$.filename'), json_extract(data,'$.content_type')))`
 
 // tbMessageAttachments returns the stored attachments of a message in index order.
 func tbMessageAttachments(db *store.Store, messageID string) ([]tbAttachmentDoc, error) {
@@ -82,7 +96,7 @@ func newTBAttachmentsListCmd(flags *rootFlags) *cobra.Command {
 		Long: `List the real attachments of a message. Inline parts (signature logos, images
 embedded in the HTML body via cid:) are hidden unless --include-inline; indexes
 are the original ones, so gaps mean hidden inline parts. Stores synced before
-inline detection use a filename heuristic; sync --full recomputes it exactly.`,
+inline detection use a filename heuristic until the next sync re-parses them.`,
 		Example: strings.Trim(`
   thunderbird-pp-cli attachments list 3f9a1c2b7d4e
   thunderbird-pp-cli attachments list 3f9a1c2b7d4e --include-inline --json`, "\n"),

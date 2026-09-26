@@ -34,7 +34,11 @@ type tbSyncOptions struct {
 	Full           bool
 	MaxNewMessages int
 	ReadDir        tbprofile.DirReader
+	OnUpgrade      func()
 }
+
+// tbStoreFormat 2 added attachment inline flags and inline-free attachment counts.
+const tbStoreFormat = 2
 
 type tbSyncSummary struct {
 	Profile         string         `json:"profile"`
@@ -48,6 +52,7 @@ type tbSyncSummary struct {
 	FlagFolders     int            `json:"flag_refresh_folders"`
 	FlagsUpdated    int            `json:"flags_updated"`
 	Capped          bool           `json:"capped"`
+	FormatUpgrade   bool           `json:"format_upgrade,omitempty"`
 	Warnings        []string       `json:"warnings"`
 	ElapsedMS       int64          `json:"elapsed_ms"`
 	ProfileNotFound bool           `json:"profile_not_found,omitempty"`
@@ -241,6 +246,19 @@ func (s *tbSyncRun) keepPrefix(resource, prefix string, keep map[string]bool) er
 	return s.keepExisting(resource, `instr(id, ?) = 1`, keep, prefix)
 }
 
+// tbStoreFormatOld reports a store whose messages were parsed by an older format; an empty store needs no upgrade.
+func tbStoreFormatOld(db *store.Store) (bool, error) {
+	v, _, err := db.GetTBMeta("store_format")
+	if err != nil {
+		return false, err
+	}
+	if n, _ := strconv.Atoi(v); n >= tbStoreFormat {
+		return false, nil
+	}
+	states, err := db.ListMboxStates()
+	return len(states) > 0, err
+}
+
 // runTBSync ingests the profile into db. It never writes to the profile.
 func runTBSync(ctx context.Context, db *store.Store, profileDir string, opts tbSyncOptions) (*tbSyncSummary, error) {
 	start := time.Now()
@@ -254,6 +272,19 @@ func runTBSync(ctx context.Context, db *store.Store, profileDir string, opts tbS
 		return nil, fmt.Errorf("reading prefs.js: %w", err)
 	}
 	accounts := prefs.Accounts(profileDir)
+	parseMail := want("messages") || want("attachments")
+	old := false
+	if parseMail {
+		if old, err = tbStoreFormatOld(db); err != nil {
+			return nil, err
+		}
+		if old && !opts.Full {
+			opts.Full, sum.FormatUpgrade = true, true
+			if opts.OnUpgrade != nil {
+				opts.OnUpgrade()
+			}
+		}
+	}
 	s := &tbSyncRun{ctx: ctx, db: db, b: newTBBatcher(db), opts: opts, sum: sum, synced: map[string]bool{}}
 
 	if want("accounts") || want("identities") {
@@ -293,6 +324,12 @@ func runTBSync(ctx context.Context, db *store.Store, profileDir string, opts tbS
 
 	if err := s.b.flushAll(); err != nil {
 		return nil, err
+	}
+	// A capped upgrade leaves old rows behind, so the next sync must re-parse again.
+	if parseMail && !(old && sum.Capped) {
+		if err := db.SetTBMeta("store_format", strconv.Itoa(tbStoreFormat)); err != nil {
+			return nil, err
+		}
 	}
 	for _, r := range tbResourceTypes {
 		if !s.synced[r] {
@@ -1025,7 +1062,9 @@ func runTBSyncCommand(cmd *cobra.Command, flags *rootFlags, resourcesCSV string,
 		return fmt.Errorf("opening local database: %w", err)
 	}
 	defer db.Close()
-	opts := tbSyncOptions{Resources: selected, Full: full}
+	opts := tbSyncOptions{Resources: selected, Full: full, OnUpgrade: func() {
+		fmt.Fprintln(cmd.ErrOrStderr(), "store format upgrade: re-parsing every folder once to recompute inline attachments")
+	}}
 	if cliutil.IsDogfoodEnv() {
 		opts.MaxNewMessages = tbDogfoodMaxNewMessages
 	}

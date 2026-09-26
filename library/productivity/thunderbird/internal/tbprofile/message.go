@@ -278,7 +278,11 @@ func ParseMessage(raw []byte) *Message {
 				SizeBytes:   decodedSize(p.encoding, p.body),
 				Inline:      strings.HasPrefix(p.mediaType, "image/") && (p.disposition == "inline" || p.disposition == "" && p.contentID != ""),
 			})
-			cids = append(cids, p.contentID)
+			cid := p.contentID
+			if p.disposition == "attachment" {
+				cid = ""
+			}
+			cids = append(cids, cid)
 			return
 		}
 		switch p.mediaType {

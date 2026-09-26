@@ -23,9 +23,12 @@ func TestStripQuoted(t *testing.T) {
 		{"bottom-posted reply keeps answers",
 			"Il 12/03/2025, Anna Prova ha scritto:\n> Prima domanda?\n\nPrima risposta.\n\n> Seconda domanda?\n\nSeconda risposta.\n\n-- \nMario",
 			"Prima risposta.\n\nSeconda risposta.\n\n-- \nMario"},
-		{"attribution without gt cuts to end",
+		{"attribution without gt is kept",
 			"Perfetto.\n\nOn Tue, 4 Mar 2025, Dana Demo wrote:\nThe quoted html text lost its markers.",
-			"Perfetto."},
+			"Perfetto.\n\nOn Tue, 4 Mar 2025, Dana Demo wrote:\nThe quoted html text lost its markers."},
+		{"attribution-like sentence in new text",
+			"Update on the plan.\n\nOn Tuesday, the manager wrote:\nwe ship on Friday.\n\nThanks,\nEve",
+			"Update on the plan.\n\nOn Tuesday, the manager wrote:\nwe ship on Friday.\n\nThanks,\nEve"},
 		{"outlook italian header block",
 			"Ricevuto, grazie.\n\nMario\n\n________________________________\nDa: Anna Prova <anna@example.com>\nInviato: lunedì 3 marzo 2025 09:00\nA: Mario Esempio <mario@example.com>\nOggetto: Offerta\n\nTesto originale.",
 			"Ricevuto, grazie.\n\nMario"},
@@ -80,7 +83,7 @@ Content-Type: multipart/related; boundary="R"
 --R
 Content-Type: text/html
 
-<p>Hi</p><img src="cid:Logo1@example.com">
+<p>Hi</p><img src="cid:Logo1@example.com"><img src="cid:photo@example.com">
 --R
 Content-Type: application/octet-stream; name="banner.bin"
 Content-ID: <logo1@example.com>

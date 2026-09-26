@@ -298,3 +298,106 @@ func TestTBInlineReadTimeFallback(t *testing.T) {
 		t.Errorf("fallback largest --limit 1 = %+v", rows)
 	}
 }
+
+func tbOpenStoreRW(t *testing.T, home string) *store.Store {
+	t.Helper()
+	if _, err := cliutil.SetHomeOverride(home); err != nil {
+		t.Fatal(err)
+	}
+	path := defaultDBPath(tbCLIName)
+	_, _ = cliutil.SetHomeOverride("")
+	db, err := store.OpenWithContext(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return db
+}
+
+// tbDowngradeStore rewrites the store the way a pre-inline version left it.
+func tbDowngradeStore(t *testing.T, db *store.Store) {
+	t.Helper()
+	for _, q := range []string{
+		`UPDATE resources SET data = json_remove(data,'$.inline') WHERE resource_type = 'attachments'`,
+		`UPDATE resources SET data = json_set(data,'$.attachment_count',(SELECT count(*) FROM resources a WHERE a.resource_type = 'attachments' AND json_extract(a.data,'$.message_id') = resources.id),
+			'$.has_attachments',json('true')) WHERE resource_type = 'messages' AND json_extract(data,'$.message_id') IN ('q1@example.com','q2@example.com')`,
+		`DELETE FROM tb_meta`,
+	} {
+		if _, err := db.DB().Exec(q); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func tbCheckUpgraded(t *testing.T, db *store.Store) {
+	t.Helper()
+	msgs := tbMessagesByMsgID(t, db)
+	if q1, q2 := msgs["q1@example.com"], msgs["q2@example.com"]; q1.AttachmentCount != 1 || !q1.HasAttachments || q2.AttachmentCount != 0 || q2.HasAttachments {
+		t.Errorf("counts after upgrade: q1=%d/%v q2=%d/%v", q1.AttachmentCount, q1.HasAttachments, q2.AttachmentCount, q2.HasAttachments)
+	}
+	atts, _ := tbLoadDocs[tbAttachmentDoc](db, "attachments")
+	for _, a := range atts {
+		if a.Inline == nil {
+			t.Errorf("attachment %s still lacks inline", a.ID)
+		}
+	}
+}
+
+func TestTBStoreFormatUpgrade(t *testing.T) {
+	s := tbSetupInline(t)
+	out, _, err := tbRun(t, s.home, "sync", "--json")
+	if sum := tbDecode[tbSyncSummary](t, out); err != nil || sum.FormatUpgrade || sum.FoldersScanned != 0 {
+		t.Fatalf("fresh store must be current and incremental: %v %+v", err, sum)
+	}
+	db := tbOpenStoreRW(t, s.home)
+	tbDowngradeStore(t, db)
+	db.Close()
+
+	out, errOut, err := tbRun(t, s.home, "sync", "--json")
+	if sum := tbDecode[tbSyncSummary](t, out); err != nil || !sum.FormatUpgrade || sum.FoldersScanned == 0 || !strings.Contains(errOut, "store format upgrade") {
+		t.Fatalf("old store must upgrade on plain sync: %v %+v %q", err, sum, errOut)
+	}
+	db = tbOpenStoreRW(t, s.home)
+	tbCheckUpgraded(t, db)
+	db.Close()
+	out, errOut, _ = tbRun(t, s.home, "sync", "--json")
+	if sum := tbDecode[tbSyncSummary](t, out); sum.FormatUpgrade || sum.FoldersScanned != 0 || strings.Contains(errOut, "upgrade") {
+		t.Errorf("second sync must be incremental: %+v %q", sum, errOut)
+	}
+
+	db = tbOpenStoreRW(t, s.home)
+	defer db.Close()
+	tbDowngradeStore(t, db)
+	if sum := tbSync(t, db, s.profile, tbSyncOptions{MaxNewMessages: 1}); !sum.FormatUpgrade || sum.Capped {
+		t.Errorf("capped upgrade must still converge in one run: %+v", sum)
+	}
+	tbCheckUpgraded(t, db)
+	if sum := tbSync(t, db, s.profile, tbSyncOptions{MaxNewMessages: 1}); sum.FormatUpgrade || sum.FoldersScanned != 0 {
+		t.Errorf("after capped upgrade: %+v", sum)
+	}
+
+	tbDowngradeStore(t, db)
+	f, err := os.OpenFile(filepath.Join(s.profile, filepath.FromSlash(tbInboxRel)), os.O_APPEND|os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.WriteString(tbExtraMessages + strings.ReplaceAll(tbExtraMessages, "<x1@", "<x2@")); err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+	if sum := tbSync(t, db, s.profile, tbSyncOptions{MaxNewMessages: 1}); !sum.FormatUpgrade || !sum.Capped {
+		t.Fatalf("upgrade with new mail over the cap: %+v", sum)
+	}
+	for i := 0; i < 3; i++ {
+		sum := tbSync(t, db, s.profile, tbSyncOptions{MaxNewMessages: 1})
+		if !sum.FormatUpgrade {
+			t.Fatalf("run %d: a capped upgrade must be retried until it completes: %+v", i, sum)
+		}
+		if !sum.Capped {
+			break
+		}
+	}
+	tbCheckUpgraded(t, db)
+	if sum := tbSync(t, db, s.profile, tbSyncOptions{MaxNewMessages: 1}); sum.FormatUpgrade || sum.Capped {
+		t.Errorf("after the capped upgrade converged: %+v", sum)
+	}
+}

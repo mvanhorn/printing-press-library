@@ -32,7 +32,30 @@ func (s *Store) EnsureThunderbirdTables(ctx context.Context) error {
 	if _, err := s.db.ExecContext(ctx, tbMboxStateSQL); err != nil {
 		return fmt.Errorf("creating tb_mbox_state: %w", err)
 	}
+	if _, err := s.db.ExecContext(ctx, tbMetaSQL); err != nil {
+		return fmt.Errorf("creating tb_meta: %w", err)
+	}
 	return nil
+}
+
+const tbMetaSQL = `CREATE TABLE IF NOT EXISTS tb_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)`
+
+// GetTBMeta returns a Thunderbird store setting; ok is false when absent.
+func (s *Store) GetTBMeta(key string) (string, bool, error) {
+	var v string
+	err := s.db.QueryRow(`SELECT value FROM tb_meta WHERE key = ?`, key).Scan(&v)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", false, nil
+	}
+	return v, err == nil, err
+}
+
+// SetTBMeta upserts a Thunderbird store setting.
+func (s *Store) SetTBMeta(key, value string) error {
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	_, err := s.db.Exec(`INSERT INTO tb_meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`, key, value)
+	return err
 }
 
 // GetMboxState returns the checkpoint of path; ok is false when absent.

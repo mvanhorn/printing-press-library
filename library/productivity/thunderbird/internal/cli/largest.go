@@ -87,19 +87,18 @@ inline parts (signature logos, cid: images) unless --include-inline.`,
 			if attachments {
 				q := `SELECT data FROM resources WHERE resource_type = 'attachments'`
 				if !includeInline {
-					q += ` AND COALESCE(json_extract(data,'$.inline'),0) = 0`
+					q += " AND " + tbSQLNotInline
 				}
 				if where != "" {
 					q += " AND " + where
 				}
 				q += " ORDER BY " + order
+				if limit > 0 {
+					q += fmt.Sprintf(" LIMIT %d", limit)
+				}
 				docs, err := tbScanDocs[tbAttachmentDoc](db, q, qargs...)
 				if err != nil {
 					return err
-				}
-				docs = tbVisibleAttachments(docs, includeInline)
-				if limit > 0 && len(docs) > limit {
-					docs = docs[:limit]
 				}
 				rows := make([]tbLargestAttachmentRow, 0, len(docs))
 				for _, d := range docs {
