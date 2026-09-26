@@ -102,7 +102,7 @@ accepts a single id there, and --json without --format selects json); with --out
 			var clash []string
 			for _, it := range items {
 				p := filepath.Join(outDir, it.id+"."+format)
-				if _, err := os.Stat(p); err == nil && !force {
+				if _, err := os.Lstat(p); err == nil && !force {
 					clash = append(clash, p)
 				}
 				files = append(files, tbExportedFile{ID: it.id, Format: format, Path: p, Bytes: len(it.data)})
@@ -114,7 +114,7 @@ accepts a single id there, and --json without --format selects json); with --out
 				return err
 			}
 			for i, it := range items {
-				if err := os.WriteFile(files[i].Path, it.data, 0o600); err != nil {
+				if err := tbWriteNewFile(files[i].Path, it.data, force); err != nil {
 					return err
 				}
 			}

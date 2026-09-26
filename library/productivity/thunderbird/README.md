@@ -223,7 +223,7 @@ This CLI separates local files into four path kinds:
 | Kind | Contents |
 |------|----------|
 | `config` | User-editable settings such as `config.toml` and saved profiles |
-| `data` | Durable local data such as `data.db` |
+| `data` | Durable local data: one mail index per Thunderbird profile at `profiles/<profile hash>/data.db` (`doctor` shows the path; an index left at `data.db` by earlier versions is no longer read, so run `sync` once to rebuild it) |
 | `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
 | `cache` | Regenerable cache files |
 

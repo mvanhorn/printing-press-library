@@ -45,6 +45,8 @@ type tbSyncSummary struct {
 	PrunedMessages  int            `json:"pruned_messages"`
 	FoldersScanned  int            `json:"folders_scanned"`
 	FoldersSkipped  int            `json:"folders_unchanged"`
+	FlagFolders     int            `json:"flag_refresh_folders"`
+	FlagsUpdated    int            `json:"flags_updated"`
 	Capped          bool           `json:"capped"`
 	Warnings        []string       `json:"warnings"`
 	ElapsedMS       int64          `json:"elapsed_ms"`
@@ -428,6 +430,11 @@ func (s *tbSyncRun) pruneMsgs(key, where string, arg any, keepMsgs, keepAtts map
 	if err := s.keepExisting("messages", `json_extract(data,'$.folder_key') = ? AND `+where, matched, key, arg); err != nil {
 		return 0, err
 	}
+	return s.dropMsgs(key, matched, keepMsgs, keepAtts)
+}
+
+// dropMsgs deletes the matched messages of folder key, except keepMsgs, and their attachments except keepAtts.
+func (s *tbSyncRun) dropMsgs(key string, matched, keepMsgs, keepAtts map[string]bool) (int, error) {
 	var doomed []string
 	for id := range matched {
 		if !keepMsgs[id] {
@@ -642,6 +649,17 @@ func (s *tbSyncRun) ingestFolder(acc tbprofile.Account, f tbprofile.Folder, iden
 			reparse, last = true, nil
 		}
 	}
+	// Thunderbird rewrites X-Mozilla-Status in place, so a changed mtime can mean changed flags at the same size.
+	if !reparse && info.ModTime().Unix() != st.MTime {
+		valid, pruned, err := s.refreshFlags(key, f.MboxPath, st.LastOffset)
+		res.Pruned += pruned
+		if err != nil {
+			return res, err
+		}
+		if !valid {
+			reparse, last = true, nil
+		}
+	}
 	var (
 		startAt, end, resume, lastStart int64
 		lastID                          string
@@ -737,6 +755,101 @@ func (s *tbSyncRun) ingestFolder(acc tbprofile.Account, f tbprofile.Folder, iden
 		return res, scanErr
 	}
 	return res, nil
+}
+
+const tbFlagHeaderBytes = 8 << 10
+
+// refreshFlags re-reads the status header of the stored messages of key before end; valid is false when a row no longer matches its offset.
+func (s *tbSyncRun) refreshFlags(key, mboxPath string, end int64) (valid bool, pruned int, err error) {
+	type row struct {
+		id, mid     string
+		off, length int64
+		flags       [4]bool
+	}
+	q, err := s.db.DB().Query(`SELECT id, json_extract(data,'$.offset','$.length','$.message_id','$.read','$.replied','$.flagged','$.forwarded')
+		FROM resources WHERE resource_type = 'messages' AND json_extract(data,'$.folder_key') = ? AND json_extract(data,'$.mbox_path') = ?
+		AND json_extract(data,'$.offset') < ? ORDER BY json_extract(data,'$.offset')`, key, mboxPath, end)
+	if err != nil {
+		return false, 0, err
+	}
+	var rows []row
+	for q.Next() {
+		var id, vals string
+		if err := q.Scan(&id, &vals); err != nil {
+			_ = q.Close()
+			return false, 0, err
+		}
+		var arr []any
+		if err := json.Unmarshal([]byte(vals), &arr); err != nil || len(arr) != 7 {
+			_ = q.Close()
+			return false, 0, fmt.Errorf("stored message %s: bad fields", id)
+		}
+		r := row{id: id}
+		off, _ := arr[0].(float64)
+		length, _ := arr[1].(float64)
+		r.off, r.length = int64(off), int64(length)
+		r.mid, _ = arr[2].(string)
+		for i := range r.flags {
+			r.flags[i], _ = arr[3+i].(bool)
+		}
+		rows = append(rows, r)
+	}
+	_ = q.Close()
+	if err := q.Err(); err != nil {
+		return false, 0, err
+	}
+	s.sum.FlagFolders++
+	f, err := os.Open(filepath.Clean(mboxPath))
+	if err != nil {
+		return false, 0, nil
+	}
+	defer f.Close()
+	buf := make([]byte, tbFlagHeaderBytes)
+	changed := map[string][4]bool{}
+	expunged := map[string]bool{}
+	for _, r := range rows {
+		hs, err := tbprofile.ReadHeaderStatus(f, r.off, r.length, buf)
+		if err != nil || hs.MessageID != "" && r.mid != "" && hs.MessageID != r.mid {
+			return false, 0, nil
+		}
+		if !hs.HasStatus {
+			continue
+		}
+		if hs.Status&tbprofile.StatusExpunged != 0 {
+			expunged[r.id] = true
+			continue
+		}
+		nf := [4]bool{hs.Status&tbprofile.StatusRead != 0, hs.Status&tbprofile.StatusReplied != 0,
+			hs.Status&tbprofile.StatusFlagged != 0, hs.Status&tbprofile.StatusForwarded != 0}
+		if nf != r.flags {
+			changed[r.id] = nf
+		}
+	}
+	batch := make([]json.RawMessage, 0, len(changed))
+	for id, nf := range changed {
+		raw, err := s.db.Get("messages", id)
+		if err != nil {
+			return false, 0, err
+		}
+		var doc map[string]any
+		if err := json.Unmarshal(raw, &doc); err != nil {
+			return false, 0, err
+		}
+		doc["read"], doc["replied"], doc["flagged"], doc["forwarded"] = nf[0], nf[1], nf[2], nf[3]
+		out, err := json.Marshal(doc)
+		if err != nil {
+			return false, 0, err
+		}
+		batch = append(batch, out)
+	}
+	if len(batch) > 0 {
+		if _, _, err := s.db.UpsertBatch("messages", batch); err != nil {
+			return false, 0, err
+		}
+	}
+	s.sum.FlagsUpdated += len(batch)
+	pruned, err = s.dropMsgs(key, expunged, nil, nil)
+	return true, pruned, err
 }
 
 func (s *tbSyncRun) scanFolder(acc tbprofile.Account, f tbprofile.Folder, key string, startAt int64, identityEmails map[string]bool,
@@ -882,10 +995,13 @@ func runTBSyncCommand(cmd *cobra.Command, flags *rootFlags, resourcesCSV string,
 	if err != nil {
 		return usageErr(err)
 	}
+	profileDir, err := resolveTBProfile(flags)
 	if dbPath == "" {
 		dbPath = defaultDBPath("thunderbird-pp-cli")
+		if err == nil {
+			dbPath = tbSyncDBPath(profileDir)
+		}
 	}
-	profileDir, err := resolveTBProfile(flags)
 	if errors.Is(err, tbprofile.ErrNoProfile) {
 		fmt.Fprintln(cmd.ErrOrStderr(), "no Thunderbird profile found; pass --profile <dir|name> or set THUNDERBIRD_PROFILE")
 		sum := &tbSyncSummary{DBPath: dbPath, Full: full, Resources: map[string]int{}, Warnings: []string{}, ProfileNotFound: true}

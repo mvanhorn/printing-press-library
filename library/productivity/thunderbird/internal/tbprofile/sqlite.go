@@ -25,14 +25,17 @@ func withSnapshot(dbPath string, fn func(*sql.DB) error) error {
 	}
 	defer os.RemoveAll(tmp)
 	dst := filepath.Join(tmp, filepath.Base(dbPath))
-	if err := copyFile(dbPath, dst); err != nil {
-		return err
-	}
-	// -shm is rebuilt from the WAL; copying a live one could be inconsistent.
-	if _, err := os.Stat(dbPath + "-wal"); err == nil {
-		if err := copyFile(dbPath+"-wal", dst+"-wal"); err != nil {
+	stable := false
+	for attempt := 0; attempt < snapshotAttempts && !stable; attempt++ {
+		if attempt > 0 {
+			time.Sleep(time.Duration(attempt) * snapshotBackoff)
+		}
+		if stable, err = copySnapshot(dbPath, dst); err != nil {
 			return err
 		}
+	}
+	if !stable {
+		return fmt.Errorf("%s kept changing while it was copied", filepath.Base(dbPath))
 	}
 	db, err := sql.Open("sqlite", "file:"+filepath.ToSlash(dst)+"?_pragma=busy_timeout(5000)")
 	if err != nil {
@@ -41,6 +44,67 @@ func withSnapshot(dbPath string, fn func(*sql.DB) error) error {
 	defer db.Close()
 	db.SetMaxOpenConns(1)
 	return fn(db)
+}
+
+const snapshotAttempts = 3
+
+var (
+	snapshotBackoff = 50 * time.Millisecond
+	// snapshotCopied is a test seam run between the copy and the re-stat of the source.
+	snapshotCopied = func(dbPath string) {}
+)
+
+type fileSig struct {
+	exists bool
+	size   int64
+	mtime  int64
+}
+
+func statSig(path string) (fileSig, error) {
+	fi, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return fileSig{}, nil
+	}
+	if err != nil {
+		return fileSig{}, err
+	}
+	return fileSig{true, fi.Size(), fi.ModTime().UnixNano()}, nil
+}
+
+// copySnapshot copies db and -wal and reports whether neither changed during the copy.
+func copySnapshot(dbPath, dst string) (bool, error) {
+	var before [2]fileSig
+	for i, p := range []string{dbPath, dbPath + "-wal"} {
+		sig, err := statSig(p)
+		if err != nil {
+			return false, err
+		}
+		before[i] = sig
+	}
+	if err := copyFile(dbPath, dst); err != nil {
+		return false, err
+	}
+	// A WAL left by an earlier attempt must not pair with a newer db copy.
+	if err := os.Remove(dst + "-wal"); err != nil && !os.IsNotExist(err) {
+		return false, err
+	}
+	// -shm is rebuilt from the WAL; copying a live one could be inconsistent.
+	if before[1].exists {
+		if err := copyFile(dbPath+"-wal", dst+"-wal"); err != nil && !os.IsNotExist(err) {
+			return false, err
+		}
+	}
+	snapshotCopied(dbPath)
+	for i, p := range []string{dbPath, dbPath + "-wal"} {
+		sig, err := statSig(p)
+		if err != nil {
+			return false, err
+		}
+		if sig != before[i] {
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
 func copyFile(src, dst string) error {

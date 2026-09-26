@@ -169,9 +169,10 @@ For each filter: enabled, actions, target folder of Move/Copy actions and
 whether it still exists, and hits = how many messages of the filter's account
 since --since (sent folders excluded, copies counted once) match its
 condition; scanned_messages is how many were tested. Terms on from, to, cc,
-"to or cc", all addresses, subject, body, List-Id, date, age in days, size,
-status and attachment status are evaluated from stored fields; any other term
-(custom headers, tags, junk score, regex) makes the filter "unevaluated" with
+"to or cc", subject, body, List-Id, date, age in days, size, status and
+attachment status are evaluated from stored fields; any other term (Bcc or
+"all addresses", which covers Bcc and is not stored, custom headers, tags,
+junk score, regex) makes the filter "unevaluated" with
 hits null rather than a guess. duplicate_of names an earlier filter of the same
 account with identical conditions and actions. issues lists disabled,
 missing_target_folder, unevaluated, no_hits and duplicate.`,

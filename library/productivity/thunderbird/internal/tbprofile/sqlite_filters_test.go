@@ -146,7 +146,7 @@ func TestParseCondition(t *testing.T) {
 		{"", "ALL", nil, nil, nil},
 		{"AND (subject,contains,hi)", "AND", []string{"subject"}, []string{"hi"}, []bool{true}},
 		{"OR (from,is,a@x) OR (tag,contains,$label1)", "OR", []string{"from", "tag"}, []string{"a@x", "$label1"}, []bool{true, false}},
-		{`AND (from\,to\,cc\,or bcc,contains,bob)`, "AND", []string{"from,to,cc,or bcc"}, []string{"bob"}, []bool{true}},
+		{`AND (from\,to\,cc\,or bcc,contains,bob)`, "AND", []string{"from,to,cc,or bcc"}, []string{"bob"}, []bool{false}},
 		{"AND (subject,matches regex,^x)", "AND", []string{"subject"}, []string{"^x"}, []bool{false}},
 		{"AND (age in days,is greater than,30)", "AND", []string{"age in days"}, []string{"30"}, []bool{true}},
 	}

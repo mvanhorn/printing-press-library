@@ -232,6 +232,32 @@ func ReadRaw(mboxPath string, offset, length int64) ([]byte, error) {
 	return buf, nil
 }
 
+// HeaderStatus is the X-Mozilla-Status and Message-ID of a message header block.
+type HeaderStatus struct {
+	Status    uint32
+	HasStatus bool
+	MessageID string
+}
+
+// ReadHeaderStatus parses the header block of the message at offset, reading at most len(buf) bytes of it.
+func ReadHeaderStatus(r io.ReaderAt, offset, length int64, buf []byte) (HeaderStatus, error) {
+	b := buf[:min(length, int64(len(buf)))]
+	n, err := r.ReadAt(b, offset)
+	if n < len(b) {
+		if err == nil {
+			err = io.ErrUnexpectedEOF
+		}
+		return HeaderStatus{}, err
+	}
+	// A header line cut by the buffer would parse as a wrong value.
+	if int64(len(b)) < length && !bytes.Contains(b, []byte("\n\n")) && !bytes.Contains(b, []byte("\n\r\n")) {
+		b = b[:bytes.LastIndexByte(b, '\n')+1]
+	}
+	h, _ := SplitMessage(b)
+	_, has := h["X-Mozilla-Status"]
+	return HeaderStatus{Status: MozillaStatus(h.Get("X-Mozilla-Status")), HasStatus: has, MessageID: NormalizeMessageID(h.Get("Message-Id"))}, nil
+}
+
 // MozillaStatus parses an X-Mozilla-Status hex value.
 func MozillaStatus(v string) uint32 {
 	n, err := strconv.ParseUint(strings.TrimSpace(v), 16, 32)

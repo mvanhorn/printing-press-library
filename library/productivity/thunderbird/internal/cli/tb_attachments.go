@@ -5,6 +5,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -173,7 +174,7 @@ that would be written without touching the disk.`,
 				return err
 			}
 			for i := range files {
-				if err := os.WriteFile(files[i].Path, payloads[i], 0o600); err != nil {
+				if err := tbWriteNewFile(files[i].Path, payloads[i], force); err != nil {
 					return err
 				}
 				files[i].Written = true
@@ -245,7 +246,7 @@ func tbExtractForSave(d *tbMessageDoc, raw []byte, outDir string, index int) ([]
 		}
 		used[strings.ToLower(name)] = true
 		p := filepath.Join(outDir, name)
-		_, statErr := os.Stat(p)
+		_, statErr := os.Lstat(p)
 		files = append(files, tbSavedAttachment{
 			MessageID: d.ID, Index: i, Filename: meta.Filename, ContentType: meta.ContentType,
 			SizeBytes: int64(len(data)), Path: p, Exists: statErr == nil,
@@ -295,6 +296,33 @@ func tbSafeFilename(name string, index int) string {
 }
 
 func isRuneStart(b byte) bool { return b&0xC0 != 0x80 }
+
+// tbWriteNewFile creates path exclusively, so an existing file or symlink is never followed or truncated; force replaces a file or link, never a directory.
+func tbWriteNewFile(p string, data []byte, force bool) error {
+	p = filepath.Clean(p)
+	if force {
+		if fi, err := os.Lstat(p); err == nil {
+			if fi.IsDir() {
+				return fmt.Errorf("refusing to overwrite directory %s", p)
+			}
+			if err := os.Remove(p); err != nil {
+				return err
+			}
+		}
+	}
+	f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if errors.Is(err, fs.ErrExist) {
+		return fmt.Errorf("refusing to overwrite existing file(s): %s (use --force)", p)
+	}
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write(data); err != nil {
+		_ = f.Close()
+		return err
+	}
+	return f.Close()
+}
 
 // tbOutputDirFlag uses --output/-o because the MCP shell-out blocks that name; --out stays as a deprecated alias.
 func tbOutputDirFlag(cmd *cobra.Command, dir *string, usage string) {

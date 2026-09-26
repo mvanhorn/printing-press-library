@@ -3291,6 +3291,5 @@ func defaultDBPath(name string) string {
 }
 
 func defaultDBPathInDir(dir string) string {
-	unscoped := filepath.Join(dir, "data.db")
-	return unscoped
+	return tbDefaultStorePath(dir)
 }

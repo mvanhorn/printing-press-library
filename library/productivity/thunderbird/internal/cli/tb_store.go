@@ -3,16 +3,54 @@
 package cli
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/productivity/thunderbird/internal/tbprofile"
 	"github.com/spf13/cobra"
 )
 
 const tbCLIName = "thunderbird-pp-cli"
+
+// tbDefaultStorePath is the store of the selected Thunderbird profile under dataDir; an unresolvable selection gets an empty store, never another profile's.
+func tbDefaultStorePath(dataDir string) string {
+	profileDir, err := tbprofile.Resolve(tbProfileSelector(nil), tbprofile.RootDir())
+	if err != nil {
+		return filepath.Join(dataDir, "profiles", "unresolved", "data.db")
+	}
+	return tbStoreDBPath(dataDir, profileDir)
+}
+
+// tbStoreDBPath keys the store by profile directory: account and folder ids repeat across profiles.
+func tbStoreDBPath(dataDir, profileDir string) string {
+	p, err := filepath.Abs(profileDir)
+	if err != nil {
+		p = filepath.Clean(profileDir)
+	}
+	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" {
+		p = strings.ToLower(p)
+	}
+	sum := sha256.Sum256([]byte(p))
+	return filepath.Join(dataDir, "profiles", hex.EncodeToString(sum[:6]), "data.db")
+}
+
+// tbSyncDBPath is the default store of an already resolved profile.
+func tbSyncDBPath(profileDir string) string {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return defaultDBPath(tbCLIName)
+	}
+	return tbStoreDBPath(dir, profileDir)
+}
 
 // tbOpenStore opens the synced store read-only. When the database does not
 // exist it prints the sync hint to stderr and returns nil, nil.

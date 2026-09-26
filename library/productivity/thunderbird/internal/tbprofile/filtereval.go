@@ -122,8 +122,6 @@ func EvalTerm(t FilterTerm, m FilterSubject, now time.Time) (match, ok bool) {
 		return evalAddrs(op, t.Value, addrUnits(m.Cc))
 	case "to or cc":
 		return evalAddrs(op, t.Value, addrUnits(append(append([]string{}, m.To...), m.Cc...)))
-	case "all addresses", "from,to,cc,or bcc":
-		return evalAddrs(op, t.Value, append([]addrUnit{from}, addrUnits(append(append([]string{}, m.To...), m.Cc...))...))
 	case "subject":
 		return evalText(op, t.Value, []string{m.Subject})
 	case "body":

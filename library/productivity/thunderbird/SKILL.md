@@ -244,7 +244,7 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
 - Use `--home <dir>` for one invocation, or set `THUNDERBIRD_HOME=<dir>` to relocate all four path kinds under one root.
 - Use per-kind env vars only when a specific kind must diverge: `THUNDERBIRD_CONFIG_DIR`, `THUNDERBIRD_DATA_DIR`, `THUNDERBIRD_STATE_DIR`, `THUNDERBIRD_CACHE_DIR`.
 - Resolution order is per-kind env var, `--home`, `THUNDERBIRD_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
-- `config` contains settings like `config.toml` and saved run profiles. `data` contains `data.db` (the mail index), `feedback.jsonl` and `.eml` files written by `drafts --open`. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable cache files. No credentials are stored.
+- `config` contains settings like `config.toml` and saved run profiles. `data` contains one mail index per Thunderbird profile at `profiles/<profile hash>/data.db` (`doctor` prints `store_path`; syncing another profile never touches it), `feedback.jsonl` and `.eml` files written by `drafts --open`. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable cache files. No credentials are stored.
 - Run `thunderbird-pp-cli doctor --fail-on warn` to surface path warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
 - For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
 

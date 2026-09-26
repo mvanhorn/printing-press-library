@@ -22,9 +22,11 @@ func init() {
 		}
 		orig := root.PersistentPreRunE
 		root.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+			tbActiveSelector = ""
 			if name := strings.TrimSpace(flags.runProfileName); name != "" {
 				if saved, err := GetProfile(name); err == nil && saved == nil {
 					tbProfileSelectors.Store(flags, name)
+					tbActiveSelector = name
 					flags.runProfileName = ""
 				}
 			}
@@ -36,9 +38,18 @@ func init() {
 	})
 }
 
+// tbActiveSelector is the selector of the running command, for store-path helpers that have no flags.
+var tbActiveSelector string
+
 // tbProfileSelector returns the --profile value (when it is not a saved run
-// profile) or THUNDERBIRD_PROFILE.
+// profile) or THUNDERBIRD_PROFILE; nil flags means the running command.
 func tbProfileSelector(flags *rootFlags) string {
+	if flags == nil {
+		if tbActiveSelector != "" {
+			return tbActiveSelector
+		}
+		return strings.TrimSpace(os.Getenv(tbprofile.EnvProfile))
+	}
 	if v, ok := tbProfileSelectors.Load(flags); ok {
 		return v.(string)
 	}
