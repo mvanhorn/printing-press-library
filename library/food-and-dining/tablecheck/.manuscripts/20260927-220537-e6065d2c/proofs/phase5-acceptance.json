@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "1d53d76285e5bcd036aba2b60c1c402a2e7dbbb8527a0d8c5fe1ca090a909473",
+  "source_fingerprint": "d3449e56d2f057ebcbec2576b85a6150d713a9747aef9ea6a80d2236598a2f44",
   "source_files": {
     "cmd/tablecheck-pp-cli/main.go": "23f97425713d0586122bd5db6e7588bc67955bbc227e0d64f5065c5407d146bb",
     "cmd/tablecheck-pp-mcp/main.go": "a3c8686f99bf20827fb5bec8730be44be54006aa895a20254ec58f62145e7e37",
@@ -35,8 +35,8 @@
     "internal/cli/feedback.go": "2ca35da243c41ba2a74d5fb5a5dfe7d749beb505d3adcbef56ffa22bd1ae4f0b",
     "internal/cli/helpers.go": "cb0caea728d2e07579b0badf1f7e412e8a2d63c41a7c1c1a8a68060d520f03c3",
     "internal/cli/import.go": "5ff88b637bb8be782b34a8f92d590aa77ea05b45128739f9458cacbc9b2452dc",
-    "internal/cli/planning.go": "2cdf436e189d735d199266b8cdf150e01a4e2ab56de18378d0803cdcbf918ff9",
-    "internal/cli/planning_availability_output_test.go": "9206a110add6c215f9522eb0d772caea0d9f375cce1e8bc7e2703863e0caa1a4",
+    "internal/cli/planning.go": "d4844cfa62961c917c932466fa1a6d3d1116db70f8f3d23ec1882e8b9b0ecb7d",
+    "internal/cli/planning_availability_output_test.go": "9a40639657a168e555e2a0e4ec50900ac4d932556a9d530058a6a5324a6f5606",
     "internal/cli/planning_publication_test.go": "be471c1acd94c49d5ae01f3976a8e6afeb4ecec5f8c5e4f28fb2283b707fe0b9",
     "internal/cli/planning_test.go": "27c6e7bf06549f5a8336344cd4f29ee3cfe6deedf505ebc5e629ac3c78c15896",
     "internal/cli/platform_cli_test.go": "b4747005b2c9eec3ae612f6ea085461a2174226cf0228591f85cdba1abfbdab6",

@@ -18,3 +18,11 @@ A scan-shaped result reproduced an independent native-format issue: the competin
 Raw-source local-data and network-fallback errors, staleness hints and max-age help now point to supported live reads or the separate freshness-aware planning cache. Tests retain original wrapped errors, status, local bytes and provenance, and preserve quiet fresh/disabled-age behavior.
 
 The refreshed race/vet/build/publish checks pass, with 87 mandatory live checks passing and 53 auxiliary rows skipped. An additional two-day live scan matches default and selected CSV/plain rows and quiet identities against JSON. The initial JSON read used two requests; the final JSON read used zero and retained original fetch timestamps. See `native-format-live.json` for the bounded observation.
+
+## Selected-context follow-up
+
+CSV/plain now apply the shared selector once to the full planning envelope before projecting checks, list items or detail records. Selected envelope context is retained as named columns on each primary row; context-only selections produce one summary row. Explicit empty collections, nulls, arrays and empty context objects remain visible as JSON cells. Column collisions retain both values. Default JSON remains unchanged.
+
+Quiet keeps precedence over combined format flags. Venue/course quiet output renders only the stable primary ID, including when a detail contains a nested object array with unrelated IDs. Explicit quiet selections must retain the required identity.
+
+Focused format tests, full race tests, vet, both builds, native publish validation and all 87 mandatory live checks pass. The expanded live comparison verifies mixed check/context columns, metadata-only summaries and venue/course quiet IDs. It used two initial scan requests and one course-detail request; its final cached scan JSON used zero requests and preserved original fetch timestamps.

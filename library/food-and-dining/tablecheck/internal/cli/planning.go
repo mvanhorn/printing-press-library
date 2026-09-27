@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -188,7 +189,17 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 	copyFlags.selectFields = strings.Join(selectedPaths, ",")
 	if copyFlags.csv || copyFlags.plain || copyFlags.quiet {
 		nativeResult := result
-		if checks, ok := result["checks"]; ok {
+		primary := planningPrimaryKey(result)
+		if !copyFlags.quiet && (copyFlags.csv || copyFlags.plain) && copyFlags.selectFields != "" && primary != "" {
+			var err error
+			nativeResult, err = planningSelectedTable(result, primary, copyFlags.selectFields)
+			if err != nil {
+				return usageErr(err)
+			}
+			// Selection already ran against the full envelope. Dotted context
+			// columns are table keys now, not paths to filter a second time.
+			copyFlags.selectFields = ""
+		} else if checks, ok := result["checks"]; ok {
 			// Availability envelopes also carry venue and failure arrays. Native
 			// formats deliberately expose one row per check, including failures.
 			if copyFlags.quiet && copyFlags.selectFields != "" {
@@ -205,6 +216,28 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 			}
 			// Retain the checks parent so dotted --select paths remain valid.
 			nativeResult = planner.Result{"checks": checks}
+		} else if copyFlags.quiet && (primary == "course" || primary == "venue") {
+			if copyFlags.selectFields != "" {
+				identitySelected := false
+				for _, path := range selectedPaths {
+					if strings.EqualFold(path, primary) || strings.EqualFold(path, primary+".id") {
+						identitySelected = true
+					}
+				}
+				if !identitySelected {
+					return usageErr(&planner.ValidationError{Message: primary + " --quiet selection must retain " + primary + ".id or " + primary})
+				}
+			}
+			selected, err := planningSelectedEnvelope(result, copyFlags.selectFields)
+			if err != nil {
+				return usageErr(err)
+			}
+			detail, ok := selected[primary].(map[string]any)
+			if !ok {
+				return usageErr(&planner.ValidationError{Message: "quiet output requires a " + primary + " identity"})
+			}
+			nativeResult = planner.Result{"id": detail["id"]}
+			copyFlags.selectFields = ""
 		}
 		// Delegate these modes to the native format renderer. Keep a final
 		// checked write: native CSV/plain helpers do not propagate writer errors.
@@ -234,6 +267,144 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 	compact.WriteByte('\n')
 	_, e := cmd.OutOrStdout().Write(compact.Bytes())
 	return e
+}
+
+func planningPrimaryKey(result planner.Result) string {
+	for _, key := range []string{"checks", "items", "course", "venue"} {
+		if _, ok := result[key]; ok {
+			return key
+		}
+	}
+	return ""
+}
+
+// Use the shared selector once before changing the envelope into table rows.
+func planningSelectedEnvelope(result planner.Result, fields string) (map[string]any, error) {
+	raw, err := json.Marshal(result)
+	if err != nil {
+		return nil, err
+	}
+	if fields != "" {
+		raw, err = filterFieldsChecked(raw, fields)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var selected map[string]any
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	if err := decoder.Decode(&selected); err != nil {
+		return nil, err
+	}
+	return selected, nil
+}
+
+func planningSelectedTable(result planner.Result, primary, fields string) (planner.Result, error) {
+	selected, err := planningSelectedEnvelope(result, fields)
+	if err != nil {
+		return nil, err
+	}
+	rows := make([]map[string]any, 0)
+	contextColumns := map[string]any{}
+	for key, value := range selected {
+		if key == primary {
+			switch records := value.(type) {
+			case []any:
+				if len(records) == 0 {
+					if err := planningContextColumns(contextColumns, key, records); err != nil {
+						return nil, err
+					}
+				}
+				for _, record := range records {
+					if row, ok := record.(map[string]any); ok {
+						rows = append(rows, row)
+					} else {
+						return nil, fmt.Errorf("selected %s record is not an object", primary)
+					}
+				}
+			case map[string]any:
+				if len(records) > 0 {
+					rows = append(rows, records)
+				} else if err := planningContextColumns(contextColumns, key, value); err != nil {
+					return nil, err
+				}
+			default:
+				if err := planningContextColumns(contextColumns, key, value); err != nil {
+					return nil, err
+				}
+			}
+		} else if err := planningContextColumns(contextColumns, key, value); err != nil {
+			return nil, err
+		}
+	}
+	// Context-only selections, including an empty primary with selected
+	// context, are one summary row rather than disappearing as an empty list.
+	if len(rows) == 0 && len(contextColumns) > 0 {
+		rows = append(rows, map[string]any{})
+	}
+	usedColumns := map[string]bool{}
+	for _, row := range rows {
+		for key := range row {
+			usedColumns[key] = true
+		}
+	}
+	keys := make([]string, 0, len(contextColumns))
+	for key := range contextColumns {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	contextNames := map[string]string{}
+	for _, key := range keys {
+		name := key
+		for usedColumns[name] {
+			name = "envelope." + name
+		}
+		usedColumns[name] = true
+		contextNames[key] = name
+	}
+	projected := make([]map[string]any, 0, len(rows))
+	for _, row := range rows {
+		out := make(map[string]any, len(row)+len(contextColumns))
+		for key, value := range row {
+			out[key] = value
+		}
+		for _, key := range keys {
+			out[contextNames[key]] = contextColumns[key]
+		}
+		projected = append(projected, out)
+	}
+	return planner.Result{"items": projected}, nil
+}
+
+// Context is namespaced by its envelope path. Structured/null values use
+// explicit JSON cell text instead of Go map formatting or blank null cells.
+func planningContextColumns(out map[string]any, path string, value any) error {
+	if object, ok := value.(map[string]any); ok && len(object) > 0 {
+		keys := make([]string, 0, len(object))
+		for key := range object {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			if err := planningContextColumns(out, path+"."+key, object[key]); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	switch typed := value.(type) {
+	case nil, []any, map[string]any:
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+		out[path] = string(raw)
+	case json.Number:
+		out[path] = typed.String()
+	default:
+		out[path] = value
+	}
+	return nil
 }
 
 func planningRun(cmd *cobra.Command, flags *rootFlags, p *planningFlags, input any, validate func() error, op func(context.Context, planner.PlanningClient) (planner.Result, error)) error {

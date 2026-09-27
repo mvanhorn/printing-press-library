@@ -4,7 +4,6 @@
   "from": "2026-09-30",
   "to": "2026-10-01",
   "party": 2,
-  "rows_per_format": 2,
   "formats": [
     "json",
     "csv",
@@ -15,20 +14,35 @@
     "slug",
     "date",
     "party",
-    "status"
+    "status",
+    "meta.requests",
+    "window.from"
   ],
+  "mixed_and_metadata_only_selection": "pass",
+  "detail_quiet": {
+    "venue_id": "67e657634474874e35785280",
+    "course_id": "68da546fcde865308c33e7f9",
+    "course_json_requests": 1,
+    "status": "pass"
+  },
   "json_request_count": 2,
   "final_json_request_count": 0,
   "fetch_timestamps_unchanged": true,
   "output_bytes": {
-    "json": 3982,
-    "csv": 2549,
+    "json": 3976,
+    "csv": 2543,
     "csv_selected": 97,
-    "plain": 2549,
+    "plain": 2543,
     "plain_selected": 97,
+    "csv_mixed": 85,
+    "csv_summary": 16,
+    "plain_mixed": 85,
+    "plain_summary": 16,
     "quiet": 28,
     "quiet_selected": 28,
-    "json_after_formats": 3972
+    "json_after_formats": 3966
   },
-  "method": "One bounded two-day live scan followed by native-format reads using the same isolated cache; CSV/plain rows and quiet identities match the JSON observation. Temporary cache deleted."
+  "method": "One bounded two-day live scan followed by native-format reads using the same isolated cache; CSV/plain rows and quiet identities match the JSON observation; mixed context selections and metadata-only summary rows retain all requested values. Temporary cache deleted.",
+  "primary_check_rows_per_format": 2,
+  "summary_rows_per_format": 1
 }

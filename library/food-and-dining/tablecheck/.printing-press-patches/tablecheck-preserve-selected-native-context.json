@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tablecheck-preserve-selected-native-context",
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-220537-e6065d2c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve explicitly selected envelope context in planning tables and return stable detail identities in quiet output.",
+  "reason": "Selecting fields after availability row projection discarded valid context, and the same envelope ambiguity affected planning lists and details. Apply the existing selector once before tabular projection, retain selected context and empty collections, protect column collisions, and preserve quiet precedence and identity requirements without changing JSON.",
+  "files": [
+    "internal/cli/planning.go",
+    "internal/cli/planning_availability_output_test.go"
+  ],
+  "validated_outcome": "Full race tests, vet, CLI/MCP builds and all 87 mandatory live checks pass. Live CSV/plain mixed context and metadata-only selections retain requested values; live venue/course quiet output matches stable source IDs. Deterministic tests cover primary shapes, explicit empty collections, null/array/object context, collisions, quiet precedence, nested rule identities, unchanged JSON and writer errors."
+}

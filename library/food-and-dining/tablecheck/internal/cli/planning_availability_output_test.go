@@ -24,7 +24,7 @@ func availabilityOutputFixture() planner.Result {
 		},
 		"fetch_failures": []map[string]any{{"slug": "venue-b", "error": "upstream HTTP 503"}},
 		"window":         map[string]any{"from": "2026-09-30", "to": "2026-10-01", "days": 2, "venues": 2},
-		"meta":           map[string]any{"source": "live", "requests": 3, "transport": "http", "freshness": map[string]any{"observed_at": "2026-09-27T14:00:00Z", "served_at": "2026-09-27T14:00:01Z"}},
+		"meta":           map[string]any{"source": "live", "requests": 3, "transport": "http", "optional": nil, "empty": map[string]any{}, "labels": []string{"cold", "a,b", "quoted\"name"}, "freshness": map[string]any{"observed_at": "2026-09-27T14:00:00Z", "served_at": "2026-09-27T14:00:01Z"}},
 	}
 }
 
@@ -135,6 +135,339 @@ func TestPlanningAvailabilityNativeWriterFailuresStillPropagate(t *testing.T) {
 		cmd.SetOut(publicationFailingWriter{failure})
 		if err := planningPrint(cmd, &flags, availabilityOutputFixture()); !errors.Is(err, failure) {
 			t.Fatalf("native check rendering swallowed writer error: %v", err)
+		}
+	}
+}
+
+func TestPlanningAvailabilityNativeSelectionRetainsEnvelopeContext(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		for _, tc := range []struct {
+			name, selection string
+			rows            int
+			columns         []string
+		}{
+			{"mixed count", "checks.slug,meta.requests", 4, []string{"slug", "meta.requests"}},
+			{"mixed date", "checks.date,window.from", 4, []string{"date", "window.from"}},
+			{"metadata only", "meta.requests", 1, []string{"meta.requests"}},
+			{"context values", "checks.slug,meta.labels,meta.optional,meta.empty,fetch_failures", 4, []string{"slug", "meta.labels", "meta.optional", "meta.empty", "fetch_failures"}},
+			{"context values only", "meta.labels,meta.optional,meta.empty,fetch_failures", 1, []string{"meta.labels", "meta.optional", "meta.empty", "fetch_failures"}},
+		} {
+			t.Run(mode+" "+tc.name, func(t *testing.T) {
+				flags := rootFlags{csv: mode == "csv", plain: mode == "plain", selectFields: tc.selection}
+				out, err := renderAvailabilityOutput(t, flags)
+				if err != nil {
+					t.Fatal(err)
+				}
+				reader := csv.NewReader(strings.NewReader(out))
+				if mode == "plain" {
+					reader.Comma = '\t'
+					reader.LazyQuotes = true
+				}
+				rows, err := reader.ReadAll()
+				if err != nil || len(rows) != tc.rows+1 {
+					t.Fatalf("selected context row count wrong: rows=%v err=%v output=%q", rows, err, out)
+				}
+				columns := map[string]int{}
+				for i, name := range rows[0] {
+					columns[name] = i
+				}
+				if len(columns) != len(tc.columns) {
+					t.Fatalf("selected columns dropped or invented: got=%v want=%v", rows[0], tc.columns)
+				}
+				for _, name := range tc.columns {
+					if _, ok := columns[name]; !ok {
+						t.Fatalf("selected context column %s missing: %v", name, rows[0])
+					}
+				}
+				for i, row := range rows[1:] {
+					if col, ok := columns["meta.requests"]; ok && row[col] != "3" {
+						t.Errorf("count context lost on row%d: %v", i, row)
+					}
+					if col, ok := columns["window.from"]; ok && row[col] != "2026-09-30" {
+						t.Errorf("window context lost on row%d: %v", i, row)
+					}
+					if col, ok := columns["slug"]; ok {
+						want := []string{"venue-a", "venue-a", "venue-b", "venue-b"}
+						if row[col] != want[i] {
+							t.Errorf("partial check identity changed: %v", row)
+						}
+					}
+					if col, ok := columns["date"]; ok {
+						want := []string{"2026-09-30", "2026-10-01", "2026-09-30", "2026-10-01"}
+						if row[col] != want[i] {
+							t.Errorf("check date changed: %v", row)
+						}
+					}
+					for _, name := range []string{"meta.labels", "fetch_failures"} {
+						if col, ok := columns[name]; ok {
+							var value any
+							if err := json.Unmarshal([]byte(row[col]), &value); err != nil {
+								t.Errorf("context array not retained as JSON cell: %s=%q err=%v", name, row[col], err)
+							}
+							source := availabilityOutputFixture()
+							var expected any
+							if name == "meta.labels" {
+								expected = source["meta"].(map[string]any)["labels"]
+							} else {
+								expected = source[name]
+							}
+							raw, _ := json.Marshal(expected)
+							var want any
+							_ = json.Unmarshal(raw, &want)
+							if !reflect.DeepEqual(value, want) {
+								t.Errorf("context array lost selected values: %s=%v want%v", name, value, want)
+							}
+						}
+					}
+					if col, ok := columns["meta.optional"]; ok && row[col] != "null" {
+						t.Errorf("explicit null lost: %v", row)
+					}
+					if col, ok := columns["meta.empty"]; ok && row[col] != "{}" {
+						t.Errorf("empty object lost: %v", row)
+					}
+				}
+			})
+		}
+	}
+}
+
+func TestPlanningAvailabilitySelectedContextProtectsCheckColumnCollisions(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		result := availabilityOutputFixture()
+		checks := result["checks"].([]map[string]any)
+		checks[0]["meta.requests"] = "row-local"
+		cmd := &cobra.Command{}
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		flags := rootFlags{csv: mode == "csv", plain: mode == "plain", selectFields: "checks.*,meta.requests"}
+		if err := planningPrint(cmd, &flags, result); err != nil {
+			t.Fatal(err)
+		}
+		reader := csv.NewReader(strings.NewReader(out.String()))
+		if mode == "plain" {
+			reader.Comma = '\t'
+			reader.LazyQuotes = true
+		}
+		rows, err := reader.ReadAll()
+		if err != nil || len(rows) != 5 {
+			t.Fatalf("collision output invalid: %v %v", rows, err)
+		}
+		columns := map[string]int{}
+		for i, name := range rows[0] {
+			columns[name] = i
+		}
+		rowColumn, rowOK := columns["meta.requests"]
+		contextColumn, contextOK := columns["envelope.meta.requests"]
+		if !rowOK || !contextOK || rows[1][rowColumn] != "row-local" {
+			t.Fatalf("context overwrote check value: %v", rows)
+		}
+		for _, row := range rows[1:] {
+			if row[contextColumn] != "3" {
+				t.Fatalf("context collision dropped selected value: %v", row)
+			}
+		}
+	}
+}
+
+func TestPlanningAvailabilityUnknownNativeSelectionStillErrorsBeforeOutput(t *testing.T) {
+	for _, flags := range []rootFlags{{csv: true, selectFields: "meta.no_such_field"}, {plain: true, selectFields: "window.no_such_field"}} {
+		out, err := renderAvailabilityOutput(t, flags)
+		if err == nil || ExitCode(err) != 2 || out != "" {
+			t.Fatalf("unknown native selection silently succeeded: err=%v output=%q", err, out)
+		}
+	}
+}
+
+func planningDetailOutputFixture(primary string) planner.Result {
+	result := planner.Result{"meta": map[string]any{"source": "live", "requests": 0, "transport": "local-cache"}}
+	switch primary {
+	case "items":
+		result["items"] = []map[string]any{{"id": "item-a", "price": "19800.0"}, {"id": "item-b", "price": nil}}
+		result["venue"] = map[string]any{"id": "context-venue"}
+	case "course":
+		result["course"] = map[string]any{"id": "course-id", "name": "Example course", "price": "19800.0"}
+		result["venue"] = map[string]any{"id": "venue-id", "slug": "venue-a"}
+	case "venue":
+		result["venue"] = map[string]any{"id": "venue-id", "slug": "venue-a", "name": "Example venue"}
+	}
+	return result
+}
+
+func TestPlanningPrimarySelectionsRetainContextAcrossListsAndDetails(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		for _, primary := range []string{"items", "course", "venue"} {
+			for _, contextOnly := range []bool{false, true} {
+				selection := primary + ".id,meta.requests"
+				if contextOnly {
+					selection = "meta.requests"
+				}
+				cmd := &cobra.Command{}
+				var out bytes.Buffer
+				cmd.SetOut(&out)
+				flags := rootFlags{csv: mode == "csv", plain: mode == "plain", selectFields: selection}
+				if err := planningPrint(cmd, &flags, planningDetailOutputFixture(primary)); err != nil {
+					t.Fatal(err)
+				}
+				reader := csv.NewReader(strings.NewReader(out.String()))
+				if mode == "plain" {
+					reader.Comma = '\t'
+					reader.LazyQuotes = true
+				}
+				rows, err := reader.ReadAll()
+				wantRows := 1
+				if primary == "items" && !contextOnly {
+					wantRows = 2
+				}
+				if err != nil || len(rows) != wantRows+1 {
+					t.Fatalf("%s %s summary/list selection wrong: rows%v err%v", mode, selection, rows, err)
+				}
+				columns := map[string]int{}
+				for i, key := range rows[0] {
+					columns[key] = i
+				}
+				countColumn, ok := columns["meta.requests"]
+				if !ok {
+					t.Fatalf("%s %s lost selected metadata: %v", mode, selection, rows)
+				}
+				for _, row := range rows[1:] {
+					if row[countColumn] != "0" {
+						t.Fatalf("cached request count lost: %v", rows)
+					}
+				}
+				if contextOnly {
+					if len(columns) != 1 {
+						t.Fatalf("metadata-only selection invented primary fields: %v", rows)
+					}
+				} else {
+					idColumn, ok := columns["id"]
+					if !ok || len(columns) != 2 {
+						t.Fatalf("primary identity selection changed: %v", rows)
+					}
+					wantID := primary + "-id"
+					if primary == "items" {
+						if rows[1][idColumn] != "item-a" || rows[2][idColumn] != "item-b" {
+							t.Fatalf("list rows changed: %v", rows)
+						}
+					} else if rows[1][idColumn] != wantID {
+						t.Fatalf("primary priority chose wrong identity: %v", rows)
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestPlanningDetailQuietReturnsSelectedPrimaryID(t *testing.T) {
+	for _, primary := range []string{"course", "venue"} {
+		for _, selection := range []string{"", primary + ".id", primary, primary + ".*", primary + ".id,meta.requests"} {
+			cmd := &cobra.Command{}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			flags := rootFlags{quiet: true, selectFields: selection}
+			if err := planningPrint(cmd, &flags, planningDetailOutputFixture(primary)); err != nil {
+				t.Fatal(err)
+			}
+			if out.String() != primary+"-id\n" {
+				t.Fatalf("%s quiet selected wrong identity or envelope: %q", primary, out.String())
+			}
+		}
+		for _, selection := range []string{"meta.requests", primary + ".name", primary + ".name,meta.requests"} {
+			cmd := &cobra.Command{}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			flags := rootFlags{quiet: true, selectFields: selection}
+			err := planningPrint(cmd, &flags, planningDetailOutputFixture(primary))
+			if err == nil || ExitCode(err) != 2 || !strings.Contains(err.Error(), primary+".id") || out.Len() != 0 {
+				t.Fatalf("detail quiet nonidentity selection not rejected: selection%q err%v out%q", selection, err, out.String())
+			}
+		}
+	}
+}
+
+func TestPlanningSelectedNativeContextWriterErrorsStillPropagate(t *testing.T) {
+	for _, flags := range []rootFlags{{csv: true, selectFields: "checks.slug,meta.requests"}, {plain: true, selectFields: "meta.requests"}} {
+		failure := errors.New("selected native writer failed")
+		cmd := &cobra.Command{}
+		cmd.SetOut(publicationFailingWriter{failure})
+		if err := planningPrint(cmd, &flags, availabilityOutputFixture()); !errors.Is(err, failure) {
+			t.Fatalf("selected table swallowed writer error: %v", err)
+		}
+	}
+}
+
+func TestPlanningQuietPrecedesCombinedNativeFormatFlags(t *testing.T) {
+	for _, format := range []rootFlags{{csv: true}, {plain: true}, {csv: true, plain: true}} {
+		format.quiet = true
+		format.selectFields = "checks.slug,meta.requests"
+		out, err := renderAvailabilityOutput(t, format)
+		if err != nil || out != "venue-a\nvenue-a\nvenue-b\nvenue-b\n" {
+			t.Fatalf("combined flags bypassed quiet precedence: output%q err%v", out, err)
+		}
+		format.selectFields = "meta.requests"
+		out, err = renderAvailabilityOutput(t, format)
+		if err == nil || ExitCode(err) != 2 || out != "" {
+			t.Fatalf("combined flags bypassed quiet identity validation: output%q err%v", out, err)
+		}
+		for _, primary := range []string{"course", "venue"} {
+			cmd := &cobra.Command{}
+			var buf bytes.Buffer
+			cmd.SetOut(&buf)
+			err = planningPrint(cmd, &format, planningDetailOutputFixture(primary))
+			if err == nil || ExitCode(err) != 2 || buf.Len() != 0 {
+				t.Fatalf("combined flags bypassed detail identity rule: primary%s output%q err%v", primary, buf.String(), err)
+			}
+		}
+	}
+}
+
+func TestPlanningSelectedEmptyPrimaryArrayRetainsExplicitCell(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		for _, primary := range []string{"checks", "items"} {
+			result := planner.Result{primary: []map[string]any{}, "meta": map[string]any{"requests": 0}}
+			cmd := &cobra.Command{}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			flags := rootFlags{csv: mode == "csv", plain: mode == "plain", selectFields: primary + ",meta.requests"}
+			if err := planningPrint(cmd, &flags, result); err != nil {
+				t.Fatal(err)
+			}
+			reader := csv.NewReader(strings.NewReader(out.String()))
+			if mode == "plain" {
+				reader.Comma = '\t'
+				reader.LazyQuotes = true
+			}
+			rows, err := reader.ReadAll()
+			if err != nil || len(rows) != 2 || len(rows[0]) != 2 {
+				t.Fatalf("empty primary selection lost summary: mode%s primary%s rows%v err%v", mode, primary, rows, err)
+			}
+			columns := map[string]int{}
+			for i, name := range rows[0] {
+				columns[name] = i
+			}
+			emptyColumn, hasEmpty := columns[primary]
+			countColumn, hasCount := columns["meta.requests"]
+			if !hasEmpty || !hasCount || rows[1][emptyColumn] != "[]" || rows[1][countColumn] != "0" {
+				t.Fatalf("explicit empty array/context cell lost: %v", rows)
+			}
+		}
+	}
+}
+
+func TestPlanningDetailQuietIgnoresNestedRuleIdentities(t *testing.T) {
+	for _, primary := range []string{"venue", "course"} {
+		for _, flags := range []rootFlags{{quiet: true}, {quiet: true, csv: true}, {quiet: true, plain: true}, {quiet: true, csv: true, plain: true}} {
+			result := planningDetailOutputFixture(primary)
+			detail := result[primary].(map[string]any)
+			detail["rules"] = []map[string]any{{"id": "nested-rule-id", "description": "Synthetic source condition"}}
+			cmd := &cobra.Command{}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			if err := planningPrint(cmd, &flags, result); err != nil {
+				t.Fatal(err)
+			}
+			if want := primary + "-id\n"; out.String() != want {
+				t.Fatalf("quiet emitted nested rule identity instead of primary detail: primary%s flags%+v got%q want%q", primary, flags, out.String(), want)
+			}
 		}
 	}
 }
