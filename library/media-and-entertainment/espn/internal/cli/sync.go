@@ -598,7 +598,7 @@ func syncDatesRange(ctx context.Context, c interface {
 
 	path := "/" + sport + "/" + league + "/scoreboard"
 	started := time.Now()
-	var totalEvents int
+	var totalEvents, chunks, failedChunks int
 
 	// Chunk into monthly segments
 	current := startDate
@@ -610,19 +610,30 @@ func syncDatesRange(ctx context.Context, c interface {
 		}
 
 		dateRange := current.Format("20060102") + "-" + chunkEnd.Format("20060102")
+		// Since 2026-09-15 ESPN answers any dates=START-END scoreboard query with
+		// HTTP 400 "Failed to get events endpoint." Month (YYYYMM) and single-day
+		// (YYYYMMDD) forms still work, and each chunk is exactly one calendar month,
+		// so ask for the whole month. A partial first or last month over-fetches a
+		// few days; UpsertEvent is idempotent, so that is harmless.
 		params := map[string]string{
-			"dates": dateRange,
-			"limit": "500",
+			"dates": current.Format("200601"),
+			"limit": "1000",
 		}
 
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "  %s/%s %s: ", sport, league, dateRange)
 		}
 
+		chunks++
 		data, fetchErr := c.Get(ctx, path, params)
 		if fetchErr != nil {
+			failedChunks++
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "error: %v\n", fetchErr)
+			} else {
+				errJSON, _ := json.Marshal(fetchErr.Error())
+				fmt.Fprintf(os.Stderr, `{"event":"sync_dates_error","sport":"%s","league":"%s","dates":"%s","error":%s}`+"\n",
+					sport, league, dateRange, errJSON)
 			}
 			// Move to next chunk instead of aborting
 			current = chunkEnd.AddDate(0, 0, 1)
@@ -661,6 +672,9 @@ func syncDatesRange(ctx context.Context, c interface {
 	elapsed := time.Since(started)
 	fmt.Fprintf(os.Stderr, "Sync complete: %d events for %s/%s over %s (%.1fs)\n",
 		totalEvents, sport, league, dates, elapsed.Seconds())
+	if failedChunks > 0 {
+		return fmt.Errorf("%d of %d month requests for %s/%s over %s failed", failedChunks, chunks, sport, league, dates)
+	}
 	return nil
 }
 
