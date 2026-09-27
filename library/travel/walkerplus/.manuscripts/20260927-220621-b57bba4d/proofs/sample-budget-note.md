@@ -1,0 +1,1 @@
+The scorecard sampling harness has a fixed10s timeout. Its uncapped illustrative shortlist hit that harness timeout; normal CLI operation is bounded to60s. Research example now explicitly samples1listingpage/3details/3results (verified cold run4.53s). Product defaults and approvedscope remain unchanged. This produces assessable source output within the sampling budget.

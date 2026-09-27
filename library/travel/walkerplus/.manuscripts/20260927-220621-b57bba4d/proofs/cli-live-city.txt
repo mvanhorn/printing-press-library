@@ -1,0 +1,23 @@
+=== RUN   TestLiveCityCodesAliasesAndPrefecture
+    live_test.go:278: PASS command=["areas" "--prefecture" "tokyo"] stdout_bytes=4735 wall_ms=604 diagnostics=""
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/ar0313104
+    live_test.go:292: PASS command=["search" "--prefecture" "tokyo" "--city" "ar0313104" "--limit" "3" "--max-pages" "1"] stdout_bytes=7483 wall_ms=553 diagnostics=""
+    live_test.go:329: PASS city=ar0313104 events=3 catalog_requests=1 event_pages=1 actual_HTTP=2
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/shinjuku
+    live_test.go:292: PASS command=["search" "--prefecture" "tokyo" "--city" "shinjuku" "--limit" "3" "--max-pages" "1"] stdout_bytes=7483 wall_ms=530 diagnostics=""
+    live_test.go:329: PASS city=shinjuku events=3 catalog_requests=1 event_pages=1 actual_HTTP=2
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/新宿区
+    live_test.go:292: PASS command=["search" "--prefecture" "tokyo" "--city" "新宿区" "--limit" "3" "--max-pages" "1"] stdout_bytes=7483 wall_ms=535 diagnostics=""
+    live_test.go:329: PASS city=新宿区 events=3 catalog_requests=1 event_pages=1 actual_HTTP=2
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_ar0313104
+    live_test.go:351: PASS negative city=ar0313104 prefecture=kyoto exit2 no successful event result
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_shinjuku
+    live_test.go:351: PASS negative city=shinjuku prefecture=kyoto exit2 no successful event result
+--- PASS: TestLiveCityCodesAliasesAndPrefecture (2.71s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/ar0313104 (0.55s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/shinjuku (0.53s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/新宿区 (0.54s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_ar0313104 (0.01s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_shinjuku (0.47s)
+PASS
+ok  	walkerplus-pp-cli/tests	3.329s

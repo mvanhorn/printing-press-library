@@ -1,0 +1,49 @@
+Discover Japan events from public Walkerplus pages.
+
+  search       Browse bounded listing candidates without detail requests.
+  shortlist    Match an exact trip window using bounded source detail.
+  event        Read source facts for a Walkerplus event ID or URL.
+  areas        Discover prefecture aliases and current city routes.
+  categories   Discover Japanese event categories and accepted aliases.
+
+JSON is compact by default. --select projects event fields and keeps coverage.
+Dates use Asia/Tokyo. Listing ranges are envelopes, not attendance guarantees.
+Run doctor for connectivity or doctor --dry-run for an offline check.
+
+Usage:
+  walkerplus-pp-cli [command]
+
+Available Commands:
+  agent-context Emit structured JSON describing this CLI for agents
+  areas         Discover prefectures, or current cities within one prefecture
+  categories    List source-derived Japanese event categories and accepted aliases
+  completion    Generate the autocompletion script for the specified shell
+  doctor        Check CLI health
+  event         Read one event edition with schedule, admission and source evidence
+  help          Help about any command
+  schema        Show event JSON fields accepted by --select and --fields
+  search        Discover bounded listing candidates without fetching event details
+  shortlist     Match a trip window using bounded event details and schedule evidence
+  version       Print version
+
+Flags:
+      --agent                    Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --cache-dir string         Directory for the bounded source HTML cache
+      --cache-ttl string         Freshness lifetime for cached HTML, greater than zero and at most 1d (default "1h")
+      --compact                  Compact JSON output (already the Walkerplus default)
+      --concurrency int          Maximum concurrent HTTP fetches, from 1 to 4 (default 2)
+      --dry-run                  Show request without sending
+      --fields string            Alias for --select; project event fields and retain metadata
+  -h, --help                     help for walkerplus-pp-cli
+      --json                     Emit JSON (the default for Walkerplus commands) (default true)
+      --no-cache                 Bypass response cache
+      --no-color                 Disable colored output
+      --no-input                 Disable all interactive prompts (for CI/agents)
+      --refresh                  Fetch fresh source HTML and replace cached responses
+      --request-timeout string   Timeout per HTTP request, greater than zero and at most 15s (default "15s")
+      --retries int              Retry transient requests this many times, from 0 to 3 (default 2)
+      --select string            Comma-separated event fields; query and coverage stay present
+      --timeout duration         Overall command timeout, greater than zero and at most 60s (default 1m0s)
+  -v, --version                  version for walkerplus-pp-cli
+
+Use "walkerplus-pp-cli [command] --help" for more information about a command.

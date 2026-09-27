@@ -1,0 +1,4 @@
+dogfood: using spec <cli-dir>/spec.yaml (bundled)
+dogfood: caller --spec=<press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d/research/walkerplus-browser-sniff-spec.yaml overridden by bundled <cli-dir>/spec.yaml
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built

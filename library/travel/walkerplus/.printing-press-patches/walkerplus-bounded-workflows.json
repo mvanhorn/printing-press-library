@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-220621-b57bba4d",
+  "base_printing_press_version": "4.32.5",
+  "id": "walkerplus-bounded-workflows",
+  "summary": "Provide bounded Walkerplus discovery, sourced trip matching, and metadata-preserving compact JSON through the focused command tree.",
+  "reason": "The sniffed generated endpoints are sample pages; the approved five workflows require typed listing/detail parsing, exact-edition matching, explicit uncertainty and independent work caps.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/walkerplus_commands.go",
+    "internal/cli/walkerplus_output.go",
+    "internal/walkerplus/client.go",
+    "internal/walkerplus/discovery.go",
+    "internal/walkerplus/catalogs.go",
+    "internal/walkerplus/types.go",
+    "internal/walkerplus/schedule.go",
+    "tests/live_test.go",
+    "workflow_verify.yaml"
+  ],
+  "markers": [
+    "rootCmd.AddCommand(newWalkerEventCmd(flags))",
+    "rootCmd.AddCommand(newWalkerShortlistCmd(flags))",
+    "func printWalkerPayload(",
+    "func (c *Client) Search("
+  ],
+  "validated_outcome": "Prior delivered full test/vet/build, focused verify100%, source-backed live region/city/date/free/indoor and starts/ends assertions passed."
+}

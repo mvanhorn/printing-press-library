@@ -1,0 +1,12 @@
+=== RUN   TestLiveKnownDetailEvidence
+=== RUN   TestLiveKnownDetailEvidence/free_optional_purchases
+    live_test.go:162: PASS command=["event" "ar0726e612484"] stdout_bytes=3285 wall_ms=3076 diagnostics=""
+    live_test.go:175: PASS actual source evidence id=ar0726e612484 title="京都パンフェスティバルin上賀茂神社 2026" requests=3
+--- PASS: TestLiveKnownDetailEvidence (3.08s)
+    --- PASS: TestLiveKnownDetailEvidence/free_optional_purchases (3.08s)
+=== RUN   TestLiveFreeAdmissionShortlist
+    live_test.go:364: PASS command=["shortlist" "--prefecture" "kyoto" "--category" "festival" "--from" "2026-10-10" "--to" "2026-10-11" "--free" "--max-pages" "3" "--max-details" "10" "--limit" "10"] stdout_bytes=10713 wall_ms=9357 diagnostics=""
+    live_test.go:386: PASS --free Kyoto Oct10-11 includes ar0726e612484 with paid-purchase caveat; events=3 details=4 actual_HTTP=14
+--- PASS: TestLiveFreeAdmissionShortlist (9.36s)
+PASS
+ok  	walkerplus-pp-cli/tests	12.936s

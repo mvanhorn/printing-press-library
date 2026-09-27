@@ -1,0 +1,44 @@
+=== RUN   TestLiveMultiRegionCategories
+=== RUN   TestLiveMultiRegionCategories/tokyo_art
+    live_test.go:62: PASS command=["search" "--prefecture" "tokyo" "--category" "art-exhibitions" "--from" "2026-09-27" "--to" "2026-09-30" "--max-pages" "3" "--limit" "10"] stdout_bytes=24415 wall_ms=1044 diagnostics=""
+    live_test.go:116: PASS assertions=50 unique_events=10 scanned_pages=2 detail_count=0 request_count=2
+=== RUN   TestLiveMultiRegionCategories/kyoto_festival
+    live_test.go:62: PASS command=["search" "--prefecture" "kyoto" "--category" "festival" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "3" "--limit" "10"] stdout_bytes=22590 wall_ms=542 diagnostics=""
+    live_test.go:116: PASS assertions=50 unique_events=10 scanned_pages=2 detail_count=0 request_count=2
+=== RUN   TestLiveMultiRegionCategories/hokkaido_fireworks
+    live_test.go:62: PASS command=["search" "--prefecture" "hokkaido" "--category" "fireworks" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "3" "--limit" "10"] stdout_bytes=5455 wall_ms=56 diagnostics=""
+    live_test.go:116: PASS assertions=10 unique_events=2 scanned_pages=1 detail_count=0 request_count=1
+=== RUN   TestLiveMultiRegionCategories/miyagi_art
+    live_test.go:62: PASS command=["search" "--prefecture" "miyagi" "--category" "art-exhibitions" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "3" "--limit" "10"] stdout_bytes=5776 wall_ms=53 diagnostics=""
+    live_test.go:116: PASS assertions=10 unique_events=2 scanned_pages=1 detail_count=0 request_count=1
+--- PASS: TestLiveMultiRegionCategories (1.70s)
+    --- PASS: TestLiveMultiRegionCategories/tokyo_art (1.05s)
+    --- PASS: TestLiveMultiRegionCategories/kyoto_festival (0.54s)
+    --- PASS: TestLiveMultiRegionCategories/hokkaido_fireworks (0.06s)
+    --- PASS: TestLiveMultiRegionCategories/miyagi_art (0.05s)
+=== RUN   TestLiveKnownDetailEvidence
+=== RUN   TestLiveKnownDetailEvidence/paid_reservations
+    live_test.go:157: PASS command=["event" "ar0313e603640"] stdout_bytes=3538 wall_ms=1031 diagnostics=""
+    live_test.go:170: PASS actual source evidence id=ar0313e603640 title="はてな展" requests=3
+=== RUN   TestLiveKnownDetailEvidence/weather
+    live_test.go:157: PASS command=["event" "ar0101e66092"] stdout_bytes=2851 wall_ms=1039 diagnostics=""
+    live_test.go:170: PASS actual source evidence id=ar0101e66092 title="第45回 洞爺湖ロングラン花火大会" requests=3
+=== RUN   TestLiveKnownDetailEvidence/indoor
+    live_test.go:157: PASS command=["event" "ar0727e612159"] stdout_bytes=2596 wall_ms=1036 diagnostics=""
+    live_test.go:170: PASS actual source evidence id=ar0727e612159 title="緑と生き物メダカカーニバルVol.7" requests=3
+=== RUN   TestLiveKnownDetailEvidence/holiday_rule
+    live_test.go:157: PASS command=["event" "ar0204e612432"] stdout_bytes=4287 wall_ms=1033 diagnostics=""
+    live_test.go:170: PASS actual source evidence id=ar0204e612432 title="ポケモン×工芸展ー美とわざの大発見ー(宮城)" requests=3
+--- PASS: TestLiveKnownDetailEvidence (4.14s)
+    --- PASS: TestLiveKnownDetailEvidence/paid_reservations (1.03s)
+    --- PASS: TestLiveKnownDetailEvidence/weather (1.04s)
+    --- PASS: TestLiveKnownDetailEvidence/indoor (1.04s)
+    --- PASS: TestLiveKnownDetailEvidence/holiday_rule (1.03s)
+=== RUN   TestLiveShortlistAndWrongYear
+    live_test.go:178: PASS command=["shortlist" "--prefecture" "kyoto" "--category" "festival" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "1" "--max-details" "3" "--limit" "3"] stdout_bytes=10178 wall_ms=4533 diagnostics=""
+    live_test.go:200: PASS shortlist events=3 details=3 requests=10
+    live_test.go:201: PASS command=["search" "--prefecture" "kyoto" "--category" "festival" "--from" "2100-10-01" "--to" "2100-10-31" "--max-pages" "1"] stdout_bytes=960 wall_ms=45 diagnostics=""
+    live_test.go:205: PASS negative wrong-year assertion: events=[] after one actual source page
+--- PASS: TestLiveShortlistAndWrongYear (4.58s)
+PASS
+ok  	walkerplus-pp-cli/tests	10.844s

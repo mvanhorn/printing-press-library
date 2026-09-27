@@ -1,0 +1,18 @@
+{
+  "workdir": "<workspace>",
+  "exit_codes": {
+    "test": 0,
+    "vet": 0,
+    "cli_build": 0,
+    "all_build": 0,
+    "help": 0,
+    "schema": 0
+  },
+  "passing_test_packages": 12,
+  "no_test_packages": 5,
+  "live_e2e_repeated": false,
+  "help_has_five_workflows": true,
+  "schema_field_count": 60,
+  "schema_has_title_ja": true,
+  "binary_sha256": "57a2b711872240eed302175c55df7b6c954b70d4c70ec3cbb9d5dc12cbe684cd"
+}

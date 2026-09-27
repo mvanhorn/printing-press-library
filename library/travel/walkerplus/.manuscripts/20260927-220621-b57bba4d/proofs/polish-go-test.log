@@ -1,0 +1,22 @@
+?   	walkerplus-pp-cli/cmd/walkerplus-pp-cli	[no test files]
+ok  	walkerplus-pp-cli/cmd/walkerplus-pp-mcp	0.481s
+?   	walkerplus-pp-cli/internal/cache	[no test files]
+ok  	walkerplus-pp-cli/internal/cli	2.284s
+ok  	walkerplus-pp-cli/internal/client	4.131s
+ok  	walkerplus-pp-cli/internal/cliutil	12.662s
+?   	walkerplus-pp-cli/internal/cliutil/testenv	[no test files]
+?   	walkerplus-pp-cli/internal/config	[no test files]
+ok  	walkerplus-pp-cli/internal/mcp	1.709s
+ok  	walkerplus-pp-cli/internal/mcp/bound	4.441s
+ok  	walkerplus-pp-cli/internal/mcp/cobratree	9.207s
+ok  	walkerplus-pp-cli/internal/platform	1.324s
+ok  	walkerplus-pp-cli/internal/store	5.363s
+?   	walkerplus-pp-cli/internal/types	[no test files]
+ok  	walkerplus-pp-cli/internal/walkerplus	9.196s
+--- FAIL: TestClientBoundsErrorsCacheAndValidation (0.57s)
+    --- FAIL: TestClientBoundsErrorsCacheAndValidation/query_validation_without_requests (0.00s)
+        behavior_test.go:462: invalid query accepted: {cityPath: cityName: Prefecture:kyoto City:shibuya Category: From: To: Timing: Sort: Limit:0 Page:0 MaxPages:0 MaxDetails:0 Free:false Indoor:false}
+FAIL
+FAIL	walkerplus-pp-cli/internal/walkerplusacceptance	62.202s
+ok  	walkerplus-pp-cli/tests	5.234s
+FAIL

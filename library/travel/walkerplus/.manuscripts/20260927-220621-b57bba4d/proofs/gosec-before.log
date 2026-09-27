@@ -1,0 +1,140 @@
+go: downloading github.com/securego/gosec/v2 v2.26.1
+go: downloading github.com/ccojocar/zxcvbn-go v1.0.4
+go: downloading github.com/anthropics/anthropic-sdk-go v1.38.0
+go: downloading github.com/openai/openai-go/v3 v3.32.0
+go: downloading google.golang.org/genai v1.54.0
+go: downloading github.com/gookit/color v1.6.0
+go: downloading go.yaml.in/yaml/v3 v3.0.4
+go: downloading github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e
+go: downloading cloud.google.com/go/auth v0.16.5
+go: downloading cloud.google.com/go v0.121.2
+go: downloading github.com/gorilla/websocket v1.5.3
+go: downloading github.com/tidwall/sjson v1.2.5
+go: downloading github.com/invopop/jsonschema v0.13.0
+go: downloading github.com/wk8/go-ordered-map/v2 v2.1.8
+go: downloading github.com/tidwall/gjson v1.18.0
+go: downloading github.com/bahlo/generic-list-go v0.2.0
+go: downloading github.com/buger/jsonparser v1.1.2
+go: downloading github.com/mailru/easyjson v0.7.7
+go: downloading github.com/tidwall/pretty v1.2.1
+go: downloading github.com/tidwall/match v1.1.1
+go: downloading cloud.google.com/go/compute/metadata v0.9.0
+go: downloading go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0
+go: downloading github.com/googleapis/enterprise-certificate-proxy v0.3.6
+go: downloading google.golang.org/grpc v1.79.3
+go: downloading github.com/googleapis/gax-go/v2 v2.15.0
+go: downloading golang.org/x/net v0.53.0
+go: downloading github.com/google/s2a-go v0.1.9
+go: downloading go.opentelemetry.io/otel v1.41.0
+go: downloading github.com/felixge/httpsnoop v1.0.4
+go: downloading go.opentelemetry.io/otel/trace v1.41.0
+go: downloading go.opentelemetry.io/otel/metric v1.41.0
+go: downloading google.golang.org/protobuf v1.36.10
+go: downloading github.com/go-logr/logr v1.4.3
+go: downloading golang.org/x/text v0.36.0
+go: downloading github.com/go-logr/stdr v1.2.2
+go: downloading go.opentelemetry.io/auto/sdk v1.2.1
+go: downloading github.com/cespare/xxhash/v2 v2.3.0
+go: downloading golang.org/x/crypto v0.50.0
+go: downloading golang.org/x/sys v0.43.0
+go: downloading google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217
+[gosec] 2026/09/27 23:41:52 Including rules: default
+[gosec] 2026/09/27 23:41:52 Excluding rules: default
+[gosec] 2026/09/27 23:41:52 Including analyzers: default
+[gosec] 2026/09/27 23:41:52 Excluding analyzers: default
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/cli
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/config
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/types
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/walkerplusacceptance
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/cmd/walkerplus-pp-cli
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/cliutil
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/cliutil/testenv
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/cmd/walkerplus-pp-mcp
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/walkerplus
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/client
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/mcp/bound
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/store
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/mcp/cobratree
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/cache
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/mcp
+[gosec] 2026/09/27 23:41:52 Checking package: types
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/types/types.go
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/internal/platform
+[gosec] 2026/09/27 23:41:52 Checking package: bound
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/bound/bound.go
+[gosec] 2026/09/27 23:41:52 Import directory: <cli-dir>/tests
+[gosec] 2026/09/27 23:41:52 Checking package: cache
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cache/cache.go
+[gosec] 2026/09/27 23:41:52 Checking package: testenv
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/testenv/sandbox_unix.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/testenv/testenv.go
+[gosec] 2026/09/27 23:41:52 Checking package: config
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/config/config.go
+[gosec] 2026/09/27 23:41:52 Checking package: cliutil
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/duration.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/extractnumber.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/fanout.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/filelock.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/filelock_unix.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/jwtshape.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/odata_date.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/paths.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/probe.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/ratelimit.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/text.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/cliutil/verifyenv.go
+[gosec] 2026/09/27 23:41:52 Checking package: walkerplus
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/walkerplus/catalogs.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/walkerplus/client.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/walkerplus/discovery.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/walkerplus/parser.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/walkerplus/schedule.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/walkerplus/types.go
+[gosec] 2026/09/27 23:41:52 Checking package: store
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/store/extras.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/store/store.go
+[gosec] 2026/09/27 23:41:52 Checking package: client
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/client/client.go
+[gosec] 2026/09/27 23:41:52 Checking package: platform
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/doctor.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/gate.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/metadata.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/migration.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/perms_unix.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/profile.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/ratelimit.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/platform/receipt.go
+[gosec] 2026/09/27 23:41:52 Checking package: cobratree
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/cobratree/classify.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/cobratree/cli_path.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/cobratree/names.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/cobratree/shellout.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/cobratree/typemap.go
+[gosec] 2026/09/27 23:41:52 Checking file: <cli-dir>/internal/mcp/cobratree/walker.go
+[gosec] 2026/09/27 23:41:53 Checking package: main
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/cmd/walkerplus-pp-cli/main.go
+[gosec] 2026/09/27 23:41:53 Checking package: cli
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/agent_context.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/channel_workflow.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/data_source.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/deliver.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/doctor.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/feedback.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/helpers.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/html_extract.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/platform_client.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/platform_window.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/profile.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/promoted_event-list.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/resource_paths.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/root.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/version.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/walkerplus_commands.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/walkerplus_output.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/cli/which.go
+[gosec] 2026/09/27 23:41:53 Checking package: mcp
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/mcp/platform_gate.go
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/internal/mcp/tools.go
+[gosec] 2026/09/27 23:41:53 Checking package: main
+[gosec] 2026/09/27 23:41:53 Checking file: <cli-dir>/cmd/walkerplus-pp-mcp/main.go
+exit status 1

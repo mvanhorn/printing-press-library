@@ -1,0 +1,16 @@
+=== RUN   TestLiveTimingBoundaryModes
+=== RUN   TestLiveTimingBoundaryModes/starts
+    live_test.go:394: PASS command=["shortlist" "--prefecture" "hokkaido" "--category" "fireworks" "--from" "2026-10-01" "--to" "2026-10-15" "--timing" "starts" "--max-pages" "1" "--max-details" "2" "--limit" "2"] stdout_bytes=4166 wall_ms=2314 diagnostics=""
+    live_test.go:426: PASS starts: TomakomaiOct10 included, long-run excluded, every source boundary insideOct1-15; events=1 details=1 HTTP=4
+=== RUN   TestLiveTimingBoundaryModes/ends
+    live_test.go:394: PASS command=["shortlist" "--prefecture" "hokkaido" "--category" "fireworks" "--from" "2026-10-01" "--to" "2026-10-15" "--timing" "ends" "--max-pages" "1" "--max-details" "2" "--limit" "2"] stdout_bytes=4160 wall_ms=1525 diagnostics=""
+    live_test.go:426: PASS ends: TomakomaiOct10 included, long-run excluded, every source boundary insideOct1-15; events=1 details=1 HTTP=4
+--- PASS: TestLiveTimingBoundaryModes (3.84s)
+    --- PASS: TestLiveTimingBoundaryModes/starts (2.32s)
+    --- PASS: TestLiveTimingBoundaryModes/ends (1.53s)
+=== RUN   TestLiveIndoorShortlist
+    live_test.go:437: PASS command=["shortlist" "--prefecture" "osaka" "--city" "ar0727100" "--category" "exhibitions" "--from" "2026-10-11" "--to" "2026-10-11" "--indoor" "--max-pages" "1" "--max-details" "3" "--limit" "3"] stdout_bytes=4094 wall_ms=5790 diagnostics=""
+    live_test.go:468: PASS --indoor: actual e612159 Oct11 included; every returned indoor=true; events=1 details=3 catalog_HTTP=1 total_HTTP=11
+--- PASS: TestLiveIndoorShortlist (5.79s)
+PASS
+ok  	walkerplus-pp-cli/tests	9.825s

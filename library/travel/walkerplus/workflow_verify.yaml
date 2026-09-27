@@ -1,0 +1,17 @@
+workflows:
+  - name: Bounded Kyoto discovery to source detail
+    primary: true
+    steps:
+      - command: search --prefecture kyoto --category festival --from 2026-10-01 --to 2026-10-31 --max-pages 1 --limit 1 --refresh --no-cache
+        mode: live
+        expect_fields: [query, events, coverage, meta]
+        extract:
+          EVENT_ID: "$.events[0].id"
+      - command: event ${EVENT_ID} --refresh --no-cache --select id,title_ja,source_url,start_date,end_date,location,schedule,admission,reservation_required,sources
+        mode: live
+        expect_fields: [event, coverage, meta]
+        extract:
+          DETAIL_ID: "$.event.id"
+      - command: shortlist --prefecture kyoto --category festival --from 2026-10-01 --to 2026-10-31 --max-pages 1 --max-details 3 --limit 3 --refresh --no-cache
+        mode: live
+        expect_fields: [query, events, coverage, meta]

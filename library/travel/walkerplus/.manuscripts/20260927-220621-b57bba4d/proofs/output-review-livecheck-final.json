@@ -1,0 +1,80 @@
+{
+  "live_check": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Trip shortlist",
+        "command": "shortlist",
+        "example": "walkerplus-pp-cli shortlist --prefecture kyoto --from 2026-10-10 --to 2026-10-12 --max-pages 1 --max-details 3 --limit 3",
+        "status": "pass",
+        "output_sample": "{\"coverage\":{\"cache_hits\":0,\"candidate_count\":10,\"catalog_requests\":0,\"catalog_routes\":[],\"detail_count\":3,\"elapsed_ms\":5265,\"excluded_count\":2,\"incomplete\":false,\"native_year_labels\":[\"2026\",\"2027\"],\"next_page\":\"https://www.walkerplus.com/event_list/10/ar0726/2.html\",\"reasons\":[\"native month routes have no year selector; undisclosed editions cannot be discovered\",\"listing page budget reached\",\"detail candidate budget reached\"],\"request_count\":10,\"requested_pages\":1,\"returned_count\":3,\"routes\":[\"https://www.walkerplus.com/event_list/10/ar0726/\"],\"scanned_pages\":1,\"source_total\":134,\"truncated\":true},\"events\":[{\"access\":\"[公共交通]地下鉄烏丸線「烏丸御池」駅3番出口より徒歩約3分\",\"admission\":{\"currency\":\"JPY\",\"price\":null,\"raw\":\"有料。大人800円、シニア（70歳以上）・高校生500円、小中学生300円、幼児無料\",\"status\":\"paid\"},\"cancellation\":null,\"categories\":[{\"aliases\":[],\"code\":\"eg0126\",\"kind\":\"category\",\"name_ja\":\"展示会\",\"path\":\"/event_list/eg0126/\",\"prefecture_code\":null}],\"date_certainty\":\"exact\",\"description\":\"海や夏をテーマにした万華鏡や、青を基調とした涼しげな万華鏡など幅広く展示する。新作なども登場するので、この機会に鑑賞しに行こう。\",\"edition_year\":2026,\"end_date\":\"2026-10-25\",\"evidence\":[{\"field\":\"schedule\",\"source_url\":\"https://www.walkerplus.com/event/ar0726e612501/data.html\",\"text\":\"2026年7月14日(火)～10月25日(日) 休館日は月曜日（祝日の場合は開館し、翌平日休み）。最終入館は17：30まで。\"},{\"field\":\"admission\",\"source_url\":\"https://www.walkerplus.com/event/ar0726e612501/price.html\",\"text\":\"有料。大人800円、シニア（70歳以上）・高校生500円、小中学生300円、幼児無料\"}],\"hours\":\"10:00～18:00\",\"id\":\"ar0726e612501\",\"indoor\":null,\"location\":{\"address\":\"\u003credacted\u003e\",\"city_code\":null,\"city_ja\":\"京都市中京区\",\"prefecture_code\":\"ar0726\",\"prefecture_ja\":\"京都府\",\"venue\":\"京都万華鏡ミュージアム\"},\"match\":{\"confirmed_days\":[],\"envelope_overlap_days\":3,\"possible_days\":[\"2026-10-10\",\"2026-10-11\",\"2026-10-12\"],\"reasons\":[\"source edition envelope overlaps requested dates\",\"activity on overlapping days remains unverified\",\"source location and category satisfy requested filters\"],\"state\":\"possible\",\"timing\":\"overlap\"},\"organizer_urls\":[\"https://k-kaleido.org/\"],\"reservation_required\":null,\"reservation_text\":null,\"schedule\":{\"closed_weekdays\":[],\"excluded_dates\":[],\"occurrence_dates\":[],\"raw\":\"2026年7月14日(火)～10月25日(日) 休館日は月曜日（祝日の場合は開館し、翌平日休み）。最終入館は17：30まで。\",\"recurrence\":null,\"unresolved\":[\"holiday-dependent schedule cannot be resolved without source holiday dates\"]},\"source_updated\":null,\"source_url\":\"https://www.walkerplus.com/event/ar0726e612501/\",\"sources\":[{\"cache_age_seconds\":0,\"cache_hit\":false,\"fetched_at\":\"2026-09-27T15:36:33Z\",\"url\":\"https://www.walkerplus.com/event_list/10/ar0726/\"},{\"cache_age_seconds\":0,\"cache_hit\":false,\"fetched_at\":\"2026-09-27T15:36:37Z\",\"url\":\"https://www.walkerplus.com/event/ar0726e612501/\"},{\"cache_age_seconds\":0,\"cache_hit\":false,\"fetched_at\":\"2026-09-27T15:36:38Z\",\"url\":\"https://www.walkerplus.com/event/ar0726e612501/data.html\"},{\"cache_age_seconds\":0,\"cache_hit\":false,\"fetched_at\":\"2026-09-27T15:36:39Z\",\"url\":\"https://www.walkerplus.com/event/ar0726e612501/price.html\"}],\"start_date\":\"2026-07-14\",\"timezone\":\"Asia/Tokyo\",\"title_ja\":\"夏の万華鏡展\",\"weather\":null},{\"access\":\"[車]京都縦貫自動車道「大原野IC」より約10分・名神高速道路「大山崎IC」より約20分[公共交通]JR向日町駅／阪急東向日駅よりタクシーで約15分\",\"admission\":{\"currency\":\"JPY\",\"price\":null,\"raw\":\"有料。大人6,050円、小学生3,025円、未就学児（3歳以上）550円、未就学児（3歳未満）無料\",\"status\":\"paid\"},\"cancellation\":null,\"categories\":[{\"aliases\":[],\"code\":\"eg0134\",\"kind\":\"category\",\"name_ja\":\"味覚狩り・フルーツ狩り\",\"path\":\"/event_list/eg0134/\",\"prefec…[truncated]"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<cli-dir>/build/stage/bin/walkerplus-pp-cli",
+      "binary_path": "<cli-dir>/build/stage/bin/walkerplus-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-09-27T15:36:33.05066Z",
+    "status": "available",
+    "checked": 1,
+    "evaluated": 1,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "walkerplus",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 8,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 7,
+      "vision": 5,
+      "workflows": 4,
+      "insight": 2,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 4,
+      "dead_code": 1,
+      "live_api_verification": 0,
+      "total": 71,
+      "percentage": 71
+    },
+    "competitor_scores": null,
+    "overall_grade": "B (2 of 24 dimensions unverified: path_validity, auth_protocol)",
+    "gap_report": [
+      "workflows scored 4/10 - needs improvement",
+      "insight scored 2/10 - needs improvement",
+      "dead_code scored 1/5 - needs improvement",
+      "MCP: 2 tools (2 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ],
+    "unverified_dimensions": [
+      "path_validity",
+      "auth_protocol"
+    ]
+  }
+}

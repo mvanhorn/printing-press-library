@@ -1,0 +1,85 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": true,
+    "data_pipeline_detail": "SKIP (CLI has no sync command)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "agent-context",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "areas",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "categories",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "event",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "schema",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "search",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "shortlist",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      }
+    ],
+    "binary": "<cli-dir>/walkerplus-pp-cli"
+  }
+}

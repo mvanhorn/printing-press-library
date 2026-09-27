@@ -1,0 +1,13 @@
+{
+  "command": "selected search",
+  "cache": "warm",
+  "selection": "id,title_ja,start_date,end_date,location.venue,match.state,sources",
+  "stdout_bytes": 2008,
+  "unprojected_warm_bytes": 6982,
+  "reduction_percent": 71.24,
+  "request_count": 0,
+  "cache_hits": 1,
+  "wall_ms": 12.97,
+  "event_count": 3,
+  "metadata_preserved": true
+}

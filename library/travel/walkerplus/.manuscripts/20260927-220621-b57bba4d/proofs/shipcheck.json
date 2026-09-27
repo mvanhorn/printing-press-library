@@ -1,0 +1,72 @@
+{
+  "passed": false,
+  "exit_code": 1,
+  "verdict": "FAIL",
+  "started_at": "2026-09-27T15:19:10Z",
+  "elapsed_ms": 24788,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:19:10Z",
+      "elapsed_ms": 3876,
+      "command": "<home>/go/bin/cli-printing-press verify --dir <cli-dir> --write-manifest <cli-dir>/.printing-press.json --spec <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d/research/walkerplus-browser-sniff-spec.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 1,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-09-27T15:19:14Z",
+      "elapsed_ms": 616,
+      "command": "<home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d/research.json --binary <cli-dir>/build/stage/bin/walkerplus-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:19:15Z",
+      "elapsed_ms": 2311,
+      "command": "<home>/go/bin/cli-printing-press dogfood --dir <cli-dir> --spec <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d/research/walkerplus-browser-sniff-spec.yaml --research-dir <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:19:17Z",
+      "elapsed_ms": 6278,
+      "command": "<home>/go/bin/cli-printing-press workflow-verify --dir <cli-dir>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:19:23Z",
+      "elapsed_ms": 115,
+      "command": "<home>/go/bin/cli-printing-press apify-audit --dir <cli-dir> --research-dir <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:19:23Z",
+      "elapsed_ms": 730,
+      "command": "<home>/go/bin/cli-printing-press verify-skill --dir <cli-dir>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:19:24Z",
+      "elapsed_ms": 10858,
+      "command": "<home>/go/bin/cli-printing-press scorecard --dir <cli-dir> --write-manifest <cli-dir>/.printing-press.json --research-dir <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d --spec <press-home>/.runstate/walkerplus-cli-a6dbba3c/runs/20260927-220621-b57bba4d/research/walkerplus-browser-sniff-spec.yaml --live-check"
+    }
+  ]
+}

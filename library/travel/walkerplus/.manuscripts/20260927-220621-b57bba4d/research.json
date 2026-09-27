@@ -1,0 +1,80 @@
+{
+  "api_name": "walkerplus",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:29:44.247657Z",
+  "novel_features": [
+    {
+      "name": "Trip shortlist",
+      "command": "shortlist",
+      "description": "Find exact-edition trip candidates with schedule confidence, constraints and explainable ranking.",
+      "rationale": "Combines bounded Walkerplus listing/detail evidence with local overlap, starts and ends checks.",
+      "example": "walkerplus-pp-cli shortlist --prefecture kyoto --from 2026-10-10 --to 2026-10-12 --max-pages 1 --max-details 3 --limit 3",
+      "why_it_matters": "Use for a bounded event shortlist tailored to trip dates and practical constraints.",
+      "group": "Trip discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Trip shortlist",
+      "command": "shortlist",
+      "description": "Find exact-edition trip candidates with schedule confidence, constraints and explainable ranking.",
+      "rationale": "Combines bounded Walkerplus listing/detail evidence with local overlap, starts and ends checks.",
+      "example": "walkerplus-pp-cli shortlist --prefecture kyoto --from 2026-10-10 --to 2026-10-12 --max-pages 1 --max-details 3 --limit 3",
+      "why_it_matters": "Use for a bounded event shortlist tailored to trip dates and practical constraints.",
+      "group": "Trip discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Walkerplus",
+    "headline": "Discover Japan events for a trip with source-backed dates and schedule confidence.",
+    "value_prop": "Build a bounded shortlist from Walkerplus while preserving Japanese event titles and uncertainty. Inspect details before committing travel time.",
+    "auth_narrative": "Public Walkerplus HTML; no API key or login required.",
+    "quickstart": [
+      {
+        "command": "walkerplus-pp-cli doctor --dry-run",
+        "comment": "Check the local command setup."
+      },
+      {
+        "command": "walkerplus-pp-cli categories",
+        "comment": "Discover supported event filters."
+      },
+      {
+        "command": "walkerplus-pp-cli search --prefecture kyoto --from 2026-10-10 --to 2026-10-12 --limit 5",
+        "comment": "Find bounded trip candidates."
+      }
+    ],
+    "when_to_use": "Use for Walkerplus event discovery during Japan trip planning and checking a known event schedule, admission, venue or reservation requirements.",
+    "anti_triggers": [
+      "Booking tickets or making reservations",
+      "Claiming exhaustive nationwide coverage or unpublished future editions"
+    ],
+    "recipes": [
+      {
+        "title": "Trip shortlist",
+        "command": "walkerplus-pp-cli shortlist --prefecture kyoto --from 2026-10-10 --to 2026-10-12 --limit 5",
+        "explanation": "Enrich bounded candidates and explain schedule confidence."
+      },
+      {
+        "title": "Compact candidate scan",
+        "command": "walkerplus-pp-cli search --prefecture tokyo --from 2026-10-01 --to 2026-10-07 --agent --select id,title_ja,source_url",
+        "explanation": "Keep event output small while retaining coverage metadata."
+      },
+      {
+        "title": "Event facts",
+        "command": "walkerplus-pp-cli event ar0313e603640",
+        "explanation": "Read source schedule, access, pricing and reservation facts."
+      }
+    ],
+    "trigger_phrases": [
+      "Find festivals during my Japan trip",
+      "Check this Walkerplus event schedule",
+      "Find indoor Japan events",
+      "use walkerplus",
+      "run walkerplus-pp-cli"
+    ]
+  }
+}
