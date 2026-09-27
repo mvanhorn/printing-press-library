@@ -48,7 +48,7 @@ For a source checkout, use a locally built `walkerplus-pp-cli` binary with Go 1.
 
 ## Evidence and bounds
 
-Japanese titles are authoritative. Raw schedule, admission and reservation text, evidence, and source URLs are source facts. Normalized `edition_year`/`date_certainty`, parsed recurrence/exclusion lists, admission status, boolean classifications, and match/rank fields are derived conveniences. An overall date envelope is not proof of daily activity. Approximate seasons, unresolved holiday exceptions, and undisclosed next-year editions never become confirmed dates. `--timing starts|ends` checks published envelope boundaries.
+Japanese titles are authoritative. Raw schedule, admission and reservation text, evidence, and source URLs are source facts. Normalized `edition_year`/`date_certainty`, parsed recurrence/exclusion lists, admission status, boolean classifications, and match/rank fields are derived conveniences. An overall date envelope is not proof of daily activity. Closure-only rules narrow possible days; explicit occurrences, daily activity or positive recurrence can confirm activity. Approximate seasons, unresolved holiday exceptions, and undisclosed next-year editions never become confirmed dates. `--timing starts|ends` checks published envelope boundaries.
 
 JSON is compact by default; `--agent` and `--json` are compatible. `--select`/`--fields` project event fields while retaining query, coverage and provenance. Use `schema` to discover fields. Unknown scalars are null, collections are empty arrays, diagnostics are stderr.
 

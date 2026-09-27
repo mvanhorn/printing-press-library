@@ -58,7 +58,7 @@ Filters use `--prefecture`, `--city`, `--category`, `--from`, and `--to`. Discov
 
 ## Bounds and Freshness
 
-Defaults are 10 results, 3 listing pages, and 10 detail candidates. Hard limits are 100 results, 20 listing pages, 30 detail candidates, 4 concurrent requests, and 3 retries. `--page` chooses the first listing page. `--limit` bounds returned events; `--max-pages` bounds discovery work independently; `--max-details` bounds shortlist enrichment. Shortlist returns only candidates whose detail was inspected, so it can return fewer than `--limit` when the detail cap is reached. A trip window can span at most 366 days.
+Defaults are 10 results, 3 listing pages, and 10 detail candidates. Hard limits are 100 results, 20 listing pages, 30 detail candidates, 4 concurrent requests, and 3 retries. `--page` chooses the first listing page. `--limit` bounds returned events; `--max-pages` bounds discovery work independently; `--max-details` bounds shortlist enrichment. Shortlist returns only candidates whose detail was inspected, so it can return fewer than `--limit` when the detail cap is reached. Missing listing city/category facts may be checked in detail; known conflicts are skipped and final filters remain strict. A trip window can span at most 366 days.
 
 Coverage records sampled routes, native year labels, scanned pages, candidates, detail count, request count, cache hits, elapsed time, truncation reasons, and continuation when available. Empty results include a note about bounded source coverage. They do not imply there are no events in Japan.
 
@@ -101,7 +101,7 @@ Read the weather and reservation caveats before traveling:
 ./walkerplus-pp-cli event ar0313e603640 --select id,title_ja,admission,reservation_required,reservation_text,sources
 ```
 
-A source start/end range is an envelope, not proof that every day is active. Search marks activity as possible. Shortlist uses explicit occurrences, recurrence, and exclusions; unresolved holiday rules and approximate seasonal dates stay possible. Unpublished future editions are not inferred from the current edition. Native routes select a month or day without a year selector, so cross-year discovery can be incomplete. Recheck the source and organizer before attendance.
+A source start/end range is an envelope, not proof that every day is active. Search marks activity as possible. Shortlist uses explicit occurrences, recurrence, and exclusions. Closure-only rules exclude those days without proving all other days active; unresolved holiday/monthly rules and approximate seasonal dates stay possible. Unpublished future editions are not inferred from the current edition. Native routes select a month or day without a year selector, so cross-year discovery can be incomplete. Recheck the source and organizer before attendance.
 
 ## Development
 

@@ -63,7 +63,10 @@ func TestShortlistRecurrenceExclusionsAndClosedDays(t *testing.T) {
 	if onSunday.Match == nil {
 		t.Fatal("positive Sunday has no match")
 	}
-	assertStrings(t, "positive Sunday confirmed_days", onSunday.Match.ConfirmedDays, []string{"2026-10-11"})
+	// A stated closure rules out Monday; it does not independently establish
+	// Sunday opening. Affirmative daily/weekly controls are covered separately.
+	assertStrings(t, "positive Sunday confirmed_days", onSunday.Match.ConfirmedDays, []string{})
+	assertStrings(t, "positive Sunday possible_days", onSunday.Match.PossibleDays, []string{"2026-10-11"})
 	negative, err := c.Shortlist(context.Background(), trip("2026-10-12", "2026-10-12"))
 	if err != nil {
 		t.Fatal(err)

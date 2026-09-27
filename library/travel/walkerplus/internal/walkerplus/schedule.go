@@ -7,14 +7,105 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 )
 
 var japaneseDateRE = regexp.MustCompile(`(?:([12][0-9]{3})年)?(?:([0-9]{1,2})月)?([0-9]{1,2})日`)
 var exclusionRE = regexp.MustCompile(`(?:([12][0-9]{3})年)?([0-9]{1,2})月([0-9]{1,2})日(?:[（(][^）)]*[）)])?(?:は|を)?(?:除く|休館|休み|中止)`)
-var weeklyRE = regexp.MustCompile(`(?:毎週|毎)([月火水木金土日・、曜]+)`)
-var onlyWeekdaysRE = regexp.MustCompile(`([月火水木金土日・、]+)曜(?:日)?(?:のみ|だけ)(?:開催|実施)`)
-var closedRE = regexp.MustCompile(`(?:休館日|休園日|休業日|休み|定休日)[：: ]*([月火水木金土日・、曜日]+)|([月火水木金土日]+)曜(?:日)?(?:は)?(?:休館|休園|休業|休み)`)
+
+const weekdayListPattern = "(?:毎週)?[月火水木金土日](?:曜(?:日)?)?(?:[・、/／ ]*(?:毎週)?[月火水木金土日](?:曜(?:日)?)?)*"
+
+var weeklyRE = regexp.MustCompile("毎週(" + weekdayListPattern + ")")
+var dailyRE = regexp.MustCompile("毎日(?:[^曜]|$)|連日開催")
+var bareWeeklyRE = regexp.MustCompile("毎(" + weekdayListPattern + "曜(?:日)?)(?:は|に|のみ|だけ)?(?:開催|実施|開館|営業)")
+var onlyWeekdaysRE = regexp.MustCompile("(" + weekdayListPattern + ")(?:のみ|だけ)(?:開催|実施)")
+var closedRE = regexp.MustCompile("(?:休館日|休園日|休業日|休み|定休日)[：: ]*(" + weekdayListPattern + ")|(" + weekdayListPattern + ")(?:[（(][^）)]*[）)])?(?:は|が|を)?(?:休館|休園|休業|休み|定休|除く)")
+var monthlyWeekdayRE = regexp.MustCompile("毎月(?:第?[0-9０-９一二三四五]+(?:[・、](?:第)?[0-9０-９一二三四五]+)*(?:週)?)?(?:[0-9０-９]+日|[月火水木金土日](?:曜(?:日)?)?)?(?:[（(][^）)]*[）)])?|第[0-9０-９一二三四五]+(?:[・、](?:第)?[0-9０-９一二三四五]+)*(?:週)?[月火水木金土日](?:曜(?:日)?)?")
+var calendarWeekdayRE = regexp.MustCompile(japaneseDateRE.String() + "(?:[（(][月火水木金土日](?:曜(?:日)?)?[）)])?")
 var weekdayNames = []string{"日", "月", "火", "水", "木", "金", "土"}
+
+func weekdayTokens(names string) []time.Weekday {
+	// 日 in the grammar suffix 曜日 is not a second Sunday token.
+	names = strings.NewReplacer("毎週", "", "曜日", "", "曜", "").Replace(names)
+	out := []time.Weekday{}
+	for _, r := range names {
+		for i, name := range weekdayNames {
+			if string(r) == name && !containsWeekday(out, time.Weekday(i)) {
+				out = append(out, time.Weekday(i))
+			}
+		}
+	}
+	return out
+}
+
+func supportedWeekdayText(raw string) (string, bool) {
+	var out strings.Builder
+	last := 0
+	unsupported := false
+	for _, span := range monthlyWeekdayRE.FindAllStringIndex(raw, -1) {
+		// 毎月曜 is an explicit weekday; 毎月第1日曜 is monthly/nth-week.
+		if strings.HasPrefix(raw[span[0]:], "毎月曜") {
+			continue
+		}
+		out.WriteString(raw[last:span[0]])
+		out.WriteByte(' ')
+		last = span[1]
+		unsupported = true
+	}
+	out.WriteString(raw[last:])
+	return out.String(), unsupported
+}
+
+func parseWeekdayRules(e *Event, raw string) {
+	text, unsupported := supportedWeekdayText(raw)
+	if unsupported {
+		e.Schedule.Unresolved = appendUnique(e.Schedule.Unresolved, "monthly or nth-week recurrence is unsupported")
+	}
+	// Calendar dates/annotations are not standalone weekday recurrence tokens.
+	text = calendarWeekdayRE.ReplaceAllString(text, " ")
+	var positive strings.Builder
+	last := 0
+	for _, m := range closedRE.FindAllStringSubmatchIndex(text, -1) {
+		if m[0] > 0 {
+			r, _ := utf8.DecodeLastRuneInString(text[:m[0]])
+			if unicode.IsDigit(r) {
+				continue
+			}
+		}
+		start, end := m[2], m[3]
+		if start < 0 {
+			start, end = m[4], m[5]
+		}
+		for _, day := range weekdayTokens(text[start:end]) {
+			if !containsWeekday(e.Schedule.closed, day) {
+				e.Schedule.closed = append(e.Schedule.closed, day)
+				e.Schedule.ClosedWeekdays = append(e.Schedule.ClosedWeekdays, weekdayNames[int(day)]+"曜")
+			}
+		}
+		positive.WriteString(text[last:m[0]])
+		positive.WriteByte(' ')
+		last = m[1]
+	}
+	positive.WriteString(text[last:])
+	text = positive.String()
+	if dailyRE.MatchString(text) {
+		e.Schedule.daily = true
+		e.Schedule.Recurrence = strptr("daily")
+	}
+	for _, pattern := range []*regexp.Regexp{weeklyRE, bareWeeklyRE, onlyWeekdaysRE} {
+		for _, m := range pattern.FindAllStringSubmatch(text, -1) {
+			for _, day := range weekdayTokens(m[1]) {
+				if !containsWeekday(e.Schedule.weekdays, day) {
+					e.Schedule.weekdays = append(e.Schedule.weekdays, day)
+				}
+			}
+		}
+	}
+	if !e.Schedule.daily && len(e.Schedule.weekdays) > 0 {
+		e.Schedule.Recurrence = strptr("weekly")
+	}
+}
 
 func sourceDates(raw string, start, end *string) []string {
 	result := []string{}
@@ -94,37 +185,7 @@ func parseSchedule(e *Event) {
 			e.Schedule.Unresolved = appendUnique(e.Schedule.Unresolved, "unsupported schedule qualifier: "+qualifier)
 		}
 	}
-	if strings.Contains(raw, "毎日") || strings.Contains(raw, "連日開催") {
-		e.Schedule.daily = true
-		e.Schedule.Recurrence = strptr("daily")
-	}
-	if m := weeklyRE.FindStringSubmatch(raw); m != nil && !strings.Contains(raw, "毎日") {
-		for i, name := range weekdayNames {
-			if strings.Contains(m[1], name) {
-				e.Schedule.weekdays = append(e.Schedule.weekdays, time.Weekday(i))
-			}
-		}
-		if len(e.Schedule.weekdays) > 0 {
-			e.Schedule.Recurrence = strptr("weekly")
-		}
-	}
-	if m := onlyWeekdaysRE.FindStringSubmatch(raw); m != nil {
-		for i, name := range weekdayNames {
-			if strings.Contains(m[1], name) && !containsWeekday(e.Schedule.weekdays, time.Weekday(i)) {
-				e.Schedule.weekdays = append(e.Schedule.weekdays, time.Weekday(i))
-			}
-		}
-		e.Schedule.Recurrence = strptr("weekly")
-	}
-	for _, m := range closedRE.FindAllStringSubmatch(raw, -1) {
-		names := m[1] + m[2]
-		for i, name := range weekdayNames {
-			if strings.Contains(names, name) {
-				e.Schedule.ClosedWeekdays = appendUnique(e.Schedule.ClosedWeekdays, name+"曜")
-				e.Schedule.closed = append(e.Schedule.closed, time.Weekday(i))
-			}
-		}
-	}
+	parseWeekdayRules(e, raw)
 	for _, m := range exclusionRE.FindAllStringSubmatch(raw, -1) {
 		year := 0
 		if e.EditionYear != nil {
@@ -233,17 +294,17 @@ func matchEvent(e Event, q Query, enriched bool) *Match {
 			}
 			continue
 		}
+		if e.Schedule.daily {
+			m.ConfirmedDays = append(m.ConfirmedDays, s)
+			continue
+		}
 		if len(e.Schedule.weekdays) > 0 {
 			if containsWeekday(e.Schedule.weekdays, day.Weekday()) {
 				m.ConfirmedDays = append(m.ConfirmedDays, s)
 			}
 			continue
 		}
-		if e.Schedule.daily || len(e.Schedule.closed) > 0 {
-			m.ConfirmedDays = append(m.ConfirmedDays, s)
-		} else {
-			m.PossibleDays = append(m.PossibleDays, s)
-		}
+		m.PossibleDays = append(m.PossibleDays, s)
 	}
 	if len(m.ConfirmedDays) > 0 {
 		m.State = "confirmed"

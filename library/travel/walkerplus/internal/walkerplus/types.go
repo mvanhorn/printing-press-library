@@ -44,8 +44,8 @@ type Result struct {
 }
 
 type Coverage struct {
-	CatalogRequests  int      "json:\"catalog_requests\""
-	CatalogRoutes    []string "json:\"catalog_routes\""
+	CatalogRequests  int      `json:"catalog_requests"`
+	CatalogRoutes    []string `json:"catalog_routes"`
 	RequestedPages   int      `json:"requested_pages"`
 	ScannedPages     int      `json:"scanned_pages"`
 	CandidateCount   int      `json:"candidate_count"`

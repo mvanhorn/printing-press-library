@@ -94,8 +94,14 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 				}
 				seen[e.ID] = true
 				op.coverage.CandidateCount++
+				mayEnrich := enrich && listingFiltersCompatible(e, q)
+				if enrich && !mayEnrich {
+					op.coverage.ExcludedCount++
+					continue
+				}
 				applyQueryCity(&e, q)
-				if !matchesLocation(e, q) || !categoryMatches(e.Categories, q.Category) {
+				filtersVerified := matchesLocation(e, q) && categoryMatches(e.Categories, q.Category)
+				if !enrich && !filtersVerified {
 					op.coverage.ExcludedCount++
 					continue
 				}
@@ -104,7 +110,9 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 					op.coverage.ExcludedCount++
 					continue
 				}
-				e.Match.Reasons = append(e.Match.Reasons, "source location and category satisfy requested filters")
+				if !enrich {
+					e.Match.Reasons = append(e.Match.Reasons, "source location and category satisfy requested filters")
+				}
 				candidates = append(candidates, e)
 			}
 		}
@@ -180,6 +188,38 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 	}
 	op.coverage.ReturnedCount = len(result.Events)
 	return result, nil
+}
+
+// Missing listing evidence can be checked by bounded detail enrichment.
+// Explicit conflicting facts cannot consume that detail budget.
+func listingFiltersCompatible(e Event, q Query) bool {
+	if q.Prefecture != "" {
+		if code := value(e.Location.PrefectureCode); code != "" && code != q.Prefecture {
+			return false
+		}
+		if p, ok := lookup(prefectures, value(e.Location.PrefectureJA)); ok && p.Code != q.Prefecture {
+			return false
+		}
+	}
+	if q.City != "" {
+		actual := value(e.Location.CityJA)
+		cityMatches := actual == q.cityName || (strings.HasSuffix(q.cityName, "市") && strings.HasPrefix(actual, q.cityName) && strings.HasSuffix(actual, "区"))
+		parentOnly := strings.HasSuffix(actual, "市") && strings.HasSuffix(q.cityName, "区") && (!strings.Contains(q.cityName, "市") || strings.HasPrefix(q.cityName, actual))
+		if code := value(e.Location.CityCode); code != "" && q.Prefecture != "" && !strings.HasPrefix(code, q.Prefecture) {
+			return false
+		}
+		if !cityMatches && !parentOnly {
+			if code := value(e.Location.CityCode); code != "" && code != q.City {
+				return false
+			}
+			for _, suffix := range []string{"市", "区", "町", "村"} {
+				if actual != "" && strings.HasSuffix(actual, suffix) {
+					return false
+				}
+			}
+		}
+	}
+	return q.Category == "" || len(e.Categories) == 0 || categoryMatches(e.Categories, q.Category)
 }
 
 func (c *Client) resolveCity(ctx context.Context, q Query, op *operation) (Query, error) {
