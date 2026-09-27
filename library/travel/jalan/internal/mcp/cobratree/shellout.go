@@ -5,6 +5,7 @@ package cobratree
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"sort"
@@ -74,6 +75,15 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
+			var exitErr *exec.ExitError
+			// Stay exit 8 carries successful observations plus failed fetches.
+			// Preserve its bounded data without converting partial coverage into success.
+			if len(prefixArgs) > 0 && prefixArgs[0] == "stay" && errors.As(err, &exitErr) && exitErr.ExitCode() == 8 && strings.TrimSpace(out.Stdout) != "" {
+				result := mcplib.NewToolResultText(bound.Text(out.Stdout))
+				result.Content = append(result.Content, mcplib.NewTextContent(bound.Text(err.Error())))
+				result.IsError = true
+				return result, nil
+			}
 			return boundedToolResultError(err.Error()), nil
 		}
 		return ToolResultFromCLICommand(out), nil

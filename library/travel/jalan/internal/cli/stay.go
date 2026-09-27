@@ -156,6 +156,20 @@ func stayCall(cmd *cobra.Command, flags *rootFlags, f *stayFlags, call func(cont
 		return stayReportError(cmd, err)
 	}
 	if fetchErr != nil || len(response.FetchFailures) != 0 {
+		// Execute delivers successful commands after RunE. Partial observations
+		// return an error, so deliver their completed buffer before reporting it.
+		if flags.deliverBuf != nil && flags.deliverBuf.Len() > 0 && len(response.Results) > 0 && len(response.FetchFailures) > 0 {
+			if err := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); err != nil {
+				return stayReportError(cmd, &jalan.Error{
+					Code:          "delivery_failure",
+					Message:       fmt.Sprintf("could not deliver partial stay observations to %s:%s: %v", flags.deliverSink.Scheme, flags.deliverSink.Target, err),
+					Hint:          "Check the --deliver destination and retry; the partial observation remains available on stdout.",
+					Cause:         err,
+					FetchFailures: response.FetchFailures,
+				})
+			}
+			flags.deliverBuf = nil
+		}
 		// A failing alternative must never override the partial exit state.
 		partial := &jalan.Error{Code: "partial", Message: fmt.Sprintf("%d source fetches failed; results cover successful fetches only", len(response.FetchFailures)), Hint: "Inspect fetch_failures and retry only the failed alternatives.", Cause: fetchErr}
 		return stayReportError(cmd, partial)

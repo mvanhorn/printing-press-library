@@ -78,7 +78,7 @@ Compare exact plan/room pairs on one date:
 ./bin/jalan-pp-cli stay compare 385995 --check-in 2026-11-10 --plans 03912759:0576806,03806855:0546600 --adults 2
 ```
 
-These comparisons cover fetched offers, not every possible offer or a guaranteed cheapest stay. Failed alternatives remain visible and never become zero-price rows. Booking handoff URLs lead to Jalan, where current terms and availability must be checked.
+These comparisons cover fetched offers, not every possible offer or a guaranteed cheapest stay. Failed alternatives remain visible and never become zero-price rows. Partial results keep exit code 8; explicit file/webhook sinks still receive the complete response. MCP preserves the bounded partial payload and marks the tool result as an error. Booking handoff URLs lead to Jalan, where current terms and availability must be checked.
 
 ## Freshness and bounds
 

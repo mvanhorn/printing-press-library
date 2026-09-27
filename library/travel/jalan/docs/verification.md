@@ -72,3 +72,7 @@ The final binary-owned full matrix passed **101/101 executed checks**, with 78 f
 - [Security triage](../.manuscripts/20260927-223649-6dd0cc14/proofs/gosec-triage.json)
 
 The delivered workspace root was rebuilt successfully and its CLI/Jalan package tests passed. All 179 source files tracked by the acceptance marker are byte-identical to the accepted working tree. The acceptance marker itself is unmodified. See [delivery integrity](../.manuscripts/20260927-223649-6dd0cc14/proofs/delivery-integrity.json) and [delivered tests](../.manuscripts/20260927-223649-6dd0cc14/proofs/delivered-tests.log).
+
+## Publication review regressions
+
+The publication review found that generic output routing dropped partial results from MCP and explicit delivery sinks. Focused real-subprocess MCP tests and Execute-level file/webhook tests now verify preservation of observations and fetch failures, exit code 8 / MCP error state, one delivery, unchanged ordinary errors and explicit output bounds. Failed sinks produce one actionable structured diagnostic while stdout retains the partial facts. These induced failures are deterministic tests, not claims that a live Jalan outage was forced. See the publication-review verification proof for the renewed live acceptance.

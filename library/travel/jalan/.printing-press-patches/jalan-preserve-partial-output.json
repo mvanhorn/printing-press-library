@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "jalan-preserve-partial-output",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-223649-6dd0cc14",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep successful stay observations and failure metadata available through MCP and explicit delivery sinks when coverage is partial.",
+  "reason": "A nonzero partial-result exit must retain observed data while preserving the failure signal; generic success-only output routing otherwise discards useful accommodation evidence.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_partial_test.go",
+    "internal/cli/stay.go",
+    "internal/cli/stay_delivery_test.go"
+  ],
+  "markers": [
+    "Stay exit 8 carries successful observations plus failed fetches."
+  ],
+  "validated_outcome": "Real subprocess MCP tests preserve exit-8 data plus error state, including bounded oversize behavior. Execute-level file/webhook tests preserve partial envelopes and exit 8, prohibit failure-only delivery, and report one actionable sink-failure diagnostic."
+}

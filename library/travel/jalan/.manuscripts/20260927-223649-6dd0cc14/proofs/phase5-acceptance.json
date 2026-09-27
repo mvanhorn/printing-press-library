@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "fcd738b382d5d4561d3610161ac529baac5421262202851b92c50786e25a2ce3",
+  "source_fingerprint": "ea6c9c10ed42eb6a63533e4aa7d71f9808064a083543a026e8ae57a0906e9180",
   "source_files": {
     "cmd/jalan-pp-cli/main.go": "e4bae40b019ef6aeb6a8e771d78251279a125beee16db3d48f68300f4e79bf0b",
     "cmd/jalan-pp-mcp/main.go": "7e68ae19fe1332afa9b73f7d8d21e5de25d8919dd8088c72260ccb1ae2c1f2bc",
@@ -44,11 +44,12 @@
     "internal/cli/promoted_pages.go": "dbd7e10742cdc19a249b9f5bf22f3a4de042a935389d55f6d4b89ac0b690e616",
     "internal/cli/root.go": "96a8025664810673851d74247d2d7e53c6a4757b65329c23b6cf31475cf6c999",
     "internal/cli/root_test.go": "4e3ed474f72af4211a5b51978dfa771b372d635639ac327b789b6563f1b4899f",
-    "internal/cli/stay.go": "0e69c0ddfa405415145cc4a0c57494014efbb25a2f7b11e523f64df16c3bbeac",
+    "internal/cli/stay.go": "4eec60a32b5ca8bd9a0a254fef1f21933d5da04c9e8cf2f1b4b7db88ba8fb0e0",
     "internal/cli/stay_behavior_test.go": "57d48fb12b4c6b8f6248213ec7502314c4c123ea23c83832df2dcbff8e487f18",
     "internal/cli/stay_capabilities.go": "17a64f304457d7d1a6c5250048bfc2adc60aef9edcb9954cc38ce238c1e67033",
     "internal/cli/stay_compare.go": "0cd5718138b7a99c4f9d4968127cdc75e571e7114edb365fce20cf2002a0d0b5",
     "internal/cli/stay_compare_test.go": "2e3af60d71a9a6428efe550dc60a81c4b4e62ab0696c58ef6c421adb6343da8f",
+    "internal/cli/stay_delivery_test.go": "8f9f214882cc874c188c9c902bc49bf3b21d1fa5cde6398feb4f8f3ca545f9d8",
     "internal/cli/stay_locations.go": "ce6474a5df05d49604385dff7f2c50b2bbca0c173ff0c8c02352e315b615697a",
     "internal/cli/stay_locations_test.go": "7955d077ca0c4377449375d2afacede50b20c10dc55a00d726b28ec4d333d0d0",
     "internal/cli/stay_offers.go": "484b27d58aa6d040fa2e3258a61ab332920b3a797259be0b2e35a32d60177d04",
@@ -160,7 +161,8 @@
     "internal/mcp/cobratree/classify.go": "8abc60a76adb4e7634c85ae25177b53e5ac302eefa5880f2706afe65cbb6f89e",
     "internal/mcp/cobratree/cli_path.go": "dc47a0bb5f803467b45bb118b42a6b832662d7785ed784a64ce4bbfb87edec6f",
     "internal/mcp/cobratree/names.go": "228aa2331804cee633f6e82acc80f11c72d0f1c86ec87c58a2cae6e2e92020f1",
-    "internal/mcp/cobratree/shellout.go": "d5e0aff0be31c9fa1bd7b37fe1e86035d458661976e009314338b1a5a11726ab",
+    "internal/mcp/cobratree/shellout.go": "e58c20de58b0102d3118dfe1599a8eca8bb6412e7873b481f728ee4a85391ea1",
+    "internal/mcp/cobratree/shellout_partial_test.go": "e344a97344c88ed089ca11614e502920a55252130b8645e6a66f2320cec2a304",
     "internal/mcp/cobratree/shellout_test.go": "bb4b1fb57d248e860821f0e6ff30d76478fabd2ed98f767021c9a24415cf9a2e",
     "internal/mcp/cobratree/typemap.go": "365d1d387bba0a2819613778d46c5b38e4cf907f7f3ba7528250c5023fa2a029",
     "internal/mcp/cobratree/walker.go": "aec212c403f5792fbd6aa990a243eb5f3011f4b8572d121e0efcf7f53aa67d39",
