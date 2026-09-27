@@ -13,7 +13,3 @@
 # Python verification caches
 __pycache__/
 *.pyc
-
-# Local Python verification bytecode
-__pycache__/
-*.py[cod]

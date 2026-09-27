@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "034b502e0f2848f38671e058702df3485bec7d2579c5d8e58859439e62aaa443",
+  "source_fingerprint": "3290c8977c0731fd7b3af2f2439938f349385a233705e396f7893a1c22fe3bd9",
   "source_files": {
     "cmd/ikyu-pp-cli/main.go": "8ee33138b63fb66b7d715c98f9f73743059e2fafdfea737b832bce6e5602c3c0",
     "cmd/ikyu-pp-mcp/main.go": "ea18fe615e9f51273e20c3343703d48b7bea563402caf7e6356949c0dac7a0de",
@@ -43,10 +43,11 @@
     "internal/cli/stay_dates.go": "4b13f01324c329a79cb582d5f8bb32d33a43f9dd2d21b3c6b0ce0fe5e3c80f7a",
     "internal/cli/stay_dates_test.go": "e556d9e64b9a17bfafbaecd3f7d6ff274cc775692d338bb6de09949c58156107",
     "internal/cli/stay_destinations.go": "bc695d05d39194ad2d8d9eed16cd6761b10c30a267a2f20e3584e8eb97595280",
-    "internal/cli/stay_equivalence.go": "6cf9302ec360d01861667f4a3c98e3798c3bdcf51a73f294dd7f53e981c9f09d",
+    "internal/cli/stay_equivalence.go": "a6209aa5871d5a065c3d9f997a9c6dae304e8fd1f5aa050b2e294142e65aa933",
     "internal/cli/stay_fanout.go": "d1338b329a34bff7b12884a75f6475992098af4726684991900701d7ff74f191",
     "internal/cli/stay_offer.go": "58ab873eb1c920ff1fca090b23a1238525abe6c4235c550e99529d99a8e5cab3",
     "internal/cli/stay_offer_test.go": "03f20422cfd88c6d65fbd28c9e02f9ab0d10ebeb21ba40ea849a94aa51e2e6de",
+    "internal/cli/stay_price_differences_test.go": "59bb393d1560607dd2b3309ced287777f9c448b6ca219186f87dd31f6b54342f",
     "internal/cli/stay_property.go": "dd732d441294774f89bb12295b753e041b7ffa38406fd09bd279bb131f85402d",
     "internal/cli/stay_rooms.go": "cb5c4e8e9e1b54b6c4d6589c92bb0e0c64cccde6273252e961d357c4990c6d45",
     "internal/cli/stay_rooms_test.go": "96bba223ca4cfd98ba80261084a7f5445c2ce8fa97cb929a6b8a4b10214116a1",
@@ -89,8 +90,9 @@
     "internal/ikyu/client_test.go": "3fa7f74286f5eb0e808421e8a34b6e74c10075da3232b82d9402b2045336db14",
     "internal/ikyu/final_acceptance_test.go": "664c86ab4e322f076654348a08a19ce94c20d2f7bafb06371f47c3bb5a9f5e85",
     "internal/ikyu/live_test.go": "52092b11297e417d05870b682235ab837c011164c75bdcf767b6b7627b84adc6",
+    "internal/ikyu/rooms_budget_test.go": "979346a81c106bfb2911df3f4639a03a3b6137bd257ef9d296c8e8a6d55d6d75",
     "internal/ikyu/semantics_test.go": "5d7f8cd42a8c960aa75c5fb37788097c91a6b389d7633deefc0ba9b9b0707187",
-    "internal/ikyu/source.go": "4b6f00e78c65674e5f082f6c6e7a356a2d48a0aed1bebd95b1d8758de11ea800",
+    "internal/ikyu/source.go": "7848eec5c978a5f609a5a721fc3cc4293c18e4e98cbf387dfeebeddc40a87666",
     "internal/ikyu/source_acceptance_test.go": "81c3460ce91306146c0b26635d3c03bec08f5c3c32b0b9c6fa2ab1e169b86fc2",
     "internal/ikyu/ssr.go": "d7b847827572d3f421269d238d250c1be33252a9fce2fc157631c251f51e2832",
     "internal/ikyu/types.go": "2dbe5814657d7a61c8bf0003c49709c03f14e0e4f9709017c1e22b75e9ec1910",

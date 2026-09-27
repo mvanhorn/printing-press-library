@@ -1,0 +1,117 @@
+{
+  "status": "pass",
+  "checked_at": "2026-09-27T17:14:09.790798+00:00",
+  "stay": {
+    "check_in": "2026-10-19",
+    "check_out": "2026-10-20"
+  },
+  "observed_price_fields": {
+    "source_amount": {
+      "delta": 8540,
+      "field": "source_amount",
+      "left": 22260,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": 30800,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "headline_before_points": {
+      "delta": 9652,
+      "field": "headline_before_points",
+      "left": 21148,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": 30800,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "base_discount_amount": {
+      "delta": 9652,
+      "field": "base_discount_amount",
+      "left": 21148,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": 30800,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "instant_points_payable": {
+      "delta": 4760,
+      "field": "instant_points_payable",
+      "left": 19880,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": 24640,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "earn_points_payable": {
+      "delta": 9652,
+      "field": "earn_points_payable",
+      "left": 21148,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": 30800,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "payable_without_coupon": {
+      "delta": 4760,
+      "field": "payable_without_coupon",
+      "left": 19880,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": 24640,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "points_earned": {
+      "delta": 4892,
+      "field": "points_earned",
+      "left": 1268,
+      "left_currency": null,
+      "left_unit": "points",
+      "right": 6160,
+      "right_currency": null,
+      "right_unit": "points"
+    },
+    "points_applied": {
+      "delta": 4892,
+      "field": "points_applied",
+      "left": 1268,
+      "left_currency": null,
+      "left_unit": "points",
+      "right": 6160,
+      "right_currency": null,
+      "right_unit": "points"
+    },
+    "source_coupon.discount_amount": {
+      "delta": null,
+      "field": "source_coupon.discount_amount",
+      "left": null,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": null,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    },
+    "checkout_confirmed_payable": {
+      "delta": null,
+      "field": "checkout_confirmed_payable",
+      "left": null,
+      "left_currency": "JPY",
+      "left_unit": "booking_total",
+      "right": null,
+      "right_currency": "JPY",
+      "right_unit": "booking_total"
+    }
+  },
+  "equivalent": false,
+  "source_amount_difference": null,
+  "budget": 30000,
+  "returned_rooms": 1,
+  "returned_plan_counts": [
+    2
+  ]
+}

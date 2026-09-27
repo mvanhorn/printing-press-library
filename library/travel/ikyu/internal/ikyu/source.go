@@ -233,7 +233,7 @@ func (c *Client) Rooms(ctx context.Context, r RoomsRequest) (RoomsResult, error)
 		return RoomsResult{}, &SchemaError{Message: "missing room connection or property identity"}
 	}
 	conn := p.SearchRooms.Rooms
-	out := RoomsResult{OccupancyEchoVerified: false, DateEchoVerified: false, Data: []Room{}, Stay: r.Stay, Freshness: f, Coverage: coverage(r.Preferences, "source room filters; budget and size filter this returned page and bounded plan window")}
+	out := RoomsResult{OccupancyEchoVerified: false, DateEchoVerified: false, Data: []Room{}, Stay: r.Stay, Freshness: f, Coverage: coverage(r.Preferences, "source room filters; budget, meal and size filter this returned page and bounded plan window")}
 	out.Coverage.Note = "Bulk room prices echo occupancy but omit nightly dates; inspect exact stay offer before relying on price/conditions. Plan previews are paged separately with --plan-limit/--plan-offset."
 	for _, edge := range conn.Edges {
 		room, err := normalizeRoom(edge.Node, r.PropertyID, &r.Stay)
@@ -244,7 +244,6 @@ func (c *Client) Rooms(ctx context.Context, r RoomsRequest) (RoomsResult, error)
 			return RoomsResult{}, &SchemaError{Message: "missing room plan amounts"}
 		}
 		room.PlanTotal = edge.Node.Amounts.Total
-		room.PlanPagination = page(r.PlanLimit, r.PlanOffset, len(edge.Node.Amounts.Edges), len(edge.Node.Amounts.Edges), *edge.Node.Amounts.Total)
 		room.Plans = []PlanSummary{}
 		for _, e := range edge.Node.Amounts.Edges {
 			a := e.Node
@@ -262,9 +261,13 @@ func (c *Client) Rooms(ctx context.Context, r RoomsRequest) (RoomsResult, error)
 			if linkErr != nil {
 				return RoomsResult{}, &SchemaError{Message: linkErr.Error()}
 			}
-			room.Plans = append(room.Plans, PlanSummary{PointVariation: a.Plan.PointVariation, ID: a.Plan.ID, Name: cleanSourceText(a.Plan.Name), Meal: cleanMeal(a.Plan.Meal), Price: normalizePrice(a), Inventory: a.Inventory, URL: link})
+			plan := PlanSummary{PointVariation: a.Plan.PointVariation, ID: a.Plan.ID, Name: cleanSourceText(a.Plan.Name), Meal: cleanMeal(a.Plan.Meal), Price: normalizePrice(a), Inventory: a.Inventory, URL: link}
+			if planMatches(plan, r.Preferences) {
+				room.Plans = append(room.Plans, plan)
+			}
 		}
-		if roomMatches(room, r.Preferences) {
+		room.PlanPagination = page(r.PlanLimit, r.PlanOffset, len(edge.Node.Amounts.Edges), len(room.Plans), *edge.Node.Amounts.Total)
+		if len(room.Plans) > 0 && roomMatches(room, r.Preferences) {
 			out.Data = append(out.Data, room)
 		}
 	}
@@ -526,6 +529,13 @@ func priceMatches(p Price, prefs Preferences) bool {
 	}
 	return true
 }
+func planMatches(plan PlanSummary, prefs Preferences) bool {
+	meal := len(prefs.Meals) == 0
+	for _, code := range prefs.Meals {
+		meal = meal || code == plan.Meal.Code
+	}
+	return meal && priceMatches(plan.Price, prefs)
+}
 func roomMatches(r Room, p Preferences) bool {
 	if p.MinSizeM2 != nil && (r.SizeMinM2 == nil || *r.SizeMinM2 < *p.MinSizeM2) {
 		return false
@@ -547,11 +557,7 @@ func roomMatches(r Room, p Preferences) bool {
 	}
 	if p.MinBudget != nil || p.MaxBudget != nil || len(p.Meals) > 0 {
 		for _, a := range r.Plans {
-			meal := len(p.Meals) == 0
-			for _, m := range p.Meals {
-				meal = meal || m == a.Meal.Code
-			}
-			if meal && priceMatches(a.Price, p) {
+			if planMatches(a, p) {
 				return true
 			}
 		}

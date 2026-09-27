@@ -52,13 +52,13 @@ Headline amount, conditional points-adjusted payable, earned/applied points, cou
 
 An outdoor room bath does not necessarily use hot-spring water. A shared onsen does not prove the selected room has a private bath. Missing facts stay unknown. See [source semantics](docs/source-contract.md) for the source evidence and child/cancellation categories.
 
-Comparisons report published differences and compatibility blockers. Anonymous price eligibility stays unverified, so live comparisons do not assert equivalent-price savings. Different rooms, properties, dates, meals or cancellation terms are alternatives; a lower displayed amount alone is not equivalent-offer savings.
+Comparisons report observed monetary differences separately from compatibility blockers; differing amounts alone do not make equal terms incompatible. Anonymous price eligibility stays unverified, so live comparisons do not assert equivalent-price savings. Different rooms, properties, dates, meals or cancellation terms are alternatives; a lower displayed amount alone is not equivalent-offer savings.
 
 ## Agent Usage
 
 `stay` commands emit compact JSON by default; diagnostics go to stderr. Use `--agent` with `--select` to project fields, inspect pagination before continuing, and fetch full offer details only for chosen rooms. The local [agent skill](SKILL.md) describes this workflow.
 
-Availability is a timestamped observation. Cache hits expose their age; `--refresh` fetches current data. Availability caches last five minutes and static details 24 hours; `--no-cache` disables reads/writes. `--allow-stale` permits labelled old observations only after an upstream failure. Use `IKYU_CACHE_DIR` or `--cache-dir` to keep the cache inside this checkout. Lists default to 10 and cap at 50; comparison/date scans and network retries have fixed bounds. Search scans one source page and filters its bounded previews. Continue at `pagination.offset + pagination.scanned`, rather than the number of returned matches. Room and plan offsets are independent; `--limit × --plan-limit` is capped at 100 summaries.
+Availability is a timestamped observation. Cache hits expose their age; `--refresh` fetches current data. Availability caches last five minutes and static details 24 hours; `--no-cache` disables reads/writes. `--allow-stale` permits labelled old observations only after an upstream failure. Use `IKYU_CACHE_DIR` or `--cache-dir` to keep the cache inside this checkout. Lists default to 10 and cap at 50; comparison/date scans and network retries have fixed bounds. Search scans one source page and filters its bounded previews. Continue at `pagination.offset + pagination.scanned`, rather than the number of returned matches. Room and plan offsets are independent; `--limit × --plan-limit` is capped at 100 summaries. Budget and meal filters remove nonmatching plans from each room while preserving source pagination counts.
 
 ## Cookbook
 

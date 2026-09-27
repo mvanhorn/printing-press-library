@@ -67,6 +67,8 @@ The `--meals` filter accepts source codes separated by commas: `000` no meals, `
 
 Compare known equal stay dates/nights, full occupancy and room count, property and room identity, meals, cancellation, payment/price scenario and relevant eligibility. Unknown values never prove equivalence. Different rooms, properties or dates remain useful alternatives with explicit differences; their price difference alone is not equivalent-offer savings.
 
-Source summaries can be previews. Preserve total counts, continuation and detail gaps. Apply local filters only within the reported page coverage. Availability is a timestamped observation; refresh selected offers before booking handoff.
+Observed price differences show both source values and units even when offer terms are incompatible or eligibility is unknown. These observations are not savings claims. Missing amounts remain null, and values with different currencies or units have no computed delta. Monetary differences do not by themselves make otherwise verified equal terms incompatible.
+
+Source summaries can be previews. Preserve total counts, continuation and detail gaps. Apply local filters only within the reported page coverage. Room budget and meal filters apply to each returned plan together; plans outside those conditions are omitted. Plan totals and scanned counts still describe the source window, while returned counts describe matching plans. Availability is a timestamped observation; refresh selected offers before booking handoff.
 
 Bulk room-plan summaries currently return no nightly date details even when requested. They can verify occupancy and retain the requested stay, but their date echo remains explicitly unverified. The exact offer endpoint supplies nightly dates and is required for a date-verified quote.

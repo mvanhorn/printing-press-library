@@ -4,27 +4,29 @@ Verified locally on 2026-09-27 UTC / 2026-09-28 Japan time. Anonymous, read-only
 
 ## Evidence
 
-- Go tests, fresh builds and vet passed; four independent-parser Python tests passed. Deterministic assertions cover source points prices, fractional rates, occupancy/date normalization, baths, meal/cancellation equivalence, partial failures, rate limits, bounds and exact integer JSON.
+- Go tests, fresh builds and vet passed; four independent-parser Python tests passed. Deterministic assertions cover source points prices, fractional rates, occupancy/date normalization, baths, meal/cancellation equivalence, partial failures, rate limits, bounds, exact integer JSON, observed monetary differences, and per-plan budget/meal filtering.
 - Printing Press shipcheck: all legs pass, verification 100%, score 80/A. [Shipcheck proof](../.manuscripts/20260927-221505-c26573aa/proofs/2026-09-27-fix-ikyu-pp-cli-shipcheck.md).
 - Full live matrix: 62/62 executed checks pass, zero failures; 38 framework/fixture/access probes are skipped or unverified. All seven stay commands passed live happy-path, JSON fidelity and dry-run checks. [Binary-owned acceptance](../.manuscripts/20260927-221505-c26573aa/proofs/phase5-acceptance.json).
-- Independent public HTML/SSR checks cover hotel 八ヶ岳高原ロッジ and ryokan 蓼科 親湯温泉: exact room/plan names, meals, every ordered cancellation field, ten price fields, visible earn-mode headline/points and source stay echoes. [Live evidence](../.manuscripts/20260927-221505-c26573aa/proofs/live-acceptance.json).
+- Independent public HTML/SSR checks cover hotel 八ヶ岳高原ロッジ and ryokan 蓼科 親湯温泉: exact room/plan names, meals, every ordered cancellation field, ten price fields, visible earn-mode headline/points and source stay echoes. [Live evidence](../.manuscripts/20260927-221505-c26573aa/proofs/publish-review-live-acceptance.json).
+
+- Review fixes also passed a fresh live comparison and a 30,000 JPY room-plan budget check. [Regression evidence](../.manuscripts/20260927-221505-c26573aa/proofs/publish-review-regression-live.json).
 
 ## Efficiency
 
 Measured on this macOS host with separate empty caches, then identical immediate warm repeats. Latency includes process startup; RSS is per-process peak from `/usr/bin/time -l`. Requests include redirects/retries; response bytes in the JSON report are decoded bytes. These are observations, not latency guarantees.
 
 | Command | Requests cold/warm | Latency ms cold/warm | Peak RSS MiB cold/warm | Output bytes cold/warm |
-|---|---:|---:|---:|---:|
-| `destinations` | 1/0 | 1009.8/21.9 | 32.6/26.1 | 628/623 |
-| `search` | 2/0 | 1826.7/31.5 | 34.6/29.9 | 5665/5661 |
-| `property` | 1/0 | 188.0/10.8 | 24.0/18.9 | 3408/3406 |
-| `rooms` | 1/0 | 216.6/11.3 | 24.8/19.4 | 14435/14433 |
-| `offer` | 1/0 | 276.9/11.4 | 24.1/18.8 | 8974/8972 |
-| `compare` | 2/0 | 947.7/11.5 | 24.6/21.0 | 18299/18297 |
-| `dates` | 2/0 | 754.4/11.8 | 24.4/20.6 | 18416/18414 |
-| `offer_projection` | 1/0 | 262.2/11.4 | 24.0/19.9 | 191/188 |
+|---|---:|---:|---:|---:|---:|
+| `destinations` | 1/0 | 87.7/24.0 | 32.9/26.7 | 628/623 |
+| `search` | 2/0 | 554.9/37.1 | 33.8/29.7 | 5666/5662 |
+| `property` | 1/0 | 159.2/16.6 | 23.1/18.4 | 3408/3406 |
+| `rooms` | 1/0 | 216.5/20.0 | 23.8/19.1 | 7758/7756 |
+| `offer` | 1/0 | 287.7/19.6 | 24.5/19.4 | 8974/8972 |
+| `compare` | 2/0 | 783.0/21.7 | 25.0/21.1 | 18415/18413 |
+| `dates` | 2/0 | 774.4/21.6 | 25.2/21.0 | 17275/17273 |
+| `offer_projection` | 1/0 | 321.4/20.1 | 24.2/18.8 | 191/188 |
 
-[Full measurements and exact arguments](../.manuscripts/20260927-221505-c26573aa/proofs/efficiency-metrics.json). Field projection reduced the measured offer from 8,974 to 191 bytes. Search uses heavier SSR pages; room/offer details use small JSON queries and are fetched lazily.
+[Full measurements and exact arguments](../.manuscripts/20260927-221505-c26573aa/proofs/publish-review-efficiency-metrics.json). Field projection reduced the measured offer from 8,974 to 191 bytes. Search uses heavier SSR pages; room/offer details use small JSON queries and are fetched lazily.
 
 ## Reproduce
 
