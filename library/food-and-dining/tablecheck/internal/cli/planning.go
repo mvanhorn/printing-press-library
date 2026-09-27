@@ -190,9 +190,9 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 	if copyFlags.csv || copyFlags.plain || copyFlags.quiet {
 		nativeResult := result
 		primary := planningPrimaryKey(result)
-		if !copyFlags.quiet && (copyFlags.csv || copyFlags.plain) && copyFlags.selectFields != "" && primary != "" {
+		if !copyFlags.quiet && (copyFlags.csv || copyFlags.plain) {
 			var err error
-			nativeResult, err = planningSelectedTable(result, primary, copyFlags.selectFields)
+			nativeResult, err = planningTable(result, primary, copyFlags.selectFields)
 			if err != nil {
 				return usageErr(err)
 			}
@@ -299,10 +299,13 @@ func planningSelectedEnvelope(result planner.Result, fields string) (map[string]
 	return selected, nil
 }
 
-func planningSelectedTable(result planner.Result, primary, fields string) (planner.Result, error) {
+func planningTable(result planner.Result, primary, fields string) (planner.Result, error) {
 	selected, err := planningSelectedEnvelope(result, fields)
 	if err != nil {
 		return nil, err
+	}
+	if fields == "" && primary != "" {
+		selected = map[string]any{primary: selected[primary]}
 	}
 	rows := make([]map[string]any, 0)
 	contextColumns := map[string]any{}
@@ -310,7 +313,7 @@ func planningSelectedTable(result planner.Result, primary, fields string) (plann
 		if key == primary {
 			switch records := value.(type) {
 			case []any:
-				if len(records) == 0 {
+				if len(records) == 0 && fields != "" {
 					if err := planningContextColumns(contextColumns, key, records); err != nil {
 						return nil, err
 					}
@@ -364,9 +367,16 @@ func planningSelectedTable(result planner.Result, primary, fields string) (plann
 	}
 	projected := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {
-		out := make(map[string]any, len(row)+len(contextColumns))
+		out := make(map[string]any, len(usedColumns))
+		for key := range usedColumns {
+			out[key] = "null"
+		}
 		for key, value := range row {
-			out[key] = value
+			cell, err := planningCell(value)
+			if err != nil {
+				return nil, err
+			}
+			out[key] = cell
 		}
 		for _, key := range keys {
 			out[contextNames[key]] = contextColumns[key]
@@ -392,19 +402,27 @@ func planningContextColumns(out map[string]any, path string, value any) error {
 		}
 		return nil
 	}
+	cell, err := planningCell(value)
+	if err != nil {
+		return err
+	}
+	out[path] = cell
+	return nil
+}
+
+func planningCell(value any) (any, error) {
 	switch typed := value.(type) {
 	case nil, []any, map[string]any:
 		raw, err := json.Marshal(value)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		out[path] = string(raw)
+		return string(raw), nil
 	case json.Number:
-		out[path] = typed.String()
+		return typed.String(), nil
 	default:
-		out[path] = value
+		return value, nil
 	}
-	return nil
 }
 
 func planningRun(cmd *cobra.Command, flags *rootFlags, p *planningFlags, input any, validate func() error, op func(context.Context, planner.PlanningClient) (planner.Result, error)) error {

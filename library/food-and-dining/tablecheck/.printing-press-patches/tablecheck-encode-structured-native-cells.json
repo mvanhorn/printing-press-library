@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "tablecheck-encode-structured-native-cells",
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-220537-e6065d2c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Encode structured primary and context cells as JSON in every planning CSV/plain table.",
+  "reason": "Generic native formatting used Go notation for arrays and objects within records. One cell conversion boundary preserves parseable conditions, categories, slots, nulls and exact numbers for default and selected tables while leaving JSON and quiet behavior unchanged.",
+  "files": [
+    "internal/cli/planning.go",
+    "internal/cli/planning_availability_output_test.go",
+    "internal/cli/planning_publication_test.go"
+  ],
+  "validated_outcome": "Full race tests, vet, CLI/MCP builds, native publish validation and all 87 mandatory live checks pass. Default/selected live course conditions and venue categories decode from CSV/plain cells to the same values as JSON. Deterministic tests cover nested values, exact large numbers, explicit nulls for missing columns, empty tables, selection, quiet precedence and writer errors."
+}

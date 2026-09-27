@@ -59,7 +59,7 @@ Planning commands emit compact JSON by default. Diagnostics go to stderr. IDs, J
 ./tablecheck-pp-cli courses get sushi-tokyo81 68da546fcde865308c33e7f9
 ```
 
-Availability CSV/plain output contains one row per venue/date check, including failed checks. Select row fields with paths such as `checks.slug,checks.date,checks.status`. For planning lists and details, selected envelope fields such as `meta.requests` appear as named context columns on each row; an envelope-only selection produces one summary row. Arrays, nulls and empty context objects use JSON cell text.
+CSV/plain output contains one row per primary record; availability uses venue/date checks, including failed checks. Select row fields with paths such as `checks.slug,checks.date,checks.status`. For planning lists and details, selected envelope fields such as `meta.requests` appear as named context columns on each row; an envelope-only selection produces one summary row. Structured values and nulls in record or context cells use JSON text, so conditions and categories remain parseable.
 
 For availability, `--quiet` emits one slug per check, so multi-day scans repeat slugs; an explicit selection must retain `checks.slug` or all of `checks`. Venue/course detail `--quiet` output is the venue/course ID; an explicit selection must retain `venue.id`/`course.id` or its full parent. Use the default JSON for complete status, slots and freshness.
 

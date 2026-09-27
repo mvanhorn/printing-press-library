@@ -26,3 +26,9 @@ CSV/plain now apply the shared selector once to the full planning envelope befor
 Quiet keeps precedence over combined format flags. Venue/course quiet output renders only the stable primary ID, including when a detail contains a nested object array with unrelated IDs. Explicit quiet selections must retain the required identity.
 
 Focused format tests, full race tests, vet, both builds, native publish validation and all 87 mandatory live checks pass. The expanded live comparison verifies mixed check/context columns, metadata-only summaries and venue/course quiet IDs. It used two initial scan requests and one course-detail request; its final cached scan JSON used zero requests and preserved original fetch timestamps.
+
+## Structured-cell follow-up
+
+Every non-quiet planning CSV/plain table now shares one cell conversion boundary for primary records and context. Arrays, objects and nulls use JSON cell text; exact number strings are retained. Missing values in heterogeneous rows use explicit null cells within the known column union. Default tables use primary records; selected context and summary behavior remain supported. Default empty tables, JSON and quiet behavior are preserved.
+
+Deterministic tests cover selected/default structured values across checks, items, courses and venues, heterogeneous missing values, large exact numbers, no-primary summaries and previous output contracts. Full race/vet/build/publish checks and all 87 mandatory live checks pass. The live comparison decodes default and selected course conditions and venue category cells from both CSV and plain output and compares them to JSON detail values.

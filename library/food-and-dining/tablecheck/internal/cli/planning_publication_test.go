@@ -135,8 +135,8 @@ func TestPlanningPublicationNativeFormatsAreCSVTSVAndQuietIdentities(t *testing.
 		flags rootFlags
 		want  string
 	}{
-		{"csv", rootFlags{asJSON: true, csv: true, selectFields: "items.id,items.price"}, "id,price\ncourse-one,19800.0\ncourse-two,\n"},
-		{"plain", rootFlags{asJSON: true, plain: true, selectFields: "items.id,items.price"}, "id\tprice\ncourse-one\t19800.0\ncourse-two\t\n"},
+		{"csv", rootFlags{asJSON: true, csv: true, selectFields: "items.id,items.price"}, "id,price\ncourse-one,19800.0\ncourse-two,null\n"},
+		{"plain", rootFlags{asJSON: true, plain: true, selectFields: "items.id,items.price"}, "id\tprice\ncourse-one\t19800.0\ncourse-two\tnull\n"},
 		{"quiet", rootFlags{asJSON: true, quiet: true, selectFields: "items.id,items.price"}, "course-one\ncourse-two\n"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -154,7 +154,7 @@ func TestPlanningPublicationNativeFormatsAreCSVTSVAndQuietIdentities(t *testing.
 			}
 			if tc.name == "csv" {
 				rows, err := csv.NewReader(strings.NewReader(out.String())).ReadAll()
-				if err != nil || len(rows) != 3 || rows[1][1] != "19800.0" || rows[2][1] != "" {
+				if err != nil || len(rows) != 3 || rows[1][1] != "19800.0" || rows[2][1] != "null" {
 					t.Fatalf("CSV is invalid or changed string/null money: rows=%v err=%v", rows, err)
 				}
 			}

@@ -55,6 +55,7 @@ func TestPlanningAvailabilityNativeFormatsRenderEveryCheckRow(t *testing.T) {
 			}
 			reader := csv.NewReader(strings.NewReader(out))
 			reader.Comma = tc.separator
+			reader.LazyQuotes = tc.separator == '\t'
 			rows, err := reader.ReadAll()
 			if err != nil || len(rows) != 5 {
 				t.Fatalf("expected header plus four check rows, including failures: rows=%v err=%v output=%q", rows, err, out)
@@ -467,6 +468,141 @@ func TestPlanningDetailQuietIgnoresNestedRuleIdentities(t *testing.T) {
 			}
 			if want := primary + "-id\n"; out.String() != want {
 				t.Fatalf("quiet emitted nested rule identity instead of primary detail: primary%s flags%+v got%q want%q", primary, flags, out.String(), want)
+			}
+		}
+	}
+}
+
+func TestPlanningTableCellsPreserveDefaultAndSelectedStructuredValues(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		for _, primary := range []string{"course", "venue", "items", "checks"} {
+			for _, selected := range []bool{false, true} {
+				result := planningDetailOutputFixture(primary)
+				if primary == "checks" {
+					result = availabilityOutputFixture()
+				}
+				var record map[string]any
+				if primary == "checks" || primary == "items" {
+					record = result[primary].([]map[string]any)[0]
+				} else {
+					record = result[primary].(map[string]any)
+				}
+				arrayKey := map[string]string{"course": "valid_date_ranges", "venue": "service_categories", "items": "nested_data", "checks": "slots"}[primary]
+				record[arrayKey] = []map[string]any{{"id": "nested-id", "label": "value,quoted\"", "amount": json.Number("9007199254740993")}}
+				record["conditions"] = map[string]any{"tax": "included", "optional": nil}
+				record["empty_object"] = map[string]any{}
+				record["optional"] = nil
+				flags := rootFlags{csv: mode == "csv", plain: mode == "plain"}
+				if selected {
+					flags.selectFields = strings.Join([]string{primary + "." + arrayKey, primary + ".conditions", primary + ".empty_object", primary + ".optional"}, ",")
+				}
+				cmd := &cobra.Command{}
+				var out bytes.Buffer
+				cmd.SetOut(&out)
+				if err := planningPrint(cmd, &flags, result); err != nil {
+					t.Fatal(err)
+				}
+				reader := csv.NewReader(strings.NewReader(out.String()))
+				if mode == "plain" {
+					reader.Comma = '\t'
+					reader.LazyQuotes = true
+				}
+				rows, err := reader.ReadAll()
+				if err != nil || len(rows) < 2 {
+					t.Fatalf("structured table invalid: mode%s primary%s selected%v rows%v err%v", mode, primary, selected, rows, err)
+				}
+				columns := map[string]int{}
+				for i, key := range rows[0] {
+					columns[key] = i
+				}
+				for _, key := range []string{arrayKey, "conditions", "empty_object", "optional"} {
+					col, ok := columns[key]
+					if !ok {
+						t.Fatalf("structured column lost: %s headers%v", key, rows[0])
+					}
+					var got, want any
+					decoder := json.NewDecoder(strings.NewReader(rows[1][col]))
+					decoder.UseNumber()
+					if err := decoder.Decode(&got); err != nil {
+						t.Fatalf("cell is Go notation instead of JSON: mode%s primary%s %s=%q err%v", mode, primary, key, rows[1][col], err)
+					}
+					raw, _ := json.Marshal(record[key])
+					decoder = json.NewDecoder(bytes.NewReader(raw))
+					decoder.UseNumber()
+					_ = decoder.Decode(&want)
+					if !reflect.DeepEqual(got, want) {
+						t.Fatalf("structured cell changed values: mode%s primary%s key%s got%v want%v", mode, primary, key, got, want)
+					}
+				}
+				if rows[1][columns["optional"]] != "null" || rows[1][columns["empty_object"]] != "{}" {
+					t.Fatalf("null/empty object cells ambiguous: %v", rows[1])
+				}
+				if primary == "items" || primary == "checks" {
+					records := result[primary].([]map[string]any)
+					if len(rows) != len(records)+1 {
+						t.Fatalf("heterogeneous rows lost: mode%s primary%s selected%v got%d want%d", mode, primary, selected, len(rows)-1, len(records))
+					}
+					for i, source := range records[1:] {
+						for _, key := range []string{arrayKey, "conditions", "empty_object", "optional"} {
+							if _, present := source[key]; present {
+								continue
+							}
+							cell := rows[i+2][columns[key]]
+							var value any
+							if err := json.Unmarshal([]byte(cell), &value); err != nil || value != nil || cell != "null" {
+								t.Fatalf("missing heterogeneous cell must be JSON null: mode%s primary%s selected%v row%d key%s cell%q value%v err%v", mode, primary, selected, i+1, key, cell, value, err)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestPlanningNoPrimarySummaryCellsAndEmptyDefaults(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		result := planner.Result{"dry_run": true, "action": "availability check", "request_plan": map[string]any{"venues": []string{"venue-a", "venue-b"}, "optional": nil}, "meta": map[string]any{"requests": 0}}
+		for _, selection := range []string{"", "request_plan.venues,request_plan.optional,meta.requests"} {
+			cmd := &cobra.Command{}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			flags := rootFlags{csv: mode == "csv", plain: mode == "plain", selectFields: selection}
+			if err := planningPrint(cmd, &flags, result); err != nil {
+				t.Fatal(err)
+			}
+			reader := csv.NewReader(strings.NewReader(out.String()))
+			if mode == "plain" {
+				reader.Comma = '\t'
+				reader.LazyQuotes = true
+			}
+			rows, err := reader.ReadAll()
+			if err != nil || len(rows) != 2 {
+				t.Fatalf("summary must be one row: %v %v", rows, err)
+			}
+			columns := map[string]int{}
+			for i, key := range rows[0] {
+				columns[key] = i
+			}
+			for _, key := range []string{"request_plan.venues", "request_plan.optional", "meta.requests"} {
+				if _, ok := columns[key]; !ok {
+					t.Fatalf("summary selected value missing: %s %v", key, rows[0])
+				}
+			}
+			if rows[1][columns["request_plan.venues"]] != `["venue-a","venue-b"]` || rows[1][columns["request_plan.optional"]] != "null" || rows[1][columns["meta.requests"]] != "0" {
+				t.Fatalf("summary cells changed: %v", rows)
+			}
+		}
+		for _, primary := range []string{"items", "checks"} {
+			cmd := &cobra.Command{}
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			flags := rootFlags{csv: mode == "csv", plain: mode == "plain"}
+			if err := planningPrint(cmd, &flags, planner.Result{primary: []map[string]any{}, "meta": map[string]any{"requests": 0}}); err != nil {
+				t.Fatal(err)
+			}
+			if out.String() != emptyTabularResultMarker+"\n" {
+				t.Fatalf("default empty table changed into a summary: mode%s primary%s out%q", mode, primary, out.String())
 			}
 		}
 	}
