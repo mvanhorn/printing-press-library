@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ikyu-pp-mcp",
+  "display_name": "Ikyu Accommodation",
+  "version": "0.1.0",
+  "description": "Find the room and plan that make a Japan stay worthwhile.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ikyu-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ikyu-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "cli_dir": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli",
+  "skill_path": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 20,
+  "findings": [
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay dates",
+      "detail": "got 3 positional args; Use: \"dates [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "SKILL.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay offer",
+      "detail": "got 3 positional args; Use: \"offer [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "SKILL.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay offer",
+      "detail": "got 3 positional args; Use: \"offer [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "SKILL.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay offer",
+      "detail": "got 3 positional args; Use: \"offer [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "README.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay offer",
+      "detail": "got 3 positional args; Use: \"offer [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "README.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay dates",
+      "detail": "got 3 positional args; Use: \"dates [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "README.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "ikyu-pp-cli stay offer",
+      "detail": "got 3 positional args; Use: \"offer [property-id room-id plan-id]\" expects 0–0",
+      "evidence": "README.md: 00002889 10193727 11055986",
+      "likely_false_positive": false
+    }
+  ]
+}

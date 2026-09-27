@@ -1,0 +1,5 @@
+FAILED [recipes]: ikyu-pp-cli stay search --destination tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent --select data → full example failed: <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/build/stage/bin/ikyu-pp-cli stay search --destination tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent --select data --dry-run: exit status 2: warning: --select "data" matched no fields; valid fields: cache_writes, dry_run, network_requests, planned, read_only
+{"meta":{"source":"dry-run"},"results":{"cache_writes":0,"dry_run":true,"network_requests":0,"planned":{"destination":"tokyo","limit":3,"offset":0,"preferences":{},"stay":{"adults_per_room":2,"check_in":"2026-11-17","check_out":"2026-11-18","children_per_room":[0,0,0,0,0,0],"rooms":1}},"read_only":true}}
+Error: --select matched no fields: data
+DONE: 6 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed

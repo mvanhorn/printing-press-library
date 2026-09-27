@@ -1,0 +1,825 @@
+{
+  "data": {
+    "accommodation": {
+      "roomPlan": {
+        "children": {
+          "children": [
+            {
+              "kind": "A",
+              "amount": {
+                "__typename": "RoomPlanChildAmountRate",
+                "type": "RATE",
+                "rate": 80
+              }
+            },
+            {
+              "kind": "B",
+              "amount": {
+                "__typename": "RoomPlanChildAmountRate",
+                "type": "RATE",
+                "rate": 80
+              }
+            },
+            {
+              "kind": "C",
+              "amount": {
+                "__typename": "RoomPlanChildAmountImpropriety",
+                "type": "IMPROPRIETY"
+              }
+            },
+            {
+              "kind": "E",
+              "amount": {
+                "__typename": "RoomPlanChildAmountFixed",
+                "type": "FIXED",
+                "amount": 5500
+              }
+            },
+            {
+              "kind": "D",
+              "amount": {
+                "__typename": "RoomPlanChildAmountImpropriety",
+                "type": "IMPROPRIETY"
+              }
+            },
+            {
+              "kind": "F",
+              "amount": {
+                "__typename": "RoomPlanChildAmountFixed",
+                "type": "FIXED",
+                "amount": 3300
+              }
+            }
+          ],
+          "memo": ""
+        },
+        "room": {
+          "lyingUpperLimitPeopleCount": 1,
+          "attributes": [
+            {
+              "value": "20",
+              "name": "禁煙"
+            },
+            {
+              "value": "18",
+              "name": "露天風呂付客室"
+            },
+            {
+              "value": "1",
+              "name": "40平米以上"
+            },
+            {
+              "value": "27",
+              "name": "バストイレ別"
+            },
+            {
+              "value": "5",
+              "name": "洗い場付バス"
+            },
+            {
+              "value": "16",
+              "name": "温泉露天風呂付"
+            },
+            {
+              "value": "6",
+              "name": "洗浄機能付トイレ"
+            },
+            {
+              "value": "23",
+              "name": "空気清浄機付"
+            },
+            {
+              "value": "28",
+              "name": "ネット可（wi-fi）"
+            }
+          ],
+          "isAmenitiesDisplay": true,
+          "amenities": [
+            {
+              "amenity": {
+                "id": "04",
+                "name": "シャンプー・リンス"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "05",
+                "name": "ボディソープ・石鹸"
+              },
+              "available": true
+            },
+            {
+              "amenity": {
+                "id": "01",
+                "name": "タオル・バスタオル"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "08",
+                "name": "ボディタオル・スポンジ"
+              },
+              "available": true
+            },
+            {
+              "amenity": {
+                "id": "03",
+                "name": "ハミガキセット"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "12",
+                "name": "くし・ブラシ"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "09",
+                "name": "シャワーキャップ"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "13",
+                "name": "ドライヤー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "07",
+                "name": "髭剃り"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "34",
+                "name": "シェービングジェル・フォーム"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "06",
+                "name": "入浴剤"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "15",
+                "name": "浴衣"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "14",
+                "name": "ナイトウェア"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "02",
+                "name": "バスローブ"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "16",
+                "name": "スリッパ"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "35",
+                "name": "洗顔料"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "36",
+                "name": "化粧水"
+              },
+              "available": true
+            },
+            {
+              "amenity": {
+                "id": "37",
+                "name": "乳液"
+              },
+              "available": true
+            },
+            {
+              "amenity": {
+                "id": "38",
+                "name": "メイク落とし"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "10",
+                "name": "綿棒"
+              },
+              "available": true
+            },
+            {
+              "amenity": {
+                "id": "11",
+                "name": "コットン"
+              },
+              "available": true
+            },
+            {
+              "amenity": {
+                "id": "39",
+                "name": "衣類の消臭スプレー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "27",
+                "name": "冷蔵庫"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "21",
+                "name": "ミニバー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "20",
+                "name": "湯沸しポット"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "30",
+                "name": "お茶セット（無料）"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "22",
+                "name": "テレビ"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "25",
+                "name": "金庫"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "24",
+                "name": "体重計"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "28",
+                "name": "ズボンプレッサー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "26",
+                "name": "朝刊無料"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "19",
+                "name": "有料放送"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "23",
+                "name": "衛星放送"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "33",
+                "name": "ビデオ・オン・デマンド"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "31",
+                "name": "ラジオ"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "18",
+                "name": "CDプレイヤー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "17",
+                "name": "DVDプレイヤー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "40",
+                "name": "Blu-rayプレイヤー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "32",
+                "name": "ポータブルオーディオ用スピーカー"
+              },
+              "available": false
+            },
+            {
+              "amenity": {
+                "id": "29",
+                "name": "客室備付PC・タブレット端末"
+              },
+              "available": false
+            }
+          ],
+          "capacityMax": 3,
+          "capacityMin": 1,
+          "checkInTimeFrom": "14:00",
+          "checkInTimeTo": "18:00",
+          "checkOutTime": "11:00",
+          "floorPlan": "",
+          "images": [
+            {
+              "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11989019.jpg",
+              "alt": "露天風呂付き客室"
+            },
+            {
+              "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11987555.jpg",
+              "alt": "露天風呂付き・深山亭"
+            },
+            {
+              "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969890.jpg",
+              "alt": "深山亭・露天風呂付き"
+            },
+            {
+              "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969891.jpg",
+              "alt": "深山亭　露天風呂イメージ"
+            },
+            {
+              "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969889.jpg",
+              "alt": "深山亭・露天風呂付き"
+            },
+            {
+              "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969892.jpg",
+              "alt": "深山亭・露天風呂付き客室"
+            }
+          ],
+          "meterFrom": 45,
+          "meterTo": 45,
+          "name": "特別室【深山亭】自家源泉の露天風呂付き客室 ベッド/45平米",
+          "type": {
+            "code": "05",
+            "name": "和室"
+          },
+          "roomId": "10193727",
+          "presentationText": "お部屋の坪庭に自家源泉注ぐ檜の露天風呂をご用意。\r\n新鮮な空気と共に露天風呂を1日貸切。\r\nゆったりと時間を気にせず、お部屋の露天風呂に好きな時に好きなだけ入りたい。そんな贅沢な休日を叶えてくれる最上級のお部屋です。\r\n\r\n※露天風呂の位置と坪庭の形はお部屋によって異なります。予めご了承下さい。\r\n\r\n本館に位置し、食事会場や風呂へエレベーター1本で移動できる、利便性が高いお部屋です。\r\n\r\n■客室概要\r\n・和室　45平米　ベッド\r\n・定員：3名\r\n・バス／シャワートイレ／洗面\r\n\r\n■客室設備\r\nテレビ／金庫／冷蔵庫／空気清浄機／ポット／湯茶セット／Wi-Fi接続無料\r\n\r\n■アメニティ\r\nボディーソープ／シャンプー／コンディショナー／館内着／就寝用パジャマ／他",
+          "floorNumberBottom": 4,
+          "floorNumberTop": 4,
+          "beds": [
+            {
+              "count": 2,
+              "width": 100,
+              "height": 0,
+              "length": 200
+            }
+          ],
+          "lying": true
+        },
+        "plan": {
+          "cancelPolicy": {
+            "id": "001",
+            "rules": [
+              {
+                "__typename": "CancelPolicyRuleNoShow",
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 100
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 0,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 100
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 1,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 70
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 3,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 50
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 7,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 30
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 10,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 20
+                }
+              }
+            ]
+          },
+          "notes": "消費税、サービス料は込みです。入湯税のみ150円頂戴致します。",
+          "uwanosePointVariation": 0,
+          "options": [],
+          "cardSettlement": "CARD_COMBI",
+          "bathTaxApply": false,
+          "attributes": null,
+          "amenities": null,
+          "bookableDateTimeFrom": null,
+          "bookableDateTimeTo": null,
+          "bookableEndSoon": false,
+          "bookableStartSoon": false,
+          "checkInTimeFrom": "14:00",
+          "checkInTimeTo": "23:00",
+          "checkOutTime": "11:00",
+          "imageUrls": [
+            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/11985736.jpg",
+            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/11985747.jpg"
+          ],
+          "isIkyuLimit": false,
+          "limitedTwoWeeks": false,
+          "memberRank": null,
+          "name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+          "planId": "11055986",
+          "sale": "USUALLY",
+          "specialImageUrls": null,
+          "meal": {
+            "code": "000",
+            "name": "食事なし"
+          },
+          "useCheckInOut": true,
+          "meals": null,
+          "catchCopy": "お食事はつきませんが、当館のラウンジで読書三昧もおすすめです。",
+          "content": "【お食事無しの素泊まりプラン】\r\n\r\nチェックインは23時までとなっております。\r\n遅い到着でも安心です。\r\n\r\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\r\n3万冊の蔵書を取り揃えております。\r\n懐かしい本との出会いもお愉しみください。\r\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\r\n\r\n■内容＆特典■\r\n・就寝用パジャマをご用意\r\n・環境に配慮したアメニティをご用意\r\n・最終チェックイン23時、チェックアウト11時\r\n　ご到着のお時間を事前にお知らせください。\r\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\r\n\r\n\r\n【お食事】\r\n※夕食・朝食はついておりません。\r\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\r\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\r\n事前のお申し出がない場合はご用意できかねます。\r\n\r\n【温泉】\r\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\r\n美人の湯としても誉れ高く、お肌のつるつる感を楽しんで頂けます。\r\n\r\n・お座敷風呂（大浴場）\r\n　親湯温泉の成分に合わせ、防菌防カビの特殊素材の畳を利用。\r\n　足元が柔らかく、そして滑りにくい畳のお風呂です。\r\n　渓流を臨む露天風呂も併設しています。\r\n\r\n・天与の湯（女性専用露天風呂）\r\n　渓谷を一望する見晴らしの良い露天風呂。\r\n　自然美を眺めながらのご入浴をお楽しみ下さい。\r\n\r\n・女性専用プラネタリウム岩盤浴\r\n　2023年4月新設。浴室内に蓼科の星空を再現したプラネタリウムを完備。\r\n　頭上に投影された満天の星を眺めながら愉しむ親湯温泉ならではの岩盤浴です。（女性のみ利用可能）\r\n\r\n【館内】\r\n・ちょっとした歴史散策が楽しめる「星降るガーデン」、\r\n　蓼科にゆかりのある文人たちの歌碑もございます。\r\n・館内フリーWi-Fi\r\n・駐車場完備\r\n\r\n以上が、\r\n蓼科 親湯温泉 素泊りプランの内容です。\r\n\r\nあまたの文人達は蓼科 親湯温泉を選び、\r\nこの寛ぎの環境で多くの作品を世に送り出しました。\r\nお客様の大切な休日も、親湯温泉でお過ごし下さい。",
+          "minRoomCount": null,
+          "maxRoomCount": null,
+          "minLodgingCount": null,
+          "maxLodgingCount": null
+        },
+        "attributes": [
+          {
+            "name": "ネット無料（wi-fi）",
+            "value": "8"
+          }
+        ],
+        "inComparisonList": false,
+        "error": ""
+      },
+      "loungeServiceContent": "",
+      "generalNotes": "※当館へお車でお越しの際※\r\nカーナビを設定される際は、当館住所ではなく電話番号（0266-67-2020）でのご設定をお願いいたします。\r\n\r\n別途おひとり様一泊につき、宿泊税200円（2026年6月1日より）、150円の入湯税がかかります。",
+      "notes": "※※全館禁煙のご案内※※\r\nこの度、館内（客室・共用スペース含む）を全面禁煙とさせていただきます。\r\n喫煙されるお客様は、別途設けております喫煙所をご利用いただきますようお願い申し上げます。\r\n誠に恐縮ではございますが、ご理解の程お願い申し上げます。",
+      "amenities": [
+        {
+          "amenity": {
+            "id": "04",
+            "name": "シャンプー・リンス"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "05",
+            "name": "ボディソープ・石鹸"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "01",
+            "name": "タオル・バスタオル"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "08",
+            "name": "ボディタオル・スポンジ"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "03",
+            "name": "ハミガキセット"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "12",
+            "name": "くし・ブラシ"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "09",
+            "name": "シャワーキャップ"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "13",
+            "name": "ドライヤー"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "07",
+            "name": "髭剃り"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "34",
+            "name": "シェービングジェル・フォーム"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "06",
+            "name": "入浴剤"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "15",
+            "name": "浴衣"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "14",
+            "name": "ナイトウェア"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "02",
+            "name": "バスローブ"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "16",
+            "name": "スリッパ"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "35",
+            "name": "洗顔料"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "36",
+            "name": "化粧水"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "37",
+            "name": "乳液"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "38",
+            "name": "メイク落とし"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "10",
+            "name": "綿棒"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "11",
+            "name": "コットン"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "39",
+            "name": "衣類の消臭スプレー"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "27",
+            "name": "冷蔵庫"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "21",
+            "name": "ミニバー"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "20",
+            "name": "湯沸しポット"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "30",
+            "name": "お茶セット（無料）"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "22",
+            "name": "テレビ"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "25",
+            "name": "金庫"
+          },
+          "available": true
+        },
+        {
+          "amenity": {
+            "id": "24",
+            "name": "体重計"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "28",
+            "name": "ズボンプレッサー"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "26",
+            "name": "朝刊無料"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "19",
+            "name": "有料放送"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "23",
+            "name": "衛星放送"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "33",
+            "name": "ビデオ・オン・デマンド"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "31",
+            "name": "ラジオ"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "18",
+            "name": "CDプレイヤー"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "17",
+            "name": "DVDプレイヤー"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "40",
+            "name": "Blu-rayプレイヤー"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "32",
+            "name": "ポータブルオーディオ用スピーカー"
+          },
+          "available": false
+        },
+        {
+          "amenity": {
+            "id": "29",
+            "name": "客室備付PC・タブレット端末"
+          },
+          "available": false
+        }
+      ],
+      "allowLocalPoint": true
+    }
+  }
+}

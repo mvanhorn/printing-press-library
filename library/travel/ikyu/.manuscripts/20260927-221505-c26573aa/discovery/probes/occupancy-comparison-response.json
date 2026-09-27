@@ -1,0 +1,102 @@
+[
+  {
+    "case": "one-room",
+    "errors": null,
+    "amount": {
+      "amount": 30800,
+      "baseDiscountAmount": 30800,
+      "baseDiscountRate": 0,
+      "childACount": 0,
+      "childBCount": 0,
+      "childCCount": 0,
+      "childDCount": 0,
+      "childECount": 0,
+      "childFCount": 0,
+      "discountAmount": 24640,
+      "discountAmountEarn": 30800,
+      "discountAmountWithoutCoupon": 24640,
+      "instantPoint": 6160,
+      "instantPointRate": 20,
+      "lodgingCount": 1,
+      "peopleCount": 2,
+      "point": 6160,
+      "pointRate": 20,
+      "roomCount": 1,
+      "uwanosePoint": 0,
+      "pointBurdenRates": {
+        "accommodation": 10,
+        "other": 10
+      },
+      "zenkokuCoupon": null,
+      "coupon": null,
+      "plan": {
+        "meal": {
+          "code": "000",
+          "name": "食事なし"
+        },
+        "sale": "USUALLY"
+      },
+      "details": [
+        {
+          "baseDiscount": null,
+          "date": "2026-10-18"
+        }
+      ],
+      "inventory": 4
+    },
+    "booking_error": ""
+  },
+  {
+    "case": "two-room-two-ppc",
+    "errors": null,
+    "amount": {
+      "amount": 61600,
+      "baseDiscountAmount": 61600,
+      "baseDiscountRate": 0,
+      "childACount": 0,
+      "childBCount": 0,
+      "childCCount": 0,
+      "childDCount": 0,
+      "childECount": 0,
+      "childFCount": 0,
+      "discountAmount": 49280,
+      "discountAmountEarn": 61600,
+      "discountAmountWithoutCoupon": 49280,
+      "instantPoint": 12320,
+      "instantPointRate": 20,
+      "lodgingCount": 1,
+      "peopleCount": 2,
+      "point": 12320,
+      "pointRate": 20,
+      "roomCount": 2,
+      "uwanosePoint": 0,
+      "pointBurdenRates": {
+        "accommodation": 10,
+        "other": 10
+      },
+      "zenkokuCoupon": null,
+      "coupon": null,
+      "plan": {
+        "meal": {
+          "code": "000",
+          "name": "食事なし"
+        },
+        "sale": "USUALLY"
+      },
+      "details": [
+        {
+          "baseDiscount": null,
+          "date": "2026-10-18"
+        }
+      ],
+      "inventory": 4
+    },
+    "booking_error": ""
+  },
+  {
+    "case": "two-room-four-ppc",
+    "errors": null,
+    "amount": null,
+    "booking_error": "ご指定の条件では空室がありません。"
+  }
+]

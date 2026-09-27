@@ -1,0 +1,157 @@
+{
+  "api_name": "ikyu",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:33:22.933203Z",
+  "novel_features": [
+    {
+      "name": "Offer equivalence",
+      "command": "stay compare",
+      "description": "Compare exact offers with explicit compatible groups, differences and unknowns.",
+      "rationale": "Exact stay, room, meals and cancellation conditions are checked together.",
+      "example": "ikyu-pp-cli stay compare --offers 00002889:10193727:11055986,00002889:10193727:11055981 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --agent",
+      "why_it_matters": "Compare exact offers with explicit compatible groups, differences and unknowns.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Date alternatives",
+      "command": "stay dates",
+      "description": "Inspect bounded date alternatives for one selected room and plan.",
+      "rationale": "One source offer is replayed across an explicit small date set.",
+      "example": "ikyu-pp-cli stay dates 00002889 10193727 11055986 --check-ins 2026-11-17,2026-11-18 --nights 1 --adults 2 --agent",
+      "why_it_matters": "Inspect bounded date alternatives for one selected room and plan.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Room fit",
+      "command": "stay rooms",
+      "description": "Find rooms with source-backed space and bath attributes; keep missing evidence visible.",
+      "rationale": "Room amenities are evaluated independently from shared property facilities.",
+      "example": "ikyu-pp-cli stay rooms 00002889 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+      "why_it_matters": "Find rooms with source-backed space and bath attributes; keep missing evidence visible.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Price explanation",
+      "command": "stay offer",
+      "description": "Separate source prices, points scenarios, coupons and eligibility for an exact offer.",
+      "rationale": "Server-calculated amounts and assumptions stay together instead of a guessed percentage discount.",
+      "example": "ikyu-pp-cli stay offer 00002889 10193727 11055986 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --agent",
+      "why_it_matters": "Separate source prices, points scenarios, coupons and eligibility for an exact offer.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Shortlist readiness",
+      "command": "stay search",
+      "description": "Return compact dated property candidates with pagination, freshness and detail gaps.",
+      "rationale": "Bounded source results become agent-ready summaries without hidden room-detail fan-out.",
+      "example": "ikyu-pp-cli stay search --destination tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+      "why_it_matters": "Return compact dated property candidates with pagination, freshness and detail gaps.",
+      "group": "Bounded discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offer equivalence",
+      "command": "stay compare",
+      "description": "Compare exact offers with explicit compatible groups, differences and unknowns.",
+      "rationale": "Exact stay, room, meals and cancellation conditions are checked together.",
+      "example": "ikyu-pp-cli stay compare --offers 00002889:10193727:11055986,00002889:10193727:11055981 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --agent",
+      "why_it_matters": "Compare exact offers with explicit compatible groups, differences and unknowns.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Date alternatives",
+      "command": "stay dates",
+      "description": "Inspect bounded date alternatives for one selected room and plan.",
+      "rationale": "One source offer is replayed across an explicit small date set.",
+      "example": "ikyu-pp-cli stay dates 00002889 10193727 11055986 --check-ins 2026-11-17,2026-11-18 --nights 1 --adults 2 --agent",
+      "why_it_matters": "Inspect bounded date alternatives for one selected room and plan.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Room fit",
+      "command": "stay rooms",
+      "description": "Find rooms with source-backed space and bath attributes; keep missing evidence visible.",
+      "rationale": "Room amenities are evaluated independently from shared property facilities.",
+      "example": "ikyu-pp-cli stay rooms 00002889 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+      "why_it_matters": "Find rooms with source-backed space and bath attributes; keep missing evidence visible.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Price explanation",
+      "command": "stay offer",
+      "description": "Separate source prices, points scenarios, coupons and eligibility for an exact offer.",
+      "rationale": "Server-calculated amounts and assumptions stay together instead of a guessed percentage discount.",
+      "example": "ikyu-pp-cli stay offer 00002889 10193727 11055986 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --agent",
+      "why_it_matters": "Separate source prices, points scenarios, coupons and eligibility for an exact offer.",
+      "group": "Room and offer decisions"
+    },
+    {
+      "name": "Shortlist readiness",
+      "command": "stay search",
+      "description": "Return compact dated property candidates with pagination, freshness and detail gaps.",
+      "rationale": "Bounded source results become agent-ready summaries without hidden room-detail fan-out.",
+      "example": "ikyu-pp-cli stay search --destination tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+      "why_it_matters": "Return compact dated property candidates with pagination, freshness and detail gaps.",
+      "group": "Bounded discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Ikyu Accommodation",
+    "headline": "Search Ikyu hotels and ryokan with dated room prices and cancellation details.",
+    "value_prop": "Discover Ikyu hotels and ryokan, inspect exact room-plan conditions, and compare offers with honest price and bath distinctions. Compact results preserve Japanese names, source IDs and freshness.",
+    "auth_narrative": "Verified public accommodation reads are anonymous and require no API key. Personalized member inventory and coupon eligibility are outside this CLI; final booking stays on Ikyu.",
+    "quickstart": [
+      {
+        "command": "ikyu-pp-cli doctor --dry-run",
+        "comment": "Check the local command surface."
+      },
+      {
+        "command": "ikyu-pp-cli stay search --destination tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+        "comment": "Build a bounded dated shortlist."
+      },
+      {
+        "command": "ikyu-pp-cli stay rooms 00002889 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+        "comment": "Inspect room and plan summaries."
+      },
+      {
+        "command": "ikyu-pp-cli stay offer 00002889 10193727 11055986 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --agent",
+        "comment": "Check exact price and cancellation terms."
+      }
+    ],
+    "when_to_use": "Use for Ikyu Japan accommodation discovery, room-plan inspection, compatible offer comparison and explicit date alternatives. Start with search and retrieve detailed offers only for chosen rooms.",
+    "anti_triggers": [
+      "Reservation creation, payments or cancellations",
+      "Restaurant or spa booking",
+      "Member account inventory or coupon acquisition"
+    ],
+    "recipes": [
+      {
+        "title": "Dated shortlist",
+        "command": "ikyu-pp-cli stay search --destination tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent --select data",
+        "explanation": "Keep bounded source summaries and explicit coverage."
+      },
+      {
+        "title": "Room evidence",
+        "command": "ikyu-pp-cli stay rooms 00002889 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --agent",
+        "explanation": "Inspect room-level bath and bedding evidence."
+      },
+      {
+        "title": "Exact offer",
+        "command": "ikyu-pp-cli stay offer 00002889 10193727 11055986 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --agent",
+        "explanation": "Check cancellation, meals and conditional price amounts."
+      }
+    ],
+    "trigger_phrases": [
+      "find Ikyu hotels and ryokan",
+      "compare Ikyu room plans",
+      "check Ikyu alternative dates",
+      "use ikyu",
+      "run ikyu"
+    ]
+  }
+}

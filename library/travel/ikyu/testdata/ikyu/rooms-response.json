@@ -1,0 +1,566 @@
+{
+  "data": {
+    "accommodation": {
+      "accommodationId": "00002889",
+      "name": "創業大正十五年 蓼科 親湯温泉",
+      "searchRooms2": {
+        "rooms": {
+          "edges": [
+            {
+              "node": {
+                "attributes": [
+                  {
+                    "value": "20"
+                  },
+                  {
+                    "value": "36"
+                  },
+                  {
+                    "value": "6"
+                  },
+                  {
+                    "value": "23"
+                  },
+                  {
+                    "value": "28"
+                  }
+                ],
+                "roomId": "10193741",
+                "accommodationId": "00002889",
+                "checkInTimeFrom": "14:00",
+                "checkInTimeTo": "18:00",
+                "checkOutTime": "11:00",
+                "amounts": {
+                  "edges": [
+                    {
+                      "node": {
+                        "amount": 30800,
+                        "baseDiscountAmount": 30800,
+                        "baseDiscountRate": 0,
+                        "discountAmount": 24640,
+                        "point": 6160,
+                        "pointRate": 20,
+                        "instantPoint": 6160,
+                        "instantPointRate": 20,
+                        "inventory": 4,
+                        "lodgingCount": 1,
+                        "peopleCount": 2,
+                        "childACount": 0,
+                        "childBCount": 0,
+                        "childCCount": 0,
+                        "childDCount": 0,
+                        "childECount": 0,
+                        "childFCount": 0,
+                        "roomCount": 1,
+                        "plan": {
+                          "planId": "11055986",
+                          "checkInTimeFrom": "14:00",
+                          "checkInTimeTo": "23:00",
+                          "checkOutTime": "11:00",
+                          "useCheckInOut": true,
+                          "limitedTwoWeeks": false,
+                          "bookableStartSoon": false,
+                          "bookableEndSoon": false,
+                          "meal": {
+                            "code": "000",
+                            "name": "食事なし"
+                          },
+                          "memberRank": null,
+                          "name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+                          "imageUrls": [
+                            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/11985736.jpg"
+                          ],
+                          "sale": "USUALLY",
+                          "uwanosePointVariation": 0
+                        },
+                        "discountAmountEarn": 30800,
+                        "discountAmountWithoutCoupon": 24640,
+                        "uwanosePoint": 0,
+                        "pointBurdenRates": null,
+                        "zenkokuCoupon": null,
+                        "coupon": null,
+                        "details": null
+                      }
+                    },
+                    {
+                      "node": {
+                        "amount": 35200,
+                        "baseDiscountAmount": 35200,
+                        "baseDiscountRate": 0,
+                        "discountAmount": 28160,
+                        "point": 7040,
+                        "pointRate": 20,
+                        "instantPoint": 7040,
+                        "instantPointRate": 20,
+                        "inventory": 4,
+                        "lodgingCount": 1,
+                        "peopleCount": 2,
+                        "childACount": 0,
+                        "childBCount": 0,
+                        "childCCount": 0,
+                        "childDCount": 0,
+                        "childECount": 0,
+                        "childFCount": 0,
+                        "roomCount": 1,
+                        "plan": {
+                          "planId": "11055981",
+                          "checkInTimeFrom": "14:00",
+                          "checkInTimeTo": "23:00",
+                          "checkOutTime": "11:00",
+                          "useCheckInOut": true,
+                          "limitedTwoWeeks": false,
+                          "bookableStartSoon": false,
+                          "bookableEndSoon": false,
+                          "meal": {
+                            "code": "001",
+                            "name": "朝食付"
+                          },
+                          "memberRank": null,
+                          "name": "【一泊朝食付】蓼科 親湯温泉 朝食プラン。朝食は信州の山の幸を個室レストランで",
+                          "imageUrls": [
+                            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/13906210.jpg"
+                          ],
+                          "sale": "USUALLY",
+                          "uwanosePointVariation": 0
+                        },
+                        "discountAmountEarn": 35200,
+                        "discountAmountWithoutCoupon": 28160,
+                        "uwanosePoint": 0,
+                        "pointBurdenRates": null,
+                        "zenkokuCoupon": null,
+                        "coupon": null,
+                        "details": null
+                      }
+                    }
+                  ],
+                  "totalCount": 5
+                },
+                "images": [
+                  {
+                    "alt": "すずらん",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11987540.jpg"
+                  },
+                  {
+                    "alt": "すずらん亭",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11968822.jpg"
+                  },
+                  {
+                    "alt": "すずらん亭",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11968821.jpg"
+                  },
+                  {
+                    "alt": "すずらん亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11968828.jpg"
+                  },
+                  {
+                    "alt": "すずらん亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11968825.jpg"
+                  },
+                  {
+                    "alt": "すずらん亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11968846.jpg"
+                  }
+                ],
+                "meterFrom": 25,
+                "beds": null,
+                "capacityMin": 1,
+                "capacityMax": 4,
+                "floorPlan": "8帖+トイレ（階段のご利用）",
+                "floorNumberBottom": 0,
+                "floorNumberTop": 0,
+                "name": "【奥廊下 すずらん亭】最もリーズナブル　和室/25平米",
+                "renewalDate": "",
+                "type": {
+                  "code": "05",
+                  "name": "和室"
+                },
+                "highestPointAmounts": {
+                  "edges": [
+                    {
+                      "node": {
+                        "point": 10320,
+                        "pointRate": 20
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "node": {
+                "attributes": [
+                  {
+                    "value": "20"
+                  },
+                  {
+                    "value": "36"
+                  },
+                  {
+                    "value": "6"
+                  },
+                  {
+                    "value": "23"
+                  },
+                  {
+                    "value": "28"
+                  }
+                ],
+                "roomId": "10193735",
+                "accommodationId": "00002889",
+                "checkInTimeFrom": "14:00",
+                "checkInTimeTo": "18:00",
+                "checkOutTime": "11:00",
+                "amounts": {
+                  "edges": [
+                    {
+                      "node": {
+                        "amount": 37400,
+                        "baseDiscountAmount": 37400,
+                        "baseDiscountRate": 0,
+                        "discountAmount": 29920,
+                        "point": 7480,
+                        "pointRate": 20,
+                        "instantPoint": 7480,
+                        "instantPointRate": 20,
+                        "inventory": 1,
+                        "lodgingCount": 1,
+                        "peopleCount": 2,
+                        "childACount": 0,
+                        "childBCount": 0,
+                        "childCCount": 0,
+                        "childDCount": 0,
+                        "childECount": 0,
+                        "childFCount": 0,
+                        "roomCount": 1,
+                        "plan": {
+                          "planId": "11055986",
+                          "checkInTimeFrom": "14:00",
+                          "checkInTimeTo": "23:00",
+                          "checkOutTime": "11:00",
+                          "useCheckInOut": true,
+                          "limitedTwoWeeks": false,
+                          "bookableStartSoon": false,
+                          "bookableEndSoon": false,
+                          "meal": {
+                            "code": "000",
+                            "name": "食事なし"
+                          },
+                          "memberRank": null,
+                          "name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+                          "imageUrls": [
+                            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/11985736.jpg"
+                          ],
+                          "sale": "USUALLY",
+                          "uwanosePointVariation": 0
+                        },
+                        "discountAmountEarn": 37400,
+                        "discountAmountWithoutCoupon": 29920,
+                        "uwanosePoint": 0,
+                        "pointBurdenRates": null,
+                        "zenkokuCoupon": null,
+                        "coupon": null,
+                        "details": null
+                      }
+                    },
+                    {
+                      "node": {
+                        "amount": 41800,
+                        "baseDiscountAmount": 41800,
+                        "baseDiscountRate": 0,
+                        "discountAmount": 33440,
+                        "point": 8360,
+                        "pointRate": 20,
+                        "instantPoint": 8360,
+                        "instantPointRate": 20,
+                        "inventory": 1,
+                        "lodgingCount": 1,
+                        "peopleCount": 2,
+                        "childACount": 0,
+                        "childBCount": 0,
+                        "childCCount": 0,
+                        "childDCount": 0,
+                        "childECount": 0,
+                        "childFCount": 0,
+                        "roomCount": 1,
+                        "plan": {
+                          "planId": "11055981",
+                          "checkInTimeFrom": "14:00",
+                          "checkInTimeTo": "23:00",
+                          "checkOutTime": "11:00",
+                          "useCheckInOut": true,
+                          "limitedTwoWeeks": false,
+                          "bookableStartSoon": false,
+                          "bookableEndSoon": false,
+                          "meal": {
+                            "code": "001",
+                            "name": "朝食付"
+                          },
+                          "memberRank": null,
+                          "name": "【一泊朝食付】蓼科 親湯温泉 朝食プラン。朝食は信州の山の幸を個室レストランで",
+                          "imageUrls": [
+                            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/13906210.jpg"
+                          ],
+                          "sale": "USUALLY",
+                          "uwanosePointVariation": 0
+                        },
+                        "discountAmountEarn": 41800,
+                        "discountAmountWithoutCoupon": 33440,
+                        "uwanosePoint": 0,
+                        "pointBurdenRates": null,
+                        "zenkokuCoupon": null,
+                        "coupon": null,
+                        "details": null
+                      }
+                    }
+                  ],
+                  "totalCount": 6
+                },
+                "images": [
+                  {
+                    "alt": "山月ベッド",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11987550.jpg"
+                  },
+                  {
+                    "alt": "山月亭ベッドタイプ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969215.jpg"
+                  },
+                  {
+                    "alt": "山月亭ベッドタイプ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969214.jpg"
+                  },
+                  {
+                    "alt": "山月亭ベッド　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969232.jpg"
+                  },
+                  {
+                    "alt": "山月亭ベッド　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969229.jpg"
+                  },
+                  {
+                    "alt": "山月亭ベッド　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969234.jpg"
+                  }
+                ],
+                "meterFrom": 38,
+                "beds": [
+                  {
+                    "count": 2,
+                    "peopleCount": 1,
+                    "width": 100,
+                    "height": 0,
+                    "length": 200
+                  }
+                ],
+                "capacityMin": 1,
+                "capacityMax": 4,
+                "floorPlan": "和室10帖+リビング6帖+テラス",
+                "floorNumberBottom": 5,
+                "floorNumberTop": 5,
+                "name": "【山月亭】寛ぎのリビングと渓流を臨むテラス　ベッド/38平米",
+                "renewalDate": "20190315",
+                "type": {
+                  "code": "06",
+                  "name": "和洋室"
+                },
+                "highestPointAmounts": {
+                  "edges": [
+                    {
+                      "node": {
+                        "point": 11640,
+                        "pointRate": 20
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "node": {
+                "attributes": [
+                  {
+                    "value": "20"
+                  },
+                  {
+                    "value": "1"
+                  },
+                  {
+                    "value": "27"
+                  },
+                  {
+                    "value": "5"
+                  },
+                  {
+                    "value": "6"
+                  },
+                  {
+                    "value": "23"
+                  },
+                  {
+                    "value": "28"
+                  }
+                ],
+                "roomId": "10193731",
+                "accommodationId": "00002889",
+                "checkInTimeFrom": "14:00",
+                "checkInTimeTo": "18:00",
+                "checkOutTime": "11:00",
+                "amounts": {
+                  "edges": [
+                    {
+                      "node": {
+                        "amount": 38500,
+                        "baseDiscountAmount": 38500,
+                        "baseDiscountRate": 0,
+                        "discountAmount": 30800,
+                        "point": 7700,
+                        "pointRate": 20,
+                        "instantPoint": 7700,
+                        "instantPointRate": 20,
+                        "inventory": 4,
+                        "lodgingCount": 1,
+                        "peopleCount": 2,
+                        "childACount": 0,
+                        "childBCount": 0,
+                        "childCCount": 0,
+                        "childDCount": 0,
+                        "childECount": 0,
+                        "childFCount": 0,
+                        "roomCount": 1,
+                        "plan": {
+                          "planId": "11055986",
+                          "checkInTimeFrom": "14:00",
+                          "checkInTimeTo": "23:00",
+                          "checkOutTime": "11:00",
+                          "useCheckInOut": true,
+                          "limitedTwoWeeks": false,
+                          "bookableStartSoon": false,
+                          "bookableEndSoon": false,
+                          "meal": {
+                            "code": "000",
+                            "name": "食事なし"
+                          },
+                          "memberRank": null,
+                          "name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+                          "imageUrls": [
+                            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/11985736.jpg"
+                          ],
+                          "sale": "USUALLY",
+                          "uwanosePointVariation": 0
+                        },
+                        "discountAmountEarn": 38500,
+                        "discountAmountWithoutCoupon": 30800,
+                        "uwanosePoint": 0,
+                        "pointBurdenRates": null,
+                        "zenkokuCoupon": null,
+                        "coupon": null,
+                        "details": null
+                      }
+                    },
+                    {
+                      "node": {
+                        "amount": 42900,
+                        "baseDiscountAmount": 42900,
+                        "baseDiscountRate": 0,
+                        "discountAmount": 34320,
+                        "point": 8580,
+                        "pointRate": 20,
+                        "instantPoint": 8580,
+                        "instantPointRate": 20,
+                        "inventory": 4,
+                        "lodgingCount": 1,
+                        "peopleCount": 2,
+                        "childACount": 0,
+                        "childBCount": 0,
+                        "childCCount": 0,
+                        "childDCount": 0,
+                        "childECount": 0,
+                        "childFCount": 0,
+                        "roomCount": 1,
+                        "plan": {
+                          "planId": "11055981",
+                          "checkInTimeFrom": "14:00",
+                          "checkInTimeTo": "23:00",
+                          "checkOutTime": "11:00",
+                          "useCheckInOut": true,
+                          "limitedTwoWeeks": false,
+                          "bookableStartSoon": false,
+                          "bookableEndSoon": false,
+                          "meal": {
+                            "code": "001",
+                            "name": "朝食付"
+                          },
+                          "memberRank": null,
+                          "name": "【一泊朝食付】蓼科 親湯温泉 朝食プラン。朝食は信州の山の幸を個室レストランで",
+                          "imageUrls": [
+                            "https://www.img-ikyu.com/contents/common/image/acc9/00002889/0/org/13906210.jpg"
+                          ],
+                          "sale": "USUALLY",
+                          "uwanosePointVariation": 0
+                        },
+                        "discountAmountEarn": 42900,
+                        "discountAmountWithoutCoupon": 34320,
+                        "uwanosePoint": 0,
+                        "pointBurdenRates": null,
+                        "zenkokuCoupon": null,
+                        "coupon": null,
+                        "details": null
+                      }
+                    }
+                  ],
+                  "totalCount": 6
+                },
+                "images": [
+                  {
+                    "alt": "清流亭",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969877.jpg"
+                  },
+                  {
+                    "alt": "清流亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969878.jpg"
+                  },
+                  {
+                    "alt": "清流亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969879.jpg"
+                  },
+                  {
+                    "alt": "清流亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969880.jpg"
+                  },
+                  {
+                    "alt": "清流亭　客室イメージ",
+                    "url": "https://www.img-ikyu.com/contents/common/image/acc9/00002889/1/org/11969882.jpg"
+                  }
+                ],
+                "meterFrom": 45,
+                "beds": null,
+                "capacityMin": 1,
+                "capacityMax": 6,
+                "floorPlan": "12.5帖　バス・トイレ付",
+                "floorNumberBottom": 3,
+                "floorNumberTop": 5,
+                "name": "【清流亭】四季の美しさを愉しむ渓谷側眺望　和室/45平米",
+                "renewalDate": "",
+                "type": {
+                  "code": "05",
+                  "name": "和室"
+                },
+                "highestPointAmounts": {
+                  "edges": [
+                    {
+                      "node": {
+                        "point": 11860,
+                        "pointRate": 20
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "__typename": "RoomConnection",
+          "totalCount": 8
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "status": "pass",
+  "commands": [
+    {
+      "command": "stay destinations",
+      "usage": "ikyu-pp-cli stay destinations [query] [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    },
+    {
+      "command": "stay search",
+      "usage": "ikyu-pp-cli stay search [destination] [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    },
+    {
+      "command": "stay property",
+      "usage": "ikyu-pp-cli stay property [property-id] [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    },
+    {
+      "command": "stay rooms",
+      "usage": "ikyu-pp-cli stay rooms [property-id] [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    },
+    {
+      "command": "stay offer",
+      "usage": "ikyu-pp-cli stay offer [property-id room-id plan-id] [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    },
+    {
+      "command": "stay compare",
+      "usage": "ikyu-pp-cli stay compare [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    },
+    {
+      "command": "stay dates",
+      "usage": "ikyu-pp-cli stay dates [property-id room-id plan-id] [flags]",
+      "help_exit": 0,
+      "dry_run_exit": 0,
+      "dry_run_network_requests": 0
+    }
+  ]
+}

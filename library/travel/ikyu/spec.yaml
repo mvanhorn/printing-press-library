@@ -1,0 +1,40 @@
+# Deliberately minimal scaffold. Typed accommodation commands use the reviewed
+# internal/ikyu read-only GraphQL adapter after generation, not arbitrary queries.
+name: ikyu
+category: travel
+description: Anonymous Ikyu accommodation research for hotels and ryokan in Japan.
+cli_description: Search Ikyu hotels and ryokan with dated room prices and cancellation details.
+version: "0.1.0"
+base_url: https://www.ikyu.com
+http_transport: standard
+health_check_path: /00002889/
+auth:
+  type: none
+cache:
+  enabled: false
+learn:
+  disabled: true
+config:
+  format: toml
+  path: ~/.config/ikyu-pp-cli/config.toml
+resources:
+  properties:
+    description: Read public hotel and ryokan information.
+    endpoints:
+      get:
+        method: GET
+        path: /{property_id}/
+        mutation: false
+        description: Read one public Ikyu property page by its eight-digit property ID.
+        example: "  ikyu-pp-cli properties get 00002889"
+        happy_args: "property_id=00002889"
+        params:
+          - name: property_id
+            flag_name: property-id
+            type: string
+            required: true
+            positional: true
+            description: Eight-digit Ikyu property ID; preserve leading zeros.
+        response_format: html
+        html_extract:
+          mode: page

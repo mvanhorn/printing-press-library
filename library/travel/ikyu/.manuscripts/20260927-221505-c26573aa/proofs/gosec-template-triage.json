@@ -1,0 +1,146 @@
+{
+  "reviewer": "root gpt-6-astra",
+  "scope": "generated code findings from gosec-build.json; hand-owned findings delegated for fixes",
+  "findings": [
+    {
+      "file": "internal/client/client.go",
+      "line": "454",
+      "rule": "G119",
+      "triage": "reviewed_false_positive",
+      "evidence": "Same-origin gate surrounds auth re-stamping; destination refusal runs first. Ikyu stay adapter uses a separate no-cookie/no-auth client."
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule": "G101",
+      "triage": "reviewed_false_positive",
+      "evidence": "This is the enum value invalid_credentials, not a credential."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3296-3299",
+      "rule": "G201",
+      "triage": "reviewed_false_positive",
+      "evidence": "SQL identifiers are restricted by validIdentifierRE or a validated typed-table mapping; value predicates use parameters."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2993-2996",
+      "rule": "G201",
+      "triage": "reviewed_false_positive",
+      "evidence": "SQL identifiers are restricted by validIdentifierRE or a validated typed-table mapping; value predicates use parameters."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1037",
+      "rule": "G201",
+      "triage": "reviewed_false_positive",
+      "evidence": "SQL identifiers are restricted by validIdentifierRE or a validated typed-table mapping; value predicates use parameters."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1013",
+      "rule": "G201",
+      "triage": "reviewed_false_positive",
+      "evidence": "SQL identifiers are restricted by validIdentifierRE or a validated typed-table mapping; value predicates use parameters."
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule": "G202",
+      "triage": "reviewed_false_positive",
+      "evidence": "VACUUM INTO target is escaped by doubling single quotes; this is a local database migration."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "249",
+      "rule": "G304",
+      "triage": "reviewed_false_positive",
+      "evidence": "Intentional user-configured local config/cache/profile/feedback path; no source response supplies the path. Files are created with exclusive/private flags where applicable."
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule": "G304",
+      "triage": "reviewed_false_positive",
+      "evidence": "Intentional user-configured local config/cache/profile/feedback path; no source response supplies the path. Files are created with exclusive/private flags where applicable."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule": "G304",
+      "triage": "reviewed_false_positive",
+      "evidence": "Intentional user-configured local config/cache/profile/feedback path; no source response supplies the path. Files are created with exclusive/private flags where applicable."
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "105",
+      "rule": "G304",
+      "triage": "reviewed_false_positive",
+      "evidence": "Intentional user-configured local config/cache/profile/feedback path; no source response supplies the path. Files are created with exclusive/private flags where applicable."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule": "G304",
+      "triage": "reviewed_false_positive",
+      "evidence": "Intentional user-configured local config/cache/profile/feedback path; no source response supplies the path. Files are created with exclusive/private flags where applicable."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule": "G304",
+      "triage": "reviewed_false_positive",
+      "evidence": "Intentional user-configured local config/cache/profile/feedback path; no source response supplies the path. Files are created with exclusive/private flags where applicable."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule": "G302",
+      "triage": "reviewed_false_positive",
+      "evidence": "The target is a directory; 0700 is the intended private traversable directory permission."
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule": "G302",
+      "triage": "reviewed_false_positive",
+      "evidence": "The target is a directory; 0700 is the intended private traversable directory permission."
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule": "G302",
+      "triage": "reviewed_false_positive",
+      "evidence": "The target is a directory; 0700 is the intended private traversable directory permission."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "800",
+      "rule": "G302",
+      "triage": "reviewed_false_positive",
+      "evidence": "The target is a directory; 0700 is the intended private traversable directory permission."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3084",
+      "rule": "G104",
+      "triage": "template_note_nonblocking",
+      "evidence": "Generated noncritical sync metadata lookup or diagnostic encoding ignores an error; not on the stay discovery path. Retained as template review note."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2827",
+      "rule": "G104",
+      "triage": "template_note_nonblocking",
+      "evidence": "Generated noncritical sync metadata lookup or diagnostic encoding ignores an error; not on the stay discovery path. Retained as template review note."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1504",
+      "rule": "G104",
+      "triage": "template_note_nonblocking",
+      "evidence": "Generated noncritical sync metadata lookup or diagnostic encoding ignores an error; not on the stay discovery path. Retained as template review note."
+    }
+  ]
+}

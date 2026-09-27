@@ -1,0 +1,134 @@
+{
+  "dir": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli",
+  "spec_path": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 23,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 7,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "hasChangedLocalFlags",
+      "isDryRunResponseForClient",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 8,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "detail": "8/8 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 34,
+      "registered": 34
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 3,
+      "mapped_steps": 0,
+      "unmapped_steps": [
+        "stay offer ${property} ${room} ${plan} --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --timeout 25s",
+        "stay rooms ${property} --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --limit 1 --plan-limit 1 --timeout 25s",
+        "stay search --destination tokyo --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --limit 1 --timeout 25s"
+      ],
+      "detail": "0/3 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "stay compare",
+        "file": "stay_compare.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "stay dates",
+        "file": "stay_dates.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Search Ikyu hotels and ryokan with dated room prices and cancellation details."
+  },
+  "source_client_check": {
+    "checked": 14
+  },
+  "print_json_filtered_check": {
+    "checked": 26
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 26
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "7 dead helper functions found",
+    "sync uses generic Upsert only",
+    "3 unmapped workflow steps: stay offer ${property} ${room} ${plan} --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --timeout 25s, stay rooms ${property} --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --limit 1 --plan-limit 1 --timeout 25s, stay search --destination tokyo --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --limit 1 --timeout 25s",
+    "2/5 novel features look reimplemented: stay compare (stay_compare.go) — hand-rolled response: no API client call, no store access; stay dates (stay_dates.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "api_name": "ikyu",
+  "base_url": "https://www.ikyu.com",
+  "description": "Search Ikyu hotels and ryokan with dated room prices and cancellation details.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "properties_get",
+      "description": "Read one public Ikyu property page by its eight-digit property ID. Required: property-id.",
+      "method": "GET",
+      "path": "/{property_id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "property-id",
+          "wire_name": "property_id",
+          "type": "string",
+          "location": "path",
+          "description": "Eight-digit Ikyu property ID; preserve leading zeros.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Offer equivalence",
+      "command": "stay compare",
+      "description": "Compare exact offers with explicit compatible groups, differences and unknowns."
+    },
+    {
+      "name": "Date alternatives",
+      "command": "stay dates",
+      "description": "Inspect bounded date alternatives for one selected room and plan."
+    },
+    {
+      "name": "Room fit",
+      "command": "stay rooms",
+      "description": "Find rooms with source-backed space and bath attributes; keep missing evidence visible."
+    },
+    {
+      "name": "Price explanation",
+      "command": "stay offer",
+      "description": "Separate source prices, points scenarios, coupons and eligibility for an exact offer."
+    },
+    {
+      "name": "Shortlist readiness",
+      "command": "stay search",
+      "description": "Return compact dated property candidates with pagination, freshness and detail gaps."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "passed": false,
+  "exit_code": 1,
+  "verdict": "FAIL",
+  "started_at": "2026-09-27T16:14:52Z",
+  "elapsed_ms": 13801,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T16:14:52Z",
+      "elapsed_ms": 2075,
+      "command": "<home>/go/bin/cli-printing-press verify --dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli --write-manifest <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/.printing-press.json --spec <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research/ikyu-scoped-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 1,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-09-27T16:14:54Z",
+      "elapsed_ms": 135,
+      "command": "<home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research.json --binary <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/build/stage/bin/ikyu-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T16:14:54Z",
+      "elapsed_ms": 2294,
+      "command": "<home>/go/bin/cli-printing-press dogfood --dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli --spec <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research/ikyu-scoped-spec.yaml --research-dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T16:14:57Z",
+      "elapsed_ms": 3222,
+      "command": "<home>/go/bin/cli-printing-press workflow-verify --dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T16:15:00Z",
+      "elapsed_ms": 39,
+      "command": "<home>/go/bin/cli-printing-press apify-audit --dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli --research-dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T16:15:00Z",
+      "elapsed_ms": 2502,
+      "command": "<home>/go/bin/cli-printing-press verify-skill --dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T16:15:02Z",
+      "elapsed_ms": 3531,
+      "command": "<home>/go/bin/cli-printing-press scorecard --dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli --write-manifest <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/.printing-press.json --research-dir <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa --spec <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research/ikyu-scoped-spec.yaml --live-check"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "core_commands": [
+    "destinations",
+    "search",
+    "property",
+    "rooms",
+    "offer"
+  ],
+  "checks": {
+    "source_and_cli_content_tests": "pass",
+    "build": "pass",
+    "vet": "pass"
+  },
+  "content_assertions": [
+    "exact source integer amounts and fractional rates",
+    "full cancellation rules",
+    "invalid/date/child source normalization rejected",
+    "room onsen never inherited from property",
+    "source sold-out distinguished from failures",
+    "source and plan offsets preserved",
+    "joint preferences from one observed offer",
+    "bounded explicit page coverage",
+    "cache/redirect/retry bounds",
+    "no-network dry-run",
+    "projection + single-line JSON + int64 precision"
+  ],
+  "live": {
+    "minimal_core_requests": 3,
+    "minimal_core_decoded_bytes": 20310,
+    "minimal_core_seconds": 1.25,
+    "offer_source_amount": 30800,
+    "tokyo_source_total": 587
+  },
+  "known_gap": "bulk room/plan search omits nightly date details; labeled date_echo_verified=false, exact offer verifies nightly dates",
+  "next": "root Priority1 gate, then compare/dates and delivery scripts"
+}

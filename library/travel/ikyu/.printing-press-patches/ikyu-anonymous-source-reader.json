@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "ikyu-anonymous-source-reader",
+  "applied_at": "2026-09-27T15:56:08.306581+00:00",
+  "base_run_id": "20260927-221505-c26573aa",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Read public Ikyu accommodation SSR/JSON into separate property, room, plan and dated-offer models.",
+  "reason": "The generated HTML scaffold cannot express the source schema or fail-closed stay validation.",
+  "files": [
+    "internal/ikyu/source.go",
+    "internal/ikyu/ssr.go",
+    "internal/ikyu/types.go",
+    "internal/ikyu/validation.go",
+    "internal/ikyu/source_acceptance_test.go",
+    "internal/ikyu/semantics_test.go",
+    "scripts/verify-live.py",
+    "scripts/measure.py",
+    "scripts/live_support.py",
+    "scripts/test_live_support.py"
+  ]
+}

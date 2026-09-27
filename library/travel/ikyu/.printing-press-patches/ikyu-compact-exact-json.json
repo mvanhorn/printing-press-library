@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ikyu-compact-exact-json",
+  "applied_at": "2026-09-27T15:56:08.307567+00:00",
+  "base_run_id": "20260927-221505-c26573aa",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Emit single-line structured stay results with exact integer yen and shared projection/output modes.",
+  "reason": "Framework field compaction can decode through float64; typed bounded views must preserve source monetary integers.",
+  "files": [
+    "internal/cli/stay_common.go",
+    "internal/cli/stay_acceptance_test.go"
+  ]
+}

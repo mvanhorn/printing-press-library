@@ -1,0 +1,219 @@
+{
+  "status": "independent_source_baseline",
+  "source": "public HTML visible text plus server-rendered Nuxt data; separate from CLI adapter",
+  "offers": [
+    {
+      "kind": "ryokan",
+      "property_id": "00002889",
+      "room_id": "10193741",
+      "plan_id": "11055986",
+      "url": "https://www.ikyu.com/00002889/11055986/10193741/?cid=20261018&cod=20261019&lc=1&ppc=2&rc=1",
+      "captured_at": "2026-09-27T15:43:15.436898+00:00",
+      "check_in": "2026-10-18",
+      "check_out": "2026-10-19",
+      "adults_per_room": 2,
+      "rooms": 1,
+      "plan": {
+        "name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+        "meal": {
+          "code": "000",
+          "name": "食事なし"
+        },
+        "cancelPolicy": {
+          "id": "001",
+          "rules": [
+            {
+              "__typename": "CancelPolicyRuleNoShow",
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 100
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 0,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 100
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 1,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 70
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 3,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 50
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 7,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 30
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 10,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 20
+              }
+            }
+          ]
+        }
+      },
+      "room_name": "【奥廊下 すずらん亭】最もリーズナブル　和室/25平米",
+      "amount": {
+        "amount": 30800,
+        "baseDiscountAmount": 30800,
+        "discountAmount": 24640,
+        "discountAmountEarn": 30800,
+        "instantPoint": 6160,
+        "instantPointRate": 20,
+        "point": 6160,
+        "pointRate": 20,
+        "coupon": null,
+        "details": [
+          {
+            "baseDiscount": null,
+            "date": "2026-10-18"
+          }
+        ],
+        "inventory": 4
+      },
+      "visible_amount_matches": {
+        "amount": true,
+        "baseDiscountAmount": true,
+        "discountAmount": false,
+        "instantPoint": true
+      },
+      "visible_context": [
+        "創業大正十五年 蓼科 親湯温泉 - 【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ - 【奥廊",
+        "湖・蓼科・八ヶ岳 旅館 創業大正十五年 蓼科 親湯温泉 【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ 創業大正十",
+        "大正十五年 蓼科 親湯温泉 4.53 長野県/蓼科温泉 【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ 食事なし ",
+        "。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ 食事なし IN 14:00～23:00 OUT 11:00 【奥廊下 すずらん亭】最もリーズナブル　和室/2"
+      ]
+    },
+    {
+      "kind": "hotel",
+      "property_id": "00000600",
+      "room_id": "10012775",
+      "plan_id": "11421787",
+      "url": "https://www.ikyu.com/00000600/11421787/10012775/?cid=20261018&cod=20261019&lc=1&ppc=2&rc=1",
+      "captured_at": "2026-09-27T15:43:15.584842+00:00",
+      "check_in": "2026-10-18",
+      "check_out": "2026-10-19",
+      "adults_per_room": 2,
+      "rooms": 1,
+      "plan": {
+        "name": "【開演記念ディナー】八ヶ岳高原ロッジで過ごす美食の夜＜特別ディナープラン＞",
+        "meal": {
+          "code": "003",
+          "name": "夕朝食付"
+        },
+        "cancelPolicy": {
+          "id": "004",
+          "rules": [
+            {
+              "__typename": "CancelPolicyRuleNoShow",
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 100
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 0,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 80
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 4,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 50
+              }
+            },
+            {
+              "__typename": "CancelPolicyRuleDay",
+              "day": 10,
+              "hourMinutes": null,
+              "amount": {
+                "__typename": "CancelPolicyRuleAmountRate",
+                "rate": 20
+              }
+            }
+          ]
+        }
+      },
+      "room_name": "【南館】スタンダードツイン（禁煙）",
+      "amount": {
+        "amount": 57540,
+        "baseDiscountAmount": 54664,
+        "discountAmount": 49745,
+        "discountAmountEarn": 54664,
+        "instantPoint": 4919,
+        "instantPointRate": 9,
+        "point": 4919,
+        "pointRate": 9,
+        "coupon": null,
+        "details": [
+          {
+            "baseDiscount": {
+              "baseDiscount": {
+                "rate": {
+                  "settings": [
+                    {
+                      "rate": 5,
+                      "days": 0
+                    }
+                  ],
+                  "type": "FIXED"
+                },
+                "expirationTo": "2026-10-01T12:00:00+09:00",
+                "promotionEntry": {
+                  "id": "637348"
+                }
+              },
+              "appliedRate": 5
+            },
+            "date": "2026-10-18"
+          }
+        ],
+        "inventory": 3
+      },
+      "visible_amount_matches": {
+        "amount": true,
+        "baseDiscountAmount": true,
+        "discountAmount": false,
+        "instantPoint": true
+      },
+      "visible_context": [
+        "ー】八ヶ岳高原ロッジで過ごす美食の夜＜特別ディナープラン＞ 夕朝食付 IN 15:00～18:30 OUT 11:00 残りあと3室 【南館】スタンダードツイン（禁煙）",
+        "）のほか、施設が企画するセールが適用される場合もあります。 夕朝食付大人2名 税込 54,664 円 ポイント9%（4,919円分）獲得 予約へ進む 2026年10月7",
+        "（4,919円分）獲得 予約へ進む 2026年10月7日までキャンセル料無料 オンラインカード決済 現地決済 プランをシェアする Facebookでシェアする Xでシェア",
+        "8/20～ 2名 1室 【南館】スタンダードツイン（禁煙） 夕朝食付 施設からの返信 この度は八ヶ岳高原ロッジをご利用いただき、誠にありがとうございます。\n\nコンサート"
+      ]
+    }
+  ]
+}

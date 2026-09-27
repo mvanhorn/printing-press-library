@@ -1,0 +1,15 @@
+?   	ikyu-pp-cli/cmd/ikyu-pp-cli	[no test files]
+?   	ikyu-pp-cli/cmd/ikyu-pp-mcp	[no test files]
+?   	ikyu-pp-cli/internal/cache	[no test files]
+ok  	ikyu-pp-cli/internal/cli	0.772s
+ok  	ikyu-pp-cli/internal/client	2.490s
+ok  	ikyu-pp-cli/internal/cliutil	15.803s
+?   	ikyu-pp-cli/internal/cliutil/testenv	[no test files]
+?   	ikyu-pp-cli/internal/config	[no test files]
+ok  	ikyu-pp-cli/internal/ikyu	18.248s
+ok  	ikyu-pp-cli/internal/mcp	1.086s
+ok  	ikyu-pp-cli/internal/mcp/bound	2.677s
+ok  	ikyu-pp-cli/internal/mcp/cobratree	8.457s
+ok  	ikyu-pp-cli/internal/platform	2.407s
+ok  	ikyu-pp-cli/internal/store	2.509s
+?   	ikyu-pp-cli/internal/types	[no test files]

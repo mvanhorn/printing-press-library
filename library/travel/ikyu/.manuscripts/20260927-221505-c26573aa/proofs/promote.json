@@ -1,0 +1,6 @@
+{
+  "cli": "ikyu-pp-cli",
+  "library_dir": "<workspace>/.printing-press/library/ikyu",
+  "preserved_patches": [],
+  "promoted": true
+}
