@@ -1,0 +1,20 @@
+?   	jalan-pp-cli/cmd/jalan-pp-cli	[no test files]
+?   	jalan-pp-cli/cmd/jalan-pp-mcp	[no test files]
+?   	jalan-pp-cli/internal/cache	[no test files]
+ok  	jalan-pp-cli/internal/cli	3.935s
+?   	jalan-pp-cli/internal/cli/playbooks	[no test files]
+ok  	jalan-pp-cli/internal/client	3.590s
+ok  	jalan-pp-cli/internal/cliutil	14.047s
+?   	jalan-pp-cli/internal/cliutil/testenv	[no test files]
+?   	jalan-pp-cli/internal/config	[no test files]
+ok  	jalan-pp-cli/internal/jalan	2.646s
+ok  	jalan-pp-cli/internal/learn	5.244s
+ok  	jalan-pp-cli/internal/learn/entities	1.157s
+ok  	jalan-pp-cli/internal/learn/lookups	1.946s
+ok  	jalan-pp-cli/internal/learn/patterns	4.483s
+ok  	jalan-pp-cli/internal/mcp	3.706s
+ok  	jalan-pp-cli/internal/mcp/bound	1.025s
+ok  	jalan-pp-cli/internal/mcp/cobratree	10.259s
+ok  	jalan-pp-cli/internal/platform	4.167s
+ok  	jalan-pp-cli/internal/store	1.644s
+?   	jalan-pp-cli/internal/types	[no test files]

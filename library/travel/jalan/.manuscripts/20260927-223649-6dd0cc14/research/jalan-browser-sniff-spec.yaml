@@ -1,0 +1,81 @@
+name: jalan
+description: Discovered API spec for jalan
+version: 0.1.0
+base_url: https://www.jalan.net
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/jalan-pp-cli/config.toml
+resources:
+    uw:
+        description: Operations on uww1400.do
+        endpoints:
+            list_uww1400.do:
+                method: GET
+                path: /uw/uwp1400/uww1400.do
+                description: Fetch structured links from /uw/uwp1400/uww1400.do
+                params:
+                    - name: adultNum
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lrgCd
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: roomCount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: stayCount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: stayDay
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: stayMonth
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: stayYear
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

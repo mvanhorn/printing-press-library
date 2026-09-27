@@ -1,0 +1,12 @@
+{
+  "verdict": "PASS",
+  "matrix_size": 101,
+  "passed": 101,
+  "failed": 0,
+  "skipped": 78,
+  "unverified": 78,
+  "ran_at": "2026-09-27T16:12:30.711388Z",
+  "coverage_hollow": null,
+  "hollow_features": null,
+  "failures": []
+}

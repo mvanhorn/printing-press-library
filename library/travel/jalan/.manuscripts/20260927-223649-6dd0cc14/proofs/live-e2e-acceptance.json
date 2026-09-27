@@ -1,0 +1,1264 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-09-27T15:57:45.901584+00:00",
+  "finished_at": "2026-09-27T15:58:20.321219+00:00",
+  "verdict": "PASS",
+  "passed": 37,
+  "failed": 0,
+  "read_only": true,
+  "raw_pages_persisted": false,
+  "fixture_dates": {
+    "check_in": "2026-11-10",
+    "fallback": "2026-12-31",
+    "empty": "2027-09-20"
+  },
+  "bounds": {
+    "cli_upstream_requests_max": 48,
+    "independent_source_requests_max": 14,
+    "commands_max": 64,
+    "subprocess_timeout_seconds": 50,
+    "witness_body_bytes_max": 4194304
+  },
+  "observed": {
+    "cli_upstream_requests": 16,
+    "independent_source_requests": 10,
+    "commands": 42
+  },
+  "fixtures": {
+    "regional_ryokan": "385995",
+    "onsen": "371898",
+    "urban_hotel": "379411"
+  },
+  "rows": [
+    {
+      "name": "help:search",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4837,
+          "elapsed_ms": 763.18,
+          "peak_rss_kib": 18720.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:search",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 445,
+          "elapsed_ms": 32.02,
+          "peak_rss_kib": 18944.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "help:locations",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "locations",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 2824,
+          "elapsed_ms": 31.1,
+          "peak_rss_kib": 18640.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:locations",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "locations",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 451,
+          "elapsed_ms": 32.11,
+          "peak_rss_kib": 19104.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "help:property",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 2879,
+          "elapsed_ms": 27.69,
+          "peak_rss_kib": 18576.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:property",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 449,
+          "elapsed_ms": 31.99,
+          "peak_rss_kib": 19056.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "help:offers",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "offers",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4108,
+          "elapsed_ms": 31.62,
+          "peak_rss_kib": 18656.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:offers",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "offers",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 445,
+          "elapsed_ms": 31.73,
+          "peak_rss_kib": 19376.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "help:plan",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "plan",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 3947,
+          "elapsed_ms": 31.88,
+          "peak_rss_kib": 18736.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:plan",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "plan",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 441,
+          "elapsed_ms": 32.03,
+          "peak_rss_kib": 19088.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "help:compare",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "compare",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4596,
+          "elapsed_ms": 31.29,
+          "peak_rss_kib": 18432.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:compare",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "compare",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 447,
+          "elapsed_ms": 32.02,
+          "peak_rss_kib": 18800.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "help:capabilities",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "capabilities",
+            "--help"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 2568,
+          "elapsed_ms": 31.63,
+          "peak_rss_kib": 18592.0,
+          "upstream_requests": 0
+        }
+      ]
+    },
+    {
+      "name": "dry-run:capabilities",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "capabilities",
+            "--dry-run",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 457,
+          "elapsed_ms": 29.96,
+          "peak_rss_kib": 19008.0,
+          "upstream_requests": 0,
+          "cache_status": null,
+          "observed_at": null,
+          "result_count": 0,
+          "source_elapsed_ms": null
+        }
+      ]
+    },
+    {
+      "name": "catalogue:locations",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "locations",
+            "--query",
+            "Hakone"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 572,
+          "elapsed_ms": 30.6,
+          "peak_rss_kib": 19040.0,
+          "upstream_requests": 0,
+          "cache_status": "catalogue",
+          "observed_at": null,
+          "result_count": 1,
+          "source_elapsed_ms": 0
+        }
+      ]
+    },
+    {
+      "name": "catalogue:capabilities",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "capabilities",
+            "--agent"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 1676,
+          "elapsed_ms": 28.39,
+          "peak_rss_kib": 18864.0,
+          "upstream_requests": 0,
+          "cache_status": "catalogue",
+          "observed_at": null,
+          "result_count": 1,
+          "source_elapsed_ms": 0
+        }
+      ]
+    },
+    {
+      "name": "property:regional-ryokan",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "385995"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4585,
+          "elapsed_ms": 986.63,
+          "peak_rss_kib": 26656.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:57:48.102663Z",
+          "result_count": 1,
+          "source_elapsed_ms": 965
+        }
+      ],
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/yad385995/",
+          "bytes": 137032
+        }
+      ],
+      "asserted_fields": [
+        "access",
+        "address",
+        "baths.conditions",
+        "baths.hot_spring",
+        "baths.outdoor",
+        "lodging_type",
+        "name_ja"
+      ],
+      "lodging_fixture": "regional ryokan",
+      "property_id": "385995"
+    },
+    {
+      "name": "property:onsen",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "371898"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 5617,
+          "elapsed_ms": 811.63,
+          "peak_rss_kib": 27120.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:57:49.956378Z",
+          "result_count": 1,
+          "source_elapsed_ms": 775
+        }
+      ],
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/yad371898/",
+          "bytes": 141533
+        }
+      ],
+      "asserted_fields": [
+        "access",
+        "address",
+        "baths.conditions",
+        "baths.hot_spring",
+        "baths.outdoor",
+        "baths.private",
+        "lodging_type",
+        "name_ja"
+      ],
+      "lodging_fixture": "onsen property",
+      "property_id": "371898"
+    },
+    {
+      "name": "property:urban-hotel",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--area-code",
+            "136200",
+            "--check-in",
+            "2026-11-10",
+            "--lodging-type",
+            "hotel",
+            "--adults",
+            "2",
+            "--limit",
+            "3"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 8423,
+          "elapsed_ms": 2103.71,
+          "peak_rss_kib": 34672.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:57:52.846163Z",
+          "result_count": 3,
+          "source_elapsed_ms": 2078
+        },
+        {
+          "args": [
+            "property",
+            "379411"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 3960,
+          "elapsed_ms": 929.87,
+          "peak_rss_kib": 26560.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:57:53.788189Z",
+          "result_count": 1,
+          "source_elapsed_ms": 904
+        }
+      ],
+      "asserted_source_parameters": {
+        "lrgCd": "136200",
+        "yadHb": "1"
+      },
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/yad379411/",
+          "bytes": 140816
+        }
+      ],
+      "asserted_fields": [
+        "access",
+        "address",
+        "baths.conditions",
+        "baths.hot_spring",
+        "lodging_type",
+        "name_ja"
+      ],
+      "lodging_fixture": "urban hotel discovered from source area 136200",
+      "property_id": "379411"
+    },
+    {
+      "name": "search:logical-paging",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 12021,
+          "elapsed_ms": 1947.16,
+          "peak_rss_kib": 33808.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:57:56.486295Z",
+          "result_count": 5,
+          "source_elapsed_ms": 1920
+        },
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--page",
+            "2",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 11904,
+          "elapsed_ms": 27.59,
+          "peak_rss_kib": 29008.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:57:56.486295Z",
+          "result_count": 5,
+          "source_elapsed_ms": 16
+        },
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--limit",
+            "10",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 21938,
+          "elapsed_ms": 32.59,
+          "peak_rss_kib": 28672.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:57:56.486295Z",
+          "result_count": 10,
+          "source_elapsed_ms": 16
+        }
+      ],
+      "paging_ids": {
+        "first": [
+          "306297",
+          "312415",
+          "316659",
+          "300510",
+          "302407"
+        ],
+        "second": [
+          "321816",
+          "303401",
+          "323427",
+          "303587",
+          "304047"
+        ],
+        "full": [
+          "306297",
+          "312415",
+          "316659",
+          "300510",
+          "302407",
+          "321816",
+          "303401",
+          "323427",
+          "303587",
+          "304047"
+        ]
+      },
+      "paging_observation_times": [
+        "2026-09-27T15:57:56.486295Z",
+        "2026-09-27T15:57:56.486295Z",
+        "2026-09-27T15:57:56.486295Z"
+      ],
+      "paging_scope": "same cached source observation; fresh source order is non-atomic",
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/uw/uwp1400/uww1400.do?adultNum=2&distCd=01&idx=0&lrgCd=141600&roomCount=1&roomCrack=200000&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026",
+          "bytes": 700906
+        }
+      ],
+      "asserted_fields": [
+        "access",
+        "description",
+        "name_ja",
+        "price.amount",
+        "price.basis"
+      ]
+    },
+    {
+      "name": "search:filters",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--meals",
+            "breakfast_dinner",
+            "--lodging-type",
+            "ryokan",
+            "--onsen",
+            "--outdoor-bath",
+            "--private-bath",
+            "--room-outdoor-bath",
+            "--non-smoking"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 12964,
+          "elapsed_ms": 3325.61,
+          "peak_rss_kib": 30368.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:05.181374Z",
+          "result_count": 5,
+          "source_elapsed_ms": 3292
+        }
+      ],
+      "asserted_source_parameters": {
+        "mealType": "3",
+        "yadRk": "1",
+        "careOnsen": "1",
+        "careOpenbath": "1",
+        "careBathRent": "1",
+        "carePribateBath": "1",
+        "careNsmr": "1"
+      },
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/uw/uwp1400/uww1400.do?adultNum=2&careBathRent=1&careNsmr=1&careOnsen=1&careOpenbath=1&carePribateBath=1&distCd=01&idx=0&lrgCd=141600&mealType=3&roomCount=1&roomCrack=200000&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026&yadRk=1",
+          "bytes": 412152
+        }
+      ],
+      "asserted_fields": [
+        "access",
+        "description",
+        "name_ja",
+        "price.amount",
+        "price.basis"
+      ]
+    },
+    {
+      "name": "offers:exact-pairs-and-filters",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "offers",
+            "385995",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--meals",
+            "breakfast_dinner",
+            "--non-smoking"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 14435,
+          "elapsed_ms": 1343.21,
+          "peak_rss_kib": 30896.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:08.478991Z",
+          "result_count": 5,
+          "source_elapsed_ms": 1316
+        }
+      ],
+      "asserted_source_parameters": {
+        "mealType": "3",
+        "careNsmr": "1",
+        "roomCrack": "200000"
+      },
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2&careNsmr=1&distCd=01&mealType=3&roomCount=1&roomCrack=200000&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026",
+          "bytes": 411722
+        }
+      ],
+      "asserted_fields": [
+        "availability",
+        "baths.hot_spring",
+        "baths.indoor",
+        "baths.outdoor",
+        "meals",
+        "plan_name",
+        "price.amount",
+        "price.basis",
+        "price.conditional_discount",
+        "price.points",
+        "room_name",
+        "smoking"
+      ]
+    },
+    {
+      "name": "plan:base-quote-and-room-facts",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "plan",
+            "385995",
+            "--plan-id",
+            "03912759",
+            "--room-id",
+            "0576806",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 10949,
+          "elapsed_ms": 947.35,
+          "peak_rss_kib": 26672.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:10.554086Z",
+          "result_count": 1,
+          "source_elapsed_ms": 925
+        }
+      ],
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/uw/uwp3200/uww3201init.do?adultNum=2&distCd=01&planCd=03912759&roomCount=1&roomCrack=200000&roomTypeCd=0576806&screenId=UWW3101&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026&yadNo=385995",
+          "bytes": 100128
+        }
+      ],
+      "asserted_fields": [
+        "availability",
+        "baths.hot_spring",
+        "baths.outdoor",
+        "booking_deadline",
+        "cancellation",
+        "check_in",
+        "check_out",
+        "meals",
+        "payment",
+        "plan_name",
+        "price.amount",
+        "price.conditional_discount",
+        "price.extra_fees",
+        "price.points",
+        "room_name",
+        "smoking"
+      ],
+      "price_basis": "whole_stay",
+      "availability": "available"
+    },
+    {
+      "name": "plan:family-two-room-occupancy",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "plan",
+            "385995",
+            "--plan-id",
+            "03806855",
+            "--room-id",
+            "0546600",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--rooms",
+            "2",
+            "--children-elementary",
+            "1"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 10348,
+          "elapsed_ms": 748.68,
+          "peak_rss_kib": 25920.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:11.894173Z",
+          "result_count": 1,
+          "source_elapsed_ms": 709
+        }
+      ],
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/uw/uwp3200/uww3201init.do?adultNum=2&child1Num=1&distCd=01&planCd=03806855&roomCount=2&roomCrack=210000%2C210000&roomTypeCd=0546600&screenId=UWW3101&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026&yadNo=385995",
+          "bytes": 102276
+        }
+      ],
+      "asserted_fields": [
+        "availability",
+        "booking_deadline",
+        "cancellation",
+        "check_in",
+        "check_out",
+        "meals",
+        "payment",
+        "plan_name",
+        "price.amount",
+        "price.conditional_discount",
+        "price.extra_fees",
+        "price.points",
+        "room_name",
+        "smoking"
+      ],
+      "price_basis": "whole_stay",
+      "availability": "available",
+      "asserted_source_parameters": {
+        "roomCount": "2",
+        "adultNum": "2",
+        "child1Num": "1",
+        "roomCrack": "210000,210000"
+      }
+    },
+    {
+      "name": "plan:undated-reference-fallback",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "plan",
+            "385995",
+            "--plan-id",
+            "03912759",
+            "--room-id",
+            "0576806",
+            "--check-in",
+            "2026-12-31",
+            "--adults",
+            "2"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 10282,
+          "elapsed_ms": 749.96,
+          "peak_rss_kib": 25456.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:13.278488Z",
+          "result_count": 1,
+          "source_elapsed_ms": 713
+        }
+      ],
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/uw/uwp3200/uww3201init.do?adultNum=2&distCd=01&planCd=03912759&roomCount=1&roomCrack=200000&roomTypeCd=0576806&screenId=UWW3101&stayCount=1&stayDay=31&stayMonth=12&stayYear=2026&yadNo=385995",
+          "bytes": 110176
+        }
+      ]
+    },
+    {
+      "name": "offers:no-matches-not-sold-out",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "offers",
+            "385995",
+            "--check-in",
+            "2027-09-20",
+            "--adults",
+            "2"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 1803,
+          "elapsed_ms": 741.77,
+          "peak_rss_kib": 25616.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:15.084047Z",
+          "result_count": 0,
+          "source_elapsed_ms": 716
+        }
+      ],
+      "independent_sources": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2&distCd=01&roomCount=1&roomCrack=200000&stayCount=1&stayDay=20&stayMonth=9&stayYear=2027",
+          "bytes": 101956
+        }
+      ]
+    },
+    {
+      "name": "compare:equal-party-dates",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "compare",
+            "385995",
+            "--dates",
+            "2026-11-10,2026-11-11",
+            "--adults",
+            "2",
+            "--limit",
+            "2"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 15597,
+          "elapsed_ms": 1901.04,
+          "peak_rss_kib": 32336.0,
+          "upstream_requests": 2,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:17.468771Z",
+          "result_count": 2,
+          "source_elapsed_ms": 1879
+        }
+      ]
+    },
+    {
+      "name": "compare:exact-plans",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "compare",
+            "385995",
+            "--check-in",
+            "2026-11-10",
+            "--plans",
+            "03912759:0576806,03806855:0546600",
+            "--adults",
+            "2"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 22339,
+          "elapsed_ms": 1000.87,
+          "peak_rss_kib": 26704.0,
+          "upstream_requests": 2,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:18.761359Z",
+          "result_count": 2,
+          "source_elapsed_ms": 974
+        }
+      ]
+    },
+    {
+      "name": "efficiency:cold-warm-and-select",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "385995",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4585,
+          "elapsed_ms": 952.77,
+          "peak_rss_kib": 25936.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:19.989498Z",
+          "result_count": 1,
+          "source_elapsed_ms": 931
+        },
+        {
+          "args": [
+            "property",
+            "385995",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4583,
+          "elapsed_ms": 32.57,
+          "peak_rss_kib": 21168.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:58:19.989498Z",
+          "result_count": 1,
+          "source_elapsed_ms": 4
+        },
+        {
+          "args": [
+            "property",
+            "385995",
+            "--max-age",
+            "5m",
+            "--agent",
+            "--select",
+            "id,name_ja,baths.in_room,price.amount"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 864,
+          "elapsed_ms": 33.37,
+          "peak_rss_kib": 21728.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:58:19.989498Z",
+          "result_count": 1,
+          "source_elapsed_ms": 3
+        }
+      ],
+      "efficiency": {
+        "cold": {
+          "args": [
+            "property",
+            "385995",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4585,
+          "elapsed_ms": 952.77,
+          "peak_rss_kib": 25936.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:58:19.989498Z",
+          "result_count": 1,
+          "source_elapsed_ms": 931
+        },
+        "warm": {
+          "args": [
+            "property",
+            "385995",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 4583,
+          "elapsed_ms": 32.57,
+          "peak_rss_kib": 21168.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:58:19.989498Z",
+          "result_count": 1,
+          "source_elapsed_ms": 4
+        },
+        "selected": {
+          "args": [
+            "property",
+            "385995",
+            "--max-age",
+            "5m",
+            "--agent",
+            "--select",
+            "id,name_ja,baths.in_room,price.amount"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 864,
+          "elapsed_ms": 33.37,
+          "peak_rss_kib": 21728.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:58:19.989498Z",
+          "result_count": 1,
+          "source_elapsed_ms": 3
+        },
+        "selection_byte_reduction": 3719,
+        "cache_request_reduction": 1
+      }
+    },
+    {
+      "name": "error:unknown-destination",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "UnlistedFakeTown",
+            "--check-in",
+            "2026-11-10"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 32.94,
+          "peak_rss_kib": 18832.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "unknown_destination"
+    },
+    {
+      "name": "error:invalid-calendar-date",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-02-30"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 31.88,
+          "peak_rss_kib": 18736.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "invalid_query"
+    },
+    {
+      "name": "error:missing-plan-id",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "plan",
+            "385995",
+            "--check-in",
+            "2026-11-10"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 28.88,
+          "peak_rss_kib": 18800.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "usage"
+    },
+    {
+      "name": "error:unknown-flag",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "385995",
+            "--not-a-real-flag"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 30.9,
+          "peak_rss_kib": 18992.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "usage"
+    },
+    {
+      "name": "error:explicit-zero-party",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "0"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 32.53,
+          "peak_rss_kib": 19056.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "invalid_query"
+    },
+    {
+      "name": "error:local-inventory-unsupported",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "property",
+            "385995",
+            "--data-source",
+            "local"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 32.03,
+          "peak_rss_kib": 18816.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "unsupported"
+    },
+    {
+      "name": "error:nine-plus-adults-unsupported",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "9"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 30.59,
+          "peak_rss_kib": 18592.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "unsupported"
+    },
+    {
+      "name": "error:child-category-out-of-range",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--children-elementary",
+            "6"
+          ],
+          "exit_code": 2,
+          "stdout_bytes": 0,
+          "elapsed_ms": 28.69,
+          "peak_rss_kib": 19184.0,
+          "upstream_requests": 0
+        }
+      ],
+      "error_code": "unsupported"
+    }
+  ]
+}

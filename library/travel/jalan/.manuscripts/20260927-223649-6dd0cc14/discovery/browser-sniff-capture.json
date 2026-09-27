@@ -1,0 +1,18 @@
+{
+  "target_url": "https://www.jalan.net/",
+  "captured_at": "2026-09-27T14:45:19.124716+00:00",
+  "interaction_rounds": 3,
+  "auth": {
+    "type": "none"
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://www.jalan.net/uw/uwp1400/uww1400.do?lrgCd=141600&stayYear=2026&stayMonth=11&stayDay=10&stayCount=1&roomCount=1&adultNum=2#",
+      "response_status": 200,
+      "response_content_type": "text/html;charset=UTF-8",
+      "response_body_sha256": "68f453c736b4725653fb2278f7db2d3ae2545200e359034429aa3e76dd0316f2",
+      "response_body_bytes_utf8": 925916
+    }
+  ]
+}

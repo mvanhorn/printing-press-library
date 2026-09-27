@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "kind": "stay_efficiency_benchmark",
+  "started_at": "2026-09-27T15:30:23.303516+00:00",
+  "finished_at": "2026-09-27T15:30:26.697315+00:00",
+  "verdict": "FAIL",
+  "passed": 1,
+  "failed": 1,
+  "skipped": 2,
+  "check_in": "2026-11-10",
+  "read_only": true,
+  "private_temporary_home": true,
+  "raw_pages_persisted": false,
+  "delivery": "local_file",
+  "bounds": {
+    "normal_cold_upstream_requests": 5,
+    "worst_case_upstream_attempts": 10,
+    "invocations_max": 8,
+    "script_retries": 0,
+    "cli_retry_per_request_max": 1,
+    "subprocess_timeout_seconds": 50,
+    "independent_source_requests": 0
+  },
+  "observed": {
+    "upstream_requests_or_failure_upper_bound": 3,
+    "invocations": 3
+  },
+  "request_metric_note": "Success and partial-response counts come from CLI meta.upstream_requests; total failures without JSON record two attempts per required source URL as an explicit upper bound. Any failure stops later pairs.",
+  "rows": [
+    {
+      "name": "search-limit5",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--rooms",
+            "1",
+            "--nights",
+            "1",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 12021,
+          "elapsed_ms": 2738.47,
+          "peak_rss_kib": 34384.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:30:26.006551Z",
+          "result_count": 5,
+          "source_elapsed_ms": 2433
+        },
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--rooms",
+            "1",
+            "--nights",
+            "1",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 12019,
+          "elapsed_ms": 54.95,
+          "peak_rss_kib": 28992.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:30:26.006551Z",
+          "result_count": 5,
+          "source_elapsed_ms": 20
+        }
+      ],
+      "cold": {
+        "args": [
+          "search",
+          "--destination",
+          "Hakone",
+          "--check-in",
+          "2026-11-10",
+          "--adults",
+          "2",
+          "--rooms",
+          "1",
+          "--nights",
+          "1",
+          "--limit",
+          "5",
+          "--max-age",
+          "5m",
+          "--refresh"
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 12021,
+        "elapsed_ms": 2738.47,
+        "peak_rss_kib": 34384.0,
+        "upstream_requests": 1,
+        "cache_status": "live",
+        "observed_at": "2026-09-27T15:30:26.006551Z",
+        "result_count": 5,
+        "source_elapsed_ms": 2433
+      },
+      "warm": {
+        "args": [
+          "search",
+          "--destination",
+          "Hakone",
+          "--check-in",
+          "2026-11-10",
+          "--adults",
+          "2",
+          "--rooms",
+          "1",
+          "--nights",
+          "1",
+          "--limit",
+          "5",
+          "--max-age",
+          "5m"
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 12019,
+        "elapsed_ms": 54.95,
+        "peak_rss_kib": 28992.0,
+        "upstream_requests": 0,
+        "cache_status": "hit",
+        "observed_at": "2026-09-27T15:30:26.006551Z",
+        "result_count": 5,
+        "source_elapsed_ms": 20
+      },
+      "observed_at_equal": true,
+      "source_observation_times_equal": true,
+      "same_query": true,
+      "same_extracted_results": true,
+      "result_comparison_omits": [
+        "observations"
+      ],
+      "request_reduction": 1,
+      "latency_reduction_ms": 2683.52
+    },
+    {
+      "name": "offers-limit5",
+      "status": "fail",
+      "invocations": [
+        {
+          "args": [
+            "offers",
+            "385995",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--rooms",
+            "1",
+            "--nights",
+            "1",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 9,
+          "stdout_bytes": 0,
+          "elapsed_ms": 596.66,
+          "peak_rss_kib": 23216.0,
+          "upstream_requests": null,
+          "upstream_attempts_upper_bound": 2
+        }
+      ],
+      "error": "expected exit 0, got 9: {\"error\":{\"code\":\"parse_failure\",\"hint\":\"Inspect the source and retry; run 'jalan-pp-cli stay capabilities' for supported inputs.\",\"message\":\"source character encoding could not be decoded\",\"url\":\"https://www.jalan.net/yad385995/plan/?adultNum=2&distCd=01&roomCount=1&roomCrack=200000&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026\"},\"exit_code\":9}\n"
+    },
+    {
+      "name": "exact-plan",
+      "status": "skipped",
+      "reason": "stopped after an earlier failed pair",
+      "invocations": []
+    },
+    {
+      "name": "compare-two-dates",
+      "status": "skipped",
+      "reason": "stopped after an earlier failed pair",
+      "invocations": []
+    }
+  ]
+}

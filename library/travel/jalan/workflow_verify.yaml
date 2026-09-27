@@ -1,0 +1,29 @@
+# Printing Press currently executes only command strings and checks top-level
+# fields. Keep flags inline; the live E2E runner performs deeper source checks.
+workflows:
+  - name: "Discover dated stays and inspect an exact room and plan"
+    primary: true
+    steps:
+      - command: "stay locations --query Hakone"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]
+      - command: "stay search --destination Hakone --check-in 2026-11-10 --adults 2 --rooms 1 --nights 1 --limit 3"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]
+      - command: "stay property 385995"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]
+      - command: "stay offers 385995 --check-in 2026-11-10 --adults 2 --limit 3"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]
+      - command: "stay plan 385995 --plan-id 03912759 --room-id 0576806 --check-in 2026-11-10 --adults 2"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]
+  - name: "Compare bounded alternatives and inspect coverage"
+    steps:
+      - command: "stay compare 385995 --dates 2026-11-10,2026-11-11 --adults 2 --limit 2"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]
+      - command: "stay capabilities"
+        mode: live
+        expect_fields: ["meta", "results", "pagination", "fetch_failures"]

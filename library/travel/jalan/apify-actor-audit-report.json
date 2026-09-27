@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/jalan-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260927-223649-6dd0cc14",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

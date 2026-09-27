@@ -1,0 +1,170 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "bad_identity_samples": [],
+      "cause": null,
+      "content_type": "text/html;charset=Windows-31J",
+      "decoded_bytes": 484082,
+      "decoded_sha256": "35ea750833915cfad0e5c291192ef4f8e490b23900cc170a0c2990b84fdb039b",
+      "html_title": "箱根湯本温泉　ホテル南風荘の料金一覧・宿泊プラン - 宿泊予約は＜じゃらんnet＞",
+      "http_status": 200,
+      "missing_room_detail_link_count": 0,
+      "no_inventory_box_present": false,
+      "no_matches": false,
+      "observations": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+          "observed_at": "2026-09-27T15:55:51.80686Z",
+          "cache_status": "live",
+          "cache_age_ms": 0
+        }
+      ],
+      "parsed_offer_count": 54,
+      "plan_cassette_count": 12,
+      "planlist_header_present": true,
+      "room_plan_row_count": 54,
+      "search_cassette_count": 0,
+      "source_plan_count": 12,
+      "status": "parsed",
+      "total_upstream_requests": 1,
+      "upstream_requests": 1
+    },
+    {
+      "attempt": 2,
+      "bad_identity_samples": [],
+      "cause": null,
+      "content_type": "text/html;charset=Windows-31J",
+      "decoded_bytes": 484082,
+      "decoded_sha256": "468d82816bf232d940fcda172589f0d87651028d092ae1a5c0ceec78391afbea",
+      "html_title": "箱根湯本温泉　ホテル南風荘の料金一覧・宿泊プラン - 宿泊予約は＜じゃらんnet＞",
+      "http_status": 200,
+      "missing_room_detail_link_count": 0,
+      "no_inventory_box_present": false,
+      "no_matches": false,
+      "observations": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+          "observed_at": "2026-09-27T15:55:52.375512Z",
+          "cache_status": "live",
+          "cache_age_ms": 0
+        }
+      ],
+      "parsed_offer_count": 54,
+      "plan_cassette_count": 12,
+      "planlist_header_present": true,
+      "room_plan_row_count": 54,
+      "search_cassette_count": 0,
+      "source_plan_count": 12,
+      "status": "parsed",
+      "total_upstream_requests": 2,
+      "upstream_requests": 1
+    },
+    {
+      "attempt": 3,
+      "bad_identity_samples": [],
+      "cause": null,
+      "content_type": "text/html;charset=Windows-31J",
+      "decoded_bytes": 484082,
+      "decoded_sha256": "eea1d7d25279f09b35acfc4967b43e9d71ee95972fd5cdba831e0c8e438d0999",
+      "html_title": "箱根湯本温泉　ホテル南風荘の料金一覧・宿泊プラン - 宿泊予約は＜じゃらんnet＞",
+      "http_status": 200,
+      "missing_room_detail_link_count": 0,
+      "no_inventory_box_present": false,
+      "no_matches": false,
+      "observations": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+          "observed_at": "2026-09-27T15:55:52.948164Z",
+          "cache_status": "live",
+          "cache_age_ms": 0
+        }
+      ],
+      "parsed_offer_count": 54,
+      "plan_cassette_count": 12,
+      "planlist_header_present": true,
+      "room_plan_row_count": 54,
+      "search_cassette_count": 0,
+      "source_plan_count": 12,
+      "status": "parsed",
+      "total_upstream_requests": 3,
+      "upstream_requests": 1
+    },
+    {
+      "attempt": 4,
+      "bad_identity_samples": [],
+      "cause": null,
+      "content_type": "text/html;charset=Windows-31J",
+      "decoded_bytes": 484082,
+      "decoded_sha256": "d87d5b8756a7b41ecbba18be7d45a479291f2f2e92040fa89d5950f09c01d7c0",
+      "html_title": "箱根湯本温泉　ホテル南風荘の料金一覧・宿泊プラン - 宿泊予約は＜じゃらんnet＞",
+      "http_status": 200,
+      "missing_room_detail_link_count": 0,
+      "no_inventory_box_present": false,
+      "no_matches": false,
+      "observations": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+          "observed_at": "2026-09-27T15:55:53.531037Z",
+          "cache_status": "live",
+          "cache_age_ms": 0
+        }
+      ],
+      "parsed_offer_count": 54,
+      "plan_cassette_count": 12,
+      "planlist_header_present": true,
+      "room_plan_row_count": 54,
+      "search_cassette_count": 0,
+      "source_plan_count": 12,
+      "status": "parsed",
+      "total_upstream_requests": 4,
+      "upstream_requests": 1
+    },
+    {
+      "attempt": 5,
+      "bad_identity_samples": [],
+      "cause": null,
+      "content_type": "text/html;charset=Windows-31J",
+      "decoded_bytes": 484082,
+      "decoded_sha256": "b4416d42129ed258853b4c4c60a9fd4add11e4c625546704351b18337c45603c",
+      "html_title": "箱根湯本温泉　ホテル南風荘の料金一覧・宿泊プラン - 宿泊予約は＜じゃらんnet＞",
+      "http_status": 200,
+      "missing_room_detail_link_count": 0,
+      "no_inventory_box_present": false,
+      "no_matches": false,
+      "observations": [
+        {
+          "url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+          "observed_at": "2026-09-27T15:55:54.096617Z",
+          "cache_status": "live",
+          "cache_age_ms": 0
+        }
+      ],
+      "parsed_offer_count": 54,
+      "plan_cassette_count": 12,
+      "planlist_header_present": true,
+      "room_plan_row_count": 54,
+      "search_cassette_count": 0,
+      "source_plan_count": 12,
+      "status": "parsed",
+      "total_upstream_requests": 5,
+      "upstream_requests": 1
+    }
+  ],
+  "cache_disabled": true,
+  "fetch_calls_max": 5,
+  "html_captured": false,
+  "html_local_discovery_only": true,
+  "kind": "bounded_offer_failure_capture",
+  "raw_html_in_proof": false,
+  "recorded_at": "2026-09-27T15:55:54.118933Z",
+  "retry_policy_changed": false,
+  "schema_version": 1,
+  "serial": true,
+  "source_requests_max": 10,
+  "source_requests_observed": 5,
+  "source_url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+  "stop_on_first_failure": true,
+  "validation_loosened": false,
+  "verdict": "NOT_REPRODUCED"
+}

@@ -1,0 +1,14 @@
+{
+  "cli_dir": "<workspace>/.printing-press/.runstate/jalan-cli-95e9fd7a/runs/20260927-223649-6dd0cc14/working/jalan-pp-cli",
+  "skill_path": "<workspace>/.printing-press/.runstate/jalan-cli-95e9fd7a/runs/20260927-223649-6dd0cc14/working/jalan-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 24,
+  "findings": []
+}

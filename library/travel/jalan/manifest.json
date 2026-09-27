@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "jalan-pp-mcp",
+  "display_name": "Jalan",
+  "version": "0.1.0",
+  "description": "Find Japan stays and understand the exact room and plan.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/jalan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/jalan-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

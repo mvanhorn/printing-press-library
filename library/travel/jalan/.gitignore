@@ -1,0 +1,13 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/jalan-pp-cli
+/jalan-pp-cli.exe
+/jalan-pp-mcp
+/jalan-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Local run state and audit decision ledgers.
+/.printing-press/
+/.printing-press-tools-polish.json
+/.printing-press-pii-polish.json

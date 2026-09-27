@@ -1,0 +1,56 @@
+{
+  "api_name": "jalan",
+  "base_url": "https://www.jalan.net",
+  "description": "Find Japan stays and understand the exact room and plan.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "pages_property",
+      "description": "Read public property page metadata without booking actions. Required: property_id (default: 385995).",
+      "method": "GET",
+      "path": "/yad{property_id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "property_id",
+          "type": "string",
+          "location": "path",
+          "description": "Six-digit Jalan property identifier from accommodation search",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bath evidence",
+      "command": "stay plan",
+      "description": "Inspect separate bath facts without inferring room facilities from property amenities."
+    },
+    {
+      "name": "Quote interpretation",
+      "command": "stay plan",
+      "description": "Separate quoted cash price, conditional coupons, earned points and extra fees."
+    },
+    {
+      "name": "Bounded alternatives",
+      "command": "stay compare",
+      "description": "Compare a few dates or exact plans under equal party conditions."
+    },
+    {
+      "name": "Traceable facts",
+      "command": "stay property",
+      "description": "Preserve Japanese facts, explicit unknowns and source evidence."
+    },
+    {
+      "name": "Bilingual destinations",
+      "command": "stay locations",
+      "description": "Resolve supported Japanese and English destination aliases explicitly."
+    }
+  ]
+}

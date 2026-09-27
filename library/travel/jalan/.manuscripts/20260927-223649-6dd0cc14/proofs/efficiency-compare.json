@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "kind": "isolated_comparison_efficiency",
+  "observed_at": "2026-09-27T15:49:13.752461+00:00",
+  "read_only": true,
+  "bounds": {
+    "invocations": 2,
+    "normal_upstream": 2,
+    "maximum_attempts": 4
+  },
+  "rows": [
+    {
+      "name": "compare-two-dates",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "compare",
+            "385995",
+            "--dates",
+            "2026-11-10,2026-11-11",
+            "--adults",
+            "2",
+            "--rooms",
+            "1",
+            "--nights",
+            "1",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 30313,
+          "elapsed_ms": 2225.91,
+          "peak_rss_kib": 32096.0,
+          "upstream_requests": 2,
+          "cache_status": "live",
+          "observed_at": "2026-09-27T15:49:13.065042Z",
+          "result_count": 2,
+          "source_elapsed_ms": 2182
+        },
+        {
+          "args": [
+            "compare",
+            "385995",
+            "--dates",
+            "2026-11-10,2026-11-11",
+            "--adults",
+            "2",
+            "--rooms",
+            "1",
+            "--nights",
+            "1",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 30314,
+          "elapsed_ms": 55.28,
+          "peak_rss_kib": 28272.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-27T15:49:13.065042Z",
+          "result_count": 2,
+          "source_elapsed_ms": 29
+        }
+      ],
+      "cold": {
+        "args": [
+          "compare",
+          "385995",
+          "--dates",
+          "2026-11-10,2026-11-11",
+          "--adults",
+          "2",
+          "--rooms",
+          "1",
+          "--nights",
+          "1",
+          "--limit",
+          "5",
+          "--max-age",
+          "5m",
+          "--refresh"
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 30313,
+        "elapsed_ms": 2225.91,
+        "peak_rss_kib": 32096.0,
+        "upstream_requests": 2,
+        "cache_status": "live",
+        "observed_at": "2026-09-27T15:49:13.065042Z",
+        "result_count": 2,
+        "source_elapsed_ms": 2182
+      },
+      "warm": {
+        "args": [
+          "compare",
+          "385995",
+          "--dates",
+          "2026-11-10,2026-11-11",
+          "--adults",
+          "2",
+          "--rooms",
+          "1",
+          "--nights",
+          "1",
+          "--limit",
+          "5",
+          "--max-age",
+          "5m"
+        ],
+        "exit_code": 0,
+        "stdout_bytes": 30314,
+        "elapsed_ms": 55.28,
+        "peak_rss_kib": 28272.0,
+        "upstream_requests": 0,
+        "cache_status": "hit",
+        "observed_at": "2026-09-27T15:49:13.065042Z",
+        "result_count": 2,
+        "source_elapsed_ms": 29
+      },
+      "observed_at_equal": true,
+      "source_observation_times_equal": true,
+      "same_query": true,
+      "same_extracted_results": true,
+      "result_comparison_omits": [
+        "observations"
+      ],
+      "request_reduction": 2,
+      "latency_reduction_ms": 2170.63
+    }
+  ]
+}

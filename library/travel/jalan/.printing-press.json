@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T16:01:41.296805Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "jalan",
+  "display_name": "Jalan",
+  "cli_name": "jalan-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "jalan.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:6ad872d51b5d3e74749ebe81624aefc67fad6021db244b86b5b9e2dda5257646",
+  "run_id": "20260927-223649-6dd0cc14",
+  "category": "travel",
+  "description": "Find Japan stays and understand the exact room and plan.",
+  "mcp_binary": "jalan-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bath evidence",
+      "command": "stay plan",
+      "description": "Inspect separate bath facts without inferring room facilities from property amenities."
+    },
+    {
+      "name": "Quote interpretation",
+      "command": "stay plan",
+      "description": "Separate quoted cash price, conditional coupons, earned points and extra fees."
+    },
+    {
+      "name": "Bounded alternatives",
+      "command": "stay compare",
+      "description": "Compare a few dates or exact plans under equal party conditions."
+    },
+    {
+      "name": "Traceable facts",
+      "command": "stay property",
+      "description": "Preserve Japanese facts, explicit unknowns and source evidence."
+    },
+    {
+      "name": "Bilingual destinations",
+      "command": "stay locations",
+      "description": "Resolve supported Japanese and English destination aliases explicitly."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bath evidence",
+      "command": "stay plan",
+      "description": "Inspect separate bath facts without inferring room facilities from property amenities."
+    },
+    {
+      "name": "Quote interpretation",
+      "command": "stay plan",
+      "description": "Separate quoted cash price, conditional coupons, earned points and extra fees."
+    },
+    {
+      "name": "Bounded alternatives",
+      "command": "stay compare",
+      "description": "Compare a few dates or exact plans under equal party conditions."
+    },
+    {
+      "name": "Traceable facts",
+      "command": "stay property",
+      "description": "Preserve Japanese facts, explicit unknowns and source evidence."
+    },
+    {
+      "name": "Bilingual destinations",
+      "command": "stay locations",
+      "description": "Resolve supported Japanese and English destination aliases explicitly."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 26,
+    "total": 26,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

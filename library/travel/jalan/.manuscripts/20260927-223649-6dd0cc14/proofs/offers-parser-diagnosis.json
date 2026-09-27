@@ -1,0 +1,60 @@
+{
+  "captures": [
+    {
+      "attempt": "attempt-02",
+      "decoded_bytes": 421118,
+      "decoded_sha256": "9c56b5d15bce92724cd6c2da1e2a8d18aee061467a16f5c91fe95ef141ecb226",
+      "distinct_plan_count": 12,
+      "distinct_plan_room_count": 54,
+      "has_japanese_property_name": true,
+      "local_private_observation_path": "discovery/offers-parse-diagnosis/attempt-02.observation.json",
+      "no_matches": false,
+      "observed_at": "2026-09-27T15:45:37.205719Z",
+      "parsed_offer_count": 54,
+      "parser_cause": null,
+      "source_plan_count": 12,
+      "source_url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+      "status": "parsed",
+      "warnings": [
+        "source total counts plans, not plan/room offers; offer total is unknown"
+      ]
+    },
+    {
+      "attempt": "attempt-03",
+      "decoded_bytes": 421118,
+      "decoded_sha256": "de73a6ed9ab3d6d4d163c6ffb17c3e83f21f5125d6082d91804b199af8a5dd2b",
+      "distinct_plan_count": 12,
+      "distinct_plan_room_count": 54,
+      "has_japanese_property_name": true,
+      "local_private_observation_path": "discovery/offers-parse-diagnosis/attempt-03.observation.json",
+      "no_matches": false,
+      "observed_at": "2026-09-27T15:46:06.041295Z",
+      "parsed_offer_count": 54,
+      "parser_cause": null,
+      "source_plan_count": 12,
+      "source_url": "https://www.jalan.net/yad385995/plan/?adultNum=2\u0026distCd=01\u0026roomCount=1\u0026roomCrack=200000\u0026stayCount=1\u0026stayDay=10\u0026stayMonth=11\u0026stayYear=2026",
+      "status": "parsed",
+      "warnings": [
+        "source total counts plans, not plan/room offers; offer total is unknown"
+      ]
+    }
+  ],
+  "diagnostic_outcome": "not_reproduced",
+  "failed_benchmark_body_preserved": false,
+  "kind": "bounded_offer_parser_diagnosis",
+  "notes": [
+    "An initial relative --home validation failure occurred before network I/O; subsequent attempts used the required absolute home.",
+    "Both refresh invocations each reported one upstream request and returned five offers.",
+    "Each decoded source observation was copied to a private 0600 file before the next refresh overwrote the URL cache.",
+    "The earlier benchmark failed body was removed with its temporary home and cannot be inferred from these successful captures."
+  ],
+  "private_diagnostic_home": "discovery/offers-parse-diagnosis",
+  "raw_or_decoded_html_in_proof": false,
+  "recorded_at": "2026-09-27T15:48:11.803277Z",
+  "retry_policy_changed": false,
+  "schema_version": 1,
+  "source_requests_max": 3,
+  "source_requests_observed": 2,
+  "underlying_intermittent_cause_confirmed": false,
+  "validation_loosened": false
+}

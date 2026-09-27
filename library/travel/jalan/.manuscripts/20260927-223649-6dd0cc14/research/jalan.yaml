@@ -1,0 +1,37 @@
+name: jalan
+category: travel
+description: "Read-only Japan accommodation discovery and exact room/plan evidence from Jalan"
+version: "0.1.0"
+base_url: "https://www.jalan.net"
+http_transport: standard
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+learn:
+  entity_lookup_seeds:
+    destination:
+      - canonical: 箱根
+        aliases: [hakone]
+      - canonical: 東京都
+        aliases: [tokyo]
+resources:
+  pages:
+    description: "Low-level public property page metadata; use stay commands for accommodation facts"
+    endpoints:
+      property:
+        method: GET
+        path: "/yad{property_id}/"
+        description: "Read public property page metadata without booking actions"
+        no_auth: true
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: property_id
+            type: string
+            required: true
+            description: "Six-digit Jalan property identifier from accommodation search"
+            default: "385995"
+        happy_args: "--property-id=385995"
+        example: "  jalan-pp-cli pages property --property-id 385995 --json"
