@@ -3,6 +3,7 @@ package walkerplus
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -58,6 +59,7 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 		}
 	}
 	candidates := []Event{}
+	sourceOrder := map[string]int{}
 	seen := map[string]bool{}
 	// Round-robin first pages across month buckets before deeper pagination.
 	for pass := 0; op.coverage.ScannedPages < q.MaxPages; pass++ {
@@ -130,6 +132,11 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 		}
 	}
 	if enrich {
+		if q.Sort == "source" {
+			for i, e := range candidates {
+				sourceOrder[e.ID] = i
+			}
+		}
 		n := len(candidates)
 		if n > q.MaxDetails {
 			n = q.MaxDetails
@@ -137,6 +144,19 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 			op.coverage.Reasons = appendUnique(op.coverage.Reasons, "detail candidate budget reached")
 		}
 		sortEvents(candidates, q)
+		verified := make([]Event, 0, len(candidates))
+		unknown := []Event{}
+		for _, e := range candidates {
+			if matchesLocation(e, q) && categoryMatches(e.Categories, q.Category) {
+				verified = append(verified, e)
+			} else {
+				unknown = append(unknown, e)
+			}
+		}
+		if len(verified) > 0 && len(unknown) > 0 {
+			candidates = append(verified, unknown...)
+			op.coverage.Reasons = appendUnique(op.coverage.Reasons, "detail selection prioritizes listing-verified location/category matches; candidates with missing evidence use remaining budget")
+		}
 		details := make([]Event, n)
 		errors := make([]error, n)
 		var wg sync.WaitGroup
@@ -179,6 +199,9 @@ func (c *Client) discover(ctx context.Context, q Query, enrich bool) (result Res
 		}
 	} else {
 		result.Events = candidates
+	}
+	if enrich && q.Sort == "source" {
+		sort.SliceStable(result.Events, func(i, j int) bool { return sourceOrder[result.Events[i].ID] < sourceOrder[result.Events[j].ID] })
 	}
 	sortEvents(result.Events, q)
 	if len(result.Events) > q.Limit {

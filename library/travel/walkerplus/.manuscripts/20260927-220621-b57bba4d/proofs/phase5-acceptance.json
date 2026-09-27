@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "44623b174f9b079ab9dc369ac537d635b96cbe0cbddbbe5d31774bf56ca0f41e",
+  "source_fingerprint": "de527ecd133a2356a0fb482f97f3353ca1b439c6651dd22dc7d5f450433dc729",
   "source_files": {
     "cmd/walkerplus-pp-cli/main.go": "cc28667fc8c28f46a70aff2e240eeef7dcca5000dd2d3609ebc20cab10d80306",
     "cmd/walkerplus-pp-mcp/main.go": "613012a9beaf6956a86ac82b284e3bb3fe51c37f03cae4849a91120e6b9951e6",
@@ -104,7 +104,8 @@
     "internal/walkerplus/catalogs.go": "95b99a93aa89f8efd19cad696bff2fa80686967af15203ffcd5e35ff38955288",
     "internal/walkerplus/cities_test.go": "fee5f7010a8b775ee95273c52cf141e239907bfd9958d00ea3071f0edc81bf0c",
     "internal/walkerplus/client.go": "161bd66624992e0aade824fd303cb217dd712a8d5e32ec5e1d1becc07f8508a5",
-    "internal/walkerplus/discovery.go": "7cec7948926d4d05452ea6b1a5c83db3dada7b42c2cd22b0caf60f0cdb0e07c2",
+    "internal/walkerplus/detail_priority_test.go": "7fbc10d41056fce9ad27cf2fe8e6f333bbc3b00a51b4ae1c5aae6909e1609252",
+    "internal/walkerplus/discovery.go": "f67f0ee551b2ce6b1119bde041e4bf152c32af7206e7c7dc1a55fab69f8f6cb1",
     "internal/walkerplus/parser.go": "1faf3d160c1f55dd8818857b738ac800e9e4305defdc932f3e43eb95d577037b",
     "internal/walkerplus/schedule.go": "eed5215f8e07e8daee72cce618fb074a852ae29babc0ca70be82390bb8e28ffc",
     "internal/walkerplus/shortlist_evidence_test.go": "b7a24a6878b53b2aaeb636df52056addd4dc799e226dcf217a64b18ebef95177",
@@ -114,6 +115,7 @@
     "internal/walkerplusacceptance/behavior_test.go": "4e1d97174a40b857c3ae664da2d4af581f142c298032b5418f739588d352ac45",
     "internal/walkerplusacceptance/boundaries_test.go": "8a2a88afdb6096426b7b3046e879740ea1d00426bd3949b49c192c91a8ff2bac",
     "internal/walkerplusacceptance/city_resolution_test.go": "26c883d802cd2ad445d953ba435a9232a97b9737732722d1f0fb412b42947ef6",
+    "internal/walkerplusacceptance/detail_priority_test.go": "56c047117b38eb67c4a310d5ea0f9ab42af73800807fd941abdca4cd40b5d387",
     "internal/walkerplusacceptance/fixtures_test.go": "0366394c7fac07ddc08f93fd34e801c1fa528c3a391b52a409dad29d457628f9",
     "internal/walkerplusacceptance/review_regressions_test.go": "36a796d7966cf9dce371e637f8dcfa36909c70373ecefd42c0205deb6de13a2a",
     "spec.yaml": "c6481cd050a8699dc2f7fc86b6a3140b9ac8ffd54890d0719cd680c9db32ca9d",

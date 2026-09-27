@@ -1,0 +1,17 @@
+--- FAIL: TestReviewShortlistPrioritizesVerifiedListingCandidates (9.02s)
+    --- FAIL: TestReviewShortlistPrioritizesVerifiedListingCandidates/start (4.51s)
+        --- FAIL: TestReviewShortlistPrioritizesVerifiedListingCandidates/start/one_detail_selects_known (1.50s)
+            detail_priority_test.go:40: verified candidate takes first detail slot = [ar0313e13000]; want [ar0313e13001]
+            detail_priority_test.go:62: unknown listing consumed sole detail budget: /event/ar0313e13000/
+            detail_priority_test.go:62: unknown listing consumed sole detail budget: /event/ar0313e13000/data.html
+            detail_priority_test.go:62: unknown listing consumed sole detail budget: /event/ar0313e13000/price.html
+    --- FAIL: TestReviewShortlistPrioritizesVerifiedListingCandidates/source (4.51s)
+        --- FAIL: TestReviewShortlistPrioritizesVerifiedListingCandidates/source/one_detail_selects_known (1.50s)
+            detail_priority_test.go:40: verified candidate takes first detail slot = [ar0313e13000]; want [ar0313e13001]
+            detail_priority_test.go:62: unknown listing consumed sole detail budget: /event/ar0313e13000/
+            detail_priority_test.go:62: unknown listing consumed sole detail budget: /event/ar0313e13000/data.html
+            detail_priority_test.go:62: unknown listing consumed sole detail budget: /event/ar0313e13000/price.html
+FAIL
+FAIL	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	9.548s
+FAIL
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	14.050s
