@@ -81,6 +81,8 @@ Comparison returns `meets_criteria`, `fails_criteria` or `insufficient_data`, wi
 
 ## Output and bounded acquisition
 
+Serialize source calls, including MCP command calls. Pacing is capped at one request per second per provider client/CLI or MCP invocation. Separate concurrent invocations do not coordinate; `--rate-limit` only lowers the per-invocation ceiling and does not enforce an aggregate or global limit.
+
 `--agent` sets JSON, compact, noninteractive defaults. Product stdout is one compact `{meta,results}` document; diagnostics use stderr. `--select` projects comma-separated dotted paths, including array fields. A wholly absent path is an error. Required-input `--dry-run --json` succeeds without inputs/network; real invalid inputs exit `2`, source errors `5`, exhausted rate limits `7`. Structured unavailable statuses are ordinary product outcomes.
 
 Search returns at most 50 candidates across at most two pages. Compare accepts up to five places, fourteen dates and seventy cells; hourly output caps at 72 source rows. Daily `unsupported_dates` identifies absent requested dates before the output limit; `partial_horizon` distinguishes mixed coverage and `truncated` identifies row limiting. Dates outside returned source coverage stay unavailable. `--refresh`/`--data-source live` fetch again; `--data-source local` reads cache only; `--allow-stale` explicitly permits marked stale cache without positive suitability. `--timeout` bounds the whole command. `--cache-dir` selects a local page cache. Cache TTL is one hour for weather/seasonal/model pages and seven days for directories, a CLI policy rather than a verified seasonal/model provider cadence.

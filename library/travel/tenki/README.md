@@ -73,6 +73,8 @@ Use `--refresh` to bypass fresh cache, `--data-source local` for cache-only read
 
 The CLI caches weather/seasonal/model pages for one hour and directories for seven days. These are cache policies; mountain and seasonal provider update cadences are unverified. No hidden polling or nationwide crawl runs.
 
+Source pacing caps each provider client at one HTTP request per second. CLI invocations and MCP command calls use separate clients; concurrent invocations do not coordinate and can exceed that rate in aggregate. Serialize source calls. `--rate-limit` only lowers the per-client ceiling, not a shared or global budget.
+
 ## Health Check
 
 ```bash

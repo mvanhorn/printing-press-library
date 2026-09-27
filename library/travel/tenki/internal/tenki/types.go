@@ -16,7 +16,8 @@ type Config struct {
 	Transport  http.RoundTripper
 	Now        func() time.Time
 	Timeout    time.Duration
-	// RateLimit can lower the 1 request/second ceiling. Zero uses the default.
+	// RateLimit can lower this client's 1 request/second ceiling. Zero uses that default.
+	// Each command invocation creates a client; concurrent CLI/MCP invocations pace independently.
 	RateLimit float64
 	// SearchDirectory selects an explicit leisure directory for bounded name filtering.
 	SearchDirectory string

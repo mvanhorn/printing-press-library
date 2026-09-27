@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "7c1c9638da393104ec3166799f214c78debd6ae9b11917b53db4716a92099242",
+  "source_fingerprint": "701d0845247cc80c06b69e290bf439b35500a22ffde0e0d6a26a5e54b89ff3ff",
   "source_files": {
     "cmd/tenki-pp-cli/main.go": "5fe3838babb491500ffa0f75c695be2dc3b808ec654de1f44b4fa683b3c33040",
     "cmd/tenki-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -42,12 +42,13 @@
     "internal/cli/root_test.go": "f6ef1896f1e67af7fbc182584aedce00ba9721919e54b072705462ef89cd272c",
     "internal/cli/seasonal_show.go": "af7a328710ffa20664babed8e724637024783839e1305d1646346e565fc09fa2",
     "internal/cli/tail.go": "80dad30f0ec868e595e68969ca86b93988d848f00f6d66dafdab676fbee39c1c",
-    "internal/cli/tenki_commands.go": "c042aa0ac70c5b568345b4e96501ba77eb5ca2f8247c68e56bdb3e7d47024b64",
-    "internal/cli/tenki_commands_test.go": "936a27282c0f26414a36b62ced7c8d1b503a661b83541c7b271dd0117f5116a0",
+    "internal/cli/tenki_commands.go": "29ec3337dd3604284d6053fa4862929c8725a3f29d21e27492781edc484e6014",
+    "internal/cli/tenki_commands_test.go": "c5912cda246940c71ac0f5c525e61328d92f1e3e86453047b93ec319b5510682",
     "internal/cli/tenki_compare.go": "75ceed5ba4dc45b8fd8f56bba35c3b863a80f9e3e1aa7ff1f8cdeece99f96324",
     "internal/cli/tenki_compare_test.go": "e390e2093f51203627858cbcb8db951ef1ca296a969d202dce65d72aa7260026",
     "internal/cli/tenki_helpers.go": "3a1a008ccd559dffaf7a826cdb6ba62067b2c1b8a20933b2045294563f6b5ee3",
     "internal/cli/tenki_output_regression_test.go": "2379bfe3fa4efc3e424e74482ebd7661c77688b9186165369aafa8b20379afe9",
+    "internal/cli/tenki_seasonal_year_test.go": "0c306aa07f2585dd424b1d6d69cbc365a8b797bffc61db30eddd52ee809861d5",
     "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
     "internal/cli/which.go": "b1b062c165fbb3bcdccbc6f6366059317cdfc0ff858b872ea871f57ce97f76b0",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
@@ -93,7 +94,7 @@
     "internal/mcp/platform_gate_test.go": "62af0ee66e08371ff1fc9928f6b8c25d73b3e18e3bdd59e7cc6603ad6acaa61b",
     "internal/mcp/tools.go": "9cc19e6f60dfc44a100558d506336895609751481d2a41f25842f6d5e1d79cde",
     "internal/mcp/tools_test.go": "8f028849b4ca7a5f5b22aed6dcb6f3c75c9e21821ad5fcb88f83d2a5f5536356",
-    "internal/planning/evaluate.go": "56acf74b4032786e6d8a4a539614c3ab4b6c7ac1a79d4c547df0a5d0c22c43b0",
+    "internal/planning/evaluate.go": "ae0eaab87d681fcf8a545d4ac567ab2a29f3a4a1c4aebdbe7aebd26d5ed3499b",
     "internal/planning/evaluate_test.go": "078fceb121c854d9e27d9186ccdcc9c3e6c293d38d4df3c07187c018ef97dd4d",
     "internal/planning/types.go": "358c2532f27e7131a790bbe8328ecdbceda5002c6ee38cb963d2c075364b7185",
     "internal/platform/conformance_test.go": "25699fa8d03d2e2cc1efed3b5ac532d58e3a634ad7ec5b00bf6c017de3f29f35",
@@ -117,8 +118,9 @@
     "internal/tenki/mountain.go": "01f3b8e5adaf04d274e9de948ead4cdf05d8f03a346aa4789e324f6bfdeaea71",
     "internal/tenki/places.go": "e37787e85cfa8d4faae27cdca92a0ca101c3491b085152133335ce12cb042a20",
     "internal/tenki/provider_test.go": "33cdac1454781f63b01eb78521a17417a4ef50a0efc80a48dbd40203dea55668",
-    "internal/tenki/seasonal.go": "a76f10e583a5e9453f3b8a5fc5d3f76ed5dd662a15a39b058ef84856a78d1206",
-    "internal/tenki/types.go": "e1869cf7bdbb181280a7b7b05c630d5fc5410c357ce62ebc1047efe989eda275",
+    "internal/tenki/seasonal.go": "4c6318dd519adbd9405334e5352d497e23279a1acbdb1b1a025a4307dd6e48e4",
+    "internal/tenki/seasonal_year_test.go": "c6fc578ba7112f846bfa498adb15c761c87e5a35f6c52c7e70b46d4c83fdfabb",
+    "internal/tenki/types.go": "a585c34ca0dc8849851b5eff0fde4a795c360a18e0e7d1446b8b51c7a4245ccb",
     "internal/types/types.go": "02cc3b010b3a727b70745ea862a48379f4d3d5b4de58f19bae761c81bcde4b27",
     "spec.yaml": "cc31981c1311734f5d1e8787df0ba67f770ba1c926c8bb8cd033ba45d182803b"
   }

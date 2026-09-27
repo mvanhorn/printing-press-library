@@ -4,6 +4,8 @@ This is a generated Printing Press foundation with preserved hand-authored produ
 
 Read [SKILL.md](SKILL.md) when interpreting source times, hourly windows, mountain levels, seasonal years or comparison outcomes. It is the single interpretation reference. Use `<command> --help` for current runtime flags; [README.md](README.md) covers installation, local build, cache paths and troubleshooting. Read [VERIFICATION.md](VERIFICATION.md) when evaluating dated validation, scanner findings or reproduction steps.
 
+Serialize source calls across CLI and MCP invocations. The provider limiter is per client; separate invocations do not coordinate. `--rate-limit` lowers only that invocation's ceiling.
+
 Novel command files carry exactly one `// pp:data-source auto` (or deliberately narrower source) directive and matching command annotation. Read-only leaves use `mcp:read-only=true`. Help-only groups use `pp:parent-group=true` so MCP excludes the parent tool while traversing its children; unrelated generated utility paths use `mcp:hidden=true`. Use `boundCtx` before typed source calls and generated JSON selectors. Dry-run guards precede required-input validation and IO; real invalid inputs use typed usage errors. Source `429` errors propagate, and partial comparisons preserve each failed place separately.
 
 Record code customizations under `.printing-press-patches/` using the [public library's guard contract](https://github.com/mvanhorn/printing-press-library/blob/main/AGENTS.md). Preserve those guards and `.manuscripts/` during reprints. Keep the permanent creator attribution from `.printing-press.json` and `NOTICE` unchanged.

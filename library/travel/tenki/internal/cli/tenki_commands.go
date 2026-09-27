@@ -42,7 +42,7 @@ func init() {
 		})
 		root.PersistentFlags().Lookup("data-source").Usage = "Page source: auto (fresh cache then live), live (refresh), local (page cache only)"
 		root.PersistentFlags().Lookup("compact").Usage = "Compact product JSON; use --select to narrow fields"
-		root.PersistentFlags().Lookup("rate-limit").Usage = "Lower the source request rate (at most 1 request/s; 0/auto uses the 1 request/s policy)"
+		root.PersistentFlags().Lookup("rate-limit").Usage = "Lower request rate per command/client (at most 1 request/s; 0/auto uses 1; concurrent CLI/MCP invocations pace independently)"
 		for _, command := range root.Commands() {
 			if command.Name() == "catalog" && command.Annotations != nil {
 				delete(command.Annotations, "pp:happy-args")
@@ -305,8 +305,8 @@ func validateTenkiSeason(kind string, year int) error {
 	if kind != "sakura" && kind != "kouyou" {
 		return usageErr(fmt.Errorf("--kind must be sakura or kouyou"))
 	}
-	if year < 1900 || year > 2200 {
-		return usageErr(fmt.Errorf("--year must be between 1900 and 2200; unavailable source years remain explicit"))
+	if err := tenki.ValidateSeasonYear(year); err != nil {
+		return usageErr(fmt.Errorf("--year: %w; unavailable source years remain explicit", err))
 	}
 	return nil
 }

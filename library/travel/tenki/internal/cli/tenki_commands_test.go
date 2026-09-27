@@ -76,7 +76,7 @@ func (f *tenkiFake) Mountain(ctx context.Context, place string) (tenki.MountainR
 }
 func (f *tenkiFake) Metrics() tenki.Metrics { return tenki.Metrics{HTTPRequests: len(f.calls)} }
 
-func tenkiRun(t *testing.T, f *tenkiFake, args ...string) (map[string]any, string, string, error, tenki.Config) {
+func tenkiRun(t *testing.T, f tenkiSource, args ...string) (map[string]any, string, string, error, tenki.Config) {
 	t.Helper()
 	var flags rootFlags
 	root := newRootCmd(&flags)
@@ -343,6 +343,10 @@ func TestTenkiCoreHelpIsFocused(t *testing.T) {
 	}
 	if !strings.Contains(root.PersistentFlags().Lookup("data-source").Usage, "fresh cache") || !strings.Contains(root.PersistentFlags().Lookup("rate-limit").Usage, "at most 1") {
 		t.Fatal("source/cache/rate help does not match runtime")
+	}
+	rateHelp := root.PersistentFlags().Lookup("rate-limit").Usage
+	if !strings.Contains(rateHelp, "per command/client") || !strings.Contains(rateHelp, "concurrent CLI/MCP invocations pace independently") {
+		t.Fatal("rate help must explain the scope of pacing")
 	}
 }
 

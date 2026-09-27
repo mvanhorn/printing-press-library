@@ -12,6 +12,19 @@ import (
 	"golang.org/x/net/html"
 )
 
+const (
+	MinSeasonYear = 1900
+	MaxSeasonYear = 2200
+)
+
+// ValidateSeasonYear bounds a requested year independently of source availability.
+func ValidateSeasonYear(year int) error {
+	if year < MinSeasonYear || year > MaxSeasonYear {
+		return fmt.Errorf("seasonal year must be between %d and %d", MinSeasonYear, MaxSeasonYear)
+	}
+	return nil
+}
+
 func seasonalKind(kind string) (string, error) {
 	if kind == "foliage" {
 		kind = "kouyou"
@@ -172,8 +185,8 @@ func (c *Client) Seasonal(ctx context.Context, kind, target string, year int) (S
 	if year == 0 {
 		year = c.cfg.Now().In(JST).Year()
 	}
-	if year < 2000 || year > 2100 {
-		return SeasonalResult{}, errors.New("seasonal year must be 2000–2100")
+	if err := ValidateSeasonYear(year); err != nil {
+		return SeasonalResult{}, err
 	}
 	raw, err := canonicalPlaceURL(target)
 	if err != nil {
@@ -231,8 +244,8 @@ func (c *Client) SeasonalList(ctx context.Context, kind, query string, year, lim
 	if year == 0 {
 		year = c.cfg.Now().In(JST).Year()
 	}
-	if year < 2000 || year > 2100 {
-		return SeasonalListResult{}, errors.New("seasonal year must be 2000–2100")
+	if err := ValidateSeasonYear(year); err != nil {
+		return SeasonalListResult{}, err
 	}
 	result := SeasonalListResult{Kind: kind, RequestedYear: year, Spots: []SeasonalSpot{}, Warnings: []string{}, Status: "ok"}
 	raw := "https://tenki.jp/" + kind + "/"

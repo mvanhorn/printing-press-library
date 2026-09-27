@@ -78,8 +78,10 @@ func Validate(options Options, places int) error {
 	if options.SeasonCondition != "" && options.Season == "" {
 		return fmt.Errorf("--season-condition requires --season")
 	}
-	if options.Season != "" && (options.Year < 1900 || options.Year > 2200) {
-		return fmt.Errorf("--year must be between 1900 and 2200")
+	if options.Season != "" {
+		if err := tenki.ValidateSeasonYear(options.Year); err != nil {
+			return fmt.Errorf("--year: %w", err)
+		}
 	}
 	return nil
 }
