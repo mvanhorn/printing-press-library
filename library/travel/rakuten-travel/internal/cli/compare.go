@@ -144,7 +144,7 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 					queries = append(queries, query)
 				}
 			}
-			api, err := options.client(flags)
+			api, err := options.client(cmd, flags)
 			if err != nil {
 				return err
 			}

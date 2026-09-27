@@ -1,8 +1,10 @@
 # Publication verification
 
-Fresh publish-time live matrix: 82 passed, 0 failed, 53 explicitly skipped auxiliary cases; run at 2026-09-27T16:24:56.236453Z. The Printing Press-owned acceptance receipt binds the tidied source. No credentials or browser were used.
+Fresh publish-time live matrix: 82 passed, 0 failed, 53 explicitly skipped auxiliary cases; run at 2026-09-27T16:52:04.704756Z. The Printing Press-owned acceptance receipt binds the reviewed source, including best-effort cache persistence. No credentials or browser were used.
 
-Publication validation passed manifest, five-feature coverage, Phase 5, tidy, reachable govulncheck, vet, build, help/version, skill and patch checks. The source module path warning is expected before the packager rewrites it to the canonical library path.
+Publication validation passed manifest, five-feature coverage, Phase 5, tidy, reachable govulncheck, vet, build, help/version, skill and patch checks. The package uses the canonical public-library module path.
+
+The cache-write regression suite uses a deterministic blocked cache path. All six focused commands preserve successful JSON results, emit warnings only on stderr, keep `--no-cache` silent, and retain genuine upstream failures.
 
 The semantic suite passed 56 assertions and both workflow chains passed all five steps. Measurements cover true live and cached property/inventory requests, output bytes, wall latency and individual-process peak memory.
 

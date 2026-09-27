@@ -62,7 +62,7 @@ func (o publicTravelOptions) validate(cmd *cobra.Command, flags *rootFlags, args
 	return nil
 }
 
-func (o publicTravelOptions) client(flags *rootFlags) (travel.API, error) {
+func (o publicTravelOptions) client(cmd *cobra.Command, flags *rootFlags) (travel.API, error) {
 	cacheDir, err := cliutil.CacheDir()
 	if err != nil {
 		return nil, configErr(err)
@@ -72,6 +72,9 @@ func (o publicTravelOptions) client(flags *rootFlags) (travel.API, error) {
 		Refresh:  o.refresh, NoCache: flags.noCache,
 		InventoryTTL: time.Duration(o.inventoryCacheSeconds) * time.Second,
 		Timeout:      flags.timeout, MaxRequests: o.maxRequests,
+		OnCacheWriteError: func(err error) {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: cache write failed: %v\n", err)
+		},
 	})
 	if err != nil {
 		return nil, usageErr(err)

@@ -27,6 +27,9 @@ type Config struct {
 	CacheMaxEntries int
 	CacheMaxBytes   int64
 	Now             func() time.Time
+	// OnCacheWriteError observes optional persistence failures after a successful
+	// parse. It never changes result status; nil silently ignores those failures.
+	OnCacheWriteError func(error)
 }
 
 type Children struct {

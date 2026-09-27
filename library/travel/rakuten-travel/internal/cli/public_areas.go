@@ -35,7 +35,7 @@ func newPublicAreasListCmd(flags *rootFlags) *cobra.Command {
 			if limit < 1 || limit > 100 || offset < 0 || offset > 10000 {
 				return usageErr(fmt.Errorf("--limit must be 1–100 and --offset 0–10000"))
 			}
-			api, err := options.client(flags)
+			api, err := options.client(cmd, flags)
 			if err != nil {
 				return err
 			}

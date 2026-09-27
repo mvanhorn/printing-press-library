@@ -5,7 +5,7 @@
   "base_run_id": "20260927-220715-9b0c397a",
   "base_printing_press_version": "4.32.5",
   "summary": "Preserve explicit anonymous public Travel command wiring, exact dated offer identity, per-room whole-stay quote units, bounded coverage, and live/cache provenance.",
-  "reason": "Public HTML plan pages contain multiple room tuples per source plan, with explicit uniform per-room party and query echoes; generic endpoint output and compact filtering can erase quote units or silently substitute an offer. Reprints must retain serial bounded comparisons, exact inspection with separately scoped property policies, and content-based live verification.",
+  "reason": "Public HTML plan pages contain multiple room tuples per source plan, with explicit uniform per-room party and query echoes; generic endpoint output and compact filtering can erase quote units or silently substitute an offer. Reprints must retain bounded comparisons, exact inspection with separately scoped policies, and stderr-only warnings for optional cache write failures so valid remote observations remain usable.",
   "files": [
     "internal/cli/root.go",
     "internal/cli/public_travel.go",
@@ -21,13 +21,15 @@
     "internal/cli/public_offers_transport_test.go",
     "scripts/live_verify.py",
     "scripts/measure.py",
-    "workflow_verify.yaml"
+    "workflow_verify.yaml",
+    "internal/cli/public_cache_warning_test.go"
   ],
   "call_sites": [
     "rootCmd.AddCommand(newNovelOffersCmd(flags))",
     "rootCmd.AddCommand(newPublicHotelsCmd(flags))",
     "offersGroupCmd.AddCommand(newNovelOffersShowCmd(flags))",
-    "bindTravelOfferQuery(cmd, &query, false)\n\tbindTravelParty(cmd, &query)"
+    "bindTravelOfferQuery(cmd, &query, false)\n\tbindTravelParty(cmd, &query)",
+    "OnCacheWriteError: func(err error)"
   ],
-  "validated_outcome": "CLI tests use the real domain client with injected HTTP transport: 105 source-page rows require one inventory fetch plus two property fetches, prices/IDs survive agent and dotted selection, and empty/error comparison cells retain distinct status. Constructor edges and literal read-only annotations keep source discovery aligned with the runtime command tree. Workflow command text carries flags for the observed runner; acceptance must reject skipped extracted inputs and use live semantic assertions."
+  "validated_outcome": "CLI tests use the real domain client with injected HTTP transport: 105 source-page rows require one inventory fetch plus two property fetches, prices/IDs survive agent and dotted selection, and empty/error comparison cells retain distinct status. Blocked-cache regressions preserve valid live JSON across all focused leaves, keep warnings on stderr and --no-cache silent, and retain upstream failures as errors. Explicit constructor bindings expose the runtime command tree; live semantic assertions supplement the workflow runner."
 }

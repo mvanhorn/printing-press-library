@@ -22,6 +22,8 @@ Search output is bounded. Source pagination units can be plans, while emitted ro
 
 Metadata cache defaults to 24 hours. Inventory uses a live request by default; explicit inventory caching is capped at 60 seconds. Source timestamps identify when data was fetched and observed. An invocation may reuse its last offer-page response while looking through offsets, preserving one consistent snapshot and avoiding duplicate requests; this is not persistent inventory caching.
 
+Cache persistence is best-effort. A failed write emits a warning on stderr while preserving a successfully parsed source result. `--no-cache` skips persistence and its warnings; source fetch and parsing failures still return errors.
+
 ## Failure meanings
 
 A verified empty source search is a successful `no_matches` or `no_availability` result. Authentication/challenge pages, HTTP failures, throttling, invalid requests, malformed HTML and mismatched query echoes are errors. A missing offer within a bounded scan does not prove that the tuple never exists.

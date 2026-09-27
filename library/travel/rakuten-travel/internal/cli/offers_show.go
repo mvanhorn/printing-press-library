@@ -68,7 +68,7 @@ func newNovelOffersShowCmd(flags *rootFlags) *cobra.Command {
 			if options.maxRequests > 12 {
 				return usageErr(fmt.Errorf("offers show --max-requests cannot exceed 12"))
 			}
-			api, err := options.client(flags)
+			api, err := options.client(cmd, flags)
 			if err != nil {
 				return err
 			}

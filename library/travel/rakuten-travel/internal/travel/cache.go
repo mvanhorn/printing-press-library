@@ -94,6 +94,17 @@ func (c *Client) save(d document, inventory bool) error {
 	return c.prune()
 }
 
+// saveBestEffort keeps optional persistence separate from source correctness.
+// Each failed save produces at most one diagnostic through the caller's hook.
+func (c *Client) saveBestEffort(d document, inventory bool) {
+	if c.config.NoCache || inventory && c.config.InventoryTTL == 0 {
+		return
+	}
+	if err := c.save(d, inventory); err != nil && c.config.OnCacheWriteError != nil {
+		c.config.OnCacheWriteError(err)
+	}
+}
+
 var cacheFilePattern = regexp.MustCompile(`^[a-f0-9]{64}\.json$`)
 
 func (c *Client) prune() error {
