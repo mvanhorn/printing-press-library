@@ -4,11 +4,11 @@
   "applied_at": "2026-09-27",
   "base_run_id": "20260409-121709",
   "base_printing_press_version": "1.2.1-0.20260409145412-b1128d0e07fd+dirty",
-  "summary": "Historical scoreboard sync must query ESPN by month (dates=YYYYMM) or day, never by a dates=START-END range, and a failed chunk must fail the command.",
-  "reason": "Since 2026-09-15 ESPN's site API rejects every scoreboard date range with HTTP 400; the fetch error was swallowed, so sync --dates exited 0 with 0 events. The accepted date forms are an ESPN moving target a regen must re-verify.",
+  "summary": "Historical scoreboard sync must query ESPN by month (dates=YYYYMM) or day, never by a dates=START-END range; a failed chunk must fail the command; each progress line names the month fetched and is valid JSON.",
+  "reason": "Since 2026-09-15 ESPN's site API rejects every scoreboard date range with HTTP 400; the fetch error was swallowed, so sync --dates exited 0 with 0 events. A month request stores the whole first and last month, returns at most 1000 games, and for some leagues (college baseball) leaves out canceled and postponed games that single-day responses list. The accepted date forms are an ESPN moving target a regen must re-verify.",
   "files": [
     "internal/cli/sync.go",
     "internal/cli/sync_dates_test.go"
   ],
-  "validated_outcome": "Live 2026-09-27: football/nfl 20260924-20261111 went from 0 events (three HTTP 400s) to 48+60+71 = 179; the tests fail on the range form and on a swallowed chunk error."
+  "validated_outcome": "Live 2026-09-27: football/nfl 20260924-20261111 went from 0 events (three HTTP 400s) to 48+60+71 = 179, logged as months 202609/202610/202611; the tests fail on the range form, on a swallowed chunk error, and on an unescaped progress line."
 }

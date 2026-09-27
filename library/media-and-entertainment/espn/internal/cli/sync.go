@@ -45,8 +45,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 incremental sync (only fetches new data since last sync) and full resync.
 Once synced, use the 'search' command for instant full-text search.
 
-Use --dates to sync historical game data for a date range. Large ranges
-are automatically chunked into monthly requests.`,
+Use --dates to sync historical game data for a date range. ESPN is queried
+one calendar month at a time, so the first and last months are synced whole.`,
 		Example: `  # Sync today's scores and news for all major sports
   espn-pp-cli sync
 
@@ -190,7 +190,7 @@ are automatically chunked into monthly requests.`,
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/espn-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 10, "Maximum pages to fetch per resource (0 = unlimited)")
-	cmd.Flags().StringVar(&dates, "dates", "", "Date range for historical sync (YYYYMMDD-YYYYMMDD, e.g. 20250901-20260209)")
+	cmd.Flags().StringVar(&dates, "dates", "", "Date range for historical sync (YYYYMMDD-YYYYMMDD, e.g. 20250901-20260209); syncs every calendar month the range touches")
 	cmd.Flags().StringVar(&sport, "sport", "", "Sport to sync (football, basketball, baseball, hockey)")
 	cmd.Flags().StringVar(&league, "league", "", "League to sync (nfl, nba, mlb, nhl)")
 
@@ -609,19 +609,20 @@ func syncDatesRange(ctx context.Context, c interface {
 			chunkEnd = endDate
 		}
 
-		dateRange := current.Format("20060102") + "-" + chunkEnd.Format("20060102")
 		// Since 2026-09-15 ESPN answers any dates=START-END scoreboard query with
 		// HTTP 400 "Failed to get events endpoint." Month (YYYYMM) and single-day
-		// (YYYYMMDD) forms still work, and each chunk is exactly one calendar month,
-		// so ask for the whole month. A partial first or last month over-fetches a
-		// few days; UpsertEvent is idempotent, so that is harmless.
+		// (YYYYMMDD) forms still work, so ask for the chunk's whole month: a partial
+		// first or last month stores the rest of that month too. Some leagues'
+		// month responses (college baseball) leave out canceled and postponed
+		// games that single-day responses list; MLB's keep them.
+		month := current.Format("200601")
 		params := map[string]string{
-			"dates": current.Format("200601"),
+			"dates": month,
 			"limit": "1000",
 		}
 
 		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "  %s/%s %s: ", sport, league, dateRange)
+			fmt.Fprintf(os.Stderr, "  %s/%s %s: ", sport, league, month)
 		}
 
 		chunks++
@@ -631,9 +632,8 @@ func syncDatesRange(ctx context.Context, c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "error: %v\n", fetchErr)
 			} else {
-				errJSON, _ := json.Marshal(fetchErr.Error())
-				fmt.Fprintf(os.Stderr, `{"event":"sync_dates_error","sport":"%s","league":"%s","dates":"%s","error":%s}`+"\n",
-					sport, league, dateRange, errJSON)
+				fmt.Fprintf(os.Stderr, `{"event":"sync_dates_error","sport":%s,"league":%s,"dates":%s,"error":%s}`+"\n",
+					jsonString(sport), jsonString(league), jsonString(month), jsonString(fetchErr.Error()))
 			}
 			// Move to next chunk instead of aborting
 			current = chunkEnd.AddDate(0, 0, 1)
@@ -659,8 +659,8 @@ func syncDatesRange(ctx context.Context, c interface {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "%d events\n", len(eventsRaw))
 		} else {
-			fmt.Fprintf(os.Stderr, `{"event":"sync_dates","sport":"%s","league":"%s","dates":"%s","count":%d}`+"\n",
-				sport, league, dateRange, len(eventsRaw))
+			fmt.Fprintf(os.Stderr, `{"event":"sync_dates","sport":%s,"league":%s,"dates":%s,"count":%d}`+"\n",
+				jsonString(sport), jsonString(league), jsonString(month), len(eventsRaw))
 		}
 
 		totalEvents += len(eventsRaw)
@@ -676,6 +676,12 @@ func syncDatesRange(ctx context.Context, c interface {
 		return fmt.Errorf("%d of %d month requests for %s/%s over %s failed", failedChunks, chunks, sport, league, dates)
 	}
 	return nil
+}
+
+// jsonString JSON-encodes s for a hand-built stderr progress line.
+func jsonString(s string) string {
+	b, _ := json.Marshal(s)
+	return string(b)
 }
 
 // syncResourcePath maps resource names to their actual API endpoint paths.
