@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "tablecheck-publish-readonly-surface-and-mcp-output",
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-220537-e6065d2c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Expose the approved planning surface and fail oversized MCP command results without returning partial inventory.",
+  "reason": "Generated store routes had no supported archive/sync contract and classified a read-only calendar POST as an import target. Regeneration must preserve their removal from CLI/MCP, the empty write registry, accurate context guidance, explicit native-format dispatch, and the 60,000-byte MCP success boundary.",
+  "files": [
+    "internal/cli/planning.go",
+    "internal/cli/root.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/planning_publication_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/mcp/planning_surface_test.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_oversize_test.go"
+  ],
+  "validated_outcome": "Focused CLI/MCP regressions, full race tests, vet and both builds pass. Fresh full live gate passes 87 mandatory checks with 53 auxiliary rows skipped; native publish validation passes all checks."
+}

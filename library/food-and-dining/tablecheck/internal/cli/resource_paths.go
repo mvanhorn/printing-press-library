@@ -28,9 +28,9 @@ var resourceDetailPaths = map[string]string{ // #nosec G101 -- endpoint paths, n
 	"source": "/v2/shops/{slug}",
 }
 
-var resourceWritePaths = map[string]string{ // #nosec G101 -- endpoint paths, not credentials.
-	"source": "/v2/hub/availability_calendar_v2",
-}
+// TableCheck planning declares no writable resources. The calendar POST is a
+// read-only query and must never become an import/create target.
+var resourceWritePaths = map[string]string{}
 
 var resourceReadConfigs = map[string]resourceReadConfig{
 	"source": {responsePath: "", paginationType: "cursor", cursorParam: "search_after", limitParam: "per_page", nextCursorPath: "meta.search_after", hasMoreField: "", pageSize: 10},

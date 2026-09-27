@@ -154,6 +154,9 @@ func RegisterTools(s *server.MCPServer) {
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+	// The focused TableCheck product has no synced local-data contract. Keep
+	// generated store helpers available internally without exposing their tools.
+	s.DeleteTools("search", "sql")
 }
 
 type mcpParamBinding struct {
@@ -983,16 +986,17 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 				"name":        "source",
 				"description": "Verified anonymous upstream reads; focused planning commands add bounds and interpretation",
 				"endpoints":   []string{"calendar", "cuisines", "menu-items", "search", "venue"},
-				"syncable":    true,
-				"searchable":  true,
+				"syncable":    false,
+				"searchable":  false,
 			},
 		},
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass search_after parameter for subsequent pages.",
-			"Control page size with the per_page parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
-			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
-			"Prefer sql/search over repeated API calls when the data is already synced.",
+			"Use venues_search with explicit lat, lon and radius; cuisines_list provides stable cuisine keys.",
+			"Use venues_get, courses_list, courses_get, availability_check, availability_scan and booking_url for focused planning.",
+			"Planning lists use limit 10 by default, maximum 50. Pass the opaque next_cursor as cursor for the next venues_search page.",
+			"Availability covers a source time window, not a full day. Omitted time anchors the query at 18:00; provide time for an exact slot check.",
+			"Course eligibility and venue slots are separate; preserve prices, conditions and observation freshness before the booking handoff.",
+			"Oversized command-mirror output is an MCP error. Narrow venues, dates or limit, use --select, or run the companion CLI for full output.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.

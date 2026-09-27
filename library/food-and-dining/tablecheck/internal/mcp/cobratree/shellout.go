@@ -22,8 +22,8 @@ func boundedToolResultError(message string) *mcplib.CallToolResult {
 
 const shelloutCaptureLimit = bound.MaxBytes + 1
 
-// cappedCapture drains a child-process stream while retaining enough bytes for
-// bound.Text to render an oversized result as a truncated preview.
+// cappedCapture drains a child-process stream while retaining one byte past
+// the output budget so oversized stdout can be rejected without full buffering.
 type cappedCapture struct {
 	data []byte
 }
@@ -45,6 +45,10 @@ func (c *cappedCapture) Write(p []byte) (int, error) {
 
 func (c *cappedCapture) String() string {
 	return string(c.data)
+}
+
+func oversizedCLIOutputError() error {
+	return fmt.Errorf("CLI stdout exceeded the %d-byte MCP output budget; no partial result was returned. Rerun with fewer venues or dates, a lower --limit, or --select; use the companion CLI for full output.", bound.MaxBytes)
 }
 
 func shellOutToCLI(cliPath func() (string, error), commandPath []string, blockedStructuredArgs map[string]bool, allowedStructuredArgs map[string]bool, positionals []positionalArg, readOnly bool, positionalWriteSinks map[int]bool) server.ToolHandlerFunc {
@@ -315,7 +319,10 @@ type CLICommandResult struct {
 // filtered CLI hints in a separate block for clients that display auxiliary
 // content.
 func ToolResultFromCLICommand(result CLICommandResult) *mcplib.CallToolResult {
-	toolResult := mcplib.NewToolResultText(bound.Text(result.Stdout))
+	if len(result.Stdout) > bound.MaxBytes {
+		return boundedToolResultError(oversizedCLIOutputError().Error())
+	}
+	toolResult := mcplib.NewToolResultText(result.Stdout)
 	if len(result.StderrHints) > 0 {
 		toolResult.Content = append(toolResult.Content, mcplib.NewTextContent(bound.Text(strings.Join(result.StderrHints, "\n"))))
 	}
@@ -351,6 +358,9 @@ func RunCLICommand(ctx context.Context, binPath string, args []string) (CLIComma
 			return result, fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, bound.Text(msg))
 		}
 		return result, fmt.Errorf("cli %s: %w", binPath, err)
+	}
+	if len(stdoutText) > bound.MaxBytes {
+		return CLICommandResult{StderrHints: result.StderrHints}, oversizedCLIOutputError()
 	}
 	return result, nil
 }

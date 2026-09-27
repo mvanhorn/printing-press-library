@@ -8,7 +8,7 @@ Saved reports: [live source checks](evidence/live-source-checks.json), [binary-o
 
 - `go test -race -count=1 ./...`, `go vet ./...`, CLI/MCP builds pass. Deterministic tests cover statuses, decimal amounts, Tokyo date conversion, retries, request/concurrency limits, cache provenance, malformed responses and partial failures.
 - Printing Press shipcheck: all 7 legs pass; runtime verifier 27/27, score 83/100 (A). The generic workflow-manifest leg has no manifest and is informational; the focused live suite below verifies the real workflow.
-- Full binary-owned live matrix: 100 mandatory checks pass, 0 fail. 74 auxiliary rows are skipped/unverified under harness rules (generated framework/local-write/non-ID/raw-fixture cases). All 8 approved planning leaves pass real happy-path and JSON checks.
+- Full binary-owned live matrix: 87 mandatory checks pass, 0 fail. 53 auxiliary rows are skipped/unverified under harness rules (generated framework/local-write/non-ID/raw-fixture cases). All 8 approved planning leaves pass real happy-path and JSON checks.
 - Focused source suite: 11 cases, 129 assertions, 11 HTTP attempts. It verifies geographic/cuisine/dinner-budget/date/party inputs, cursor pagination, stable venue identity, course prices/conditions, independent party calendars, default time-window behavior, booking URLs and partial scans.
 - Gosec 2.26.1: zero unresolved custom-code findings after review. 21 generated framework findings are triaged in [security-triage.json](evidence/security-triage.json); they are not a claim that every generated path is security-audited. Tools audit has 0 pending findings; PII audit has 0 findings in its documented scope.
 

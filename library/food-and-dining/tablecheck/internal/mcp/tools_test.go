@@ -94,19 +94,19 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	if !strings.Contains(contextTool.Tool.Description, "Get API domain context") {
 		t.Fatalf("context tool appears to have been overwritten by command mirror: %q", contextTool.Tool.Description)
 	}
-	searchTool, ok := tools["search"]
-	if !ok {
-		t.Fatalf("typed search tool missing from registered tools: %#v", tools)
+	for _, name := range []string{"source_calendar", "source_cuisines", "source_menu-items", "source_search", "source_venue"} {
+		tool, ok := tools[name]
+		if !ok {
+			t.Fatalf("typed source tool %q missing", name)
+		}
+		if tool.Tool.Annotations.ReadOnlyHint == nil || !*tool.Tool.Annotations.ReadOnlyHint {
+			t.Fatalf("typed source tool %q lost its read-only contract", name)
+		}
 	}
-	if !strings.Contains(searchTool.Tool.Description, "Full-text search across all synced data") {
-		t.Fatalf("search tool appears to have been overwritten by command mirror: %q", searchTool.Tool.Description)
-	}
-	sqlTool, ok := tools["sql"]
-	if !ok {
-		t.Fatalf("typed sql tool missing from registered tools: %#v", tools)
-	}
-	if !strings.Contains(sqlTool.Tool.Description, "Run read-only SQL against local database") {
-		t.Fatalf("sql tool appears to have been overwritten by command mirror: %q", sqlTool.Tool.Description)
+	for _, name := range []string{"search", "sql"} {
+		if _, exposed := tools[name]; exposed {
+			t.Fatalf("unsupported generic store tool %q is exposed", name)
+		}
 	}
 }
 

@@ -62,7 +62,7 @@ tablecheck-pp-cli availability scan sushi-tokyo81 sushi-shiono --from 2026-09-30
 tablecheck-pp-cli booking-url sushi-tokyo81 --date 2026-09-30 --time 17:30 --party 2
 ```
 
-JSON is compact by default; diagnostics use stderr. Use dotted `--select` fields to reduce live output, retaining freshness when presenting availability. A dry run returns a request plan with different fields.
+JSON is compact by default; diagnostics use stderr. Use dotted `--select` fields to reduce live output, retaining freshness when presenting availability. A dry run returns a request plan with different fields. If MCP reports its 60,000-byte result limit, narrow the scan or field selection and retry; use the CLI directly when the complete large result is needed. The error contains no partial availability result.
 
 The source calendar covers a time window around an anchor, not the full day. Without `--time`, the CLI anchors at 18:00; with `--time`, it also checks that exact time. Inspect `query_anchor_time` and `coverage` for the observed time range; use another time for lunch or other periods.
 

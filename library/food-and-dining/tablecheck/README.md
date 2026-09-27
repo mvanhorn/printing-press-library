@@ -75,6 +75,8 @@ Default result limit is 10, maximum 50. Scans allow at most five venues and four
 
 Availability cache lifetime is 30 seconds; discovery and static details can live longer. Use `--cache-dir` to isolate a run. Result metadata reports requests, response bytes and latency; cached reads require no HTTP when all needed entries remain fresh.
 
+MCP planning command results are limited to 60,000 bytes. Larger results return an explicit error without a partial result. Narrow the venue/date range, lower `--limit`, select required fields with `--select`, or run the CLI directly for complete output.
+
 ## Cookbook
 
 Replace the example dates with your trip dates. Times are local to the venue.

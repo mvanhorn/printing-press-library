@@ -30,6 +30,7 @@ type planningFlags struct {
 func init() { registerNovelCommand(registerPlanningCommands) }
 
 func registerPlanningCommands(rootCmd *cobra.Command, flags *rootFlags) {
+	removeUnsupportedStoreCommands(rootCmd)
 	for _, c := range rootCmd.Commands() {
 		if c.Name() == "source" {
 			hidePlanningSource(c)
@@ -43,6 +44,18 @@ func registerPlanningCommands(rootCmd *cobra.Command, flags *rootFlags) {
 	rootCmd.AddCommand(newPlanningCoursesCmd(flags))
 	rootCmd.AddCommand(newPlanningAvailabilityCmd(flags))
 	rootCmd.AddCommand(newPlanningBookingURLCmd(flags))
+}
+
+// Generated store commands have no supported sync/write resources or planning
+// request context here. Keep them out of both CLI and Cobra-derived MCP even
+// when a future generation restores their generic root registrations.
+func removeUnsupportedStoreCommands(rootCmd *cobra.Command) {
+	for _, cmd := range rootCmd.Commands() {
+		switch cmd.Name() {
+		case "import", "workflow", "sync", "search", "export":
+			rootCmd.RemoveCommand(cmd)
+		}
+	}
 }
 
 // pp:data-source live
@@ -164,7 +177,6 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 	// Native --select is authoritative. Generic compact pruning would discard
 	// inventory evidence and supported nulls, so formatting and pruning differ.
 	copyFlags := *flags
-	copyFlags.asJSON = true
 	copyFlags.compact = false
 	copyFlags.agent = false
 	// A trailing wildcard selects every field beneath that path. Native
@@ -174,6 +186,19 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 		selectedPaths[i] = strings.TrimSuffix(strings.TrimSpace(path), ".*")
 	}
 	copyFlags.selectFields = strings.Join(selectedPaths, ",")
+	if copyFlags.csv || copyFlags.plain || copyFlags.quiet {
+		// Delegate these modes to the native format renderer. Keep a final
+		// checked write: native CSV/plain helpers do not propagate writer errors.
+		var formatted bytes.Buffer
+		formatCmd := &cobra.Command{}
+		formatCmd.SetOut(&formatted)
+		if err := copyFlags.printJSON(formatCmd, result); err != nil {
+			return usageErr(err)
+		}
+		_, err := cmd.OutOrStdout().Write(formatted.Bytes())
+		return err
+	}
+	copyFlags.asJSON = true
 	var selected bytes.Buffer
 	outCmd := &cobra.Command{}
 	outCmd.SetOut(&selected)
@@ -183,10 +208,6 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 	raw := selected.Bytes()
 	// Result already contains provenance. --agent keeps the same items/checks
 	// shape and freshness/transport metadata rather than wrapping it again.
-	if flags.csv || flags.plain || flags.quiet {
-		_, e := cmd.OutOrStdout().Write(raw)
-		return e
-	}
 	var compact bytes.Buffer
 	if e := json.Compact(&compact, raw); e != nil {
 		return e
