@@ -3,6 +3,7 @@
 Live scores, standings, news, and game history across 17 sports from ESPN
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@prashantkamani](https://github.com/prashantkamani) (Prashant Kamani).
 
 ## Install
 
