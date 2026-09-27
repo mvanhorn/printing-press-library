@@ -1,0 +1,601 @@
+{
+  "environment": {
+    "mode": "live_public_network",
+    "started_at_utc": "2026-09-27T15:28:04.546403+00:00",
+    "binary": "rakuten-travel-pp-cli",
+    "checkin": "2026-11-08",
+    "nights": 2
+  },
+  "runs": [
+    {
+      "name": "areas",
+      "arguments": [
+        "areas",
+        "list",
+        "--parent",
+        "tokyo"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1512,
+      "wall_seconds": 0.999995
+    },
+    {
+      "name": "keyword_ja",
+      "arguments": [
+        "hotels",
+        "search",
+        "--query",
+        "品川"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2884,
+      "wall_seconds": 0.951959
+    },
+    {
+      "name": "keyword_en",
+      "arguments": [
+        "hotels",
+        "search",
+        "--query",
+        "Shinagawa"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2598,
+      "wall_seconds": 0.488822
+    },
+    {
+      "name": "hotel_details",
+      "arguments": [
+        "hotels",
+        "show",
+        "--hotel",
+        "51870"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4379,
+      "wall_seconds": 1.513092
+    },
+    {
+      "name": "offers_base",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 9949,
+      "wall_seconds": 0.831263
+    },
+    {
+      "name": "offers_show",
+      "arguments": [
+        "offers",
+        "show",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--plan",
+        "3951989",
+        "--room",
+        "s-double-"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 12044,
+      "wall_seconds": 1.053524
+    },
+    {
+      "name": "offers_child",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--infant-none",
+        "1",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 10014,
+      "wall_seconds": 1.036668
+    },
+    {
+      "name": "offers_two_rooms",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "2",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 9942,
+      "wall_seconds": 0.785189
+    },
+    {
+      "name": "paging_first",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2911,
+      "wall_seconds": 0.917754
+    },
+    {
+      "name": "paging_offset",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "1",
+        "--page",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2912,
+      "wall_seconds": 0.821633
+    },
+    {
+      "name": "paging_source_tail",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "1",
+        "--offset",
+        "15"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2922,
+      "wall_seconds": 0.783382
+    },
+    {
+      "name": "paging_source_next",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "1",
+        "--page",
+        "2",
+        "--offset",
+        "0"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2913,
+      "wall_seconds": 0.762498
+    },
+    {
+      "name": "compare",
+      "arguments": [
+        "compare",
+        "--hotels",
+        "51870,72056",
+        "--checkins",
+        "2026-11-08,2026-11-09",
+        "--nights",
+        "2",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 11748,
+      "wall_seconds": 3.72695
+    },
+    {
+      "name": "zero_keyword",
+      "arguments": [
+        "hotels",
+        "search",
+        "--query",
+        "CodexNoSuchRakutenProperty202609272328"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 864,
+      "wall_seconds": 0.562249
+    },
+    {
+      "name": "invalid_date_control",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-08",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 2,
+      "stdout_bytes": 0,
+      "wall_seconds": 0.019028
+    },
+    {
+      "name": "request_budget_control",
+      "arguments": [
+        "hotels",
+        "show",
+        "--hotel",
+        "51870",
+        "--max-requests",
+        "1",
+        "--no-cache"
+      ],
+      "exit_code": 5,
+      "stdout_bytes": 0,
+      "wall_seconds": 1.012908
+    }
+  ],
+  "assertions": [
+    {
+      "name": "areas_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "areas_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://travel.rakuten.co.jp/yado/tokyo/map.html', 'fetched_at': '2026-09-27T23:28:05.540782+08:00', 'observed_at': '2026-09-27T23:28:05.540782+08:00', 'cache_state': 'miss', 'cache_age_seconds': 0, 'cache_ttl_seconds': 86400}"
+    },
+    {
+      "name": "area_path_ids",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "keyword_ja_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "keyword_ja_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://kw.travel.rakuten.co.jp/keyword/Search.do?charset=utf-8&f_max=30&f_next=1&f_query=%E5%93%81%E5%B7%9D', 'fetched_at': '2026-09-27T23:28:06.485742+08:00', 'observed_at': '2026-09-27T23:28:06.485742+08:00', 'cache_state': 'miss', 'cache_age_seconds': 0, 'cache_ttl_seconds': 86400}"
+    },
+    {
+      "name": "keyword_ja_literal_query",
+      "passed": true,
+      "detail": "Japanese and English subsets need not contain identical hotels"
+    },
+    {
+      "name": "keyword_ja_actual_candidates",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "keyword_en_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "keyword_en_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://kw.travel.rakuten.co.jp/keyword/Search.do?charset=utf-8&f_max=30&f_next=1&f_query=Shinagawa', 'fetched_at': '2026-09-27T23:28:07.033312+08:00', 'observed_at': '2026-09-27T23:28:07.033312+08:00', 'cache_state': 'miss', 'cache_age_seconds': 0, 'cache_ttl_seconds': 86400}"
+    },
+    {
+      "name": "keyword_en_literal_query",
+      "passed": true,
+      "detail": "Japanese and English subsets need not contain identical hotels"
+    },
+    {
+      "name": "keyword_en_actual_candidates",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hotel_details_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "hotel_details_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://travel.rakuten.co.jp/HOTEL/51870/51870.html', 'fetched_at': '2026-09-27T23:28:07.901474+08:00', 'observed_at': '2026-09-27T23:28:07.901474+08:00', 'cache_state': 'miss', 'cache_age_seconds': 0, 'cache_ttl_seconds': 86400}"
+    },
+    {
+      "name": "hotel_details_content",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "offers_base_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "offers_base_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=1&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=0', 'fetched_at': '2026-09-27T23:28:09.877596+08:00', 'observed_at': '2026-09-27T23:28:09.877596+08:00', 'cache_state': 'disabled', 'cache_age_seconds': 0, 'cache_ttl_seconds': 0}"
+    },
+    {
+      "name": "actual_dated_inventory",
+      "passed": true,
+      "detail": "Empty inventory cannot satisfy the actual-offer assertion"
+    },
+    {
+      "name": "base_identity_and_query",
+      "passed": true,
+      "detail": "{'hotel_id': '51870', 'checkin': '2026-11-08', 'checkout': '2026-11-10', 'rooms': 1, 'adults_per_room': 2, 'children_per_room': {'child_upper': 0, 'child_lower': 0, 'infant_meal_bed': 0, 'infant_meal': 0, 'infant_bed': 0, 'infant_none': 0}, 'page': 1, 'offset': 0, 'limit': 5}"
+    },
+    {
+      "name": "base_whole_stay_per_room_price",
+      "passed": true,
+      "detail": "{'currency': 'JPY', 'per_room_whole_stay_jpy': 20720, 'per_person_whole_stay_jpy': 10360, 'consumption_tax': 'included', 'accommodation_tax': 'unknown', 'other_taxes': 'unknown', 'optional_fees': 'unknown', 'source_label': '大人2人 ／2泊の料金 (税込) （ 内訳を見る）'}"
+    },
+    {
+      "name": "base_dated_room_handoff",
+      "passed": true,
+      "detail": "https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=1&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=0#3951989-s-double-"
+    },
+    {
+      "name": "offers_show_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "show_identity_and_query",
+      "passed": true,
+      "detail": "{'hotel_id': '51870', 'checkin': '2026-11-08', 'checkout': '2026-11-10', 'rooms': 1, 'adults_per_room': 2, 'children_per_room': {'child_upper': 0, 'child_lower': 0, 'infant_meal_bed': 0, 'infant_meal': 0, 'infant_bed': 0, 'infant_none': 0}, 'page': 1, 'offset': 0, 'limit': 100}"
+    },
+    {
+      "name": "show_whole_stay_per_room_price",
+      "passed": true,
+      "detail": "{'currency': 'JPY', 'per_room_whole_stay_jpy': 20720, 'per_person_whole_stay_jpy': 10360, 'consumption_tax': 'included', 'accommodation_tax': 'unknown', 'other_taxes': 'unknown', 'optional_fees': 'unknown', 'source_label': '大人2人 ／2泊の料金 (税込) （ 内訳を見る）'}"
+    },
+    {
+      "name": "show_dated_room_handoff",
+      "passed": true,
+      "detail": "https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=1&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=0#3951989-s-double-"
+    },
+    {
+      "name": "show_exact_tuple",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "show_property_policy_scope",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "offers_child_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "offers_child_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=1&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=1', 'fetched_at': '2026-09-27T23:28:12.136501+08:00', 'observed_at': '2026-09-27T23:28:12.136501+08:00', 'cache_state': 'disabled', 'cache_age_seconds': 0, 'cache_ttl_seconds': 0}"
+    },
+    {
+      "name": "offers_child_identity_and_query",
+      "passed": true,
+      "detail": "{'hotel_id': '51870', 'checkin': '2026-11-08', 'checkout': '2026-11-10', 'rooms': 1, 'adults_per_room': 2, 'children_per_room': {'child_upper': 0, 'child_lower': 0, 'infant_meal_bed': 0, 'infant_meal': 0, 'infant_bed': 0, 'infant_none': 1}, 'page': 1, 'offset': 0, 'limit': 5}"
+    },
+    {
+      "name": "offers_child_whole_stay_per_room_price",
+      "passed": true,
+      "detail": "{'currency': 'JPY', 'per_room_whole_stay_jpy': 20720, 'per_person_whole_stay_jpy': None, 'consumption_tax': 'included', 'accommodation_tax': 'unknown', 'other_taxes': 'unknown', 'optional_fees': 'unknown', 'source_label': '大人2人 ・子供1人 ／2泊の料金 (税込) （ 内訳を見る）'}"
+    },
+    {
+      "name": "offers_child_dated_room_handoff",
+      "passed": true,
+      "detail": "https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=1&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=1#3951989-s-double-"
+    },
+    {
+      "name": "offers_two_rooms_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "offers_two_rooms_source_observation",
+      "passed": true,
+      "detail": "{'name': 'Rakuten Travel', 'url': 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=2&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=0', 'fetched_at': '2026-09-27T23:28:12.929316+08:00', 'observed_at': '2026-09-27T23:28:12.929316+08:00', 'cache_state': 'disabled', 'cache_age_seconds': 0, 'cache_ttl_seconds': 0}"
+    },
+    {
+      "name": "offers_two_rooms_identity_and_query",
+      "passed": true,
+      "detail": "{'hotel_id': '51870', 'checkin': '2026-11-08', 'checkout': '2026-11-10', 'rooms': 2, 'adults_per_room': 2, 'children_per_room': {'child_upper': 0, 'child_lower': 0, 'infant_meal_bed': 0, 'infant_meal': 0, 'infant_bed': 0, 'infant_none': 0}, 'page': 1, 'offset': 0, 'limit': 5}"
+    },
+    {
+      "name": "offers_two_rooms_whole_stay_per_room_price",
+      "passed": true,
+      "detail": "{'currency': 'JPY', 'per_room_whole_stay_jpy': 20720, 'per_person_whole_stay_jpy': 10360, 'consumption_tax': 'included', 'accommodation_tax': 'unknown', 'other_taxes': 'unknown', 'optional_fees': 'unknown', 'source_label': '大人2人 ／2泊の料金 (税込) （ 内訳を見る）'}"
+    },
+    {
+      "name": "offers_two_rooms_dated_room_handoff",
+      "passed": true,
+      "detail": "https://hotel.travel.rakuten.co.jp/hotelinfo/plan/51870?f_flg=PLAN&f_heya_su=2&f_hi1=8&f_hi2=10&f_nen1=2026&f_nen2=2026&f_otona_su=2&f_page_no=1&f_s1=0&f_s2=0&f_tuki1=11&f_tuki2=11&f_y1=0&f_y2=0&f_y3=0&f_y4=0#3951989-ns-semi-db"
+    },
+    {
+      "name": "paging_first_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "within_page_continuation_available",
+      "passed": true,
+      "detail": "{'source_page': 1, 'source_unit': 'plans', 'offset': 0, 'limit': 1, 'source_items_seen': 8, 'rows_seen': 16, 'rows_scanned': 60, 'emitted': 1, 'source_total': 16, 'has_more': True, 'next_page': 1, 'next_offset': 1, 'coverage': 'within_source_page'}"
+    },
+    {
+      "name": "paging_offset_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "within_page_followed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "paging_source_tail_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "source_page_continuation_available",
+      "passed": true,
+      "detail": "{'source_page': 1, 'source_unit': 'plans', 'offset': 15, 'limit': 1, 'source_items_seen': 8, 'rows_seen': 16, 'rows_scanned': 60, 'emitted': 1, 'source_total': 16, 'has_more': True, 'next_page': 2, 'next_offset': 0, 'coverage': 'source_page_with_more'}"
+    },
+    {
+      "name": "paging_source_next_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "source_page_followed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "compare_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "compare_complete_bounded_matrix",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "compare_failures_preserved",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "compare_actual_available_cell",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "compare_cell_0_status_price",
+      "passed": true,
+      "detail": "ok"
+    },
+    {
+      "name": "compare_cell_1_status_price",
+      "passed": true,
+      "detail": "ok"
+    },
+    {
+      "name": "compare_cell_2_status_price",
+      "passed": true,
+      "detail": "ok"
+    },
+    {
+      "name": "compare_cell_3_status_price",
+      "passed": true,
+      "detail": "ok"
+    },
+    {
+      "name": "zero_keyword_json_envelope",
+      "passed": true,
+      "detail": "exit=0"
+    },
+    {
+      "name": "zero_results_are_successful_empty_array",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "invalid_date_usage_error",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "request_failure_is_not_empty_inventory",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "passed": true,
+  "evidence_note": "Read-only live semantic results. Raw diagnostic transcripts are retained locally rather than published."
+}

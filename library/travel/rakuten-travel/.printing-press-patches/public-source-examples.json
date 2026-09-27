@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "public-source-examples",
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-220715-9b0c397a",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve explicit, supported public-source example inputs and keep structured area/hotel discovery help actionable while raw routes stay hidden.",
+  "reason": "Anonymous keyword searches require a nonempty literal query; invoking the raw route without one produces a source error. Property and directory routes require real source positional identifiers, and dated plan examples must retain the actual supported date/party flags rather than invented shortcuts; refresh sample dates from current evidence on reprint.",
+  "files": [
+    "internal/cli/public_source_examples.go",
+    "internal/cli/public_source_examples_test.go",
+    "internal/cli/public_areas.go",
+    "internal/cli/public_hotels.go"
+  ],
+  "call_sites": [
+    "cmd.Annotations[\"pp:happy-args\"] = sample.happyArgs"
+  ],
+  "validated_outcome": "Offline tests confirm each raw example renders in help, every happy-args token names an existing flag or positional label, keyword specifies a literal query and bounded page size, parent group examples exist, and raw root commands remain hidden."
+}

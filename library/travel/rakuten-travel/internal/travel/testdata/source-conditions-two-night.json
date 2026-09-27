@@ -1,0 +1,130 @@
+{
+  "callback": [
+    ""
+  ],
+  "f_all": [
+    ""
+  ],
+  "f_camp_id": [
+    ""
+  ],
+  "f_city": [
+    ""
+  ],
+  "f_clip_flg": [
+    ""
+  ],
+  "f_custom_code": [
+    ""
+  ],
+  "f_flg": [
+    "PLAN"
+  ],
+  "f_hak": [
+    ""
+  ],
+  "f_heya_su": [
+    "1"
+  ],
+  "f_hi1": [
+    "8"
+  ],
+  "f_hi2": [
+    "10"
+  ],
+  "f_hizuke": [
+    ""
+  ],
+  "f_kin": [
+    ""
+  ],
+  "f_kin2": [
+    ""
+  ],
+  "f_max_count": [
+    ""
+  ],
+  "f_nen1": [
+    "2026"
+  ],
+  "f_nen2": [
+    "2026"
+  ],
+  "f_no": [
+    "51870"
+  ],
+  "f_otona_su": [
+    "2"
+  ],
+  "f_p_no": [
+    ""
+  ],
+  "f_rm_bed": [],
+  "f_rm_cond": [],
+  "f_rm_equip": [
+    ""
+  ],
+  "f_rm_type": [],
+  "f_s1": [
+    "0"
+  ],
+  "f_s2": [
+    "0"
+  ],
+  "f_search_type": [
+    ""
+  ],
+  "f_service": null,
+  "f_sort_type": [
+    ""
+  ],
+  "f_squeezes": [],
+  "f_static": [
+    "0"
+  ],
+  "f_syu": [
+    ""
+  ],
+  "f_teikei": [
+    ""
+  ],
+  "f_tel": [
+    ""
+  ],
+  "f_thick": [
+    ""
+  ],
+  "f_tscm_flg": [
+    ""
+  ],
+  "f_tuki1": [
+    "11"
+  ],
+  "f_tuki2": [
+    "11"
+  ],
+  "f_union_list_flg": [
+    ""
+  ],
+  "f_version": [
+    "1"
+  ],
+  "f_y1": [
+    "0"
+  ],
+  "f_y2": [
+    "0"
+  ],
+  "f_y3": [
+    "0"
+  ],
+  "f_y4": [
+    "0"
+  ],
+  "isDated": true,
+  "isDayuse": false,
+  "isHotelFixed": true,
+  "send": [
+    ""
+  ]
+}

@@ -1,0 +1,274 @@
+{
+  "api_name": "rakuten-travel",
+  "base_url": "https://travel.rakuten.co.jp",
+  "description": "Inspect real Japan room offers with explicit dates, party and price units.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "text/html,application/xhtml+xml"
+    }
+  ],
+  "tools": [
+    {
+      "name": "h_o_t_e_l_get_51870.html",
+      "description": "Fetch public hotel page metadata and bounded links. Required: hotel_id. Returns the html.",
+      "method": "GET",
+      "path": "/HOTEL/{hotel_id}/{hotel_id}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hotel identifier repeated in both path segments; public-sample-3 uses /HOTEL/51870/51870.html",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "h_o_t_e_l_get_facilities_policies",
+      "description": "Fetch public hotel facilities and policies page metadata and bounded links. Required: hotel_id. Returns the html.",
+      "method": "GET",
+      "path": "/HOTEL/{hotel_id}/{hotel_id}_std.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hotel identifier repeated in both path segments; public-sample-3 links to /HOTEL/51870/51870_std.html",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hotelinfo_get_plan",
+      "description": "Fetch public hotel plan page metadata and bounded links. Required: hotel_id. Optional: f_flg, rooms, checkin-day (plus 13 more). Returns the html.",
+      "method": "GET",
+      "path": "/hotelinfo/plan/{hotel_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "f_flg",
+          "type": "string",
+          "location": "query",
+          "description": "Raw plan-page view value; captured requests use PLAN, while public-sample-6/7 contain ROOM links and DAYUSE form inputs"
+        },
+        {
+          "name": "rooms",
+          "wire_name": "f_heya_su",
+          "type": "integer",
+          "location": "query",
+          "description": "Room count in the captured plan query and input id dh-room; public-sample-6/7 use 1"
+        },
+        {
+          "name": "checkin-day",
+          "wire_name": "f_hi1",
+          "type": "integer",
+          "location": "query",
+          "description": "Check-in day component in the captured plan query; public-sample-6/7 use 8"
+        },
+        {
+          "name": "checkout-day",
+          "wire_name": "f_hi2",
+          "type": "integer",
+          "location": "query",
+          "description": "Check-out day component in the captured plan query; public-sample-6 uses 9 and public-sample-7 uses 10"
+        },
+        {
+          "name": "checkin-year",
+          "wire_name": "f_nen1",
+          "type": "integer",
+          "location": "query",
+          "description": "Check-in year component in the captured plan query; public-sample-6/7 use 2026"
+        },
+        {
+          "name": "checkout-year",
+          "wire_name": "f_nen2",
+          "type": "integer",
+          "location": "query",
+          "description": "Check-out year component in the captured plan query; public-sample-6/7 use 2026"
+        },
+        {
+          "name": "adults-per-room",
+          "wire_name": "f_otona_su",
+          "type": "integer",
+          "location": "query",
+          "description": "Adult count in the captured plan query and form inputs; public-sample-6/7 requests use 2"
+        },
+        {
+          "name": "child-upper",
+          "wire_name": "f_s1",
+          "type": "integer",
+          "location": "query",
+          "description": "Child-count input named f_s1 with id dh-s1-r1 in public-sample-6/7; captured plan queries use 0"
+        },
+        {
+          "name": "child-lower",
+          "wire_name": "f_s2",
+          "type": "integer",
+          "location": "query",
+          "description": "Child-count input named f_s2 with id dh-s2-r1 in public-sample-6/7; captured plan queries use 0"
+        },
+        {
+          "name": "checkin-month",
+          "wire_name": "f_tuki1",
+          "type": "integer",
+          "location": "query",
+          "description": "Check-in month component in the captured plan query; public-sample-6/7 use 11"
+        },
+        {
+          "name": "checkout-month",
+          "wire_name": "f_tuki2",
+          "type": "integer",
+          "location": "query",
+          "description": "Check-out month component in the captured plan query; public-sample-6/7 use 11"
+        },
+        {
+          "name": "infant-meal-bed",
+          "wire_name": "f_y1",
+          "type": "integer",
+          "location": "query",
+          "description": "Child-count input named f_y1 with id dh-s3-r1 in public-sample-6/7; captured plan queries use 0"
+        },
+        {
+          "name": "infant-meal",
+          "wire_name": "f_y2",
+          "type": "integer",
+          "location": "query",
+          "description": "Child-count input named f_y2 with id dh-s4-r1 in public-sample-6/7; captured plan queries use 0"
+        },
+        {
+          "name": "infant-bed",
+          "wire_name": "f_y3",
+          "type": "integer",
+          "location": "query",
+          "description": "Child-count input named f_y3 with id dh-s5-r1 in public-sample-6/7; captured plan queries use 0"
+        },
+        {
+          "name": "infant-none",
+          "wire_name": "f_y4",
+          "type": "integer",
+          "location": "query",
+          "description": "Child-count input named f_y4 with id dh-s6-r1 in public-sample-6/7; captured plan queries use 0"
+        },
+        {
+          "name": "page",
+          "wire_name": "f_page_no",
+          "type": "integer",
+          "location": "query",
+          "description": "Page-number query field in public-sample-6/7 plan links; observed values are 1 on the ROOM link and 2 on the PLAN link"
+        },
+        {
+          "name": "hotel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Hotel identifier in the plan page path; public-sample-6/7 use /hotelinfo/plan/51870",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keyword_list__search.do",
+      "description": "Fetch public keyword search page metadata and bounded links. Optional: charset, page-size, query (plus 1 more). Returns the html.",
+      "method": "GET",
+      "path": "/keyword/Search.do",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "charset",
+          "type": "string",
+          "location": "query",
+          "description": "Character-encoding query value in capture-index.json; public-sample-4/5 requests use utf-8"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "f_max",
+          "type": "integer",
+          "location": "query",
+          "description": "Raw result-count query field and hidden input id IndicateNumber; public-sample-4/5 requests and public-sample-5 input use 3"
+        },
+        {
+          "name": "query",
+          "wire_name": "f_query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword text from the captured search request and input id fieldQuery; public-sample-4 uses 品川 and public-sample-5 uses Shinagawa"
+        },
+        {
+          "name": "page",
+          "wire_name": "f_next",
+          "type": "integer",
+          "location": "query",
+          "description": "Numbered-page query field in public-sample-5 keyword links; observed f_next values are 2, 3, and 4"
+        }
+      ]
+    },
+    {
+      "name": "yado_list__e.html",
+      "description": "Fetch public geographic directory page metadata and bounded links. Required: prefecture, area. Returns the html.",
+      "method": "GET",
+      "path": "/yado/{prefecture}/{area}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "prefecture",
+          "type": "string",
+          "location": "path",
+          "description": "Single prefecture path segment from public-sample-1/2 directory links, such as tokyo; omit slashes and the .html suffix",
+          "required": true
+        },
+        {
+          "name": "area",
+          "type": "string",
+          "location": "path",
+          "description": "Single directory page stem from public-sample-2 links, such as E; omit slashes and the .html suffix",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "yado_list_japan.html",
+      "description": "Fetch public Japan directory page metadata and bounded links. Returns the html.",
+      "method": "GET",
+      "path": "/yado/japan.html",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Date alternatives",
+      "command": "compare",
+      "description": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget."
+    },
+    {
+      "name": "Whole-stay quote evidence",
+      "command": "offers search",
+      "description": "Read source-labelled whole-stay room totals without extrapolating first-night prices."
+    },
+    {
+      "name": "Child-aware occupancy",
+      "command": "offers search",
+      "description": "Keep every child category and per-room party input intact."
+    },
+    {
+      "name": "Policy and fee inspection",
+      "command": "offers show",
+      "description": "Inspect property notes and safely associated cancellation terms for a shortlisted offer."
+    },
+    {
+      "name": "Exact offer handoff",
+      "command": "offers show",
+      "description": "Keep hotel, plan and room IDs attached to a canonical dated source link."
+    }
+  ]
+}

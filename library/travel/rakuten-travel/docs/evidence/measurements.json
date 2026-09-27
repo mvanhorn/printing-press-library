@@ -1,0 +1,252 @@
+{
+  "environment": {
+    "mode": "live_public_network",
+    "started_at_utc": "2026-09-27T15:25:15.177827+00:00",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.7",
+    "binary": "rakuten-travel-pp-cli",
+    "checkin": "2026-11-08",
+    "nights": 2,
+    "rss_scope": "individual CLI invocation including its child processes",
+    "network_scope": "actual outbound attempts reported by the public-source client",
+    "fixture_benchmark": false
+  },
+  "runs": [
+    {
+      "label": "metadata_cold",
+      "arguments": [
+        "hotels",
+        "show",
+        "--hotel",
+        "51870"
+      ],
+      "mode": "live_public_network",
+      "exit_code": 0,
+      "stdout_bytes": 4380,
+      "wall_seconds": 1.247104,
+      "network_requests": 2,
+      "retries": 0,
+      "response_bytes": 315083,
+      "cache_hits": 0,
+      "network_latency_ms": 1126,
+      "peak_rss_bytes": 37748736,
+      "peak_rss_raw": 37748736.0,
+      "peak_rss_raw_unit": "bytes",
+      "peak_rss_method": "/usr/bin/time -l",
+      "wall_includes_launcher_overhead": false,
+      "source": "live",
+      "source_cache_state": "miss",
+      "observed_at": "2026-09-27T23:25:16.099702+08:00",
+      "source_fetched_at": "2026-09-27T23:25:16.099702+08:00",
+      "result_status": "ok",
+      "emitted_rows": null
+    },
+    {
+      "label": "metadata_cache_hit",
+      "arguments": [
+        "hotels",
+        "show",
+        "--hotel",
+        "51870"
+      ],
+      "mode": "live_public_network",
+      "exit_code": 0,
+      "stdout_bytes": 4385,
+      "wall_seconds": 0.027201,
+      "network_requests": 0,
+      "retries": 0,
+      "response_bytes": 0,
+      "cache_hits": 2,
+      "network_latency_ms": 0,
+      "peak_rss_bytes": 33177600,
+      "peak_rss_raw": 33177600.0,
+      "peak_rss_raw_unit": "bytes",
+      "peak_rss_method": "/usr/bin/time -l",
+      "wall_includes_launcher_overhead": false,
+      "source": "local",
+      "source_cache_state": "hit",
+      "observed_at": "2026-09-27T23:25:16.099702+08:00",
+      "source_fetched_at": "2026-09-27T23:25:16.099702+08:00",
+      "result_status": "ok",
+      "emitted_rows": null
+    },
+    {
+      "label": "inventory_live",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "5",
+        "--no-cache"
+      ],
+      "mode": "live_public_network",
+      "exit_code": 0,
+      "stdout_bytes": 9950,
+      "wall_seconds": 1.061309,
+      "network_requests": 1,
+      "retries": 0,
+      "response_bytes": 702496,
+      "cache_hits": 0,
+      "network_latency_ms": 1019,
+      "peak_rss_bytes": 31408128,
+      "peak_rss_raw": 31408128.0,
+      "peak_rss_raw_unit": "bytes",
+      "peak_rss_method": "/usr/bin/time -l",
+      "wall_includes_launcher_overhead": false,
+      "source": "live",
+      "source_cache_state": "disabled",
+      "observed_at": "2026-09-27T23:25:18.481731+08:00",
+      "source_fetched_at": "2026-09-27T23:25:18.481731+08:00",
+      "result_status": "ok",
+      "emitted_rows": 5
+    },
+    {
+      "label": "inventory_explicit_cache_cold",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "5",
+        "--inventory-cache-seconds",
+        "60",
+        "--refresh"
+      ],
+      "mode": "live_public_network",
+      "exit_code": 0,
+      "stdout_bytes": 9949,
+      "wall_seconds": 0.722057,
+      "network_requests": 1,
+      "retries": 0,
+      "response_bytes": 702496,
+      "cache_hits": 0,
+      "network_latency_ms": 667,
+      "peak_rss_bytes": 33357824,
+      "peak_rss_raw": 33357824.0,
+      "peak_rss_raw_unit": "bytes",
+      "peak_rss_method": "/usr/bin/time -l",
+      "wall_includes_launcher_overhead": false,
+      "source": "live",
+      "source_cache_state": "refresh",
+      "observed_at": "2026-09-27T23:25:19.193815+08:00",
+      "source_fetched_at": "2026-09-27T23:25:19.193815+08:00",
+      "result_status": "ok",
+      "emitted_rows": 5
+    },
+    {
+      "label": "inventory_explicit_cache_hit",
+      "arguments": [
+        "offers",
+        "search",
+        "--hotel",
+        "51870",
+        "--checkin",
+        "2026-11-08",
+        "--checkout",
+        "2026-11-10",
+        "--rooms",
+        "1",
+        "--adults-per-room",
+        "2",
+        "--limit",
+        "5",
+        "--inventory-cache-seconds",
+        "60"
+      ],
+      "mode": "live_public_network",
+      "exit_code": 0,
+      "stdout_bytes": 9946,
+      "wall_seconds": 0.054208,
+      "network_requests": 0,
+      "retries": 0,
+      "response_bytes": 0,
+      "cache_hits": 1,
+      "network_latency_ms": 0,
+      "peak_rss_bytes": 26820608,
+      "peak_rss_raw": 26820608.0,
+      "peak_rss_raw_unit": "bytes",
+      "peak_rss_method": "/usr/bin/time -l",
+      "wall_includes_launcher_overhead": false,
+      "source": "local",
+      "source_cache_state": "hit",
+      "observed_at": "2026-09-27T23:25:19.193815+08:00",
+      "source_fetched_at": "2026-09-27T23:25:19.193815+08:00",
+      "result_status": "ok",
+      "emitted_rows": 5
+    }
+  ],
+  "assertions": [
+    {
+      "name": "metadata_cold_success_metrics",
+      "passed": true
+    },
+    {
+      "name": "metadata_cache_hit_success_metrics",
+      "passed": true
+    },
+    {
+      "name": "inventory_live_success_metrics",
+      "passed": true
+    },
+    {
+      "name": "inventory_explicit_cache_cold_success_metrics",
+      "passed": true
+    },
+    {
+      "name": "inventory_explicit_cache_hit_success_metrics",
+      "passed": true
+    },
+    {
+      "name": "metadata_cold_network_observed",
+      "passed": true
+    },
+    {
+      "name": "metadata_cache_hit_zero_network",
+      "passed": true
+    },
+    {
+      "name": "metadata_cache_hit_original_observation",
+      "passed": true
+    },
+    {
+      "name": "inventory_explicit_cache_cold_network_observed",
+      "passed": true
+    },
+    {
+      "name": "inventory_explicit_cache_hit_zero_network",
+      "passed": true
+    },
+    {
+      "name": "inventory_explicit_cache_hit_original_observation",
+      "passed": true
+    },
+    {
+      "name": "inventory_live_not_cached",
+      "passed": true
+    },
+    {
+      "name": "actual_inventory_measured",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

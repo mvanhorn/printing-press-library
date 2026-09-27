@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T16:07:30.143579Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "rakuten-travel",
+  "display_name": "Rakuten Travel",
+  "cli_name": "rakuten-travel-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "rakuten-travel-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:685b737350495fd3ec9b691c88e7787057c8fd37bb9c1dc4b5c6d33897eed8eb",
+  "run_id": "20260927-220715-9b0c397a",
+  "category": "travel",
+  "description": "Inspect real Japan room offers with explicit dates, party and price units.",
+  "mcp_binary": "rakuten-travel-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Date alternatives",
+      "command": "compare",
+      "description": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget."
+    },
+    {
+      "name": "Whole-stay quote evidence",
+      "command": "offers search",
+      "description": "Read source-labelled whole-stay room totals without extrapolating first-night prices."
+    },
+    {
+      "name": "Child-aware occupancy",
+      "command": "offers search",
+      "description": "Keep every child category and per-room party input intact."
+    },
+    {
+      "name": "Policy and fee inspection",
+      "command": "offers show",
+      "description": "Inspect property notes and safely associated cancellation terms for a shortlisted offer."
+    },
+    {
+      "name": "Exact offer handoff",
+      "command": "offers show",
+      "description": "Keep hotel, plan and room IDs attached to a canonical dated source link."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Date alternatives",
+      "command": "compare",
+      "description": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget."
+    },
+    {
+      "name": "Whole-stay quote evidence",
+      "command": "offers search",
+      "description": "Read source-labelled whole-stay room totals without extrapolating first-night prices."
+    },
+    {
+      "name": "Child-aware occupancy",
+      "command": "offers search",
+      "description": "Keep every child category and per-room party input intact."
+    },
+    {
+      "name": "Policy and fee inspection",
+      "command": "offers show",
+      "description": "Inspect property notes and safely associated cancellation terms for a shortlisted offer."
+    },
+    {
+      "name": "Exact offer handoff",
+      "command": "offers show",
+      "description": "Keep hotel, plan and room IDs attached to a canonical dated source link."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 15,
+    "total": 15,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

@@ -1,0 +1,16 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/rakuten-travel-pp-cli
+/rakuten-travel-pp-cli.exe
+/rakuten-travel-pp-mcp
+/rakuten-travel-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Local Printing Press run state, caches and built CLI
+.printing-press/
+bin/
+
+# Private review ledgers
+.printing-press-pii-polish.json
+.printing-press-tools-polish.json
