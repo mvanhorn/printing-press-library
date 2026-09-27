@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "tablecheck-render-scan-checks-and-live-read-guidance",
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-220537-e6065d2c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Render every availability check in native formats and keep raw-read recovery guidance actionable.",
+  "reason": "Availability envelopes contain competing arrays, so native output must select check rows explicitly while JSON retains the full envelope. Quiet output uses one slug per check and rejects selections that remove that identity. Raw local-store errors and staleness hints must direct users to supported live reads or the separate planning cache instead of the removed sync command.",
+  "files": [
+    "internal/cli/planning.go",
+    "internal/cli/planning_availability_output_test.go",
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_guidance_test.go",
+    "internal/cli/root.go",
+    "internal/cli/sync_hint.go",
+    "internal/cli/sync_hint_test.go"
+  ],
+  "validated_outcome": "Multi-venue/date native-format regressions, recovery guidance/error/provenance tests, full race tests, vet and both builds pass. Full live gate passes 87 mandatory checks; a two-day live scan matches JSON/CSV/plain/quiet, with zero requests and unchanged fetch timestamps on its final cached JSON read."
+}

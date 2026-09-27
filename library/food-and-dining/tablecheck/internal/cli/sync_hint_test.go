@@ -32,19 +32,19 @@ func newSyncHintTestCmd() (*cobra.Command, *bytes.Buffer) {
 	return cmd, &stderr
 }
 
-func requireSyncHintCommand(t *testing.T) {
+func requireRawReadRecoveryGuidance(t *testing.T) {
 	t.Helper()
-	if syncHintCommand == "" {
-		t.Skip("no working sync invocation")
+	if rawReadRecoveryGuidance == "" {
+		t.Skip("no raw-read recovery guidance")
 	}
 }
 
 func TestHintIfUnsynced_EmptySyncStateWritesHintToStderr(t *testing.T) {
-	if syncHintCommand == "" {
+	if rawReadRecoveryGuidance == "" {
 		db := newSyncHintTestStore(t)
 		cmd, stderr := newSyncHintTestCmd()
 		if hintIfUnsynced(cmd, db, "") {
-			t.Fatalf("hintIfUnsynced returned true when no working sync invocation exists")
+			t.Fatalf("hintIfUnsynced returned true when no raw-read recovery guidance exists")
 		}
 		if stderr.Len() != 0 {
 			t.Fatalf("stderr = %q, want no sync hint", stderr.String())
@@ -57,13 +57,13 @@ func TestHintIfUnsynced_EmptySyncStateWritesHintToStderr(t *testing.T) {
 	if !hintIfUnsynced(cmd, db, "") {
 		t.Fatalf("hintIfUnsynced returned false for empty sync_state")
 	}
-	if got := stderr.String(); !strings.Contains(got, "Run '"+syncHintCommand+"'") {
-		t.Fatalf("stderr = %q, want sync hint", got)
+	if got := stderr.String(); !strings.Contains(got, rawReadRecoveryGuidance) {
+		t.Fatalf("stderr = %q, want recovery guidance", got)
 	}
 }
 
 func TestHintIfStale_BackdatedSyncStateWritesHintToStderr(t *testing.T) {
-	requireSyncHintCommand(t)
+	requireRawReadRecoveryGuidance(t)
 	db := newSyncHintTestStore(t)
 	if _, err := db.DB().Exec(
 		`INSERT INTO sync_state(resource_type, last_synced_at, total_count) VALUES (?, ?, ?)`,
@@ -80,8 +80,8 @@ func TestHintIfStale_BackdatedSyncStateWritesHintToStderr(t *testing.T) {
 		t.Fatalf("hintIfStale returned false for stale sync_state")
 	}
 	got := stderr.String()
-	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run '"+syncHintCommand+"'") {
-		t.Fatalf("stderr = %q, want stale sync hint", got)
+	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, rawReadRecoveryGuidance) {
+		t.Fatalf("stderr = %q, want stale recovery guidance", got)
 	}
 }
 
@@ -104,7 +104,7 @@ func TestHintIfStale_MaxAgeZeroDisablesHint(t *testing.T) {
 }
 
 func TestHintIfUnsynced_NullTimestampWritesHint(t *testing.T) {
-	requireSyncHintCommand(t)
+	requireRawReadRecoveryGuidance(t)
 	db := newSyncHintTestStore(t)
 	if _, err := db.DB().Exec(
 		`INSERT INTO sync_state(resource_type, last_synced_at, total_count) VALUES (?, ?, ?)`,
@@ -123,7 +123,7 @@ func TestHintIfUnsynced_NullTimestampWritesHint(t *testing.T) {
 }
 
 func TestHintIfUnsynced_ZeroTimestampWritesHint(t *testing.T) {
-	requireSyncHintCommand(t)
+	requireRawReadRecoveryGuidance(t)
 	db := newSyncHintTestStore(t)
 	if _, err := db.DB().Exec(
 		`INSERT INTO sync_state(resource_type, last_synced_at, total_count) VALUES (?, ?, ?)`,
@@ -142,7 +142,7 @@ func TestHintIfUnsynced_ZeroTimestampWritesHint(t *testing.T) {
 }
 
 func TestHintIfStale_AllResourcesIgnoresNullTimestampRows(t *testing.T) {
-	requireSyncHintCommand(t)
+	requireRawReadRecoveryGuidance(t)
 	db := newSyncHintTestStore(t)
 	now := time.Now()
 	for _, row := range []struct {
@@ -173,7 +173,7 @@ func TestHintIfStale_AllResourcesIgnoresNullTimestampRows(t *testing.T) {
 }
 
 func TestHintIfStale_ResourceFilterUsesRequestedResource(t *testing.T) {
-	requireSyncHintCommand(t)
+	requireRawReadRecoveryGuidance(t)
 	db := newSyncHintTestStore(t)
 	now := time.Now()
 	for _, row := range []struct {

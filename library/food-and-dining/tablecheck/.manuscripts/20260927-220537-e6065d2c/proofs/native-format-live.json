@@ -1,0 +1,34 @@
+{
+  "status": "pass",
+  "venue": "sushi-tokyo81",
+  "from": "2026-09-30",
+  "to": "2026-10-01",
+  "party": 2,
+  "rows_per_format": 2,
+  "formats": [
+    "json",
+    "csv",
+    "plain",
+    "quiet"
+  ],
+  "checked_fields": [
+    "slug",
+    "date",
+    "party",
+    "status"
+  ],
+  "json_request_count": 2,
+  "final_json_request_count": 0,
+  "fetch_timestamps_unchanged": true,
+  "output_bytes": {
+    "json": 3982,
+    "csv": 2549,
+    "csv_selected": 97,
+    "plain": 2549,
+    "plain_selected": 97,
+    "quiet": 28,
+    "quiet_selected": 28,
+    "json_after_formats": 3972
+  },
+  "method": "One bounded two-day live scan followed by native-format reads using the same isolated cache; CSV/plain rows and quiet identities match the JSON observation. Temporary cache deleted."
+}

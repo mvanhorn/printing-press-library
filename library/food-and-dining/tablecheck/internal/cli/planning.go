@@ -187,12 +187,31 @@ func planningPrint(cmd *cobra.Command, flags *rootFlags, result planner.Result) 
 	}
 	copyFlags.selectFields = strings.Join(selectedPaths, ",")
 	if copyFlags.csv || copyFlags.plain || copyFlags.quiet {
+		nativeResult := result
+		if checks, ok := result["checks"]; ok {
+			// Availability envelopes also carry venue and failure arrays. Native
+			// formats deliberately expose one row per check, including failures.
+			if copyFlags.quiet && copyFlags.selectFields != "" {
+				retainSlug := false
+				for _, path := range selectedPaths {
+					if strings.EqualFold(path, "checks.slug") || strings.EqualFold(path, "checks") {
+						retainSlug = true
+						break
+					}
+				}
+				if !retainSlug {
+					return usageErr(&planner.ValidationError{Message: "availability --quiet selection must retain checks.slug or checks"})
+				}
+			}
+			// Retain the checks parent so dotted --select paths remain valid.
+			nativeResult = planner.Result{"checks": checks}
+		}
 		// Delegate these modes to the native format renderer. Keep a final
 		// checked write: native CSV/plain helpers do not propagate writer errors.
 		var formatted bytes.Buffer
 		formatCmd := &cobra.Command{}
 		formatCmd.SetOut(&formatted)
-		if err := copyFlags.printJSON(formatCmd, result); err != nil {
+		if err := copyFlags.printJSON(formatCmd, nativeResult); err != nil {
 			return usageErr(err)
 		}
 		_, err := cmd.OutOrStdout().Write(formatted.Bytes())

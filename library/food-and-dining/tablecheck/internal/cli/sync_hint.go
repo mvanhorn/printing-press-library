@@ -15,8 +15,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const syncHintCommand = "tablecheck-pp-cli sync --resources source,source-shop-search"
-
 type syncHintState struct {
 	hasState   bool
 	lastSynced time.Time
@@ -30,7 +28,7 @@ func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string
 }
 
 func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge time.Duration) {
-	if syncHintCommand == "" {
+	if rawReadRecoveryGuidance == "" {
 		return
 	}
 	state, err := readSyncHintState(db, resourceType)
@@ -38,7 +36,7 @@ func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge tim
 		return
 	}
 	if !state.hasState {
-		fmt.Fprintf(w, "hint: local store has not been synced yet. Run '%s' before trusting local results.\n", syncHintCommand)
+		fmt.Fprintf(w, "hint: local store has not been synced yet. %s\n", rawReadRecoveryGuidance)
 		return
 	}
 	if maxAge <= 0 {
@@ -48,23 +46,23 @@ func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge tim
 	if age <= maxAge {
 		return
 	}
-	fmt.Fprintf(w, "hint: local store data is %s old, older than --max-age=%s. Run '%s' to refresh.\n", syncHintRoundAge(age), maxAge, syncHintCommand)
+	fmt.Fprintf(w, "hint: local store data is %s old, older than --max-age=%s. %s\n", syncHintRoundAge(age), maxAge, rawReadRecoveryGuidance)
 }
 
 func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bool {
-	if syncHintCommand == "" || cmd == nil || db == nil {
+	if rawReadRecoveryGuidance == "" || cmd == nil || db == nil {
 		return false
 	}
 	state, err := readSyncHintState(db, resourceType)
 	if err != nil || state.hasState {
 		return false
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local store has not been synced yet. Run '%s' before trusting local results.\n", syncHintCommand)
+	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local store has not been synced yet. %s\n", rawReadRecoveryGuidance)
 	return true
 }
 
 func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) bool {
-	if syncHintCommand == "" || cmd == nil || db == nil || maxAge <= 0 {
+	if rawReadRecoveryGuidance == "" || cmd == nil || db == nil || maxAge <= 0 {
 		return false
 	}
 	state, err := readSyncHintState(db, resourceType)
@@ -75,7 +73,7 @@ func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAg
 	if age <= maxAge {
 		return false
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local store data is %s old, older than --max-age=%s. Run '%s' to refresh.\n", syncHintRoundAge(age), maxAge, syncHintCommand)
+	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local store data is %s old, older than --max-age=%s. %s\n", syncHintRoundAge(age), maxAge, rawReadRecoveryGuidance)
 	return true
 }
 

@@ -25,6 +25,8 @@ import (
 
 const networkFallbackReason = "api_unreachable"
 
+const rawReadRecoveryGuidance = "Retry this raw read with --data-source live when the API is reachable. For availability planning, use 'availability check' or 'availability scan' with --refresh; their freshness-aware cache is separate from this raw local store."
+
 type liveAllRejectReason string
 
 const (
@@ -240,7 +242,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		// Network error — try local fallback
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'tablecheck-pp-cli sync --resources source,source-shop-search' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. %s\n\nOriginal error: %w", rawReadRecoveryGuidance, err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -338,7 +340,7 @@ func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client
 		}
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'tablecheck-pp-cli sync --resources source,source-shop-search' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. %s\n\nOriginal error: %w", rawReadRecoveryGuidance, err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -722,10 +724,10 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "tablecheck-pp-cli")
 	if err != nil {
-		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'tablecheck-pp-cli sync --resources source,source-shop-search' first.", err)
+		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\n%s", err, rawReadRecoveryGuidance)
 	}
 	if db == nil {
-		return nil, DataProvenance{}, fmt.Errorf("no local data. Run 'tablecheck-pp-cli sync --resources source,source-shop-search' first")
+		return nil, DataProvenance{}, fmt.Errorf("no local data. %s", rawReadRecoveryGuidance)
 	}
 	defer db.Close()
 
@@ -748,7 +750,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 			fmt.Fprintf(warnWriter, "warning: %s\n", typedHint)
 		}
 		if !sawValid {
-			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'tablecheck-pp-cli sync --resources source,source-shop-search' first", resourceType)
+			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. %s", resourceType, rawReadRecoveryGuidance)
 		}
 		if len(unsupported) > 0 {
 			warnWriter := hintWriter
@@ -773,7 +775,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	item, err := db.Get(resourceType, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'tablecheck-pp-cli sync --resources source,source-shop-search' first", resourceType, id)
+			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. %s", resourceType, id, rawReadRecoveryGuidance)
 		}
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 	}

@@ -59,6 +59,8 @@ Planning commands emit compact JSON by default. Diagnostics go to stderr. IDs, J
 ./tablecheck-pp-cli courses get sushi-tokyo81 68da546fcde865308c33e7f9
 ```
 
+Availability CSV/plain output contains one row per venue/date check, including failed checks. Select row fields with paths such as `checks.slug,checks.date,checks.status`. `--quiet` emits one slug per check, so multi-day scans repeat slugs; an explicit selection must retain `checks.slug` or all of `checks`. Use the default JSON for complete status, slots and freshness.
+
 Availability and course eligibility are separate evidence. A listed restaurant or course does not prove it can be booked for the requested party and time. A venue slot does not identify which course can be booked. Static request/waitlist policy text is not a live request or waitlist result.
 
 Explicit available, unavailable, closed, unknown and failed observations retain their source evidence. Sold-out, unpublished, request and waitlist interpretations require explicit source evidence; missing inventory is not sold out. Unrecognized source statuses remain unknown. Scans retain failed and empty days rather than silently dropping them.
