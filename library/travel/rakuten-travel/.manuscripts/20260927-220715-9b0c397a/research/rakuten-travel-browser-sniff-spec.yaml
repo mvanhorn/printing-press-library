@@ -1,0 +1,320 @@
+name: rakuten-travel
+description: Public Rakuten Travel HTML routes from captured anonymous requests
+category: travel
+cli_description: "Inspect real Japan room offers with explicit dates, party and price units."
+version: 0.1.0
+base_url: https://travel.rakuten.co.jp
+spec_source: sniffed
+learn:
+    disabled: true
+mcp:
+    transport: [stdio]
+    endpoint_tools: hidden
+cache:
+    enabled: false
+required_headers:
+    - name: Accept
+      value: text/html,application/xhtml+xml
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "f_query" from query: search input'
+config:
+    format: toml
+    path: ~/.config/rakuten-travel-pp-cli/config.toml
+resources:
+    HOTEL:
+        description: Public hotel property pages
+        endpoints:
+            get_51870.html:
+                method: GET
+                path: /HOTEL/{hotel_id}/{hotel_id}.html
+                description: Fetch public hotel page metadata and bounded links
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Hotel identifier repeated in both path segments; public-sample-3 uses /HOTEL/51870/51870.html
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            get_facilities_policies:
+                method: GET
+                path: /HOTEL/{hotel_id}/{hotel_id}_std.html
+                description: Fetch public hotel facilities and policies page metadata and bounded links
+                params:
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Hotel identifier repeated in both path segments; public-sample-3 links to /HOTEL/51870/51870_std.html
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    hotelinfo:
+        description: Public hotel plan pages
+        endpoints:
+            get_plan:
+                method: GET
+                path: /hotelinfo/plan/{hotel_id}
+                base_url: https://hotel.travel.rakuten.co.jp
+                description: Fetch public hotel plan page metadata and bounded links
+                params:
+                    - name: f_flg
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Raw plan-page view value; captured requests use PLAN, while public-sample-6/7 contain ROOM links and DAYUSE form inputs
+                      fields: []
+                    - name: f_heya_su
+                      flag_name: rooms
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Room count in the captured plan query and input id dh-room; public-sample-6/7 use 1
+                      fields: []
+                    - name: f_hi1
+                      flag_name: checkin-day
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Check-in day component in the captured plan query; public-sample-6/7 use 8
+                      fields: []
+                    - name: f_hi2
+                      flag_name: checkout-day
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Check-out day component in the captured plan query; public-sample-6 uses 9 and public-sample-7 uses 10
+                      fields: []
+                    - name: f_nen1
+                      flag_name: checkin-year
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Check-in year component in the captured plan query; public-sample-6/7 use 2026
+                      fields: []
+                    - name: f_nen2
+                      flag_name: checkout-year
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Check-out year component in the captured plan query; public-sample-6/7 use 2026
+                      fields: []
+                    - name: f_otona_su
+                      flag_name: adults-per-room
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Adult count in the captured plan query and form inputs; public-sample-6/7 requests use 2
+                      fields: []
+                    - name: f_s1
+                      flag_name: child-upper
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Child-count input named f_s1 with id dh-s1-r1 in public-sample-6/7; captured plan queries use 0
+                      fields: []
+                    - name: f_s2
+                      flag_name: child-lower
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Child-count input named f_s2 with id dh-s2-r1 in public-sample-6/7; captured plan queries use 0
+                      fields: []
+                    - name: f_tuki1
+                      flag_name: checkin-month
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Check-in month component in the captured plan query; public-sample-6/7 use 11
+                      fields: []
+                    - name: f_tuki2
+                      flag_name: checkout-month
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Check-out month component in the captured plan query; public-sample-6/7 use 11
+                      fields: []
+                    - name: f_y1
+                      flag_name: infant-meal-bed
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Child-count input named f_y1 with id dh-s3-r1 in public-sample-6/7; captured plan queries use 0
+                      fields: []
+                    - name: f_y2
+                      flag_name: infant-meal
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Child-count input named f_y2 with id dh-s4-r1 in public-sample-6/7; captured plan queries use 0
+                      fields: []
+                    - name: f_y3
+                      flag_name: infant-bed
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Child-count input named f_y3 with id dh-s5-r1 in public-sample-6/7; captured plan queries use 0
+                      fields: []
+                    - name: f_y4
+                      flag_name: infant-none
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Child-count input named f_y4 with id dh-s6-r1 in public-sample-6/7; captured plan queries use 0
+                      fields: []
+                    - name: f_page_no
+                      flag_name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Page-number query field in public-sample-6/7 plan links; observed values are 1 on the ROOM link and 2 on the PLAN link
+                      fields: []
+                    - name: hotel_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Hotel identifier in the plan page path; public-sample-6/7 use /hotelinfo/plan/51870
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    keyword:
+        description: Public keyword search pages
+        endpoints:
+            list_Search.do:
+                method: GET
+                path: /keyword/Search.do
+                base_url: https://kw.travel.rakuten.co.jp
+                description: Fetch public keyword search page metadata and bounded links
+                params:
+                    - name: charset
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Character-encoding query value in capture-index.json; public-sample-4/5 requests use utf-8
+                      fields: []
+                    - name: f_max
+                      flag_name: page-size
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Raw result-count query field and hidden input id IndicateNumber; public-sample-4/5 requests and public-sample-5 input use 3
+                      fields: []
+                    - name: f_query
+                      flag_name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Keyword text from the captured search request and input id fieldQuery; public-sample-4 uses 品川 and public-sample-5 uses Shinagawa
+                      fields: []
+                    - name: f_next
+                      flag_name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Numbered-page query field in public-sample-5 keyword links; observed f_next values are 2, 3, and 4
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    yado:
+        description: Public geographic hotel directories
+        endpoints:
+            list_E.html:
+                method: GET
+                path: /yado/{prefecture}/{area}.html
+                description: Fetch public geographic directory page metadata and bounded links
+                params:
+                    - name: prefecture
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Single prefecture path segment from public-sample-1/2 directory links, such as tokyo; omit slashes and the .html suffix
+                      fields: []
+                    - name: area
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: Single directory page stem from public-sample-2 links, such as E; omit slashes and the .html suffix
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_japan.html:
+                method: GET
+                path: /yado/japan.html
+                description: Fetch public Japan directory page metadata and bounded links
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

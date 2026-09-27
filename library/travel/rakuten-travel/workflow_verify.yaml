@@ -1,0 +1,40 @@
+# The observed Printing Press runner executes command text and substitutes
+# ${variables} there; it does not consume step.args. Flags are embedded here.
+# expect_fields checks only top-level presence. Missing extracted variables can
+# be skipped without failing the runner verdict, so acceptance must require all
+# steps to pass with no skipped-no-input and run scripts/live_verify.py for
+# nonempty actual-offer, identity, price-unit and query semantic assertions.
+workflows:
+  - name: Inspect an actual dated room tuple
+    primary: true
+    steps:
+      - command: "hotels show --hotel=51870 --max-requests=6"
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+        extract:
+          hotel_id: "$.results.hotel_id"
+      - command: "offers search --hotel=${hotel_id} --checkin=2026-11-08 --checkout=2026-11-10 --rooms=1 --adults-per-room=2 --limit=1 --max-requests=3"
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+        extract:
+          plan_id: "$.results[0].plan_id"
+          room_id: "$.results[0].room_id"
+      - command: "offers show --hotel=${hotel_id} --plan=${plan_id} --room=${room_id} --checkin=2026-11-08 --checkout=2026-11-10 --rooms=1 --adults-per-room=2 --max-scan-pages=1 --max-requests=6"
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+  - name: Resolve a literal property candidate and inspect it
+    primary: false
+    steps:
+      - command: "hotels search --query=品川 --limit=1 --max-requests=3"
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+        extract:
+          candidate_id: "$.results[0].hotel_id"
+      - command: "hotels show --hotel=${candidate_id} --max-requests=6"
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]

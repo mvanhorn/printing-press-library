@@ -1,0 +1,185 @@
+{
+  "api_name": "rakuten-travel",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "rakuten-mcp",
+      "url": "https://github.com/mrslbt/rakuten-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rakuten_travel_mcp",
+      "url": "https://github.com/hirochachacha/rakuten_travel_mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rakuten-travel-skill",
+      "url": "https://github.com/Tomatio13/Temple-of-Skills/tree/main/rakuten-travel-skill",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:44:13.207939Z",
+  "novel_features": [
+    {
+      "name": "Date alternatives",
+      "command": "compare",
+      "description": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli compare --hotels 51870 --checkins 2026-11-08,2026-11-09 --nights 2 --rooms 1 --adults-per-room 2",
+      "why_it_matters": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Whole-stay quote evidence",
+      "command": "offers search",
+      "description": "Read source-labelled whole-stay room totals without extrapolating first-night prices.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers search --hotel 51870 --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2 --limit 3",
+      "why_it_matters": "Read source-labelled whole-stay room totals without extrapolating first-night prices.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Child-aware occupancy",
+      "command": "offers search",
+      "description": "Keep every child category and per-room party input intact.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers search --hotel 51870 --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2 --infant-none 1 --limit 3",
+      "why_it_matters": "Keep every child category and per-room party input intact.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Policy and fee inspection",
+      "command": "offers show",
+      "description": "Inspect property notes and safely associated cancellation terms for a shortlisted offer.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers show --hotel 51870 --plan 3951989 --room s-double- --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2",
+      "why_it_matters": "Inspect property notes and safely associated cancellation terms for a shortlisted offer.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Exact offer handoff",
+      "command": "offers show",
+      "description": "Keep hotel, plan and room IDs attached to a canonical dated source link.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers show --hotel 51870 --plan 3951989 --room s-double- --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2",
+      "why_it_matters": "Keep hotel, plan and room IDs attached to a canonical dated source link.",
+      "group": "Focused stay decisions"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Date alternatives",
+      "command": "compare",
+      "description": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli compare --hotels 51870 --checkins 2026-11-08,2026-11-09 --nights 2 --rooms 1 --adults-per-room 2",
+      "why_it_matters": "Compare explicit hotel/date cells with fixed occupancy and a strict request budget.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Whole-stay quote evidence",
+      "command": "offers search",
+      "description": "Read source-labelled whole-stay room totals without extrapolating first-night prices.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers search --hotel 51870 --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2 --limit 3",
+      "why_it_matters": "Read source-labelled whole-stay room totals without extrapolating first-night prices.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Child-aware occupancy",
+      "command": "offers search",
+      "description": "Keep every child category and per-room party input intact.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers search --hotel 51870 --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2 --infant-none 1 --limit 3",
+      "why_it_matters": "Keep every child category and per-room party input intact.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Policy and fee inspection",
+      "command": "offers show",
+      "description": "Inspect property notes and safely associated cancellation terms for a shortlisted offer.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers show --hotel 51870 --plan 3951989 --room s-double- --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2",
+      "why_it_matters": "Inspect property notes and safely associated cancellation terms for a shortlisted offer.",
+      "group": "Focused stay decisions"
+    },
+    {
+      "name": "Exact offer handoff",
+      "command": "offers show",
+      "description": "Keep hotel, plan and room IDs attached to a canonical dated source link.",
+      "rationale": "Grounded in public Rakuten Travel source contracts and bounded request orchestration.",
+      "example": "rakuten-travel-pp-cli offers show --hotel 51870 --plan 3951989 --room s-double- --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2",
+      "why_it_matters": "Keep hotel, plan and room IDs attached to a canonical dated source link.",
+      "group": "Focused stay decisions"
+    }
+  ],
+  "narrative": {
+    "display_name": "Rakuten Travel",
+    "headline": "Inspect real Japan room offers with explicit dates, party and price units.",
+    "value_prop": "Search Rakuten Travel public pages, inspect property details and compare bounded date alternatives. Keep room and plan identities, source price labels and booking links intact.",
+    "auth_narrative": "The public website backend requires no API credentials or browser. The separately documented official APIs require an application ID and access key and are not used by these commands.",
+    "quickstart": [
+      {
+        "command": "rakuten-travel-pp-cli doctor --dry-run",
+        "comment": "Check local CLI wiring."
+      },
+      {
+        "command": "rakuten-travel-pp-cli hotels search --query 品川 --limit 3",
+        "comment": "Resolve source hotel IDs."
+      },
+      {
+        "command": "rakuten-travel-pp-cli offers search --hotel 51870 --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2 --limit 3",
+        "comment": "Inspect actual dated room offers."
+      }
+    ],
+    "when_to_use": "Use for Japan accommodation discovery and explicit date/party room-plan inspection on Rakuten Travel. Resolve candidates, inspect an offer, then hand off to Rakuten to book.",
+    "anti_triggers": [
+      "Booking or payment execution",
+      "Cross-provider accommodation comparisons",
+      "Unverified translated destination coverage"
+    ],
+    "recipes": [
+      {
+        "title": "Compact candidates",
+        "command": "rakuten-travel-pp-cli hotels search --query 品川 --limit 3 --agent --select results.hotel_id,results.name",
+        "explanation": "Resolve IDs with a bounded payload."
+      },
+      {
+        "title": "Property notes",
+        "command": "rakuten-travel-pp-cli hotels show --hotel 51870",
+        "explanation": "Inspect amenities, access and property fee notes."
+      },
+      {
+        "title": "Date alternatives",
+        "command": "rakuten-travel-pp-cli compare --hotels 51870 --checkins 2026-11-08,2026-11-09 --nights 2 --rooms 1 --adults-per-room 2",
+        "explanation": "Compare explicit equal-length stays with the same party."
+      }
+    ],
+    "trigger_phrases": [
+      "Find Rakuten Travel hotels",
+      "Inspect Rakuten room plans for these dates",
+      "Compare Rakuten stays across dates"
+    ]
+  }
+}
