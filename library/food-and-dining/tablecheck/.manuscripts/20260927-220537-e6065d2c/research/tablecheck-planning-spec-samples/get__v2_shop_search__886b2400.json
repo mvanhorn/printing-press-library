@@ -1,0 +1,414 @@
+{
+  "endpoint": "GET /v2/shop_search",
+  "method": "GET",
+  "raw_url": "https://production.tablecheck.com/v2/shop_search?shop_universe_id=57e0b91744aea12988000001&per_page=2&venue_type=tc&locale=en&geo_latitude=35.681236&geo_longitude=139.767125&geo_distance=3000&include_ids=true&sort_by=distance&service_mode=dining&cuisines%5B%5D=sushi&budget_dinner_avg_max=20000&date=2026-09-30&time=18%3A00&num_people=2&availability_mode=same_meal_time&availability_format=datetime",
+  "status": 200,
+  "request_headers": {
+    "Accept": "application/json",
+    "User-Agent": "TableCheck-public-contract-research/1.0"
+  },
+  "request_body": null,
+  "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+  },
+  "response_body": {
+    "meta": {
+      "last_page": false,
+      "record_count": 86,
+      "search_after": "WzU5Ny43NzMxNDYyODMxODQxLCJzdXNoaS1zaGlvbm8iXQ=="
+    },
+    "shops": [
+      {
+        "_id": "6a30b220f39baaa71b139acb",
+        "affluent_program_venue": false,
+        "availability": [
+          "2026-09-30T17:00:00+09:00",
+          "2026-09-30T17:30:00+09:00",
+          "2026-09-30T18:00:00+09:00",
+          "2026-09-30T18:30:00+09:00",
+          "2026-09-30T19:00:00+09:00",
+          "2026-09-30T19:30:00+09:00",
+          "2026-09-30T20:00:00+09:00",
+          "2026-09-30T20:30:00+09:00",
+          "2026-09-30T21:00:00+09:00"
+        ],
+        "availability_created_max": "2026-09-25T22:05:32.331+09:00",
+        "availability_created_min": "2026-09-25T22:05:32.331+09:00",
+        "availability_tc_points": {
+          "2026-09-30T17:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T17:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T18:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T18:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T19:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T19:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T20:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T20:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T21:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          }
+        },
+        "booking_page_mode": "v1",
+        "budget_avg": "12500.0",
+        "budget_dinner_avg": "12500.0",
+        "budget_dinner_max": "15000.0",
+        "budget_dinner_min": "10000.0",
+        "budget_lunch_avg": "12500.0",
+        "budget_lunch_max": "15000.0",
+        "budget_lunch_min": "10000.0",
+        "content_body_translations": [
+          {
+            "locale": "ja",
+            "translation": "「有楽町かきだ」が丸の内に新たに出店します。\r\nこだわりの1本買い本マグロや、全国各地から直接仕入れた鮮度抜群のネタを提供します。\r\n"
+          }
+        ],
+        "content_title_translations": [
+          {
+            "locale": "ja",
+            "translation": "本格寿司をもっと気軽に"
+          }
+        ],
+        "cuisines": [
+          "sushi"
+        ],
+        "currency": "JPY",
+        "default_locale": "ja",
+        "distance": 548.803826734148,
+        "enable_points_issuance": false,
+        "enable_points_redemption": true,
+        "express_booking_enabled": false,
+        "geocode": {
+          "lat": 35.6845047,
+          "lon": 139.7625724
+        },
+        "images": [
+          {
+            "caption": null,
+            "id": "6a66e19642694de8cf20756d",
+            "original": "https://cdn0.tablecheck.com/images/6a66e19642694de8cf20756d/images/original/fc7bd65c.jpg?1785127318",
+            "thumbnail": "https://cdn3.tablecheck.com/images/6a66e19642694de8cf20756d/images/md/fc7bd65c.jpg?1785127318"
+          },
+          {
+            "caption": null,
+            "id": "6a66e1be5b3499cc65342c91",
+            "original": "https://cdn0.tablecheck.com/images/6a66e1be5b3499cc65342c91/images/original/9f9eafa3.png?1785127358",
+            "thumbnail": "https://cdn2.tablecheck.com/images/6a66e1be5b3499cc65342c91/images/md/9f9eafa3.jpg?1785127358"
+          }
+        ],
+        "is_smartpay": true,
+        "kana_name": "カキダスシ マルノウチホンテン",
+        "locale": "ja",
+        "location_kana_name": "",
+        "location_name_translations": [],
+        "name": [
+          "かきだ鮨 丸の内本店",
+          "Kakida Sushi Maruhouchi Honten"
+        ],
+        "name_translations": [
+          {
+            "locale": "ja",
+            "translation": "かきだ鮨 丸の内本店"
+          },
+          {
+            "locale": "en",
+            "translation": "Kakida Sushi Maruhouchi Honten"
+          }
+        ],
+        "search_after": "WzU0OC44MDM4MjY3MzQxNDgsImtha2lkYXN1c2hpLW1hcnVub3VjaGkiXQ==",
+        "search_image": "https://cdn3.tablecheck.com/images/6a66e19642694de8cf20756d/images/md/fc7bd65c.jpg?1785127318",
+        "service_modes": [
+          "dining"
+        ],
+        "slug": "kakidasushi-marunouchi",
+        "tagline_translations": [],
+        "tags": [
+          "quiet"
+        ],
+        "time_zone": "Asia/Tokyo",
+        "translation_locales": [
+          "en",
+          "ja",
+          "ko",
+          "zh-CN",
+          "zh-TW",
+          "de",
+          "es",
+          "fr",
+          "nl",
+          "it",
+          "pt",
+          "tr",
+          "ru"
+        ]
+      },
+      {
+        "_id": "677de1ef004caf14c893fb8b",
+        "affluent_program_venue": false,
+        "availability": [
+          "2026-09-30T17:00:00+09:00",
+          "2026-09-30T17:30:00+09:00",
+          "2026-09-30T18:00:00+09:00",
+          "2026-09-30T18:30:00+09:00",
+          "2026-09-30T19:00:00+09:00",
+          "2026-09-30T19:30:00+09:00",
+          "2026-09-30T20:00:00+09:00"
+        ],
+        "availability_created_max": "2026-09-21T17:14:05.198+09:00",
+        "availability_created_min": "2026-09-21T17:14:05.198+09:00",
+        "availability_tc_points": {
+          "2026-09-30T17:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T17:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T18:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T18:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T19:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T19:30:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          },
+          "2026-09-30T20:00:00+09:00": {
+            "fixed_amount": null,
+            "is_available": true,
+            "is_variable_rate": false,
+            "tc_points_rate": null
+          }
+        },
+        "booking_page_mode": "v2",
+        "budget_avg": "12500.0",
+        "budget_dinner_avg": "17500.0",
+        "budget_dinner_max": "20000.0",
+        "budget_dinner_min": "15000.0",
+        "budget_lunch_avg": "7500.0",
+        "budget_lunch_max": "10000.0",
+        "budget_lunch_min": "5000.0",
+        "content_body_translations": [
+          {
+            "locale": "ja",
+            "translation": "本江戸前寿司の「寿司しおの」は、すべての食材にこだわり、天然物のみを使用、すべてのネタにひと手間かけてお客様にご提供いたしております。一貫一貫魂を込めて握られる、旬の厳選された江戸前握りをこころゆくまでご堪能くださいませ。皆様のご来店をお待ちしております。"
+          },
+          {
+            "locale": "en",
+            "translation": "Sushi Shiono, a restaurant serving authentic Edomae sushi, is particular about all of its ingredients, using only natural products, and taking great care in preparing each and every topping before serving them to customers. Please enjoy our carefully selected seasonal Edomae sushi, each and every sushi made with the utmost care. We look forward to your visit."
+          },
+          {
+            "locale": "ko",
+            "translation": "혼에도 앞 스시의 “스시 시오노”는, 모든 식재료를 고집해, 천연물만을 사용, 모든 재료에 한마디로 고객에게 제공하고 있습니다. 제철의 엄선된 에도마에 주먹을 마음껏 즐겨 주십시오. 여러분의 내점을 기다리고 있습니다."
+          },
+          {
+            "locale": "zh-CN",
+            "translation": "本江户前寿司的“寿司盐野”对所有食材都非常讲究，只使用天然产品，并精心准备每一个配料，为顾客提供服务。请尽情享用当季严选、用心制作的江户前握寿司。我们期待您的光临。"
+          },
+          {
+            "locale": "zh-TW",
+            "translation": "本江戶前壽司的「壽司鹽野」對所有食材都很講究，只使用天然產品，並精心為顧客準備每一個配料。請盡情享用精心挑選、用心製作的時令江戶前握壽司。我們期待您的光臨。"
+          },
+          {
+            "locale": "th",
+            "translation": "``ซูชิชิโอโนะ'' ของ เอโดมาเอะ ให้ความสำคัญกับส่วนผสมทั้งหมด ใช้ผลิตภัณฑ์จากธรรมชาติเท่านั้น และใส่ใจในการเตรียมท็อปปิ้งทุกอย่างเพื่อให้บริการลูกค้าของเรา โปรดเพลิดเพลินไปกับเอโดมาเอะนิกิริตามฤดูกาลที่คัดสรรมาอย่างพิถีพิถันซึ่งทำขึ้นด้วยสุดใจและจิตวิญญาณของเราอย่างจุใจ เราหวังว่าจะได้เยี่ยมชมของคุณ"
+          }
+        ],
+        "content_title_translations": [
+          {
+            "locale": "ja",
+            "translation": "天然物の握りにこだわる「本物」の味"
+          },
+          {
+            "locale": "en",
+            "translation": "Authentic taste, made with only natural ingredients"
+          },
+          {
+            "locale": "ko",
+            "translation": "천연물의 주먹을 고집하는 「진짜」의 맛"
+          },
+          {
+            "locale": "zh-CN",
+            "translation": "注重天然成分的“正宗”口味"
+          },
+          {
+            "locale": "zh-TW",
+            "translation": "注重天然產品的「正宗」口味"
+          },
+          {
+            "locale": "th",
+            "translation": "รสชาติ “ของแท้” โดยเน้นวัตถุดิบจากธรรมชาติ"
+          }
+        ],
+        "cuisines": [
+          "sushi",
+          "seafood"
+        ],
+        "currency": "JPY",
+        "default_locale": "ja",
+        "distance": 597.7731462831841,
+        "enable_points_issuance": false,
+        "enable_points_redemption": true,
+        "express_booking_enabled": false,
+        "geocode": {
+          "lat": 35.6758897,
+          "lon": 139.7678184
+        },
+        "images": [
+          {
+            "caption": null,
+            "id": "677deba9260f216759442d68",
+            "original": "https://cdn1.tablecheck.com/images/677deba9260f216759442d68/images/original/af278d85.jpg?1736305577",
+            "thumbnail": "https://cdn3.tablecheck.com/images/677deba9260f216759442d68/images/md/af278d85.jpg?1736305577"
+          },
+          {
+            "caption": null,
+            "id": "677debb95c3cb6e1cb14ce63",
+            "original": "https://cdn0.tablecheck.com/images/677debb95c3cb6e1cb14ce63/images/original/77619a1e.jpg?1736305593",
+            "thumbnail": "https://cdn2.tablecheck.com/images/677debb95c3cb6e1cb14ce63/images/md/77619a1e.jpg?1736305593"
+          },
+          {
+            "caption": null,
+            "id": "677debcf4ebe28aafd58eeff",
+            "original": "https://cdn0.tablecheck.com/images/677debcf4ebe28aafd58eeff/images/original/6dbebe46.jpg?1736305615",
+            "thumbnail": "https://cdn1.tablecheck.com/images/677debcf4ebe28aafd58eeff/images/md/6dbebe46.jpg?1736305615"
+          },
+          {
+            "caption": null,
+            "id": "677debc2a75e4dea6012f36b",
+            "original": "https://cdn0.tablecheck.com/images/677debc2a75e4dea6012f36b/images/original/3b6afb7e.jpg?1736305602",
+            "thumbnail": "https://cdn3.tablecheck.com/images/677debc2a75e4dea6012f36b/images/md/3b6afb7e.jpg?1736305602"
+          },
+          {
+            "caption": null,
+            "id": "677debd788b58e75569acb0d",
+            "original": "https://cdn3.tablecheck.com/images/677debd788b58e75569acb0d/images/original/e350408e.jpg?1736305624",
+            "thumbnail": "https://cdn2.tablecheck.com/images/677debd788b58e75569acb0d/images/md/e350408e.jpg?1736305624"
+          },
+          {
+            "caption": null,
+            "id": "677debde44095c9de414d231",
+            "original": "https://cdn3.tablecheck.com/images/677debde44095c9de414d231/images/original/0d76eb58.jpg?1736305630",
+            "thumbnail": "https://cdn1.tablecheck.com/images/677debde44095c9de414d231/images/md/0d76eb58.jpg?1736305630"
+          },
+          {
+            "caption": null,
+            "id": "677debe53645a695df49ea1d",
+            "original": "https://cdn3.tablecheck.com/images/677debe53645a695df49ea1d/images/original/9399cdca.jpg?1736305637",
+            "thumbnail": "https://cdn3.tablecheck.com/images/677debe53645a695df49ea1d/images/md/9399cdca.jpg?1736305637"
+          },
+          {
+            "caption": null,
+            "id": "677debf7260f216759442d99",
+            "original": "https://cdn3.tablecheck.com/images/677debf7260f216759442d99/images/original/24b846d2.jpg?1736305655",
+            "thumbnail": "https://cdn1.tablecheck.com/images/677debf7260f216759442d99/images/md/24b846d2.jpg?1736305655"
+          },
+          {
+            "caption": null,
+            "id": "677debeea185b192b5442bd9",
+            "original": "https://cdn3.tablecheck.com/images/677debeea185b192b5442bd9/images/original/9bc53a07.jpg?1736305646",
+            "thumbnail": "https://cdn2.tablecheck.com/images/677debeea185b192b5442bd9/images/md/9bc53a07.jpg?1736305646"
+          }
+        ],
+        "is_smartpay": false,
+        "kana_name": "スシシオノ",
+        "locale": "ja",
+        "location_kana_name": "",
+        "location_name_translations": [],
+        "name": [
+          "寿司しおの",
+          "Sushi Shiono"
+        ],
+        "name_translations": [
+          {
+            "locale": "ja",
+            "translation": "寿司しおの"
+          },
+          {
+            "locale": "en",
+            "translation": "Sushi Shiono"
+          }
+        ],
+        "search_after": "WzU5Ny43NzMxNDYyODMxODQxLCJzdXNoaS1zaGlvbm8iXQ==",
+        "search_image": "https://cdn2.tablecheck.com/images/677debb95c3cb6e1cb14ce63/images/md/77619a1e.jpg?1736305593",
+        "service_modes": [
+          "dining"
+        ],
+        "slug": "sushi-shiono",
+        "tagline_translations": [],
+        "tags": [],
+        "time_zone": "Asia/Tokyo",
+        "translation_locales": [
+          "en",
+          "ja",
+          "ko",
+          "zh-CN",
+          "zh-TW",
+          "th"
+        ]
+      }
+    ]
+  },
+  "response_body_known": true
+}

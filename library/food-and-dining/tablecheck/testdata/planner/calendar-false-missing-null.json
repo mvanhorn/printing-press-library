@@ -1,0 +1,24 @@
+{
+  "availability_calendar": {
+    "type": "success",
+    "time_zone": "Asia/Tokyo",
+    "closed_dates": [
+      "2026-10-02"
+    ],
+    "data": {
+      "2026-09-30": {
+        "2026-09-30T08:00:00.000Z": {
+          "is_available": false
+        },
+        "2026-09-30T08:30:00.000Z": {
+          "tc_points_rate": null
+        },
+        "2026-09-30T09:00:00.000Z": {
+          "is_available": null
+        }
+      },
+      "2026-10-01": {}
+    },
+    "alternate_timeslots": {}
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "tablecheck-preserve-bounded-planning-observations",
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-220537-e6065d2c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve bounded anonymous planning commands that distinguish venue calendar observations from course eligibility and retain exact prices, conditions and cache freshness.",
+  "reason": "Public search summaries can disagree with party calendars, and quoted course prices can be qualified by fine print. Regeneration must retain the planning adapter, command registration, conservative status interpretation and bounded cache/transport behavior. Calendar responses cover an anchor-dependent time window: preserve the explicit18:00default, exact-time alternative semantics and partial-day coverage metadata.",
+  "files": [
+    "internal/cli/planning.go",
+    "internal/cli/root.go",
+    "internal/planner/api.go",
+    "internal/planner/availability.go",
+    "internal/planner/catalog.go",
+    "internal/planner/client.go",
+    "internal/planner/wire.go",
+    "scripts/planning-bench-check.py",
+    "scripts/planning-live-check.py",
+    "scripts/planning-live-common.py",
+    "scripts/planning-live-cutoff-test.py"
+  ],
+  "validated_outcome": "Full live matrix100/100, focused source11cases/129assertions, cold/warm cache measurements and deterministic race tests pass; source-bound acceptance is reissued after final polish."
+}

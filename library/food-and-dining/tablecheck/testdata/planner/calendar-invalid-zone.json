@@ -1,0 +1,14 @@
+{
+  "availability_calendar": {
+    "type": "success",
+    "time_zone": "Vendor/Unknown",
+    "closed_dates": [],
+    "data": {
+      "2026-09-30": {
+        "2026-09-30T08:30:00.000Z": {
+          "is_available": true
+        }
+      }
+    }
+  }
+}

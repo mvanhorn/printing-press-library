@@ -1,0 +1,18 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/tablecheck-pp-cli
+/tablecheck-pp-cli.exe
+/tablecheck-pp-mcp
+/tablecheck-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+.press-local/
+
+.tablecheck-cache/
+
+__pycache__/
+
+.printing-press-tools-polish.json
+
+.printing-press-pii-polish.json

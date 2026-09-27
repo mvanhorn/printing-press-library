@@ -1,0 +1,104 @@
+{
+  "shops": [
+    {
+      "_id": "6a30b220f39baaa71b139acb",
+      "slug": "kakidasushi-marunouchi",
+      "name": [
+        "かきだ鮨 丸の内本店",
+        "Kakida Sushi Maruhouchi Honten"
+      ],
+      "name_translations": [
+        {
+          "translation": "かきだ鮨 丸の内本店",
+          "locale": "ja"
+        },
+        {
+          "translation": "Kakida Sushi Maruhouchi Honten",
+          "locale": "en"
+        }
+      ],
+      "location_name_translations": [],
+      "currency": "JPY",
+      "time_zone": "Asia/Tokyo",
+      "cuisines": [
+        "sushi"
+      ],
+      "geocode": {
+        "lon": 139.7625724,
+        "lat": 35.6845047
+      },
+      "booking_page_mode": "v1",
+      "service_modes": [
+        "dining"
+      ],
+      "budget_dinner_avg": "12500.0",
+      "budget_lunch_avg": "12500.0",
+      "budget_avg": "12500.0",
+      "distance": 548.803826734148,
+      "availability": [
+        "2026-09-30T17:00:00+09:00",
+        "2026-09-30T17:30:00+09:00",
+        "2026-09-30T18:00:00+09:00",
+        "2026-09-30T18:30:00+09:00",
+        "2026-09-30T19:00:00+09:00",
+        "2026-09-30T19:30:00+09:00",
+        "2026-09-30T20:00:00+09:00",
+        "2026-09-30T20:30:00+09:00",
+        "2026-09-30T21:00:00+09:00"
+      ],
+      "search_after": "WzU0OC44MDM4MjY3MzQxNDgsImtha2lkYXN1c2hpLW1hcnVub3VjaGkiXQ=="
+    },
+    {
+      "_id": "677de1ef004caf14c893fb8b",
+      "slug": "sushi-shiono",
+      "name": [
+        "寿司しおの",
+        "Sushi Shiono"
+      ],
+      "name_translations": [
+        {
+          "translation": "寿司しおの",
+          "locale": "ja"
+        },
+        {
+          "translation": "Sushi Shiono",
+          "locale": "en"
+        }
+      ],
+      "location_name_translations": [],
+      "currency": "JPY",
+      "time_zone": "Asia/Tokyo",
+      "cuisines": [
+        "sushi",
+        "seafood"
+      ],
+      "geocode": {
+        "lon": 139.7678184,
+        "lat": 35.6758897
+      },
+      "booking_page_mode": "v2",
+      "service_modes": [
+        "dining"
+      ],
+      "budget_dinner_avg": "17500.0",
+      "budget_lunch_avg": "7500.0",
+      "budget_avg": "12500.0",
+      "distance": 597.7731462831841,
+      "availability": [
+        "2026-09-30T17:00:00+09:00",
+        "2026-09-30T17:30:00+09:00",
+        "2026-09-30T18:00:00+09:00",
+        "2026-09-30T18:30:00+09:00",
+        "2026-09-30T19:00:00+09:00",
+        "2026-09-30T19:30:00+09:00",
+        "2026-09-30T20:00:00+09:00"
+      ],
+      "search_after": "WzU5Ny43NzMxNDYyODMxODQxLCJzdXNoaS1zaGlvbm8iXQ=="
+    }
+  ],
+  "meta": {
+    "record_count": 86,
+    "search_after": "WzU5Ny43NzMxNDYyODMxODQxLCJzdXNoaS1zaGlvbm8iXQ==",
+    "last_page": false
+  }
+}

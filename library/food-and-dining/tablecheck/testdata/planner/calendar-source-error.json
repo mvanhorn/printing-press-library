@@ -1,0 +1,7 @@
+{
+  "availability_calendar": {
+    "type": "error",
+    "message": "Synthetic upstream calendar failure",
+    "time_zone": "Asia/Tokyo"
+  }
+}

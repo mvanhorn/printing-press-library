@@ -1,0 +1,55 @@
+version: 2
+project_name: tablecheck-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tablecheck-pp-cli
+    main: ./cmd/tablecheck-pp-cli
+    binary: tablecheck-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tablecheck-pp-mcp
+    main: ./cmd/tablecheck-pp-mcp
+    binary: tablecheck-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tablecheck-pp-cli
+    repository:
+      owner: zjsng-trav
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Find Japan restaurants, inspect courses, and check a bounded shortlist before booking."
+    install: |
+      bin.install "tablecheck-pp-cli"
+      bin.install "tablecheck-pp-mcp"

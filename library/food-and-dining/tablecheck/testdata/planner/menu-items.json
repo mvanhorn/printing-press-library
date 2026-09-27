@@ -1,0 +1,557 @@
+{
+  "menu_items": [
+    {
+      "id": "68da546fcde865308c33e7f9",
+      "slug": null,
+      "position": 0,
+      "name_translations": [
+        {
+          "translation": "【大将お任せ】コース SUSHITOKYO81",
+          "locale": "ja"
+        },
+        {
+          "translation": "Ultimate Omakase Course ",
+          "locale": "en"
+        }
+      ],
+      "tagline_translations": [
+        {
+          "translation": "菊池大将が本気で考え抜いた古きを重んじ新しいものを取り込む厳選お任せコース。\r\n\r\n職人を目の前にして、日本の文化を進化をお楽しみいただけます。\r\n\r\n2部制となります。\r\n17：30～18：00入店 / 20:00~21:00入店 ",
+          "locale": "ja"
+        },
+        {
+          "translation": "“An exquisite Omakase, meticulously conceived by Chef Kikuchi — a masterful harmony of time-honored tradition and refined innovation. Before the chef himself, savor the living evolution of Japanese culture.”\r\nThe course begins in two seatings: 17:30–18:00 / 20:00–21:00.",
+          "locale": "en"
+        }
+      ],
+      "description_translations": [
+        {
+          "translation": "\tコース内容はあくまで一例です。仕入れ状況により変更されますのでご了承ください。\r\n\r\n【握り10貫】\r\n★本鮪　脳天　炙り\r\n・天然のどぐろ　炭火\r\n・春子鯛　黄身酢おぼと　\r\n★産地直送　宿毛湾究極の活〆鮮魚\r\n・旬の光物　\r\n・旬の白身\r\n★瞬間燻製　 宿毛湾究極の活〆鮮魚\r\n★登美粋　牡丹海老　\r\n★本鮪　トロたく　いぶりがっこと葱\r\n★雲丹のブーケ\r\n\r\n【肴11品】\r\n・蜆出汁\r\n・生姜の甘酢漬け\r\n★宿毛湾究極の活〆鮮魚　刺身\r\n★登美粋　極の逸品　\r\n・本鮪葱鮪串　柚商いのや2種の柚子胡椒\r\n・本日の焼き物or揚げ物\r\n・煮鮑　自家製肝ソース\r\n・茶碗蒸し\r\n・出汁巻き卵\r\n・魚白湯あら汁\r\n・黒糖わらび餅",
+          "locale": "ja"
+        },
+        {
+          "translation": "10Pieces of Nigiri,11 Seasonal Appetizers, and a Japanese Dessert",
+          "locale": "en"
+        }
+      ],
+      "fine_print_translations": [
+        {
+          "translation": "※仕入れ状況・内容によりコース金額が19,800~22,000まで変動する場合がございます。\r\n※コース料金には別途サービス料10％を頂戴します。\r\n※混雑時は2時間制でのご案内になることがございますが何卒ご了承ください。",
+          "locale": "ja"
+        },
+        {
+          "translation": "Please note that the course price may vary between ¥19,800 and ¥22,000, depending on ingredient availability and the chef’s selection.\r\nA 10% service charge will be applied to the course price.\r\nDuring peak hours, dining time may be limited to 2 hours. We sincerely appreciate your kind understanding.",
+          "locale": "en"
+        }
+      ],
+      "how_to_redeem_translations": [],
+      "menu_type": "main",
+      "is_group_order": true,
+      "is_coupon": false,
+      "price": "19800.0",
+      "prev_price": "19800.0",
+      "price_mode": "fixed",
+      "service_fee_type": "percent",
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "min_order_qty": null,
+      "max_order_qty": null,
+      "availability_status": "available",
+      "qty_remaining": null,
+      "days": [
+        "m",
+        "tu",
+        "w",
+        "th",
+        "f",
+        "sa",
+        "su"
+      ],
+      "is_active": true,
+      "is_hidden": false,
+      "is_holiday": true,
+      "is_before_holiday": false,
+      "meals": [
+        "dinner"
+      ],
+      "duration": null,
+      "tc_min_manual_duration": null,
+      "tc_max_manual_duration": null,
+      "available_times": null,
+      "valid_time_ranges": [],
+      "valid_start_time": null,
+      "valid_end_time": null,
+      "min_time_cutoff_at": "2026-09-29T11:30:00.900+09:00",
+      "max_time_cutoff_at": null,
+      "payment_type": "postpay_required",
+      "payment_internal_require_intl": "default",
+      "payment_require_intl": false,
+      "payment_require_group_size": null,
+      "show_locales": [],
+      "online_menu_category_id": "67e657644474874e357852ac",
+      "payment_partial_order_unit_amt": null,
+      "payment_partial_order_pct": null,
+      "payment_partial_group_fee": null,
+      "payment_partial_person_fee": null,
+      "use_experience_page": false,
+      "tablecheck_promo": null,
+      "bin_promotion_id": null,
+      "tc_points_rate": null,
+      "tc_points_earnable": null,
+      "is_variable_rate": false,
+      "max_point_amount": null,
+      "max_point_amount_per_pax": null,
+      "service_category_ids": [
+        "67eb4c81fc3dd992c5ec88ed"
+      ],
+      "valid_date_ranges": [],
+      "questions": [],
+      "cancel_fee_rules": [],
+      "pax_prices": []
+    },
+    {
+      "id": "68c3a5ff59f0138f4b4e19c6",
+      "slug": null,
+      "position": 1,
+      "name_translations": [
+        {
+          "translation": "★日本酒ペアリング付き【大将お任せ】コース SUSHITOKYO81",
+          "locale": "ja"
+        },
+        {
+          "translation": "Ultimate Omakase Course with Sake Pairing",
+          "locale": "en"
+        }
+      ],
+      "tagline_translations": [
+        {
+          "translation": "菊池大将が本気で考え抜いた古きを重んじ新しいものを取り込む厳選お任せコース。\r\n\r\n職人を目の前にして、日本の文化を進化をお楽しみいただけます。\r\n\r\n2部制となります。\r\n17：30～18：00入店 / 20:00~21:00入店 ",
+          "locale": "ja"
+        },
+        {
+          "translation": "“An exquisite Omakase, meticulously conceived by Chef Kikuchi — a masterful harmony of time-honored tradition and refined innovation. Before the chef himself, savor the living evolution of Japanese culture.”\r\nThe course begins in two seatings: 17:30–18:00 / 20:00–21:00.",
+          "locale": "en"
+        }
+      ],
+      "description_translations": [
+        {
+          "translation": "\tコース内容はあくまで一例です。仕入れ状況により変更されますのでご了承ください。\r\n\r\n【握り10貫】\r\n★本鮪　脳天　炙り\r\n・天然のどぐろ　炭火\r\n・春子鯛　黄身酢おぼと　\r\n★産地直送　宿毛湾究極の活〆鮮魚\r\n・旬の光物　\r\n・旬の白身\r\n★瞬間燻製　 宿毛湾究極の活〆鮮魚\r\n★登美粋　牡丹海老　\r\n★本鮪　トロたく　いぶりがっこと葱\r\n★雲丹のブーケ\r\n\r\n【肴11品】\r\n・蜆出汁\r\n・生姜の甘酢漬け\r\n★宿毛湾究極の活〆鮮魚　刺身\r\n★登美粋　極の逸品　\r\n・本鮪葱鮪串　柚商いのや2種の柚子胡椒\r\n・本日の焼き物or揚げ物\r\n・煮鮑　自家製肝ソース\r\n・茶碗蒸し\r\n・出汁巻き卵\r\n・魚白湯あら汁\r\n・黒糖わらび餅",
+          "locale": "ja"
+        },
+        {
+          "translation": "10 Pieces of Nigiri, 11 Seasonal Appetizers, and a Japanese Dessert",
+          "locale": "en"
+        }
+      ],
+      "fine_print_translations": [
+        {
+          "translation": "※仕入れ状況・内容によりコース金額が25,300~27,500まで変動する場合がございます。\r\n※コース料金には別途サービス料10％を頂戴します。\r\n※混雑時は2時間制でのご案内になることがございますが何卒ご了承ください。",
+          "locale": "ja"
+        },
+        {
+          "translation": "Please note that the course price may vary between ¥25,300 and ¥27,500, depending on ingredient availability and the chef’s selection.\r\nA 10% service charge will be applied to the course price.\r\nDuring peak hours, dining time may be limited to 2 hours. We sincerely appreciate your kind understanding.",
+          "locale": "en"
+        }
+      ],
+      "how_to_redeem_translations": [],
+      "menu_type": "main",
+      "is_group_order": true,
+      "is_coupon": false,
+      "price": "25300.0",
+      "prev_price": null,
+      "price_mode": "fixed",
+      "service_fee_type": "percent",
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "min_order_qty": null,
+      "max_order_qty": null,
+      "availability_status": "available",
+      "qty_remaining": null,
+      "days": [
+        "m",
+        "tu",
+        "w",
+        "th",
+        "f",
+        "sa",
+        "su"
+      ],
+      "is_active": true,
+      "is_hidden": false,
+      "is_holiday": true,
+      "is_before_holiday": false,
+      "meals": [
+        "dinner"
+      ],
+      "duration": 9000,
+      "tc_min_manual_duration": null,
+      "tc_max_manual_duration": null,
+      "available_times": null,
+      "valid_time_ranges": [],
+      "valid_start_time": null,
+      "valid_end_time": null,
+      "min_time_cutoff_at": "2026-09-29T11:30:00.904+09:00",
+      "max_time_cutoff_at": null,
+      "payment_type": "postpay_required",
+      "payment_internal_require_intl": "default",
+      "payment_require_intl": false,
+      "payment_require_group_size": null,
+      "show_locales": [],
+      "online_menu_category_id": "67e657644474874e357852ac",
+      "payment_partial_order_unit_amt": null,
+      "payment_partial_order_pct": null,
+      "payment_partial_group_fee": null,
+      "payment_partial_person_fee": null,
+      "use_experience_page": false,
+      "tablecheck_promo": null,
+      "bin_promotion_id": null,
+      "tc_points_rate": null,
+      "tc_points_earnable": null,
+      "is_variable_rate": false,
+      "max_point_amount": null,
+      "max_point_amount_per_pax": null,
+      "service_category_ids": [
+        "67eb4c81fc3dd992c5ec88ed"
+      ],
+      "valid_date_ranges": [],
+      "questions": [],
+      "cancel_fee_rules": [],
+      "pax_prices": []
+    },
+    {
+      "id": "68da55875cec07220ba9ab54",
+      "slug": null,
+      "position": 2,
+      "name_translations": [
+        {
+          "translation": "【厳選】おまかせコース SUSHITOKYO81",
+          "locale": "ja"
+        },
+        {
+          "translation": "Premium OMAKASE course",
+          "locale": "en"
+        }
+      ],
+      "tagline_translations": [
+        {
+          "translation": "２部制　17:30~18:00スタート / 20:00~21:00スタート\r\n\r\n握りとつまみのおまかせコース。\r\n産地直送の素材や大将自ら豊洲に買い付けに行き選定した旬の鮮魚を楽しめます。\r\n名物の燻製鮨や高級食材の鮑も堪能できるリーズナブルなコースです。\r\n\r\n※アレルギー等があるお客様はあらかじめ、店舗にご連絡ください。来店後になりますと対応できかねない場合がございます。",
+          "locale": "ja"
+        },
+        {
+          "translation": "Two Seating Times: 17:30–18:00 Start / 20:00–21:00 Start\r\n\r\nA chef’s omakase course featuring both sushi and seasonal appetizers. Guests can enjoy fresh seafood sourced directly from fishing regions, as well as premium selections personally chosen by the head chef at Toyosu Market.\r\nThe course also includes our signature smoked sushi and delicacies such as abalone, offering an exceptional experience at a reasonable price.\r\n\r\nPlease inform us in advance of any allergies. We may not be able to accommodate requests made upon arrival.",
+          "locale": "en"
+        }
+      ],
+      "description_translations": [
+        {
+          "translation": "コース内容はあくまで一例です。仕入れ状況により変更されますのでご了承ください。\r\n\r\n【握り11貫】\r\n★本鮪脳天　炙り\r\n★天然のどぐろ　炭火\r\n・春子鯛　黄身酢おぼろ\r\n・旬の光物\r\n・旬の貝類\r\n・本日の海老\r\n★名物瞬間燻製の握り　宿毛湾活〆鮮魚\r\n★本鮪　葱トロいぶりがっこ\r\n・本鮪　中トロ\r\n★本日の雲丹　その日の仕立て\r\n・煮穴子\r\n\r\n【肴・椀・甘味　9品】\r\n・蜆出汁\r\n・漬物\r\n★宿毛湾究極の活〆鮮魚の刺身\r\n★煮鮑　肝のソース\r\n・本日の揚げ物 or 焼き物\r\n・茶碗蒸し\r\n・出汁巻き卵\r\n・魚白湯あら汁\r\n・黒糖わらび餅",
+          "locale": "ja"
+        },
+        {
+          "translation": "11 pieces of Nigiri Sushi, 9 Seasonal Appetizers, Dessert",
+          "locale": "en"
+        }
+      ],
+      "fine_print_translations": [
+        {
+          "translation": "※コース料金には別途サービス料10％を頂戴します。\r\n※混雑時は2時間制でのご案内になることがございますが何卒ご了承ください。",
+          "locale": "ja"
+        },
+        {
+          "translation": "A 10% service charge will be applied to the course price.\r\nDuring peak hours, dining time may be limited to 2 hours. We sincerely appreciate your kind understanding.",
+          "locale": "en"
+        }
+      ],
+      "how_to_redeem_translations": [],
+      "menu_type": "main",
+      "is_group_order": true,
+      "is_coupon": false,
+      "price": "15950.0",
+      "prev_price": null,
+      "price_mode": "fixed",
+      "service_fee_type": "percent",
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "min_order_qty": null,
+      "max_order_qty": null,
+      "availability_status": "available",
+      "qty_remaining": null,
+      "days": [
+        "m",
+        "tu",
+        "w",
+        "th",
+        "f",
+        "sa",
+        "su"
+      ],
+      "is_active": true,
+      "is_hidden": false,
+      "is_holiday": true,
+      "is_before_holiday": false,
+      "meals": [
+        "dinner"
+      ],
+      "duration": null,
+      "tc_min_manual_duration": null,
+      "tc_max_manual_duration": null,
+      "available_times": null,
+      "valid_time_ranges": [],
+      "valid_start_time": null,
+      "valid_end_time": null,
+      "min_time_cutoff_at": "2026-09-28T05:00:00.000+09:00",
+      "max_time_cutoff_at": null,
+      "payment_type": "postpay_required",
+      "payment_internal_require_intl": "default",
+      "payment_require_intl": false,
+      "payment_require_group_size": null,
+      "show_locales": [],
+      "online_menu_category_id": "67e657644474874e357852ac",
+      "payment_partial_order_unit_amt": null,
+      "payment_partial_order_pct": null,
+      "payment_partial_group_fee": null,
+      "payment_partial_person_fee": null,
+      "use_experience_page": false,
+      "tablecheck_promo": null,
+      "bin_promotion_id": null,
+      "tc_points_rate": null,
+      "tc_points_earnable": null,
+      "is_variable_rate": false,
+      "max_point_amount": null,
+      "max_point_amount_per_pax": null,
+      "service_category_ids": [
+        "67eb4c81fc3dd992c5ec88ed",
+        "67eb4c9a5bd086eb43a44df0"
+      ],
+      "valid_date_ranges": [
+        {
+          "id": "68da55875cec07220ba9ab57",
+          "start_date": "2025-04-01",
+          "end_date": null
+        }
+      ],
+      "questions": [],
+      "cancel_fee_rules": [],
+      "pax_prices": []
+    },
+    {
+      "id": "68da56708b59ec3c249d8239",
+      "slug": null,
+      "position": 3,
+      "name_translations": [
+        {
+          "translation": "【特上】おまかせコース SUSHITOKYO81",
+          "locale": "ja"
+        },
+        {
+          "translation": "Standard OMAKASE Course",
+          "locale": "en"
+        }
+      ],
+      "tagline_translations": [
+        {
+          "translation": "カウンター席のみ２部制　17:30~18:00スタート / 19:45~21:00スタート\r\n\r\n握りとつまみのおまかせコース。\r\n産地直送の素材や大将自ら豊洲に買い付けに行き選定した旬の鮮魚を楽しめます。\r\n名物の燻製鮨や高級食材の鮑も堪能できるリーズナブルなコースです。\r\n\r\n※アレルギー等があるお客様はあらかじめ、店舗にご連絡ください。来店後になりますと対応できかねない場合がございます。",
+          "locale": "ja"
+        },
+        {
+          "translation": "You can enjoy the artistry of traditional Edo-style sushi, refined by the ever-evolving skills of our chefs, in a relaxed and unpretentious atmosphere.\r\n\r\nCounter seating is offered in two seatings:\r\n17:30–18:00 entry / 19:45–21:00 entry.",
+          "locale": "en"
+        }
+      ],
+      "description_translations": [
+        {
+          "translation": "コース内容はあくまで一例です。仕入れ状況により変更されますのでご了承ください。\r\n\r\n【握り10貫】\r\n★本鮪脳天　炙り\r\n★天然黒陸奥　炭火\r\n・春子鯛　黄身酢おぼろ\r\n・旬の光物\r\n・旬の貝類\r\n・本日の海老\r\n★名物瞬間燻製の握り　宿毛湾活〆鮮魚\r\n★本鮪　葱トロいぶりがっこ\r\n・本鮪　中トロ\r\n・煮穴子\r\n\r\n【肴・椀・甘味　9品】\r\n・蜆出汁\r\n・漬物\r\n★宿毛湾究極の活〆鮮魚の刺身\r\n★煮鮑　肝のソース\r\n・本日の揚げ物 or 焼き物\r\n・茶碗蒸し\r\n・出汁巻き卵\r\n・魚白湯あら汁\r\n・黒糖わらび餅",
+          "locale": "ja"
+        },
+        {
+          "translation": "10 pieces of Nigiri Sushi, 9 Seasonal Appetizers, Dessert",
+          "locale": "en"
+        }
+      ],
+      "fine_print_translations": [
+        {
+          "translation": "※コース料金には別途サービス料10％を頂戴します。\r\n※混雑時は2時間制でのご案内になることがございますが何卒ご了承ください。",
+          "locale": "ja"
+        },
+        {
+          "translation": "A 10% service charge will be applied to the course price.\r\nDuring peak hours, dining time may be limited to 2 hours. We sincerely appreciate your kind understanding.",
+          "locale": "en"
+        }
+      ],
+      "how_to_redeem_translations": [],
+      "menu_type": "main",
+      "is_group_order": true,
+      "is_coupon": false,
+      "price": "13200.0",
+      "prev_price": null,
+      "price_mode": "fixed",
+      "service_fee_type": "percent",
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "min_order_qty": null,
+      "max_order_qty": null,
+      "availability_status": "available",
+      "qty_remaining": null,
+      "days": [
+        "m",
+        "tu",
+        "w",
+        "th",
+        "f",
+        "sa",
+        "su"
+      ],
+      "is_active": true,
+      "is_hidden": false,
+      "is_holiday": true,
+      "is_before_holiday": false,
+      "meals": [
+        "dinner"
+      ],
+      "duration": null,
+      "tc_min_manual_duration": null,
+      "tc_max_manual_duration": null,
+      "available_times": null,
+      "valid_time_ranges": [],
+      "valid_start_time": null,
+      "valid_end_time": null,
+      "min_time_cutoff_at": "2026-09-28T05:00:00.000+09:00",
+      "max_time_cutoff_at": null,
+      "payment_type": "postpay_required",
+      "payment_internal_require_intl": "default",
+      "payment_require_intl": false,
+      "payment_require_group_size": null,
+      "show_locales": [],
+      "online_menu_category_id": "67e657644474874e357852ac",
+      "payment_partial_order_unit_amt": null,
+      "payment_partial_order_pct": null,
+      "payment_partial_group_fee": null,
+      "payment_partial_person_fee": null,
+      "use_experience_page": false,
+      "tablecheck_promo": null,
+      "bin_promotion_id": null,
+      "tc_points_rate": null,
+      "tc_points_earnable": null,
+      "is_variable_rate": false,
+      "max_point_amount": null,
+      "max_point_amount_per_pax": null,
+      "service_category_ids": [
+        "67eb4c81fc3dd992c5ec88ed",
+        "67eb4c9a5bd086eb43a44df0"
+      ],
+      "valid_date_ranges": [
+        {
+          "id": "68da56708b59ec3c249d823c",
+          "start_date": "2025-04-01",
+          "end_date": null
+        }
+      ],
+      "questions": [],
+      "cancel_fee_rules": [],
+      "pax_prices": []
+    },
+    {
+      "id": "68f393f592771926a9a953ab",
+      "slug": null,
+      "position": 5,
+      "name_translations": [
+        {
+          "translation": "◆日曜限定ランチ◆【お任せランチ】コース",
+          "locale": "ja"
+        },
+        {
+          "translation": "Lunch Omakase Course",
+          "locale": "en"
+        }
+      ],
+      "tagline_translations": [
+        {
+          "translation": "【日曜限定ランチ｜12:00 / 13:00の2部制】\r\n\r\nディナーでも提供している厳選ネタを、ランチならではの内容で気軽に楽しめる限定コース。\r\n鮨を堪能していただいた後には、〆として鮨屋が作る土鍋飯もご用意しております。\r\n\r\n美味しい鮨をしっかり楽しみ、最後まで満足していただける日曜限定ランチです。\r\n\r\n※15分以上遅れてご来店の場合、コース内容の一部をご提供できない場合がございます。\r\n",
+          "locale": "ja"
+        },
+        {
+          "translation": "【Two Seating Times | 12:00 PM / 1:00 PM】\r\n\r\nEnjoy some of the carefully selected ingredients we also serve during dinner, presented in a special lunch course designed to offer exceptional value.\r\n\r\nWe also want you to leave feeling completely satisfied, so the meal concludes with a clay-pot rice dish prepared by our sushi chefs.\r\n\r\nPlease note that if you arrive more than 15 minutes late, we may not be able to serve the full course.\r\n\r\nWe look forward to welcoming you and making your Sunday afternoon a truly memorable one.",
+          "locale": "en"
+        }
+      ],
+      "description_translations": [
+        {
+          "translation": "コース内容は仕入れ状況により大幅に変わることがございます。\r\n\r\n【握り8貫】\r\n・希少　本鮪脳天　炭火\r\n・名物　登美粋　ニタリクジラ　尾の身\r\n・春子鯛　黄身酢おぼろ\r\n・旬　本日の一貫　\r\n・旬　青魚\r\n・本鮪　本日の厳選部位\r\n・本鮪　おはぎ\r\n・巻物　自家製固めのかんぴょう\r\n\r\n【肴5品】\r\n★旬の食材を使った土鍋飯　【雲丹乗せ+2,500円】\r\n【9月　秋刀魚と松茸】※入荷状況により変更になる場合がございます。\r\n・旬の鮮魚　刺身\r\n・酒のあて盛り合わせ\r\n・煮鮑　\r\n・魚白湯あら汁",
+          "locale": "ja"
+        },
+        {
+          "translation": "8 Pieces of Nigiri & 5 Seasonal Appetizers",
+          "locale": "en"
+        }
+      ],
+      "fine_print_translations": [
+        {
+          "translation": "ネタの変更も可能ですが、コース金額が変わる場合がございます。\r\n香水など強い香りのするものをつけてのご来店はご遠慮ください。",
+          "locale": "ja"
+        },
+        {
+          "translation": "Ingredient substitutions are available upon request; however, please note that course prices may vary.\r\nWe kindly ask that guests refrain from wearing perfume or other strong fragrances when visiting the restaurant.",
+          "locale": "en"
+        }
+      ],
+      "how_to_redeem_translations": [],
+      "menu_type": "main",
+      "is_group_order": true,
+      "is_coupon": false,
+      "price": "8800.0",
+      "prev_price": null,
+      "price_mode": "fixed",
+      "service_fee_type": "none",
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "min_order_qty": null,
+      "max_order_qty": null,
+      "availability_status": "available",
+      "qty_remaining": null,
+      "days": [
+        "su"
+      ],
+      "is_active": true,
+      "is_hidden": false,
+      "is_holiday": false,
+      "is_before_holiday": false,
+      "meals": [
+        "lunch"
+      ],
+      "duration": 5400,
+      "tc_min_manual_duration": null,
+      "tc_max_manual_duration": null,
+      "available_times": null,
+      "valid_time_ranges": [],
+      "valid_start_time": null,
+      "valid_end_time": null,
+      "min_time_cutoff_at": "2026-09-29T05:00:00.000+09:00",
+      "max_time_cutoff_at": null,
+      "payment_type": "postpay_required",
+      "payment_internal_require_intl": "default",
+      "payment_require_intl": false,
+      "payment_require_group_size": null,
+      "show_locales": [],
+      "online_menu_category_id": "67e657644474874e357852ac",
+      "payment_partial_order_unit_amt": null,
+      "payment_partial_order_pct": null,
+      "payment_partial_group_fee": null,
+      "payment_partial_person_fee": null,
+      "use_experience_page": false,
+      "tablecheck_promo": null,
+      "bin_promotion_id": null,
+      "tc_points_rate": null,
+      "tc_points_earnable": null,
+      "is_variable_rate": false,
+      "max_point_amount": null,
+      "max_point_amount_per_pax": null,
+      "service_category_ids": [
+        "67eb4c81fc3dd992c5ec88ed"
+      ],
+      "valid_date_ranges": [],
+      "questions": [],
+      "cancel_fee_rules": [],
+      "pax_prices": []
+    }
+  ]
+}

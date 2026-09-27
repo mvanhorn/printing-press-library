@@ -1,0 +1,26 @@
+{
+  "availability_calendar": {
+    "type": "success",
+    "time_zone": "Asia/Tokyo",
+    "closed_dates": [],
+    "data": {
+      "2026-09-30": {
+        "2026-09-29T15:30:00.000Z": {
+          "is_available": true
+        },
+        "2026-09-30T09:00:00.000Z": {
+          "is_available": false
+        },
+        "2026-09-30T15:30:00.000Z": {
+          "is_available": true
+        }
+      },
+      "2026-10-01": {
+        "2026-09-30T16:00:00.000Z": {
+          "is_available": true
+        }
+      }
+    },
+    "alternate_timeslots": {}
+  }
+}

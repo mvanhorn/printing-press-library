@@ -1,0 +1,162 @@
+{
+  "menu_items": [
+    {
+      "id": "synthetic-group-price",
+      "slug": null,
+      "position": 0,
+      "name_translations": [
+        {
+          "translation": "【大将お任せ】コース SUSHITOKYO81",
+          "locale": "ja"
+        },
+        {
+          "translation": "Ultimate Omakase Course ",
+          "locale": "en"
+        }
+      ],
+      "tagline_translations": [
+        {
+          "translation": "菊池大将が本気で考え抜いた古きを重んじ新しいものを取り込む厳選お任せコース。\r\n\r\n職人を目の前にして、日本の文化を進化をお楽しみいただけます。\r\n\r\n2部制となります。\r\n17：30～18：00入店 / 20:00~21:00入店 ",
+          "locale": "ja"
+        },
+        {
+          "translation": "“An exquisite Omakase, meticulously conceived by Chef Kikuchi — a masterful harmony of time-honored tradition and refined innovation. Before the chef himself, savor the living evolution of Japanese culture.”\r\nThe course begins in two seatings: 17:30–18:00 / 20:00–21:00.",
+          "locale": "en"
+        }
+      ],
+      "description_translations": [
+        {
+          "translation": "\tコース内容はあくまで一例です。仕入れ状況により変更されますのでご了承ください。\r\n\r\n【握り10貫】\r\n★本鮪　脳天　炙り\r\n・天然のどぐろ　炭火\r\n・春子鯛　黄身酢おぼと　\r\n★産地直送　宿毛湾究極の活〆鮮魚\r\n・旬の光物　\r\n・旬の白身\r\n★瞬間燻製　 宿毛湾究極の活〆鮮魚\r\n★登美粋　牡丹海老　\r\n★本鮪　トロたく　いぶりがっこと葱\r\n★雲丹のブーケ\r\n\r\n【肴11品】\r\n・蜆出汁\r\n・生姜の甘酢漬け\r\n★宿毛湾究極の活〆鮮魚　刺身\r\n★登美粋　極の逸品　\r\n・本鮪葱鮪串　柚商いのや2種の柚子胡椒\r\n・本日の焼き物or揚げ物\r\n・煮鮑　自家製肝ソース\r\n・茶碗蒸し\r\n・出汁巻き卵\r\n・魚白湯あら汁\r\n・黒糖わらび餅",
+          "locale": "ja"
+        },
+        {
+          "translation": "10Pieces of Nigiri,11 Seasonal Appetizers, and a Japanese Dessert",
+          "locale": "en"
+        }
+      ],
+      "fine_print_translations": [
+        {
+          "translation": "※仕入れ状況・内容によりコース金額が19,800~22,000まで変動する場合がございます。\r\n※コース料金には別途サービス料10％を頂戴します。\r\n※混雑時は2時間制でのご案内になることがございますが何卒ご了承ください。",
+          "locale": "ja"
+        },
+        {
+          "translation": "Please note that the course price may vary between ¥19,800 and ¥22,000, depending on ingredient availability and the chef’s selection.\r\nA 10% service charge will be applied to the course price.\r\nDuring peak hours, dining time may be limited to 2 hours. We sincerely appreciate your kind understanding.",
+          "locale": "en"
+        }
+      ],
+      "how_to_redeem_translations": [],
+      "menu_type": "main",
+      "is_group_order": true,
+      "is_coupon": false,
+      "price": "0.00",
+      "prev_price": null,
+      "price_mode": "fixed",
+      "service_fee_type": "percent",
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "min_order_qty": null,
+      "max_order_qty": null,
+      "availability_status": "available",
+      "qty_remaining": null,
+      "days": [
+        "m",
+        "tu",
+        "w",
+        "th",
+        "f",
+        "sa",
+        "su"
+      ],
+      "is_active": true,
+      "is_hidden": false,
+      "is_holiday": true,
+      "is_before_holiday": false,
+      "meals": [
+        "dinner"
+      ],
+      "duration": null,
+      "tc_min_manual_duration": null,
+      "tc_max_manual_duration": null,
+      "available_times": null,
+      "valid_time_ranges": [],
+      "valid_start_time": null,
+      "valid_end_time": null,
+      "min_time_cutoff_at": "2026-09-29T11:30:00.900+09:00",
+      "max_time_cutoff_at": null,
+      "payment_type": "postpay_required",
+      "payment_internal_require_intl": "default",
+      "payment_require_intl": false,
+      "payment_require_group_size": null,
+      "show_locales": [],
+      "online_menu_category_id": "67e657644474874e357852ac",
+      "payment_partial_order_unit_amt": null,
+      "payment_partial_order_pct": null,
+      "payment_partial_group_fee": null,
+      "payment_partial_person_fee": null,
+      "use_experience_page": false,
+      "tablecheck_promo": null,
+      "bin_promotion_id": null,
+      "tc_points_rate": null,
+      "tc_points_earnable": null,
+      "is_variable_rate": false,
+      "max_point_amount": null,
+      "max_point_amount_per_pax": null,
+      "service_category_ids": [
+        "67eb4c81fc3dd992c5ec88ed"
+      ],
+      "valid_date_ranges": [],
+      "questions": [],
+      "cancel_fee_rules": [],
+      "pax_prices": []
+    },
+    {
+      "id": "synthetic-future-status",
+      "name_translations": [
+        {
+          "locale": "en",
+          "translation": "Future status course"
+        },
+        {
+          "locale": "ja",
+          "translation": "将来の状態"
+        }
+      ],
+      "price": null,
+      "availability_status": "vendor_future_status",
+      "qty_remaining": null,
+      "is_group_order": true,
+      "is_active": true,
+      "is_hidden": false
+    },
+    {
+      "id": "synthetic-explicit-sold-out",
+      "name_translations": [
+        {
+          "locale": "en",
+          "translation": "Explicit status course"
+        }
+      ],
+      "price": "9007199254740993.10",
+      "availability_status": "sold_out",
+      "qty_remaining": 0,
+      "tax_type": "included",
+      "calculated_tax_rate": 0,
+      "fine_print_translations": [],
+      "valid_date_ranges": []
+    },
+    {
+      "id": "synthetic-explicit-unpublished",
+      "name_translations": [
+        {
+          "locale": "en",
+          "translation": "Explicit unpublished course"
+        }
+      ],
+      "price": "100.50",
+      "availability_status": "unpublished",
+      "is_active": false,
+      "is_hidden": true,
+      "valid_date_ranges": null
+    }
+  ]
+}

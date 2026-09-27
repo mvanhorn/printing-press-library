@@ -1,0 +1,190 @@
+# Anonymous public planning reads verified 2026-09-27; see discovery/contract-report.md.
+name: tablecheck
+description: Bounded TableCheck restaurant, course and venue availability planning
+version: 0.1.0
+category: food-and-dining
+base_url: https://production.tablecheck.com
+http_transport: standard
+health_check_path: /v2/shop_universes
+spec_source: sniffed
+auth:
+  type: none
+config:
+  format: toml
+  path: ~/.config/tablecheck-pp-cli/config.toml
+learn:
+  disabled: true
+cache:
+  enabled: false
+mcp:
+  transport: [stdio]
+resources:
+  source:
+    description: Verified anonymous upstream reads; focused planning commands add bounds and interpretation
+    endpoints:
+      search:
+        method: GET
+        mutation: false
+        path: /v2/shop_search
+        description: Geographic venue discovery; budgets are venue dinner averages and availability is a discovery summary
+        example: '  tablecheck-pp-cli source search --lat=35.681236 --lon=139.767125 --radius=3000 --limit=2 --cuisine=sushi'
+        happy_args: '--lat=35.681236;--lon=139.767125;--radius=3000;--limit=2;--cuisine=sushi'
+        params:
+          - {name: geo_latitude, flag_name: lat, type: float, required: true, description: Explicit search latitude}
+          - {name: geo_longitude, flag_name: lon, type: float, required: true, description: Explicit search longitude}
+          - {name: geo_distance, flag_name: radius, type: int, required: true, description: Search radius in metres}
+          - {name: shop_universe_id, flag_name: universe-id, type: string, default: '57e0b91744aea12988000001', description: Public dining shop universe}
+          - {name: per_page, flag_name: limit, type: int, default: 10, description: Requested results per page; focused commands cap at 50}
+          - {name: search_after, flag_name: cursor, type: string, description: Opaque meta.search_after cursor from the previous page}
+          - {name: include_ids, flag_name: include-ids, type: bool, default: true, description: Include stable shop IDs}
+          - {name: sort_by, flag_name: sort, type: string, default: distance, description: Source-supported distance ordering}
+          - {name: venue_type, flag_name: venue-type, type: string, default: tc, description: TableCheck venue type}
+          - {name: locale, type: string, default: en, description: Source translation locale}
+          - {name: 'cuisines[]', flag_name: cuisine, type: string, description: Stable cuisine field from source cuisines; upstream wire key has array brackets}
+          - {name: budget_dinner_avg_min, flag_name: budget-min, type: string, description: Minimum venue dinner-average budget; source key observed but effect not independently isolated}
+          - {name: budget_dinner_avg_max, flag_name: budget-max, type: string, description: Maximum venue dinner-average budget; decimal text, not a course-price ceiling}
+          - {name: service_mode, flag_name: service-mode, type: string, default: dining, description: Dining service mode}
+          - {name: date, type: string, format: date, description: Local discovery date YYYY-MM-DD}
+          - {name: time, type: string, description: Discovery meal-time preference HH:MM; does not filter to one exact slot}
+          - {name: num_people, flag_name: party, type: int, description: Discovery party size}
+          - {name: availability_mode, flag_name: availability-mode, type: string, description: Use same_meal_time with date/time/party discovery inputs}
+          - {name: availability_format, flag_name: availability-format, type: string, description: Use datetime with a specific discovery date}
+        response:
+          type: object
+          item: SearchResponse
+        pagination:
+          type: cursor
+          limit_param: per_page
+          cursor_param: search_after
+          next_cursor_path: meta.search_after
+        # meta.last_page has inverse polarity to has_more; focused commands interpret it explicitly.
+      venue:
+        method: GET
+        mutation: false
+        path: /v2/shops/{slug}
+        description: Venue identity, source conditions and booking-page mode inside shops; caller geolocation is not venue location
+        example: '  tablecheck-pp-cli source venue sushi-tokyo81'
+        happy_args: 'slug=sushi-tokyo81'
+        params:
+          - {name: slug, type: string, required: true, positional: true, description: Public venue slug}
+          - {name: locale, type: string, default: en, description: Source translation locale}
+        response:
+          type: object
+          item: VenueResponse
+      cuisines:
+        method: GET
+        mutation: false
+        path: /v2/cuisines
+        description: Cuisine stable filter keys and source translations
+        example: '  tablecheck-pp-cli source cuisines'
+        response:
+          type: object
+          item: CuisinesResponse
+      menu-items:
+        method: POST
+        mutation: false
+        path: /v2/hub/menu_items
+        description: Read course catalog for one venue and date window; listing status does not prove a bookable slot
+        example: '  tablecheck-pp-cli source menu-items --venue-id=67e657634474874e35785280 --from=2026-09-30T00:00:00Z --to=2026-10-01T00:00:00Z'
+        happy_args: '--venue-id=67e657634474874e35785280;--from=2026-09-30T00:00:00Z;--to=2026-10-01T00:00:00Z'
+        request_content_type: application/json
+        body:
+          - {name: shop_id, flag_name: venue-id, type: string, required: true, description: Stable shop _id from venue/search}
+          - {name: locale, type: string, default: en, description: Source translation locale}
+          - {name: date_min, flag_name: from, type: string, required: true, format: date-time, description: Inclusive source menu window start as UTC ISO timestamp}
+          - {name: date_max, flag_name: to, type: string, required: true, format: date-time, description: Source menu window end as UTC ISO timestamp; boundary effect not independently isolated}
+          - {name: has_price, flag_name: has-price, type: bool, default: true, description: Observed priced-menu request flag}
+          - {name: use_experience_page, flag_name: experiences, type: bool, description: Observed experience-page flag; an empty response does not rule out ordinary courses}
+        response:
+          type: object
+          item: MenusResponse
+      calendar:
+        method: POST
+        mutation: false
+        path: /v2/hub/availability_calendar_v2
+        description: Read party-specific venue calendar; explicit slot booleans are venue-level and have no course linkage
+        example: '  tablecheck-pp-cli source calendar --venue-id=67e657634474874e35785280 --start-at=2026-09-30T09:00:00Z --party=2'
+        happy_args: '--venue-id=67e657634474874e35785280;--start-at=2026-09-30T09:00:00Z;--party=2'
+        request_content_type: application/json
+        body:
+          - {name: shop_id, flag_name: venue-id, type: string, required: true, description: Stable shop _id from venue/search}
+          - {name: locale, type: string, default: en, description: Source translation locale}
+          - {name: start_at, flag_name: start-at, type: string, required: true, format: date-time, description: UTC ISO start anchor; actual coverage is response-driven}
+          - {name: num_people, flag_name: party, type: int, required: true, description: Exact party size for the venue calendar}
+        response:
+          type: object
+          item: CalendarResponse
+# Endpoint wrappers retain the complete source arrays/objects as JSON. Focused
+# commands decode typed nullable wire models without losing raw conditions.
+types:
+  SearchResponse:
+    fields:
+      - {name: shops, type: array}
+      - {name: meta, type: object}
+  VenueResponse:
+    fields:
+      - {name: shops, type: array}
+      - {name: meta, type: object}
+      - {name: latitude, type: float}
+      - {name: longitude, type: float}
+      - {name: country, type: string}
+  CuisinesResponse:
+    fields:
+      - {name: cuisines, type: array}
+  MenusResponse:
+    fields:
+      - {name: menu_items, type: array}
+  CalendarResponse:
+    fields:
+      - {name: availability_calendar, type: object}
+  Venue:
+    fields:
+      - {name: _id, type: string}
+      - {name: slug, type: string}
+      - {name: name_translations, type: array}
+      - {name: currency, type: string}
+      - {name: time_zone, type: string}
+      - {name: country, type: string}
+      - {name: cuisines, type: array}
+      - {name: budget_dinner_avg, type: string}
+      - {name: geocode, type: object}
+      - {name: address, type: object}
+      - {name: alt_address, type: object}
+      - {name: request_policy_translations, type: array}
+      - {name: service_categories, type: array}
+      - {name: booking_page_mode, type: string}
+      - {name: availability, type: array}
+      - {name: distance, type: float}
+  Cuisine:
+    fields:
+      - {name: field, type: string}
+      - {name: text_translations, type: array}
+  MenuItem:
+    fields:
+      - {name: id, type: string}
+      - {name: name_translations, type: array}
+      - {name: description_translations, type: array}
+      - {name: fine_print_translations, type: array}
+      - {name: price, type: string}
+      - {name: prev_price, type: string}
+      - {name: price_mode, type: string}
+      - {name: tax_type, type: string}
+      - {name: service_fee_type, type: string}
+      - {name: availability_status, type: string}
+      - {name: qty_remaining, type: object}
+      - {name: days, type: array}
+      - {name: meals, type: array}
+      - {name: valid_date_ranges, type: array}
+      - {name: valid_time_ranges, type: array}
+      - {name: questions, type: array}
+      - {name: cancel_fee_rules, type: array}
+      - {name: pax_prices, type: array}
+  Calendar:
+    fields:
+      - {name: type, type: string}
+      - {name: time_zone, type: string}
+      - {name: closed_dates, type: array}
+      - {name: data, type: object}
+      - {name: alternate_timeslots, type: object}
+      - {name: daily_max_tc_points_rates, type: object}
+      - {name: tc_points_by_day, type: object}

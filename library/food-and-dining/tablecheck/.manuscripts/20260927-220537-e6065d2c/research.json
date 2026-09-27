@@ -1,0 +1,161 @@
+{
+  "api_name": "tablecheck",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "tc-mcp",
+      "url": "https://github.com/nbw/tc-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Venue calendars contain no course IDs; course-specific slot validation is unavailable in the verified read-only surface."
+  ],
+  "patterns": [
+    "read-only public HTTP",
+    "party-specific venue calendar",
+    "lazy details"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:33:05.002255Z",
+  "novel_features": [
+    {
+      "name": "Bounded trip scan",
+      "command": "availability scan",
+      "description": "Check a bounded restaurant shortlist across trip dates with partial results.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli availability scan sushi-tokyo81 sushi-shiono --from 2026-09-30 --to 2026-10-01 --party 2 --limit 3 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Evidence status",
+      "command": "availability check",
+      "description": "Report party-specific venue slots without upgrading search summaries or course listings into booking guarantees.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli availability check sushi-tokyo81 --date 2026-09-30 --party 2 --time 18:00 --limit 3 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Course cost and conditions",
+      "command": "courses get",
+      "description": "Preserve exact prices, Japanese names, fine print and unknown charges.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli courses get sushi-tokyo81 68da546fcde865308c33e7f9 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Visible freshness",
+      "command": "availability check",
+      "description": "Keep cache age attached to every availability observation and refresh explicitly.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli availability check sushi-tokyo81 --date 2026-09-30 --party 2 --limit 3 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Canonical handoff",
+      "command": "booking-url",
+      "description": "Return the correct TableCheck booking page with validated date, time and party.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli booking-url sushi-tokyo81 --date 2026-09-30 --time 17:30 --party 2 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bounded trip scan",
+      "command": "availability scan",
+      "description": "Check a bounded restaurant shortlist across trip dates with partial results.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli availability scan sushi-tokyo81 sushi-shiono --from 2026-09-30 --to 2026-10-01 --party 2 --limit 3 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Evidence status",
+      "command": "availability check",
+      "description": "Report party-specific venue slots without upgrading search summaries or course listings into booking guarantees.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli availability check sushi-tokyo81 --date 2026-09-30 --party 2 --time 18:00 --limit 3 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Course cost and conditions",
+      "command": "courses get",
+      "description": "Preserve exact prices, Japanese names, fine print and unknown charges.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli courses get sushi-tokyo81 68da546fcde865308c33e7f9 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Visible freshness",
+      "command": "availability check",
+      "description": "Keep cache age attached to every availability observation and refresh explicitly.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli availability check sushi-tokyo81 --date 2026-09-30 --party 2 --limit 3 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    },
+    {
+      "name": "Canonical handoff",
+      "command": "booking-url",
+      "description": "Return the correct TableCheck booking page with validated date, time and party.",
+      "rationale": "Combines verified TableCheck planning evidence with bounded agent output.",
+      "example": "tablecheck-pp-cli booking-url sushi-tokyo81 --date 2026-09-30 --time 17:30 --party 2 --cache-dir .tablecheck-cache --max-requests 8 --json",
+      "group": "Japan trip planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "TableCheck",
+    "headline": "Find Japan restaurants, inspect courses, and check a bounded shortlist before booking.",
+    "value_prop": "Preserves source prices, conditions and party-specific availability observations in compact JSON. Complete reservations on the canonical TableCheck booking page.",
+    "auth_narrative": "Tested public consumer reads need no credentials. This CLI uses undocumented website endpoints; the separately documented partner API requires approval, with pricing supplied during application.",
+    "quickstart": [
+      {
+        "command": "tablecheck-pp-cli doctor --dry-run",
+        "comment": "Check the local command surface without network."
+      },
+      {
+        "command": "tablecheck-pp-cli venues search --lat 35.681236 --lon 139.767125 --radius 3000 --cuisine sushi --limit 3",
+        "comment": "Discover a bounded Tokyo shortlist."
+      },
+      {
+        "command": "tablecheck-pp-cli courses list sushi-tokyo81 --limit 3",
+        "comment": "Inspect course summaries lazily."
+      }
+    ],
+    "when_to_use": "Use for Japan restaurant discovery, course inspection, bounded party/date checks and booking handoff through TableCheck.",
+    "anti_triggers": [
+      "Creating or changing reservations, holds, payments or waitlist entries",
+      "Tabelog ratings or cross-provider recommendations",
+      "Assuming a venue slot proves a named course is bookable"
+    ],
+    "recipes": [
+      {
+        "title": "Compact shortlist",
+        "command": "tablecheck-pp-cli venues search --lat 35.681236 --lon 139.767125 --radius 3000 --cuisine sushi --limit 3 --agent",
+        "explanation": "Keep a bounded set of stable identities and handoff URLs."
+      },
+      {
+        "title": "Course conditions",
+        "command": "tablecheck-pp-cli courses get sushi-tokyo81 68da546fcde865308c33e7f9",
+        "explanation": "Read exact price and fine print before comparing costs."
+      },
+      {
+        "title": "Venue identity",
+        "command": "tablecheck-pp-cli venues get sushi-tokyo81",
+        "explanation": "Resolve source details and booking mode."
+      }
+    ],
+    "trigger_phrases": [
+      "find TableCheck restaurants in Japan",
+      "check a TableCheck shortlist",
+      "inspect TableCheck courses",
+      "use tablecheck",
+      "run tablecheck"
+    ]
+  }
+}

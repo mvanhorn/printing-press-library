@@ -1,0 +1,304 @@
+{
+  "api_name": "tablecheck",
+  "base_url": "https://production.tablecheck.com",
+  "description": "Find Japan restaurants, inspect courses, and check a bounded shortlist before booking.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_calendar",
+      "description": "Read party-specific venue calendar; explicit slot booleans are venue-level and have no course linkage. Required: venue-id, start-at, party. Optional: locale (default: en). Returns the new CalendarResponse.",
+      "method": "POST",
+      "path": "/v2/hub/availability_calendar_v2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "venue-id",
+          "wire_name": "shop_id",
+          "type": "string",
+          "location": "body",
+          "description": "Stable shop _id from venue/search",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Source translation locale"
+        },
+        {
+          "name": "start-at",
+          "wire_name": "start_at",
+          "type": "string",
+          "location": "body",
+          "description": "UTC ISO start anchor; actual coverage is response-driven",
+          "required": true
+        },
+        {
+          "name": "party",
+          "wire_name": "num_people",
+          "type": "int",
+          "location": "body",
+          "description": "Exact party size for the venue calendar",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_cuisines",
+      "description": "Cuisine stable filter keys and source translations. Returns the CuisinesResponse.",
+      "method": "GET",
+      "path": "/v2/cuisines",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_menu-items",
+      "description": "Read course catalog for one venue and date window; listing status does not prove a bookable slot. Required: venue-id, from, to. Optional: locale (default: en), has-price (default: true), experiences. Returns the new MenusResponse.",
+      "method": "POST",
+      "path": "/v2/hub/menu_items",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "venue-id",
+          "wire_name": "shop_id",
+          "type": "string",
+          "location": "body",
+          "description": "Stable shop _id from venue/search",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Source translation locale"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_min",
+          "type": "string",
+          "location": "body",
+          "description": "Inclusive source menu window start as UTC ISO timestamp",
+          "required": true
+        },
+        {
+          "name": "to",
+          "wire_name": "date_max",
+          "type": "string",
+          "location": "body",
+          "description": "Source menu window end as UTC ISO timestamp; boundary effect not independently isolated",
+          "required": true
+        },
+        {
+          "name": "has-price",
+          "wire_name": "has_price",
+          "type": "bool",
+          "location": "body",
+          "description": "Observed priced-menu request flag"
+        },
+        {
+          "name": "experiences",
+          "wire_name": "use_experience_page",
+          "type": "bool",
+          "location": "body",
+          "description": "Observed experience-page flag; an empty response does not rule out ordinary courses"
+        }
+      ]
+    },
+    {
+      "name": "source_search",
+      "description": "Geographic venue discovery; budgets are venue dinner averages and availability is a discovery summary. Required: lat, lon, radius. Optional: universe-id (default: 57e0b91744aea12988000001), limit (default: 10), cursor (plus 13 more). Returns the SearchResponse.",
+      "method": "GET",
+      "path": "/v2/shop_search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "wire_name": "geo_latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Explicit search latitude",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "wire_name": "geo_longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Explicit search longitude",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "wire_name": "geo_distance",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in metres",
+          "required": true
+        },
+        {
+          "name": "universe-id",
+          "wire_name": "shop_universe_id",
+          "type": "string",
+          "location": "query",
+          "description": "Public dining shop universe"
+        },
+        {
+          "name": "limit",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Requested results per page; focused commands cap at 50"
+        },
+        {
+          "name": "cursor",
+          "wire_name": "search_after",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque meta.search_after cursor from the previous page"
+        },
+        {
+          "name": "include-ids",
+          "wire_name": "include_ids",
+          "type": "bool",
+          "location": "query",
+          "description": "Include stable shop IDs"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Source-supported distance ordering"
+        },
+        {
+          "name": "venue-type",
+          "wire_name": "venue_type",
+          "type": "string",
+          "location": "query",
+          "description": "TableCheck venue type"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Source translation locale"
+        },
+        {
+          "name": "cuisine",
+          "wire_name": "cuisines[]",
+          "type": "string",
+          "location": "query",
+          "description": "Stable cuisine field from source cuisines; upstream wire key has array brackets"
+        },
+        {
+          "name": "budget-min",
+          "wire_name": "budget_dinner_avg_min",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum venue dinner-average budget; source key observed but effect not independently isolated"
+        },
+        {
+          "name": "budget-max",
+          "wire_name": "budget_dinner_avg_max",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum venue dinner-average budget; decimal text"
+        },
+        {
+          "name": "service-mode",
+          "wire_name": "service_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Dining service mode"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Local discovery date YYYY-MM-DD"
+        },
+        {
+          "name": "time",
+          "type": "string",
+          "location": "query",
+          "description": "Discovery meal-time preference HH:MM; does not filter to one exact slot"
+        },
+        {
+          "name": "party",
+          "wire_name": "num_people",
+          "type": "int",
+          "location": "query",
+          "description": "Discovery party size"
+        },
+        {
+          "name": "availability-mode",
+          "wire_name": "availability_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Use same_meal_time with date/time/party discovery inputs"
+        },
+        {
+          "name": "availability-format",
+          "wire_name": "availability_format",
+          "type": "string",
+          "location": "query",
+          "description": "Use datetime with a specific discovery date"
+        }
+      ]
+    },
+    {
+      "name": "source_venue",
+      "description": "Venue identity, source conditions and booking-page mode inside shops; caller geolocation is not venue location. Required: slug. Optional: locale (default: en). Returns the VenueResponse.",
+      "method": "GET",
+      "path": "/v2/shops/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Public venue slug",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Source translation locale"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bounded trip scan",
+      "command": "availability scan",
+      "description": "Check a bounded restaurant shortlist across trip dates with partial results."
+    },
+    {
+      "name": "Evidence status",
+      "command": "availability check",
+      "description": "Report party-specific venue slots without upgrading search summaries or course listings into booking guarantees."
+    },
+    {
+      "name": "Course cost and conditions",
+      "command": "courses get",
+      "description": "Preserve exact prices, Japanese names, fine print and unknown charges."
+    },
+    {
+      "name": "Visible freshness",
+      "command": "availability check",
+      "description": "Keep cache age attached to every availability observation and refresh explicitly."
+    },
+    {
+      "name": "Canonical handoff",
+      "command": "booking-url",
+      "description": "Return the correct TableCheck booking page with validated date, time and party."
+    }
+  ]
+}

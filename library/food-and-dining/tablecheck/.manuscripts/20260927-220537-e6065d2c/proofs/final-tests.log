@@ -1,0 +1,15 @@
+?   	tablecheck-pp-cli/cmd/tablecheck-pp-cli	[no test files]
+?   	tablecheck-pp-cli/cmd/tablecheck-pp-mcp	[no test files]
+?   	tablecheck-pp-cli/internal/cache	[no test files]
+ok  	tablecheck-pp-cli/internal/cli	7.119s
+ok  	tablecheck-pp-cli/internal/client	4.814s
+ok  	tablecheck-pp-cli/internal/cliutil	13.865s
+?   	tablecheck-pp-cli/internal/cliutil/testenv	[no test files]
+?   	tablecheck-pp-cli/internal/config	[no test files]
+ok  	tablecheck-pp-cli/internal/mcp	7.754s
+ok  	tablecheck-pp-cli/internal/mcp/bound	5.178s
+ok  	tablecheck-pp-cli/internal/mcp/cobratree	12.492s
+ok  	tablecheck-pp-cli/internal/planner	24.755s
+ok  	tablecheck-pp-cli/internal/platform	6.008s
+ok  	tablecheck-pp-cli/internal/store	8.823s
+?   	tablecheck-pp-cli/internal/types	[no test files]

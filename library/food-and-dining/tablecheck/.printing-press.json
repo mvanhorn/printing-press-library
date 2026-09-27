@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T15:51:45.901768Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "tablecheck",
+  "display_name": "TableCheck",
+  "cli_name": "tablecheck-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "tablecheck-approved-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:7715cee7feee95754bb9a65fa150e000a1db9cadcd5091bfa0968504259d05d2",
+  "run_id": "20260927-220537-e6065d2c",
+  "category": "food-and-dining",
+  "description": "Find Japan restaurants, inspect courses, and check a bounded shortlist before booking.",
+  "mcp_binary": "tablecheck-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bounded trip scan",
+      "command": "availability scan",
+      "description": "Check a bounded restaurant shortlist across trip dates with partial results."
+    },
+    {
+      "name": "Evidence status",
+      "command": "availability check",
+      "description": "Report party-specific venue slots without upgrading search summaries or course listings into booking guarantees."
+    },
+    {
+      "name": "Course cost and conditions",
+      "command": "courses get",
+      "description": "Preserve exact prices, Japanese names, fine print and unknown charges."
+    },
+    {
+      "name": "Visible freshness",
+      "command": "availability check",
+      "description": "Keep cache age attached to every availability observation and refresh explicitly."
+    },
+    {
+      "name": "Canonical handoff",
+      "command": "booking-url",
+      "description": "Return the correct TableCheck booking page with validated date, time and party."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bounded trip scan",
+      "command": "availability scan",
+      "description": "Check a bounded restaurant shortlist across trip dates with partial results."
+    },
+    {
+      "name": "Evidence status",
+      "command": "availability check",
+      "description": "Report party-specific venue slots without upgrading search summaries or course listings into booking guarantees."
+    },
+    {
+      "name": "Course cost and conditions",
+      "command": "courses get",
+      "description": "Preserve exact prices, Japanese names, fine print and unknown charges."
+    },
+    {
+      "name": "Visible freshness",
+      "command": "availability check",
+      "description": "Keep cache age attached to every availability observation and refresh explicitly."
+    },
+    {
+      "name": "Canonical handoff",
+      "command": "booking-url",
+      "description": "Return the correct TableCheck booking page with validated date, time and party."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A",
+      "total": 83
+    }
+  }
+}

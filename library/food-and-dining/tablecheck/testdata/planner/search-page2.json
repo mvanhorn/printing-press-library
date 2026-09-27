@@ -1,0 +1,96 @@
+{
+  "shops": [
+    {
+      "_id": "604b10829276e60036fee70b",
+      "slug": "daimaru-tokyo-endo",
+      "name": [
+        "京都祇園八坂圓堂　大丸東京店",
+        "Kyotogion Yasaka Endo Daimarutokyoten"
+      ],
+      "name_translations": [
+        {
+          "translation": "京都祇園八坂圓堂　大丸東京店",
+          "locale": "ja"
+        },
+        {
+          "translation": "Kyotogion Yasaka Endo Daimarutokyoten",
+          "locale": "en"
+        }
+      ],
+      "location_name_translations": [],
+      "currency": "JPY",
+      "time_zone": "Asia/Tokyo",
+      "cuisines": [
+        "kaiseki",
+        "japanese"
+      ],
+      "geocode": {
+        "lon": 139.7661852,
+        "lat": 35.6817299
+      },
+      "booking_page_mode": "v1",
+      "service_modes": [
+        "dining"
+      ],
+      "budget_dinner_avg": "7500.0",
+      "budget_lunch_avg": "4000.0",
+      "budget_avg": "5750.0",
+      "distance": 101.10058406931418,
+      "availability": [],
+      "search_after": "WzEwMS4xMDA1ODQwNjkzMTQxOCwiZGFpbWFydS10b2t5by1lbmRvIl0="
+    },
+    {
+      "_id": "570a63d46c0b6223b500000a",
+      "slug": "atrium",
+      "name": [
+        "ゲストラウンジ「アトリウム」",
+        "The Atrium",
+        "The Atrium"
+      ],
+      "name_translations": [
+        {
+          "translation": "ゲストラウンジ「アトリウム」",
+          "locale": "ja"
+        },
+        {
+          "translation": "The Atrium",
+          "locale": "en"
+        }
+      ],
+      "location_name_translations": [
+        {
+          "translation": "東京ステーションホテル",
+          "locale": "ja"
+        },
+        {
+          "translation": "Tokyo Station Hotel",
+          "locale": "en"
+        }
+      ],
+      "currency": "JPY",
+      "time_zone": "Asia/Tokyo",
+      "cuisines": [
+        "yoshoku",
+        "french",
+        "modern-french"
+      ],
+      "geocode": {
+        "lon": 139.7660224,
+        "lat": 35.681397
+      },
+      "booking_page_mode": "v1",
+      "service_modes": [
+        "dining"
+      ],
+      "budget_lunch_avg": "12500.0",
+      "distance": 101.18407927383744,
+      "availability": [],
+      "search_after": "WzEwMS4xODQwNzkyNzM4Mzc0NCwiYXRyaXVtIl0="
+    }
+  ],
+  "meta": {
+    "record_count": 1395,
+    "search_after": "WzEwMS4xODQwNzkyNzM4Mzc0NCwiYXRyaXVtIl0=",
+    "last_page": false
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "tablecheck-pp-mcp",
+  "display_name": "TableCheck",
+  "version": "0.1.0",
+  "description": "Find Japan restaurants, inspect courses, and check a bounded shortlist before booking.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tablecheck-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tablecheck-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

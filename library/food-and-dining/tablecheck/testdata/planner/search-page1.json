@@ -1,0 +1,103 @@
+{
+  "shops": [
+    {
+      "_id": "66dfabdbededf0bc943e8c68",
+      "slug": "ricolo-tokyo",
+      "name": [
+        "リコロ 大丸東京店",
+        "Ricolo Daimaru Tokyo"
+      ],
+      "name_translations": [
+        {
+          "translation": "リコロ 大丸東京店",
+          "locale": "ja"
+        },
+        {
+          "translation": "Ricolo Daimaru Tokyo",
+          "locale": "en"
+        }
+      ],
+      "location_name_translations": [],
+      "currency": "JPY",
+      "time_zone": "Asia/Tokyo",
+      "cuisines": [
+        "teppanyaki",
+        "steak",
+        "meat"
+      ],
+      "geocode": {
+        "lon": 139.7672552,
+        "lat": 35.6813365
+      },
+      "booking_page_mode": "v2",
+      "service_modes": [
+        "dining"
+      ],
+      "budget_dinner_avg": "12500.0",
+      "budget_lunch_avg": "5500.0",
+      "budget_avg": "9000.0",
+      "distance": 16.214677464967476,
+      "availability": [],
+      "search_after": "WzE2LjIxNDY3NzQ2NDk2NzQ3Niwicmljb2xvLXRva3lvIl0="
+    },
+    {
+      "_id": "5f44d279a3c6be00019e1e2c",
+      "slug": "something-tokyo",
+      "name": [
+        "食堂サムシン",
+        "Grill&Bar THE BALLY’S "
+      ],
+      "name_translations": [
+        {
+          "translation": "食堂サムシン",
+          "locale": "ja"
+        },
+        {
+          "translation": "Grill&Bar THE BALLY’S ",
+          "locale": "en"
+        }
+      ],
+      "location_name_translations": [],
+      "currency": "JPY",
+      "time_zone": "Asia/Tokyo",
+      "cuisines": [
+        "izakaya",
+        "kamameshi",
+        "japanese"
+      ],
+      "geocode": {
+        "lon": 139.7665058,
+        "lat": 35.681293
+      },
+      "booking_page_mode": "v2",
+      "service_modes": [
+        "dining"
+      ],
+      "budget_dinner_avg": "5000.0",
+      "budget_lunch_avg": "1500.0",
+      "budget_avg": "3250.0",
+      "distance": 56.28601969641363,
+      "availability": [
+        "2026-09-28T17:30:00+09:00",
+        "2026-09-28T17:45:00+09:00",
+        "2026-09-28T18:00:00+09:00",
+        "2026-09-28T18:15:00+09:00",
+        "2026-09-28T18:30:00+09:00",
+        "2026-09-28T18:45:00+09:00",
+        "2026-09-28T19:00:00+09:00",
+        "2026-09-28T19:15:00+09:00",
+        "2026-09-28T19:30:00+09:00",
+        "2026-09-28T19:45:00+09:00",
+        "2026-09-28T20:00:00+09:00",
+        "2026-09-28T20:15:00+09:00",
+        "2026-09-28T20:30:00+09:00"
+      ],
+      "search_after": "WzU2LjI4NjAxOTY5NjQxMzYzLCJzb21ldGhpbmctdG9reW8iXQ=="
+    }
+  ],
+  "meta": {
+    "record_count": 1395,
+    "search_after": "WzU2LjI4NjAxOTY5NjQxMzYzLCJzb21ldGhpbmctdG9reW8iXQ==",
+    "last_page": false
+  }
+}

@@ -1,0 +1,381 @@
+{
+  "availability_calendar": {
+    "type": "success",
+    "time_zone": "Asia/Tokyo",
+    "closed_dates": [
+      "2026-09-28"
+    ],
+    "data": {
+      "2026-09-28": {
+        "2026-09-28T07:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T07:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T08:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T08:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T09:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T09:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T10:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T10:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-28T11:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        }
+      },
+      "2026-09-29": {
+        "2026-09-29T07:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-29T07:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-29T08:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-29T08:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-09-29T09:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-09-29T09:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-29T10:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-29T10:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-29T11:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        }
+      },
+      "2026-09-30": {
+        "2026-09-30T07:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T07:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T08:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T08:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-09-30T09:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T09:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T10:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T10:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-09-30T11:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        }
+      },
+      "2026-10-01": {
+        "2026-10-01T07:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T07:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T08:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T08:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-10-01T09:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T09:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T10:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T10:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-01T11:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        }
+      },
+      "2026-10-02": {
+        "2026-10-02T07:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-02T07:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-02T08:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-02T08:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-10-02T09:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-10-02T09:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-02T10:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-02T10:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-02T11:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        }
+      },
+      "2026-10-03": {
+        "2026-10-03T07:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-03T07:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-03T08:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-03T08:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-10-03T09:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        },
+        "2026-10-03T09:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-03T10:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-03T10:30:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": false
+        },
+        "2026-10-03T11:00:00.000Z": {
+          "tc_points_rate": null,
+          "is_variable_rate": false,
+          "fixed_amount": null,
+          "is_available": true
+        }
+      }
+    },
+    "alternate_timeslots": {},
+    "daily_max_tc_points_rates": {},
+    "tc_points_by_day": {
+      "2026-09-28": {
+        "tc_points_rate": null,
+        "is_variable_rate": false,
+        "fixed_amount": null
+      },
+      "2026-09-29": {
+        "tc_points_rate": null,
+        "is_variable_rate": false,
+        "fixed_amount": null
+      },
+      "2026-09-30": {
+        "tc_points_rate": null,
+        "is_variable_rate": false,
+        "fixed_amount": null
+      },
+      "2026-10-01": {
+        "tc_points_rate": null,
+        "is_variable_rate": false,
+        "fixed_amount": null
+      },
+      "2026-10-02": {
+        "tc_points_rate": null,
+        "is_variable_rate": false,
+        "fixed_amount": null
+      },
+      "2026-10-03": {
+        "tc_points_rate": null,
+        "is_variable_rate": false,
+        "fixed_amount": null
+      }
+    }
+  }
+}

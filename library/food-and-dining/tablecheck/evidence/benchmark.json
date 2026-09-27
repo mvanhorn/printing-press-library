@@ -1,0 +1,184 @@
+{
+  "harness": "tablecheck-planning-benchmark",
+  "started_at": "2026-09-27T15:36:36.948029+00:00",
+  "finished_at": "2026-09-27T15:36:42.032125+00:00",
+  "passed": true,
+  "request_budget": {
+    "limit": 40,
+    "charged_attempt_upper_bound": 12,
+    "observed_cli_attempts": 12,
+    "direct_attempts": 0,
+    "unknown_cli_invocations": 0,
+    "actual_attempts": 12
+  },
+  "units": {
+    "stdout_bytes": "bytes emitted by CLI, including newline",
+    "response_bytes": "actual HTTP payload bytes read by CLI",
+    "wall_time_ms": "milliseconds including process startup",
+    "source_latency_ms": "CLI-reported milliseconds",
+    "peak_rss": "Darwin bytes; Linux KiB, also normalized to bytes"
+  },
+  "limits": {
+    "cli_wall_seconds": 35,
+    "payload_bytes": 4194304,
+    "cli_retries_max": 1,
+    "warm_accidental_HTTP_attempts_max": 1,
+    "cache_dirs": "one fresh dedicated directory per representative case"
+  },
+  "measurements": [
+    {
+      "name": "search-cold",
+      "requests": 1,
+      "response_bytes": 12947,
+      "stdout_bytes": 2700,
+      "wall_time_ms": 508.044,
+      "source_latency_ms": 452,
+      "peak_rss": {
+        "value": 25198592,
+        "unit": "bytes",
+        "bytes": 25198592,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "search-warm",
+      "requests": 0,
+      "response_bytes": 0,
+      "stdout_bytes": 2700,
+      "wall_time_ms": 19.31,
+      "source_latency_ms": 0,
+      "peak_rss": {
+        "value": 19152896,
+        "unit": "bytes",
+        "bytes": 19152896,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "venue-cold",
+      "requests": 1,
+      "response_bytes": 11609,
+      "stdout_bytes": 5253,
+      "wall_time_ms": 451.136,
+      "source_latency_ms": 409,
+      "peak_rss": {
+        "value": 25411584,
+        "unit": "bytes",
+        "bytes": 25411584,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "venue-warm",
+      "requests": 0,
+      "response_bytes": 0,
+      "stdout_bytes": 5253,
+      "wall_time_ms": 19.421,
+      "source_latency_ms": 0,
+      "peak_rss": {
+        "value": 19169280,
+        "unit": "bytes",
+        "bytes": 19169280,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "courses-cold",
+      "requests": 2,
+      "response_bytes": 46174,
+      "stdout_bytes": 3560,
+      "wall_time_ms": 771.587,
+      "source_latency_ms": 746,
+      "peak_rss": {
+        "value": 24756224,
+        "unit": "bytes",
+        "bytes": 24756224,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "courses-warm",
+      "requests": 0,
+      "response_bytes": 0,
+      "stdout_bytes": 3560,
+      "wall_time_ms": 39.316,
+      "source_latency_ms": 3,
+      "peak_rss": {
+        "value": 20643840,
+        "unit": "bytes",
+        "bytes": 20643840,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "check-cold",
+      "requests": 2,
+      "response_bytes": 49716,
+      "stdout_bytes": 2864,
+      "wall_time_ms": 806.603,
+      "source_latency_ms": 745,
+      "peak_rss": {
+        "value": 25100288,
+        "unit": "bytes",
+        "bytes": 25100288,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "check-warm",
+      "requests": 0,
+      "response_bytes": 0,
+      "stdout_bytes": 2860,
+      "wall_time_ms": 36.735,
+      "source_latency_ms": 3,
+      "peak_rss": {
+        "value": 20840448,
+        "unit": "bytes",
+        "bytes": 20840448,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "check-refresh",
+      "requests": 2,
+      "response_bytes": 49716,
+      "stdout_bytes": 2866,
+      "wall_time_ms": 769.459,
+      "source_latency_ms": 702,
+      "peak_rss": {
+        "value": 25280512,
+        "unit": "bytes",
+        "bytes": 25280512,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "scan-cold",
+      "requests": 4,
+      "response_bytes": 95938,
+      "stdout_bytes": 10776,
+      "wall_time_ms": 1632.429,
+      "source_latency_ms": 1603,
+      "peak_rss": {
+        "value": 26640384,
+        "unit": "bytes",
+        "bytes": 26640384,
+        "tool": "/usr/bin/time -l"
+      }
+    },
+    {
+      "name": "scan-warm",
+      "requests": 0,
+      "response_bytes": 0,
+      "stdout_bytes": 10763,
+      "wall_time_ms": 19.967,
+      "source_latency_ms": 2,
+      "peak_rss": {
+        "value": 22970368,
+        "unit": "bytes",
+        "bytes": 22970368,
+        "tool": "/usr/bin/time -l"
+      }
+    }
+  ]
+}

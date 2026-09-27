@@ -1,0 +1,15 @@
+?   	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/cmd/tablecheck-pp-cli	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/cmd/tablecheck-pp-mcp	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/cache	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/cli	4.629s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/client	2.739s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/cliutil	12.795s
+?   	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/cliutil/testenv	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/mcp	4.516s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/mcp/bound	1.267s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/mcp/cobratree	10.363s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/planner	22.493s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/platform	2.670s
+ok  	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/store	2.752s
+?   	github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck/internal/types	[no test files]

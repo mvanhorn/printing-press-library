@@ -1,0 +1,15 @@
+{
+  "availability_calendar": {
+    "type": "vendor_future_status",
+    "time_zone": "Asia/Tokyo",
+    "closed_dates": [],
+    "data": {
+      "2026-09-30": {
+        "2026-09-30T08:30:00.000Z": {
+          "is_available": false
+        }
+      }
+    },
+    "alternate_timeslots": {}
+  }
+}

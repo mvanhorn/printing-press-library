@@ -1,0 +1,73 @@
+{
+  "cli_name": "tablecheck-pp-cli",
+  "api_name": "tablecheck",
+  "category": "food-and-dining",
+  "module_path": "github.com/mvanhorn/printing-press-library/library/food-and-dining/tablecheck",
+  "run_id": "20260927-220537-e6065d2c",
+  "publish_live_gate": {
+    "run_id": "20260927-220537-e6065d2c",
+    "status": "pass",
+    "level": "full",
+    "matrix_size": 100,
+    "tests_passed": 100,
+    "tests_failed": null,
+    "tests_skipped": 74,
+    "source_fingerprint": "6980a1da30738a44335a6aa9a0692f8c2502c7746b2cc1716121cc8ad3875ba5"
+  },
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ],
+  "source_module_path_note": "The pre-package bare module warning was resolved by canonical module-path rewriting; the packaged check passes.",
+  "packaged_tests": "go test -count=1 ./... passed"
+}

@@ -1,0 +1,622 @@
+{
+  "endpoint": "GET /v2/shops/sushi-tokyo81",
+  "method": "GET",
+  "raw_url": "https://production.tablecheck.com/v2/shops/sushi-tokyo81?locale=en",
+  "status": 200,
+  "request_headers": {
+    "Accept": "application/json",
+    "User-Agent": "TableCheck-public-contract-research/1.0"
+  },
+  "request_body": null,
+  "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+  },
+  "response_body": {
+    "country": "SG",
+    "latitude": 1.3153,
+    "longitude": 103.9143,
+    "meta": {
+      "last_page": true,
+      "record_count": 1,
+      "search_after": "WzUzMDk2NDcuODI4NjQ3Nzk3LCJzdXNoaS10b2t5bzgxIl0="
+    },
+    "shops": [
+      {
+        "_id": "67e657634474874e35785280",
+        "address": {
+          "city": "品川区",
+          "country": "JP",
+          "id": "67e657634474874e35785286",
+          "postal_code": "141-0022",
+          "region": "東京都",
+          "street": "東五反田1-20-9",
+          "street2": "1階",
+          "tag": "none"
+        },
+        "affluent_program_venue": false,
+        "alt_address": {
+          "city": "Shinagawa",
+          "country": "JP",
+          "id": "67e659c45af485109550524c",
+          "postal_code": "141-0022",
+          "region": "Tokyo",
+          "street": "1-20-9 Higashigotanda",
+          "street2": "1F",
+          "tag": "none"
+        },
+        "banner_image": "https://cdn1.tablecheck.com/images/67e65f1f8fe958dfb1169364/images/lg/99463af1.jpg?1743150880",
+        "booking_page_mode": "v2",
+        "budget_avg": "10500.0",
+        "budget_dinner_avg": "15000.0",
+        "budget_dinner_max": "20000.0",
+        "budget_dinner_min": "10000.0",
+        "budget_lunch_avg": "6000.0",
+        "budget_lunch_max": "7000.0",
+        "budget_lunch_min": "5000.0",
+        "content_body_translations": [
+          {
+            "locale": "ja",
+            "translation": "カウンター席と完全個室のテーブル席完備。隠れ家レストラン。"
+          },
+          {
+            "locale": "en",
+            "translation": "A hideaway restaurant with counter seats and fully private table seats."
+          },
+          {
+            "locale": "ko",
+            "translation": "카운터석과 완전 개인실 테이블석 완비. 은신처 레스토랑."
+          },
+          {
+            "locale": "zh-CN",
+            "translation": "完全包间内设有吧台席和餐桌席。一家隐藏的餐厅。"
+          },
+          {
+            "locale": "zh-TW",
+            "translation": "完全包廂內設有吧台席和餐桌席。一家隱藏的餐廳。"
+          }
+        ],
+        "content_title_translations": [
+          {
+            "locale": "ja",
+            "translation": "江戸前鮨"
+          },
+          {
+            "locale": "en",
+            "translation": "Edomae Sushi"
+          },
+          {
+            "locale": "ko",
+            "translation": "에도마에 스시"
+          },
+          {
+            "locale": "zh-CN",
+            "translation": "江户前寿司"
+          },
+          {
+            "locale": "zh-TW",
+            "translation": "江戶前壽司"
+          }
+        ],
+        "country": "JP",
+        "cuisines": [
+          "sushi",
+          "japanese"
+        ],
+        "currency": "JPY",
+        "default_locale": "ja",
+        "enable_points_issuance": false,
+        "enable_points_redemption": true,
+        "enable_promo_code": false,
+        "enable_request_any_datetime": false,
+        "express_booking_enabled": false,
+        "geocode": {
+          "lat": 35.62608609999999,
+          "lon": 139.7265211
+        },
+        "google_place_ref": "ChIJYeIwtz-LGGARpoJxZCKM9-8",
+        "images": [
+          {
+            "caption": null,
+            "id": "67e65f1f8fe958dfb1169364",
+            "original": "https://cdn0.tablecheck.com/images/67e65f1f8fe958dfb1169364/images/original/99463af1.jpg?1743150880",
+            "thumbnail": "https://cdn3.tablecheck.com/images/67e65f1f8fe958dfb1169364/images/md/99463af1.jpg?1743150880"
+          },
+          {
+            "caption": null,
+            "id": "67e65f327d395701fb16934c",
+            "original": "https://cdn2.tablecheck.com/images/67e65f327d395701fb16934c/images/original/3cbee47f.jpg?1743150898",
+            "thumbnail": "https://cdn1.tablecheck.com/images/67e65f327d395701fb16934c/images/md/3cbee47f.jpg?1743150898"
+          },
+          {
+            "caption": null,
+            "id": "67e65f3df071f047cb8f4128",
+            "original": "https://cdn2.tablecheck.com/images/67e65f3df071f047cb8f4128/images/original/4e6d3896.jpg?1743150910",
+            "thumbnail": "https://cdn0.tablecheck.com/images/67e65f3df071f047cb8f4128/images/md/4e6d3896.jpg?1743150910"
+          },
+          {
+            "caption": null,
+            "id": "67eb50f8438fcee3d2f90d84",
+            "original": "https://cdn0.tablecheck.com/images/67eb50f8438fcee3d2f90d84/images/original/5f68413a.jpg?1743474936",
+            "thumbnail": "https://cdn1.tablecheck.com/images/67eb50f8438fcee3d2f90d84/images/md/5f68413a.jpg?1743474936"
+          },
+          {
+            "caption": null,
+            "id": "67e65f55fba1a16eb582d85f",
+            "original": "https://cdn1.tablecheck.com/images/67e65f55fba1a16eb582d85f/images/original/db8a5624.jpg?1743150933",
+            "thumbnail": "https://cdn1.tablecheck.com/images/67e65f55fba1a16eb582d85f/images/md/db8a5624.jpg?1743150933"
+          },
+          {
+            "caption": null,
+            "id": "67e65f5e8fe958dfb1169366",
+            "original": "https://cdn0.tablecheck.com/images/67e65f5e8fe958dfb1169366/images/original/369acd80.jpg?1743150943",
+            "thumbnail": "https://cdn1.tablecheck.com/images/67e65f5e8fe958dfb1169366/images/md/369acd80.jpg?1743150943"
+          },
+          {
+            "caption": null,
+            "id": "67e65f6848c2bd814d5054b0",
+            "original": "https://cdn2.tablecheck.com/images/67e65f6848c2bd814d5054b0/images/original/9c5330b6.jpg?1743150952",
+            "thumbnail": "https://cdn0.tablecheck.com/images/67e65f6848c2bd814d5054b0/images/md/9c5330b6.jpg?1743150952"
+          },
+          {
+            "caption": null,
+            "id": "67e65f73c3136b9441a18e51",
+            "original": "https://cdn1.tablecheck.com/images/67e65f73c3136b9441a18e51/images/original/bdf250e9.jpg?1743150963",
+            "thumbnail": "https://cdn0.tablecheck.com/images/67e65f73c3136b9441a18e51/images/md/bdf250e9.jpg?1743150963"
+          },
+          {
+            "caption": null,
+            "id": "67e65f7b19b4e5242b4b1f3b",
+            "original": "https://cdn3.tablecheck.com/images/67e65f7b19b4e5242b4b1f3b/images/original/ac1c9ae5.jpg?1743150971",
+            "thumbnail": "https://cdn2.tablecheck.com/images/67e65f7b19b4e5242b4b1f3b/images/md/ac1c9ae5.jpg?1743150971"
+          }
+        ],
+        "is_smartpay": false,
+        "kana_name": "スシ トウキョウ エイトワン",
+        "locale": "ja",
+        "location_kana_name": "",
+        "location_name_translations": [],
+        "name": [
+          "SUSHI TOKYO 81",
+          "SUSHI TOKYO 81"
+        ],
+        "name_translations": [
+          {
+            "locale": "ja",
+            "translation": "SUSHI TOKYO 81"
+          },
+          {
+            "locale": "en",
+            "translation": "SUSHI TOKYO 81"
+          }
+        ],
+        "phone": "<redacted>",
+        "phone_natl": "03-6450-3087",
+        "request_policy_placement": "popup",
+        "request_policy_require_confirm": true,
+        "request_policy_translations": [
+          {
+            "locale": "en",
+            "translation": "There are currently no seats available for reservation.\r\nJoin the waitlist to receive a notification if a seat becomes available due to a cancellation or other changes.\r\nIf you do not receive a notification by the day before, please understand that no seats became available."
+          },
+          {
+            "locale": "ja",
+            "translation": "ただいま、ご予約いただけるお席がありません。\r\n\r\nキャンセル待ちに登録すると、キャンセルなどで空席が出た際に、ご登録の連絡先へご案内します。\r\n\r\n前日までにご案内がない場合は、空席がないものとしてご了承ください。"
+          },
+          {
+            "locale": "ko",
+            "translation": "대기 예약 등록\r\n현재 예약 가능한 좌석이 없습니다.\r\n대기 예약을 등록하시면 취소 등으로 좌석이 다시 예약 가능해질 경우 등록하신 연락처로 안내해 드립니다.\r\n전날까지 안내를 받지 못하신 경우, 예약 가능한 좌석이 없는 것으로 양해 부탁드립니다."
+          },
+          {
+            "locale": "zh-CN",
+            "translation": "目前暂无可预约的座位。\r\n登记候补后，如因取消预约等原因有座位空出，我们会通过您登记的联系方式通知您。\r\n如果截至前一天仍未收到通知，则表示暂无可预约的座位，敬请谅解。"
+          },
+          {
+            "locale": "zh-TW",
+            "translation": "目前沒有可預約的座位。\r\n登記候補後，如因取消預約等原因有座位空出，我們會透過您登記的聯絡方式通知您。\r\n如果截至前一天仍未收到通知，則表示目前沒有可預約的座位，敬請見諒。"
+          }
+        ],
+        "search_after": "WzUzMDk2NDcuODI4NjQ3Nzk3LCJzdXNoaS10b2t5bzgxIl0=",
+        "search_image": "https://cdn3.tablecheck.com/images/67e65f1f8fe958dfb1169364/images/md/99463af1.jpg?1743150880",
+        "service_categories": [
+          {
+            "id": "67eb4c81fc3dd992c5ec88ed",
+            "image_url": "https://cdn0.tablecheck.com/service_categories/67eb4c81fc3dd992c5ec88ed/images/md/61816dbb.webp?1743474203",
+            "name_translations": [
+              {
+                "locale": "ja",
+                "translation": "カウンター席"
+              },
+              {
+                "locale": "en",
+                "translation": "Counter seats"
+              },
+              {
+                "locale": "ko",
+                "translation": "카운터석"
+              },
+              {
+                "locale": "zh-CN",
+                "translation": "吧台席"
+              },
+              {
+                "locale": "zh-TW",
+                "translation": "吧台席"
+              }
+            ]
+          },
+          {
+            "id": "67eb4c9a5bd086eb43a44df0",
+            "image_url": "https://cdn0.tablecheck.com/service_categories/67eb4c9a5bd086eb43a44df0/images/md/07643a29.jpg?1743474227",
+            "name_translations": [
+              {
+                "locale": "ja",
+                "translation": "テーブル席"
+              },
+              {
+                "locale": "en",
+                "translation": "Table Seating"
+              },
+              {
+                "locale": "ko",
+                "translation": "테이블 좌석"
+              },
+              {
+                "locale": "zh-CN",
+                "translation": "餐桌座位"
+              },
+              {
+                "locale": "zh-TW",
+                "translation": "餐桌座位"
+              }
+            ]
+          }
+        ],
+        "service_modes": [
+          "dining"
+        ],
+        "shop_universe_ids": [
+          "57e0b91744aea12988000001"
+        ],
+        "slug": "sushi-tokyo81",
+        "stations": [
+          {
+            "distance": 284.9821667042352,
+            "geocode": {
+              "lat": 35.62645,
+              "lon": 139.7234
+            },
+            "name_translations": [
+              {
+                "locale": "en",
+                "translation": "五反田"
+              },
+              {
+                "locale": "ja",
+                "translation": "五反田"
+              },
+              {
+                "locale": "ko",
+                "translation": "고탄다"
+              },
+              {
+                "locale": "zh-CN",
+                "translation": "五反田"
+              },
+              {
+                "locale": "zh-TW",
+                "translation": "五反田"
+              },
+              {
+                "locale": "de",
+                "translation": "五反田"
+              },
+              {
+                "locale": "es",
+                "translation": "五反田"
+              },
+              {
+                "locale": "fr",
+                "translation": "五反田"
+              },
+              {
+                "locale": "nl",
+                "translation": null
+              },
+              {
+                "locale": "it",
+                "translation": "五反田"
+              },
+              {
+                "locale": "pt",
+                "translation": null
+              },
+              {
+                "locale": "tr",
+                "translation": null
+              },
+              {
+                "locale": "ru",
+                "translation": "Готанда"
+              },
+              {
+                "locale": "id",
+                "translation": null
+              },
+              {
+                "locale": "ms",
+                "translation": null
+              },
+              {
+                "locale": "tl",
+                "translation": null
+              },
+              {
+                "locale": "th",
+                "translation": null
+              },
+              {
+                "locale": "lo",
+                "translation": null
+              },
+              {
+                "locale": "km",
+                "translation": null
+              },
+              {
+                "locale": "vi",
+                "translation": null
+              },
+              {
+                "locale": "ar",
+                "translation": null
+              },
+              {
+                "locale": "he",
+                "translation": null
+              },
+              {
+                "locale": "hi",
+                "translation": null
+              }
+            ]
+          },
+          {
+            "distance": 284.9821667042352,
+            "geocode": {
+              "lat": 35.62645,
+              "lon": 139.7234
+            },
+            "name_translations": [
+              {
+                "locale": "en",
+                "translation": "Gotanda Station"
+              },
+              {
+                "locale": "ja",
+                "translation": "五反田駅"
+              },
+              {
+                "locale": "ko",
+                "translation": "Gotanda Station"
+              },
+              {
+                "locale": "zh-CN",
+                "translation": "五反田駅"
+              },
+              {
+                "locale": "zh-TW",
+                "translation": "五反田駅"
+              },
+              {
+                "locale": "de",
+                "translation": "Gotanda Station"
+              },
+              {
+                "locale": "es",
+                "translation": "Gotanda Station"
+              },
+              {
+                "locale": "fr",
+                "translation": "Gotanda Station"
+              },
+              {
+                "locale": "nl",
+                "translation": null
+              },
+              {
+                "locale": "it",
+                "translation": "Gotanda Station"
+              },
+              {
+                "locale": "pt",
+                "translation": null
+              },
+              {
+                "locale": "tr",
+                "translation": null
+              },
+              {
+                "locale": "ru",
+                "translation": null
+              },
+              {
+                "locale": "id",
+                "translation": null
+              },
+              {
+                "locale": "ms",
+                "translation": null
+              },
+              {
+                "locale": "tl",
+                "translation": null
+              },
+              {
+                "locale": "th",
+                "translation": null
+              },
+              {
+                "locale": "lo",
+                "translation": null
+              },
+              {
+                "locale": "km",
+                "translation": null
+              },
+              {
+                "locale": "vi",
+                "translation": null
+              },
+              {
+                "locale": "ar",
+                "translation": null
+              },
+              {
+                "locale": "he",
+                "translation": null
+              },
+              {
+                "locale": "hi",
+                "translation": null
+              }
+            ]
+          },
+          {
+            "distance": 510.1950217304741,
+            "geocode": {
+              "lat": 35.6225,
+              "lon": 139.723
+            },
+            "name_translations": [
+              {
+                "locale": "en",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "ja",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "ko",
+                "translation": "오사키히로코지"
+              },
+              {
+                "locale": "zh-CN",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "zh-TW",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "de",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "es",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "fr",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "nl",
+                "translation": null
+              },
+              {
+                "locale": "it",
+                "translation": "大崎広小路"
+              },
+              {
+                "locale": "pt",
+                "translation": null
+              },
+              {
+                "locale": "tr",
+                "translation": null
+              },
+              {
+                "locale": "ru",
+                "translation": null
+              },
+              {
+                "locale": "id",
+                "translation": null
+              },
+              {
+                "locale": "ms",
+                "translation": null
+              },
+              {
+                "locale": "tl",
+                "translation": null
+              },
+              {
+                "locale": "th",
+                "translation": null
+              },
+              {
+                "locale": "lo",
+                "translation": null
+              },
+              {
+                "locale": "km",
+                "translation": null
+              },
+              {
+                "locale": "vi",
+                "translation": null
+              },
+              {
+                "locale": "ar",
+                "translation": null
+              },
+              {
+                "locale": "he",
+                "translation": null
+              },
+              {
+                "locale": "hi",
+                "translation": null
+              }
+            ]
+          }
+        ],
+        "tagline_translations": [],
+        "tags": [
+          "business",
+          "events",
+          "groups",
+          "private",
+          "quiet"
+        ],
+        "tc_input_service_category": "required",
+        "tc_points_rules": [],
+        "time_zone": "Asia/Tokyo",
+        "topic1_body_translations": [],
+        "topic1_image": "https://cdn3.tablecheck.com/images/67e65f1f8fe958dfb1169364/images/md/99463af1.jpg?1743150880",
+        "topic1_title_translations": [],
+        "topic2_body_translations": [],
+        "topic2_image": "https://cdn1.tablecheck.com/images/67e65f327d395701fb16934c/images/md/3cbee47f.jpg?1743150898",
+        "topic2_title_translations": [],
+        "topic3_body_translations": [],
+        "topic3_image": "https://cdn0.tablecheck.com/images/67e65f3df071f047cb8f4128/images/md/4e6d3896.jpg?1743150910",
+        "topic3_title_translations": [],
+        "translation_locales": [
+          "en",
+          "ja",
+          "ko",
+          "zh-CN",
+          "zh-TW"
+        ],
+        "url": "https://www.sushi-tokyo81.com/",
+        "use_menu_show_locales": false
+      }
+    ]
+  },
+  "response_body_known": true,
+  "redactions": [
+    "response_body.shops[0].phone.pattern:phone"
+  ]
+}

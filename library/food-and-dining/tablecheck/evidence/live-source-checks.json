@@ -1,0 +1,126 @@
+{
+  "harness": "tablecheck-planning-live",
+  "started_at": "2026-09-27T15:33:01.225943+00:00",
+  "finished_at": "2026-09-27T15:33:08.146963+00:00",
+  "passed": true,
+  "request_budget": {
+    "limit": 40,
+    "charged_attempt_upper_bound": 11,
+    "observed_cli_attempts": 8,
+    "direct_attempts": 3,
+    "unknown_cli_invocations": 0,
+    "actual_attempts": 11
+  },
+  "historical_reference": {
+    "course_id": "68da546fcde865308c33e7f9",
+    "present_in_current_catalog": true,
+    "historical_snapshot_price": "19800.0",
+    "immutable_price_assumed": false,
+    "compared_current_course_id": "68da546fcde865308c33e7f9",
+    "compared_current_price": "19800.0"
+  },
+  "party_comparison": {
+    "party2": {
+      "source_available_count": 1,
+      "compared_local_times": [
+        "18:00",
+        "16:00",
+        "16:30",
+        "17:00",
+        "17:30",
+        "18:30",
+        "19:00",
+        "19:30",
+        "20:00"
+      ],
+      "requested_time_available": false,
+      "cli_status": "unavailable"
+    },
+    "party20": {
+      "source_available_count": 0,
+      "compared_local_times": [
+        "18:00",
+        "16:00",
+        "16:30",
+        "17:00",
+        "17:30",
+        "18:30",
+        "19:00",
+        "19:30",
+        "20:00"
+      ],
+      "requested_time_available": false,
+      "cli_status": "unavailable"
+    }
+  },
+  "cases": [
+    {
+      "name": "cuisine_lookup",
+      "passed": true,
+      "assertions": 3,
+      "failed_assertions": []
+    },
+    {
+      "name": "geographic_cuisine_budget_date_party_search",
+      "passed": true,
+      "assertions": 10,
+      "failed_assertions": []
+    },
+    {
+      "name": "opaque_cursor_page",
+      "passed": true,
+      "assertions": 4,
+      "failed_assertions": []
+    },
+    {
+      "name": "venue_identity_and_geocode",
+      "passed": true,
+      "assertions": 5,
+      "failed_assertions": []
+    },
+    {
+      "name": "course_summaries",
+      "passed": true,
+      "assertions": 3,
+      "failed_assertions": []
+    },
+    {
+      "name": "course_price_and_conditions_against_current_source",
+      "passed": true,
+      "assertions": 23,
+      "failed_assertions": []
+    },
+    {
+      "name": "party2_calendar_independent_comparison",
+      "passed": true,
+      "assertions": 24,
+      "failed_assertions": []
+    },
+    {
+      "name": "default_dinner_time_window_without_exact_preference",
+      "passed": true,
+      "assertions": 26,
+      "failed_assertions": []
+    },
+    {
+      "name": "party20_calendar_independent_comparison",
+      "passed": true,
+      "assertions": 24,
+      "failed_assertions": []
+    },
+    {
+      "name": "canonical_booking_handoff",
+      "passed": true,
+      "assertions": 3,
+      "failed_assertions": []
+    },
+    {
+      "name": "bounded_two_venue_two_day_partial_scan",
+      "passed": true,
+      "assertions": 4,
+      "failed_assertions": []
+    }
+  ],
+  "total_assertions": 129,
+  "method": "Bounded CLI reads compared against separate anonymous TableCheck menu/calendar HTTP requests; exact original cutoff preservation checked against the request-keyed raw response. Full raw operational transcripts retained only in local archive."
+}

@@ -1,0 +1,25 @@
+{
+  "endpoint": "POST /v2/hub/menu_items",
+  "method": "POST",
+  "raw_url": "https://production.tablecheck.com/v2/hub/menu_items",
+  "status": 200,
+  "request_headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "User-Agent": "TableCheck-public-contract-research/1.0"
+  },
+  "request_body": {
+    "date_max": "2026-11-16T14:25:43.963940Z",
+    "date_min": "2026-09-27T14:25:43.963940Z",
+    "locale": "en",
+    "shop_id": "67e657634474874e35785280",
+    "use_experience_page": true
+  },
+  "response_headers": {
+    "content-type": "application/json; charset=utf-8"
+  },
+  "response_body": {
+    "menu_items": []
+  },
+  "response_body_known": true
+}

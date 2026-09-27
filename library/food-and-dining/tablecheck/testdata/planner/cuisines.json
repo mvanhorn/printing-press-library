@@ -1,0 +1,56 @@
+{
+  "cuisines": [
+    {
+      "field": "chinese",
+      "text_translations": [
+        {
+          "translation": "Chinese",
+          "locale": "en"
+        },
+        {
+          "translation": "中華料理",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "field": "italian",
+      "text_translations": [
+        {
+          "translation": "Italian",
+          "locale": "en"
+        },
+        {
+          "translation": "イタリアン",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "field": "japanese",
+      "text_translations": [
+        {
+          "translation": "Japanese",
+          "locale": "en"
+        },
+        {
+          "translation": "和食",
+          "locale": "ja"
+        }
+      ]
+    },
+    {
+      "field": "sushi",
+      "text_translations": [
+        {
+          "translation": "Sushi",
+          "locale": "en"
+        },
+        {
+          "translation": "寿司・刺身",
+          "locale": "ja"
+        }
+      ]
+    }
+  ]
+}

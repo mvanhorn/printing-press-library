@@ -1,0 +1,152 @@
+{
+  "handwritten_before": 2,
+  "generated_findings": [
+    {
+      "file": "internal/client/client.go",
+      "line": "445",
+      "rule": "G119",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated redirect callback re-stamps authentication only after destination and same-origin checks; TableCheck planning refuses redirects entirely and uses no credential."
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule": "G101",
+      "classification": "generated-framework retro candidate",
+      "reason": "The matched value is the invalid_credentials enum label, not a credential."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3404-3407",
+      "rule": "G201",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated store validates interpolated identifiers against validIdentifierRE and parameterizes values; focused planning bypasses this store."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3101-3104",
+      "rule": "G201",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated store validates interpolated identifiers against validIdentifierRE and parameterizes values; focused planning bypasses this store."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1050",
+      "rule": "G201",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated store validates interpolated identifiers against validIdentifierRE and parameterizes values; focused planning bypasses this store."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1026",
+      "rule": "G201",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated store validates interpolated identifiers against validIdentifierRE and parameterizes values; focused planning bypasses this store."
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule": "G202",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated migration doubles SQL quotes before VACUUM INTO; target is an operator-selected local path, not TableCheck input."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "249",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "105",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/cli/export.go",
+      "line": "213",
+      "rule": "G304",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated local configuration/store/export/profile file operation uses an operator-selected or application-owned path. No upstream TableCheck field becomes that path."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule": "G302",
+      "classification": "generated-framework retro candidate",
+      "reason": "0700 applies to a directory, required for owner traversal; files use0600."
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule": "G302",
+      "classification": "generated-framework retro candidate",
+      "reason": "0700 applies to a directory, required for owner traversal; files use0600."
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule": "G302",
+      "classification": "generated-framework retro candidate",
+      "reason": "0700 applies to a directory, required for owner traversal; files use0600."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "788",
+      "rule": "G302",
+      "classification": "generated-framework retro candidate",
+      "reason": "0700 applies to a directory, required for owner traversal; files use0600."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3192",
+      "rule": "G104",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated optional sync metadata/debug-output error handling; not called by the planning data path. Record as template robustness follow-up."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2935",
+      "rule": "G104",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated optional sync metadata/debug-output error handling; not called by the planning data path. Record as template robustness follow-up."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1463",
+      "rule": "G104",
+      "classification": "generated-framework retro candidate",
+      "reason": "Generated optional sync metadata/debug-output error handling; not called by the planning data path. Record as template robustness follow-up."
+    }
+  ]
+}
