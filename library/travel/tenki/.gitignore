@@ -1,0 +1,10 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/tenki-pp-cli
+/tenki-pp-cli.exe
+/tenki-pp-mcp
+/tenki-pp-mcp.exe
+/bin/
+/build/
+/dist/
+.press/
+/.workflow-tenki-cache/

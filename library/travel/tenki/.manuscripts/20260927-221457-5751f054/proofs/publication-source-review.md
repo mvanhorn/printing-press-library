@@ -1,0 +1,3 @@
+Publication source review
+
+The three real show controllers were extracted into command-specific files using the public repository constructor/file convention. Root reviewed registration, validation, source invocation and output; behavior is unchanged, the unmodified upstream skill verifier passes, and focused CLI/MCP tests pass. The optional MCP HTTP listener now bounds request headers to10seconds; the scoped scanner reports21generated-framework matches, zero G112/header-timeout matches and zero custom weather/comparison findings. This supersedes the earlier dated22-finding baseline and its HTTP timeout limitation. Fresh full live publication gate passed58executed checks with0failures after these source changes.

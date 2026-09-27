@@ -1,0 +1,11 @@
+Manifest transcendence rows: 4 planned, 4 built. Phase 3 command and non-stub novel gates passed.
+
+Priority1: seven core leaves implemented with bounded source data, cache/provenance and compact projection. Root three-command help/dryrun/liveJSON gate passed (priority1-gate.md). Corrected day-only seasonal report precision and summary null collections. Provider continues fixture/client edge tests. Commands worker cleared to implement all four compare behaviors. Core runtime and MCP leaves preserve read-only help groups. Leisure discovery uses verified directory strategy, as disclosed; no broken keyword endpoint hidden as an empty success.
+
+Priority2: all four custom behaviors implemented in internal/planning and tenki_compare.go. Focused deterministic tests cover explicit criteria, true hourly intervals/instants, exact seasonal year/date applicability, evidence coverage, finite bounds, unknowns, ties, and source failure preservation. Root reviewed source semantics. Final command-tree and live acceptance remain pending.
+
+Generation recovery: original scaffold run failed sandbox socket validation before writing its manifest. Entire completed tree and original snapshot preserved under pipeline/generation-recovery; canonical --force --validate then passed test, govulncheck, vet, build, help, version and doctor. All21 custom files preserved. Authored docs restored. Newly re-emitted compare placeholder exposed a final-tree wiring issue, now being removed through a preserved adapter. Root also requested explicit unsupported_dates for partially overlapping daily requests.
+
+Generated static warnings: unused maxAge and five helper functions belong to generator-owned code; do not invent uses to silence them. Workflow static mapper does not tokenize flags in command strings, while its runtime ignores args maps; actual workflow runtime gate is required. No scope reduction or stub approved.
+
+Completion: all eight approved leaves resolve exactly and dry-run returns JSON without inputs; static novel check confirms four planned/four built, no stubs, no skips. Generated compare constructor now delegates to preserved implementation; real-root lifecycle regression passed. Daily partially unsupported ranges explicitly report missing dates independent of output limit.

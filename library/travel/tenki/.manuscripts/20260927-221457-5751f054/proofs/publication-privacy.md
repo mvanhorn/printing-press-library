@@ -1,0 +1,3 @@
+Publication privacy review
+
+Mandatory package vendor-token scan passed. No committed binaries, environment files, browser session state or credential config files were found. An additional email/bearer/capitalized-name scan produced400regex candidates across116distinct strings. Root inspected context: these are code identifiers/documentation terms, public copyright attribution, synthetic tests, product/place names and two URL/image strings. No captured private customer or account data remains. Required public author/license attribution is retained as part of the authorized source publication. No credentials were supplied to the tenki integration. Private host paths and raw runtime/browser caches are omitted from the public manuscript set; originals remain local.

@@ -1,0 +1,3 @@
+Publication preparation
+
+The user requested publication after the completed local build on 2026-09-28. This supersedes the initial local-only distribution decision. Original workspace, full run artifacts and generation receipts remain preserved locally. This public manuscript set contains research, dated validation summaries, measured efficiency and the source-bound acceptance marker. Raw runtime page caches, verbose process transcripts, temporary browser profiles and local file paths are excluded. Dated parser fixtures remain with code. The public command source will satisfy the destination repository verifier without changing user-visible behavior. A fresh full live publish gate and package validation are required before opening the PR.

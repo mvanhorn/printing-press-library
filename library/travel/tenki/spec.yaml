@@ -1,0 +1,32 @@
+name: tenki
+description: Choose Japan sightseeing dates with traceable weather and seasonal evidence.
+cli_description: Choose Japan sightseeing dates with traceable weather and seasonal evidence.
+version: 0.1.0
+category: travel
+base_url: https://tenki.jp
+http_transport: standard
+spec_source: sniffed
+auth:
+  type: none
+learn:
+  disabled: true
+# User requested focused bounded weather planning, no generalized learning or broad sync surface.
+config:
+  format: toml
+  path: ~/.config/tenki-pp-cli/config.toml
+resources:
+  catalog:
+    description: Source directories for supported Japan destinations
+    endpoints:
+      mountains:
+        method: GET
+        path: /mountain/
+        description: List source links for supported mountain destinations
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/mountain/famous100, /mountain/normal]
+          limit: 20
+        response:
+          type: object
+          item: html

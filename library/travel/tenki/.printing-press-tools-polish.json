@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-09-27T16:01:59.202949Z",
+  "cli_dir": "\u003ccli-dir\u003e/tenki-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated client profile list. The three-word Short accurately names its no-filter local list operation; it already has read-only annotation, and the client parent is hidden from the delivered MCP product surface. No extra prose improves this framework action."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-27T16:00:43.269443Z"
+  }
+}
