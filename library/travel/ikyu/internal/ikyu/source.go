@@ -267,7 +267,7 @@ func (c *Client) Rooms(ctx context.Context, r RoomsRequest) (RoomsResult, error)
 			}
 		}
 		room.PlanPagination = page(r.PlanLimit, r.PlanOffset, len(edge.Node.Amounts.Edges), len(room.Plans), *edge.Node.Amounts.Total)
-		if len(room.Plans) > 0 && roomMatches(room, r.Preferences) {
+		if roomMatches(room, r.Preferences) {
 			out.Data = append(out.Data, room)
 		}
 	}

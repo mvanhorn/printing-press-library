@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "3290c8977c0731fd7b3af2f2439938f349385a233705e396f7893a1c22fe3bd9",
+  "source_fingerprint": "2802ff46537a288abae58696589b2e7a9b785c59470ba72a37c326538040424c",
   "source_files": {
     "cmd/ikyu-pp-cli/main.go": "8ee33138b63fb66b7d715c98f9f73743059e2fafdfea737b832bce6e5602c3c0",
     "cmd/ikyu-pp-mcp/main.go": "ea18fe615e9f51273e20c3343703d48b7bea563402caf7e6356949c0dac7a0de",
@@ -90,9 +90,9 @@
     "internal/ikyu/client_test.go": "3fa7f74286f5eb0e808421e8a34b6e74c10075da3232b82d9402b2045336db14",
     "internal/ikyu/final_acceptance_test.go": "664c86ab4e322f076654348a08a19ce94c20d2f7bafb06371f47c3bb5a9f5e85",
     "internal/ikyu/live_test.go": "52092b11297e417d05870b682235ab837c011164c75bdcf767b6b7627b84adc6",
-    "internal/ikyu/rooms_budget_test.go": "979346a81c106bfb2911df3f4639a03a3b6137bd257ef9d296c8e8a6d55d6d75",
+    "internal/ikyu/rooms_budget_test.go": "56de2b94d359259f81797ca86cfdf4af47d35a142d30b677cc5034232adc1345",
     "internal/ikyu/semantics_test.go": "5d7f8cd42a8c960aa75c5fb37788097c91a6b389d7633deefc0ba9b9b0707187",
-    "internal/ikyu/source.go": "7848eec5c978a5f609a5a721fc3cc4293c18e4e98cbf387dfeebeddc40a87666",
+    "internal/ikyu/source.go": "fae3a4d4ce060b089c2f18411b2d2fe6384f477bcbc0147389bbe7359748d504",
     "internal/ikyu/source_acceptance_test.go": "81c3460ce91306146c0b26635d3c03bec08f5c3c32b0b9c6fa2ab1e169b86fc2",
     "internal/ikyu/ssr.go": "d7b847827572d3f421269d238d250c1be33252a9fce2fc157631c251f51e2832",
     "internal/ikyu/types.go": "2dbe5814657d7a61c8bf0003c49709c03f14e0e4f9709017c1e22b75e9ec1910",

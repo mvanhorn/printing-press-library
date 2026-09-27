@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "checked_at": "2026-09-27T17:24:45.644056+00:00",
+  "stay": {
+    "check_in": "2026-10-19",
+    "check_out": "2026-10-20"
+  },
+  "room_id": "10193741",
+  "plans": [],
+  "plan_total": 5,
+  "plan_pagination": {
+    "complete": false,
+    "has_next": false,
+    "limit": 1,
+    "next_offset": null,
+    "offset": 1000,
+    "returned": 0,
+    "scanned": 0,
+    "source_total": 5
+  },
+  "with_budget_returned_rooms": 0
+}

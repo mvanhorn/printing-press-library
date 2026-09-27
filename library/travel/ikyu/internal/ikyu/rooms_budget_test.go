@@ -116,3 +116,54 @@ func TestRoomsZeroBudgetMatchesCanContinueSourcePlanWindow(t *testing.T) {
 		t.Fatalf("continuation used filtered counts %+v", pg)
 	}
 }
+
+func TestRoomsEmptyPlanWindowPreservesUnfilteredRoom(t *testing.T) {
+	var data map[string]any
+	if err := json.Unmarshal(roomBudgetResponse(t, false), &data); err != nil {
+		t.Fatal(err)
+	}
+	conn := data["data"].(map[string]any)["accommodation"].(map[string]any)["searchRooms2"].(map[string]any)["rooms"].(map[string]any)
+	node := conn["edges"].([]any)[0].(map[string]any)["node"].(map[string]any)
+	id := node["roomId"].(string)
+	node["amounts"].(map[string]any)["edges"] = []any{}
+	node["attributes"] = []any{}
+	body, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name     string
+		p        Preferences
+		returned int
+	}{
+		{"no plan filter retains room", Preferences{}, 1},
+		{"budget needs a matching plan", Preferences{MaxBudget: pointer(int64(20000))}, 0},
+		{"meal needs a matching plan", Preferences{Meals: []string{"003"}}, 0},
+		{"room bath evidence still required", Preferences{OutdoorBath: true}, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := testClient(t, func(w http.ResponseWriter, r *http.Request) { w.Write(body) }, sourceOptions())
+			out, err := c.Rooms(context.Background(), RoomsRequest{PropertyID: "00002889", Stay: validStay(), Limit: 1, Offset: 3, PlanLimit: 6, PlanOffset: 11, Preferences: tc.p})
+			if err != nil || len(out.Data) != tc.returned {
+				t.Fatalf("empty plan window %+v %v", out, err)
+			}
+			if out.Pagination.Scanned != 1 || out.Pagination.Returned != tc.returned || out.Pagination.Total != 8 || out.Pagination.NextOffset == nil || *out.Pagination.NextOffset != 4 {
+				t.Fatalf("source room pagination changed %+v", out.Pagination)
+			}
+			if tc.returned == 0 {
+				return
+			}
+			room := out.Data[0]
+			pg := room.PlanPagination
+			if room.ID != id || room.Name == "" || !strings.Contains(room.URL, id) || room.Plans == nil || len(room.Plans) != 0 || room.PlanTotal == nil || *room.PlanTotal != 11 {
+				t.Fatalf("room identity or empty-plan evidence lost %+v", room)
+			}
+			if pg.Limit != 6 || pg.Offset != 11 || pg.Total != 11 || pg.Scanned != 0 || pg.Returned != 0 || pg.NextOffset != nil || pg.HasNext || pg.Complete {
+				t.Fatalf("native empty nested pagination changed %+v", pg)
+			}
+			if out.OccupancyEchoVerified || out.DateEchoVerified {
+				t.Fatal("empty plan window fabricated quote verification")
+			}
+		})
+	}
+}

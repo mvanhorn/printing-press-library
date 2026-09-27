@@ -11,5 +11,6 @@
     "internal/cli/stay_price_differences_test.go",
     "internal/ikyu/source.go",
     "internal/ikyu/rooms_budget_test.go"
-  ]
+  ],
+  "validated_outcome": "Deterministic and live comparisons expose monetary observations without unverified savings; budget/meal filters remove nonmatching plans, while unfiltered empty plan pages retain room identity and native pagination."
 }
