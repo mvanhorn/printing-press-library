@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "rakuten-travel-cache-writes-best-effort",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-220715-9b0c397a",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Optional cache persistence must not replace a successfully validated Rakuten result with a command failure.",
+  "reason": "Cache directories can be unwritable or invalid independently of upstream correctness. Preserve successfully parsed results, report each failed save only through an optional diagnostic callback, and keep source/network/parse failures as errors.",
+  "files": [
+    "internal/travel/types.go",
+    "internal/travel/client.go",
+    "internal/travel/cache.go",
+    "internal/travel/cache_write_test.go"
+  ],
+  "validated_outcome": "Deterministic ENOTDIR tests cover all four APIs, both Hotel pages, nil and warning callbacks, NoCache/default-live inventory suppression, and preservation of genuine source failures."
+}

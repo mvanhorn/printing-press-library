@@ -105,7 +105,7 @@ func (c *Client) Areas(ctx context.Context, parent string) (AreaResult, error) {
 	}
 	result, err := parseAreas(d, parent)
 	if err == nil {
-		err = c.save(d, false)
+		c.saveBestEffort(d, false)
 	}
 	return result, err
 }
@@ -129,7 +129,7 @@ func (c *Client) SearchHotels(ctx context.Context, q HotelQuery) (HotelSearchRes
 	}
 	result, err := parseHotelSearch(d, q)
 	if err == nil {
-		err = c.save(d, false)
+		c.saveBestEffort(d, false)
 	}
 	return result, err
 }
@@ -148,9 +148,7 @@ func (c *Client) Hotel(ctx context.Context, id string) (HotelResult, error) {
 	if err != nil {
 		return HotelResult{}, err
 	}
-	if err = c.save(d, false); err != nil {
-		return HotelResult{}, err
-	}
+	c.saveBestEffort(d, false)
 	result := HotelResult{Status: StatusOK, Hotel: h, Source: d.Source}
 	details, err := c.fetch(ctx, base+"_std.html", false)
 	if err != nil {
@@ -171,8 +169,8 @@ func (c *Client) Hotel(ctx context.Context, id string) (HotelResult, error) {
 	}
 	result.Hotel = h
 	result.DetailsSource = details.Source
-	err = c.save(details, false)
-	return result, err
+	c.saveBestEffort(details, false)
+	return result, nil
 }
 func (c *Client) Offers(ctx context.Context, q OfferQuery) (OfferResult, error) {
 	if err := q.validateAt(c.config.Now()); err != nil {
@@ -187,7 +185,7 @@ func (c *Client) Offers(ctx context.Context, q OfferQuery) (OfferResult, error) 
 	}
 	result, err := parseOffers(d, q)
 	if err == nil {
-		err = c.save(d, true)
+		c.saveBestEffort(d, true)
 	}
 	return result, err
 }

@@ -44,7 +44,7 @@ func newPublicHotelsSearchCmd(flags *rootFlags) *cobra.Command {
 			if err := query.Validate(); err != nil {
 				return usageErr(err)
 			}
-			api, err := options.client(flags)
+			api, err := options.client(cmd, flags)
 			if err != nil {
 				return err
 			}
@@ -90,7 +90,7 @@ func newPublicHotelsShowCmd(flags *rootFlags) *cobra.Command {
 			if err := travel.ValidateHotelID(hotel); err != nil {
 				return usageErr(err)
 			}
-			api, err := options.client(flags)
+			api, err := options.client(cmd, flags)
 			if err != nil {
 				return err
 			}

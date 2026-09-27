@@ -82,7 +82,7 @@ func newNovelOffersSearchCmd(flags *rootFlags) *cobra.Command {
 			if err := validateTravelOfferQuery(cmd, query); err != nil {
 				return err
 			}
-			api, err := options.client(flags)
+			api, err := options.client(cmd, flags)
 			if err != nil {
 				return err
 			}
