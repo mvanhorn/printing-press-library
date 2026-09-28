@@ -1,0 +1,383 @@
+{
+  "api_name": "serply",
+  "base_url": "https://api.serply.io",
+  "description": "Live Google, News, Scholar, Maps and Bing results, plus rank checks, SERP diffs and cited research briefs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Api-Key",
+    "in": "header",
+    "env_vars": [
+      "SERPLY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SERPLY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bing_search",
+      "description": "Search Bing and return organic results. Required: q. Optional: num, X-Proxy-Location, X-User-Agent. Returns array of BingSearchItem.",
+      "method": "GET",
+      "path": "/v1/b/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return."
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        },
+        {
+          "name": "X-User-Agent",
+          "type": "string",
+          "location": "query",
+          "description": "Device type to emulate: desktop or mobile."
+        }
+      ]
+    },
+    {
+      "name": "images_search",
+      "description": "Search Google Images. Required: q. Optional: num, hl, gl (plus 2 more). Returns the ImagesSearchResponse.",
+      "method": "GET",
+      "path": "/v1/image",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Interface language code, for example en."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code for results, for example us."
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        },
+        {
+          "name": "X-User-Agent",
+          "type": "string",
+          "location": "query",
+          "description": "Device type to emulate: desktop or mobile."
+        }
+      ]
+    },
+    {
+      "name": "job_search_search-jobs",
+      "description": "Search job listings indexed by Google Jobs. Required: q. Optional: X-Proxy-Location. Returns array of JobSearchSearchJobsItem.",
+      "method": "GET",
+      "path": "/v1/job/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        }
+      ]
+    },
+    {
+      "name": "maps_search",
+      "description": "Search Google Maps for places. The query is a path segment. Required: query. Optional: num, hl, gl. Returns array of MapsSearchItem.",
+      "method": "GET",
+      "path": "/v1/maps/search/{query}",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Place search text, for example coffee seattle.",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Interface language code, for example en."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code for results, for example us."
+        }
+      ]
+    },
+    {
+      "name": "news_search",
+      "description": "Search Google News and return recent articles. Required: q. Optional: hl, gl, ceid (plus 2 more). Returns array of NewsSearchItem.",
+      "method": "GET",
+      "path": "/v1/news",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Interface language code, for example en."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code for results, for example us."
+        },
+        {
+          "name": "ceid",
+          "type": "string",
+          "location": "query",
+          "description": "News edition, for example US:en."
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        },
+        {
+          "name": "X-User-Agent",
+          "type": "string",
+          "location": "query",
+          "description": "Device type to emulate: desktop or mobile."
+        }
+      ]
+    },
+    {
+      "name": "products_search",
+      "description": "Search Amazon products with price, rating and review count. Required: q. Optional: X-Proxy-Location. Returns array of ProductsSearchItem.",
+      "method": "GET",
+      "path": "/v1/product/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        }
+      ]
+    },
+    {
+      "name": "scholar_search",
+      "description": "Search Google Scholar for papers, authors and citations. Required: q. Optional: num, start, hl (plus 1 more). Returns array of ScholarSearchItem.",
+      "method": "GET",
+      "path": "/v1/scholar",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return."
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Result offset for pagination."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Interface language code, for example en."
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        }
+      ]
+    },
+    {
+      "name": "videos_search",
+      "description": "Search Google Videos. Required: q. Optional: num, hl, gl (plus 2 more). Returns array of VideosSearchItem.",
+      "method": "GET",
+      "path": "/v1/video",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Interface language code, for example en."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code for results, for example us."
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        },
+        {
+          "name": "X-User-Agent",
+          "type": "string",
+          "location": "query",
+          "description": "Device type to emulate: desktop or mobile."
+        }
+      ]
+    },
+    {
+      "name": "web_search",
+      "description": "Search Google and return organic results with title, link and description. Required: q. Optional: num, start, hl (plus 4 more). Returns the WebSearchResponse.",
+      "method": "GET",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Google operators such as site:, quotes and - pass through.",
+          "required": true
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return."
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Result offset for pagination."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Interface language code, for example en."
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query",
+          "description": "Country code for results, for example us."
+        },
+        {
+          "name": "tbs",
+          "type": "string",
+          "location": "query",
+          "description": "Time filter, for example qdr:d, qdr:w, qdr:m, qdr:y."
+        },
+        {
+          "name": "X-Proxy-Location",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code to run the search from, for example US or GB."
+        },
+        {
+          "name": "X-User-Agent",
+          "type": "string",
+          "location": "query",
+          "description": "Device type to emulate: desktop or mobile."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Domain rank check",
+      "command": "rank",
+      "description": "See the position of a domain for a query, optionally from a specific country, in one call."
+    },
+    {
+      "name": "SERP change diff",
+      "command": "serp diff",
+      "description": "See which URLs entered, left, or moved in a results page since the last time you ran the same query."
+    },
+    {
+      "name": "Cited research brief",
+      "command": "research",
+      "description": "Get one deduplicated, numbered source list for a topic from web, news and scholar results at once."
+    }
+  ]
+}

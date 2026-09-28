@@ -1,0 +1,449 @@
+openapi: 3.0.3
+# learn no-entities escape: free-text search queries; no stable entity vocabulary with aliases
+info:
+  title: Serply
+  version: 1.0.0
+  description: 'Serply real-time search API: Google web, News, Scholar, Images, Videos,
+    Jobs and Maps, Bing, and Amazon products. Authenticate with an X-Api-Key header.
+    Get a key at https://serply.io.'
+servers:
+- url: https://api.serply.io
+security:
+- ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+paths:
+  /v1/search:
+    get:
+      operationId: searchWeb
+      tags:
+      - web
+      summary: Google web search
+      description: Search Google and return organic results with title, link and description.
+      parameters:
+      - &id001
+        name: q
+        in: query
+        required: true
+        description: Search query. Google operators such as site:, quotes and - pass
+          through.
+        schema:
+          type: string
+      - &id006
+        name: num
+        in: query
+        required: false
+        description: Number of results to return.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      - &id007
+        name: start
+        in: query
+        required: false
+        description: Result offset for pagination.
+        schema:
+          type: integer
+          minimum: 0
+      - &id002
+        name: hl
+        in: query
+        required: false
+        description: Interface language code, for example en.
+        schema:
+          type: string
+      - &id003
+        name: gl
+        in: query
+        required: false
+        description: Country code for results, for example us.
+        schema:
+          type: string
+      - name: tbs
+        in: query
+        required: false
+        description: Time filter, for example qdr:d, qdr:w, qdr:m, qdr:y.
+        schema:
+          type: string
+      - &id004
+        name: X-Proxy-Location
+        in: header
+        required: false
+        description: Two-letter country code to run the search from, for example US
+          or GB.
+        schema:
+          type: string
+      - &id005
+        name: X-User-Agent
+        in: header
+        required: false
+        description: 'Device type to emulate: desktop or mobile.'
+        schema:
+          type: string
+          enum:
+          - desktop
+          - mobile
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  results: &id008
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        title:
+                          type: string
+                        link:
+                          type: string
+                        description:
+                          type: string
+                        realPosition:
+                          type: integer
+                  answers:
+                    type: array
+                    items:
+                      type: object
+                  related_searches:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: web
+  /v1/news:
+    get:
+      operationId: searchNews
+      tags:
+      - news
+      summary: Google News search
+      description: Search Google News and return recent articles.
+      parameters:
+      - *id001
+      - *id002
+      - *id003
+      - name: ceid
+        in: query
+        required: false
+        description: News edition, for example US:en.
+        schema:
+          type: string
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  entries:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        title:
+                          type: string
+                        link:
+                          type: string
+                        published:
+                          type: string
+                        id:
+                          type: string
+                  feed:
+                    type: object
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: news
+  /v1/scholar:
+    get:
+      operationId: searchScholar
+      tags:
+      - scholar
+      summary: Google Scholar search
+      description: Search Google Scholar for papers, authors and citations.
+      parameters:
+      - *id001
+      - *id006
+      - *id007
+      - *id002
+      - *id004
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  articles:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        title:
+                          type: string
+                        link:
+                          type: string
+                        author:
+                          type: string
+                        description:
+                          type: string
+                        cite:
+                          type: string
+                        id:
+                          type: string
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: scholar
+  /v1/image:
+    get:
+      operationId: searchImages
+      tags:
+      - images
+      summary: Google Images search
+      description: Search Google Images.
+      parameters:
+      - *id001
+      - *id006
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  image_results:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        link:
+                          type: string
+                        original_image:
+                          type: string
+                  results: *id008
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: images
+  /v1/video:
+    get:
+      operationId: searchVideos
+      tags:
+      - videos
+      summary: Google Videos search
+      description: Search Google Videos.
+      parameters:
+      - *id001
+      - *id006
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  results: *id008
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: videos
+  /v1/b/search:
+    get:
+      operationId: searchBing
+      tags:
+      - bing
+      summary: Bing web search
+      description: Search Bing and return organic results.
+      parameters:
+      - *id001
+      - *id006
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  results: *id008
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: bing
+  /v1/job/search:
+    get:
+      operationId: searchJobs
+      tags:
+      - job-search
+      summary: Google Jobs search
+      description: Search job listings indexed by Google Jobs.
+      parameters:
+      - *id001
+      - *id004
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  jobs:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        position:
+                          type: string
+                        employer:
+                          type: string
+                        location:
+                          type: string
+                        link:
+                          type: string
+                        posted_at:
+                          type: string
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: job-search
+  /v1/product/search:
+    get:
+      operationId: searchProducts
+      tags:
+      - products
+      summary: Amazon product search
+      description: Search Amazon products with price, rating and review count.
+      parameters:
+      - *id001
+      - *id004
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        title:
+                          type: string
+                        link:
+                          type: string
+                        asin:
+                          type: string
+                        price:
+                          type: string
+                        rating_stars:
+                          type: string
+                        review_count:
+                          type: string
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: products
+  /v1/maps/search/{query}:
+    get:
+      operationId: searchMaps
+      tags:
+      - maps
+      summary: Google Maps place search
+      description: Search Google Maps for places. The query is a path segment.
+      parameters:
+      - name: query
+        in: path
+        required: true
+        description: Place search text, for example coffee seattle.
+        schema:
+          type: string
+      - *id006
+      - *id002
+      - *id003
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  places:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                      properties:
+                        position:
+                          type: integer
+                        name:
+                          type: string
+                        address:
+                          type: string
+                        website:
+                          type: string
+                        google_maps_url:
+                          type: string
+                        place_id:
+                          type: string
+                  result_count:
+                    type: integer
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Rate limited or out of credits
+      x-pp-resource: maps
+      x-resource-id: place_id

@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/serply-pp-cli
+/serply-pp-cli.exe
+/serply-pp-mcp
+/serply-pp-mcp.exe
+/bin/
+/build/
+/dist/

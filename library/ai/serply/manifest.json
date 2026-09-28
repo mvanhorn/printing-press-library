@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "serply-pp-mcp",
+  "display_name": "Serply",
+  "version": "1.0.0",
+  "description": "Live Google, News, Scholar, Maps and Bing results, plus rank checks, SERP diffs and cited research briefs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/serply-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/serply-pp-mcp",
+      "args": [],
+      "env": {
+        "SERPLY_API_KEY": "${user_config.serply_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "serply_api_key": {
+      "type": "string",
+      "title": "SERPLY_API_KEY",
+      "description": "Sets SERPLY_API_KEY for the Serply MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
