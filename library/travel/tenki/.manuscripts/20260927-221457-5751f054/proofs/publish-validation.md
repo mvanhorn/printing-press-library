@@ -4,7 +4,7 @@ Validated the packaged checkout with module `github.com/mvanhorn/printing-press-
 
 - Canonical `publish validate`: PASS for all thirteen checks, including manifest, source-bound Phase 5 evidence, module path, tidy, reachable vulnerability scan, vet, build, help/version, skill recipes, patches and manuscripts.
 - Repository-owned skill verifier: all five checks passed; 21 recipes; zero findings.
-- `go test -count=1 -json ./...`: 717 passing test/subtest events (368 top-level tests), 11 packages passed, zero failures. Two intentional test skips cover rollback-journal behavior under the WAL profile and a Windows-only permission retry; five additional packages have no tests.
+- `go test -count=1 -json ./...`: 723 passing test/subtest events (369 top-level tests), 11 packages passed, zero failures. Two intentional test skips cover rollback-journal behavior under the WAL profile and a Windows-only permission retry; five additional packages have no tests.
 - `go build ./...` and `go vet ./...`: PASS.
 - `govulncheck@v1.3.0 ./...`: no vulnerabilities found.
 - Fresh full live dogfood: 58 executed checks passed, zero failed, 47 inapplicable or guarded framework probes skipped. Reran after the review fixes on 2026-09-28 Asia/Tokyo. The tool wrote the source-bound `phase5-acceptance.json`; no acceptance fields were manually authored.
@@ -23,4 +23,10 @@ Focused live boundary checks also passed after the fix: `seasonal list --year 19
 
 ## Publishing identity correction
 
-At the creator's request, publication attribution and fork ownership were corrected to `zjsng`. The implementation and its source fingerprint are unchanged from the reviewed source (`701d0845247cc80c06b69e290bf439b35500a22ffde0e0d6a26a5e54b89ff3ff`); the 717-test result continues to describe those same Go files. All thirteen canonical publication checks and the full 58-check live gate passed again, completing at 2026-09-28T02:07:00.873597+00:00. The previous PR retains its review history; the replacement PR uses the intended publishing account.
+At the creator's request, publication attribution and fork ownership were corrected to `zjsng`. At the identity-only replacement commit, the implementation and its source fingerprint were unchanged from the reviewed source (`701d0845247cc80c06b69e290bf439b35500a22ffde0e0d6a26a5e54b89ff3ff`); the 717-test result described those same Go files. The later selector correction and its validation are recorded below. All thirteen canonical publication checks and the full 58-check live gate passed again, completing at 2026-09-28T02:07:00.873597+00:00. The previous PR retains its review history; the replacement PR uses the intended publishing account.
+
+## Selector review correction
+
+The replacement PR review found that preliminary validation could accept an unanchored metadata selector that the renderer rejected, writing a full JSON response alongside the error. The preliminary guard now uses the renderer's own matching rules; invalid selectors exit 2 before stdout. Fully qualified metadata paths, supported list-envelope shorthand and anchored empty arrays remain supported; unrelated empty arrays cannot hide total misses. The regression reproduced the old full-output error and passes with the fix.
+
+The final source passed 723 test/subtest events (369 top-level tests, 11 tested packages), build and vet, all thirteen canonical publication checks, and a fresh full live gate (58 executed checks passed, zero failed, 47 guarded/inapplicable skips), completing at 2026-09-28T02:20:32Z. The current source-bound acceptance marker is authoritative.

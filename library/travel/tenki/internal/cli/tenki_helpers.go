@@ -171,18 +171,26 @@ func printTenki(cmd *cobra.Command, flags *rootFlags, value any, sources ...tenk
 		if err != nil {
 			return err
 		}
-		var data any
-		if err := json.Unmarshal(raw, &data); err != nil {
-			return err
-		}
 		matched := false
-		for _, path := range strings.Split(flags.selectFields, ",") {
-			if tenkiSelectorExists(data, strings.Split(strings.TrimSpace(path), "."), false, 0) {
+		requested := 0
+		for _, field := range strings.Split(flags.selectFields, ",") {
+			field = strings.TrimSpace(field)
+			if field == "" {
+				continue
+			}
+			requested++
+			path := strings.Split(field, ".")
+			for i := range path {
+				path[i] = strings.ToLower(path[i])
+			}
+			_, state := filterFieldsRec(raw, [][]string{path}, true)
+			// An unrelated empty list can only produce fallbackIndeterminate.
+			if state.matched || state.anchoredIndeterminate {
 				matched = true
 				break
 			}
 		}
-		if !matched {
+		if requested > 0 && !matched {
 			return usageErr(fmt.Errorf("--select %q matched no fields; inspect unprojected output or --help", flags.selectFields))
 		}
 	}
@@ -211,51 +219,6 @@ func printTenki(cmd *cobra.Command, flags *rootFlags, value any, sources ...tenk
 		return writeErr
 	}
 	return err
-}
-
-// Generated selectors support nested list envelopes. A completely missing
-// anchored path must not be mistaken for an indeterminate match merely because
-// an unrelated evidence array is empty elsewhere in the result.
-func tenkiSelectorExists(value any, path []string, anchored bool, depth int) bool {
-	if len(path) == 0 {
-		return true
-	}
-	if depth > 32 {
-		return false
-	}
-	switch data := value.(type) {
-	case map[string]any:
-		for key, child := range data {
-			if strings.EqualFold(key, path[0]) {
-				return tenkiSelectorExists(child, path[1:], true, depth+1)
-			}
-		}
-		if anchored {
-			return false
-		}
-		for _, child := range data {
-			switch nested := child.(type) {
-			case []any:
-				if len(nested) > 0 && tenkiSelectorExists(nested, path, false, depth+1) {
-					return true
-				}
-			case map[string]any:
-				if tenkiSelectorExists(nested, path, false, depth+1) {
-					return true
-				}
-			}
-		}
-	case []any:
-		if len(data) == 0 {
-			return anchored
-		}
-		for _, child := range data {
-			if tenkiSelectorExists(child, path, anchored, depth+1) {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 func emitTenki(cmd *cobra.Command, flags *rootFlags, client tenkiSource, value any, sources ...tenki.Source) error {
