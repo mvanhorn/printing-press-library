@@ -30,6 +30,8 @@ A verified empty source search is a successful `no_matches` or `no_availability`
 
 Comparison preserves every requested cell and marks errors separately. Failed fetches are not zero-price offers and do not participate in minimum calculations. Freshness is per source result, including cache age when applicable.
 
+The focused Travel commands do not support framework receipt files or audit directories. They reject `--receipt`, `--receipt-file` and `--audit-dir` with a usage error before fetching data. Their JSON output retains source and freshness metadata.
+
 ## Booking handoff
 
 The returned booking link is the canonical dated source plan page with its observed room anchor. The hotel/plan/room tuple and query accompany it. The CLI does not turn Rakuten's reservation POST into an unverified GET and never submits a booking.

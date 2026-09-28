@@ -1,10 +1,12 @@
 # Verification
 
-Verified 2026-09-27 UTC using anonymous Rakuten Travel requests, without API credentials or a browser. Go build, tests and vet pass. Scoped reachable-symbol govulncheck passes.
+Verified 2026-09-28 UTC using anonymous Rakuten Travel requests, without API credentials or a browser. Go build, tests and vet pass. Scoped reachable-symbol govulncheck passes.
 
-After the cache-write fix, the full publish-time matrix passed 82 checks with zero failures; 53 auxiliary cases are explicitly skipped, including framework mutations and inapplicable positional/error probes. All six focused command happy paths passed. The separate semantic suite passed 56 assertions covering actual dated offers, exact identity, children, multiple rooms, pagination, comparisons, empty results and failure meanings.
+After the cache-write and receipt-option fixes, the full publish-time matrix passed 82 checks with zero failures; 53 auxiliary cases are explicitly skipped, including framework mutations and inapplicable positional/error probes. All six focused command happy paths passed. The separate semantic suite passed 56 assertions covering actual dated offers, exact identity, children, multiple rooms, pagination, comparisons, empty results and failure meanings.
 
 Deterministic blocked-cache regressions cover all six focused commands, stderr-only warnings, silent `--no-cache`, and preservation of source errors.
+
+Receipt regressions verify usage errors before source construction, with empty stdout and no artifacts, for all six focused commands. Dry runs and profile-applied options are covered.
 
 ## Measurements
 

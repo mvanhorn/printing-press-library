@@ -62,6 +62,25 @@ func (o publicTravelOptions) validate(cmd *cobra.Command, flags *rootFlags, args
 	return nil
 }
 
+// The focused Travel leaves do not initialize a receipt writer. Reject these
+// inherited flags before RunE, including --dry-run and profile-applied values,
+// so a successful invocation never silently promises a missing receipt.
+func rejectPublicTravelReceiptOptions(cmd *cobra.Command, flags *rootFlags) error {
+	for _, option := range []struct {
+		name   string
+		active bool
+	}{
+		{"receipt", flags.receiptEnabled},
+		{"receipt-file", flags.receiptFile != ""},
+		{"audit-dir", flags.auditDir != ""},
+	} {
+		if cmd.Flags().Changed(option.name) || cmd.InheritedFlags().Changed(option.name) || option.active {
+			return usageErr(fmt.Errorf("--%s is unsupported for focused Travel commands; omit this option", option.name))
+		}
+	}
+	return nil
+}
+
 func (o publicTravelOptions) client(cmd *cobra.Command, flags *rootFlags) (travel.API, error) {
 	cacheDir, err := cliutil.CacheDir()
 	if err != nil {
@@ -199,6 +218,28 @@ func init() {
 		rootCmd.Example = "  rakuten-travel-pp-cli hotels search --query 品川 --limit 5\n  rakuten-travel-pp-cli offers search --hotel 51870 --checkin 2026-11-08 --checkout 2026-11-10 --rooms 1 --adults-per-room 2"
 		rootCmd.PersistentFlags().Lookup("compact").Usage = "Compact output; Travel retains quote units, query and identity"
 		rootCmd.PersistentFlags().Lookup("data-source").Usage = "Data source: auto or live for public Travel; local is unsupported by these commands"
+		rootCmd.PersistentFlags().Lookup("receipt").Usage = "Write an atomic private run receipt (unsupported on focused Travel commands)"
+		rootCmd.PersistentFlags().Lookup("receipt-file").Usage = "Override the run receipt destination (unsupported on focused Travel commands)"
+		rootCmd.PersistentFlags().Lookup("audit-dir").Usage = "Aggregate the receipt and index under this audit directory (unsupported on focused Travel commands)"
+		for _, path := range [][]string{
+			{"areas", "list"}, {"hotels", "search"}, {"hotels", "show"},
+			{"offers", "search"}, {"offers", "show"}, {"compare"},
+		} {
+			leaf, remaining, err := rootCmd.Find(path)
+			if err != nil || len(remaining) != 0 {
+				continue
+			}
+			previous := leaf.PreRunE
+			leaf.PreRunE = func(cmd *cobra.Command, args []string) error {
+				if err := rejectPublicTravelReceiptOptions(cmd, flags); err != nil {
+					return err
+				}
+				if previous != nil {
+					return previous(cmd, args)
+				}
+				return nil
+			}
+		}
 		// Keep generated source routes reachable for discovery/verification while
 		// normal help directs travelers to the structured command families.
 		for _, cmd := range rootCmd.Commands() {

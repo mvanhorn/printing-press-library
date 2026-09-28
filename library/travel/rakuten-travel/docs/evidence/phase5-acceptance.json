@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "a5c1404e78329372ce8f8dc0eba5506e074a8c5dd83a7a8b75f2aea29f50ed90",
+  "source_fingerprint": "0c81176d61afdeb8d0a2142d0a606e6bd8e6709bb1da31701e30f2542aa2d9b5",
   "source_files": {
     "cmd/rakuten-travel-pp-cli/main.go": "488f7888970f85d0bbff18eb484e4eead7ad100e90b64a8d24edf302c23f9097",
     "cmd/rakuten-travel-pp-mcp/main.go": "a9aaa0b52afd39dbf9b51d1bc1a896f2b84fd5dc985d161da0a4775be52ec484",
@@ -50,11 +50,12 @@
     "internal/cli/public_hotels.go": "306c3b85ec080cbab0d7c7317c83bfff85bda71b9aac44ccb08742744b9cf974",
     "internal/cli/public_offers_transport_test.go": "192259db1fb32b77da4afc86aee9d663ed2a2b6f880448e1e7c39a5eec03d8e3",
     "internal/cli/public_raw_query_test.go": "c22d748e24f4845fbdd010cd6b3a7166b2ef0118e6f90298775712f210f7915f",
+    "internal/cli/public_receipt_test.go": "6a26dd89dc155c0a36440e7e676b87f3a4c7289e66f2ab99e6fbc3130b0506eb",
     "internal/cli/public_source_examples.go": "9c160eb4dd484069b60d4146b988cd067abb28d884731e9de14da84c84a78905",
     "internal/cli/public_source_examples_test.go": "921d2e2238213a80ed10cc632fb4a1755f0a2c2f6f5aeeed66b9781e38b26408",
     "internal/cli/public_source_headers.go": "79617ef7ea1abf2ec782b152ffe2e06b4deae613fa769b5b06df5788f0107257",
     "internal/cli/public_source_headers_test.go": "ae93b2838200ff1c5de55d87532c0eea47870fd3874530c1a3ba10de327904a6",
-    "internal/cli/public_travel.go": "1ed73815fce3b643d64a77b9b0fff50109b9487d857fee356e1b33c46b6acb49",
+    "internal/cli/public_travel.go": "5eaf3d80b2e84efdb3ed054a5a40dba9e5476a537431b1a5f4fdf061577a2490",
     "internal/cli/public_travel_test.go": "14f21316d04bd910523e281d7f3deed83c4d16d2c3a2047858236fe5718cbc29",
     "internal/cli/public_travel_transport_test.go": "0374931e7e3afea4dd60cbc00da0c62e64d7190e4fcea520f2218cd5e32df999",
     "internal/cli/root.go": "f7ee0990f9aff18e8187f3a80c62c6abfbbe7d9612328385154531633bf71653",
