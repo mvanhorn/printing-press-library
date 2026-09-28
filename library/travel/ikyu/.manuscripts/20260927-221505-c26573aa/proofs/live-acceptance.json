@@ -1,0 +1,239 @@
+{
+  "status": "pass",
+  "checked_at": "2026-09-27T16:09:07.299167+00:00",
+  "stay": {
+    "check_in": "2026-10-18",
+    "check_out": "2026-10-19",
+    "adults_per_room": 2,
+    "rooms": 1
+  },
+  "checks": [
+    {
+      "check": "source Tokyo destination",
+      "status": "pass"
+    },
+    {
+      "check": "dated Tokyo and combined-filter coverage",
+      "status": "pass",
+      "source_ids": [
+        "00000946",
+        "00002130",
+        "00001833"
+      ],
+      "pagination": {
+        "complete": false,
+        "has_next": true,
+        "limit": 3,
+        "next_offset": 3,
+        "offset": 0,
+        "returned": 3,
+        "scanned": 3,
+        "source_total": 587
+      }
+    },
+    {
+      "check": "hotel property/room paging and exact projected offer",
+      "status": "pass",
+      "selector": "00000600:10012775:11421787",
+      "requests": 1
+    },
+    {
+      "check": "ryokan property/room paging and exact projected offer",
+      "status": "pass",
+      "selector": "00002889:10193741:11055986",
+      "requests": 1
+    },
+    {
+      "check": "comparison alternatives and all requested dates retained",
+      "status": "pass",
+      "date_rows": 2,
+      "date_successful": 2
+    },
+    {
+      "check": "invalid dates/adults rejected without cache additions",
+      "status": "pass",
+      "network_zero_evidence": "deterministic source/CLI Go tests assert no source call before validation"
+    }
+  ],
+  "independent_source": [
+    {
+      "kind": "hotel",
+      "url": "https://www.ikyu.com/00000600/11421787/10012775/?cid=20261018&cod=20261019&lc=1&ppc=2&rc=1",
+      "captured_at": "2026-09-27T16:09:09.540930+00:00",
+      "http_status": 200,
+      "response_bytes": 231184,
+      "elapsed_seconds": 1.135552,
+      "selector": "00000600:10012775:11421787",
+      "room_name": "【南館】スタンダードツイン（禁煙）",
+      "plan_name": "【開演記念ディナー】八ヶ岳高原ロッジで過ごす美食の夜＜特別ディナープラン＞",
+      "meal": {
+        "code": "003",
+        "name": "夕朝食付"
+      },
+      "cancellation": {
+        "id": "004",
+        "known": true,
+        "rules": [
+          {
+            "type": "CancelPolicyRuleNoShow",
+            "day": null,
+            "hour_minutes": null,
+            "rate": 100,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 0,
+            "hour_minutes": null,
+            "rate": 80,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 4,
+            "hour_minutes": null,
+            "rate": 50,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 10,
+            "hour_minutes": null,
+            "rate": 20,
+            "amount": null
+          }
+        ]
+      },
+      "prices": {
+        "source_amount": 57540,
+        "base_discount_amount": 54664,
+        "headline_before_points": 54664,
+        "instant_points_payable": 49745,
+        "earn_points_payable": 54664,
+        "payable_without_coupon": 49745,
+        "points_earned": 4919,
+        "points_rate": 9,
+        "points_applied": 4919,
+        "points_applied_rate": 9
+      },
+      "nightly_dates": [
+        "2026-10-18"
+      ],
+      "occupancy": {
+        "peopleCount": 2,
+        "roomCount": 1,
+        "lodgingCount": 1,
+        "childACount": 0,
+        "childBCount": 0,
+        "childCCount": 0,
+        "childDCount": 0,
+        "childECount": 0,
+        "childFCount": 0
+      },
+      "visible_earn_mode": {
+        "headline_before_points": true,
+        "earned_points": true,
+        "meal": true
+      },
+      "instant_price_evidence": "fresh public SSR JSON; default visible HTML uses earn points",
+      "status": "pass"
+    },
+    {
+      "kind": "ryokan",
+      "url": "https://www.ikyu.com/00002889/11055986/10193741/?cid=20261018&cod=20261019&lc=1&ppc=2&rc=1",
+      "captured_at": "2026-09-27T16:09:11.617716+00:00",
+      "http_status": 200,
+      "response_bytes": 225607,
+      "elapsed_seconds": 1.102568,
+      "selector": "00002889:10193741:11055986",
+      "room_name": "【奥廊下 すずらん亭】最もリーズナブル　和室/25平米",
+      "plan_name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+      "meal": {
+        "code": "000",
+        "name": "食事なし"
+      },
+      "cancellation": {
+        "id": "001",
+        "known": true,
+        "rules": [
+          {
+            "type": "CancelPolicyRuleNoShow",
+            "day": null,
+            "hour_minutes": null,
+            "rate": 100,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 0,
+            "hour_minutes": null,
+            "rate": 100,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 1,
+            "hour_minutes": null,
+            "rate": 70,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 3,
+            "hour_minutes": null,
+            "rate": 50,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 7,
+            "hour_minutes": null,
+            "rate": 30,
+            "amount": null
+          },
+          {
+            "type": "CancelPolicyRuleDay",
+            "day": 10,
+            "hour_minutes": null,
+            "rate": 20,
+            "amount": null
+          }
+        ]
+      },
+      "prices": {
+        "source_amount": 30800,
+        "base_discount_amount": 30800,
+        "headline_before_points": 30800,
+        "instant_points_payable": 24640,
+        "earn_points_payable": 30800,
+        "payable_without_coupon": 24640,
+        "points_earned": 6160,
+        "points_rate": 20,
+        "points_applied": 6160,
+        "points_applied_rate": 20
+      },
+      "nightly_dates": [
+        "2026-10-18"
+      ],
+      "occupancy": {
+        "peopleCount": 2,
+        "roomCount": 1,
+        "lodgingCount": 1,
+        "childACount": 0,
+        "childBCount": 0,
+        "childCCount": 0,
+        "childDCount": 0,
+        "childECount": 0,
+        "childFCount": 0
+      },
+      "visible_earn_mode": {
+        "headline_before_points": true,
+        "earned_points": true,
+        "meal": true
+      },
+      "instant_price_evidence": "fresh public SSR JSON; default visible HTML uses earn points",
+      "status": "pass"
+    }
+  ],
+  "scope": "anonymous read-only; no raw HTML/SSR or account fields persisted"
+}

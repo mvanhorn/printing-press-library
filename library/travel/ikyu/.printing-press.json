@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T16:38:56.791529Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "ikyu",
+  "display_name": "Ikyu Accommodation",
+  "cli_name": "ikyu-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "ikyu-scoped-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:0c323df681a32c755fae7ee5c994dd6d2fb6c7c6161d9e039f6c3642b8f6e4eb",
+  "run_id": "20260927-221505-c26573aa",
+  "category": "travel",
+  "description": "Search Ikyu hotels and ryokan with dated room prices and cancellation details.",
+  "mcp_binary": "ikyu-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Offer equivalence",
+      "command": "stay compare",
+      "description": "Compare exact offers with explicit compatible groups, differences and unknowns."
+    },
+    {
+      "name": "Date alternatives",
+      "command": "stay dates",
+      "description": "Inspect bounded date alternatives for one selected room and plan."
+    },
+    {
+      "name": "Room fit",
+      "command": "stay rooms",
+      "description": "Find rooms with source-backed space and bath attributes; keep missing evidence visible."
+    },
+    {
+      "name": "Price explanation",
+      "command": "stay offer",
+      "description": "Separate source prices, points scenarios, coupons and eligibility for an exact offer."
+    },
+    {
+      "name": "Shortlist readiness",
+      "command": "stay search",
+      "description": "Return compact dated property candidates with pagination, freshness and detail gaps."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offer equivalence",
+      "command": "stay compare",
+      "description": "Compare exact offers with explicit compatible groups, differences and unknowns."
+    },
+    {
+      "name": "Date alternatives",
+      "command": "stay dates",
+      "description": "Inspect bounded date alternatives for one selected room and plan."
+    },
+    {
+      "name": "Room fit",
+      "command": "stay rooms",
+      "description": "Find rooms with source-backed space and bath attributes; keep missing evidence visible."
+    },
+    {
+      "name": "Price explanation",
+      "command": "stay offer",
+      "description": "Separate source prices, points scenarios, coupons and eligibility for an exact offer."
+    },
+    {
+      "name": "Shortlist readiness",
+      "command": "stay search",
+      "description": "Return compact dated property candidates with pagination, freshness and detail gaps."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 18,
+    "total": 18,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

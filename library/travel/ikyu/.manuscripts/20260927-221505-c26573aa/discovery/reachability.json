@@ -1,0 +1,31 @@
+{
+  "url": "https://www.ikyu.com/",
+  "mode": "browser_clearance_http",
+  "confidence": 0.6,
+  "probes": [
+    {
+      "transport": "stdlib",
+      "status": 403,
+      "elapsed_ms": 80,
+      "evidence": [
+        "403/429 HTML or access-denied"
+      ],
+      "content_type": "text/html"
+    },
+    {
+      "transport": "surf-chrome",
+      "status": 403,
+      "elapsed_ms": 28,
+      "evidence": [
+        "403/429 HTML or access-denied"
+      ],
+      "content_type": "text/html"
+    }
+  ],
+  "recommendation": {
+    "runtime": "browser_clearance_http",
+    "needs_browser_capture": true,
+    "needs_clearance_cookie": true,
+    "rationale": "Stdlib and Surf both received bot-protection signals. A browser-sniff capture is needed to determine whether a clearance cookie alone suffices or whether live page-context execution is required."
+  }
+}

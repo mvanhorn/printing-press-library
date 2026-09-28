@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-09-27T16:15:21.719313+00:00",
+  "go_source_frozen": true,
+  "checks": [
+    {
+      "command": "go test ./... -count=1",
+      "result": "pass"
+    },
+    {
+      "command": "go build -o ikyu-pp-cli ./cmd/ikyu-pp-cli",
+      "result": "pass"
+    },
+    {
+      "command": "go vet ./...",
+      "result": "pass"
+    },
+    {
+      "command": "go test ./internal/cli -run 'TestStayDryRun|TestStayFields|TestStayLarge' -count=1",
+      "result": "pass"
+    },
+    {
+      "command": "python3 -m unittest discover -s scripts -p 'test_*.py' -v",
+      "result": "pass",
+      "tests": 4
+    },
+    {
+      "command": "scripts/verify-live.py with future hotel+ryokan baseline selectors",
+      "result": "pass",
+      "proof": "live-acceptance.json"
+    },
+    {
+      "command": "scripts/measure.py cold/warm all seven commands plus projection",
+      "result": "pass",
+      "proof": "efficiency-metrics.json"
+    },
+    {
+      "command": "fresh binary all seven stay leaves --dry-run --agent --select data",
+      "result": "pass",
+      "assertions": [
+        "top-level dry_run:true",
+        "nonempty full action",
+        "planned request",
+        "network_requests0/cache_writes0",
+        "one-line JSON/no fabricated data"
+      ]
+    }
+  ],
+  "assertions": {
+    "equivalence": "known fixture same room/stay/terms passes; meal code, meal inclusion, cancellation, room/date/variant/hours mismatch and unknown content/eligibility fail without savings",
+    "dates": "every requested date retained, sold-out has no price, item error preserved",
+    "fanout": "concurrency <=2; partial retains successful rows; all-failed nonzero; typed rate-limit exit7",
+    "source": "strict invalid dates/adults before request; source echo/schema failures fail closed; exact yen, fractional rates and cancellation preserved",
+    "bounds": "20 actual requests including redirects, 8MiB body, TTL/refresh/stale cache and own-file pruning; room×plan <=100; finite size",
+    "output": "single-line JSON, field selection and large int64 exact; base destination versus observed filtered name; stale catalog dependency visible",
+    "dry_run": "all seven emit compact top-level dry_run:true/action/planned with zero IO, independent of agent/result projection; normal live projection remains strict"
+  },
+  "live_specimens": [
+    "priority2-hotel-offer.json",
+    "priority2-ryokan-offer.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "workspace": "<workspace>",
+  "promoted_library": "<workspace>/.printing-press/library/ikyu",
+  "source_files_match_promoted_tree": 111,
+  "go_tests": "pass",
+  "python_tests": 4,
+  "build": "pass",
+  "live_offer": "pass",
+  "source_requests": 1,
+  "receipt_run": "20260927-221505-c26573aa"
+}

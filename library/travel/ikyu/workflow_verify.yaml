@@ -1,0 +1,21 @@
+# Anonymous read-only search → rooms → exact offer workflow.
+# Dates are explicit Japan-local stays. Refresh them with scripts/verify-live.py
+# --write-workflow before a later release; no booking/account operation occurs.
+workflows:
+  - name: Find a dated Tokyo stay and inspect its exact room-plan offer
+    primary: true
+    steps:
+      - command: stay search --destination tokyo --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --limit 1 --timeout 25s
+        mode: live
+        expect_fields: [data, stay, freshness, dependency_freshness, pagination, stats]
+        extract:
+          property: $.data[0].id
+      - command: stay rooms ${property} --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --limit 1 --plan-limit 1 --timeout 25s
+        mode: live
+        expect_fields: [data, stay, freshness, pagination, occupancy_echo_verified, date_echo_verified, stats]
+        extract:
+          room: $.data[0].id
+          plan: $.data[0].plans[0].id
+      - command: stay offer ${property} ${room} ${plan} --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --timeout 25s
+        mode: live
+        expect_fields: [data, freshness, stats]

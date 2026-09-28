@@ -1,0 +1,38 @@
+[
+  {
+    "operation": "PlansAndRooms",
+    "method": "POST",
+    "url": "https://www.ikyu.com/graphql?lang=ja-JP",
+    "http_status": 200,
+    "http_version": "2",
+    "content_type": "application/json",
+    "time_total_s": 0.23403,
+    "compressed_response_bytes": 6734,
+    "decoded_response_bytes": 99873,
+    "has_graphql_errors": false,
+    "credentials_sent": false,
+    "request_headers": [
+      "Content-Type: application/json"
+    ],
+    "request_file": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/discovery/probes/PlansAndRooms-replay-request.json",
+    "sanitized_response_file": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/discovery/probes/PlansAndRooms-replay-response.json"
+  },
+  {
+    "operation": "RoomPlanDetailAlt",
+    "method": "POST",
+    "url": "https://www.ikyu.com/graphql?lang=ja-JP",
+    "http_status": 200,
+    "http_version": "2",
+    "content_type": "application/json",
+    "time_total_s": 0.354033,
+    "compressed_response_bytes": 4444,
+    "decoded_response_bytes": 14272,
+    "has_graphql_errors": false,
+    "credentials_sent": false,
+    "request_headers": [
+      "Content-Type: application/json"
+    ],
+    "request_file": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/discovery/probes/RoomPlanDetailAlt-replay-request.json",
+    "sanitized_response_file": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/discovery/probes/RoomPlanDetailAlt-replay-response.json"
+  }
+]

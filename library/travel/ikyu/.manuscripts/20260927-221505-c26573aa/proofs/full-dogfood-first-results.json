@@ -1,0 +1,1162 @@
+{
+  "dir": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli",
+  "binary": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/build/stage/bin/ikyu-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 52,
+  "passed": 51,
+  "failed": 1,
+  "skipped": 47,
+  "unverified": 47,
+  "pass_rate": 98.07692307692307,
+  "commands": [
+    "doctor",
+    "feedback",
+    "feedback list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "properties",
+    "stay",
+    "stay compare",
+    "stay dates",
+    "stay destinations",
+    "stay offer",
+    "stay property",
+    "stay rooms",
+    "stay search",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  ikyu-pp-cli doctor [flags]\n\nExamples:\n  ikyu-pp-cli doctor\n  ikyu-pp-cli doctor --json\n  ikyu-pp-cli doctor --fail-on warn\n  ikyu-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run doctor; no changes made\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"doctor\",\"would\":\"run doctor; no changes made\"}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "doctor",
+      "kind": "dry_run_json",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "feedback",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Feedback is captured locally first in the CLI data directory's feedback.jsonl.\nWhen `IKYU_FEEDBACK_ENDPOINT` is set and either --send is\npassed or `IKYU_FEEDBACK_AUTO_SEND=true`, the entry is\nPOSTed as JSON after the local write.\n\nWrite what surprised you or tripped you up, not a bug report. The\nloop is: agent notices friction -\u003e one invocation -\u003e captured -\u003e the\nmaintainer sees it.\n\nUsage:\n  ikyu-pp-cli feedback [text] [flags]\n  ikyu-pp-cli feedback [command]\n\nExamples:\n  ikyu-pp-cli feedback \"docs said exclusive but the boundary is inclusive\"\n  ikyu-pp-cli feedback --stdin \u003c notes.txt\n  ikyu-pp-cli feedback list\n\nAvailable Commands:\n  list        List recent feedback entries\n\nFlags:\n  -h, --help    help for feedback\n      --send    POST to the configured feedback endpoint in addition to local write\n      --stdin   Read feedback body from stdin rather than arguments\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"ikyu-pp-cli feedback [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "feedback",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "dry_run_json",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  ikyu-pp-cli feedback list [flags]\n\nExamples:\n  ikyu-pp-cli feedback list\n  ikyu-pp-cli feedback list --limit 5\n  ikyu-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "dry_run_json",
+      "args": [
+        "feedback",
+        "list",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"feedback list\",\"would\":\"run feedback list; no changes made\"}\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  ikyu-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  ikyu-pp-cli profile delete my-defaults --yes\n  ikyu-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "dry_run_json",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  ikyu-pp-cli profile list [flags]\n\nExamples:\n  ikyu-pp-cli profile list\n  ikyu-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile list",
+      "kind": "dry_run_json",
+      "args": [
+        "profile",
+        "list",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"profile list\",\"would\":\"run profile list; no changes made\"}\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  ikyu-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  ikyu-pp-cli profile save my-defaults --json --compact\n  ikyu-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "dry_run_json",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  ikyu-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  ikyu-pp-cli profile show my-defaults\n  ikyu-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "dry_run_json",
+      "args": [
+        "profile",
+        "show",
+        "my-defaults",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "exit_code": 1,
+      "reason": "no --dry-run short-circuit",
+      "output_sample": "Error: profile \"my-defaults\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  ikyu-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  ikyu-pp-cli profile use my-defaults\n  ikyu-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "dry_run_json",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "properties",
+      "kind": "help",
+      "args": [
+        "properties",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read one public Ikyu property page by its eight-digit property ID.\n\nUsage:\n  ikyu-pp-cli properties \u003cproperty_id\u003e [flags]\n\nExamples:\n  ikyu-pp-cli properties 00002889\n\nFlags:\n  -h, --help   help for properties\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "properties",
+      "kind": "happy_path",
+      "args": [
+        "properties",
+        "00002889"
+      ],
+      "status": "unverified",
+      "exit_code": 4,
+      "reason": "unverified-needs-access",
+      "output_sample": "Error: GET /00002889/ returned HTTP 403: HTML error page (8581 bytes): [一休.com] アクセスしようとしたページは表示できませんでした。\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'ikyu-pp-cli doctor' to check connectivity.\n"
+    },
+    {
+      "command": "properties",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "unverified",
+      "reason": "unverified-needs-access"
+    },
+    {
+      "command": "properties",
+      "kind": "error_path",
+      "args": [
+        "properties",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 4,
+      "output_sample": "Error: GET /__printing_press_invalid__/ returned HTTP 403: HTML error page (8581 bytes): [一休.com] アクセスしようとしたページは表示できませんでした。\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'ikyu-pp-cli doctor' to check connectivity.\n"
+    },
+    {
+      "command": "properties",
+      "kind": "dry_run_json",
+      "args": [
+        "properties",
+        "00002889",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"dry-run\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://www.ikyu.com/00002889/\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "stay",
+      "kind": "help",
+      "args": [
+        "stay",
+        "--help"
+      ],
+      "status": "fail",
+      "reason": "missing Examples section",
+      "output_sample": "Find Japanese hotels and ryokan and inspect exact room-plan conditions\n\nUsage:\n  ikyu-pp-cli stay [flags]\n  ikyu-pp-cli stay [command]\n\nAvailable Commands:\n  compare      Compare 2–5 exact selections on one stay; show alternatives and unknowns without ranking\n  dates        Inspect every requested date for one exact selection, preserving sold-out and failed rows\n  destinations Resolve source destination names, IDs and public paths\n  offer        Inspect exact room-plan prices, full cancellation rules and verified nightly date echoes\n  property     Read property facilities, source review category scores and tax notes\n  rooms        Page rooms and plan summaries; preserve source bath evidence and missing nightly dates\n  search       Search one source page for a dated per-room party with explicit filter coverage\n\nFlags:\n  -h, --help   help for stay\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"ikyu-pp-cli stay [command] --help\" for more information about a command.\n"
+    },
+    {
+      "command": "stay",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "stay",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "stay",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "stay compare",
+      "kind": "help",
+      "args": [
+        "stay",
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare 2–5 exact selections on one stay; show alternatives and unknowns without ranking\n\nUsage:\n  ikyu-pp-cli stay compare [flags]\n\nExamples:\n  ikyu-pp-cli stay compare --offers 00002889:10193741:11055986,00002889:10193741:11055981 --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --agent\n\nFlags:\n      --adults int         Adults per room, identical in every room (default 2)\n      --allow-stale        Allow timestamped stale cache only after an upstream failure\n      --cache-dir string   Override bounded public read-through cache directory\n      --check-in string    Check-in date in Japan, exactly YYYY-MM-DD\n      --check-out string   Check-out date in Japan, after check-in\n      --children-a int     Per-room count of older primary-school children (Ikyu source category)\n      --children-b int     Per-room count of younger primary-school children (Ikyu source category)\n      --children-c int     Per-room count of infants with meals and bedding (Ikyu source category)\n      --children-d int     Per-room count of infants with meals, no bedding (Ikyu source category)\n      --children-e int     Per-room count of infants with bedding, no meals (Ikyu source category)\n      --children-f int     Per-room count of infants without meals or bedding (Ikyu source category)\n      --fields string      Project comma-separated JSON fields; alias of --select\n  -h, --help               help for compare\n      --offers string      Comma-separated property:room:plan selections (2–5 distinct offers)\n      --refresh            Bypass existing public cache and request current source data\n      --rooms int          Identical rooms with the same per-room party (1–10) (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "stay compare",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "compare",
+        "--offers",
+        "00002889:10193741:11055986,00002889:10193741:11055981",
+        "--check-in",
+        "2026-10-18",
+        "--check-out",
+        "2026-10-19",
+        "--adults",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"comparisons\":[{\"assessment\":{\"basis\":\"same verified stay, physical room, included meals, cancellation, payment and relevant price eligibility; source amounts only\",\"differences\":[\"included meal code\",\"published plan content/benefits\"],\"equivalent\":false,\"source_amount_difference\":null,\"unknowns\":[\"conditional price/payment/member eligibility\"]},\"left\":\"00002889:10193741:11055986\",\"right\":\"00002889:10193741:11055981\"}],\"compatible_groups\":[],\"data\":[{\"data\":{\"offer\":{\"available\":true,\"date_verified\":true,\"inventory\":4,\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":30800,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":30800,\"eligibility_known\":false,\"headline_before_points\":30800,\"instant_points_payable\":24640,\"payable_without_coupon\":24640,\"points_applied\":6160,\"points_applied_rate\":20,\"points_earned\":6160,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":6160,\"published_payable\":30800},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":6160,\"potential_points_earned\":null,\"published_payable\":24640}],\"source_amount\":30800,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"plan\":{\"cancellation\":{\"id\":\"001\",\"known\":true,\"rules\":[{\"amount\":null,\"day\":null,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleNoShow\"},{\"amount\":null,\"day\":0,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":1,\"hour_minutes\":null,\"rate\":70,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":3,\"hour_minutes\":null,\"rate\":50,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":7,\"hour_minutes\":null,\"rate\":30,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":10,\"hour_minutes\":null,\"rate\":20,\"type\":\"CancelPolicyRuleDay\"}]},\"check_in_from\":\"14:00\",\"check_in_to\":\"23:00\",\"check_out\":\"11:00\",\"children\":[{\"amount\":null,\"kind\":\"A\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"B\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"C\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":5500,\"kind\":\"E\",\"rate\":null,\"type\":\"FIXED\"},{\"amount\":null,\"kind\":\"D\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":3300,\"kind\":\"F\",\"rate\":null,\"type\":\"FIXED\"}],\"content\":\"【お食事無しの素泊まりプラン】\\n\\nチェックインは23時までとなっております。\\n遅い到着でも安心です。\\n\\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\\n3万冊の蔵書を取り揃えております。\\n懐かしい本との出会いもお愉しみください。\\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\\n\\n■内容＆特典■\\n・就寝用パジャマをご用意\\n・環境に配慮したアメニティをご用意\\n・最終チェックイン23時、チェックアウト11時\\n　ご到着のお時間を事前にお知らせください。\\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\\n\\n\\n【お食事】\\n※夕食・朝食はついておりません。\\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\\n事前のお申し出がない場合はご用意できかねます。\\n\\n【温泉】\\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\\n…[truncated]"
+    },
+    {
+      "command": "stay compare",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "compare",
+        "--offers",
+        "00002889:10193741:11055986,00002889:10193741:11055981",
+        "--check-in",
+        "2026-10-18",
+        "--check-out",
+        "2026-10-19",
+        "--adults",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"comparisons\":[{\"assessment\":{\"basis\":\"same verified stay, physical room, included meals, cancellation, payment and relevant price eligibility; source amounts only\",\"differences\":[\"included meal code\",\"published plan content/benefits\"],\"equivalent\":false,\"source_amount_difference\":null,\"unknowns\":[\"conditional price/payment/member eligibility\"]},\"left\":\"00002889:10193741:11055986\",\"right\":\"00002889:10193741:11055981\"}],\"compatible_groups\":[],\"data\":[{\"data\":{\"offer\":{\"available\":true,\"date_verified\":true,\"inventory\":4,\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":30800,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":30800,\"eligibility_known\":false,\"headline_before_points\":30800,\"instant_points_payable\":24640,\"payable_without_coupon\":24640,\"points_applied\":6160,\"points_applied_rate\":20,\"points_earned\":6160,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":6160,\"published_payable\":30800},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":6160,\"potential_points_earned\":null,\"published_payable\":24640}],\"source_amount\":30800,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"plan\":{\"cancellation\":{\"id\":\"001\",\"known\":true,\"rules\":[{\"amount\":null,\"day\":null,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleNoShow\"},{\"amount\":null,\"day\":0,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":1,\"hour_minutes\":null,\"rate\":70,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":3,\"hour_minutes\":null,\"rate\":50,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":7,\"hour_minutes\":null,\"rate\":30,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":10,\"hour_minutes\":null,\"rate\":20,\"type\":\"CancelPolicyRuleDay\"}]},\"check_in_from\":\"14:00\",\"check_in_to\":\"23:00\",\"check_out\":\"11:00\",\"children\":[{\"amount\":null,\"kind\":\"A\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"B\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"C\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":5500,\"kind\":\"E\",\"rate\":null,\"type\":\"FIXED\"},{\"amount\":null,\"kind\":\"D\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":3300,\"kind\":\"F\",\"rate\":null,\"type\":\"FIXED\"}],\"content\":\"【お食事無しの素泊まりプラン】\\n\\nチェックインは23時までとなっております。\\n遅い到着でも安心です。\\n\\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\\n3万冊の蔵書を取り揃えております。\\n懐かしい本との出会いもお愉しみください。\\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\\n\\n■内容＆特典■\\n・就寝用パジャマをご用意\\n・環境に配慮したアメニティをご用意\\n・最終チェックイン23時、チェックアウト11時\\n　ご到着のお時間を事前にお知らせください。\\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\\n\\n\\n【お食事】\\n※夕食・朝食はついておりません。\\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\\n事前のお申し出がない場合はご用意できかねます。\\n\\n【温泉】\\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\\n…[truncated]"
+    },
+    {
+      "command": "stay compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stay compare",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "compare",
+        "--offers",
+        "00002889:10193741:11055986,00002889:10193741:11055981",
+        "--check-in",
+        "2026-10-18",
+        "--check-out",
+        "2026-10-19",
+        "--adults",
+        "2",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"concurrency\":2,\"maximum_selections\":5,\"offers\":\"00002889:10193741:11055986,00002889:10193741:11055981\",\"operation\":\"exact offer comparison\",\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"read_only\":true}}\n"
+    },
+    {
+      "command": "stay dates",
+      "kind": "help",
+      "args": [
+        "stay",
+        "dates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Inspect every requested date for one exact selection, preserving sold-out and failed rows\n\nUsage:\n  ikyu-pp-cli stay dates \u003cproperty-id\u003e \u003croom-id\u003e \u003cplan-id\u003e [flags]\n\nExamples:\n  ikyu-pp-cli stay dates 00002889 10193741 11055986 --check-ins 2026-10-18,2026-10-19 --nights 1 --adults 2 --agent\n\nFlags:\n      --adults int         Adults per room, identical in every room (default 2)\n      --allow-stale        Allow timestamped stale cache only after an upstream failure\n      --cache-dir string   Override bounded public read-through cache directory\n      --check-ins string   Comma-separated explicit check-in dates in Japan (1–7 distinct dates)\n      --children-a int     Per-room count of older primary-school children (Ikyu source category)\n      --children-b int     Per-room count of younger primary-school children (Ikyu source category)\n      --children-c int     Per-room count of infants with meals and bedding (Ikyu source category)\n      --children-d int     Per-room count of infants with meals, no bedding (Ikyu source category)\n      --children-e int     Per-room count of infants with bedding, no meals (Ikyu source category)\n      --children-f int     Per-room count of infants without meals or bedding (Ikyu source category)\n      --fields string      Project comma-separated JSON fields; alias of --select\n  -h, --help               help for dates\n      --nights int         Identical stay length for all alternatives, from 1 to 30 nights (default 1)\n      --refresh            Bypass existing public cache and request current source data\n      --rooms int          Identical rooms with the same per-room party (1–10) (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "stay dates",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "dates",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-ins",
+        "2026-10-18,2026-10-19",
+        "--nights",
+        "1",
+        "--adults",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"data\":{\"offer\":{\"available\":true,\"date_verified\":true,\"inventory\":4,\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":30800,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":30800,\"eligibility_known\":false,\"headline_before_points\":30800,\"instant_points_payable\":24640,\"payable_without_coupon\":24640,\"points_applied\":6160,\"points_applied_rate\":20,\"points_earned\":6160,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":6160,\"published_payable\":30800},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":6160,\"potential_points_earned\":null,\"published_payable\":24640}],\"source_amount\":30800,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"plan\":{\"cancellation\":{\"id\":\"001\",\"known\":true,\"rules\":[{\"amount\":null,\"day\":null,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleNoShow\"},{\"amount\":null,\"day\":0,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":1,\"hour_minutes\":null,\"rate\":70,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":3,\"hour_minutes\":null,\"rate\":50,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":7,\"hour_minutes\":null,\"rate\":30,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":10,\"hour_minutes\":null,\"rate\":20,\"type\":\"CancelPolicyRuleDay\"}]},\"check_in_from\":\"14:00\",\"check_in_to\":\"23:00\",\"check_out\":\"11:00\",\"children\":[{\"amount\":null,\"kind\":\"A\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"B\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"C\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":5500,\"kind\":\"E\",\"rate\":null,\"type\":\"FIXED\"},{\"amount\":null,\"kind\":\"D\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":3300,\"kind\":\"F\",\"rate\":null,\"type\":\"FIXED\"}],\"content\":\"【お食事無しの素泊まりプラン】\\n\\nチェックインは23時までとなっております。\\n遅い到着でも安心です。\\n\\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\\n3万冊の蔵書を取り揃えております。\\n懐かしい本との出会いもお愉しみください。\\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\\n\\n■内容＆特典■\\n・就寝用パジャマをご用意\\n・環境に配慮したアメニティをご用意\\n・最終チェックイン23時、チェックアウト11時\\n　ご到着のお時間を事前にお知らせください。\\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\\n\\n\\n【お食事】\\n※夕食・朝食はついておりません。\\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\\n事前のお申し出がない場合はご用意できかねます。\\n\\n【温泉】\\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\\n美人の湯としても誉れ高く、お肌のつるつる感を楽しんで頂けます。\\n\\n・お座敷風呂（大浴場）\\n　親湯温泉の成分に合わせ、防菌防カビの特殊素材の畳を利用。\\n　足元が柔らかく、そして滑りにくい畳のお風呂です。\\n　渓流を臨む露天風呂も併設しています。\\n\\n・天与の湯（女性専用露天風呂）\\n　渓谷を一望する見晴らしの…[truncated]"
+    },
+    {
+      "command": "stay dates",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "dates",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-ins",
+        "2026-10-18,2026-10-19",
+        "--nights",
+        "1",
+        "--adults",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"data\":{\"offer\":{\"available\":true,\"date_verified\":true,\"inventory\":4,\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":30800,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":30800,\"eligibility_known\":false,\"headline_before_points\":30800,\"instant_points_payable\":24640,\"payable_without_coupon\":24640,\"points_applied\":6160,\"points_applied_rate\":20,\"points_earned\":6160,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":6160,\"published_payable\":30800},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":6160,\"potential_points_earned\":null,\"published_payable\":24640}],\"source_amount\":30800,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"plan\":{\"cancellation\":{\"id\":\"001\",\"known\":true,\"rules\":[{\"amount\":null,\"day\":null,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleNoShow\"},{\"amount\":null,\"day\":0,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":1,\"hour_minutes\":null,\"rate\":70,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":3,\"hour_minutes\":null,\"rate\":50,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":7,\"hour_minutes\":null,\"rate\":30,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":10,\"hour_minutes\":null,\"rate\":20,\"type\":\"CancelPolicyRuleDay\"}]},\"check_in_from\":\"14:00\",\"check_in_to\":\"23:00\",\"check_out\":\"11:00\",\"children\":[{\"amount\":null,\"kind\":\"A\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"B\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"C\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":5500,\"kind\":\"E\",\"rate\":null,\"type\":\"FIXED\"},{\"amount\":null,\"kind\":\"D\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":3300,\"kind\":\"F\",\"rate\":null,\"type\":\"FIXED\"}],\"content\":\"【お食事無しの素泊まりプラン】\\n\\nチェックインは23時までとなっております。\\n遅い到着でも安心です。\\n\\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\\n3万冊の蔵書を取り揃えております。\\n懐かしい本との出会いもお愉しみください。\\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\\n\\n■内容＆特典■\\n・就寝用パジャマをご用意\\n・環境に配慮したアメニティをご用意\\n・最終チェックイン23時、チェックアウト11時\\n　ご到着のお時間を事前にお知らせください。\\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\\n\\n\\n【お食事】\\n※夕食・朝食はついておりません。\\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\\n事前のお申し出がない場合はご用意できかねます。\\n\\n【温泉】\\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\\n美人の湯としても誉れ高く、お肌のつるつる感を楽しんで頂けます。\\n\\n・お座敷風呂（大浴場）\\n　親湯温泉の成分に合わせ、防菌防カビの特殊素材の畳を利用。\\n　足元が柔らかく、そして滑りにくい畳のお風呂です。\\n　渓流を臨む露天風呂も併設しています。\\n\\n・天与の湯（女性専用露天風呂）\\n　渓谷を一望する見晴らしの…[truncated]"
+    },
+    {
+      "command": "stay dates",
+      "kind": "error_path",
+      "args": [
+        "stay",
+        "dates",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: use stay dates \u003cproperty-id\u003e \u003croom-id\u003e \u003cplan-id\u003e --check-ins YYYY-MM-DD,... --nights 1\n"
+    },
+    {
+      "command": "stay dates",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "dates",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-ins",
+        "2026-10-18,2026-10-19",
+        "--nights",
+        "1",
+        "--adults",
+        "2",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"check_ins\":\"2026-10-18,2026-10-19\",\"concurrency\":2,\"maximum_dates\":7,\"nights\":1,\"operation\":\"exact offer date alternatives\",\"party\":{\"adults_per_room\":2,\"check_in\":\"\",\"check_out\":\"\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"selection\":[\"00002889\",\"10193741\",\"11055986\"]},\"read_only\":true}}\n"
+    },
+    {
+      "command": "stay destinations",
+      "kind": "help",
+      "args": [
+        "stay",
+        "destinations",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolve source destination names, IDs and public paths\n\nUsage:\n  ikyu-pp-cli stay destinations [query] [flags]\n\nExamples:\n  ikyu-pp-cli stay destinations tokyo --limit 5 --agent\n\nFlags:\n      --allow-stale        Allow timestamped stale cache only after an upstream failure\n      --cache-dir string   Override bounded public read-through cache directory\n      --fields string      Project comma-separated JSON fields; alias of --select\n  -h, --help               help for destinations\n      --limit int          Maximum returned records, between 1 and 50 (default 10)\n      --offset int         Source record offset; preserve pagination coverage\n      --refresh            Bypass existing public cache and request current source data\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "stay destinations",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "destinations",
+        "tokyo",
+        "--limit",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"aliases\":[\"tokyo\",\"東京\"],\"filter_removal_note\":\"Source navigation link contains filters; the unfiltered base destination is used for search.\",\"id\":\"140000\",\"name\":\"\u003credacted\u003e\",\"observed_name\":\"すべてみる\",\"observed_path\":\"/tokyo/140000/t113/\",\"path\":\"/tokyo/140000/\"}],\"freshness\":{\"age_seconds\":0,\"fetched_at\":\"2026-09-27T16:24:10.605875Z\",\"schema_version\":\"ikyu-stay-v1\",\"source\":\"live\",\"stale\":false},\"pagination\":{\"complete\":true,\"has_next\":false,\"limit\":5,\"next_offset\":null,\"offset\":0,\"returned\":1,\"scanned\":1,\"source_total\":1},\"stats\":{\"cache_hits\":0,\"requests\":1,\"response_bytes\":1238125,\"stale_hits\":0}}}"
+    },
+    {
+      "command": "stay destinations",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "destinations",
+        "tokyo",
+        "--limit",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"aliases\":[\"tokyo\",\"東京\"],\"filter_removal_note\":\"Source navigation link contains filters; the unfiltered base destination is used for search.\",\"id\":\"140000\",\"name\":\"\u003credacted\u003e\",\"observed_name\":\"すべてみる\",\"observed_path\":\"/tokyo/140000/t113/\",\"path\":\"/tokyo/140000/\"}],\"freshness\":{\"age_seconds\":0,\"fetched_at\":\"2026-09-27T16:24:10.605875Z\",\"schema_version\":\"ikyu-stay-v1\",\"source\":\"cache\",\"stale\":false},\"pagination\":{\"complete\":true,\"has_next\":false,\"limit\":5,\"next_offset\":null,\"offset\":0,\"returned\":1,\"scanned\":1,\"source_total\":1},\"stats\":{\"cache_hits\":1,\"requests\":0,\"response_bytes\":0,\"stale_hits\":0}}}"
+    },
+    {
+      "command": "stay destinations",
+      "kind": "error_path",
+      "args": [
+        "stay",
+        "destinations",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"data\":[],\"freshness\":{\"age_seconds\":0,\"fetched_at\":\"2026-09-27T16:24:10.605875Z\",\"schema_version\":\"ikyu-stay-v1\",\"source\":\"cache\",\"stale\":false},\"pagination\":{\"complete\":true,\"has_next\":false,\"limit\":10,\"next_offset\":null,\"offset\":0,\"returned\":0,\"scanned\":0,\"source_total\":0},\"stats\":{\"requests\":0,\"response_bytes\":0,\"cache_hits\":1,\"stale_hits\":0}}\n"
+    },
+    {
+      "command": "stay destinations",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "destinations",
+        "tokyo",
+        "--limit",
+        "5",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"limit\":5,\"offset\":0,\"operation\":\"public destination links\",\"query\":\"tokyo\"},\"read_only\":true}}\n"
+    },
+    {
+      "command": "stay offer",
+      "kind": "help",
+      "args": [
+        "stay",
+        "offer",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Inspect exact room-plan prices, full cancellation rules and verified nightly date echoes\n\nUsage:\n  ikyu-pp-cli stay offer \u003cproperty-id\u003e \u003croom-id\u003e \u003cplan-id\u003e [flags]\n\nExamples:\n  ikyu-pp-cli stay offer 00002889 10193741 11055986 --check-in 2026-10-18 --check-out 2026-10-19 --adults 2 --agent\n\nFlags:\n      --adults int         Adults per room, identical in every room (default 2)\n      --allow-stale        Allow timestamped stale cache only after an upstream failure\n      --cache-dir string   Override bounded public read-through cache directory\n      --check-in string    Check-in date in Japan, exactly YYYY-MM-DD\n      --check-out string   Check-out date in Japan, after check-in\n      --children-a int     Per-room count of older primary-school children (Ikyu source category)\n      --children-b int     Per-room count of younger primary-school children (Ikyu source category)\n      --children-c int     Per-room count of infants with meals and bedding (Ikyu source category)\n      --children-d int     Per-room count of infants with meals, no bedding (Ikyu source category)\n      --children-e int     Per-room count of infants with bedding, no meals (Ikyu source category)\n      --children-f int     Per-room count of infants without meals or bedding (Ikyu source category)\n      --fields string      Project comma-separated JSON fields; alias of --select\n  -h, --help               help for offer\n      --refresh            Bypass existing public cache and request current source data\n      --rooms int          Identical rooms with the same per-room party (1–10) (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "stay offer",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "offer",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-in",
+        "2026-10-18",
+        "--check-out",
+        "2026-10-19",
+        "--adults",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"offer\":{\"available\":true,\"date_verified\":true,\"inventory\":4,\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":30800,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":30800,\"eligibility_known\":false,\"headline_before_points\":30800,\"instant_points_payable\":24640,\"payable_without_coupon\":24640,\"points_applied\":6160,\"points_applied_rate\":20,\"points_earned\":6160,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":6160,\"published_payable\":30800},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":6160,\"potential_points_earned\":null,\"published_payable\":24640}],\"source_amount\":30800,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"plan\":{\"cancellation\":{\"id\":\"001\",\"known\":true,\"rules\":[{\"amount\":null,\"day\":null,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleNoShow\"},{\"amount\":null,\"day\":0,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":1,\"hour_minutes\":null,\"rate\":70,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":3,\"hour_minutes\":null,\"rate\":50,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":7,\"hour_minutes\":null,\"rate\":30,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":10,\"hour_minutes\":null,\"rate\":20,\"type\":\"CancelPolicyRuleDay\"}]},\"check_in_from\":\"14:00\",\"check_in_to\":\"23:00\",\"check_out\":\"11:00\",\"children\":[{\"amount\":null,\"kind\":\"A\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"B\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"C\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":5500,\"kind\":\"E\",\"rate\":null,\"type\":\"FIXED\"},{\"amount\":null,\"kind\":\"D\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":3300,\"kind\":\"F\",\"rate\":null,\"type\":\"FIXED\"}],\"content\":\"【お食事無しの素泊まりプラン】\\n\\nチェックインは23時までとなっております。\\n遅い到着でも安心です。\\n\\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\\n3万冊の蔵書を取り揃えております。\\n懐かしい本との出会いもお愉しみください。\\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\\n\\n■内容＆特典■\\n・就寝用パジャマをご用意\\n・環境に配慮したアメニティをご用意\\n・最終チェックイン23時、チェックアウト11時\\n　ご到着のお時間を事前にお知らせください。\\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\\n\\n\\n【お食事】\\n※夕食・朝食はついておりません。\\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\\n事前のお申し出がない場合はご用意できかねます。\\n\\n【温泉】\\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\\n美人の湯としても誉れ高く、お肌のつるつる感を楽しんで頂けます。\\n\\n・お座敷風呂（大浴場）\\n　親湯温泉の成分に合わせ、防菌防カビの特殊素材の畳を利用。\\n　足元が柔らかく、そして滑りにくい畳のお風呂です。\\n　渓流を臨む露天風呂も併設しています。\\n\\n・天与の湯（女性専用露天風呂）\\n　渓谷を一望する見晴らしの良い露…[truncated]"
+    },
+    {
+      "command": "stay offer",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "offer",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-in",
+        "2026-10-18",
+        "--check-out",
+        "2026-10-19",
+        "--adults",
+        "2",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"offer\":{\"available\":true,\"date_verified\":true,\"inventory\":4,\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":30800,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":30800,\"eligibility_known\":false,\"headline_before_points\":30800,\"instant_points_payable\":24640,\"payable_without_coupon\":24640,\"points_applied\":6160,\"points_applied_rate\":20,\"points_earned\":6160,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":6160,\"published_payable\":30800},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":6160,\"potential_points_earned\":null,\"published_payable\":24640}],\"source_amount\":30800,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"plan\":{\"cancellation\":{\"id\":\"001\",\"known\":true,\"rules\":[{\"amount\":null,\"day\":null,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleNoShow\"},{\"amount\":null,\"day\":0,\"hour_minutes\":null,\"rate\":100,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":1,\"hour_minutes\":null,\"rate\":70,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":3,\"hour_minutes\":null,\"rate\":50,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":7,\"hour_minutes\":null,\"rate\":30,\"type\":\"CancelPolicyRuleDay\"},{\"amount\":null,\"day\":10,\"hour_minutes\":null,\"rate\":20,\"type\":\"CancelPolicyRuleDay\"}]},\"check_in_from\":\"14:00\",\"check_in_to\":\"23:00\",\"check_out\":\"11:00\",\"children\":[{\"amount\":null,\"kind\":\"A\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"B\",\"rate\":80,\"type\":\"RATE\"},{\"amount\":null,\"kind\":\"C\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":5500,\"kind\":\"E\",\"rate\":null,\"type\":\"FIXED\"},{\"amount\":null,\"kind\":\"D\",\"rate\":null,\"type\":\"IMPROPRIETY\"},{\"amount\":3300,\"kind\":\"F\",\"rate\":null,\"type\":\"FIXED\"}],\"content\":\"【お食事無しの素泊まりプラン】\\n\\nチェックインは23時までとなっております。\\n遅い到着でも安心です。\\n\\n当宿自慢のロビーラウンジ「みすずLounge ＆ Bar」は、\\n3万冊の蔵書を取り揃えております。\\n懐かしい本との出会いもお愉しみください。\\n文人に愛された渓谷の一軒宿で、寛ぎの休日をお過ごし下さい。\\n\\n■内容＆特典■\\n・就寝用パジャマをご用意\\n・環境に配慮したアメニティをご用意\\n・最終チェックイン23時、チェックアウト11時\\n　ご到着のお時間を事前にお知らせください。\\n　和室のお部屋はチェックイン時にお布団を敷かせていただいております。\\n\\n\\n【お食事】\\n※夕食・朝食はついておりません。\\nお一人様2200円（税込）でご朝食付きに変更することも可能です。\\nご希望の際はご予約時の備考欄へその旨ご記入くださいませ。\\n事前のお申し出がない場合はご用意できかねます。\\n\\n【温泉】\\n自家源泉の親湯温泉は、弱酸性のさらりとした泉質。\\n美人の湯としても誉れ高く、お肌のつるつる感を楽しんで頂けます。\\n\\n・お座敷風呂（大浴場）\\n　親湯温泉の成分に合わせ、防菌防カビの特殊素材の畳を利用。\\n　足元が柔らかく、そして滑りにくい畳のお風呂です。\\n　渓流を臨む露天風呂も併設しています。\\n\\n・天与の湯（女性専用露天風呂）\\n　渓谷を一望する見晴らしの良い露…[truncated]"
+    },
+    {
+      "command": "stay offer",
+      "kind": "error_path",
+      "args": [
+        "stay",
+        "offer",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: use stay offer \u003cproperty-id\u003e \u003croom-id\u003e \u003cplan-id\u003e --check-in YYYY-MM-DD --check-out YYYY-MM-DD\n"
+    },
+    {
+      "command": "stay offer",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "offer",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-in",
+        "2026-10-18",
+        "--check-out",
+        "2026-10-19",
+        "--adults",
+        "2",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"plan_id\":\"11055986\",\"property_id\":\"00002889\",\"room_id\":\"10193741\",\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-10-18\",\"check_out\":\"2026-10-19\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"read_only\":true}}\n"
+    },
+    {
+      "command": "stay property",
+      "kind": "help",
+      "args": [
+        "stay",
+        "property",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read property facilities, source review category scores and tax notes\n\nUsage:\n  ikyu-pp-cli stay property [property-id] [flags]\n\nExamples:\n  ikyu-pp-cli stay property 00002889 --agent\n\nFlags:\n      --allow-stale        Allow timestamped stale cache only after an upstream failure\n      --cache-dir string   Override bounded public read-through cache directory\n      --fields string      Project comma-separated JSON fields; alias of --select\n  -h, --help               help for property\n      --refresh            Bypass existing public cache and request current source data\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "stay property",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "property",
+        "00002889",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"address\":\"\u003credacted\u003e\",\"area\":\"蓼科温泉\",\"attributes\":[{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"9\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"4\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"11\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"10\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"12\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"14\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"28\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"29\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"17\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"16\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"5\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"6\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"3\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"8\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"7\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"13\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"31\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"30\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"2\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"1\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"15\"}],\"bath_facilities\":[{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"※深夜1:00～5:00の消毒作業時間はご利用いただけません。\"},{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"※21:00～22:50は貸切露天風呂としてもご利用いただけます。\\r\\n※20:45～翌6:00についてはご利用いただけません。ご了承くださいませ。\"},{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"※30分無料サービスは1泊につき1回ご利用いただけますので、連泊のお客様は宿泊日数分ご利用いただけます。\\r\\n※貸切露天風呂のご予約はご到着順に承っております。予めご了承ください。\"},{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"【深山亭露天風呂付き客室】にございます。お部屋の坪庭に自家源泉注ぐ檜の露天風呂をご用意しております。\"}],\"id\":\"00002889\",\"latitude\":36.061756,\"longitude\":138.273025,\"name\":\"\u003credacted\u003e\",\"notes\":\"※当館へお車でお越しの際※\\nカーナビを設定される際は、当館住所ではなく電話番号（0266-67-2020）でのご設定をお願いいたします。\\n\\n別途おひとり様一泊につき、宿泊税200円（2026年6月1日より）、150円の入湯税がかかります。\\n※※全館禁煙のご案内※※\\nこの度、館内（客室・共用スペース含む）を全面禁煙とさせていただきます。\\n喫煙されるお客様は、別途設けております喫煙所をご利用いただきますようお願い申し上げます。\\n誠に恐縮ではございますが、ご理解の程お願い申し上げます。\",\"scores\":{\"average\":4.53,\"bath\":4.52,\"count\":184,\"customer_service\":4.66,\"equipment\":4.57,\"meal\":4.43,\"room_amenity\":4.46,\"satisfaction\":4.54},\"type\":\"INN\",\"url\":\"https://www.ikyu.com/00002889/\"},\"freshness\":{\"age_seconds\":0,\"fetched_at\":\"2026-09-27T16:24:10.872002Z\",\"schema_version\":\"ikyu-stay-v1\",\"source\":\"live\",\"stale\":false},\"stats\":{\"cache_hits\":0,\"requests\":1,\"response_bytes\":3571,\"stale_hits\":0}}}"
+    },
+    {
+      "command": "stay property",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "property",
+        "00002889",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"address\":\"\u003credacted\u003e\",\"area\":\"蓼科温泉\",\"attributes\":[{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"9\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"4\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"11\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"10\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"12\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"14\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"28\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"29\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"17\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"16\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"5\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"6\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"3\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"8\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"7\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"13\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"31\"},{\"available\":true,\"name\":\"\u003credacted\u003e\",\"value\":\"30\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"2\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"1\"},{\"available\":false,\"name\":\"\u003credacted\u003e\",\"value\":\"15\"}],\"bath_facilities\":[{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"※深夜1:00～5:00の消毒作業時間はご利用いただけません。\"},{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"※21:00～22:50は貸切露天風呂としてもご利用いただけます。\\r\\n※20:45～翌6:00についてはご利用いただけません。ご了承くださいませ。\"},{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"※30分無料サービスは1泊につき1回ご利用いただけますので、連泊のお客様は宿泊日数分ご利用いただけます。\\r\\n※貸切露天風呂のご予約はご到着順に承っております。予めご了承ください。\"},{\"hot_spring\":true,\"name\":\"\u003credacted\u003e\",\"note\":\"【深山亭露天風呂付き客室】にございます。お部屋の坪庭に自家源泉注ぐ檜の露天風呂をご用意しております。\"}],\"id\":\"00002889\",\"latitude\":36.061756,\"longitude\":138.273025,\"name\":\"\u003credacted\u003e\",\"notes\":\"※当館へお車でお越しの際※\\nカーナビを設定される際は、当館住所ではなく電話番号（0266-67-2020）でのご設定をお願いいたします。\\n\\n別途おひとり様一泊につき、宿泊税200円（2026年6月1日より）、150円の入湯税がかかります。\\n※※全館禁煙のご案内※※\\nこの度、館内（客室・共用スペース含む）を全面禁煙とさせていただきます。\\n喫煙されるお客様は、別途設けております喫煙所をご利用いただきますようお願い申し上げます。\\n誠に恐縮ではございますが、ご理解の程お願い申し上げます。\",\"scores\":{\"average\":4.53,\"bath\":4.52,\"count\":184,\"customer_service\":4.66,\"equipment\":4.57,\"meal\":4.43,\"room_amenity\":4.46,\"satisfaction\":4.54},\"type\":\"INN\",\"url\":\"https://www.ikyu.com/00002889/\"},\"freshness\":{\"age_seconds\":0,\"fetched_at\":\"2026-09-27T16:24:10.872002Z\",\"schema_version\":\"ikyu-stay-v1\",\"source\":\"cache\",\"stale\":false},\"stats\":{\"cache_hits\":1,\"requests\":0,\"response_bytes\":0,\"stale_hits\":0}}}"
+    },
+    {
+      "command": "stay property",
+      "kind": "error_path",
+      "args": [
+        "stay",
+        "property",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: property ID must be an eight-digit Ikyu ID\n"
+    },
+    {
+      "command": "stay property",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "property",
+        "00002889",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"operation\":\"StayProperty\",\"property_id\":[\"00002889\"]},\"read_only\":true}}\n"
+    },
+    {
+      "command": "stay rooms",
+      "kind": "help",
+      "args": [
+        "stay",
+        "rooms",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Page rooms and plan summaries; preserve source bath evidence and missing nightly dates\n\nUsage:\n  ikyu-pp-cli stay rooms [property-id] [flags]\n\nExamples:\n  ikyu-pp-cli stay rooms 00002889 --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 3 --plan-limit 5 --agent\n\nFlags:\n      --adults int         Adults per room, identical in every room (default 2)\n      --allow-stale        Allow timestamped stale cache only after an upstream failure\n      --cache-dir string   Override bounded public read-through cache directory\n      --check-in string    Check-in date in Japan, exactly YYYY-MM-DD\n      --check-out string   Check-out date in Japan, after check-in\n      --children-a int     Per-room count of older primary-school children (Ikyu source category)\n      --children-b int     Per-room count of younger primary-school children (Ikyu source category)\n      --children-c int     Per-room count of infants with meals and bedding (Ikyu source category)\n      --children-d int     Per-room count of infants with meals, no bedding (Ikyu source category)\n      --children-e int     Per-room count of infants with bedding, no meals (Ikyu source category)\n      --children-f int     Per-room count of infants without meals or bedding (Ikyu source category)\n      --fields string      Project comma-separated JSON fields; alias of --select\n  -h, --help               help for rooms\n      --hot-spring-bath    Require explicit room hot-spring outdoor-bath evidence\n      --limit int          Maximum returned records, between 1 and 50 (default 10)\n      --max-budget int     Maximum source instant-points JPY booking-total quote\n      --meals string       Comma-separated Ikyu meal codes 000–007\n      --min-budget int     Minimum source instant-points JPY booking-total quote\n      --min-size float     Minimum source room size in square metres\n      --nonsmoking         Require explicit room nonsmoking attribute\n      --offset int         Source record offset; preserve pagination coverage\n      --outdoor-bath       Require explicit room outdoor-bath evidence\n      --plan-limit int     Maximum plan summaries per room, between 1 and 50 (default 5)\n      --plan-offset int    Source plan offset within each returned room\n      --refresh            Bypass existing public cache and request current source data\n      --rooms int          Identical rooms with the same per-room party (1–10) (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --…[truncated]"
+    },
+    {
+      "command": "stay rooms",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "rooms",
+        "00002889",
+        "--check-in",
+        "2026-11-17",
+        "--check-out",
+        "2026-11-18",
+        "--adults",
+        "2",
+        "--limit",
+        "3",
+        "--plan-limit",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"attributes\":[{\"name\":\"\u003credacted\u003e\",\"value\":\"20\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"1\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"27\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"5\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"6\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"23\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"28\"}],\"bath\":{\"hot_spring\":null,\"outdoor\":null,\"private\":null,\"proof\":null,\"semi_outdoor\":null,\"shared\":null},\"bedding_text\":\"ツイン\",\"beds\":[{\"count\":2,\"length_cm\":200,\"people\":1,\"width_cm\":100}],\"capacity_max\":3,\"capacity_min\":1,\"check_in_from\":\"14:00\",\"check_in_to\":\"18:00\",\"check_out\":\"11:00\",\"description\":\"旅館の寛ぎとホテルの快適さを同時にお届けするため、和室にベッドを配した、心落ち落ち着く和洋室。\\n横岳を眺望する山側の景観で寛ぎの時間をお過ごし下さい。\\n\\n本館に位置し、食事会場や風呂へエレベーター1本で移動できる、利便性が高いお部屋です。\\n\\n■客室概要\\n・和室　45平米　ベッド\\n・定員：3名\\n・バス／シャワートイレ／洗面\\n\\n■客室設備\\nテレビ／金庫／冷蔵庫／空気清浄機／ポット／湯茶セット／Wi-Fi接続無料\\n\\n■アメニティ\\nボディーソープ／シャンプー／コンディショナー／館内着／就寝用パジャマ／他\",\"id\":\"10220959\",\"layout\":null,\"name\":\"\u003credacted\u003e\",\"plan_pagination\":{\"complete\":false,\"has_next\":true,\"limit\":5,\"next_offset\":5,\"offset\":0,\"returned\":5,\"scanned\":5,\"source_total\":7},\"plan_total\":7,\"plans\":[{\"id\":\"11055986\",\"inventory\":1,\"meal\":{\"code\":\"000\",\"name\":\"\u003credacted\u003e\"},\"name\":\"\u003credacted\u003e\",\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":36300,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":36300,\"eligibility_known\":false,\"headline_before_points\":36300,\"instant_points_payable\":29040,\"payable_without_coupon\":29040,\"points_applied\":7260,\"points_applied_rate\":20,\"points_earned\":7260,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":7260,\"published_payable\":36300},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":7260,\"potential_points_earned\":null,\"published_payable\":29040}],\"source_amount\":36300,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_point_variation\":0,\"url\":\"https://www.ikyu.com/00002889/11055986/10220959/?cid=20261117\u0026cod=20261118\u0026lc=1\u0026ppc=2\u0026rc=1\"},{\"id\":\"11055981\",\"inventory\":1,\"meal\":{\"code\":\"001\",\"name\":\"\u003credacted\u003e\"},\"name\":\"\u003credacted\u003e\",\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":40700,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":40700,\"eligibility_known\":false,\"headline_before_points\":40700,\"instant_points_payable\":32560,\"payable_without_coupon\":32560,\"points_applied\":8140,\"points_applied_rate\":20,\"points_earned\":8140,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":8140,\"published_payable\":40700},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":8140,\"potential_points_earned\":null,\"published_payable\":32560}],\"source_amount\":40700,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source…[truncated]"
+    },
+    {
+      "command": "stay rooms",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "rooms",
+        "00002889",
+        "--check-in",
+        "2026-11-17",
+        "--check-out",
+        "2026-11-18",
+        "--adults",
+        "2",
+        "--limit",
+        "3",
+        "--plan-limit",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"attributes\":[{\"name\":\"\u003credacted\u003e\",\"value\":\"20\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"1\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"27\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"5\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"6\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"23\"},{\"name\":\"\u003credacted\u003e\",\"value\":\"28\"}],\"bath\":{\"hot_spring\":null,\"outdoor\":null,\"private\":null,\"proof\":null,\"semi_outdoor\":null,\"shared\":null},\"bedding_text\":\"ツイン\",\"beds\":[{\"count\":2,\"length_cm\":200,\"people\":1,\"width_cm\":100}],\"capacity_max\":3,\"capacity_min\":1,\"check_in_from\":\"14:00\",\"check_in_to\":\"18:00\",\"check_out\":\"11:00\",\"description\":\"旅館の寛ぎとホテルの快適さを同時にお届けするため、和室にベッドを配した、心落ち落ち着く和洋室。\\n横岳を眺望する山側の景観で寛ぎの時間をお過ごし下さい。\\n\\n本館に位置し、食事会場や風呂へエレベーター1本で移動できる、利便性が高いお部屋です。\\n\\n■客室概要\\n・和室　45平米　ベッド\\n・定員：3名\\n・バス／シャワートイレ／洗面\\n\\n■客室設備\\nテレビ／金庫／冷蔵庫／空気清浄機／ポット／湯茶セット／Wi-Fi接続無料\\n\\n■アメニティ\\nボディーソープ／シャンプー／コンディショナー／館内着／就寝用パジャマ／他\",\"id\":\"10220959\",\"layout\":null,\"name\":\"\u003credacted\u003e\",\"plan_pagination\":{\"complete\":false,\"has_next\":true,\"limit\":5,\"next_offset\":5,\"offset\":0,\"returned\":5,\"scanned\":5,\"source_total\":7},\"plan_total\":7,\"plans\":[{\"id\":\"11055986\",\"inventory\":1,\"meal\":{\"code\":\"000\",\"name\":\"\u003credacted\u003e\"},\"name\":\"\u003credacted\u003e\",\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":36300,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":36300,\"eligibility_known\":false,\"headline_before_points\":36300,\"instant_points_payable\":29040,\"payable_without_coupon\":29040,\"points_applied\":7260,\"points_applied_rate\":20,\"points_earned\":7260,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":7260,\"published_payable\":36300},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":7260,\"potential_points_earned\":null,\"published_payable\":29040}],\"source_amount\":36300,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source_point_variation\":0,\"url\":\"https://www.ikyu.com/00002889/11055986/10220959/?cid=20261117\u0026cod=20261118\u0026lc=1\u0026ppc=2\u0026rc=1\"},{\"id\":\"11055981\",\"inventory\":1,\"meal\":{\"code\":\"001\",\"name\":\"\u003credacted\u003e\"},\"name\":\"\u003credacted\u003e\",\"price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":40700,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":40700,\"eligibility_known\":false,\"headline_before_points\":40700,\"instant_points_payable\":32560,\"payable_without_coupon\":32560,\"points_applied\":8140,\"points_applied_rate\":20,\"points_earned\":8140,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":8140,\"published_payable\":40700},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":8140,\"potential_points_earned\":null,\"published_payable\":32560}],\"source_amount\":40700,\"source_coupon\":null,\"unit\":\"booking_total\"},\"source…[truncated]"
+    },
+    {
+      "command": "stay rooms",
+      "kind": "error_path",
+      "args": [
+        "stay",
+        "rooms",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --check-in must be an exact YYYY-MM-DD calendar date\n"
+    },
+    {
+      "command": "stay rooms",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "rooms",
+        "00002889",
+        "--check-in",
+        "2026-11-17",
+        "--check-out",
+        "2026-11-18",
+        "--adults",
+        "2",
+        "--limit",
+        "3",
+        "--plan-limit",
+        "5",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"limit\":3,\"offset\":0,\"plan_limit\":5,\"plan_offset\":0,\"preferences\":{},\"property_id\":\"00002889\",\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-11-17\",\"check_out\":\"2026-11-18\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"read_only\":true}}\n"
+    },
+    {
+      "command": "stay search",
+      "kind": "help",
+      "args": [
+        "stay",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search one source page for a dated per-room party with explicit filter coverage\n\nUsage:\n  ikyu-pp-cli stay search [destination] [flags]\n\nExamples:\n  ikyu-pp-cli stay search tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 5 --agent\n\nFlags:\n      --adults int           Adults per room, identical in every room (default 2)\n      --allow-stale          Allow timestamped stale cache only after an upstream failure\n      --cache-dir string     Override bounded public read-through cache directory\n      --check-in string      Check-in date in Japan, exactly YYYY-MM-DD\n      --check-out string     Check-out date in Japan, after check-in\n      --children-a int       Per-room count of older primary-school children (Ikyu source category)\n      --children-b int       Per-room count of younger primary-school children (Ikyu source category)\n      --children-c int       Per-room count of infants with meals and bedding (Ikyu source category)\n      --children-d int       Per-room count of infants with meals, no bedding (Ikyu source category)\n      --children-e int       Per-room count of infants with bedding, no meals (Ikyu source category)\n      --children-f int       Per-room count of infants without meals or bedding (Ikyu source category)\n      --destination string   Exact source destination name, ID/path or supported alias\n      --fields string        Project comma-separated JSON fields; alias of --select\n  -h, --help                 help for search\n      --hot-spring-bath      Require explicit room hot-spring outdoor-bath evidence\n      --limit int            Maximum returned records, between 1 and 50 (default 10)\n      --max-budget int       Maximum source instant-points JPY booking-total quote\n      --max-scan-pages int   Source scan-page cap (v1 reads exactly one bounded page) (default 1)\n      --meals string         Comma-separated Ikyu meal codes 000–007\n      --min-budget int       Minimum source instant-points JPY booking-total quote\n      --min-size float       Minimum source room size in square metres\n      --nonsmoking           Require explicit room nonsmoking attribute\n      --offset int           Source record offset; preserve pagination coverage\n      --outdoor-bath         Require explicit room outdoor-bath evidence\n      --refresh              Bypass existing public cache and request current source data\n      --rooms int            Identical rooms with the same per-room party (1–10) (default 1)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet         …[truncated]"
+    },
+    {
+      "command": "stay search",
+      "kind": "happy_path",
+      "args": [
+        "stay",
+        "search",
+        "tokyo",
+        "--check-in",
+        "2026-11-17",
+        "--check-out",
+        "2026-11-18",
+        "--adults",
+        "2",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"address\":\"\u003credacted\u003e\",\"area\":\"都営三田線「芝公園駅」A4出口徒歩3分\",\"attributes\":null,\"from_price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":92504,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":92504,\"eligibility_known\":false,\"headline_before_points\":92504,\"instant_points_payable\":74004,\"payable_without_coupon\":74004,\"points_applied\":18500,\"points_applied_rate\":20,\"points_earned\":18500,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":18500,\"published_payable\":92504},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":18500,\"potential_points_earned\":null,\"published_payable\":74004}],\"source_amount\":92504,\"source_coupon\":null,\"unit\":\"booking_total\"},\"id\":\"00000946\",\"latitude\":35.655482,\"longitude\":139.747183,\"name\":\"\u003credacted\u003e\",\"notes\":null,\"scores\":{\"average\":4.31,\"bath\":4.31,\"count\":265,\"customer_service\":4.21,\"equipment\":4.35,\"meal\":4.37,\"room_amenity\":4.38,\"satisfaction\":4.25},\"type\":\"HOTEL\",\"url\":\"https://www.ikyu.com/00000946/?cid=20261117\u0026cod=20261118\u0026lc=1\u0026ppc=2\u0026rc=1\"},{\"address\":\"\u003credacted\u003e\",\"area\":\"東京駅丸の内南口直結\",\"attributes\":null,\"from_price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":208724,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":208724,\"eligibility_known\":false,\"headline_before_points\":208724,\"instant_points_payable\":187852,\"payable_without_coupon\":187852,\"points_applied\":20872,\"points_applied_rate\":10,\"points_earned\":20872,\"points_rate\":10,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":20872,\"published_payable\":208724},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":20872,\"potential_points_earned\":null,\"published_payable\":187852}],\"source_amount\":208724,\"source_coupon\":null,\"unit\":\"booking_total\"},\"id\":\"00001833\",\"latitude\":35.681295,\"longitude\":139.765932,\"name\":\"\u003credacted\u003e\",\"notes\":null,\"scores\":{\"average\":4.78,\"bath\":4.75,\"count\":466,\"customer_service\":4.8,\"equipment\":4.79,\"meal\":4.77,\"room_amenity\":4.8,\"satisfaction\":4.8},\"type\":\"HOTEL\",\"url\":\"https://www.ikyu.com/00001833/?cid=20261117\u0026cod=20261118\u0026lc=1\u0026ppc=2\u0026rc=1\"},{\"address\":\"\u003credacted\u003e\",\"area\":\"赤坂見附駅 徒歩3分\",\"attributes\":null,\"from_price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":72594,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":72594,\"eligibility_known\":false,\"headline_before_points\":72594,\"instant_points_payable\":65335,\"payable_without_coupon\":65335,\"points_applied\":7259,\"points_applied_rate\":10,\"points_earned\":7259,\"points_rate\":10,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,…[truncated]"
+    },
+    {
+      "command": "stay search",
+      "kind": "json_fidelity",
+      "args": [
+        "stay",
+        "search",
+        "tokyo",
+        "--check-in",
+        "2026-11-17",
+        "--check-out",
+        "2026-11-18",
+        "--adults",
+        "2",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":[{\"address\":\"\u003credacted\u003e\",\"area\":\"都営三田線「芝公園駅」A4出口徒歩3分\",\"attributes\":null,\"from_price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":92504,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":92504,\"eligibility_known\":false,\"headline_before_points\":92504,\"instant_points_payable\":74004,\"payable_without_coupon\":74004,\"points_applied\":18500,\"points_applied_rate\":20,\"points_earned\":18500,\"points_rate\":20,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":18500,\"published_payable\":92504},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":18500,\"potential_points_earned\":null,\"published_payable\":74004}],\"source_amount\":92504,\"source_coupon\":null,\"unit\":\"booking_total\"},\"id\":\"00000946\",\"latitude\":35.655482,\"longitude\":139.747183,\"name\":\"\u003credacted\u003e\",\"notes\":null,\"scores\":{\"average\":4.31,\"bath\":4.31,\"count\":265,\"customer_service\":4.21,\"equipment\":4.35,\"meal\":4.37,\"room_amenity\":4.38,\"satisfaction\":4.25},\"type\":\"HOTEL\",\"url\":\"https://www.ikyu.com/00000946/?cid=20261117\u0026cod=20261118\u0026lc=1\u0026ppc=2\u0026rc=1\"},{\"address\":\"\u003credacted\u003e\",\"area\":\"東京駅丸の内南口直結\",\"attributes\":null,\"from_price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":208724,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":208724,\"eligibility_known\":false,\"headline_before_points\":208724,\"instant_points_payable\":187852,\"payable_without_coupon\":187852,\"points_applied\":20872,\"points_applied_rate\":10,\"points_earned\":20872,\"points_rate\":10,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,\"potential_points_earned\":20872,\"published_payable\":208724},{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":20872,\"potential_points_earned\":null,\"published_payable\":187852}],\"source_amount\":208724,\"source_coupon\":null,\"unit\":\"booking_total\"},\"id\":\"00001833\",\"latitude\":35.681295,\"longitude\":139.765932,\"name\":\"\u003credacted\u003e\",\"notes\":null,\"scores\":{\"average\":4.78,\"bath\":4.75,\"count\":466,\"customer_service\":4.8,\"equipment\":4.79,\"meal\":4.77,\"room_amenity\":4.8,\"satisfaction\":4.8},\"type\":\"HOTEL\",\"url\":\"https://www.ikyu.com/00001833/?cid=20261117\u0026cod=20261118\u0026lc=1\u0026ppc=2\u0026rc=1\"},{\"address\":\"\u003credacted\u003e\",\"area\":\"赤坂見附駅 徒歩3分\",\"attributes\":null,\"from_price\":{\"assumptions\":[\"anonymous source quote; adults and A–F children are per room\",\"amounts cover all requested rooms and nights\",\"points-price eligibility and final taxes are not checkout-confirmed\",\"source_amount is original; headline_before_points is the published sale/earn-mode amount; earned/applied points are alternative source scenarios\",\"exact inspection supports upstream default point variation 0; listed variations remain distinct\"],\"base_discount_amount\":72594,\"checkout_confirmed_payable\":null,\"currency\":\"JPY\",\"earn_points_payable\":72594,\"eligibility_known\":false,\"headline_before_points\":72594,\"instant_points_payable\":65335,\"payable_without_coupon\":65335,\"points_applied\":7259,\"points_applied_rate\":10,\"points_earned\":7259,\"points_rate\":10,\"scenarios\":[{\"eligibility_known\":false,\"name\":\"\u003credacted\u003e\",\"potential_points_applied\":null,…[truncated]"
+    },
+    {
+      "command": "stay search",
+      "kind": "error_path",
+      "args": [
+        "stay",
+        "search",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --check-in must be an exact YYYY-MM-DD calendar date\n"
+    },
+    {
+      "command": "stay search",
+      "kind": "dry_run_json",
+      "args": [
+        "stay",
+        "search",
+        "tokyo",
+        "--check-in",
+        "2026-11-17",
+        "--check-out",
+        "2026-11-18",
+        "--adults",
+        "2",
+        "--limit",
+        "3",
+        "--agent",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{\"meta\":{\"source\":\"dry-run\"},\"results\":{\"cache_writes\":0,\"dry_run\":true,\"network_requests\":0,\"planned\":{\"destination\":\"tokyo\",\"limit\":3,\"offset\":0,\"preferences\":{},\"stay\":{\"adults_per_room\":2,\"check_in\":\"2026-11-17\",\"check_out\":\"2026-11-18\",\"children_per_room\":[0,0,0,0,0,0],\"rooms\":1}},\"read_only\":true}}\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {\"matches\":[]} (or the equivalent empty table) to stdout.\n\nUsage:\n  ikyu-pp-cli which [query] [flags]\n\nExamples:\n  ikyu-pp-cli which \"stale tickets\"\n  ikyu-pp-cli which \"bottleneck\"\n  ikyu-pp-cli which --limit 1 \"send message\"\n  ikyu-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "{\n  \"matches\": []\n}\nError: no match for \"__printing_press_invalid__\"; try 'ikyu-pp-cli --help' for the full command list\n"
+    },
+    {
+      "command": "which",
+      "kind": "dry_run_json",
+      "args": [
+        "which",
+        "stale tickets",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "exit_code": 2,
+      "reason": "no --dry-run short-circuit",
+      "output_sample": "{\n  \"matches\": []\n}\nError: no match for \"stale tickets\"; try 'ikyu-pp-cli --help' for the full command list\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  ikyu-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  ikyu-pp-cli workflow status\n\n  # Show status as JSON\n  ikyu-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Add a site-specific sync command to populate the store.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "dry_run_json",
+      "args": [
+        "workflow",
+        "status",
+        "--json",
+        "--dry-run"
+      ],
+      "status": "skip",
+      "reason": "command does not honour --dry-run",
+      "output_sample": "{}\n"
+    }
+  ],
+  "ran_at": "2026-09-27T16:24:08.835313Z"
+}

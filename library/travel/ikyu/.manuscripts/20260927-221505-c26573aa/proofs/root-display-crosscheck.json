@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "baseline": "independent-display-baseline.json",
+  "checks": [
+    {
+      "kind": "ryokan",
+      "status": "pass",
+      "room_and_plan_names": "exact match",
+      "meal": "exact match",
+      "ordered_cancellation_rules": "exact match",
+      "rules": 6
+    },
+    {
+      "kind": "hotel",
+      "status": "pass",
+      "room_and_plan_names": "exact match",
+      "meal": "exact match",
+      "ordered_cancellation_rules": "exact match",
+      "rules": 4
+    }
+  ]
+}

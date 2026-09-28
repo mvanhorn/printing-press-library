@@ -1,0 +1,107 @@
+{
+  "status": "pass",
+  "selection": [
+    "destinations",
+    "offer",
+    "search"
+  ],
+  "checks": [
+    {
+      "command": "destinations",
+      "mode": "help",
+      "exit": 0,
+      "bytes": 2915,
+      "json_keys": null
+    },
+    {
+      "command": "destinations",
+      "mode": "dry-run",
+      "exit": 0,
+      "bytes": 156,
+      "json_keys": [
+        "cache_writes",
+        "dry_run",
+        "network_requests",
+        "planned",
+        "read_only"
+      ]
+    },
+    {
+      "command": "destinations",
+      "mode": "json",
+      "exit": 0,
+      "bytes": 467,
+      "json_keys": [
+        "data",
+        "freshness",
+        "pagination",
+        "stats"
+      ]
+    },
+    {
+      "command": "offer",
+      "mode": "help",
+      "exit": 0,
+      "bytes": 3762,
+      "json_keys": null
+    },
+    {
+      "command": "offer",
+      "mode": "dry-run",
+      "exit": 0,
+      "bytes": 229,
+      "json_keys": [
+        "cache_writes",
+        "dry_run",
+        "network_requests",
+        "planned",
+        "read_only"
+      ]
+    },
+    {
+      "command": "offer",
+      "mode": "json",
+      "exit": 0,
+      "bytes": 8327,
+      "json_keys": [
+        "data",
+        "freshness",
+        "stats"
+      ]
+    },
+    {
+      "command": "search",
+      "mode": "help",
+      "exit": 0,
+      "bytes": 4646,
+      "json_keys": null
+    },
+    {
+      "command": "search",
+      "mode": "dry-run",
+      "exit": 0,
+      "bytes": 242,
+      "json_keys": [
+        "cache_writes",
+        "dry_run",
+        "network_requests",
+        "planned",
+        "read_only"
+      ]
+    },
+    {
+      "command": "search",
+      "mode": "json",
+      "exit": 0,
+      "bytes": 3755,
+      "json_keys": [
+        "data",
+        "filter_coverage",
+        "freshness",
+        "pagination",
+        "stats",
+        "stay"
+      ]
+    }
+  ]
+}

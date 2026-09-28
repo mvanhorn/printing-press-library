@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ikyu-observed-prices-and-plan-filters",
+  "applied_at": "2026-09-27T17:09:39.521440+00:00",
+  "base_run_id": "20260927-221505-c26573aa",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Report observed source price differences independently from equivalence and filter each room plan against the requested budget and meals.",
+  "reason": "Unknown eligibility must not hide published alternatives; one matching plan must not expose unrelated plans as filter matches, and filtered counts must not alter source continuation.",
+  "files": [
+    "internal/cli/stay_equivalence.go",
+    "internal/cli/stay_price_differences_test.go",
+    "internal/ikyu/source.go",
+    "internal/ikyu/rooms_budget_test.go"
+  ],
+  "validated_outcome": "Deterministic and live comparisons expose monetary observations without unverified savings; budget/meal filters remove nonmatching plans, while unfiltered empty plan pages retain room identity and native pagination."
+}

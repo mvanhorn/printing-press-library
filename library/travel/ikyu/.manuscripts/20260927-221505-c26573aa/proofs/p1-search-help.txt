@@ -1,0 +1,62 @@
+Search one source page for a dated per-room party with explicit filter coverage
+
+Usage:
+  ikyu-pp-cli stay search [destination] [flags]
+
+Examples:
+  ikyu-pp-cli stay search tokyo --check-in 2026-11-17 --check-out 2026-11-18 --adults 2 --limit 5 --agent
+
+Flags:
+      --adults int           Adults per room, identical in every room (default 2)
+      --allow-stale          Allow timestamped stale cache only after an upstream failure
+      --cache-dir string     Override bounded public read-through cache directory
+      --check-in string      Check-in date in Japan, exactly YYYY-MM-DD
+      --check-out string     Check-out date in Japan, after check-in
+      --children-a int       Per-room count of older primary-school children (Ikyu source category)
+      --children-b int       Per-room count of younger primary-school children (Ikyu source category)
+      --children-c int       Per-room count of infants with meals and bedding (Ikyu source category)
+      --children-d int       Per-room count of infants with meals, no bedding (Ikyu source category)
+      --children-e int       Per-room count of infants with bedding, no meals (Ikyu source category)
+      --children-f int       Per-room count of infants without meals or bedding (Ikyu source category)
+      --destination string   Exact source destination name, ID/path or supported alias
+      --fields string        Project comma-separated JSON fields; alias of --select
+  -h, --help                 help for search
+      --hot-spring-bath      Require explicit room hot-spring outdoor-bath evidence
+      --limit int            Maximum returned records, between 1 and 50 (default 10)
+      --max-budget int       Maximum source instant-points JPY booking-total quote
+      --max-scan-pages int   Source scan-page cap (v1 reads exactly one bounded page) (default 1)
+      --meals string         Comma-separated Ikyu meal codes 000–007
+      --min-budget int       Minimum source instant-points JPY booking-total quote
+      --min-size float       Minimum source room size in square metres
+      --nonsmoking           Require explicit room nonsmoking attribute
+      --offset int           Source record offset; preserve pagination coverage
+      --outdoor-bath         Require explicit room outdoor-bath evidence
+      --refresh              Bypass existing public cache and request current source data
+      --rooms int            Identical rooms with the same per-room party (1–10) (default 1)
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'ikyu-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)

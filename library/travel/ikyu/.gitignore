@@ -1,0 +1,15 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/ikyu-pp-cli
+/ikyu-pp-cli.exe
+/ikyu-pp-mcp
+/ikyu-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Local Printing Press staging, receipts and caches
+.printing-press/
+
+# Python verification caches
+__pycache__/
+*.pyc

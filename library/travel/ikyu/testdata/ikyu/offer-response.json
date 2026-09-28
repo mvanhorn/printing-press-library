@@ -1,0 +1,226 @@
+{
+  "data": {
+    "accommodation": {
+      "accommodationId": "00002889",
+      "name": "創業大正十五年 蓼科 親湯温泉",
+      "type": "INN",
+      "areaName": "蓼科温泉",
+      "generalNotes": "※当館へお車でお越しの際※\r\nカーナビを設定される際は、当館住所ではなく電話番号（0266-67-2020）でのご設定をお願いいたします。\r\n\r\n別途おひとり様一泊につき、宿泊税200円（2026年6月1日より）、150円の入湯税がかかります。",
+      "roomPlan": {
+        "error": "",
+        "room": {
+          "roomId": "10193741",
+          "name": "【奥廊下 すずらん亭】最もリーズナブル　和室/25平米",
+          "type": {
+            "code": "05",
+            "name": "和室"
+          },
+          "meterFrom": 25,
+          "meterTo": 25,
+          "capacityMin": 1,
+          "capacityMax": 4,
+          "floorPlan": "8帖+トイレ（階段のご利用）",
+          "presentationText": "【ご予約前に必ずご確認ください】\r\n・大浴場およびお食事会場までは、距離がございます。\r\n・客室まではスロープ・階段でのご移動となります。\r\n・古い木造建築のため、防音面ではご不便をおかけする場合がございます。\r\n・客室にお風呂はございません。大浴場をご利用ください。\r\n\r\n古き良き湯治場のイメージを今に残す8畳の和室。\r\n渓流を見下ろす立地ではありますが、本館から遠い廊下の先に位置するコンパクトな客室なため、お手頃な価格で提供しております。本館にあるお風呂・レストラン・ロビーへは移動距離がございます。（階段あり、車いす不可）\r\n基本サービス（お食事、サービス、備品など）は他のお部屋と同等です。\r\n\r\n■客室概要\r\n・和室 8畳（約25平米）\r\n・定員：4名様\r\n・シャワートイレ／洗面／※バス無し\r\n\r\n■客室設備\r\nテレビ／金庫／冷蔵庫／空気清浄機／ポット／湯茶セット／Wi-Fi接続無料\r\n\r\n■アメニティ\r\n館内着／就寝用パジャマ／ドライヤー／他",
+          "attributes": [
+            {
+              "value": "20",
+              "name": "禁煙"
+            },
+            {
+              "value": "36",
+              "name": "バス無"
+            },
+            {
+              "value": "6",
+              "name": "洗浄機能付トイレ"
+            },
+            {
+              "value": "23",
+              "name": "空気清浄機付"
+            },
+            {
+              "value": "28",
+              "name": "ネット可（wi-fi）"
+            }
+          ],
+          "beds": null
+        },
+        "plan": {
+          "planId": "11055986",
+          "name": "【お食事なし】蓼科 親湯温泉 素泊りプラン。弱酸性のさらりとした湯と蔵書3万冊のライブラリーラウンジ",
+          "cancelPolicy": {
+            "id": "001",
+            "rules": [
+              {
+                "__typename": "CancelPolicyRuleNoShow",
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 100
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 0,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 100
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 1,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 70
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 3,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 50
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 7,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 30
+                }
+              },
+              {
+                "__typename": "CancelPolicyRuleDay",
+                "day": 10,
+                "hourMinutes": null,
+                "amount": {
+                  "__typename": "CancelPolicyRuleAmountRate",
+                  "rate": 20
+                }
+              }
+            ]
+          },
+          "notes": "消費税、サービス料は込みです。入湯税のみ150円頂戴致します。",
+          "cardSettlement": "CARD_COMBI",
+          "bathTaxApply": false,
+          "meal": {
+            "code": "000",
+            "name": "食事なし"
+          },
+          "useCheckInOut": true,
+          "checkInTimeFrom": "14:00",
+          "checkInTimeTo": "23:00",
+          "checkOutTime": "11:00",
+          "minRoomCount": null,
+          "maxRoomCount": null,
+          "minLodgingCount": null,
+          "maxLodgingCount": null,
+          "content": "",
+          "memberRank": null,
+          "uwanosePointVariation": 0
+        },
+        "children": {
+          "children": [
+            {
+              "kind": "A",
+              "amount": {
+                "__typename": "RoomPlanChildAmountRate",
+                "type": "RATE",
+                "rate": 80
+              }
+            },
+            {
+              "kind": "B",
+              "amount": {
+                "__typename": "RoomPlanChildAmountRate",
+                "type": "RATE",
+                "rate": 80
+              }
+            },
+            {
+              "kind": "C",
+              "amount": {
+                "__typename": "RoomPlanChildAmountImpropriety",
+                "type": "IMPROPRIETY"
+              }
+            },
+            {
+              "kind": "E",
+              "amount": {
+                "__typename": "RoomPlanChildAmountFixed",
+                "type": "FIXED",
+                "amount": 5500
+              }
+            },
+            {
+              "kind": "D",
+              "amount": {
+                "__typename": "RoomPlanChildAmountImpropriety",
+                "type": "IMPROPRIETY"
+              }
+            },
+            {
+              "kind": "F",
+              "amount": {
+                "__typename": "RoomPlanChildAmountFixed",
+                "type": "FIXED",
+                "amount": 3300
+              }
+            }
+          ],
+          "memo": ""
+        },
+        "booking": {
+          "error": "",
+          "amount": {
+            "amount": 30800,
+            "baseDiscountAmount": 30800,
+            "baseDiscountRate": 0,
+            "childACount": 0,
+            "childBCount": 0,
+            "childCCount": 0,
+            "childDCount": 0,
+            "childECount": 0,
+            "childFCount": 0,
+            "discountAmount": 24640,
+            "discountAmountEarn": 30800,
+            "discountAmountWithoutCoupon": 24640,
+            "instantPoint": 6160,
+            "instantPointRate": 20,
+            "lodgingCount": 1,
+            "peopleCount": 2,
+            "point": 6160,
+            "pointRate": 20,
+            "roomCount": 1,
+            "uwanosePoint": 0,
+            "pointBurdenRates": {
+              "accommodation": 10,
+              "other": 10
+            },
+            "zenkokuCoupon": null,
+            "coupon": null,
+            "plan": {
+              "meal": {
+                "code": "000",
+                "name": "食事なし"
+              },
+              "sale": "USUALLY"
+            },
+            "details": [
+              {
+                "baseDiscount": null,
+                "date": "2026-10-18"
+              }
+            ],
+            "inventory": 4
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"action":"ikyu-pp-cli stay offer","cache_writes":0,"dry_run":true,"network_requests":0,"planned":{"property_id":"","room_id":"","plan_id":"","stay":{"check_in":"","check_out":"","adults_per_room":2,"rooms":1,"children_per_room":[0,0,0,0,0,0]}},"read_only":true}

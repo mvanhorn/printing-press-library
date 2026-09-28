@@ -1,0 +1,4 @@
+path=/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ikyu.com-00002889-cid-20261117-cod-20261118-ppc-2-rc-1-lc-1-c3c73bd81856ad50.html
+status=200
+content_type=text/html;charset=utf-8
+effective_url=https://www.ikyu.com/00002889/?cid=20261117&cod=20261118&lc=1&ppc=2&rc=1

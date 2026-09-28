@@ -1,0 +1,14 @@
+{
+  "cli_dir": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli",
+  "skill_path": "<workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/working/ikyu-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 20,
+  "findings": []
+}

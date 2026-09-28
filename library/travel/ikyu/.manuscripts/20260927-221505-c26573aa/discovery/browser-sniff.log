@@ -1,0 +1,4 @@
+Spec written to <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research/ikyu-browser-sniff-spec.yaml (5 endpoints across 3 resources)
+Traffic analysis written to <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/discovery/traffic-analysis.json
+Samples written to <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research/ikyu-browser-sniff-spec-samples (1 endpoint)
+Run 'cli-printing-press generate --spec <workspace>/.printing-press/.runstate/ikyu-cli-63de3580/runs/20260927-221505-c26573aa/research/ikyu-browser-sniff-spec.yaml' to build the CLI

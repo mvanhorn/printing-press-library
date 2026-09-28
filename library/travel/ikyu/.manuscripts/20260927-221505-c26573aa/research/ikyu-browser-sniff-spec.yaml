@@ -1,0 +1,1460 @@
+name: ikyu
+description: Discovered API spec for ikyu
+version: 0.1.0
+base_url: https://www.ikyu.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+config:
+    format: toml
+    path: ~/.config/ikyu-pp-cli/config.toml
+resources:
+    accommodations:
+        description: GraphQL BFF operations for accommodations
+        endpoints:
+            ikyu:
+                method: POST
+                path: /graphql
+                description: Fetch accommodations ikyu
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: AccommodationIkyu
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query AccommodationIkyu($accommodationId: AccommodationIdScalar!, $device: Device!, $accommodationStoriesFirst: Int!, $accommodationRestaurantFirst: Int!, $topicsType: GuideEnum!, $pickupReviewFirst: Int!, $preview: Boolean! = false, $reviewImagesFirst: Int! = 1, $skipReviewImages: Boolean! = true, $skipMemberHashSha1: Boolean! = false, $accommodationAmountInput: AccommodationAmountInput!, $includeFurusato: Boolean!) {
+                          accommodation(accommodationId: $accommodationId) {
+                            chatQuestions
+                            premium
+                            premiumBenefits {
+                              __typename
+                            }
+                            furusato2 {
+                              __typename
+                            }
+                            ...BreadcrumbAccommodation
+                            ...BreadcrumbAccommodationTheme
+                            ...AccommodationFurusatoHeaderBannerAccommodation
+                            ...AccommodationFurusatoMiddleBannerAccommodation
+                            ...AccommodationAnnouncementsAccommodation
+                            ...AccommodationAvailableRoomTimeAccommodation
+                            ...AccommodationDescriptionAccommodation
+                            ...AccommodationExclusiveBenefitAccommodation
+                            ...FurusatoLabelAccommodation
+                            ...AccommodationFavoriteAccommodation
+                            ...AccommodationHeroboxAccommodationAllowInstantDiscount
+                            ...AIChatAccommodation
+                            ...AccommodationIntroductionAccommodation
+                            ...AccommodationFacilityServiceAccommodation
+                            ...AccommodationListSurroundingAreaSearchCTAAccommodation
+                            ...AccommodationLowestAmountAccommodationAllowInstantDiscount
+                            ...AccommodationNotesAccommodation
+                            ...AccommodationOtoriyoseAccommodation
+                            ...AccommodationPhotogalleryHeadlineAccommodation
+                            ...AccommodationRatingAccommodation
+                            ...AccommodationRestaurantsAccommodation
+                            ...RelatedGroupHotelListAccommodation
+                            ...StoryLinkListAccommodation
+                            ...ThemeListAccommodation
+                          }
+                        }
+
+                        fragment FurusatoDonationImageAmountAccommodation on Accommodation {
+                          amount2(input: $accommodationAmountInput) {
+                            discountAmount
+                          }
+                          furusato2 @include(if: $includeFurusato) {
+                            discountLimited
+                            governments {
+                              id
+                              status
+                              gifts {
+                                id
+                                donationPrice
+                                discountPrice
+                              }
+                            }
+                          }
+                        }
+
+                        fragment FurusatoDonationImageLabelsAccommodation on Accommodation {
+                          furusato2 @include(if: $includeFurusato) {
+                            discountLimited
+                            governments {
+                              id
+                              status
+                              gifts {
+                                id
+                                donationPrice
+                              }
+                            }
+                          }
+                        }
+
+                        fragment FurusatoDonationImageAccommodation on Accommodation {
+                          accommodationId
+                          furusato2 @include(if: $includeFurusato) {
+                            governments {
+                              status
+                            }
+                          }
+                          ...FurusatoDonationImageAmountAccommodation
+                          ...FurusatoDonationImageLabelsAccommodation
+                        }
+
+                        fragment ZenkokuCouponsLabelAccommodation on Accommodation {
+                          accommodationId
+                          zenkokuCouponTarget2
+                          zenkokuCoupons {
+                            name
+                            status
+                            coupons {
+                              hasUserPrefectureRestriction
+                              prefecture {
+                                name
+                              }
+                            }
+                          }
+                        }
+
+                        fragment AccommodationLowestAmountAccommodationAllowInstantDiscount on Accommodation {
+                          allowInstantDiscount
+                          ...ZenkokuCouponsLabelAccommodation
+                        }
+
+                        fragment ChatDrawerContentAccommodation on Accommodation {
+                          name
+                          accommodationId
+                          chatQuestions
+                        }
+
+                        fragment AIChatAccommodation on Accommodation {
+                          accommodationId
+                          name
+                          chatQuestions
+                          ...ChatDrawerContentAccommodation
+                        }
+
+                        fragment GuideTopicPartsAccommodation on Accommodation {
+                          guideTopics(type: $topicsType, preview: $preview, first: 999) {
+                            edges {
+                              node {
+                                ... on GuideTopicHTML {
+                                  __typename
+                                  content
+                                }
+                                ... on GuideTopicTemplate {
+                                  __typename
+                                  templateId: id
+                                  type
+                                  parts {
+                                    title
+                                    isBigTitle
+                                    info
+                                    link(device: PC)
+                                    linkText
+                                    image {
+                                      url
+                                      alt
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+
+                        fragment DetailReview on Review {
+                          bathroomSpringRating
+                          checkinDate
+                          customerServiceRating
+                          equipmentRating
+                          mealCd
+                          mealRating
+                          reply
+                          roomAmenityRating
+                          roomCount
+                          roomName
+                          satisfactionRating
+                          usePeopleCount
+                        }
+
+                        fragment LikeButtonReview on Review {
+                          isLiked
+                          like
+                          reviewId
+                          site
+                        }
+
+                        fragment PhotogalleryReview on Review {
+                          comment
+                          handleName
+                          images(first: $reviewImagesFirst) @skip(if: $skipReviewImages) {
+                            url
+                            description
+                            alt
+                          }
+                          manufacturedTitle
+                          member
+                          memberHashSha1 @skip(if: $skipMemberHashSha1)
+                          postDateTime
+                          totalRating
+                          ...LikeButtonReview
+                        }
+
+                        fragment AccommodationReviewReportReview on Review {
+                          reviewId
+                          member
+                          memberHashSha1
+                        }
+
+                        fragment AccommodationReviewReview on Review {
+                          comment
+                          handleName
+                          manufacturedTitle
+                          member
+                          memberHashSha1
+                          postDateTime
+                          reviewId
+                          site
+                          totalRating
+                          images(first: $reviewImagesFirst) @skip(if: $skipReviewImages) {
+                            url
+                            description
+                            alt
+                          }
+                          ...DetailReview
+                          ...PhotogalleryReview
+                          ...LikeButtonReview
+                          ...AccommodationReviewReportReview
+                        }
+
+                        fragment AccommodationRatingReview on Review {
+                          comment
+                          handleName
+                          images(first: $reviewImagesFirst) @skip(if: $skipReviewImages) {
+                            url
+                            description
+                            alt
+                          }
+                          manufacturedTitle
+                          member
+                          postDateTime
+                          reviewId
+                          site
+                          totalRating
+                          like
+                          isLiked
+                          ...AccommodationReviewReview
+                        }
+
+                        fragment AccommodationReviewListRatingList on Rating {
+                          accommodationEquipment
+                          average
+                          bathroomSpring
+                          count
+                          customerService
+                          meal
+                          roomAmenity
+                          satisfaction
+                        }
+
+                        fragment ThemeTheme on Theme {
+                          themeId
+                          name
+                        }
+
+                        fragment BreadcrumbAccommodation on Accommodation {
+                          accommodationId
+                          name
+                          largeArea {
+                            id
+                            name
+                            urlPrefix
+                          }
+                          smallArea {
+                            id
+                            name
+                            urlPrefix
+                          }
+                          minimumArea {
+                            id
+                            name
+                            urlPrefix
+                          }
+                          type
+                        }
+
+                        fragment BreadcrumbAccommodationTheme on Accommodation {
+                          personalization {
+                            themes(first: 10, offset: 0) {
+                              edges {
+                                node {
+                                  themeId
+                                  name
+                                }
+                              }
+                            }
+                          }
+                        }
+
+                        fragment AccommodationFurusatoHeaderBannerAccommodation on Accommodation {
+                          furusato2 @include(if: $includeFurusato) {
+                            __typename
+                          }
+                        }
+
+                        fragment AccommodationFurusatoMiddleBannerAccommodation on Accommodation {
+                          ...FurusatoDonationImageAccommodation
+                          accommodationId
+                          name
+                          furusato2 @include(if: $includeFurusato) {
+                            governments {
+                              status
+                            }
+                          }
+                        }
+
+                        fragment AccommodationAnnouncementsAccommodation on Accommodation {
+                          announcements {
+                            subject
+                            content
+                            image {
+                              url
+                              alt
+                            }
+                          }
+                        }
+
+                        fragment AccommodationAvailableRoomTimeAccommodation on Accommodation {
+                          checkInTimeTo
+                          checkInTimeFrom
+                          checkOutTime
+                          roomCount
+                        }
+
+                        fragment AccommodationDescriptionAccommodation on Accommodation {
+                          firstAccommodationTopics: guideTopics(
+                            type: ACCOMMODATION
+                            preview: $preview
+                            first: 1
+                          ) {
+                            edges {
+                              node {
+                                ... on GuideTopicTemplate {
+                                  templateId: id
+                                  parts {
+                                    info
+                                    link(device: $device)
+                                    linkText
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          catchCopy
+                        }
+
+                        fragment AccommodationExclusiveBenefitAccommodation on Accommodation {
+                          name
+                          premium
+                          showPremiumBenefits
+                          premiumEntryDate
+                          premiumBenefits {
+                            no
+                            content
+                            memo
+                          }
+                        }
+
+                        fragment FurusatoLabelAccommodation on Accommodation {
+                          furusato2 @include(if: $includeFurusato) {
+                            __typename
+                          }
+                        }
+
+                        fragment AccommodationFavoriteAccommodation on Accommodation {
+                          accommodationId
+                        }
+
+                        fragment AccommodationHeroboxAccommodationAllowInstantDiscount on Accommodation {
+                          ...AccommodationLowestAmountAccommodationAllowInstantDiscount
+                          ...AIChatAccommodation
+                        }
+
+                        fragment AccommodationIntroductionAccommodation on Accommodation {
+                          ...GuideTopicPartsAccommodation
+                        }
+
+                        fragment AccommodationFacilityServiceAccommodation on Accommodation {
+                          accommodationId
+                          pet
+                          petNote
+                          baths {
+                            code {
+                              code
+                              name
+                            }
+                            springGround
+                          }
+                          esthetic
+                          fitness {
+                            businessHoursFrom
+                            businessHoursTo
+                            lastAdmission
+                            stayerPrice
+                            visitorPrice
+                          }
+                          attributes {
+                            available
+                            attribute {
+                              name
+                              value
+                            }
+                          }
+                          checkInTimeTo
+                          checkInTimeFrom
+                          checkOutTime
+                          roomCount
+                          child
+                          childNote
+                          openBusinessDateString
+                        }
+
+                        fragment AccommodationListSurroundingAreaSearchCTAAccommodation on Accommodation {
+                          smallArea {
+                            id
+                          }
+                          sale {
+                            code
+                          }
+                        }
+
+                        fragment AccommodationNotesAccommodation on Accommodation {
+                          accommodationId
+                          notes
+                        }
+
+                        fragment AccommodationOtoriyoseAccommodation on Accommodation {
+                          otoriyoseProducts(first: 3) {
+                            id
+                            title
+                            url
+                            images {
+                              url
+                              alt
+                            }
+                          }
+                        }
+
+                        fragment AccommodationPhotogalleryHeadlineAccommodation on Accommodation {
+                          accommodationId
+                          photoGalleryImages(first: 999) {
+                            alt
+                            type
+                            url
+                          }
+                        }
+
+                        fragment AccommodationRatingAccommodation on Accommodation {
+                          pickupReviews2(first: $pickupReviewFirst) {
+                            ...AccommodationRatingReview
+                            ...AccommodationReviewReview
+                          }
+                          rating2 {
+                            accommodationEquipment
+                            average
+                            bathroomSpring
+                            count
+                            customerService
+                            meal
+                            roomAmenity
+                            satisfaction
+                            ranking {
+                              rank
+                              listPageUrl {
+                                name
+                                path
+                              }
+                            }
+                            ...AccommodationReviewListRatingList
+                          }
+                        }
+
+                        fragment AccommodationRestaurantsAccommodation on Accommodation {
+                          restaurants(first: $accommodationRestaurantFirst) {
+                            id
+                            name
+                            displayGenre
+                            largeGenre
+                            image {
+                              url
+                              alt
+                            }
+                          }
+                        }
+
+                        fragment RelatedGroupHotelListAccommodation on Accommodation {
+                          accommodationId
+                          latitude
+                          longitude
+                          largeArea {
+                            id
+                            name
+                            urlPrefix
+                          }
+                          smallArea {
+                            id
+                            name
+                            urlPrefix
+                          }
+                          minimumArea {
+                            id
+                            name
+                            urlPrefix
+                          }
+                        }
+
+                        fragment StoryLinkListAccommodation on Accommodation {
+                          accommodationId
+                          stories(first: $accommodationStoriesFirst) {
+                            id
+                            title
+                            image {
+                              url
+                              alt
+                            }
+                          }
+                        }
+
+                        fragment ThemeListAccommodation on Accommodation {
+                          smallArea {
+                            id
+                          }
+                          relevantThemes(first: 30, offset: 0) {
+                            theme {
+                              themeId
+                              ...ThemeTheme
+                            }
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        accommodationAmountInput:
+                            checkInDate: "2026-11-17"
+                            currency: JPY
+                            discount: true
+                            lodgingCount: 1
+                            peopleCount: 2
+                            roomAttributes:
+                                - "18"
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                            sortItem: "1"
+                            sortOrder: "1"
+                        accommodationId: "00002889"
+                        accommodationRestaurantFirst: 10
+                        accommodationStoriesFirst: 5
+                        device: PC
+                        highestPointAmountInput:
+                            checkInDate: "2026-11-17"
+                            currency: JPY
+                            discount: true
+                            lodgingCount: 1
+                            peopleCount: 2
+                            roomAttributes:
+                                - "18"
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                            sortItem: "35"
+                            sortOrder: "2"
+                        includeFurusato: true
+                        maximumPointsForLowestPriceRoomSpecified: false
+                        needRooms: true
+                        preview: false
+                        roomAmountInput:
+                            checkInDate: "2026-11-17"
+                            currency: JPY
+                            discount: true
+                            lodgingCount: 1
+                            peopleCount: 2
+                            roomAttributes:
+                                - "18"
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                            sortItem: "35"
+                            sortOrder: "1"
+                        roomAmountInputFirst: 1
+                        searchRoomsFirst: 1
+                        searchRoomsInput:
+                            checkInDate: "2026-11-17"
+                            currency: JPY
+                            discount: true
+                            lodgingCount: 1
+                            peopleCount: 2
+                            preferBookable: true
+                            preferHighAmount: false
+                            preferHighPoint: false
+                            roomAttributes:
+                                - "18"
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                            sortItem: "1"
+                            sortOrder: "1"
+                        topicsType: ACCOMMODATION
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: accommodation_ikyu
+                pagination: null
+            meta_google_hpa:
+                method: POST
+                path: /graphql
+                description: Fetch accommodations meta google hpa
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query AccommodationMetaGoogleHpa($accommodationId: AccommodationIdScalar!, $roomId: RoomIdScalar!, $planId: PlanIdScalar!, $planUwanosePointVariation: PlanUwanosePointVariationScalar! = 0, $roomAmountInput: RoomAmountInput!) {
+                          accommodation(accommodationId: $accommodationId) {
+                            accommodationId
+                            checkInTimeFrom
+                            roomPlan(
+                              roomId: $roomId
+                              planId: $planId
+                              planUwanosePointVariation: $planUwanosePointVariation
+                            ) {
+                              attributes {
+                                value
+                                name
+                              }
+                              room {
+                                amounts(input: $roomAmountInput) {
+                                  edges {
+                                    node {
+                                      amount
+                                      baseDiscountAmount
+                                      discountAmount
+                                      point
+                                      pointRate
+                                      instantPoint
+                                      instantPointRate
+                                      inventory
+                                      peopleCount
+                                      childACount
+                                      childBCount
+                                      childCCount
+                                      childDCount
+                                      childECount
+                                      childFCount
+                                      roomCount
+                                      plan {
+                                        planId
+                                      }
+                                    }
+                                  }
+                                }
+                                roomId
+                                name
+                                type {
+                                  code
+                                  name
+                                }
+                                capacityMin
+                                capacityMax
+                                checkInTimeTo
+                                checkOutTime
+                                beds {
+                                  count
+                                  peopleCount
+                                  width
+                                  height
+                                  length
+                                }
+                                attributes {
+                                  __typename
+                                  value
+                                  name
+                                }
+                                isAmenitiesDisplay
+                                amenities {
+                                  amenity {
+                                    id
+                                    name
+                                  }
+                                  available
+                                }
+                                images(first: 50) {
+                                  url
+                                  alt
+                                }
+                              }
+                              plan {
+                                planId
+                                name
+                                memberRank
+                                catchCopy
+                                content
+                                checkInTimeTo
+                                checkOutTime
+                                useCheckInOut
+                                bookableDateTimeFrom
+                                bookableDateTimeTo
+                                cardSettlement
+                                notes
+                                minLodgingCount
+                                maxLodgingCount
+                                minRoomCount
+                                maxRoomCount
+                                sale
+                                attributes {
+                                  value
+                                  name
+                                }
+                                bookableStartSoon
+                                bookableEndSoon
+                                meal {
+                                  code
+                                  name
+                                }
+                                meals {
+                                  type
+                                  name
+                                  prText
+                                  place
+                                  menu
+                                  notes
+                                  openAllDay
+                                  startTime
+                                  endTime
+                                  lastOrderTime
+                                }
+                                amenities {
+                                  amenity {
+                                    id
+                                    name
+                                  }
+                                  available
+                                }
+                                options {
+                                  amount
+                                  name
+                                }
+                                cancelPolicy {
+                                  rules {
+                                    value
+                                    unit
+                                    __typename
+                                    ... on CancelPolicyRuleDay {
+                                      day
+                                      hourMinutes
+                                      unit
+                                      value
+                                      __typename
+                                    }
+                                    ... on CancelPolicyRuleBooking {
+                                      unit
+                                      value
+                                      __typename
+                                    }
+                                    ... on CancelPolicyRuleNoShow {
+                                      unit
+                                      value
+                                      __typename
+                                    }
+                                  }
+                                }
+                              }
+                              error
+                            }
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        accommodationId: "00002889"
+                        planId: "11055986"
+                        planUwanosePointVariation: 0
+                        roomAmountInput:
+                            checkInDate: "2026-11-17"
+                            currency: JPY
+                            discount: true
+                            lodgingCount: 1
+                            peopleCount: 2
+                            roomAttributes:
+                                - "18"
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                            sortItem: "1"
+                            sortOrder: "1"
+                        roomId: "10193727"
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: accommodation_meta_google_hpa
+                pagination: null
+    rooms:
+        description: GraphQL BFF operations for rooms
+        endpoints:
+            plan_alt:
+                method: POST
+                path: /graphql
+                description: Fetch rooms plan alt
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: RoomPlanDetailAlt
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query RoomPlanDetailAlt($accommodationId: AccommodationIdScalar!, $roomId: RoomIdScalar!, $planId: PlanIdScalar!, $roomPlanBranchNumber: String, $planBranchNumber: String, $roomBranchNumber: String, $cancelPolicyBranchNumber: String, $mealsInputs: [AccommodationMealHistIdInput!], $planUwanosePointVariation: PlanUwanosePointVariationScalar! = 0, $isIkyu: Boolean!, $currency: Currency!, $isInternationalSite: Boolean!) {
+                          accommodation(accommodationId: $accommodationId) {
+                            ...AboutChildrenAccommodation
+                            ...AboutCancelPolicyAccommodation
+                            ...AboutLoungeAccommodation
+                            ...AboutNoteAccommodation
+                            ...AboutNoticeAccommodation
+                            ...AboutOptionAccommodation
+                            ...AboutPaymentAccommodation
+                            ...AboutPriceAccommodation
+                            ...AddComparisonListAccommodation
+                            ...IntroductionRoomAccommodationAttributes
+                            ...IntroductionRoomAccommodationAmenities
+                            ...RoomPlanDetailAccommodationBookableDateTime
+                            ...RoomPlanDetailErrorAccommodation
+                            ...HeaderAccommodationRoomDetail
+                            ...IntroductionMealAccommodation
+                            ...IntroductionPlanAccommodation
+                            ...IntroductionRoomAccommodation
+                            ...RoomPlanDetailAccommodationLimitation
+                            ...RoomPlanDetailAccommodationSettlement
+                            roomPlan(
+                              roomId: $roomId
+                              planId: $planId
+                              branchNumber: $roomPlanBranchNumber
+                              planUwanosePointVariation: $planUwanosePointVariation
+                            ) {
+                              error
+                            }
+                          }
+                        }
+
+                        fragment AboutChildrenRoomPlanChildAmount on RoomPlanChildAmount {
+                          __typename
+                          type
+                          ... on RoomPlanChildAmountFixed {
+                            amount
+                            amountWithCurrency: amount(currency: $currency) @include(if: $isInternationalSite)
+                          }
+                          ... on RoomPlanChildAmountRate {
+                            rate
+                          }
+                        }
+
+                        fragment CancelPolicyPlan on Plan {
+                          cancelPolicy(branchNumber: $cancelPolicyBranchNumber) {
+                            id
+                            rules {
+                              __typename
+                              ... on CancelPolicyRuleDay {
+                                day
+                                hourMinutes
+                              }
+                              amount {
+                                __typename
+                                ... on CancelPolicyRuleAmountFixed {
+                                  amount
+                                  amountWithCurrency: amount(currency: $currency)
+                                }
+                                ... on CancelPolicyRuleAmountRate {
+                                  rate
+                                }
+                              }
+                            }
+                          }
+                        }
+
+                        fragment LimitationRoomPlan on RoomPlan {
+                          room(branchNumber: $roomBranchNumber) {
+                            capacityMin
+                            capacityMax
+                            lying
+                            lyingUpperLimitPeopleCount
+                          }
+                          plan(branchNumber: $planBranchNumber) {
+                            sale
+                            minRoomCount
+                            maxRoomCount
+                            minLodgingCount
+                            maxLodgingCount
+                            uwanosePointVariation
+                          }
+                          children {
+                            children {
+                              kind
+                              amount {
+                                type
+                              }
+                            }
+                          }
+                        }
+
+                        fragment AboutChildrenAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            children {
+                              children {
+                                kind
+                                amount {
+                                  ...AboutChildrenRoomPlanChildAmount
+                                }
+                              }
+                              memo
+                            }
+                            room(branchNumber: $roomBranchNumber) {
+                              lyingUpperLimitPeopleCount
+                            }
+                          }
+                        }
+
+                        fragment AboutCancelPolicyAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            planUwanosePointVariation: $planUwanosePointVariation
+                            branchNumber: $roomPlanBranchNumber
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              ...CancelPolicyPlan
+                            }
+                          }
+                        }
+
+                        fragment AboutLoungeAccommodation on Accommodation {
+                          loungeServiceContent
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            attributes {
+                              name
+                            }
+                          }
+                        }
+
+                        fragment AboutNoteAccommodation on Accommodation {
+                          generalNotes
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              notes
+                              uwanosePointVariation
+                            }
+                          }
+                        }
+
+                        fragment AboutNoticeAccommodation on Accommodation {
+                          notes
+                        }
+
+                        fragment AboutOptionAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              options {
+                                name
+                                amount
+                                amountWithCurrency: amount(currency: $currency) @include(if: $isInternationalSite)
+                              }
+                            }
+                          }
+                        }
+
+                        fragment AboutPaymentAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              cardSettlement
+                            }
+                          }
+                        }
+
+                        fragment AboutPriceAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              bathTaxApply
+                            }
+                          }
+                        }
+
+                        fragment AddComparisonListAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            inComparisonList
+                          }
+                        }
+
+                        fragment IntroductionRoomAccommodationAttributes on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            attributes {
+                              name
+                              value
+                            }
+                            room(branchNumber: $roomBranchNumber) {
+                              attributes {
+                                value
+                                name
+                              }
+                            }
+                            plan(branchNumber: $planBranchNumber) {
+                              attributes {
+                                value
+                                name
+                              }
+                            }
+                          }
+                        }
+
+                        fragment IntroductionRoomAccommodationAmenities on Accommodation {
+                          amenities {
+                            amenity {
+                              id
+                              name
+                            }
+                            available
+                          }
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            room(branchNumber: $roomBranchNumber) {
+                              isAmenitiesDisplay
+                              amenities {
+                                amenity {
+                                  id
+                                  name
+                                }
+                                available
+                              }
+                            }
+                            plan(branchNumber: $planBranchNumber) {
+                              amenities {
+                                amenity {
+                                  id
+                                  name
+                                }
+                                available
+                              }
+                            }
+                          }
+                        }
+
+                        fragment RoomPlanDetailAccommodationBookableDateTime on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              bookableDateTimeFrom
+                              bookableDateTimeTo
+                            }
+                          }
+                        }
+
+                        fragment RoomPlanDetailErrorAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            error
+                          }
+                        }
+
+                        fragment HeaderAccommodationRoomDetail on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            room(branchNumber: $roomBranchNumber) {
+                              attributes {
+                                value
+                                name
+                              }
+                              capacityMax
+                              capacityMin
+                              checkInTimeFrom
+                              checkInTimeTo
+                              checkOutTime
+                              floorPlan
+                              images(first: 50) {
+                                url
+                                alt
+                              }
+                              meterFrom
+                              meterTo
+                              name
+                              type {
+                                code
+                                name
+                              }
+                            }
+                            plan(branchNumber: $planBranchNumber) {
+                              bookableEndSoon
+                              bookableStartSoon
+                              checkInTimeFrom
+                              checkInTimeTo
+                              checkOutTime
+                              imageUrls(first: 99)
+                              isIkyuLimit @include(if: $isIkyu)
+                              limitedTwoWeeks
+                              memberRank @include(if: $isIkyu)
+                              name
+                              planId
+                              sale
+                              specialImageUrls(first: 1)
+                              meal {
+                                code
+                                name
+                              }
+                              useCheckInOut
+                            }
+                          }
+                        }
+
+                        fragment IntroductionMealAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              meals(inputs: $mealsInputs) {
+                                type
+                                name
+                                prText
+                                place
+                                menu
+                                notes
+                                openAllDay
+                                startTime
+                                endTime
+                                lastOrderTime
+                                images(first: 10) {
+                                  url
+                                  alt
+                                }
+                              }
+                            }
+                          }
+                        }
+
+                        fragment IntroductionPlanAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              catchCopy
+                              content
+                            }
+                          }
+                        }
+
+                        fragment IntroductionRoomAccommodation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            room(branchNumber: $roomBranchNumber) {
+                              roomId
+                              name
+                              type {
+                                code
+                                name
+                              }
+                              floorPlan
+                              meterFrom
+                              meterTo
+                              presentationText
+                              capacityMin
+                              capacityMax
+                              floorNumberBottom
+                              floorNumberTop
+                              beds {
+                                count
+                                width
+                                height
+                                length
+                              }
+                              images(first: 50) {
+                                url
+                                alt
+                              }
+                            }
+                          }
+                        }
+
+                        fragment RoomPlanDetailAccommodationLimitation on Accommodation {
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            ...LimitationRoomPlan
+                          }
+                        }
+
+                        fragment RoomPlanDetailAccommodationSettlement on Accommodation {
+                          allowLocalPoint
+                          roomPlan(
+                            roomId: $roomId
+                            planId: $planId
+                            branchNumber: $roomPlanBranchNumber
+                            planUwanosePointVariation: $planUwanosePointVariation
+                          ) {
+                            plan(branchNumber: $planBranchNumber) {
+                              bathTaxApply
+                              cardSettlement
+                              uwanosePointVariation
+                            }
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        accommodationId: "00002889"
+                        currency: JPY
+                        isIkyu: true
+                        isInternationalSite: false
+                        planId: "11055986"
+                        roomId: "10193727"
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: room_plan_detail_alt
+                pagination: null
+            plan_inventory:
+                method: POST
+                path: /graphql
+                description: Fetch rooms plan inventory
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query RoomPlanDetailInventory($accommodationId: AccommodationIdScalar!, $roomId: RoomIdScalar!, $planId: PlanIdScalar!, $planUwanosePointVariation: PlanUwanosePointVariationScalar! = 0, $input: RoomPlanBookingInput!, $preview: Boolean! = false) {
+                          accommodation(accommodationId: $accommodationId) {
+                            accommodationId
+                            roomPlan(
+                              roomId: $roomId
+                              planId: $planId
+                              planUwanosePointVariation: $planUwanosePointVariation
+                            ) {
+                              booking(input: $input) {
+                                amount(preview: $preview) {
+                                  inventory
+                                }
+                              }
+                            }
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        accommodationId: "00002889"
+                        device: PC
+                        input:
+                            checkInDate: "2026-11-17"
+                            discount: true
+                            lodgingCount: 1
+                            peopleCount: 2
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                        isYahooMode: false
+                        planId: "11055986"
+                        preview: false
+                        roomId: "10193727"
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: room_plan_detail_inventory
+                pagination: null
+    searches:
+        description: GraphQL BFF operations for searches
+        endpoints:
+            get:
+                method: POST
+                path: /graphql
+                description: Fetch searches
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: Search
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query Search($accommodationId: AccommodationIdScalar!, $roomId: RoomIdScalar!, $planId: PlanIdScalar!, $planUwanosePointVariation: PlanUwanosePointVariationScalar! = 0, $input: RoomPlanCalendarInput!, $currency: Currency!) {
+                          accommodation(accommodationId: $accommodationId) {
+                            roomPlan(
+                              roomId: $roomId
+                              planId: $planId
+                              planUwanosePointVariation: $planUwanosePointVariation
+                            ) {
+                              calendar(input: $input) {
+                                date
+                                baseDiscountAmount(currency: $currency)
+                                discountAmount(currency: $currency)
+                                discountAmountEarn(currency: $currency)
+                                discountAmountWithoutCoupon(currency: $currency)
+                                holiday
+                              }
+                            }
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        accommodationId: "00002889"
+                        currency: JPY
+                        input:
+                            discount: true
+                            endDate: "2027-10-02"
+                            lodgingCount: 1
+                            peopleCount: 2
+                            preview: false
+                            roomCount: 1
+                            searchType: "1"
+                            sortAmountTarget: USE
+                            startDate: "2026-08-30"
+                        planId: "11055986"
+                        roomId: "10193727"
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: search
+                pagination: null
+types: {}

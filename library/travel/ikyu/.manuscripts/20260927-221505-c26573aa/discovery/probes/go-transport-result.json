@@ -1,0 +1,14 @@
+{
+  "requested_url": "https://www.ikyu.com/00002889/?cid=20261018&cod=20261019&ppc=2&rc=1&top=plans",
+  "started_at": "2026-09-27T14:24:26.39077Z",
+  "status": 200,
+  "http_version": "HTTP/2.0",
+  "content_type": "text/html;charset=utf-8",
+  "body_bytes": 860225,
+  "duration_s": 1.983300292,
+  "effective_url": "https://www.ikyu.com/00002889/?cid=20261018&cod=20261019&lc=1&ppc=2&rc=1&top=plans",
+  "has_nuxt_data": true,
+  "go_version": "go1.27.1",
+  "explicit_user_agent": false,
+  "http1_requested": false
+}
