@@ -1,0 +1,15 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/navitime-pp-cli
+/navitime-pp-cli.exe
+/navitime-pp-mcp
+/navitime-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Local workflow state and dependency caches.
+/.printing-press/
+/.printing-press-tools-polish.json
+/.printing-press-pii-polish.json
+/scripts/__pycache__/
+/workflow_verify.yaml

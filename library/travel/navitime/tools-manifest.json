@@ -1,0 +1,142 @@
+{
+  "api_name": "navitime",
+  "base_url": "https://japantravel.navitime.com",
+  "description": "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints.",
+  "mcp_ready": "full",
+  "http_transport": "browser-http",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "raw_list_autocomplete",
+      "description": "Fetch bounded bilingual station and place candidates. Required: word. Optional: limit (default: 5), max-nodes (default: 10), multilingual (default: true) (plus 1 more). Returns array of Autocomplete.",
+      "method": "GET",
+      "path": "/en/async/route/autocomplete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum returned matches"
+        },
+        {
+          "name": "max-nodes",
+          "wire_name": "maxNodes",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum station/node matches"
+        },
+        {
+          "name": "multilingual",
+          "type": "boolean",
+          "location": "query",
+          "description": "Return bilingual source labels"
+        },
+        {
+          "name": "types",
+          "type": "string",
+          "location": "query",
+          "description": "Dot-separated source kinds: spot.station.airport.port"
+        },
+        {
+          "name": "word",
+          "type": "string",
+          "location": "query",
+          "description": "Japanese or English search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raw_list_result",
+      "description": "Fetch route HTML metadata; normalized route commands preserve leg and fare semantics. Optional: date-time, to-id, time-mode (default: start-time) (plus 4 more). Returns the html.",
+      "method": "GET",
+      "path": "/en/area/jp/route/result/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "date-time",
+          "wire_name": "date_time",
+          "type": "string",
+          "location": "query",
+          "description": "Explicit Japan-local date and time"
+        },
+        {
+          "name": "to-id",
+          "wire_name": "goal",
+          "type": "string",
+          "location": "query",
+          "description": "Source arrival station ID (leading zeros significant)"
+        },
+        {
+          "name": "time-mode",
+          "wire_name": "search_time_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Source mode: start-time, goal-time, first-operation, last-operation"
+        },
+        {
+          "name": "from-id",
+          "wire_name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Source departure station ID (leading zeros significant)"
+        },
+        {
+          "name": "from-spot",
+          "wire_name": "startCode",
+          "type": "string",
+          "location": "query",
+          "description": "Source departure POI code"
+        },
+        {
+          "name": "to-spot",
+          "wire_name": "goalCode",
+          "type": "string",
+          "location": "query",
+          "description": "Source destination POI code"
+        },
+        {
+          "name": "pass",
+          "wire_name": "pass_list",
+          "type": "string",
+          "location": "query",
+          "description": "One source-advertised pass ID"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Ambiguity-safe resolution",
+      "command": "places search",
+      "description": "Return bilingual candidates without silently choosing a station."
+    },
+    {
+      "name": "Dated service windows",
+      "command": "routes search",
+      "description": "Check dated departures, deadlines and first/last services."
+    },
+    {
+      "name": "Fare and overnight audit",
+      "command": "routes show",
+      "description": "Expand a stored route with full dates and fare assumptions."
+    },
+    {
+      "name": "Alternative comparison",
+      "command": "routes compare",
+      "description": "Compare the returned journeys by time, fare, walking and transfers."
+    },
+    {
+      "name": "Source pass constraints",
+      "command": "passes list",
+      "description": "Discover advertised passes and their verification status."
+    }
+  ]
+}

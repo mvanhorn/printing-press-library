@@ -1,0 +1,189 @@
+# Learning disabled: itinerary names must resolve against current source candidates, not learned aliases.
+name: navitime
+description: NAVITIME Japan Travel station lookup and dated route evidence.
+version: 0.1.0
+base_url: https://japantravel.navitime.com
+spec_source: sniffed
+auth:
+  type: none
+  header: ''
+  format: ''
+  env_vars: []
+config:
+  format: toml
+  path: ~/.config/navitime-pp-cli/config.toml
+resources:
+  raw:
+    description: Low-level captured NAVITIME website endpoints; use places and routes
+      for normalized itinerary evidence.
+    endpoints:
+      list_autocomplete:
+        method: GET
+        path: /en/async/route/autocomplete
+        description: Fetch bounded bilingual station and place candidates.
+        params:
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          default: 5
+          description: Maximum returned matches
+          fields: []
+        - name: maxNodes
+          type: integer
+          required: false
+          positional: false
+          default: 10
+          description: Maximum station/node matches
+          fields: []
+          flag_name: max-nodes
+        - name: multilingual
+          type: boolean
+          required: false
+          positional: false
+          default: true
+          description: Return bilingual source labels
+          fields: []
+        - name: types
+          type: string
+          required: false
+          positional: false
+          default: spot.station.airport.port
+          description: 'Dot-separated source kinds: spot.station.airport.port'
+          fields: []
+        - name: word
+          type: string
+          required: true
+          positional: false
+          default: null
+          description: Japanese or English search query
+          fields: []
+        body: []
+        response:
+          type: array
+          item: Autocomplete
+        pagination: null
+        happy_args: --word=Tokyo;--types=station;--limit=5;--max-nodes=10
+      list_result:
+        method: GET
+        path: /en/area/jp/route/result/
+        description: Fetch route HTML metadata; normalized route commands preserve
+          leg and fare semantics.
+        params:
+        - name: date_time
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Explicit Japan-local date and time
+          fields: []
+          flag_name: date-time
+        - name: goal
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Source arrival station ID (leading zeros significant)
+          fields: []
+          flag_name: to-id
+        - name: search_time_mode
+          type: string
+          required: false
+          positional: false
+          default: start-time
+          description: 'Source mode: start-time, goal-time, first-operation, last-operation'
+          fields: []
+          flag_name: time-mode
+          enum:
+          - start-time
+          - goal-time
+          - first-operation
+          - last-operation
+        - name: start
+          type: string
+          required: false
+          positional: false
+          default: null
+          description: Source departure station ID (leading zeros significant)
+          fields: []
+          flag_name: from-id
+        - name: startCode
+          flag_name: from-spot
+          type: string
+          required: false
+          description: Source departure POI code
+        - name: goalCode
+          flag_name: to-spot
+          type: string
+          required: false
+          description: Source destination POI code
+        - name: pass_list
+          flag_name: pass
+          type: string
+          required: false
+          description: One source-advertised pass ID
+        body: []
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+          limit: 50
+        pagination: null
+        happy_args: --from-id=00006668;--to-id=00001756;--date-time=2026-10-01T09:00;--time-mode=start-time
+types:
+  AddressName:
+    fields:
+    - name: en
+      type: string
+    - name: ja
+      type: string
+  Autocomplete:
+    fields:
+    - name: addressName
+      type: ref:AddressName
+    - name: categoryName
+      type: ref:CategoryName
+      omit_empty: true
+    - name: code
+      type: string
+    - name: coord
+      type: ref:Coord
+    - name: mainType
+      type: string
+    - name: name
+      type: ref:Name
+  CategoryName:
+    fields:
+    - name: en
+      type: string
+    - name: ja
+      type: string
+  Coord:
+    fields:
+    - name: alt
+      type: integer
+    - name: lat
+      type: number
+    - name: lon
+      type: number
+  Name:
+    fields:
+    - name: en
+      type: string
+    - name: ja
+      type: string
+category: travel
+cli_description: Check Japan journeys with dated routes, explicit fares and source-backed
+  pass constraints.
+http_transport: browser-http
+health_check_path: /en/async/route/autocomplete?word=Tokyo&types=station&multilingual=true&maxNodes=3&limit=1
+learn:
+  disabled: true
+mcp:
+  transport:
+  - stdio
+  endpoint_tools: hidden
+cache:
+  enabled: false

@@ -1,0 +1,182 @@
+{
+  "api_name": "navitime",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "mcp-navitime-rust",
+      "url": "https://github.com/GHagui/mcp-navitime-rust",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "navitime-transit-server",
+      "url": "https://github.com/asterism45/mcp-servers",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:59:03.002995Z",
+  "novel_features": [
+    {
+      "name": "Ambiguity-safe resolution",
+      "command": "places search",
+      "description": "Return bilingual candidates without silently choosing a station.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli places search 大久保 --type station --agent",
+      "why_it_matters": "Return bilingual candidates without silently choosing a station.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Dated service windows",
+      "command": "routes search",
+      "description": "Check dated departures, deadlines and first/last services.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli routes search --from station:00006668 --to station:00001756 --depart-at 2026-09-28T09:00 --agent",
+      "why_it_matters": "Check dated departures, deadlines and first/last services.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Fare and overnight audit",
+      "command": "routes show",
+      "description": "Expand a stored route with full dates and fare assumptions.",
+      "rationale": "Keeps source fare groups and the dated route snapshot together without another network request.",
+      "example": "navitime-pp-cli routes show --latest --agent",
+      "why_it_matters": "Inspect overnight boundaries and optional fare supplements before accepting an itinerary.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Alternative comparison",
+      "command": "routes compare",
+      "description": "Compare the returned journeys by time, fare, walking and transfers.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli routes compare --from station:00006668 --to station:00001756 --arrive-by 2026-09-28T12:00 --agent",
+      "why_it_matters": "Compare the returned journeys by time, fare, walking and transfers.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Source pass constraints",
+      "command": "passes list",
+      "description": "Discover advertised passes and their verification status.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli passes list --agent",
+      "why_it_matters": "Discover advertised passes and their verification status.",
+      "group": "Itinerary evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ambiguity-safe resolution",
+      "command": "places search",
+      "description": "Return bilingual candidates without silently choosing a station.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli places search 大久保 --type station --agent",
+      "why_it_matters": "Return bilingual candidates without silently choosing a station.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Dated service windows",
+      "command": "routes search",
+      "description": "Check dated departures, deadlines and first/last services.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli routes search --from station:00006668 --to station:00001756 --depart-at 2026-09-28T09:00 --agent",
+      "why_it_matters": "Check dated departures, deadlines and first/last services.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Fare and overnight audit",
+      "command": "routes show",
+      "description": "Expand a stored route with full dates and fare assumptions.",
+      "rationale": "Keeps source fare groups and the dated route snapshot together without another network request.",
+      "example": "navitime-pp-cli routes show --latest --agent",
+      "why_it_matters": "Inspect overnight boundaries and optional fare supplements before accepting an itinerary.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Alternative comparison",
+      "command": "routes compare",
+      "description": "Compare the returned journeys by time, fare, walking and transfers.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli routes compare --from station:00006668 --to station:00001756 --arrive-by 2026-09-28T12:00 --agent",
+      "why_it_matters": "Compare the returned journeys by time, fare, walking and transfers.",
+      "group": "Itinerary evidence"
+    },
+    {
+      "name": "Source pass constraints",
+      "command": "passes list",
+      "description": "Discover advertised passes and their verification status.",
+      "rationale": "Combines verified NAVITIME responses with explicit source semantics and bounded local normalization.",
+      "example": "navitime-pp-cli passes list --agent",
+      "why_it_matters": "Discover advertised passes and their verification status.",
+      "group": "Itinerary evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "NAVITIME",
+    "headline": "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints.",
+    "value_prop": "Resolve stations and places, compare source route alternatives, and inspect legs without losing dates or fare assumptions. Responses are bounded, compact JSON with source and freshness metadata.",
+    "auth_narrative": "The verified Japan Travel website surface requires no API key or subscription. Runtime uses Firefox-compatible HTTP; no running browser or imported cookies.",
+    "quickstart": [
+      {
+        "command": "navitime-pp-cli capabilities --agent",
+        "comment": "Inspect verified capabilities and access boundaries."
+      },
+      {
+        "command": "navitime-pp-cli places search 大久保 --type station --agent",
+        "comment": "Resolve ambiguity before routing."
+      },
+      {
+        "command": "navitime-pp-cli routes search --from station:00006668 --to station:00001756 --depart-at 2026-09-28T09:00 --agent",
+        "comment": "Fetch dated route summaries."
+      }
+    ],
+    "when_to_use": "Use for NAVITIME station/place resolution, dated itinerary feasibility checks, route alternatives, fare details and source-supported pass constraints. Inspect detail for overnight or supplement-sensitive journeys.",
+    "anti_triggers": [
+      "Seat availability or booking",
+      "Live service-status guarantees",
+      "Multi-service itinerary optimization"
+    ],
+    "recipes": [
+      {
+        "title": "Resolve a station",
+        "command": "navitime-pp-cli places search 大久保 --type station --agent",
+        "explanation": "Choose a source station ref from the candidates."
+      },
+      {
+        "title": "Compact route summaries",
+        "command": "navitime-pp-cli routes search --from station:00006668 --to station:00001756 --depart-at 2026-09-28T09:00 --agent --select routes.id,routes.departure_at,routes.arrival_at,routes.fare",
+        "explanation": "Keep output focused on the travel window and displayed price."
+      },
+      {
+        "title": "Compare a deadline",
+        "command": "navitime-pp-cli routes compare --from station:00006668 --to station:00001756 --arrive-by 2026-09-28T12:00 --agent",
+        "explanation": "Compare returned alternatives before an appointment."
+      },
+      {
+        "title": "Discover passes",
+        "command": "navitime-pp-cli passes list --agent",
+        "explanation": "Use an advertised ID with routes search --pass."
+      }
+    ],
+    "trigger_phrases": [
+      "check a Japan itinerary",
+      "find a NAVITIME route",
+      "check the last service",
+      "compare rail-pass routes",
+      "use navitime",
+      "run navitime"
+    ]
+  }
+}

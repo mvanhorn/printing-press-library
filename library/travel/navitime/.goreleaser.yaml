@@ -1,0 +1,55 @@
+version: 2
+project_name: navitime-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: navitime-pp-cli
+    main: ./cmd/navitime-pp-cli
+    binary: navitime-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/navitime/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: navitime-pp-mcp
+    main: ./cmd/navitime-pp-mcp
+    binary: navitime-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: navitime-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints."
+    install: |
+      bin.install "navitime-pp-cli"
+      bin.install "navitime-pp-mcp"
