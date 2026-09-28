@@ -1,0 +1,146 @@
+{
+  "verdict": "PASS",
+  "ran_at": "2026-09-28T02:47:37.545885+00:00",
+  "kind": "targeted_source_snapshot_acceptance",
+  "observed": {
+    "cli_upstream_requests": 1,
+    "independent_source_requests": 0,
+    "commands": 3
+  },
+  "rows": [
+    {
+      "name": "search:logical-paging",
+      "status": "pass",
+      "invocations": [
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--max-age",
+            "5m",
+            "--refresh"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 12021,
+          "elapsed_ms": 6239.55,
+          "peak_rss_kib": 34256.0,
+          "upstream_requests": 1,
+          "cache_status": "live",
+          "observed_at": "2026-09-28T02:47:37.404166Z",
+          "result_count": 5,
+          "source_elapsed_ms": 5625
+        },
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--page",
+            "2",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 11904,
+          "elapsed_ms": 35.21,
+          "peak_rss_kib": 28960.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-28T02:47:37.404166Z",
+          "result_count": 5,
+          "source_elapsed_ms": 16
+        },
+        {
+          "args": [
+            "search",
+            "--destination",
+            "Hakone",
+            "--check-in",
+            "2026-11-10",
+            "--adults",
+            "2",
+            "--limit",
+            "5",
+            "--limit",
+            "10",
+            "--max-age",
+            "5m"
+          ],
+          "exit_code": 0,
+          "stdout_bytes": 21938,
+          "elapsed_ms": 29.18,
+          "peak_rss_kib": 29264.0,
+          "upstream_requests": 0,
+          "cache_status": "hit",
+          "observed_at": "2026-09-28T02:47:37.404166Z",
+          "result_count": 10,
+          "source_elapsed_ms": 17
+        }
+      ],
+      "paging_ids": {
+        "first": [
+          "306297",
+          "312415",
+          "316659",
+          "300510",
+          "302407"
+        ],
+        "second": [
+          "321816",
+          "303401",
+          "323427",
+          "303587",
+          "304047"
+        ],
+        "full": [
+          "306297",
+          "312415",
+          "316659",
+          "300510",
+          "302407",
+          "321816",
+          "303401",
+          "323427",
+          "303587",
+          "304047"
+        ]
+      },
+      "paging_observation_times": [
+        "2026-09-28T02:47:37.404166Z",
+        "2026-09-28T02:47:37.404166Z",
+        "2026-09-28T02:47:37.404166Z"
+      ],
+      "paging_scope": "same cached source observation; fresh source order is non-atomic",
+      "source_snapshot_witness": {
+        "url": "https://www.jalan.net/uw/uwp1400/uww1400.do?adultNum=2&distCd=01&idx=0&lrgCd=141600&roomCount=1&roomCrack=200000&stayCount=1&stayDay=10&stayMonth=11&stayYear=2026",
+        "observed_at": "2026-09-28T02:47:37.404166Z",
+        "sha256": "bebb274068cd7c4d2653024279e271847a5bccd3cab28c509b72e221a9e04943",
+        "bytes": 747695,
+        "kind": "fresh_cli_http_observation_independent_parser"
+      },
+      "asserted_fields": [
+        "access",
+        "description",
+        "name_ja",
+        "price.amount",
+        "price.basis"
+      ],
+      "asserted_search_card_ids": [
+        "306297"
+      ]
+    }
+  ]
+}

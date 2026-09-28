@@ -52,7 +52,7 @@ Inspect this plan/room pair with Japanese source evidence and explicit price sco
 jalan-pp-cli stay compare 385995 --dates 2026-11-10,2026-11-11 --adults 2 --limit 3
 ```
 
-Compare only the bounded offers retrieved for the same party.
+Compare only the bounded offers retrieved for the same party. Use `--select check_in,results.property_id,results.plan_id,results.room_id,results.price` to retain nested offer identities and complete price units in a compact comparison. Alternative query, freshness, coverage and failures remain available.
 
 ## Agent Mode
 

@@ -1,0 +1,79 @@
+{
+  "cause": "Independent witness used different anonymous request headers and received a different native search-card set; footer names alone were insufficient corroboration.",
+  "same_effective_url": true,
+  "header_variants": [
+    {
+      "kind": "witness",
+      "effective_url": "https://www.jalan.net/140000/LRG_141600/?roomCount=1&adultNum=2&distCd=01&stayYear=2026&stayCount=1&stayMonth=11&roomCrack=200000&stayDay=10",
+      "target_card_present": false,
+      "cli_quote_present": false,
+      "date_and_party_inputs": [
+        [
+          "adultNum",
+          "2"
+        ],
+        [
+          "roomCrack",
+          "200000"
+        ],
+        [
+          "stayCount",
+          "1"
+        ],
+        [
+          "stayMonth",
+          "11"
+        ],
+        [
+          "stayYear",
+          "2026"
+        ],
+        [
+          "roomCount",
+          "1"
+        ],
+        [
+          "stayDay",
+          "10"
+        ]
+      ]
+    },
+    {
+      "kind": "cli_headers",
+      "effective_url": "https://www.jalan.net/140000/LRG_141600/?roomCount=1&adultNum=2&distCd=01&stayYear=2026&stayCount=1&stayMonth=11&roomCrack=200000&stayDay=10",
+      "target_card_present": true,
+      "cli_quote_present": true,
+      "date_and_party_inputs": [
+        [
+          "adultNum",
+          "2"
+        ],
+        [
+          "roomCrack",
+          "200000"
+        ],
+        [
+          "stayCount",
+          "1"
+        ],
+        [
+          "stayMonth",
+          "11"
+        ],
+        [
+          "stayYear",
+          "2026"
+        ],
+        [
+          "roomCount",
+          "1"
+        ],
+        [
+          "stayDay",
+          "10"
+        ]
+      ]
+    }
+  ],
+  "resolution": "Witness uses the CLI anonymous header contract while independently fetching/parsing source; search evidence is scoped to the target native property card. Price assertions remain strict."
+}

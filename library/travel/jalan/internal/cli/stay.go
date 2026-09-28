@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -224,64 +225,165 @@ func stayEncode(cmd *cobra.Command, value any) error {
 }
 
 func staySelect(items []any, fields string) ([]any, error) {
+	originals := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		raw, err := json.Marshal(item)
+		if err != nil {
+			return nil, err
+		}
+		var original map[string]any
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		decoder.UseNumber()
+		if err := decoder.Decode(&original); err != nil {
+			return nil, err
+		}
+		originals = append(originals, original)
+	}
+	comparison := len(originals) > 0
+	for _, original := range originals {
+		if _, ok := original["alternative_index"]; !ok {
+			comparison = false
+			break
+		}
+		if _, ok := original["results"].([]any); !ok {
+			comparison = false
+			break
+		}
+	}
+	comparisonHint := "For stay compare, use --select check_in,results.property_id,results.plan_id,results.room_id,results.price (or results.price.amount,results.price.basis); offers are inside each results array."
 	paths := make([][]string, 0)
 	for _, field := range strings.Split(fields, ",") {
-		field = strings.TrimPrefix(strings.TrimSpace(field), "results.")
+		field = strings.TrimSpace(field)
+		if !comparison {
+			// A leading results. remains an optional envelope prefix for
+			// ordinary property, offer, and plan items.
+			field = strings.TrimPrefix(field, "results.")
+		}
 		parts := strings.Split(field, ".")
 		for _, part := range parts {
 			if part == "" || strings.ContainsAny(part, " []{}:/\\") {
 				return nil, &jalan.Error{Code: "usage", Message: "--select requires comma-separated item dotted fields", Hint: "For example: --select id,name_ja,price.amount,baths.in_room"}
 			}
 		}
+		if comparison {
+			if parts[0] == "price" {
+				return nil, &jalan.Error{Code: "usage", Message: "comparison prices belong to the nested results array", Hint: comparisonHint}
+			}
+		}
 		paths = append(paths, parts)
 	}
-	selected := make([]any, 0, len(items))
-	matched := false
-	for _, item := range items {
-		raw, err := json.Marshal(item)
-		if err != nil {
-			return nil, err
-		}
-		var original map[string]json.RawMessage
-		if err := json.Unmarshal(raw, &original); err != nil {
-			return nil, err
-		}
+	selected := make([]any, 0, len(originals))
+	matched := make([]bool, len(paths))
+	for _, original := range originals {
 		out := map[string]any{}
-		for _, path := range paths {
-			value, ok := stayLookup(original, path)
+		if comparison {
+			// These identify each alternative and document its individual
+			// coverage, source and freshness even when only prices are selected.
+			for _, key := range []string{"alternative_index", "check_in", "plan_id", "room_id", "query", "status", "pagination", "source_url", "observations"} {
+				if value, ok := original[key]; ok {
+					out[key] = value
+				}
+			}
+		}
+		for i, path := range paths {
+			projection, ok := stayProjectPath(original, path)
 			if !ok {
 				continue
 			}
-			matched = true
-			cursor := out
-			for _, part := range path[:len(path)-1] {
-				child, ok := cursor[part].(map[string]any)
-				if !ok {
-					child = map[string]any{}
-					cursor[part] = child
-				}
-				cursor = child
+			if comparison && len(path) > 1 && path[0] == "results" && len(original["results"].([]any)) == 0 {
+				// Empty inventory has no item to inspect, but another cell
+				// may still supply this field. Retain the empty array shape.
+			} else {
+				matched[i] = true
 			}
-			cursor[path[len(path)-1]] = value
+			out = stayMergeProjection(out, projection).(map[string]any)
 		}
 		selected = append(selected, out)
 	}
-	if len(items) > 0 && !matched {
+	anyMatched := false
+	for i, ok := range matched {
+		if ok {
+			anyMatched = true
+			continue
+		}
+		if comparison {
+			// No fields can be verified when every alternative has empty
+			// inventory. Keep syntactically valid nested paths and empty arrays.
+			if len(paths[i]) > 1 && paths[i][0] == "results" {
+				allEmpty := true
+				for _, original := range originals {
+					allEmpty = allEmpty && len(original["results"].([]any)) == 0
+				}
+				if allEmpty {
+					continue
+				}
+			}
+			return nil, &jalan.Error{Code: "usage", Message: fmt.Sprintf("unknown --select comparison field %q", strings.Join(paths[i], ".")), Hint: comparisonHint}
+		}
+	}
+	if len(items) > 0 && !comparison && !anyMatched {
 		return nil, &jalan.Error{Code: "usage", Message: "none of the --select fields exist in these results", Hint: "Inspect the command without --select, then choose item fields such as id,price.amount or baths.in_room."}
 	}
 	return selected, nil
 }
 
-func stayLookup(object map[string]json.RawMessage, path []string) (json.RawMessage, bool) {
-	value, ok := object[path[0]]
-	if !ok || len(path) == 1 {
-		return value, ok
+func stayProjectPath(value any, path []string) (any, bool) {
+	if len(path) == 0 {
+		return value, true
 	}
-	var nested map[string]json.RawMessage
-	if json.Unmarshal(value, &nested) != nil {
+	switch current := value.(type) {
+	case map[string]any:
+		child, ok := current[path[0]]
+		if !ok {
+			return nil, false
+		}
+		projected, ok := stayProjectPath(child, path[1:])
+		if !ok {
+			return nil, false
+		}
+		return map[string]any{path[0]: projected}, true
+	case []any:
+		projected := make([]any, len(current))
+		if len(current) == 0 {
+			return projected, true
+		}
+		found := false
+		for i, child := range current {
+			if value, ok := stayProjectPath(child, path); ok {
+				projected[i] = value
+				found = true
+			} else if child != nil {
+				projected[i] = map[string]any{}
+			}
+		}
+		return projected, found
+	default:
 		return nil, false
 	}
-	return stayLookup(nested, path[1:])
+}
+
+func stayMergeProjection(left, right any) any {
+	if leftMap, ok := left.(map[string]any); ok {
+		if rightMap, ok := right.(map[string]any); ok {
+			for key, value := range rightMap {
+				if prior, exists := leftMap[key]; exists {
+					leftMap[key] = stayMergeProjection(prior, value)
+				} else {
+					leftMap[key] = value
+				}
+			}
+			return leftMap
+		}
+	}
+	if leftArray, ok := left.([]any); ok {
+		if rightArray, ok := right.([]any); ok {
+			for i := range rightArray {
+				leftArray[i] = stayMergeProjection(leftArray[i], rightArray[i])
+			}
+			return leftArray
+		}
+	}
+	return right
 }
 
 type stayReportedError struct{ error }

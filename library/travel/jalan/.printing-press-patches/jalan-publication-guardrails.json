@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "jalan-publication-guardrails",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-223649-6dd0cc14",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep MCP cache destinations server-owned, preserve scoped room-bath negations, and project nested comparison offers without losing decision context.",
+  "reason": "Read-only tools must not expose client-chosen filesystem destinations. Negated room facilities must never become affirmative bath facts, and compact comparisons must retain source-backed identity, prices, freshness and failure coverage.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_cache_dir_test.go",
+    "internal/jalan/parse_baths.go",
+    "internal/jalan/parse_baths_negation_test.go",
+    "internal/cli/stay.go",
+    "internal/cli/stay_compare.go",
+    "internal/cli/stay_compare_select_test.go",
+    "scripts/live-e2e.py",
+    "scripts/test_live_e2e.py"
+  ],
+  "validated_outcome": "Full Go tests, vet and build pass; the fresh full publication matrix passes 101/101 executed checks with 78 documented skips. Deterministic cases cover MCP path rejection, room-bath negation, nested projection and strict source-witness scoping. Live date and exact-plan comparisons preserve identities, complete prices and provenance while reducing output and eliminating warm upstream requests. Live source acceptance covers all 37 scenarios across the full matrix and targeted exact-snapshot pagination rerun; 9 independent witness regressions pass."
+}

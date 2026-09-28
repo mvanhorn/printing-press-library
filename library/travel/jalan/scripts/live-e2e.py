@@ -10,6 +10,7 @@ Only anonymous Jalan pages and private temporary cache observations are read.
 """
 import argparse
 import datetime as dt
+import hashlib
 import html.parser
 import json
 import os
@@ -26,6 +27,8 @@ MAX_CLI_REQUESTS = 48
 MAX_WITNESS_REQUESTS = 14
 MAX_COMMANDS = 64
 MAX_SOURCE_BYTES = 4 * 1024 * 1024
+MAX_SNAPSHOT_FILE_BYTES = 16 * 1024 * 1024 + 1024
+MAX_SNAPSHOT_BODY_BYTES = 16 * 1024 * 1024
 
 
 class SourceText(html.parser.HTMLParser):
@@ -36,15 +39,23 @@ class SourceText(html.parser.HTMLParser):
         self.stack = []
         self.captures = []
         self.charge_quotes = []
+        self.card_captures = []
+        self.cards = {}
 
     def handle_starttag(self, tag, attrs):
         if tag in ("script", "style"):
             self.skip += 1
         if tag not in ("area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"):
             self.stack.append(tag)
-            classes = dict(attrs).get("class", "").split()
+            attributes = dict(attrs)
+            classes = attributes.get("class", "").split()
             if "p-planOverview__charge" in classes:
                 self.captures.append([len(self.stack), []])
+            identifier = attributes.get("id", "")
+            card_id = re.fullmatch(r"yadNo([0-9]+)", identifier)
+            if ("p-yadoCassette" in classes and "p-yadoCassette--pr" not in classes
+                    and not identifier.startswith("sa_") and card_id):
+                self.card_captures.append([len(self.stack), card_id.group(1), []])
 
     def handle_endtag(self, tag):
         if tag in ("script", "style") and self.skip:
@@ -55,6 +66,10 @@ class SourceText(html.parser.HTMLParser):
             for capture in finished:
                 self.charge_quotes.append(compact_text(" ".join(capture[1])))
                 self.captures.remove(capture)
+            finished_cards = [capture for capture in self.card_captures if capture[0] >= depth]
+            for capture in finished_cards:
+                self.cards.setdefault(capture[1], []).append(compact_text(" ".join(capture[2])))
+                self.card_captures.remove(capture)
             self.stack = self.stack[:depth-1]
 
     def handle_data(self, data):
@@ -62,6 +77,8 @@ class SourceText(html.parser.HTMLParser):
             self.parts.append(data)
             for capture in self.captures:
                 capture[1].append(data)
+            for capture in self.card_captures:
+                capture[2].append(data)
 
 
 def compact_text(value):
@@ -176,7 +193,10 @@ class Runner:
         parsed = urllib.parse.urlsplit(url)
         require(parsed.scheme == "https" and parsed.hostname == "www.jalan.net",
                 "source witness must use public HTTPS Jalan origin")
-        request = urllib.request.Request(url, headers={"User-Agent": "jalan-pp-cli-live-proof/1.0"})
+        request = urllib.request.Request(url, headers={
+            "User-Agent": "jalan-pp-cli/1.0 (anonymous read-only accommodation research)",
+            "Accept": "text/html", "Accept-Language": "ja",
+        })
         self.witness_requests += 1
         with urllib.request.urlopen(request, timeout=20) as response:
             require(urllib.parse.urlsplit(response.geturl()).hostname == "www.jalan.net",
@@ -191,30 +211,93 @@ class Runner:
         parser = SourceText()
         parser.feed(document)
         witness = {"text": compact_text(" ".join(parser.parts)), "bytes": len(raw),
-                   "charge_quotes": parser.charge_quotes}
+                   "charge_quotes": parser.charge_quotes, "cards": parser.cards}
         self.sources[url] = witness
         self.current.setdefault("independent_sources", []).append({"url": url, "bytes": len(raw)})
         return witness
 
-    def evidence(self, item, url, mandatory):
-        witness = self.source(url)["text"]
-        checked = []
-        for name in mandatory:
-            value = item.get(name)
-            require(value and compact_text(value) in witness, f"{name} not corroborated by source")
-            checked.append(name)
+    def evidence(self, item, url, mandatory, source_witness=None):
+        source = self.source(url) if source_witness is None else source_witness
+        search_page = (urllib.parse.urlsplit(url).path == "/uw/uwp1400/uww1400.do"
+                       or bool(source["cards"]))
+        if search_page:
+            property_id = str(item.get("id", ""))
+            witnesses = source["cards"].get(property_id, [])
+            require(witnesses, f"search result property card absent for {property_id}")
+        else:
+            witnesses = [source["text"]]
         entries = [*item.get("evidence", []), *item.get("baths", {}).get("evidence", []),
                    *item.get("price", {}).get("evidence", [])]
-        matched = [e.get("field") for e in entries
-                   if e.get("text") and compact_text(e["text"]) in witness]
-        require(matched, "no source evidence corroborated independently")
-        self.current.setdefault("asserted_fields", []).extend(sorted(set(checked + matched)))
-        price = item.get("price", {})
-        if price.get("amount") is not None:
-            require(str(price["amount"]) in witness or f'{price["amount"]:,}' in witness,
-                    "base amount not present in independent source")
-            require(price.get("basis") not in (None, "", "unknown"), "observed amount lost basis")
-        return witness
+        last_error = None
+        for witness in witnesses:
+            try:
+                checked = []
+                for name in mandatory:
+                    value = item.get(name)
+                    require(value and compact_text(value) in witness,
+                            f"{name} not corroborated by source")
+                    checked.append(name)
+                matched = [e.get("field") for e in entries
+                           if e.get("text") and compact_text(e["text"]) in witness]
+                require(matched, "no source evidence corroborated independently")
+                price = item.get("price", {})
+                if price.get("amount") is not None:
+                    require(str(price["amount"]) in witness or f'{price["amount"]:,}' in witness,
+                            "base amount not present in independent source")
+                    require(price.get("basis") not in (None, "", "unknown"),
+                            "observed amount lost basis")
+            except AssertionError as error:
+                last_error = error
+                continue
+            self.current.setdefault("asserted_fields", []).extend(sorted(set(checked + matched)))
+            if search_page:
+                self.current.setdefault("asserted_search_card_ids", []).append(property_id)
+            return witness
+        raise last_error
+
+    def snapshot_evidence(self, item, response):
+        meta = response["meta"]
+        require(meta.get("cache_status") == "live" and meta.get("upstream_requests", 0) > 0,
+                "paging snapshot requires a fresh CLI source observation")
+        url = meta.get("source_url")
+        require(isinstance(url, str) and url and meta.get("source_urls") == [url],
+                "paging snapshot requires one exact source URL")
+        parsed = urllib.parse.urlsplit(url)
+        require(parsed.scheme == "https" and parsed.hostname == "www.jalan.net",
+                "paging snapshot source must be public HTTPS Jalan")
+        observed_at = meta.get("observed_at")
+        require(isinstance(observed_at, str) and observed_at,
+                "paging snapshot lost original observation time")
+        digest = hashlib.sha256(url.encode("utf-8")).hexdigest()
+        cache_path = pathlib.Path(self.home) / "cache" / "observations" / f"v1-{digest}.json"
+        require(cache_path.is_file(), "fresh paging snapshot cache entry missing")
+        require(cache_path.stat().st_size <= MAX_SNAPSHOT_FILE_BYTES,
+                "paging snapshot cache file exceeds 16MiB bound")
+        with cache_path.open("rb") as cache_file:
+            raw = cache_file.read(MAX_SNAPSHOT_FILE_BYTES + 1)
+        require(len(raw) <= MAX_SNAPSHOT_FILE_BYTES,
+                "paging snapshot cache file exceeds 16MiB bound")
+        entry = json.loads(raw)
+        require(isinstance(entry, dict) and entry.get("version") == 1,
+                "paging snapshot cache version changed")
+        require(entry.get("url") == url, "paging snapshot URL differs from cold response")
+        require(entry.get("observed_at") == observed_at,
+                "paging snapshot observation time differs from cold response")
+        document = entry.get("body")
+        require(isinstance(document, str), "paging snapshot has no decoded HTML body")
+        body = document.encode("utf-8")
+        require(len(body) <= MAX_SNAPSHOT_BODY_BYTES,
+                "paging snapshot decoded body exceeds 16MiB bound")
+        parser = SourceText()
+        parser.feed(document)
+        witness = {"text": compact_text(" ".join(parser.parts)),
+                   "cards": parser.cards, "charge_quotes": parser.charge_quotes,
+                   "bytes": len(body)}
+        self.current["source_snapshot_witness"] = {
+            "url": url, "observed_at": observed_at, "sha256": hashlib.sha256(body).hexdigest(),
+            "bytes": len(body), "kind": "fresh_cli_http_observation_independent_parser",
+        }
+        return self.evidence(item, url, ("name_ja",), source_witness=witness)
 
     def case(self, name, callback):
         self.current = {"name": name, "status": "running", "invocations": []}
@@ -312,7 +395,7 @@ class Runner:
             require(ids(first) + ids(second) == ids(full), "logical paging skipped or duplicated source results")
             require(len(full["results"]) == 10, "paging fixture requires at least ten current matches")
             require(first["pagination"].get("source_page_size") == 30, "source page size not explicit")
-            self.evidence(first["results"][0], first["meta"]["source_urls"][0], ("name_ja",))
+            self.snapshot_evidence(first["results"][0], first)
         self.case("search:logical-paging", paging)
 
         def filtered():
@@ -363,16 +446,43 @@ class Runner:
             require(payload["results"] == [] and payload["meta"]["status"] == "no_matches", "no-match became sold-out or empty unlabelled success")
         self.case("offers:no-matches-not-sold-out", no_matches)
 
-        def compare_dates():
-            next_day = (dt.date.fromisoformat(self.args.check_in) + dt.timedelta(days=1)).isoformat()
-            payload, _ = self.invoke(["compare", "385995", "--dates", self.args.check_in+","+next_day,
-                                      "--adults", "2", "--limit", "2"])
-            require(payload["meta"].get("comparison_mode") == "dates" and len(payload["results"]) == 2,
-                    "date comparison lost alternatives")
-            require("not exhaustive" in payload["meta"]["coverage"], "bounded comparison overclaims coverage")
-        self.case("compare:equal-party-dates", compare_dates)
-        self.case("compare:exact-plans", lambda: self.invoke(["compare", "385995", "--check-in", self.args.check_in,
-                                                              "--plans", "03912759:0576806,03806855:0546600", "--adults", "2"]))
+        def compare_fields(arguments, mode):
+            arguments = ["compare", "385995", *arguments, "--adults", "2", "--max-age", "5m"]
+            cold, cm = self.invoke(arguments + ["--refresh"])
+            warm, wm = self.invoke(arguments)
+            fields = "check_in,results.property_id,results.plan_id,results.room_id,results.price"
+            selected, sm = self.invoke(arguments + ["--agent", "--select", fields])
+            require(cold["meta"].get("comparison_mode") == mode and len(cold["results"]) == 2,
+                    "comparison lost alternatives")
+            require("not exhaustive" in cold["meta"]["coverage"], "bounded comparison overclaims coverage")
+            require(cm["upstream_requests"] >= 2 and wm["upstream_requests"] == sm["upstream_requests"] == 0,
+                    "comparison cache did not preserve both source observations")
+            require(cold["meta"]["observed_at"] == warm["meta"]["observed_at"] == selected["meta"]["observed_at"],
+                    "comparison selection changed source observation time")
+            require(selected["meta"]["query"] == cold["meta"]["query"], "comparison selection lost query")
+            require(selected["pagination"] == warm["pagination"] and selected["fetch_failures"] == warm["fetch_failures"],
+                    "comparison selection dropped outer coverage or failures")
+            require(len(selected["results"]) == len(warm["results"]), "selection changed alternative count")
+            for original, projected in zip(warm["results"], selected["results"]):
+                for key in ("alternative_index", "check_in", "query", "status", "pagination", "source_url"):
+                    require(projected.get(key) == original[key], f"comparison selection lost {key}")
+                require([(x["url"], x["observed_at"]) for x in projected["observations"]] ==
+                        [(x["url"], x["observed_at"]) for x in original["observations"]],
+                        "selection lost per-alternative source freshness")
+                require(original["results"], "live comparison fixture has no offers to select")
+                require(len(original["results"]) == len(projected["results"]), "selection changed offer count")
+                for offer, selected_offer in zip(original["results"], projected["results"]):
+                    require(selected_offer == {key: offer[key] for key in ("property_id", "plan_id", "room_id", "price")},
+                            "nested selection changed identities, price facts or offer order")
+            require(sm["stdout_bytes"] < wm["stdout_bytes"], "comparison selection did not reduce output")
+            self.current["efficiency"] = {"cold": cm, "warm": wm, "selected": sm,
+                                          "selection_byte_reduction": wm["stdout_bytes"]-sm["stdout_bytes"],
+                                          "cache_request_reduction": cm["upstream_requests"]-wm["upstream_requests"]}
+        next_day = (dt.date.fromisoformat(self.args.check_in) + dt.timedelta(days=1)).isoformat()
+        self.case("compare:equal-party-dates", lambda: compare_fields(
+            ["--dates", self.args.check_in+","+next_day, "--limit", "2"], "dates"))
+        self.case("compare:exact-plans", lambda: compare_fields(
+            ["--check-in", self.args.check_in, "--plans", "03912759:0576806,03806855:0546600"], "plans"))
 
         def efficiency():
             args = ["property", "385995", "--max-age", "5m"]

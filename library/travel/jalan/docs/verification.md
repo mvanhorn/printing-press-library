@@ -76,3 +76,11 @@ The delivered workspace root was rebuilt successfully and its CLI/Jalan package 
 ## Publication review regressions
 
 The publication review found that generic output routing dropped partial results from MCP and explicit delivery sinks. Focused real-subprocess MCP tests and Execute-level file/webhook tests now verify preservation of observations and fetch failures, exit code 8 / MCP error state, one delivery, unchanged ordinary errors and explicit output bounds. Failed sinks produce one actionable structured diagnostic while stdout retains the partial facts. These induced failures are deterministic tests, not claims that a live Jalan outage was forced. See the publication-review verification proof for the renewed live acceptance.
+
+## Corrected-account publication review
+
+The replacement publication preserves the original scope and prior partial-output repairs. Regression tests cover three additional review findings: MCP rejects caller-chosen cache directories before CLI execution; explicit Japanese room-bathroom negations retain negative evidence and do not erase an independently documented outdoor bath; comparison field selection traverses nested offers while retaining alternative identity, query, freshness, coverage and failures. The added bathroom phrases and blocked-path attacks are deterministic fixture cases.
+
+The live runner also checks date and exact-plan comparisons with full and selected output from the same cached observations. It checks offer IDs, complete price objects, order and counts, observation timestamps, reduced output size, and zero upstream requests on warm calls. The latest publication acceptance records the result on the final source; earlier performance and generation artifacts remain historical observations.
+
+Search-page HTTP observations are not atomic: separate requests can change the native property-card set even with the same dated query. The pagination acceptance therefore checks the exact HTML from its fresh CLI observation with an independent parser, binding the cache entry's URL and timestamp to the response and verifying the matching property's price. Other source witnesses remain separate HTTP requests using the CLI's anonymous header contract. Earlier failed cross-observation checks remain recorded; they are not presented as passes.

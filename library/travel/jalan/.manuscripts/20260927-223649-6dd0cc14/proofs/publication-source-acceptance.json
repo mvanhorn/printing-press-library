@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "verdict": "PASS",
+  "execution": "full matrix plus targeted pagination rerun; not one uninterrupted all-pass run",
+  "unique_scenarios": 37,
+  "full_matrix_passed": 36,
+  "targeted_passed": 1,
+  "source_verification": "Separate HTTP witnesses for other scenarios; pagination uses the exact fresh CLI HTTP observation with an independent parser, bound to URL and original timestamp.",
+  "preserved_failures": [
+    "publication-source-e2e-before-witness-fix.json",
+    "publication-source-e2e-cross-observation.json"
+  ],
+  "rows": [
+    {
+      "name": "help:search",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:search",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "help:locations",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:locations",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "help:property",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:property",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "help:offers",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:offers",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "help:plan",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:plan",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "help:compare",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:compare",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "help:capabilities",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "dry-run:capabilities",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "catalogue:locations",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "catalogue:capabilities",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "property:regional-ryokan",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "property:onsen",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "property:urban-hotel",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "search:logical-paging",
+      "status": "pass",
+      "artifact": "publication-paging-snapshot-acceptance.json"
+    },
+    {
+      "name": "search:filters",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "offers:exact-pairs-and-filters",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "plan:base-quote-and-room-facts",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "plan:family-two-room-occupancy",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "plan:undated-reference-fallback",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "offers:no-matches-not-sold-out",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "compare:equal-party-dates",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "compare:exact-plans",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "efficiency:cold-warm-and-select",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:unknown-destination",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:invalid-calendar-date",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:missing-plan-id",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:unknown-flag",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:explicit-zero-party",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:local-inventory-unsupported",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:nine-plus-adults-unsupported",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    },
+    {
+      "name": "error:child-category-out-of-range",
+      "status": "pass",
+      "artifact": "publication-source-e2e-cross-observation.json"
+    }
+  ]
+}

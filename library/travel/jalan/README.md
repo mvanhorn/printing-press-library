@@ -78,11 +78,13 @@ Compare exact plan/room pairs on one date:
 ./bin/jalan-pp-cli stay compare 385995 --check-in 2026-11-10 --plans 03912759:0576806,03806855:0546600 --adults 2
 ```
 
+For compact comparisons, select fields inside each offer with `--select check_in,results.property_id,results.plan_id,results.room_id,results.price`. Keep the full `price` object to retain currency, basis, occupancy, taxes and discount conditions. Alternative identity, query, freshness, coverage and failures remain available.
+
 These comparisons cover fetched offers, not every possible offer or a guaranteed cheapest stay. Failed alternatives remain visible and never become zero-price rows. Partial results keep exit code 8; explicit file/webhook sinks still receive the complete response. MCP preserves the bounded partial payload and marks the tool result as an error. Booking handoff URLs lead to Jalan, where current terms and availability must be checked.
 
 ## Freshness and bounds
 
-Inventory defaults to fresh requests. `--max-age 2m` explicitly permits cache reuse; `--refresh` forces a new observation. A cache hit retains its original observation timestamp. `--cache-dir` isolates cached public observations. No stale cache fallback is presented as live availability. Fresh requests are separate observations and may reorder results. For repeatable slices within one native source page, use `--max-age 5m` with the same query; there is no atomic snapshot across native pages.
+Inventory defaults to fresh requests. `--max-age 2m` explicitly permits cache reuse; `--refresh` forces a new observation. A cache hit retains its original observation timestamp. The CLI flag `--cache-dir` isolates cached public observations. MCP tools use the server-configured cache location; callers cannot override it. No stale cache fallback is presented as live availability. Fresh requests are separate observations and may reorder results. For repeatable slices within one native source page, use `--max-age 5m` with the same query; there is no atomic snapshot across native pages.
 
 Exact adult counts are 1–8 per room; Jalan’s 9-or-more bucket is rejected. Each child category is 0–5, rooms 1–10, and nights 1–9. The 365-day date window is a CLI bound, not a promise of released inventory.
 

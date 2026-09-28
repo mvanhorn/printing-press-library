@@ -9,6 +9,8 @@ var (
 	outdoorRoomRE     = regexp.MustCompile(`露天(?:風呂)?付|露天風呂付き|(?:客室|お部屋|全室)[^。\n]*露天風呂|露天風呂[^。\n]*客室`)
 	noOutdoorRE       = regexp.MustCompile(`露天(?:風呂)?(?:は)?(?:なし|無し|ありません|ございません)`)
 	noIndoorRE        = regexp.MustCompile(`バス(?:は)?(?:なし|無し|無)|内(?:湯|風呂)(?:は)?(?:なし|無し|ありません|ございません)`)
+	noRoomBathroomRE  = regexp.MustCompile(`(?:室内|客室内|お部屋)(?:には|に|の)[[:space:]、]*(?:浴室|内風呂)(?:は|が)?(?:ございません|ありません|ない|無い|なし|無し)|(?:浴室|内風呂)(?:は|が)?(?:室内|客室内|お部屋)(?:には|に|の)[[:space:]、]*(?:ございません|ありません|ない|無い|なし|無し)`)
+	outsideRoomRE     = regexp.MustCompile(`(?:室内|客室内|お部屋)(?:以外|の外)`)
 	indoorRE          = regexp.MustCompile(`バス付|バストイレ|内(?:湯|風呂)付|(?:室内|客室内|お部屋)[^。\n]*(?:浴室|内風呂)`)
 	noRoomHotSpringRE = regexp.MustCompile(`温泉(?:で|では)(?:は)?(?:ございません|ありません|ない)|温泉(?:は)?(?:なし|無し)|沸かし湯`)
 	roomHotSpringRE   = regexp.MustCompile(`温泉[^。\n]{0,20}(?:露天|風呂|バス|浴室)|(?:露天|風呂|バス|浴室)[^。\n]{0,20}温泉|温泉かけ流し|温泉掛け流し`)
@@ -18,6 +20,8 @@ var (
 // never receives property descriptions or a plan's shared-bath advertisement.
 func roomBaths(parts []string, sourceURL string) BathFacts {
 	b := emptyBaths()
+	indoorNegated := false
+	indoorPositiveEvidence := []string{}
 	for _, part := range parts {
 		for _, s := range regexp.MustCompile(`[。\n]`).Split(part, -1) {
 			s = clean(s)
@@ -26,19 +30,18 @@ func roomBaths(parts []string, sourceURL string) BathFacts {
 			}
 			if outdoorRoomRE.MatchString(s) && !noOutdoorRE.MatchString(s) {
 				b.Outdoor = boolPtr(true)
-				b.InRoom = boolPtr(true)
 				addEvidence(&b.Evidence, "baths.outdoor", s, sourceURL)
 			} else if noOutdoorRE.MatchString(s) {
 				b.Outdoor = boolPtr(false)
 				addEvidence(&b.Evidence, "baths.outdoor", s, sourceURL)
 			}
-			if noIndoorRE.MatchString(s) {
+			if noIndoorRE.MatchString(s) || noRoomBathroomRE.MatchString(s) {
+				indoorNegated = true
 				b.Indoor = boolPtr(false)
 				addEvidence(&b.Evidence, "baths.indoor", s, sourceURL)
-			} else if indoorRE.MatchString(s) {
+			} else if !indoorNegated && !outsideRoomRE.MatchString(s) && indoorRE.MatchString(s) {
 				b.Indoor = boolPtr(true)
-				b.InRoom = boolPtr(true)
-				addEvidence(&b.Evidence, "baths.in_room", s, sourceURL)
+				indoorPositiveEvidence = append(indoorPositiveEvidence, s)
 			}
 			if noRoomHotSpringRE.MatchString(s) {
 				b.HotSpring = boolPtr(false)
@@ -48,6 +51,14 @@ func roomBaths(parts []string, sourceURL string) BathFacts {
 				addEvidence(&b.Evidence, "baths.hot_spring", s, sourceURL)
 			}
 		}
+	}
+	if b.Indoor != nil && *b.Indoor {
+		for _, s := range indoorPositiveEvidence {
+			addEvidence(&b.Evidence, "baths.in_room", s, sourceURL)
+		}
+	}
+	if (b.Indoor != nil && *b.Indoor) || (b.Outdoor != nil && *b.Outdoor) {
+		b.InRoom = boolPtr(true)
 	}
 	return b
 }
