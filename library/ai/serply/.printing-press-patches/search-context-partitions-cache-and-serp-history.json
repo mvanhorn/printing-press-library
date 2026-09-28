@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "search-context-partitions-cache-and-serp-history",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-204544-983131a6",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Search cache rows and SERP snapshot histories are partitioned by the result-selecting context (proxy location, device, and result depth), and snapshot appends are exclusive.",
+  "reason": "X-Proxy-Location and X-User-Agent change which results Serply returns but are not tenant headers, so the generated cache key ignored them. --num changes the retained list but was omitted from the snapshot identity, and an unlocked load-modify-rename dropped a concurrent run's history. The tools manifest must label those two fields as headers, matching the executable MCP bindings.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/search_cache_test.go",
+    "internal/cli/serp_diff.go",
+    "internal/cli/serp_novel_test.go",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Cache reads miss across location and device; snapshot paths differ by --num; eight concurrent appends all remain on disk."
+}

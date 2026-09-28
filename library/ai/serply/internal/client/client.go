@@ -621,6 +621,10 @@ func (c *Client) cacheKeyFor(method, path string, params map[string]string, head
 	// differ only by that header never share a row. Representation headers
 	// stay in canonicalRepresentationHeaders and are not treated as tenancy.
 	key += "|tenant=" + canonicalTenantSelectingHeaders(c.Config, headers)
+	// X-Proxy-Location and X-User-Agent select the country and device of a
+	// search result set. They are not tenant or representation headers, so
+	// the folds above omit them and two searches would share a cache row.
+	key += "|result=" + canonicalResultSelectingHeaders(c.Config, headers)
 	h := sha256.Sum256([]byte(key))
 	if c.platformSession != nil {
 		return hex.EncodeToString(h[:])
@@ -650,6 +654,28 @@ func canonicalRepresentationHeaders(cfg *config.Config, overrides map[string]str
 				normalized == "version" || strings.Contains(normalized, "api-version") {
 				values[normalized] = strings.TrimSpace(value)
 			}
+		}
+	}
+	if cfg != nil {
+		add(cfg.Headers)
+	}
+	add(overrides)
+	return canonicalStringMap(values)
+}
+
+func canonicalResultSelectingHeaders(cfg *config.Config, overrides map[string]string) string {
+	values := map[string]string{}
+	add := func(headers map[string]string) {
+		for name, value := range headers {
+			folded := foldHeaderName(name)
+			if folded != "xproxylocation" && folded != "xuseragent" {
+				continue
+			}
+			trimmed := strings.ToLower(strings.TrimSpace(value))
+			if trimmed == "" {
+				continue
+			}
+			values[folded] = trimmed
 		}
 	}
 	if cfg != nil {

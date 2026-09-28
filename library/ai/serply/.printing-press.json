@@ -9,6 +9,12 @@
     "handle": "googio",
     "name": "googio"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "googio",
   "printer": "googio",
   "printer_name": "googio",

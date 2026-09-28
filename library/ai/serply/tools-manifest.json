@@ -45,13 +45,13 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         },
         {
           "name": "X-User-Agent",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Device type to emulate: desktop or mobile."
         }
       ]
@@ -90,13 +90,13 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         },
         {
           "name": "X-User-Agent",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Device type to emulate: desktop or mobile."
         }
       ]
@@ -117,7 +117,7 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         }
       ]
@@ -189,13 +189,13 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         },
         {
           "name": "X-User-Agent",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Device type to emulate: desktop or mobile."
         }
       ]
@@ -216,7 +216,7 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         }
       ]
@@ -255,7 +255,7 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         }
       ]
@@ -294,13 +294,13 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         },
         {
           "name": "X-User-Agent",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Device type to emulate: desktop or mobile."
         }
       ]
@@ -351,13 +351,13 @@
         {
           "name": "X-Proxy-Location",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Two-letter country code to run the search from, for example US or GB."
         },
         {
           "name": "X-User-Agent",
           "type": "string",
-          "location": "query",
+          "location": "header",
           "description": "Device type to emulate: desktop or mobile."
         }
       ]

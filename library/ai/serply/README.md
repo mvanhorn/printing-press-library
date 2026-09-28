@@ -4,6 +4,9 @@
 
 Nine Serply search verticals as typed commands and MCP tools, with per-country proxies and device emulation on each. On top, rank finds a domain's position for a query, serp diff reports what moved since the last run, and research merges web, news and scholar results into one cited brief.
 
+Created by [@googio](https://github.com/googio) (googio).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `serply-pp-cli` binary and the `pp-serply` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

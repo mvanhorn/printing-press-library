@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -99,7 +100,7 @@ func serpSnapshotPath(q string, opts serpOptions) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	key := strings.Join([]string{strings.ToLower(strings.TrimSpace(q)), strings.ToUpper(opts.Location), strings.ToLower(opts.Device), strings.ToLower(opts.Gl), strings.ToLower(opts.Hl)}, "\x00")
+	key := strings.Join([]string{strings.ToLower(strings.TrimSpace(q)), strings.ToUpper(opts.Location), strings.ToLower(opts.Device), strings.ToLower(opts.Gl), strings.ToLower(opts.Hl), strconv.Itoa(opts.Num)}, "\x00")
 	sum := sha256.Sum256([]byte(key))
 	return filepath.Join(dir, "serp-snapshots", hex.EncodeToString(sum[:8])+".json"), nil
 }
@@ -147,6 +148,32 @@ func saveSerpSnapshots(path string, f serpSnapshotFile) error {
 	return os.Rename(tmp.Name(), path)
 }
 
+// recordSerpSnapshot appends current under an inter-process lock that covers
+// the load, append, and rename. A temp file alone still loses a concurrent
+// run that loaded the same history and renamed over it.
+func recordSerpSnapshot(path string, current serpSnapshot) (*serpSnapshot, error) {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		return nil, err
+	}
+	var baseline *serpSnapshot
+	err := cliutil.WithFileLock(path, func() error {
+		history, err := loadSerpSnapshots(path)
+		if err != nil {
+			return err
+		}
+		if n := len(history.Snapshots); n > 0 {
+			prev := history.Snapshots[n-1]
+			baseline = &prev
+		}
+		history.Snapshots = append(history.Snapshots, current)
+		return saveSerpSnapshots(path, history)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return baseline, nil
+}
+
 func newNovelSerpDiffCmd(flags *rootFlags) *cobra.Command {
 	var flagQ string
 	var opts serpOptions
@@ -157,7 +184,7 @@ func newNovelSerpDiffCmd(flags *rootFlags) *cobra.Command {
 		Short: "See which URLs entered, left, or moved in a results page since the last time you ran the same query.",
 		Long: strings.Trim(`
 Run a Google web search and compare it with the last stored run of the same
-query, location, device, gl and hl. The first run stores a baseline and
+query, location, device, result depth (--num), gl and hl. The first run stores a baseline and
 reports first_run=true. Later runs list the URLs that entered, left or moved.
 Snapshots live in the CLI data directory; the last 10 runs per query are kept.
 --offline compares the two most recent stored runs without spending a credit.
@@ -191,14 +218,15 @@ it for a one-off search; use 'web' instead.`, "\n"),
 			if err != nil {
 				return err
 			}
-			history, err := loadSerpSnapshots(path)
-			if err != nil {
-				return err
-			}
 
 			var baseline *serpSnapshot
 			var current serpSnapshot
+			saved := false
 			if offline {
+				history, err := loadSerpSnapshots(path)
+				if err != nil {
+					return err
+				}
 				n := len(history.Snapshots)
 				if n < 2 {
 					view := serpDiffView{Query: flagQ, Location: strings.ToUpper(opts.Location), FirstRun: n == 0,
@@ -223,8 +251,21 @@ it for a one-off search; use 'web' instead.`, "\n"),
 					return classifyAPIError(cmd.OutOrStdout(), err, flags)
 				}
 				current = serpSnapshot{Query: flagQ, Location: strings.ToUpper(opts.Location), Gl: opts.Gl, Hl: opts.Hl, TakenAt: time.Now().UTC(), Results: results}
-				if n := len(history.Snapshots); n > 0 {
-					baseline = &history.Snapshots[n-1]
+				if noSave {
+					history, err := loadSerpSnapshots(path)
+					if err != nil {
+						return err
+					}
+					if n := len(history.Snapshots); n > 0 {
+						prev := history.Snapshots[n-1]
+						baseline = &prev
+					}
+				} else {
+					baseline, err = recordSerpSnapshot(path, current)
+					if err != nil {
+						return fmt.Errorf("saving snapshot: %w", err)
+					}
+					saved = true
 				}
 			}
 
@@ -240,11 +281,7 @@ it for a one-off search; use 'web' instead.`, "\n"),
 				view.BaselineAt = &at
 				view.Entered, view.Left, view.Moved, view.Unchanged = diffSerps(baseline.Results, current.Results)
 			}
-			if !offline && !noSave {
-				history.Snapshots = append(history.Snapshots, current)
-				if err := saveSerpSnapshots(path, history); err != nil {
-					return fmt.Errorf("saving snapshot: %w", err)
-				}
+			if saved {
 				view.Saved = true
 			}
 			if view.FirstRun && noSave {

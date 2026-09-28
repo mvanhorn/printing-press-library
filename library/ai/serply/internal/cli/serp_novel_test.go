@@ -4,8 +4,10 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -154,6 +156,71 @@ func TestSerpSnapshotPathSeparatesLocation(t *testing.T) {
 	}
 	if us != us2 {
 		t.Error("query case, spacing and location case should not split history")
+	}
+}
+
+func TestSerpSnapshotPathSeparatesDepth(t *testing.T) {
+	t.Setenv("SERPLY_HOME", t.TempDir())
+	shallow, err := serpSnapshotPath("serp api", serpOptions{Num: 5, Location: "US"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	deep, err := serpSnapshotPath("serp api", serpOptions{Num: 10, Location: "US"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	same, err := serpSnapshotPath("serp api", serpOptions{Num: 5, Location: "us"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if shallow == deep {
+		t.Fatal("different --num depths must not share a snapshot file")
+	}
+	if shallow != same {
+		t.Fatal("the same depth and location should share a snapshot file")
+	}
+}
+
+func TestRecordSerpSnapshotConcurrent(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "serp-snapshots", "k.json")
+	const n = 8
+	var wg sync.WaitGroup
+	errCh := make(chan error, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			_, err := recordSerpSnapshot(path, serpSnapshot{
+				Query:   "q",
+				TakenAt: time.Unix(int64(i+1), 0).UTC(),
+				Results: []serpResult{{Link: fmt.Sprintf("https://example.test/%d", i)}},
+			})
+			errCh <- err
+		}(i)
+	}
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	back, err := loadSerpSnapshots(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(back.Snapshots) != n {
+		t.Fatalf("concurrent appends kept %d snapshots, want %d", len(back.Snapshots), n)
+	}
+	seen := map[string]bool{}
+	for _, snap := range back.Snapshots {
+		if len(snap.Results) != 1 {
+			t.Fatalf("snapshot missing its result: %+v", snap)
+		}
+		seen[snap.Results[0].Link] = true
+	}
+	if len(seen) != n {
+		t.Fatalf("concurrent appends collapsed distinct runs: %v", seen)
 	}
 }
 
