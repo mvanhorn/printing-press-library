@@ -46,7 +46,7 @@ checksum:
 brews:
   - name: jalan-pp-cli
     repository:
-      owner: zjsng-trav
+      owner: zjsng
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
     description: "Find Japan stays and understand the exact room and plan."

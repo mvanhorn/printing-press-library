@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "jalan-account-correction",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-223649-6dd0cc14",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Correct the Jalan CLI creator account to @zjsng in shipping attribution and release metadata.",
+  "reason": "The user explicitly directed correction of our mistaken creator account before publication. Preserve the canonical public module paths and other publication state.",
+  "files": [
+    ".goreleaser.yaml",
+    ".printing-press.json",
+    "NOTICE",
+    "internal/cli/playbook_init.go",
+    "internal/cli/playbook_init_test.go",
+    "internal/cli/playbooks/embed.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/teach_playbook_test.go",
+    "internal/learn/playbooks.go",
+    "internal/learn/playbooks_test.go",
+    "internal/learn/promote.go",
+    "internal/learn/promote_test.go",
+    "internal/learn/recall_canonical_test.go",
+    "internal/store/candidates.go",
+    "internal/store/candidates_test.go",
+    "internal/store/playbooks.go",
+    "internal/store/playbooks_test.go"
+  ],
+  "markers": [
+    "\"handle\": \"zjsng\"",
+    "Created by zjsng (@zjsng).",
+    "// Copyright 2026 zjsng. Licensed under Apache-2.0. See LICENSE."
+  ],
+  "validated_outcome": "Attribution scan confirms @zjsng in all four shipping copies. Fresh full live acceptance passes 101/101 executed checks (78 documented skips); full Go tests, vet, build and publication preflight pass."
+}

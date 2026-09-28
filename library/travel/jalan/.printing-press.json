@@ -6,11 +6,11 @@
   "display_name": "Jalan",
   "cli_name": "jalan-pp-cli",
   "creator": {
-    "handle": "zjsng-trav",
+    "handle": "zjsng",
     "name": "zjsng"
   },
-  "owner": "zjsng-trav",
-  "printer": "zjsng-trav",
+  "owner": "zjsng",
+  "printer": "zjsng",
   "printer_name": "zjsng",
   "spec_path": "jalan.yaml",
   "spec_format": "internal",
