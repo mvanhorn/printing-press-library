@@ -1,7 +1,7 @@
 {
   "kind": "publish-live-final-proof",
   "status": "PASS",
-  "recorded_at": "2026-09-28T01:53:24.437811+00:00",
+  "recorded_at": "2026-09-28T02:47:44.706718+00:00",
   "mandatory_passed": 60,
   "mandatory_failed": 0,
   "skipped_unverified": 127,
@@ -13,22 +13,23 @@
     "snapshot_preserved_after_remove": true
   },
   "state_verification_http_requests": 0,
-  "marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "marker_sha256": "c59643b220c82551c4cd0e0ce62971571101f704c76f054422bad62400cc5916",
   "marker_status": "pass",
-  "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
-  "source_file_count": 147,
+  "source_fingerprint": "64e2067c1b9a52abb3000cdc5a08fdafa114c43d3d2ecc3a0fbd577cba520788",
+  "source_file_count": 148,
   "marker_identical_in_embedded_archive_runstate": true,
   "raw_stdout_private_deleted": true,
-  "raw_stdout_sha256": "e63a6425fb76a33980b075498441d99deb8c16f9207faec92daf7e4462fa1188",
+  "raw_stdout_sha256": "57c66f4256c414bb02f93f2af4869da82403433e890b4aa104349e2bfeed28db",
   "disposable_fixture_requarantined_outside_library_and_manuscripts": true,
   "library_fixture_absent": true,
   "docs_unchanged": true,
-  "successful_diagnostic_public_GETs": 1,
-  "fresh_matrix_public_GET_count": "not directly recorded by compact runner summary; four source-facing happy commands passed",
-  "sandbox_denied_attempts_not_completed_GETs": true,
+  "source_happy_reported_GETs": 4,
+  "areas_error_path_reported_GETs": 1,
+  "successful_response_envelope_requests_after_exact_json_reuse": 5,
+  "failed_transport_attempts": "none observed; all mandatory checks passed",
   "compact_proof_sha256": {
-    "publish-live-gate-summary.json": "1fa6b008f1acf95e1b36cc1619a1d78e14de2bbcdef55124014cc9c2c11c21f8",
-    "publish-live-mutator-before.json": "013342cfe4d1457a15f272054784b956d0c6a6f059ebb6b90616755f69a330e2",
-    "publish-live-mutator-after.json": "1b449b92c580aedf61cf001261849bae91fbed32f046a27a474467cf8b3655ac"
+    "publish-live-gate-summary.json": "c5a5b0281bcded1ac9b9e5ae4639f9d9c513b6ff37a50e1a6f0d4810152a1ec5",
+    "publish-live-mutator-before.json": "9c863b459d133d40bba27aae712a7cbd5ca1d7f1e8a30a5442b41ae606647f3c",
+    "publish-live-mutator-after.json": "fa44c3e54d0d897eb3d734c087ae4414f53dbcecb1999d922dd0c5747d894fdb"
   }
 }

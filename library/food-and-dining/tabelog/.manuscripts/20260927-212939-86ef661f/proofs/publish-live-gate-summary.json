@@ -40,12 +40,71 @@
       "json_flag_explicit": true
     }
   },
-  "prior_marker_sha256": "85935d2c4f524dfc2d91a7276e073d77cc6dde7cf5af85e95cc6524818b86431",
-  "fresh_marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "prior_marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "fresh_marker_sha256": "c59643b220c82551c4cd0e0ce62971571101f704c76f054422bad62400cc5916",
   "marker_status": "pass",
-  "marker_source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
-  "raw_transcript_sha256": "e63a6425fb76a33980b075498441d99deb8c16f9207faec92daf7e4462fa1188",
-  "raw_transcript_bytes": 140523,
+  "marker_source_fingerprint": "64e2067c1b9a52abb3000cdc5a08fdafa114c43d3d2ecc3a0fbd577cba520788",
+  "raw_transcript_sha256": "57c66f4256c414bb02f93f2af4869da82403433e890b4aa104349e2bfeed28db",
+  "raw_transcript_bytes": 140521,
   "raw_transcript_private_and_deleted": true,
-  "transport": "native HTTPS; network-permitted; TABELOG_* test variables unset"
+  "transport": "native HTTPS; network-permitted; TABELOG_* test variables unset",
+  "source_happy_request_envelopes": [
+    {
+      "command": "areas",
+      "kind": "happy_path",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": false
+    },
+    {
+      "command": "areas",
+      "kind": "json_fidelity",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": true
+    },
+    {
+      "command": "areas",
+      "kind": "error_path",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": false
+    },
+    {
+      "command": "find",
+      "kind": "happy_path",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": false
+    },
+    {
+      "command": "find",
+      "kind": "json_fidelity",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": true
+    },
+    {
+      "command": "lists refresh",
+      "kind": "happy_path",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": false
+    },
+    {
+      "command": "lists refresh",
+      "kind": "json_fidelity",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": true
+    },
+    {
+      "command": "show",
+      "kind": "happy_path",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": false
+    },
+    {
+      "command": "show",
+      "kind": "json_fidelity",
+      "reported_requests": 1,
+      "reused_successful_happy_invocation": true
+    }
+  ],
+  "source_happy_command_reported_GETs": 4,
+  "successful_response_envelope_requests_after_exact_json_reuse": 5,
+  "failed_error_path_requests_not_observable_from_response_envelopes": true
 }

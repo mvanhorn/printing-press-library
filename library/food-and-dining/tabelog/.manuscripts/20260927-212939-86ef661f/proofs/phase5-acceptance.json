@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+  "source_fingerprint": "64e2067c1b9a52abb3000cdc5a08fdafa114c43d3d2ecc3a0fbd577cba520788",
   "source_files": {
     "cmd/tabelog-pp-cli/main.go": "44151cacb219733d754be515498f3eb8d9c77dc8c607af671cf8c093224359f6",
     "cmd/tabelog-pp-mcp/main.go": "2e7b1589ac8c9eebf520f7cdf429ed8a54c49cdb64e57896d5731f074901e69f",
@@ -25,6 +25,7 @@
     "e2e/projection_diagnostics_test.go": "f86871430ca3c0dec89ccd3542eb1d8cbccd82166f8e43b4c0f848735475ac80",
     "e2e/projection_dry_run_test.go": "1646043c40a7adc55916d5bce757cec4546451c4c6f11a7f60648de1dd117113",
     "e2e/recipe_boundary_test.go": "c20cfea4d76b9ac65e5b2f2f0d94096f59e0be24b9eef51fe28d98baae328a8b",
+    "e2e/review_cache_contract_test.go": "d6e9873549f63446c2989a3188c66d757d4a5d16ae98bdd85b6ddb15187271a6",
     "e2e/source_validation_test.go": "acc94bcb598104fa00faa764e3f5ee4ae6d46525132e79c5516618fceb9991a7",
     "go.mod": "15c66f67633ec4262ccae82163ad7045ca230c76c34a1b3080c070bc0b8767f6",
     "go.sum": "60f22f1bdcbfee46666324e3e28275169d31775db9b352ad1acdb070ff4d22f3",
@@ -74,7 +75,7 @@
     "internal/cli/sync_hint.go": "72d13406d84c25292ca22d50c75cf9b3d9be72ecf9dd908b5babceee0b40ea34",
     "internal/cli/sync_hint_test.go": "08931f660321fd8ace62fce8e560d95b30233aa0dde08343bda7b6a853e8a898",
     "internal/cli/sync_numeric_id_test.go": "cd27046e600349920b6914729a7151dac1b0587a211ec8609cea067acab6cd38",
-    "internal/cli/tabelog_discovery.go": "ee276308ebb9a183872d61fded49f2889747e0e6416ea1433c1dc943021d61c3",
+    "internal/cli/tabelog_discovery.go": "2d12a174582f398fe439cdc80411bd9bdbfb306ee74056406133e2e0b3fb6faa",
     "internal/cli/tabelog_helpers.go": "325fd9b8dec6279fd429286b5ee898c591f088f1a2c90eaf2186d51b72034794",
     "internal/cli/tabelog_list_classification_test.go": "6e8b0400df83eb0633d5b75f2500324f077b362fe4748d85fa0feeb91455314a",
     "internal/cli/tabelog_lists.go": "b441cdb94774664c3e00f6445e62176d3f5a878563af37b6ab07ff8c2bbde378",
@@ -150,7 +151,7 @@
     "internal/platform/receipt.go": "333386566b638c6eebd65e9ac07199d0601ee08a8cd8938e668facf6ae08bedf",
     "internal/source/cache.go": "41d63dcef7bd8e69aeec7013d2d2f28952f186559d7e731eceb310663c14fb3a",
     "internal/source/client.go": "6d37beb8ebfdc0f6479f7755090115182165ed4b1bb9bc86b8bea0a81281add6",
-    "internal/source/discovery.go": "567311166b5a8eb702e060a4f676475cea402c3707d0a8f43189dba953f28fd5",
+    "internal/source/discovery.go": "8ec648bee2d97b04a9ec83b20083bffbeac952c0cb8ff73a0d1cf8175b7c18e4",
     "internal/source/identity_validation_test.go": "18d4005c1ce688d3521e143c68a521b26840a72865d72af0223c1bc0f42f006c",
     "internal/source/independent_oracle_test.go": "c65907c13f1db3a1816d054762f0fb07796c2470c738247dacfb0a3a22189325",
     "internal/source/parser.go": "ee3bd6729cba4978f8700ee36537d75335e68864883f41187f0e83583437b266",

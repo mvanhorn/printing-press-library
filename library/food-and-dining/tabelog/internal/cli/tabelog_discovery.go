@@ -130,7 +130,10 @@ func newTabelogShowCmd(flags *rootFlags) *cobra.Command {
 			}
 			canonical = saved.URL
 		}
-		if foundErr == nil && (flags.dataSource == "local" || (flags.dataSource == "auto" && !flags.noCache && saved.Surface == "detail" && time.Since(saved.FetchedAt) <= 6*time.Hour)) {
+		if foundErr == nil && saved.URL != canonical && flags.dataSource == "local" {
+			return notFoundErr(fmt.Errorf("cached restaurant ID %s has a different canonical URL; fetch the requested URL with --data-source live", id))
+		}
+		if foundErr == nil && saved.URL == canonical && (flags.dataSource == "local" || (flags.dataSource == "auto" && !flags.noCache && saved.Surface == "detail" && time.Since(saved.FetchedAt) <= 6*time.Hour)) {
 			meta := domain.Meta{Source: "cache", SourceSurface: saved.Surface, SourceURL: saved.SourceURL, FetchedAt: saved.FetchedAt, AgeSeconds: int64(time.Since(saved.FetchedAt).Seconds()), Stale: time.Since(saved.FetchedAt) > 6*time.Hour, Returned: 1, Scanned: 1, Coverage: "cached_snapshot"}
 			if flags.dataSource == "local" {
 				meta.Source = "local"

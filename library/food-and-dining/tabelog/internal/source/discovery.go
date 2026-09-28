@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -86,6 +87,10 @@ func (c *Client) Lookup(ctx context.Context, q, kind string) ([]domain.Choice, e
 	if q != "" && kind != "prefecture" {
 		rows, e := c.Suggestions(ctx, q)
 		if e != nil {
+			var sourceErr *Error
+			if c.Mode == "local" && len(out) > 0 && errors.As(e, &sourceErr) && sourceErr.Kind == "cache_miss" {
+				return dedupeChoices(out), nil
+			}
 			return nil, e
 		}
 		for _, row := range rows {
