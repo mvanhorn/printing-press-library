@@ -1,0 +1,80 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-28T01:14:31.159833528Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "serply",
+  "display_name": "Serply",
+  "cli_name": "serply-pp-cli",
+  "creator": {
+    "handle": "googio",
+    "name": "googio"
+  },
+  "owner": "googio",
+  "printer": "googio",
+  "printer_name": "googio",
+  "spec_path": "serply-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "docs",
+  "spec_checksum": "sha256:405248163e5b1b848b591a31914788548bc69b370b10cb426d667848f9e8fe93",
+  "run_id": "20260927-204544-983131a6",
+  "category": "ai",
+  "description": "Live Google, News, Scholar, Maps and Bing results, plus rank checks, SERP diffs and cited research briefs.",
+  "mcp_binary": "serply-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "SERPLY_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Domain rank check",
+      "command": "rank",
+      "description": "See the position of a domain for a query, optionally from a specific country, in one call."
+    },
+    {
+      "name": "SERP change diff",
+      "command": "serp diff",
+      "description": "See which URLs entered, left, or moved in a results page since the last time you ran the same query."
+    },
+    {
+      "name": "Cited research brief",
+      "command": "research",
+      "description": "Get one deduplicated, numbered source list for a topic from web, news and scholar results at once."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Domain rank check",
+      "command": "rank",
+      "description": "See the position of a domain for a query, optionally from a specific country, in one call."
+    },
+    {
+      "name": "SERP change diff",
+      "command": "serp diff",
+      "description": "See which URLs entered, left, or moved in a results page since the last time you ran the same query."
+    },
+    {
+      "name": "Cited research brief",
+      "command": "research",
+      "description": "Get one deduplicated, numbered source list for a topic from web, news and scholar results at once."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 37,
+    "total": 37,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

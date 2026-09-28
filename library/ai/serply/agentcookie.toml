@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "serply-pp-cli"
+display_name = "Serply"
+description = "Live Google, News, Scholar, Maps and Bing results, plus rank checks, SERP diffs and cited research briefs."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/serply-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SERPLY_API_KEY = true
