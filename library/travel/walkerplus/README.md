@@ -107,6 +107,8 @@ A source start/end range is an envelope, not proof that every day is active. Sea
 
 Use the local CLI or MCP over stdio. The source spec compiles only stdio MCP; the HTTP listener and its authentication/TLS flags are not included.
 
+MCP compacts large event lists as JSON and preserves CLI error codes. Check truncation metadata and narrow `--limit` or `--select` when needed. Returned text is bounded to 60 KB; command output beyond the capture limit produces an explicit error.
+
 ```bash
 go test ./...
 go vet ./...

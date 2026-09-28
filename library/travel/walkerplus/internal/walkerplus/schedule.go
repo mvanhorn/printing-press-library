@@ -14,13 +14,14 @@ import (
 var japaneseDateRE = regexp.MustCompile(`(?:([12][0-9]{3})年)?(?:([0-9]{1,2})月)?([0-9]{1,2})日`)
 var exclusionRE = regexp.MustCompile(`(?:([12][0-9]{3})年)?([0-9]{1,2})月([0-9]{1,2})日(?:[（(][^）)]*[）)])?(?:は|を)?(?:除く|休館|休み|中止)`)
 
-const weekdayListPattern = "(?:毎週)?[月火水木金土日](?:曜(?:日)?)?(?:[・、/／ ]*(?:毎週)?[月火水木金土日](?:曜(?:日)?)?)*"
+const weekdayListPattern = "(?:毎週)?[月火水木金土日](?:曜(?:日)?)?(?:(?:[・、/／ ]*|[ ]*(?:と|および|及び|ならびに|並びに)[ ]*)(?:毎週)?[月火水木金土日](?:曜(?:日)?)?)*"
 
 var weeklyRE = regexp.MustCompile("毎週(" + weekdayListPattern + ")")
 var dailyRE = regexp.MustCompile("毎日(?:[^曜]|$)|連日開催")
 var bareWeeklyRE = regexp.MustCompile("毎(" + weekdayListPattern + "曜(?:日)?)(?:は|に|のみ|だけ)?(?:開催|実施|開館|営業)")
 var onlyWeekdaysRE = regexp.MustCompile("(" + weekdayListPattern + ")(?:のみ|だけ)(?:開催|実施)")
-var closedRE = regexp.MustCompile("(?:休館日|休園日|休業日|休み|定休日)[：: ]*(" + weekdayListPattern + ")|(" + weekdayListPattern + ")(?:[（(][^）)]*[）)])?(?:は|が|を)?(?:休館|休園|休業|休み|定休|除く)")
+var closedRE = regexp.MustCompile("(?:休館日|休園日|休業日|休み|定休日)[：: ]*(" + weekdayListPattern + ")|(" + weekdayListPattern + ")(?:[（(][^）)]*[）)])?[ ]*(?:は|が|を)?[ ]*(?:休館|休園|休業|休み|定休|除く)")
+var nonExhaustiveWeekdaysRE = regexp.MustCompile("[月火水木金土日](?:曜(?:日)?)?[ ]*や[ ]*[月火水木金土日](?:曜(?:日)?)?")
 var monthlyWeekdayRE = regexp.MustCompile("毎月(?:第?[0-9０-９一二三四五]+(?:[・、](?:第)?[0-9０-９一二三四五]+)*(?:週)?)?(?:[0-9０-９]+日|[月火水木金土日](?:曜(?:日)?)?)?(?:[（(][^）)]*[）)])?|第[0-9０-９一二三四五]+(?:[・、](?:第)?[0-9０-９一二三四五]+)*(?:週)?[月火水木金土日](?:曜(?:日)?)?")
 var calendarWeekdayRE = regexp.MustCompile(japaneseDateRE.String() + "(?:[（(][月火水木金土日](?:曜(?:日)?)?[）)])?")
 var weekdayNames = []string{"日", "月", "火", "水", "木", "金", "土"}
@@ -37,6 +38,10 @@ func weekdayTokens(names string) []time.Weekday {
 		}
 	}
 	return out
+}
+
+func adjacentNonExhaustiveWeekday(text string, start, end int) bool {
+	return strings.HasSuffix(strings.TrimRight(text[:start], " "), "や") || strings.HasPrefix(strings.TrimLeft(text[end:], " "), "や")
 }
 
 func supportedWeekdayText(raw string) (string, bool) {
@@ -64,9 +69,15 @@ func parseWeekdayRules(e *Event, raw string) {
 	}
 	// Calendar dates/annotations are not standalone weekday recurrence tokens.
 	text = calendarWeekdayRE.ReplaceAllString(text, " ")
+	if nonExhaustiveWeekdaysRE.MatchString(text) {
+		e.Schedule.Unresolved = appendUnique(e.Schedule.Unresolved, "non-exhaustive weekday list is unresolved")
+	}
 	var positive strings.Builder
 	last := 0
 	for _, m := range closedRE.FindAllStringSubmatchIndex(text, -1) {
+		if adjacentNonExhaustiveWeekday(text, m[0], m[1]) {
+			continue
+		}
 		if m[0] > 0 {
 			r, _ := utf8.DecodeLastRuneInString(text[:m[0]])
 			if unicode.IsDigit(r) {
@@ -94,8 +105,11 @@ func parseWeekdayRules(e *Event, raw string) {
 		e.Schedule.Recurrence = strptr("daily")
 	}
 	for _, pattern := range []*regexp.Regexp{weeklyRE, bareWeeklyRE, onlyWeekdaysRE} {
-		for _, m := range pattern.FindAllStringSubmatch(text, -1) {
-			for _, day := range weekdayTokens(m[1]) {
+		for _, m := range pattern.FindAllStringSubmatchIndex(text, -1) {
+			if adjacentNonExhaustiveWeekday(text, m[0], m[1]) {
+				continue
+			}
+			for _, day := range weekdayTokens(text[m[2]:m[3]]) {
 				if !containsWeekday(e.Schedule.weekdays, day) {
 					e.Schedule.weekdays = append(e.Schedule.weekdays, day)
 				}

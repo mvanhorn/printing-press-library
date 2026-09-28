@@ -1,0 +1,105 @@
+{
+  "cli_dir": "<public-cli-dir>",
+  "status": "PASS",
+  "source_sha256_before": "016a789aa6c1164b5a7170648f5939395f485c16b19cd6514dddfad2118957a2",
+  "source_sha256_after": "016a789aa6c1164b5a7170648f5939395f485c16b19cd6514dddfad2118957a2",
+  "source_drift": false,
+  "source_edits": "none",
+  "exit_codes": {
+    "go_test_initial_sandbox": 1,
+    "go_test": 0,
+    "go_vet": 0,
+    "all_build": 0,
+    "cli_build": 0,
+    "mcp_build": 0,
+    "live_e2e": 0,
+    "measurement": 0
+  },
+  "sandbox_note": "Initial full test run could not bind loopback for httptest in internal/client and internal/cliutil; the authorized loopback-enabled rerun passed.",
+  "passing_test_packages": 11,
+  "no_test_packages": 6,
+  "test_failure_records": 0,
+  "live_passing_top_level_tests": 8,
+  "live_passing_subtests": 16,
+  "live_failure_records": 0,
+  "live_elapsed_seconds": 39.949,
+  "live_cache_disabled": true,
+  "binary_sha256": "4606126fa3ac61481410a6a9652bb85ba8fe4db455ec0eb3ed0c28430cc006f3",
+  "mcp_binary_sha256": "6d0f2d6a3e65dbe005f8165a74e03a17909884026e893eaf50e1b33dc1d35284",
+  "measurement_binary_sha256": "4606126fa3ac61481410a6a9652bb85ba8fe4db455ec0eb3ed0c28430cc006f3",
+  "measurement_binary_and_count_valid": true,
+  "measurement_artifact": "efficiency-corrected-review/measurements.json",
+  "measurement_runs": [
+    {
+      "command": "search",
+      "cache": "cold",
+      "requests": 1,
+      "cache_hits": 0,
+      "stdout_bytes": 6986,
+      "wall_ms": 56.33,
+      "peak_rss_bytes": 28475392,
+      "returned_count": 3
+    },
+    {
+      "command": "search",
+      "cache": "warm",
+      "requests": 0,
+      "cache_hits": 1,
+      "stdout_bytes": 6982,
+      "wall_ms": 14.62,
+      "peak_rss_bytes": 24379392,
+      "returned_count": 3
+    },
+    {
+      "command": "shortlist",
+      "cache": "cold",
+      "requests": 10,
+      "cache_hits": 0,
+      "stdout_bytes": 10645,
+      "wall_ms": 4528.17,
+      "peak_rss_bytes": 33341440,
+      "returned_count": 3
+    },
+    {
+      "command": "shortlist",
+      "cache": "warm",
+      "requests": 0,
+      "cache_hits": 10,
+      "stdout_bytes": 10631,
+      "wall_ms": 22.79,
+      "peak_rss_bytes": 29851648,
+      "returned_count": 3
+    },
+    {
+      "command": "event",
+      "cache": "cold",
+      "requests": 3,
+      "cache_hits": 0,
+      "stdout_bytes": 3728,
+      "wall_ms": 1034.98,
+      "peak_rss_bytes": 31358976,
+      "returned_count": 1
+    },
+    {
+      "command": "event",
+      "cache": "warm",
+      "requests": 0,
+      "cache_hits": 3,
+      "stdout_bytes": 3722,
+      "wall_ms": 15.85,
+      "peak_rss_bytes": 25083904,
+      "returned_count": 1
+    }
+  ],
+  "logs": [
+    "corrected-review-go-test-sandbox.log",
+    "corrected-review-go-test.log",
+    "corrected-review-go-vet.log",
+    "corrected-review-all-build.log",
+    "corrected-review-cli-build.log",
+    "corrected-review-mcp-build.log",
+    "corrected-review-live-e2e.log",
+    "corrected-review-measure.log"
+  ],
+  "printing_press_gates": "root owns dogfood, marker, and validator"
+}

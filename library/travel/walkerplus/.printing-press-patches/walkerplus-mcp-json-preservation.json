@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "walkerplus-mcp-json-preservation",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-220621-b57bba4d",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve bounded JSON event envelopes and numeric CLI errors in the MCP command mirror.",
+  "reason": "Keep compact small output, bounded complete captures, aggregate text limits, and explicit overflow errors without changing shared generator files.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ]
+}

@@ -1,0 +1,62 @@
+?   	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/cmd/walkerplus-pp-cli	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/cmd/walkerplus-pp-mcp	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/cache	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/cli	0.593s
+--- FAIL: TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 61 [running]:
+testing.tRunner.func1.2({0x101317690, 0xa8c92e0d940})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x101317690?, 0xa8c92e0d940?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewTLSServer({0x10136ee48, 0xa8c92e0d900})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:459 +0x28
+github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/client.TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata(0xa8c92f8f688)
+	<public-cli-dir>/internal/client/platform_rate_limit_test.go:21 +0x8c
+testing.tRunner(0xa8c92f8f688, 0x1013735b8)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/client	1.726s
+--- FAIL: TestProbeReachable_200 (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 80 [running]:
+testing.tRunner.func1.2({0x105042720, 0x3cacd7198240})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x105042720?, 0x3cacd7198240?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewServer({0x105097d78, 0x10509c618})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:267 +0x28
+github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/cliutil.TestProbeReachable_200(0x3cacd71a2d88)
+	<public-cli-dir>/internal/cliutil/cliutil_test.go:469 +0x3c
+testing.tRunner(0x3cacd71a2d88, 0x10509c408)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/cliutil	2.577s
+?   	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/cliutil/testenv	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/mcp	2.228s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/mcp/bound	3.087s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/mcp/cobratree	9.661s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/platform	3.994s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/store	4.819s
+?   	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/types	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplus	6.509s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	104.574s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/tests	3.465s
+FAIL

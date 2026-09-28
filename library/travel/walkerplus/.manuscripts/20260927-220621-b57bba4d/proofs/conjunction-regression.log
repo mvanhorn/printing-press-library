@@ -1,0 +1,12 @@
+--- FAIL: TestReviewWeeklyConjoinedClosuresKeepNegativeEvidence (3.01s)
+    --- FAIL: TestReviewWeeklyConjoinedClosuresKeepNegativeEvidence/closure_only (1.50s)
+        conjunction_regression_test.go:42: confirmed_days = [2026-10-12]; want []
+        conjunction_regression_test.go:43: possible_days = []; want [2026-10-11 2026-10-13 2026-10-14 2026-10-16]
+        conjunction_regression_test.go:44: closed_weekdays = [木曜]; want [月曜 木曜]
+    --- FAIL: TestReviewWeeklyConjoinedClosuresKeepNegativeEvidence/daily_with_closures (1.50s)
+        conjunction_regression_test.go:42: confirmed_days = [2026-10-11 2026-10-12 2026-10-13 2026-10-14 2026-10-16]; want [2026-10-11 2026-10-13 2026-10-14 2026-10-16]
+        conjunction_regression_test.go:44: closed_weekdays = [木曜]; want [月曜 木曜]
+FAIL
+FAIL	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	3.419s
+FAIL
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	3.446s

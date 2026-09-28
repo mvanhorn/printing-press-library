@@ -16,6 +16,11 @@ func TestWeekdayRolesAndGrammarSuffix(t *testing.T) {
 		{"positive", "毎週月曜日開催", nil, []time.Weekday{time.Monday}, "confirmed", "excluded"},
 		{"mixed", "毎週土曜開催・月曜休館", []time.Weekday{time.Monday}, []time.Weekday{time.Saturday}, "excluded", "excluded"},
 		{"multiple_closures", "休館日：月曜日・火曜日", []time.Weekday{time.Monday, time.Tuesday}, nil, "excluded", "possible"},
+		{"coordinated_closures", "毎週月曜日と木曜日は休み", []time.Weekday{time.Monday, time.Thursday}, nil, "excluded", "possible"},
+		{"spaced_coordinated_closures", "毎週月曜日 と 木曜日 は休み", []time.Weekday{time.Monday, time.Thursday}, nil, "excluded", "possible"},
+		{"labelled_coordinated_closures", "休館日：毎週月曜日および木曜日", []time.Weekday{time.Monday, time.Thursday}, nil, "excluded", "possible"},
+		{"coordinated_positive", "毎週月曜日及び木曜日開催", nil, []time.Weekday{time.Monday, time.Thursday}, "confirmed", "excluded"},
+		{"coordinated_mixed", "毎週土曜開催。毎週月曜日と木曜日は休み", []time.Weekday{time.Monday, time.Thursday}, []time.Weekday{time.Saturday}, "excluded", "excluded"},
 		{"weekend_closures", "休館日：土日", []time.Weekday{time.Saturday, time.Sunday}, nil, "possible", "excluded"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -39,6 +44,48 @@ func TestWeekdayRolesAndGrammarSuffix(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestCoordinatedClosureKeepsOtherDaysPossible(t *testing.T) {
+	for _, raw := range []string{"毎週月曜日と木曜日は休み", "休館日：毎週月曜日及び木曜日", "毎週月曜日並びに木曜日は休館"} {
+		e := scheduled("2026-10-10", "2026-10-20", "2026年10月10日～10月20日 "+raw)
+		if e.Schedule.Recurrence != nil || len(e.Schedule.closed) != 2 || !containsWeekday(e.Schedule.closed, time.Monday) || !containsWeekday(e.Schedule.closed, time.Thursday) {
+			t.Fatalf("negative coordination leaked into positive recurrence: %+v", e.Schedule)
+		}
+		for _, day := range []struct{ date, want string }{{"2026-10-12", "excluded"}, {"2026-10-15", "excluded"}, {"2026-10-13", "possible"}, {"2026-10-18", "possible"}} {
+			got := matchEvent(e, Query{From: day.date, To: day.date, Timing: "overlap"}, true)
+			if got.State != day.want || len(got.ConfirmedDays) != 0 {
+				t.Fatalf("%s: got %+v, want %s", day.date, got, day.want)
+			}
+		}
+	}
+	e := scheduled("2026-10-10", "2026-10-20", "2026年10月10日～10月20日 毎日開催。毎週月曜日と木曜日は休み")
+	for _, day := range []struct{ date, want string }{{"2026-10-12", "excluded"}, {"2026-10-15", "excluded"}, {"2026-10-13", "confirmed"}, {"2026-10-18", "confirmed"}} {
+		if got := matchEvent(e, Query{From: day.date, To: day.date, Timing: "overlap"}, true); got.State != day.want {
+			t.Fatalf("daily plus coordinated closure on %s: %+v", day.date, got)
+		}
+	}
+}
+
+func TestNonExhaustiveWeekdayListDoesNotBecomeExclusive(t *testing.T) {
+	for _, raw := range []string{
+		"毎週月曜日や木曜日開催",
+		"毎週月曜日 や 木曜日開催",
+		"月曜日や木曜日のみ開催",
+		"休館日：毎週月曜日や木曜日",
+		"毎週月曜日や木曜日は休み",
+		"毎日開催。月曜や木曜は休み",
+	} {
+		e := scheduled("2026-10-10", "2026-10-20", "2026年10月10日～10月20日 "+raw)
+		if len(e.Schedule.weekdays) > 0 || len(e.Schedule.closed) > 0 || !containsDate(e.Schedule.Unresolved, "non-exhaustive weekday list is unresolved") {
+			t.Fatalf("partial weekday rule from %q: %+v", raw, e.Schedule)
+		}
+		for _, date := range []string{"2026-10-12", "2026-10-15", "2026-10-18"} {
+			if got := matchEvent(e, Query{From: date, To: date, Timing: "overlap"}, true); got.State != "possible" || len(got.ConfirmedDays) > 0 {
+				t.Fatalf("%q on %s produced exclusive activity: %+v", raw, date, got)
+			}
+		}
 	}
 }
 

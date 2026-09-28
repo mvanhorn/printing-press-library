@@ -12,7 +12,7 @@ metadata:
 
 # Walkerplus event discovery
 
-For a source checkout, use a locally built `walkerplus-pp-cli` binary with Go 1.26.6 or newer. Catalog installation requires a merged library release. Verify `walkerplus-pp-cli --version`; if missing, build with `go build -o walkerplus-pp-cli ./cmd/walkerplus-pp-cli` and make the binary available on PATH. Public Walkerplus HTML is the only runtime source. No credentials, browser, booking, or translation provider is involved. MCP is compiled for stdio only; no HTTP listener is included.
+For a source checkout, use a locally built `walkerplus-pp-cli` binary with Go 1.26.6 or newer. Catalog installation requires a merged library release. Verify `walkerplus-pp-cli --version`; if missing, build with `go build -o walkerplus-pp-cli ./cmd/walkerplus-pp-cli` and make the binary available on PATH. Public Walkerplus HTML is the only runtime source. No credentials, browser, booking, or translation provider is involved. MCP is compiled for stdio only; no HTTP listener is included. When using MCP, inspect truncation metadata and narrow `--limit` or `--select` after a bounded result or capture-limit error. CLI JSON error codes remain available; auxiliary diagnostics are separate.
 
 ## Workflow
 

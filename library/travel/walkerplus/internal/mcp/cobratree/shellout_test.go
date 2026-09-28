@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -1017,6 +1018,272 @@ func TestCappedCaptureDrainsWithoutRetainingFullInput(t *testing.T) {
 	if got := len(capture.String()); got != shelloutCaptureLimit {
 		t.Fatalf("capped capture retained %d bytes, want %d", got, shelloutCaptureLimit)
 	}
+	if !capture.overflow {
+		t.Fatal("capped capture did not mark discarded bytes")
+	}
+	exact := newCappedCapture()
+	if _, err := exact.Write([]byte(input[:shelloutCaptureLimit])); err != nil {
+		t.Fatalf("exact-size capture write: %v", err)
+	}
+	if exact.overflow {
+		t.Fatal("exact-size capture was incorrectly marked overflowing")
+	}
+}
+
+func TestShellOutPreservesLargeSearchEnvelopeAndStructuredFailure(t *testing.T) {
+	bin := writeOutputFixtureCLI(t)
+	t.Run("large search response", func(t *testing.T) {
+		events := make([]map[string]any, 100)
+		for i := range events {
+			events[i] = map[string]any{
+				"id":         "ar" + strconv.Itoa(i),
+				"title_ja":   strings.Repeat("京都祭", 220),
+				"source_url": "https://www.walkerplus.com/event/ar0726e612292/",
+			}
+		}
+		stdout, err := json.Marshal(map[string]any{
+			"query":    map[string]any{"prefecture": "kyoto", "category": "festival"},
+			"events":   events,
+			"coverage": map[string]any{"request_count": 2, "scanned_pages": 2},
+			"meta":     map[string]any{"source": "live"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(stdout) <= bound.MaxBytes || len(stdout) >= shelloutCaptureLimit {
+			t.Fatalf("fixture length %d must be above MCP budget and below capture limit", len(stdout))
+		}
+		result := invokeOutputFixtureCLI(t, bin, stdout, "hint: use --select to narrow results\n", 0)
+		if result.IsError {
+			t.Fatalf("large search response became an MCP error: %s", toolResultText(result))
+		}
+		assertToolResultBudget(t, result)
+		var payload struct {
+			Query struct {
+				Prefecture string `json:"prefecture"`
+			} `json:"query"`
+			Events []struct {
+				ID string `json:"id"`
+			} `json:"events"`
+			Coverage struct {
+				RequestCount int `json:"request_count"`
+			} `json:"coverage"`
+			Meta struct {
+				Source string `json:"source"`
+			} `json:"meta"`
+			Truncated bool `json:"_pp_truncated"`
+			Total     int  `json:"_pp_total_count"`
+		}
+		if err := json.Unmarshal([]byte(toolResultText(result)), &payload); err != nil {
+			t.Fatalf("large response was not structured JSON: %v", err)
+		}
+		if payload.Query.Prefecture != "kyoto" || payload.Coverage.RequestCount != 2 || payload.Meta.Source != "live" {
+			t.Fatalf("large response lost query, coverage, or meta: %+v", payload)
+		}
+		if !payload.Truncated || payload.Total != 100 || len(payload.Events) == 0 || len(payload.Events) >= 100 || payload.Events[0].ID != "ar0" {
+			t.Fatalf("large response lost bounded events or truncation metadata: %+v", payload)
+		}
+		if !strings.Contains(toolResultContentText(result, 1), "hint: use --select") {
+			t.Fatalf("stderr hint was not kept separate: %+v", result.Content)
+		}
+	})
+	t.Run("CLI JSON error", func(t *testing.T) {
+		stdout := []byte(`{"error":{"code":2,"message":"invalid date"},"meta":{"source":"live","request_id":"fixture"}}`)
+		result := invokeOutputFixtureCLI(t, bin, stdout, "date must use YYYY-MM-DD\n", 2)
+		if !result.IsError {
+			t.Fatalf("nonzero CLI exit returned MCP success: %s", toolResultText(result))
+		}
+		assertToolResultBudget(t, result)
+		var payload struct {
+			Error struct {
+				Code    int    `json:"code"`
+				Message string `json:"message"`
+			} `json:"error"`
+			Meta struct {
+				Source    string `json:"source"`
+				RequestID string `json:"request_id"`
+			} `json:"meta"`
+		}
+		if err := json.Unmarshal([]byte(toolResultText(result)), &payload); err != nil {
+			t.Fatalf("CLI error body became text: %v; result=%s", err, toolResultText(result))
+		}
+		if payload.Error.Code != 2 || payload.Error.Message != "invalid date" || payload.Meta.Source != "live" || payload.Meta.RequestID != "fixture" {
+			t.Fatalf("CLI error code or metadata lost: %+v", payload)
+		}
+		if strings.Contains(toolResultText(result), "date must use") {
+			t.Fatal("stderr diagnostic was mixed into structured stdout")
+		}
+		if diagnostic := toolResultContentText(result, 1); !strings.Contains(diagnostic, "code 2") || !strings.Contains(diagnostic, "date must use") {
+			t.Fatalf("CLI exit/stderr diagnostic missing: %q", diagnostic)
+		}
+	})
+	t.Run("oversized CLI JSON error", func(t *testing.T) {
+		stdout, err := json.Marshal(map[string]any{
+			"error": map[string]any{"code": 7, "message": strings.Repeat("source detail ", 6000)},
+			"meta":  map[string]any{"source": "live", "request_id": "oversized-fixture"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		result := invokeOutputFixtureCLI(t, bin, stdout, "", 7)
+		if !result.IsError {
+			t.Fatal("oversized CLI JSON error returned MCP success")
+		}
+		assertToolResultBudget(t, result)
+		var payload struct {
+			Error struct {
+				Code int `json:"code"`
+			} `json:"error"`
+			Meta struct {
+				Source    string `json:"source"`
+				RequestID string `json:"request_id"`
+			} `json:"meta"`
+			Truncated bool `json:"_pp_truncated"`
+		}
+		if err := json.Unmarshal([]byte(toolResultText(result)), &payload); err != nil {
+			t.Fatalf("oversized CLI error became text: %v", err)
+		}
+		if payload.Error.Code != 7 || payload.Meta.Source != "live" || payload.Meta.RequestID != "oversized-fixture" || !payload.Truncated {
+			t.Fatalf("oversized CLI error lost code, meta, or limitation: %+v", payload)
+		}
+	})
+	t.Run("plain text fallback", func(t *testing.T) {
+		result := invokeOutputFixtureCLI(t, bin, []byte(strings.Repeat("x", bound.MaxBytes+1000)), "", 0)
+		if result.IsError {
+			t.Fatal("plain-text success became an MCP error")
+		}
+		assertToolResultBudget(t, result)
+		var preview struct {
+			Truncated bool   `json:"truncated"`
+			Preview   string `json:"preview"`
+		}
+		if err := json.Unmarshal([]byte(toolResultText(result)), &preview); err != nil || !preview.Truncated || preview.Preview == "" {
+			t.Fatalf("oversized plain text was not bounded preview JSON: %v; %+v", err, preview)
+		}
+	})
+	t.Run("stdout capture overflow", func(t *testing.T) {
+		stdout := []byte(`{"events":[{"blob":"` + strings.Repeat("x", shelloutCaptureLimit) + `"}]}`)
+		result := invokeOutputFixtureCLI(t, bin, stdout, "", 0)
+		if !result.IsError {
+			t.Fatalf("capture overflow returned success: %s", toolResultText(result))
+		}
+		assertToolResultBudget(t, result)
+		var limitation struct {
+			Error struct {
+				Code string `json:"code"`
+			} `json:"error"`
+			CaptureLimitBytes int  `json:"capture_limit_bytes"`
+			MoreAvailable     bool `json:"more_available"`
+		}
+		if err := json.Unmarshal([]byte(toolResultText(result)), &limitation); err != nil {
+			t.Fatalf("overflow was not structured JSON: %v", err)
+		}
+		if limitation.Error.Code != "mcp_capture_limit" || limitation.CaptureLimitBytes != shelloutCaptureLimit || !limitation.MoreAvailable {
+			t.Fatalf("overflow limitation was incomplete: %+v", limitation)
+		}
+	})
+	t.Run("stderr capture overflow", func(t *testing.T) {
+		result := invokeOutputFixtureCLI(t, bin, []byte(`{"ok":true}`), strings.Repeat("e", shelloutCaptureLimit+1), 0)
+		if result.IsError {
+			t.Fatalf("stderr overflow discarded valid stdout: %s", toolResultText(result))
+		}
+		assertToolResultBudget(t, result)
+		var payload struct {
+			OK bool `json:"ok"`
+		}
+		if err := json.Unmarshal([]byte(toolResultText(result)), &payload); err != nil || !payload.OK {
+			t.Fatalf("valid JSON stdout was lost: %v; %s", err, toolResultText(result))
+		}
+		if !strings.Contains(toolResultContentText(result, 1), "stderr exceeded") {
+			t.Fatalf("stderr overflow notice missing: %+v", result.Content)
+		}
+	})
+}
+
+func TestToolResultFromCLICommandBudgetsAllContentBlocks(t *testing.T) {
+	stdout := `{"blob":"` + strings.Repeat("x", bound.MaxBytes-140) + `"}`
+	result := ToolResultFromCLICommand(CLICommandResult{
+		Stdout:      stdout,
+		StderrHints: []string{"hint: " + strings.Repeat("extra", 100)},
+	})
+	if result.IsError || !json.Valid([]byte(toolResultText(result))) {
+		t.Fatalf("near-budget JSON was not preserved: %s", toolResultText(result))
+	}
+	assertToolResultBudget(t, result)
+}
+
+func TestToolResultFromCLICommandPreservesCompactJSON(t *testing.T) {
+	stdout := `{"query":{"prefecture":"kyoto"},"events":[],"coverage":{"request_count":0}}`
+	result := ToolResultFromCLICommand(CLICommandResult{Stdout: stdout})
+	if result.IsError {
+		t.Fatalf("compact JSON returned MCP error: %s", toolResultText(result))
+	}
+	if got := toolResultText(result); got != stdout {
+		t.Fatalf("compact JSON changed: got %q, want %q", got, stdout)
+	}
+	assertToolResultBudget(t, result)
+}
+
+func assertToolResultBudget(t *testing.T, result *mcplib.CallToolResult) {
+	t.Helper()
+	total := 0
+	for _, content := range result.Content {
+		if text, ok := content.(mcplib.TextContent); ok {
+			total += len(text.Text)
+		}
+	}
+	if total > bound.MaxBytes {
+		t.Fatalf("aggregate MCP text = %d bytes, want <= %d", total, bound.MaxBytes)
+	}
+}
+
+func invokeOutputFixtureCLI(t *testing.T, bin string, stdout []byte, stderr string, exitCode int) *mcplib.CallToolResult {
+	t.Helper()
+	dir := t.TempDir()
+	stdoutPath := filepath.Join(dir, "stdout")
+	stderrPath := filepath.Join(dir, "stderr")
+	if err := os.WriteFile(stdoutPath, stdout, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(stderrPath, []byte(stderr), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	handler := shellOutToCLI(func() (string, error) { return bin, nil }, []string{stdoutPath, stderrPath, strconv.Itoa(exitCode)}, nil, nil, nil, true, nil)
+	result, err := handler(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("shell-out handler returned transport error: %v", err)
+	}
+	return result
+}
+
+func writeOutputFixtureCLI(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	source := filepath.Join(dir, "output_fixture.go")
+	program := `package main
+import (
+  "os"
+  "strconv"
+)
+func main() {
+  stdout, err := os.ReadFile(os.Args[1]); if err != nil { os.Exit(99) }
+  stderr, err := os.ReadFile(os.Args[2]); if err != nil { os.Exit(99) }
+  _, _ = os.Stdout.Write(stdout)
+  _, _ = os.Stderr.Write(stderr)
+  code, err := strconv.Atoi(os.Args[3]); if err != nil { os.Exit(99) }
+  os.Exit(code)
+}`
+	if err := os.WriteFile(source, []byte(program), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(dir, "output_fixture")
+	if runtime.GOOS == "windows" {
+		bin += ".exe"
+	}
+	if output, err := exec.Command("go", "build", "-o", bin, source).CombinedOutput(); err != nil {
+		t.Fatalf("build output fixture CLI: %v\n%s", err, output)
+	}
+	return bin
 }
 
 func TestRunCLICommandKeepsStdoutSeparateFromStderr(t *testing.T) {

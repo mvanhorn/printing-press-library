@@ -5,11 +5,14 @@ package cobratree
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -20,16 +23,18 @@ func boundedToolResultError(message string) *mcplib.CallToolResult {
 	return mcplib.NewToolResultError(bound.Text(message))
 }
 
-const shelloutCaptureLimit = bound.MaxBytes + 1
+const shelloutCaptureLimit = 1 << 20
 
-// cappedCapture drains a child-process stream while retaining enough bytes for
-// bound.Text to render an oversized result as a truncated preview.
+// cappedCapture drains a child-process stream without retaining unbounded
+// output. The larger capture lets bound.JSON preserve list metadata and fit
+// whole rows into the smaller MCP result budget.
 type cappedCapture struct {
-	data []byte
+	data     []byte
+	overflow bool
 }
 
 func newCappedCapture() *cappedCapture {
-	return &cappedCapture{data: make([]byte, 0, shelloutCaptureLimit)}
+	return &cappedCapture{data: make([]byte, 0, 4096)}
 }
 
 func (c *cappedCapture) Write(p []byte) (int, error) {
@@ -39,6 +44,9 @@ func (c *cappedCapture) Write(p []byte) (int, error) {
 			remaining = len(p)
 		}
 		c.data = append(c.data, p[:remaining]...)
+	}
+	if remaining < len(p) {
+		c.overflow = true
 	}
 	return len(p), nil
 }
@@ -73,7 +81,16 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 			finalArgs = append(finalArgs, rawPositionals...)
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
+		if out.StdoutOverflow {
+			return captureLimitToolResult(), nil
+		}
 		if err != nil {
+			if json.Valid([]byte(out.Stdout)) {
+				result := mcplib.NewToolResultText(boundedCLIErrorOutput(out.Stdout))
+				result.IsError = true
+				appendToolDiagnostic(result, failureDiagnostic(out, err))
+				return result, nil
+			}
 			return boundedToolResultError(err.Error()), nil
 		}
 		return ToolResultFromCLICommand(out), nil
@@ -307,19 +324,142 @@ func SplitShellArgs(s string) []string {
 // CLICommandResult carries the machine-readable stdout separately from
 // operator-facing stderr hints.
 type CLICommandResult struct {
-	Stdout      string
-	StderrHints []string
+	Stdout         string
+	Stderr         string
+	StderrHints    []string
+	StdoutOverflow bool
+	StderrOverflow bool
 }
 
 // ToolResultFromCLICommand keeps stdout in the first content block and places
 // filtered CLI hints in a separate block for clients that display auxiliary
 // content.
 func ToolResultFromCLICommand(result CLICommandResult) *mcplib.CallToolResult {
-	toolResult := mcplib.NewToolResultText(bound.Text(result.Stdout))
+	toolResult := mcplib.NewToolResultText(boundedCLIOutput(result.Stdout))
+	if result.StderrOverflow {
+		appendToolDiagnostic(toolResult, fmt.Sprintf("CLI stderr exceeded the %d-byte capture limit; diagnostics were truncated", shelloutCaptureLimit))
+	}
 	if len(result.StderrHints) > 0 {
-		toolResult.Content = append(toolResult.Content, mcplib.NewTextContent(bound.Text(strings.Join(result.StderrHints, "\n"))))
+		appendToolDiagnostic(toolResult, strings.Join(result.StderrHints, "\n"))
 	}
 	return toolResult
+}
+
+func boundedCLIOutput(stdout string) string {
+	if len(stdout) <= bound.MaxBytes {
+		return stdout
+	}
+	if json.Valid([]byte(stdout)) {
+		if rendered, err := bound.JSON(json.RawMessage(stdout)); err == nil {
+			return rendered
+		}
+	}
+	return bound.Text(stdout)
+}
+
+// Error envelopes normally fit the MCP budget unchanged. If a very long CLI
+// error message forces bound.JSON to return a generic preview, retain the
+// numeric error code and ordinary meta fields in an explicit limitation.
+func boundedCLIErrorOutput(stdout string) string {
+	rendered := boundedCLIOutput(stdout)
+	var bounded map[string]json.RawMessage
+	if json.Unmarshal([]byte(rendered), &bounded) == nil && len(bounded["error"]) > 0 {
+		return rendered
+	}
+	var original map[string]json.RawMessage
+	if json.Unmarshal([]byte(stdout), &original) != nil {
+		return rendered
+	}
+	var cliError map[string]json.RawMessage
+	if json.Unmarshal(original["error"], &cliError) != nil || len(cliError["code"]) == 0 {
+		return rendered
+	}
+	limited := map[string]any{
+		"error": map[string]any{
+			"code":    cliError["code"],
+			"message": "CLI error details exceeded the MCP output budget; inspect the companion CLI for the full message.",
+		},
+		"_pp_truncated":      true,
+		"_pp_original_bytes": len(stdout),
+		"_pp_max_bytes":      bound.MaxBytes,
+	}
+	if len(original["meta"]) > 0 {
+		limited["meta"] = original["meta"]
+	}
+	if output, err := bound.JSON(limited); err == nil {
+		var preserved map[string]json.RawMessage
+		if json.Unmarshal([]byte(output), &preserved) == nil && len(preserved["error"]) > 0 {
+			return output
+		}
+	}
+	// Oversized meta cannot fit alongside the code. The CLI still reports the
+	// full error; keep its numeric code in the MCP limitation response.
+	delete(limited, "meta")
+	limited["_pp_meta_truncated"] = true
+	if output, err := bound.JSON(limited); err == nil {
+		return output
+	}
+	return rendered
+}
+
+func captureLimitToolResult() *mcplib.CallToolResult {
+	text, _ := bound.JSON(map[string]any{
+		"error": map[string]any{
+			"code":    "mcp_capture_limit",
+			"message": "Companion CLI stdout exceeded the MCP capture limit; retry with a smaller --limit, --select, or narrower filters.",
+		},
+		"capture_limit_bytes": shelloutCaptureLimit,
+		"more_available":      true,
+	})
+	result := mcplib.NewToolResultText(text)
+	result.IsError = true
+	return result
+}
+
+func failureDiagnostic(result CLICommandResult, runErr error) string {
+	var exitErr *exec.ExitError
+	diagnostic := runErr.Error()
+	if errors.As(runErr, &exitErr) {
+		diagnostic = fmt.Sprintf("CLI exited with code %d", exitErr.ExitCode())
+	}
+	if stderr := strings.TrimSpace(result.Stderr); stderr != "" {
+		diagnostic += "\nstderr: " + bound.Text(stderr)
+	}
+	if result.StderrOverflow {
+		diagnostic += fmt.Sprintf("\nCLI stderr exceeded the %d-byte capture limit; diagnostics were truncated", shelloutCaptureLimit)
+	}
+	return diagnostic
+}
+
+// Keep the aggregate text of all MCP content blocks within the same budget
+// as a single tool result. Structured stdout takes priority over diagnostics.
+func appendToolDiagnostic(result *mcplib.CallToolResult, diagnostic string) {
+	if diagnostic == "" {
+		return
+	}
+	used := 0
+	for _, content := range result.Content {
+		if text, ok := content.(mcplib.TextContent); ok {
+			used += len(text.Text)
+		}
+	}
+	remaining := bound.MaxBytes - used
+	if remaining <= 0 {
+		return
+	}
+	diagnostic = bound.Text(diagnostic)
+	if len(diagnostic) > remaining {
+		const suffix = " [diagnostics truncated]"
+		if remaining <= len(suffix) {
+			return
+		}
+		prefix := diagnostic[:remaining-len(suffix)]
+		for !utf8.ValidString(prefix) {
+			prefix = prefix[:len(prefix)-1]
+		}
+		diagnostic = prefix + suffix
+	}
+	result.Content = append(result.Content, mcplib.NewTextContent(diagnostic))
 }
 
 // RunCLICommand executes the companion CLI while preserving stdout as the
@@ -333,12 +473,16 @@ func RunCLICommand(ctx context.Context, binPath string, args []string) (CLIComma
 	cmd.Stderr = stderr
 	err := cmd.Run()
 	stdoutText := stdout.String()
+	stderrText := stderr.String()
 	result := CLICommandResult{
-		Stdout:      stdoutText,
-		StderrHints: stderrHintLines(stderr.String()),
+		Stdout:         stdoutText,
+		Stderr:         stderrText,
+		StderrHints:    stderrHintLines(stderrText),
+		StdoutOverflow: stdout.overflow,
+		StderrOverflow: stderr.overflow,
 	}
 	if err != nil {
-		stderrText := strings.TrimSpace(stderr.String())
+		stderrText := strings.TrimSpace(stderrText)
 		msg := stderrText
 		if msg == "" {
 			msg = strings.TrimSpace(stdoutText)
@@ -347,6 +491,9 @@ func RunCLICommand(ctx context.Context, binPath string, args []string) (CLIComma
 			label := "stderr"
 			if stderrText == "" {
 				label = "output"
+			}
+			if result.StderrOverflow {
+				msg += fmt.Sprintf("\nCLI stderr exceeded the %d-byte capture limit", shelloutCaptureLimit)
 			}
 			return result, fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, bound.Text(msg))
 		}
