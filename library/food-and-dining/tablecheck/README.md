@@ -1,6 +1,6 @@
 # TableCheck CLI
 
-Created by [@zjsng-trav](https://github.com/zjsng-trav) (zjsng).
+Created by [@zjsng](https://github.com/zjsng) (zjsng).
 
 **Find Japan restaurants, inspect courses, and check a bounded shortlist before booking.**
 

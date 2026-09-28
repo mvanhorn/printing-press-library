@@ -6,11 +6,11 @@
   "display_name": "TableCheck",
   "cli_name": "tablecheck-pp-cli",
   "creator": {
-    "handle": "zjsng-trav",
+    "handle": "zjsng",
     "name": "zjsng"
   },
-  "owner": "zjsng-trav",
-  "printer": "zjsng-trav",
+  "owner": "zjsng",
+  "printer": "zjsng",
   "printer_name": "zjsng",
   "spec_path": "tablecheck-approved-spec.yaml",
   "spec_format": "internal",
