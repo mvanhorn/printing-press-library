@@ -36,7 +36,7 @@ type Client struct {
 }
 
 func NewClient(opts Options) (*Client, error) {
-	if opts.Timeout <= 0 || opts.Timeout > 15*time.Second {
+	if opts.Timeout <= 0 {
 		opts.Timeout = 15 * time.Second
 	}
 	if opts.CacheDir == "" && !opts.NoCache {
@@ -172,15 +172,15 @@ func (c *Client) Places(ctx context.Context, query, kind string, limit int) (Pla
 		return PlacesResult{}, &ArgumentError{"place limit must be between 1 and 10"}
 	}
 	types := "spot.station.airport.port"
-	maxNodes := "3"
+	maxNodes := "10"
 	switch kind {
 	case "", "all":
 		kind = "all"
 	case "station":
 		types = "station"
-		maxNodes = "10"
 	case "spot":
 		types = "spot"
+		maxNodes = "3"
 	default:
 		return PlacesResult{}, &ArgumentError{"place type must be station, spot, or all"}
 	}
@@ -228,6 +228,9 @@ func (c *Client) Routes(ctx context.Context, q Query) (RouteResult, error) {
 	var result RouteResult
 	if c.readCache("routes", u, 5*time.Minute, &result) {
 		result.Query = q
+		if err := c.restoreCachedRouteSnapshots(result); err != nil {
+			return result, err
+		}
 		c.markHit(&result.Meta)
 		return result, nil
 	}
@@ -256,7 +259,7 @@ func (c *Client) Routes(ctx context.Context, q Query) (RouteResult, error) {
 		}
 	}
 	for i := range routes {
-		snapshot := DetailResult{Meta: result.Meta, Route: &routes[i], StoredSnapshot: true, Notes: []string{"Stored public route snapshot; no network request or live availability check."}}
+		snapshot := routeSnapshot(result.Meta, &routes[i])
 		if err = c.writeCache("snapshot", routes[i].ID, snapshot); err != nil {
 			return result, err
 		}
@@ -267,6 +270,29 @@ func (c *Client) Routes(ctx context.Context, q Query) (RouteResult, error) {
 		}
 	}
 	return result, nil
+}
+func routeSnapshot(meta Metadata, route *Route) DetailResult {
+	return DetailResult{Meta: meta, Route: route, StoredSnapshot: true, Notes: []string{"Stored public route snapshot; no network request or live availability check."}}
+}
+func (c *Client) restoreCachedRouteSnapshots(result RouteResult) error {
+	for i := range result.Routes {
+		route := &result.Routes[i]
+		var stored DetailResult
+		if c.readStored("snapshot", route.ID, 0, &stored) && stored.Route != nil && stored.Route.ID == route.ID {
+			continue
+		}
+		if err := c.writeCache("snapshot", route.ID, routeSnapshot(result.Meta, route)); err != nil {
+			return err
+		}
+	}
+	if len(result.Routes) == 0 {
+		return nil
+	}
+	var latest string
+	if c.readStored("latest", "latest", 0, &latest) && latest == result.Routes[0].ID {
+		return nil
+	}
+	return c.writeCache("latest", "latest", result.Routes[0].ID)
 }
 func catalogNotes() []string {
 	return []string{"IDs and labels are source-advertised; only japan_rail_pass has representative live verification.", "Anonymous queries support one pass; multiple selections require source membership.", "Coverage labels do not determine pass-holder cost or purchase value."}

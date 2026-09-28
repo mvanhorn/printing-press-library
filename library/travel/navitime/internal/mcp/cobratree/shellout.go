@@ -196,6 +196,8 @@ var reservedStructuredArgs = map[string]bool{
 // reach.
 var blockedDestinationFlags = map[string]bool{
 	"audit-dir":    true,
+	"cache-dir":    true,
+	"cache_dir":    true, // Also block the underscore alias if flag names are normalized.
 	"db":           true,
 	"o":            true,
 	"output":       true,
@@ -212,6 +214,7 @@ var blockedDestinationFlags = map[string]bool{
 var blockedRootFlags = map[string]bool{
 	"audit-dir":    true,
 	"base-url":     true,
+	"cache-dir":    true,
 	"client":       true,
 	"config":       true,
 	"deliver":      true,

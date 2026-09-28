@@ -278,6 +278,61 @@ func TestBlockedStructuredArgsOnlyDropsInheritedRootFlags(t *testing.T) {
 	}
 }
 
+func TestCacheDirIsNotAnMCPStructuredArgument(t *testing.T) {
+	for _, localShadow := range []bool{false, true} {
+		name := "inherited root flag"
+		if localShadow {
+			name = "command-local shadow"
+		}
+		t.Run(name, func(t *testing.T) {
+			root := &cobra.Command{Use: "root"}
+			root.PersistentFlags().String("cache-dir", "", "CLI cache directory")
+			child := &cobra.Command{Use: "child"}
+			child.Flags().Int("limit", 3, "per-command result limit")
+			if localShadow {
+				child.Flags().String("cache-dir", "", "command-local cache directory")
+			}
+			root.AddCommand(child)
+
+			blocked := blockedStructuredArgsForCommand(child)
+			allowed := allowedStructuredArgsForCommand(child, blocked, nil, false)
+			tool := mcplib.NewTool("child", toolOptionsForFlags(child, blocked, nil)...)
+			if _, ok := tool.InputSchema.Properties["limit"]; !ok || !allowed["limit"] {
+				t.Fatal("ordinary command-local limit must remain available")
+			}
+
+			for _, key := range []string{"cache-dir", "cache_dir"} {
+				t.Run(key, func(t *testing.T) {
+					if !blocked[key] {
+						t.Fatalf("%q is not blocked", key)
+					}
+					if _, ok := tool.InputSchema.Properties[key]; ok {
+						t.Fatalf("%q appeared in MCP schema", key)
+					}
+					if allowed[key] {
+						t.Fatalf("%q is accepted as a structured parameter", key)
+					}
+					arguments := map[string]any{key: "/tmp/mcp-selected-cache"}
+					if got := cliArgsFromMCP(arguments, cliFlagBlockedArgs(blocked, nil)); len(got) != 0 {
+						t.Fatalf("%q was forwarded to CLI argv: %v", key, got)
+					}
+					handler := shellOutToCLI(
+						func() (string, error) { return filepath.Join(t.TempDir(), "must-not-run"), nil },
+						[]string{"child"}, cliFlagBlockedArgs(blocked, nil), allowed, nil, true, nil,
+					)
+					result, err := handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: arguments}})
+					if err != nil {
+						t.Fatalf("handler transport error: %v", err)
+					}
+					if !result.IsError || !strings.Contains(toolResultText(result), `unknown MCP parameter "`+key+`"`) {
+						t.Fatalf("%q was not refused before CLI execution: %s", key, toolResultText(result))
+					}
+				})
+			}
+		})
+	}
+}
+
 // TestArgsFieldRejectsFlagLikeTokens covers the free-form "args" string
 // half of the control-plane-injection guard. shellOutToCLI is a closure
 // that requires a real binary on PATH; we exercise the same guard logic

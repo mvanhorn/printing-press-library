@@ -1,6 +1,6 @@
 # Verification
 
-Verified on 2026-09-27 UTC (2026-09-28 in Japan), using future journeys dated 2026-09-29 and 2026-10-01.
+Initial verification ran on 2026-09-27 UTC (2026-09-28 in Japan), using future journeys dated 2026-09-29 and 2026-10-01. Publication review fixes were reverified on 2026-09-28 UTC; the measurements below use the corrected source and the 2026-10-01 journey.
 
 - Final full Printing Press live matrix: **56/56 mandatory checks passed**, zero failures; 50 framework checks skipped/unverified. All six domain leaves passed happy-path and JSON checks. Three help-only parent groups were correctly excluded, reducing the previous 68-check denominator by 12.
 - Full Go tests, vet and build passed, including deterministic overnight dates, fare groups/seat alternatives, ambiguity, cache behavior and seven-tool MCP registration. Runtime mock verification: 7/7; scorecard: 85/A.
@@ -15,15 +15,15 @@ Single observations on macOS arm64; wall time includes process startup. Peak RSS
 
 | Command case | Output bytes | GETs | Wall ms | Peak RSS MiB |
 |---|---:|---:|---:|---:|
-| lookup-japanese-cold | 3,177 | 1 | 1568.0 | 29.95 |
-| lookup-japanese-hot | 3,183 | 0 | 17.6 | 25.05 |
-| route-depart-cold | 4,984 | 1 | 3932.7 | 33.45 |
-| route-depart-hot | 4,990 | 0 | 31.2 | 25.27 |
-| route-stored-detail | 3,248 | 0 | 14.2 | 25.19 |
-| route-projected-hot | 214 | 0 | 28.2 | 25.81 |
-| route-no-cache | 5,032 | 1 | 3565.7 | 33.50 |
+| lookup-japanese-cold | 3,177 | 1 | 214.2 | 30.14 |
+| lookup-japanese-hot | 3,183 | 0 | 22.7 | 25.03 |
+| route-depart-cold | 4,984 | 1 | 2172.7 | 33.45 |
+| route-depart-hot | 4,990 | 0 | 22.4 | 25.94 |
+| route-stored-detail | 3,248 | 0 | 17.6 | 25.28 |
+| route-projected-hot | 214 | 0 | 15.4 | 26.80 |
+| route-no-cache | 5,032 | 1 | 812.2 | 32.92 |
 
-Final confirmation passed all seven cases and 138 assertions with three GETs and zero retries. Cache hits, stored detail and projection made no source requests. Projection reduced the measured route summary from 4,984 to 214 bytes. The no-cache case also passed, with zero cache hits/writes and unchanged cache contents; raw cache-read attempt counters are not exposed. These fresh results are separate from the retained historical failed matrix.
+Final confirmation passed all seven cases and 138 assertions with three GETs and zero retries. A separate uncached mixed-type lookup passed 20 assertions with one GET and returned ten station/spot candidates using the source’s `maxNodes=10` parameter. Cache hits, stored detail and projection made no source requests. Projection reduced the measured route summary from 4,984 to 214 bytes. The no-cache case also passed, with zero cache hits/writes and unchanged cache contents; raw cache-read attempt counters are not exposed. These fresh results are separate from the retained historical failed matrix.
 
 ## Reproduce
 

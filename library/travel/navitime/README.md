@@ -82,7 +82,7 @@ Pass filtering may change services while the website still displays the normal c
 
 ## Cache and efficiency
 
-Source fetches are capped at 15 seconds and 8 MiB, with one in-flight request per client and at most one bounded transient retry. Route query cache TTL is five minutes; lookup and pass-catalogue TTL is 24 hours. `--refresh` bypasses reads and replaces cached results; `--no-cache` bypasses reads and writes. `NAVITIME_CACHE_DIR` or `--cache-dir` isolates cache files. Snapshot details retain their fetch time; they are historical observations, not automatic refreshes.
+Source fetches share the requested `--timeout` budget across attempts (CLI default: one minute) and are capped at 8 MiB, with one in-flight request per client and at most one bounded transient retry. Route query cache TTL is five minutes; lookup and pass-catalogue TTL is 24 hours. `--refresh` bypasses reads and replaces cached results; `--no-cache` bypasses reads and writes. `NAVITIME_CACHE_DIR` or `--cache-dir` isolates cache files. `routes show latest` follows the most recent successful route search, including cache hits. Snapshot details retain their fetch time; they are historical observations, not automatic refreshes.
 
 `passes list` reuses the catalogue captured with route results. When a refresh is needed, it makes one reference Tokyo–Kyoto route request because the route entry page is less reliably accessible. Its source URL and request count make that request explicit. Lookup and route endpoints expose no verified remote pagination; the CLI bounds their returned sets. Pass-catalogue paging is local.
 

@@ -2,7 +2,7 @@
   "platform": "macOS arm64",
   "japan_journey_date": "2026-10-01",
   "observations": "Single samples; wall time includes process startup. Peak RSS measured externally by /usr/bin/time -l. No statistical latency guarantee.",
-  "source_fingerprint": "d68d3f3e2e841004cd6b7408efa58c6b8424c3713613235809e575c7cec7837c",
+  "source_fingerprint": "f7a8e06d26ada3948ace5ab6470a2f882aed0130a2fdbfdd8c243f2a949ec76a",
   "cases_passed": 7,
   "assertions_passed": 138,
   "requests": 3,
@@ -14,9 +14,9 @@
       "output_bytes": 3177,
       "request_count": 1,
       "cache_hits": 0,
-      "latency_ms": 1546.925,
-      "wall_ms": 1568.04,
-      "peak_rss_bytes": 31408128,
+      "latency_ms": 195.652,
+      "wall_ms": 214.227,
+      "peak_rss_bytes": 31604736,
       "rss_source_unit": "bytes",
       "metrics": {
         "request_count": 1,
@@ -24,27 +24,18 @@
         "cache_writes": 1,
         "retries": 0,
         "bytes_received": 1272,
-        "latency_ms": 1546.925,
+        "latency_ms": 195.652,
         "output_bytes": 3177
-      },
-      "args": [
-        "places",
-        "search",
-        "大久保",
-        "--type",
-        "station",
-        "--limit",
-        "5"
-      ]
+      }
     },
     {
       "case": "lookup-japanese-hot",
       "output_bytes": 3183,
       "request_count": 0,
       "cache_hits": 1,
-      "latency_ms": 0.314,
-      "wall_ms": 17.606,
-      "peak_rss_bytes": 26263552,
+      "latency_ms": 0.305,
+      "wall_ms": 22.711,
+      "peak_rss_bytes": 26247168,
       "rss_source_unit": "bytes",
       "metrics": {
         "request_count": 0,
@@ -52,26 +43,17 @@
         "cache_writes": 0,
         "retries": 0,
         "bytes_received": 0,
-        "latency_ms": 0.314,
+        "latency_ms": 0.305,
         "output_bytes": 3183
-      },
-      "args": [
-        "places",
-        "search",
-        "大久保",
-        "--type",
-        "station",
-        "--limit",
-        "5"
-      ]
+      }
     },
     {
       "case": "route-depart-cold",
       "output_bytes": 4984,
       "request_count": 1,
       "cache_hits": 0,
-      "latency_ms": 3916.875,
-      "wall_ms": 3932.68,
+      "latency_ms": 2150.906,
+      "wall_ms": 2172.672,
       "peak_rss_bytes": 35078144,
       "rss_source_unit": "bytes",
       "metrics": {
@@ -79,29 +61,19 @@
         "cache_hits": 0,
         "cache_writes": 8,
         "retries": 0,
-        "bytes_received": 391592,
-        "latency_ms": 3916.875,
+        "bytes_received": 391577,
+        "latency_ms": 2150.906,
         "output_bytes": 4984
-      },
-      "args": [
-        "routes",
-        "search",
-        "--from",
-        "station:00006668",
-        "--to",
-        "station:00001756",
-        "--depart-at",
-        "2026-10-01T09:00"
-      ]
+      }
     },
     {
       "case": "route-depart-hot",
       "output_bytes": 4990,
       "request_count": 0,
       "cache_hits": 1,
-      "latency_ms": 0.707,
-      "wall_ms": 31.243,
-      "peak_rss_bytes": 26492928,
+      "latency_ms": 1.081,
+      "wall_ms": 22.361,
+      "peak_rss_bytes": 27197440,
       "rss_source_unit": "bytes",
       "metrics": {
         "request_count": 0,
@@ -109,28 +81,18 @@
         "cache_writes": 0,
         "retries": 0,
         "bytes_received": 0,
-        "latency_ms": 0.707,
+        "latency_ms": 1.081,
         "output_bytes": 4990
-      },
-      "args": [
-        "routes",
-        "search",
-        "--from",
-        "station:00006668",
-        "--to",
-        "station:00001756",
-        "--depart-at",
-        "2026-10-01T09:00"
-      ]
+      }
     },
     {
       "case": "route-stored-detail",
       "output_bytes": 3248,
       "request_count": 0,
       "cache_hits": 1,
-      "latency_ms": 0.313,
-      "wall_ms": 14.157,
-      "peak_rss_bytes": 26411008,
+      "latency_ms": 0.324,
+      "wall_ms": 17.583,
+      "peak_rss_bytes": 26509312,
       "rss_source_unit": "bytes",
       "metrics": {
         "request_count": 0,
@@ -138,23 +100,18 @@
         "cache_writes": 0,
         "retries": 0,
         "bytes_received": 0,
-        "latency_ms": 0.313,
+        "latency_ms": 0.324,
         "output_bytes": 3248
-      },
-      "args": [
-        "routes",
-        "show",
-        "local_473968539acc07c2320d8076"
-      ]
+      }
     },
     {
       "case": "route-projected-hot",
       "output_bytes": 214,
       "request_count": 0,
       "cache_hits": 1,
-      "latency_ms": 1.084,
-      "wall_ms": 28.178,
-      "peak_rss_bytes": 27066368,
+      "latency_ms": 1.456,
+      "wall_ms": 15.437,
+      "peak_rss_bytes": 28098560,
       "rss_source_unit": "bytes",
       "metrics": {
         "request_count": 0,
@@ -162,52 +119,29 @@
         "cache_writes": 0,
         "retries": 0,
         "bytes_received": 0,
-        "latency_ms": 1.084,
+        "latency_ms": 1.456,
         "output_bytes": 214
-      },
-      "args": [
-        "routes",
-        "search",
-        "--from",
-        "station:00006668",
-        "--to",
-        "station:00001756",
-        "--depart-at",
-        "2026-10-01T09:00",
-        "--agent",
-        "--fields",
-        "routes.id,routes.fare.total_jpy"
-      ]
+      }
     },
     {
       "case": "route-no-cache",
       "output_bytes": 5032,
       "request_count": 1,
       "cache_hits": 0,
-      "latency_ms": 3537.946,
-      "wall_ms": 3565.662,
-      "peak_rss_bytes": 35127296,
+      "latency_ms": 795.748,
+      "wall_ms": 812.239,
+      "peak_rss_bytes": 34521088,
       "rss_source_unit": "bytes",
       "metrics": {
         "request_count": 1,
         "cache_hits": 0,
         "cache_writes": 0,
         "retries": 0,
-        "bytes_received": 391592,
-        "latency_ms": 3537.946,
+        "bytes_received": 391598,
+        "latency_ms": 795.748,
         "output_bytes": 5032
-      },
-      "args": [
-        "routes",
-        "search",
-        "--from",
-        "station:00006668",
-        "--to",
-        "station:00001756",
-        "--depart-at",
-        "2026-10-01T09:00",
-        "--no-cache"
-      ]
+      }
     }
-  ]
+  ],
+  "measured_at_utc": "2026-09-28T02:35:57.990222+00:00"
 }
