@@ -33,6 +33,18 @@ func TestTenkiSelectorUsesRendererMatchSemantics(t *testing.T) {
 			wantError: true,
 		},
 		{
+			name:      "whitespace-only selector",
+			places:    []tenki.Place{{Name: "千代田区", URL: tenkiTokyo}},
+			selector:  "   ",
+			wantError: true,
+		},
+		{
+			name:      "comma-only selector",
+			places:    []tenki.Place{{Name: "千代田区", URL: tenkiTokyo}},
+			selector:  " , , ",
+			wantError: true,
+		},
+		{
 			name:     "list envelope shorthand",
 			places:   []tenki.Place{{Name: "千代田区", URL: tenkiTokyo}},
 			selector: "name",

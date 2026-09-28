@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "ff5e0b70fbd336253baf00ca44efe27914fe5f2375a9e07cc5c820cf87e8e343",
+  "source_fingerprint": "fc13a062c7b4774da4f0eba2e31e2582a8c1605d50ea1da33ded2573251411fa",
   "source_files": {
     "cmd/tenki-pp-cli/main.go": "5fe3838babb491500ffa0f75c695be2dc3b808ec654de1f44b4fa683b3c33040",
     "cmd/tenki-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -46,10 +46,10 @@
     "internal/cli/tenki_commands_test.go": "c5912cda246940c71ac0f5c525e61328d92f1e3e86453047b93ec319b5510682",
     "internal/cli/tenki_compare.go": "75ceed5ba4dc45b8fd8f56bba35c3b863a80f9e3e1aa7ff1f8cdeece99f96324",
     "internal/cli/tenki_compare_test.go": "e390e2093f51203627858cbcb8db951ef1ca296a969d202dce65d72aa7260026",
-    "internal/cli/tenki_helpers.go": "e3071928d03b17f68ffa5ac53e5f913a5447ba2c1b53bd9aec0d3d6ca86b0249",
+    "internal/cli/tenki_helpers.go": "96a3fe908fee8278a42c8a19585b56a3596b8215b7691709ff469044e90df4d4",
     "internal/cli/tenki_output_regression_test.go": "2379bfe3fa4efc3e424e74482ebd7661c77688b9186165369aafa8b20379afe9",
     "internal/cli/tenki_seasonal_year_test.go": "0c306aa07f2585dd424b1d6d69cbc365a8b797bffc61db30eddd52ee809861d5",
-    "internal/cli/tenki_selector_regression_test.go": "f236bad127a35d34104649678c7817a7a61bc14269e549502bf6d3d74be13ca4",
+    "internal/cli/tenki_selector_regression_test.go": "0e0d3f57e3ffab22c7b2d91a919351e37730245e03db46e728a9a581253e7433",
     "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
     "internal/cli/which.go": "b1b062c165fbb3bcdccbc6f6366059317cdfc0ff858b872ea871f57ce97f76b0",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",

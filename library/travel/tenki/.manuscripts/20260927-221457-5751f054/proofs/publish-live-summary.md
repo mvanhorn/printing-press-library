@@ -9,3 +9,7 @@ The full live gate reran on 2026-09-28 Asia/Tokyo against the repaired source: 5
 ## After selector correction on the replacement PR
 
 Full live gate: 58 passed, zero failed, 47 guarded/inapplicable skips; completed 2026-09-28T02:20:32Z. Source fingerprint: `ff5e0b70fbd336253baf00ca44efe27914fe5f2375a9e07cc5c820cf87e8e343`. All thirteen canonical publication checks passed.
+
+## After blank-selector regression restoration
+
+Full live gate: 58 passed, zero failed, 47 guarded/inapplicable skips; completed 2026-09-28T02:30:12.059532+00:00. Source fingerprint: `fc13a062c7b4774da4f0eba2e31e2582a8c1605d50ea1da33ded2573251411fa`. All thirteen canonical publication checks passed.

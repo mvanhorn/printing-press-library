@@ -4,7 +4,7 @@ Validated the packaged checkout with module `github.com/mvanhorn/printing-press-
 
 - Canonical `publish validate`: PASS for all thirteen checks, including manifest, source-bound Phase 5 evidence, module path, tidy, reachable vulnerability scan, vet, build, help/version, skill recipes, patches and manuscripts.
 - Repository-owned skill verifier: all five checks passed; 21 recipes; zero findings.
-- `go test -count=1 -json ./...`: 723 passing test/subtest events (369 top-level tests), 11 packages passed, zero failures. Two intentional test skips cover rollback-journal behavior under the WAL profile and a Windows-only permission retry; five additional packages have no tests.
+- `go test -count=1 -json ./...`: 725 passing test/subtest events (369 top-level tests), 11 packages passed, zero failures. Two intentional test skips cover rollback-journal behavior under the WAL profile and a Windows-only permission retry; five additional packages have no tests.
 - `go build ./...` and `go vet ./...`: PASS.
 - `govulncheck@v1.3.0 ./...`: no vulnerabilities found.
 - Fresh full live dogfood: 58 executed checks passed, zero failed, 47 inapplicable or guarded framework probes skipped. Reran after the review fixes on 2026-09-28 Asia/Tokyo. The tool wrote the source-bound `phase5-acceptance.json`; no acceptance fields were manually authored.
@@ -29,4 +29,6 @@ At the creator's request, publication attribution and fork ownership were correc
 
 The replacement PR review found that preliminary validation could accept an unanchored metadata selector that the renderer rejected, writing a full JSON response alongside the error. The preliminary guard now uses the renderer's own matching rules; invalid selectors exit 2 before stdout. Fully qualified metadata paths, supported list-envelope shorthand and anchored empty arrays remain supported; unrelated empty arrays cannot hide total misses. The regression reproduced the old full-output error and passes with the fix.
 
-The final source passed 723 test/subtest events (369 top-level tests, 11 tested packages), build and vet, all thirteen canonical publication checks, and a fresh full live gate (58 executed checks passed, zero failed, 47 guarded/inapplicable skips), completing at 2026-09-28T02:20:32Z. The current source-bound acceptance marker is authoritative.
+That source passed 723 test/subtest events (369 top-level tests, 11 tested packages), build and vet, all thirteen canonical publication checks, and a fresh full live gate (58 executed checks passed, zero failed, 47 guarded/inapplicable skips), completing at 2026-09-28T02:20:32Z. The current source-bound acceptance marker is authoritative.
+
+A subsequent review caught nonempty selector lists containing only whitespace/commas being treated as no selection. The guard again rejects them with exit 2 and empty stdout; two regression cases cover this restoration. The final source passed 725 test/subtest events (369 top-level, 11 packages), build/vet, all thirteen publication checks and a fresh full live gate (58 passed, zero failed, 47 guarded/inapplicable skips), completed at 2026-09-28T02:30:12.059532+00:00.

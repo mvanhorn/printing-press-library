@@ -172,13 +172,11 @@ func printTenki(cmd *cobra.Command, flags *rootFlags, value any, sources ...tenk
 			return err
 		}
 		matched := false
-		requested := 0
 		for _, field := range strings.Split(flags.selectFields, ",") {
 			field = strings.TrimSpace(field)
 			if field == "" {
 				continue
 			}
-			requested++
 			path := strings.Split(field, ".")
 			for i := range path {
 				path[i] = strings.ToLower(path[i])
@@ -190,7 +188,7 @@ func printTenki(cmd *cobra.Command, flags *rootFlags, value any, sources ...tenk
 				break
 			}
 		}
-		if requested > 0 && !matched {
+		if !matched {
 			return usageErr(fmt.Errorf("--select %q matched no fields; inspect unprojected output or --help", flags.selectFields))
 		}
 	}

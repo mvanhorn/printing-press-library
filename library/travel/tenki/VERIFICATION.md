@@ -12,7 +12,7 @@ Verified locally on 2026-09-28 (Asia/Tokyo). These are dated results from the or
 
 ## Publication checks
 
-The packaged public-module checkout passed 723 test/subtest events with zero failures, all thirteen canonical publish checks, and the repository-owned skill verifier (21 recipes). A fresh full live gate passed all 58 executed checks. [Publication validation](.manuscripts/20260927-221457-5751f054/proofs/publish-validation.md) records the final evidence and the remaining generated-framework scanner findings.
+The packaged public-module checkout passed 725 test/subtest events with zero failures, all thirteen canonical publish checks, and the repository-owned skill verifier (21 recipes). A fresh full live gate passed all 58 executed checks. [Publication validation](.manuscripts/20260927-221457-5751f054/proofs/publish-validation.md) records the final evidence and the remaining generated-framework scanner findings.
 
 ## Efficiency
 
