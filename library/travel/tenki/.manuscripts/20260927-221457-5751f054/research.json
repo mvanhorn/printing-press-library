@@ -1,0 +1,134 @@
+{
+  "api_name": "tenki",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "algon-320/tenki",
+      "url": "https://github.com/algon-320/tenki",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rrencanno/tenki_scraper",
+      "url": "https://github.com/rrencanno/tenki_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:30:16.782078Z",
+  "novel_features": [
+    {
+      "name": "Criteria matrix",
+      "command": "compare",
+      "description": "Compare selected Japan destinations and dates against explicit weather thresholds.",
+      "rationale": "Use municipal daily and hourly records with source evidence.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --days 2 --max-pop 40 --agent",
+      "why_it_matters": "Compare selected Japan destinations and dates against explicit weather thresholds.",
+      "group": "Evidence-based planning"
+    },
+    {
+      "name": "Activity window",
+      "command": "compare",
+      "description": "Evaluate a specific JST outing window with complete hourly evidence.",
+      "rationale": "Use preceding-hour rain periods and instantaneous temperature/wind.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --hours 09:00-17:00 --max-pop 40 --agent",
+      "why_it_matters": "Evaluate a specific JST outing window with complete hourly evidence.",
+      "group": "Evidence-based planning"
+    },
+    {
+      "name": "Seasonal weather pairing",
+      "command": "compare",
+      "description": "Pair seasonal spot status with its actual forecast municipality.",
+      "rationale": "Join independent seasonal and weather products without laundering years or timestamps.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/kouyou/4/19/30314.html --season kouyou --max-pop 40 --agent",
+      "why_it_matters": "Pair seasonal spot status with its actual forecast municipality.",
+      "group": "Evidence-based planning"
+    },
+    {
+      "name": "Evidence coverage",
+      "command": "compare",
+      "description": "Explain missing, stale, unsupported or mismatched evidence before recommending.",
+      "rationale": "Validate coverage and reference level rather than silently filling gaps.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --days 14 --max-wind 8 --agent",
+      "why_it_matters": "Explain missing, stale, unsupported or mismatched evidence before recommending.",
+      "group": "Evidence-based planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Criteria matrix",
+      "command": "compare",
+      "description": "Compare selected Japan destinations and dates against explicit weather thresholds.",
+      "rationale": "Use municipal daily and hourly records with source evidence.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --days 2 --max-pop 40 --agent",
+      "why_it_matters": "Compare selected Japan destinations and dates against explicit weather thresholds.",
+      "group": "Evidence-based planning"
+    },
+    {
+      "name": "Activity window",
+      "command": "compare",
+      "description": "Evaluate a specific JST outing window with complete hourly evidence.",
+      "rationale": "Use preceding-hour rain periods and instantaneous temperature/wind.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --hours 09:00-17:00 --max-pop 40 --agent",
+      "why_it_matters": "Evaluate a specific JST outing window with complete hourly evidence.",
+      "group": "Evidence-based planning"
+    },
+    {
+      "name": "Seasonal weather pairing",
+      "command": "compare",
+      "description": "Pair seasonal spot status with its actual forecast municipality.",
+      "rationale": "Join independent seasonal and weather products without laundering years or timestamps.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/kouyou/4/19/30314.html --season kouyou --max-pop 40 --agent",
+      "why_it_matters": "Pair seasonal spot status with its actual forecast municipality.",
+      "group": "Evidence-based planning"
+    },
+    {
+      "name": "Evidence coverage",
+      "command": "compare",
+      "description": "Explain missing, stale, unsupported or mismatched evidence before recommending.",
+      "rationale": "Validate coverage and reference level rather than silently filling gaps.",
+      "example": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --days 14 --max-wind 8 --agent",
+      "why_it_matters": "Explain missing, stale, unsupported or mismatched evidence before recommending.",
+      "group": "Evidence-based planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "tenki.jp",
+    "headline": "Choose Japan sightseeing dates with traceable weather and seasonal evidence.",
+    "value_prop": "Resolve supported places, inspect bounded forecasts, and compare explicit criteria while keeping source time, forecast level and seasonal year visible.",
+    "auth_narrative": "No credentials required for public HTML pages. Access is undocumented and subject to tenki.jp terms; this is a local tool, not a supported public API.",
+    "quickstart": [
+      {
+        "command": "tenki-pp-cli places search --query 千代田区 --limit 3",
+        "comment": "Resolve bounded candidates and keep ward identity."
+      },
+      {
+        "command": "tenki-pp-cli forecast daily --place https://tenki.jp/forecast/3/16/4410/13101/ --days 3",
+        "comment": "Inspect source dates, units and freshness."
+      },
+      {
+        "command": "tenki-pp-cli compare --place https://tenki.jp/forecast/3/16/4410/13101/ --days 2 --max-pop 40",
+        "comment": "Evaluate explicit thresholds with source evidence."
+      }
+    ],
+    "when_to_use": "Use for Japan outdoor sightseeing date and destination comparisons from tenki.jp. Inspect current seasonal conditions and forecast reference locations before recommending outings.",
+    "anti_triggers": [
+      "Summit or route safety certification",
+      "Weather beyond the returned forecast horizon",
+      "Unpublished future-year seasonal forecasts"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+# Each command keeps cache writes inside the verification checkout.
+# --agent supplies the meta/results envelope required by these assertions.
+workflows:
+  - name: resolve-municipality-outlook-and-compare
+    primary: true
+    steps:
+      - command: places search --query 千代田区 --kind municipality --limit 1 --data-source live --cache-dir .workflow-tenki-cache --agent
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+        extract:
+          place: "results.places[0].url"
+      - command: forecast daily --place ${place} --days 2 --data-source live --cache-dir .workflow-tenki-cache --agent
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+      - command: compare --place ${place} --days 2 --max-pop 40 --data-source live --cache-dir .workflow-tenki-cache --agent
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]

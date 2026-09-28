@@ -1,0 +1,3 @@
+PASS — root README/SKILL/AGENTS correctness audit
+
+Current help/source, canonical local prerequisite block, approved manifest, verified four-feature set and live outputs agree. Eight product leaves have real examples and bounds; no unsupported CRUD/auth/publishing/SQLite claims. Local build and cache paths are accurate. Unsupported seasonal years, leisure directory scope, mountain levels, partial forecast dates and per-field provenance are explicit. Source module/criteria/CLI ownership and preserved registration hook match implementation. Removed generated exclusivity boilerplate in both documents. No unresolved finding.

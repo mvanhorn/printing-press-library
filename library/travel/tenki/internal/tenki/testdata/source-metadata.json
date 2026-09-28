@@ -1,0 +1,100 @@
+[
+  {
+    "fixture": "daily-20260927.html",
+    "url": "https://tenki.jp/forecast/3/16/4410/13101/10days.html",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.192555+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "hourly-20260927.html",
+    "url": "https://tenki.jp/forecast/3/16/4410/13101/1hour.html",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.194106+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "fuji-20260927.html",
+    "url": "https://tenki.jp/mountain/famous100/5/25/150.html",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.193048+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "foliage-murodo-20260927.html",
+    "url": "https://tenki.jp/kouyou/4/19/30314.html",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.196314+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "foliage-index-20260927.html",
+    "url": "https://tenki.jp/kouyou/",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.197014+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "foliage-search-20260927.html",
+    "url": "https://tenki.jp/kouyou/search/?search_type=venue&keyword=%E7%AB%8B%E5%B1%B1",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:46:42.777828+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "sakura-ueno-ended-20260927.html",
+    "url": "https://tenki.jp/sakura/3/16/54401.html",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:39:13.140574+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "sakura-index-ended-20260927.html",
+    "url": "https://tenki.jp/sakura/",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.197819+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "municipality-search-20260927.html",
+    "url": "https://tenki.jp/search/?keyword=%E4%BA%AC%E9%83%BD",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.197437+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "mountain-index-20260927.html",
+    "url": "https://tenki.jp/mountain/",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.195671+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "leisure-kyoto-directory-20260927.html",
+    "url": "https://tenki.jp/leisure/6/29/",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:41:01.352664+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "leisure-index-20260927.html",
+    "url": "https://tenki.jp/leisure/",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:26:48.193599+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "leisure-kinkaku-20260927.html",
+    "url": "https://tenki.jp/leisure/6/29/189/7327/",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-27T23:57:37.792911+09:00",
+    "constructed": false
+  },
+  {
+    "fixture": "municipality-kyoto-city-search-20260927.html",
+    "url": "https://tenki.jp/search/?keyword=%E4%BA%AC%E9%83%BD%E5%B8%82",
+    "source_snapshot_date": "2026-09-27",
+    "retrieved_at": "2026-09-28T00:04:16.741334+09:00",
+    "constructed": false
+  }
+]

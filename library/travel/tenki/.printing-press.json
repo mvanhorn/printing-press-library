@@ -1,0 +1,87 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T16:04:38.346736Z",
+  "printing_press_version": "4.32.5+local.verifier-fixes",
+  "api_name": "tenki",
+  "display_name": "tenki.jp",
+  "cli_name": "tenki-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "tenki-build-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:cc31981c1311734f5d1e8787df0ba67f770ba1c926c8bb8cd033ba45d182803b",
+  "run_id": "20260927-221457-5751f054",
+  "category": "travel",
+  "description": "Choose Japan sightseeing dates with traceable weather and seasonal evidence.",
+  "mcp_binary": "tenki-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Criteria matrix",
+      "command": "compare",
+      "description": "Compare selected Japan destinations and dates against explicit weather thresholds."
+    },
+    {
+      "name": "Activity window",
+      "command": "compare",
+      "description": "Evaluate a specific JST outing window with complete hourly evidence."
+    },
+    {
+      "name": "Seasonal weather pairing",
+      "command": "compare",
+      "description": "Pair seasonal spot status with its actual forecast municipality."
+    },
+    {
+      "name": "Evidence coverage",
+      "command": "compare",
+      "description": "Explain missing, stale, unsupported or mismatched evidence before recommending."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Criteria matrix",
+      "command": "compare",
+      "description": "Compare selected Japan destinations and dates against explicit weather thresholds."
+    },
+    {
+      "name": "Activity window",
+      "command": "compare",
+      "description": "Evaluate a specific JST outing window with complete hourly evidence."
+    },
+    {
+      "name": "Seasonal weather pairing",
+      "command": "compare",
+      "description": "Pair seasonal spot status with its actual forecast municipality."
+    },
+    {
+      "name": "Evidence coverage",
+      "command": "compare",
+      "description": "Explain missing, stale, unsupported or mismatched evidence before recommending."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 9,
+    "total": 9,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "custom_findings": 0,
+  "generated_findings": 22,
+  "findings": [
+    {
+      "file": "internal/client/client.go",
+      "line": "454",
+      "rule": "G119",
+      "severity": "HIGH",
+      "assessment": "Redirect code checks origin before re-stamping; public product client is separate and sends no auth.",
+      "template_candidate": "internal/generator/templates/client.go.tmpl"
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule": "G101",
+      "severity": "HIGH",
+      "assessment": "Enum/environment-variable names, not credentials.",
+      "template_candidate": "internal/generator/templates/platform_gate.go.tmpl"
+    },
+    {
+      "file": "cmd/tenki-pp-mcp/main.go",
+      "line": "36",
+      "rule": "G101",
+      "severity": "HIGH",
+      "assessment": "Enum/environment-variable names, not credentials.",
+      "template_candidate": "internal/generator/templates/main_mcp.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3296-3299",
+      "rule": "G201",
+      "severity": "MEDIUM",
+      "assessment": "Identifiers are validated and values parameterized before interpolation.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2993-2996",
+      "rule": "G201",
+      "severity": "MEDIUM",
+      "assessment": "Identifiers are validated and values parameterized before interpolation.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1037",
+      "rule": "G201",
+      "severity": "MEDIUM",
+      "assessment": "Identifiers are validated and values parameterized before interpolation.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1013",
+      "rule": "G201",
+      "severity": "MEDIUM",
+      "assessment": "Identifiers are validated and values parameterized before interpolation.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule": "G202",
+      "severity": "MEDIUM",
+      "assessment": "VACUUM target is a locally chosen path with single quotes escaped.",
+      "template_candidate": "internal/generator/templates/platform_migration.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "249",
+      "rule": "G304",
+      "severity": "MEDIUM",
+      "assessment": "Intended user-configured local config/cache/state file access; no remote path source.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule": "G304",
+      "severity": "MEDIUM",
+      "assessment": "Intended user-configured local config/cache/state file access; no remote path source.",
+      "template_candidate": "internal/generator/templates/platform_ratelimit.go.tmpl"
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule": "G304",
+      "severity": "MEDIUM",
+      "assessment": "Intended user-configured local config/cache/state file access; no remote path source.",
+      "template_candidate": "internal/generator/templates/platform_profile.go.tmpl"
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "105",
+      "rule": "G304",
+      "severity": "MEDIUM",
+      "assessment": "Intended user-configured local config/cache/state file access; no remote path source.",
+      "template_candidate": "internal/generator/templates/config.go.tmpl"
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule": "G304",
+      "severity": "MEDIUM",
+      "assessment": "Intended user-configured local config/cache/state file access; no remote path source.",
+      "template_candidate": "internal/generator/templates/feedback.go.tmpl"
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule": "G304",
+      "severity": "MEDIUM",
+      "assessment": "Intended user-configured local config/cache/state file access; no remote path source.",
+      "template_candidate": "internal/generator/templates/feedback.go.tmpl"
+    },
+    {
+      "file": "cmd/tenki-pp-mcp/main.go",
+      "line": "83-86",
+      "rule": "G112",
+      "severity": "MEDIUM",
+      "assessment": "Real template limitation: optional authenticated MCP HTTP server omits ReadHeaderTimeout. No HTTP server launched; CLI delivery unaffected.",
+      "template_candidate": "internal/generator/templates/main_mcp.go.tmpl"
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule": "G302",
+      "severity": "MEDIUM",
+      "assessment": "These operations set directory permissions to0700; file permissions remain0600.",
+      "template_candidate": "internal/generator/templates/platform_profile.go.tmpl"
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule": "G302",
+      "severity": "MEDIUM",
+      "assessment": "These operations set directory permissions to0700; file permissions remain0600.",
+      "template_candidate": "internal/generator/templates/cliutil_testenv.go.tmpl"
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule": "G302",
+      "severity": "MEDIUM",
+      "assessment": "These operations set directory permissions to0700; file permissions remain0600.",
+      "template_candidate": "internal/generator/templates/cliutil_testenv_sandbox_unix.go.tmpl"
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "800",
+      "rule": "G302",
+      "severity": "MEDIUM",
+      "assessment": "These operations set directory permissions to0700; file permissions remain0600.",
+      "template_candidate": "internal/generator/templates/client.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3084",
+      "rule": "G104",
+      "severity": "LOW",
+      "assessment": "Generated optional cursor/debug fallback ignores errors; not used by the product page cache.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2827",
+      "rule": "G104",
+      "severity": "LOW",
+      "assessment": "Generated optional cursor/debug fallback ignores errors; not used by the product page cache.",
+      "template_candidate": "internal/generator/templates/store.go.tmpl"
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1504",
+      "rule": "G104",
+      "severity": "LOW",
+      "assessment": "Generated optional cursor/debug fallback ignores errors; not used by the product page cache.",
+      "template_candidate": "internal/generator/templates/client.go.tmpl"
+    }
+  ]
+}

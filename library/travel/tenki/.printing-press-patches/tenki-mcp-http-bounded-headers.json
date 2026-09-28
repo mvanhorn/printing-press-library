@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "tenki-mcp-http-bounded-headers",
+  "applied_at": "2026-09-27T16:17:16.896731+00:00",
+  "base_run_id": "20260927-221457-5751f054",
+  "base_printing_press_version": "4.32.5+local.verifier-fixes",
+  "summary": "The optional MCP HTTP listener bounds request header acquisition to ten seconds.",
+  "reason": "Slow incomplete headers can otherwise occupy the authenticated HTTP listener indefinitely.",
+  "files": [
+    "cmd/tenki-pp-mcp/main.go"
+  ],
+  "call_sites": [
+    "ReadHeaderTimeout"
+  ]
+}
