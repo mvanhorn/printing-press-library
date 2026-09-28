@@ -75,8 +75,15 @@ func dedupeChoices(rows []domain.Choice) []domain.Choice {
 }
 
 func (c *Client) Lookup(ctx context.Context, q, kind string) ([]domain.Choice, error) {
+	rows, _, e := c.lookup(ctx, q, kind)
+	return rows, e
+}
+
+// lookup reports whether suggestion evidence was available as well as the
+// choices, so a bundled-only local list cannot imply a unique free-text area.
+func (c *Client) lookup(ctx context.Context, q, kind string) ([]domain.Choice, bool, error) {
 	if kind != "" && kind != "area" && kind != "station" && kind != "prefecture" {
-		return nil, fail("usage", "--kind must be area, station, or prefecture")
+		return nil, false, fail("usage", "--kind must be area, station, or prefecture")
 	}
 	out := make([]domain.Choice, 0)
 	for _, row := range append(append([]domain.Choice{}, bootstrap.Prefectures...), bootstrap.Areas...) {
@@ -89,9 +96,9 @@ func (c *Client) Lookup(ctx context.Context, q, kind string) ([]domain.Choice, e
 		if e != nil {
 			var sourceErr *Error
 			if c.Mode == "local" && len(out) > 0 && errors.As(e, &sourceErr) && sourceErr.Kind == "cache_miss" {
-				return dedupeChoices(out), nil
+				return dedupeChoices(out), false, nil
 			}
-			return nil, e
+			return nil, false, e
 		}
 		for _, row := range rows {
 			if row.Kind != "cuisine" && row.Kind != "restaurant" && (kind == "" || kind == row.Kind) {
@@ -100,7 +107,7 @@ func (c *Client) Lookup(ctx context.Context, q, kind string) ([]domain.Choice, e
 		}
 		c.saveChoices(rows)
 	}
-	return dedupeChoices(out), nil
+	return dedupeChoices(out), true, nil
 }
 
 func (c *Client) Cuisines(ctx context.Context, q string) ([]domain.Choice, error) {
@@ -262,9 +269,12 @@ func (c *Client) ResolveArea(ctx context.Context, input string) (domain.Choice, 
 	if row, ok := c.cachedChoice(input); ok && row.Kind != "cuisine" && row.Kind != "restaurant" {
 		return row, nil
 	}
-	rows, e := c.Lookup(ctx, input, "")
+	rows, complete, e := c.lookup(ctx, input, "")
 	if e != nil {
 		return domain.Choice{}, e
+	}
+	if !complete {
+		return domain.Choice{}, &Error{Kind: "ambiguous", Message: "offline location choices are incomplete; choose an explicit area/station URL or previously fetched typed selector", Choices: rows, Meta: c.Meta()}
 	}
 	exact := make([]domain.Choice, 0)
 	for _, r := range rows {

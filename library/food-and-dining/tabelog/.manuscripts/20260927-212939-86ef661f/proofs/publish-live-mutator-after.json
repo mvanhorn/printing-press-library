@@ -10,7 +10,7 @@
     "snapshot_preserved_after_remove": true
   },
   "snapshot_fetched_at_before": "2026-09-27T18:28:23.394256Z",
-  "snapshot_fetched_at_after": "2026-09-28T02:46:37.67956Z",
+  "snapshot_fetched_at_after": "2026-09-28T03:07:14.517087Z",
   "local_verification": [
     {
       "command": "lists show",
@@ -31,5 +31,5 @@
   ],
   "verification_http_requests": 0,
   "all_happy_invocations_nonpreview_and_confined": true,
-  "accepted_stage_cli_sha256": "b4e057dc8138112f10139e3c5ed704793e928a4099aba80413e32778d7210525"
+  "accepted_stage_cli_sha256": "87815546984ad937f72e70d66505ab57213e29e11d15e9d6a9cfe2e5434cad61"
 }

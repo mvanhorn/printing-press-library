@@ -40,12 +40,12 @@
       "json_flag_explicit": true
     }
   },
-  "prior_marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
-  "fresh_marker_sha256": "c59643b220c82551c4cd0e0ce62971571101f704c76f054422bad62400cc5916",
+  "prior_marker_sha256": "c59643b220c82551c4cd0e0ce62971571101f704c76f054422bad62400cc5916",
+  "fresh_marker_sha256": "029862acf7f595018f51977a1ea66aaac43f472a1fd651ec68de0b34f14652ec",
   "marker_status": "pass",
-  "marker_source_fingerprint": "64e2067c1b9a52abb3000cdc5a08fdafa114c43d3d2ecc3a0fbd577cba520788",
-  "raw_transcript_sha256": "57c66f4256c414bb02f93f2af4869da82403433e890b4aa104349e2bfeed28db",
-  "raw_transcript_bytes": 140521,
+  "marker_source_fingerprint": "e48f112c7e7d01835d496882aaabd17d01d2e1de3b6e22a9cb48483a2e336de1",
+  "raw_transcript_sha256": "50b22776853983707b1231a2050864481491808242cb1f7b3c0a22d7ec5fc477",
+  "raw_transcript_bytes": 140523,
   "raw_transcript_private_and_deleted": true,
   "transport": "native HTTPS; network-permitted; TABELOG_* test variables unset",
   "source_happy_request_envelopes": [

@@ -68,6 +68,13 @@ func TestTypedCatalogChoicesAndAmbiguityDoNotBroadenDiscovery(t *testing.T) {
 	if ambiguous.payload == nil || len(items(t, ambiguous.payload)) < 2 {
 		t.Fatal("ambiguous location did not return typed usable choices")
 	}
+	before = r.count()
+	offlineAmbiguous := w.run(t, "find", "--area", "Shinjuku", "--data-source", "local", "--agent")
+	mustFail(t, offlineAmbiguous)
+	if offlineAmbiguous.payload == nil || len(items(t, offlineAmbiguous.payload)) < 2 {
+		t.Fatal("cached source choices lost Shinjuku area/station ambiguity offline")
+	}
+	equal(t, r.count(), before)
 	for _, req := range r.seen() {
 		if strings.Contains(req.path, "rstLst") {
 			t.Fatal("ambiguous name silently launched a source-wide listing")
@@ -83,6 +90,9 @@ func TestTypedCatalogChoicesAndAmbiguityDoNotBroadenDiscovery(t *testing.T) {
 		t.Fatal("ambiguity response lost station5172 selector")
 	}
 	mustSucceed(t, w.run(t, "find", "--area", stationSelector, "--agent"))
+	before = r.count()
+	mustSucceed(t, w.run(t, "find", "--area", stationSelector, "--data-source", "local", "--agent"))
+	equal(t, r.count(), before)
 	seen := r.seen()
 	listings := 0
 	for _, req := range seen {
