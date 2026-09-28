@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T17:27:14.15782Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "navitime",
+  "display_name": "NAVITIME",
+  "cli_name": "navitime-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "navitime-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:d9bb16d5ee5f50259e1dd9121f323796609054aa47ee855e8ab9b9e240ef65fb",
+  "run_id": "20260927-220504-6059fc84",
+  "category": "travel",
+  "description": "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints.",
+  "mcp_binary": "navitime-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Ambiguity-safe resolution",
+      "command": "places search",
+      "description": "Return bilingual candidates without silently choosing a station."
+    },
+    {
+      "name": "Dated service windows",
+      "command": "routes search",
+      "description": "Check dated departures, deadlines and first/last services."
+    },
+    {
+      "name": "Fare and overnight audit",
+      "command": "routes show",
+      "description": "Expand a stored route with full dates and fare assumptions."
+    },
+    {
+      "name": "Alternative comparison",
+      "command": "routes compare",
+      "description": "Compare the returned journeys by time, fare, walking and transfers."
+    },
+    {
+      "name": "Source pass constraints",
+      "command": "passes list",
+      "description": "Discover advertised passes and their verification status."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ambiguity-safe resolution",
+      "command": "places search",
+      "description": "Return bilingual candidates without silently choosing a station."
+    },
+    {
+      "name": "Dated service windows",
+      "command": "routes search",
+      "description": "Check dated departures, deadlines and first/last services."
+    },
+    {
+      "name": "Fare and overnight audit",
+      "command": "routes show",
+      "description": "Expand a stored route with full dates and fare assumptions."
+    },
+    {
+      "name": "Alternative comparison",
+      "command": "routes compare",
+      "description": "Compare the returned journeys by time, fare, walking and transfers."
+    },
+    {
+      "name": "Source pass constraints",
+      "command": "passes list",
+      "description": "Discover advertised passes and their verification status."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 7,
+    "total": 7,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 85,
+      "grade": "A",
+      "total": 85
+    }
+  }
+}

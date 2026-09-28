@@ -1,0 +1,128 @@
+[
+  {
+    "code": "00004302",
+    "name": {
+      "en": "Shin-Okubo",
+      "ja": "新大久保"
+    },
+    "addressName": {
+      "en": "Tokyo Shinjuku Hyakunincho",
+      "ja": "東京都新宿区百人町"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 35.701284,
+      "lon": 139.700053,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  },
+  {
+    "code": "00005561",
+    "name": {
+      "en": "Okubo (Tokyo)",
+      "ja": "大久保(東京都)"
+    },
+    "addressName": {
+      "en": "Tokyo Shinjuku Hyakunincho",
+      "ja": "東京都新宿区百人町"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 35.700793,
+      "lon": 139.697302,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  },
+  {
+    "code": "00001745",
+    "name": {
+      "en": "Keisei-Okubo",
+      "ja": "京成大久保"
+    },
+    "addressName": {
+      "en": "Chiba Narashino Motookubo",
+      "ja": "千葉県習志野市本大久保"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 35.685939,
+      "lon": 140.048409,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  },
+  {
+    "code": "00005559",
+    "name": {
+      "en": "Okubo(Kyoto)",
+      "ja": "大久保(京都府)"
+    },
+    "addressName": {
+      "en": "Kyoto",
+      "ja": "京都府宇治市広野町"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 34.874641,
+      "lon": 135.777051,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  },
+  {
+    "code": "00005562",
+    "name": {
+      "en": "Okubo(Hyogo)",
+      "ja": "大久保(兵庫県)"
+    },
+    "addressName": {
+      "en": "Hyogo Akashi Okubocho Okubomachi",
+      "ja": "兵庫県明石市大久保町大久保町"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 34.682219,
+      "lon": 134.938835,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  },
+  {
+    "code": "00004006",
+    "name": {
+      "en": "Kazusa-Okubo",
+      "ja": "上総大久保"
+    },
+    "addressName": {
+      "en": "Chiba Ichihara Okubo",
+      "ja": "千葉県市原市大久保"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 35.283478,
+      "lon": 140.145817,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  },
+  {
+    "code": "00005560",
+    "name": {
+      "en": "Okubo(Akita)",
+      "ja": "大久保(秋田県)"
+    },
+    "addressName": {
+      "en": "Akita Pref",
+      "ja": "秋田県潟上市昭和大久保"
+    },
+    "categoryName": null,
+    "coord": {
+      "lat": 39.871326,
+      "lon": 140.06314,
+      "alt": 0.0
+    },
+    "mainType": "station"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "navitime-pp-mcp",
+  "display_name": "NAVITIME",
+  "version": "0.1.0",
+  "description": "Check Japan journeys with dated routes, explicit fares and source-backed pass constraints.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/navitime-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/navitime-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

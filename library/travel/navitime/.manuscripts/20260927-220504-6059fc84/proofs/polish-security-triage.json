@@ -1,0 +1,193 @@
+{
+  "tool": "gosec v2.26.1",
+  "raw_before": 23,
+  "domain_fixes_required": 2,
+  "reviewed_nonblocking": 21,
+  "no_shared_tools_modified": true,
+  "findings": [
+    {
+      "rule": "G119",
+      "file": "internal/client/client.go",
+      "line": "454",
+      "generated_header": true,
+      "disposition": "reviewed_generated_guard",
+      "reason": "Redirect callback checks destination protocol and same-origin history before restamping; no-auth NAVITIME uses no credential and its browser transport strips Authorization/Cookie. Provider refuses redirects altogether."
+    },
+    {
+      "rule": "G101",
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "generated_header": true,
+      "disposition": "reviewed_false_positive",
+      "reason": "invalid_credentials is an enum outcome label, not a credential value."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "3399-3402",
+      "generated_header": true,
+      "disposition": "reviewed_generated_guard",
+      "reason": "JSON field/table identifiers are validated by validIdentifierRE or canonical TypedListTable mapping; variable data values are bound. Reviewed caller validation and fixed ORDER BY choices. This generic store is not the domain response cache."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "3096-3099",
+      "generated_header": true,
+      "disposition": "reviewed_generated_guard",
+      "reason": "JSON field/table identifiers are validated by validIdentifierRE or canonical TypedListTable mapping; variable data values are bound. Reviewed caller validation and fixed ORDER BY choices. This generic store is not the domain response cache."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "1048",
+      "generated_header": true,
+      "disposition": "reviewed_generated_guard",
+      "reason": "JSON field/table identifiers are validated by validIdentifierRE or canonical TypedListTable mapping; variable data values are bound. Reviewed caller validation and fixed ORDER BY choices. This generic store is not the domain response cache."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "1024",
+      "generated_header": true,
+      "disposition": "reviewed_generated_guard",
+      "reason": "JSON field/table identifiers are validated by validIdentifierRE or canonical TypedListTable mapping; variable data values are bound. Reviewed caller validation and fixed ORDER BY choices. This generic store is not the domain response cache."
+    },
+    {
+      "rule": "G202",
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "generated_header": false,
+      "disposition": "reviewed_framework_false_positive",
+      "reason": "VACUUM INTO uses a single SQLite string literal; every apostrophe in the filesystem destination is doubled before interpolation. Existing destination ownership and tenant checks precede copying. This is inactive generic legacy migration, not NAVITIME route logic; parameter binding is a generator improvement candidate."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/store/store.go",
+      "line": "249",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/config/config.go",
+      "line": "105",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/export.go",
+      "line": "213",
+      "generated_header": true,
+      "disposition": "reviewed_generated_intended_file_io",
+      "reason": "This is documented local config/export/feedback or private cache/lock storage. Paths originate from explicit caller configuration or internal path resolvers, not NAVITIME response strings. Writes use private permissions; exclusive lock/key creation avoids overwrite."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "generated_header": true,
+      "disposition": "reviewed_false_positive",
+      "reason": "Matched path is a directory.0700 permits only its owner to traverse/read/write;0600 would prevent directory traversal. Public cache files use0600 separately."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "generated_header": false,
+      "disposition": "reviewed_false_positive",
+      "reason": "Matched path is a directory.0700 permits only its owner to traverse/read/write;0600 would prevent directory traversal. Public cache files use0600 separately."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "generated_header": true,
+      "disposition": "reviewed_false_positive",
+      "reason": "Matched path is a directory.0700 permits only its owner to traverse/read/write;0600 would prevent directory traversal. Public cache files use0600 separately."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/client/client.go",
+      "line": "800",
+      "generated_header": true,
+      "disposition": "reviewed_false_positive",
+      "reason": "Matched path is a directory.0700 permits only its owner to traverse/read/write;0600 would prevent directory traversal. Public cache files use0600 separately."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/store/store.go",
+      "line": "3187",
+      "generated_header": true,
+      "disposition": "generated_retro_candidate",
+      "reason": "Generic store optional sync metadata scans or debug-only JSON formatting ignore errors; provider route/fare parsing and output errors are checked. Keep generated source intact; improve template error reporting upstream."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/store/store.go",
+      "line": "2930",
+      "generated_header": true,
+      "disposition": "generated_retro_candidate",
+      "reason": "Generic store optional sync metadata scans or debug-only JSON formatting ignore errors; provider route/fare parsing and output errors are checked. Keep generated source intact; improve template error reporting upstream."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/navitime/client.go",
+      "line": "393",
+      "generated_header": false,
+      "disposition": "fix_explicit_cleanup",
+      "reason": "Discard cleanup close errors explicitly while retaining primary ReadAll/write errors and checking successful file Close."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/navitime/client.go",
+      "line": "106",
+      "generated_header": false,
+      "disposition": "fix_explicit_cleanup",
+      "reason": "Discard cleanup close errors explicitly while retaining primary ReadAll/write errors and checking successful file Close."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/client/client.go",
+      "line": "1504",
+      "generated_header": true,
+      "disposition": "generated_retro_candidate",
+      "reason": "Generic store optional sync metadata scans or debug-only JSON formatting ignore errors; provider route/fare parsing and output errors are checked. Keep generated source intact; improve template error reporting upstream."
+    }
+  ]
+}
