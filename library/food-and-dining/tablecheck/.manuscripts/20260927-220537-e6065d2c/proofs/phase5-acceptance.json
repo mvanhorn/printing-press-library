@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "f7c3c61e64d798f2290930aaa41f1008d5389f88d70f9490da2e4d30d953cad9",
+  "source_fingerprint": "d769954d4e735515a2acc7814202345f64b293b9e2ecae3ba5dd02721f43b497",
   "source_files": {
     "cmd/tablecheck-pp-cli/main.go": "23f97425713d0586122bd5db6e7588bc67955bbc227e0d64f5065c5407d146bb",
     "cmd/tablecheck-pp-mcp/main.go": "a3c8686f99bf20827fb5bec8730be44be54006aa895a20254ec58f62145e7e37",
@@ -110,12 +110,12 @@
     "internal/mcp/tools.go": "a664421c6f13ab9dade948ebc987a1892c7d3186452f65ca403b866a68852271",
     "internal/mcp/tools_test.go": "569cac63027ce3112fa0e53d240a7b16c2dfd8fc36f14d3f59b779041e95b4c0",
     "internal/planner/api.go": "f11e5dea2a5a02b6e25a2fd6e0d00ff828ba6721bb7c060f2b905fa1c93966a9",
-    "internal/planner/availability.go": "c727af2814e8a619dae5f3437e2dbfcf7f60c5c0736795451c9b6d9d5b445559",
+    "internal/planner/availability.go": "9adfab03687cf371c23117c995f812274ba21dafbba42fe74d1a786dae4969ea",
     "internal/planner/availability_contract_test.go": "ac5953c285251e9052c63e3b42af7c95faa14bbac9102992f67074db4eae4e4d",
     "internal/planner/catalog.go": "10334cd4334546df64ecaeac1567c912cb4542adc8f9c3b2542960b57010c6db",
     "internal/planner/client.go": "2f43a4125685f1f1f56bc2adfbf6c2a0c55c162bfb822a437edf0115f37257bf",
     "internal/planner/client_contract_test.go": "4990a6deb3e1db19bb4205d3f8489ca4a0ef8e4785a0ab056f4e20ee5fd0fc29",
-    "internal/planner/scan_window_test.go": "92533ce2cfa499a030de67a2952f260f5c3206f778ece49b7989c0938137c60c",
+    "internal/planner/scan_window_test.go": "5520d6bc92ff17c458849f8c2b48c2f9971bab18b4578d002dd0274deff942d1",
     "internal/planner/wire.go": "fcd68115184b081aa642cc7340dd31dc924da38487cd9b28d9f12bf33390d8aa",
     "internal/platform/conformance_test.go": "25699fa8d03d2e2cc1efed3b5ac532d58e3a634ad7ec5b00bf6c017de3f29f35",
     "internal/platform/doctor.go": "74fb43bfa5399a38d71741d584fff94284bdc46278319873be0a14de4e0c94c5",

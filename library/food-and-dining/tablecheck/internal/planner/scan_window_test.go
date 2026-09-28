@@ -240,3 +240,125 @@ func TestScanThrottleStopsFutureWindowsAndSurfacesTypedError(t *testing.T) {
 		t.Fatalf("throttle did not cancel subsequent windows: calls=%v meta=%v", f.entries(), result["meta"])
 	}
 }
+
+func TestScanLaterExplicitCoverageRecoversEarlierFailedDate(t *testing.T) {
+	f := windowTransport(t, func(date string) (int, []byte) {
+		if date == "2026-09-30" {
+			return 503, []byte(`{"error":"first window failed"}`)
+		}
+		return 200, calendarWindow(t, map[string]any{
+			"2026-09-30": calendarSlot("2026-09-30", true),
+			"2026-10-01": calendarSlot("2026-10-01", true),
+		})
+	})
+	result, err := newFixtureClient(t, f, nil).Scan(context.Background(), planner.ScanOptions{
+		Venues: []string{fixtureVenue}, From: "2026-09-30", To: "2026-10-01", Party: 2,
+	})
+	if err != nil {
+		t.Fatalf("recovered date still caused partial failure: %v", err)
+	}
+	rows := scanRows(t, result)
+	if len(rows) != 2 {
+		t.Fatalf("recovered scan dropped dates: %v", rows)
+	}
+	for _, row := range rows {
+		if row["status"] != "available" || row["error"] != nil || row["source_status"] != "success" {
+			t.Fatalf("later explicit availability did not recover date: %v", row)
+		}
+		if object(t, row["freshness"])["fetched_at"] == nil {
+			t.Fatalf("recovered row lost supplier observation: %v", row)
+		}
+	}
+	if object(t, rows[0]["freshness"])["fetched_at"] != object(t, rows[1]["freshness"])["fetched_at"] {
+		t.Fatalf("recovered date did not use second window's observation: %v", rows)
+	}
+	if failures := array(t, result["fetch_failures"]); len(failures) != 0 {
+		t.Fatalf("recovered error survived in fetch_failures: %v", failures)
+	}
+	meta := object(t, result["meta"])
+	if meta["partial_failure"] != false || meta["failed_venues"] != float64(0) || metaRequests(t, result) != 3 {
+		t.Fatalf("recovered error survived in result metadata: %v", meta)
+	}
+}
+
+func TestScanRecoveryKeepsOnlyUnrecoveredFailedDate(t *testing.T) {
+	f := windowTransport(t, func(date string) (int, []byte) {
+		switch date {
+		case "2026-09-30", "2026-10-02":
+			return 503, []byte(`{"error":"one window failed"}`)
+		default:
+			return 200, calendarWindow(t, map[string]any{
+				"2026-09-30": calendarSlot("2026-09-30", true),
+				"2026-10-01": calendarSlot("2026-10-01", true),
+			})
+		}
+	})
+	result, err := newFixtureClient(t, f, nil).Scan(context.Background(), planner.ScanOptions{
+		Venues: []string{fixtureVenue}, From: "2026-09-30", To: "2026-10-02", Party: 2,
+	})
+	var partial *planner.PartialError
+	if !errors.As(err, &partial) || partial.Failed != 1 {
+		t.Fatalf("unrecovered date should cause one failed venue: %T %v", err, err)
+	}
+	rows := scanRows(t, result)
+	if len(rows) != 3 || rows[0]["status"] != "available" || rows[1]["status"] != "available" || rows[2]["status"] != "failed" {
+		t.Fatalf("recovered and unrecovered statuses mixed: %v", rows)
+	}
+	failures := array(t, result["fetch_failures"])
+	if len(failures) != 1 || object(t, failures[0])["date"] != "2026-10-02" || metaRequests(t, result) != 4 {
+		t.Fatalf("only unrecovered date should be reported: failures=%v meta=%v", failures, result["meta"])
+	}
+}
+
+func TestScanLaterExplicitCoverageReplacesEarlierMissingAnchorUnknown(t *testing.T) {
+	f := windowTransport(t, func(date string) (int, []byte) {
+		if date == "2026-09-30" {
+			return 200, calendarWindow(t, map[string]any{})
+		}
+		return 200, calendarWindow(t, map[string]any{
+			"2026-09-30": calendarSlot("2026-09-30", true),
+			"2026-10-01": calendarSlot("2026-10-01", true),
+		})
+	})
+	result, err := newFixtureClient(t, f, nil).Scan(context.Background(), planner.ScanOptions{
+		Venues: []string{fixtureVenue}, From: "2026-09-30", To: "2026-10-01", Party: 2,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := scanRows(t, result)
+	if len(rows) != 2 || rows[0]["status"] != "available" || rows[1]["status"] != "available" {
+		t.Fatalf("later evidence did not replace missing-anchor unknown: %v", rows)
+	}
+	if first := object(t, rows[0]["coverage"]); first["date_present"] != true {
+		t.Fatalf("recovered date still points at first empty response: %v", first)
+	}
+	if len(array(t, result["fetch_failures"])) != 0 || metaRequests(t, result) != 3 {
+		t.Fatalf("later coverage changed request/error count: %v", result)
+	}
+}
+
+func TestScanFirstExplicitCoverageWinsOverLaterConflictingWindow(t *testing.T) {
+	f := windowTransport(t, func(date string) (int, []byte) {
+		if date == "2026-09-30" {
+			return 200, calendarWindow(t, map[string]any{"2026-09-30": calendarSlot("2026-09-30", false)})
+		}
+		return 200, calendarWindow(t, map[string]any{
+			"2026-09-30": calendarSlot("2026-09-30", true),
+			"2026-10-01": calendarSlot("2026-10-01", true),
+		})
+	})
+	result, err := newFixtureClient(t, f, nil).Scan(context.Background(), planner.ScanOptions{
+		Venues: []string{fixtureVenue}, From: "2026-09-30", To: "2026-10-01", Party: 2,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows := scanRows(t, result)
+	if len(rows) != 2 || rows[0]["status"] != "unavailable" || rows[1]["status"] != "available" {
+		t.Fatalf("later conflicting evidence overwrote the first explicit observation: %v", rows)
+	}
+	if len(calendarAnchors(t, f)) != 2 {
+		t.Fatalf("window overlap triggered an extra fetch: %v", f.entries())
+	}
+}

@@ -1,6 +1,6 @@
 {
   "probe": "tablecheck_14_day_scan_final_date",
-  "started_at": "2026-09-28T02:37:40.518297+00:00",
+  "started_at": "2026-09-28T02:52:39.797128+00:00",
   "venue": "sushi-tokyo81",
   "venue_id": "67e657634474874e35785280",
   "party": 2,
@@ -15,60 +15,60 @@
       "name": "cold_scan",
       "max_attempts": 20,
       "exit_code": 0,
-      "started_at": "2026-09-28T02:37:40.518683+00:00",
-      "finished_at": "2026-09-28T02:37:41.548140+00:00",
-      "wall_time_ms": 1029.335,
-      "output_bytes": 53092,
+      "started_at": "2026-09-28T02:52:39.797521+00:00",
+      "finished_at": "2026-09-28T02:52:40.869955+00:00",
+      "wall_time_ms": 1072.173,
+      "output_bytes": 53036,
       "peak_rss": {
-        "value": 26902528,
+        "value": 26607616,
         "unit": "bytes",
-        "bytes": 26902528,
+        "bytes": 26607616,
         "tool": "/usr/bin/time -l"
       },
       "process_errors": [],
       "requests": 2,
       "response_bytes": 49716,
-      "source_latency_ms": 718,
+      "source_latency_ms": 783,
       "partial_failure": false
     },
     {
       "name": "warm_scan",
       "max_attempts": 2,
       "exit_code": 0,
-      "started_at": "2026-09-28T02:37:41.550423+00:00",
-      "finished_at": "2026-09-28T02:37:41.574067+00:00",
-      "wall_time_ms": 23.607,
-      "output_bytes": 53071,
+      "started_at": "2026-09-28T02:52:40.871480+00:00",
+      "finished_at": "2026-09-28T02:52:40.895066+00:00",
+      "wall_time_ms": 23.544,
+      "output_bytes": 53029,
       "peak_rss": {
-        "value": 21577728,
+        "value": 21561344,
         "unit": "bytes",
-        "bytes": 21577728,
+        "bytes": 21561344,
         "tool": "/usr/bin/time -l"
       },
       "process_errors": [],
       "requests": 0,
       "response_bytes": 0,
-      "source_latency_ms": 2,
+      "source_latency_ms": 3,
       "partial_failure": false
     },
     {
       "name": "independent_final_check",
       "max_attempts": 2,
       "exit_code": 0,
-      "started_at": "2026-09-28T02:37:41.574871+00:00",
-      "finished_at": "2026-09-28T02:37:42.380451+00:00",
-      "wall_time_ms": 805.537,
+      "started_at": "2026-09-28T02:52:40.895860+00:00",
+      "finished_at": "2026-09-28T02:52:41.759143+00:00",
+      "wall_time_ms": 863.1,
       "output_bytes": 4665,
       "peak_rss": {
-        "value": 25542656,
+        "value": 25427968,
         "unit": "bytes",
-        "bytes": 25542656,
+        "bytes": 25427968,
         "tool": "/usr/bin/time -l"
       },
       "process_errors": [],
       "requests": 2,
       "response_bytes": 65806,
-      "source_latency_ms": 738,
+      "source_latency_ms": 840,
       "partial_failure": null
     }
   ],
@@ -146,8 +146,8 @@
         "timeslots": 9,
         "filtered_timestamp_count": 0
       },
-      "source_fetched_at": "2026-09-28T02:37:41.486928Z",
-      "source_observed_at": "2026-09-28T02:37:41.486928Z"
+      "source_fetched_at": "2026-09-28T02:52:40.83873Z",
+      "source_observed_at": "2026-09-28T02:52:40.83873Z"
     }
   },
   "final_date_comparison": {
@@ -189,8 +189,8 @@
         "timeslots": 9,
         "filtered_timestamp_count": 0
       },
-      "source_fetched_at": "2026-09-28T02:37:41.486928Z",
-      "source_observed_at": "2026-09-28T02:37:41.486928Z"
+      "source_fetched_at": "2026-09-28T02:52:40.83873Z",
+      "source_observed_at": "2026-09-28T02:52:40.83873Z"
     },
     "independent": {
       "slug": "sushi-tokyo81",
@@ -222,8 +222,8 @@
         "timeslots": 9,
         "filtered_timestamp_count": 0
       },
-      "source_fetched_at": "2026-09-28T02:37:42.321638Z",
-      "source_observed_at": "2026-09-28T02:37:42.321638Z"
+      "source_fetched_at": "2026-09-28T02:52:41.743771Z",
+      "source_observed_at": "2026-09-28T02:52:41.743771Z"
     },
     "calendar_response_windows": {
       "scan": {
@@ -237,9 +237,9 @@
     },
     "slot_difference_count": 0,
     "slot_difference_examples": [],
-    "source_observation_gap_ms": 834.71,
+    "source_observation_gap_ms": 905.041,
     "interpretation": "If source slots differ, inventory may have changed between independent reads; inspect the fetched_at timestamps and field comparisons before attributing a defect."
   },
-  "finished_at": "2026-09-28T02:37:42.381244+00:00",
+  "finished_at": "2026-09-28T02:52:41.760753+00:00",
   "observed_attempts": 4
 }

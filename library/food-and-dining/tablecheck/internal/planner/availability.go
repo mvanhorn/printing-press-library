@@ -289,6 +289,10 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 		calendar calendarWire
 		observed observation
 	}
+	type calendarAttempt struct {
+		snapshot calendarSnapshot
+		err      error
+	}
 	outcomes := make([]outcome, len(o.Venues))
 	jobs := make(chan int, len(o.Venues))
 	for i := range o.Venues {
@@ -319,27 +323,21 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 				}
 				outcomes[i].venue = venueSummary(v)
 				covered := make(map[string]calendarSnapshot, len(dates))
+				attempts := make(map[string]calendarAttempt, len(dates))
 				var stopErr error
 				for _, date := range dates {
-					if snapshot, ok := covered[date]; ok {
-						outcomes[i].rows = append(outcomes[i].rows, calendarDay(v, snapshot.calendar, date, o.Time, o.Party, limit, o.IncludeUnavailable, snapshot.observed, venueObs))
+					if _, ok := covered[date]; ok {
 						continue
 					}
 					if stopErr != nil {
-						outcomes[i].rows = append(outcomes[i].rows, failedDay(slug, v.ID, optionalString(v.TimeZone), date, o.Party, o.Time, stopErr))
-						outcomes[i].failures = append(outcomes[i].failures, map[string]any{"slug": slug, "date": date, "error": stopErr.Error()})
+						attempts[date] = calendarAttempt{err: stopErr}
 						continue
 					}
 					w, obs, err := c.loadCalendar(scanCtx, v, date, o.Time, o.Party)
 					if err != nil {
-						outcomes[i].rows = append(outcomes[i].rows, failedDay(slug, v.ID, optionalString(v.TimeZone), date, o.Party, o.Time, err))
-						outcomes[i].failures = append(outcomes[i].failures, map[string]any{"slug": slug, "date": date, "error": err.Error()})
-						if outcomes[i].err == nil {
-							outcomes[i].err = err
-						}
+						attempts[date] = calendarAttempt{err: err}
 						var throttle *cliutil.RateLimitError
 						if errors.As(err, &throttle) {
-							outcomes[i].err = err // Preserve the typed 429 even after an earlier partial failure.
 							stopErr = err
 							cancel()
 						} else if scanCtx.Err() != nil {
@@ -354,9 +352,32 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 							covered[requestedDate] = calendarSnapshot{w, obs}
 						}
 					}
-					// A successful response can still omit its requested anchor. That
-					// date stays unknown; the next uncovered date gets one own query.
-					outcomes[i].rows = append(outcomes[i].rows, calendarDay(v, w, date, o.Time, o.Party, limit, o.IncludeUnavailable, obs, venueObs))
+					// A successful response can omit its anchor; retain that unknown
+					// fallback in case a later window never explicitly covers it.
+					attempts[date] = calendarAttempt{snapshot: calendarSnapshot{w, obs}}
+				}
+				// Materialize after all bounded reads so later explicit coverage can
+				// recover an earlier failed or missing-anchor date. The covered map
+				// retains each date's first explicit observation and timestamp.
+				for _, date := range dates {
+					if snapshot, ok := covered[date]; ok {
+						outcomes[i].rows = append(outcomes[i].rows, calendarDay(v, snapshot.calendar, date, o.Time, o.Party, limit, o.IncludeUnavailable, snapshot.observed, venueObs))
+						continue
+					}
+					attempt := attempts[date]
+					if attempt.err == nil {
+						outcomes[i].rows = append(outcomes[i].rows, calendarDay(v, attempt.snapshot.calendar, date, o.Time, o.Party, limit, o.IncludeUnavailable, attempt.snapshot.observed, venueObs))
+						continue
+					}
+					outcomes[i].rows = append(outcomes[i].rows, failedDay(slug, v.ID, optionalString(v.TimeZone), date, o.Party, o.Time, attempt.err))
+					outcomes[i].failures = append(outcomes[i].failures, map[string]any{"slug": slug, "date": date, "error": attempt.err.Error()})
+					if outcomes[i].err == nil {
+						outcomes[i].err = attempt.err
+					}
+					var throttle *cliutil.RateLimitError
+					if errors.As(attempt.err, &throttle) {
+						outcomes[i].err = attempt.err // Preserve typed 429 after an earlier partial failure.
+					}
 				}
 			}
 		}()
