@@ -38,8 +38,16 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		allowedStructuredArgs := allowedStructuredArgsForCommand(cmd, blockedStructuredArgs, positionals, commandTakesArgs(cmd))
 		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
 		options = append(options, toolOptionsForFlags(cmd, blockedStructuredArgs, positionals)...)
-		if commandTakesArgs(cmd) && len(positionals) == 0 {
-			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments to append to the command. Raw flags are rejected; use structured flag parameters instead.")))
+		variadic := false
+		for _, positional := range positionals {
+			variadic = variadic || positional.Variadic
+		}
+		if commandTakesArgs(cmd) && (len(positionals) == 0 || variadic) {
+			description := "Additional positional arguments to append to the command. Raw flags are rejected; use structured flag parameters instead."
+			if len(path) == 2 && path[0] == "availability" && path[1] == "scan" {
+				description = "Additional venue slugs separated by spaces, after the required slug; at most five venues total. Raw flags are rejected."
+			}
+			options = append(options, mcplib.WithString("args", mcplib.Description(description)))
 		}
 		readOnly := isMCPReadOnly(cmd)
 		if readOnly {

@@ -252,6 +252,22 @@ func calendarDay(v venueWire, w calendarWire, date, requested string, party, lim
 	var err any
 	return map[string]any{"venue_id": v.ID, "slug": v.Slug, "date": date, "party": party, "time_zone": cal.TimeZone, "scope": "venue", "requested_time": emptyNull(requested), "query_anchor_time": queryAnchorTime(requested), "requested_time_available": requestedAvailable, "status": status, "source_status": cal.Type, "available_times": available, "alternative_times": alternatives, "available_count": allAvailable, "slots": slots, "slots_total": allSlots, "has_more_slots": allSlots > limit, "truncated": allSlots > limit || allAvailable > limit, "coverage": map[string]any{"time_scope": "source_time_window", "full_day": false, "returned_time_from": timeFrom, "returned_time_to": timeTo, "date_present": present, "closed": closed, "returned_from": from, "returned_to": to, "timeslots": len(matched), "filtered_timestamp_count": filtered}, "freshness": obs.result(), "venue_freshness": venueObs.result(), "source": map[string]any{"endpoint": "/v2/hub/availability_calendar_v2", "method": "POST", "evidence": "explicit_is_available_boolean", "course_linked": false}, "source_evidence": evidence, "error": err}
 }
+
+func calendarCoversDate(w calendarWire, date string) bool {
+	if w.Calendar == nil {
+		return false
+	}
+	if _, present := w.Calendar.Data[date]; present {
+		return true // An explicit empty slot map still covers the date.
+	}
+	for _, closed := range w.Calendar.Closed {
+		if closed == date {
+			return true
+		}
+	}
+	return false
+}
+
 func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 	if e := ValidateScan(o); e != nil {
 		return nil, e
@@ -264,9 +280,14 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 		dates = append(dates, d.Format("2006-01-02"))
 	}
 	type outcome struct {
-		venue map[string]any
-		rows  []map[string]any
-		err   error
+		venue    map[string]any
+		rows     []map[string]any
+		failures []map[string]any
+		err      error
+	}
+	type calendarSnapshot struct {
+		calendar calendarWire
+		observed observation
 	}
 	outcomes := make([]outcome, len(o.Venues))
 	jobs := make(chan int, len(o.Venues))
@@ -297,19 +318,44 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 					continue
 				}
 				outcomes[i].venue = venueSummary(v)
-				w, obs, e := c.loadCalendar(scanCtx, v, o.From, o.Time, o.Party)
-				if e != nil {
-					outcomes[i].err = e
-					for _, date := range dates {
-						outcomes[i].rows = append(outcomes[i].rows, failedDay(slug, v.ID, optionalString(v.TimeZone), date, o.Party, o.Time, e))
-					}
-					var throttle *cliutil.RateLimitError
-					if errors.As(e, &throttle) {
-						cancel()
-					}
-					continue
-				}
+				covered := make(map[string]calendarSnapshot, len(dates))
+				var stopErr error
 				for _, date := range dates {
+					if snapshot, ok := covered[date]; ok {
+						outcomes[i].rows = append(outcomes[i].rows, calendarDay(v, snapshot.calendar, date, o.Time, o.Party, limit, o.IncludeUnavailable, snapshot.observed, venueObs))
+						continue
+					}
+					if stopErr != nil {
+						outcomes[i].rows = append(outcomes[i].rows, failedDay(slug, v.ID, optionalString(v.TimeZone), date, o.Party, o.Time, stopErr))
+						outcomes[i].failures = append(outcomes[i].failures, map[string]any{"slug": slug, "date": date, "error": stopErr.Error()})
+						continue
+					}
+					w, obs, err := c.loadCalendar(scanCtx, v, date, o.Time, o.Party)
+					if err != nil {
+						outcomes[i].rows = append(outcomes[i].rows, failedDay(slug, v.ID, optionalString(v.TimeZone), date, o.Party, o.Time, err))
+						outcomes[i].failures = append(outcomes[i].failures, map[string]any{"slug": slug, "date": date, "error": err.Error()})
+						if outcomes[i].err == nil {
+							outcomes[i].err = err
+						}
+						var throttle *cliutil.RateLimitError
+						if errors.As(err, &throttle) {
+							outcomes[i].err = err // Preserve the typed 429 even after an earlier partial failure.
+							stopErr = err
+							cancel()
+						} else if scanCtx.Err() != nil {
+							stopErr = err
+						}
+						continue
+					}
+					// Reuse only explicit machine coverage. A min/max date span is not
+					// proof that dates omitted from data and closed_dates were checked.
+					for _, requestedDate := range dates {
+						if _, alreadyCovered := covered[requestedDate]; !alreadyCovered && calendarCoversDate(w, requestedDate) {
+							covered[requestedDate] = calendarSnapshot{w, obs}
+						}
+					}
+					// A successful response can still omit its requested anchor. That
+					// date stays unknown; the next uncovered date gets one own query.
 					outcomes[i].rows = append(outcomes[i].rows, calendarDay(v, w, date, o.Time, o.Party, limit, o.IncludeUnavailable, obs, venueObs))
 				}
 			}
@@ -320,11 +366,17 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 	rows := make([]map[string]any, 0, len(o.Venues)*len(dates))
 	failures := make([]map[string]any, 0)
 	var throttle error
+	failedVenues := 0
 	for i, out := range outcomes {
 		venues = append(venues, out.venue)
 		rows = append(rows, out.rows...)
 		if out.err != nil {
-			failures = append(failures, map[string]any{"slug": o.Venues[i], "error": out.err.Error()})
+			failedVenues++
+			if len(out.failures) == 0 {
+				failures = append(failures, map[string]any{"slug": o.Venues[i], "error": out.err.Error()})
+			} else {
+				failures = append(failures, out.failures...)
+			}
 			var rateErr *cliutil.RateLimitError
 			if errors.As(out.err, &rateErr) {
 				throttle = out.err
@@ -333,7 +385,7 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 	}
 	result := c.result(Result{"venues": venues, "checks": rows, "fetch_failures": failures, "window": map[string]any{"from": o.From, "to": o.To, "days": len(dates), "venues": len(o.Venues)}}, nil)
 	result["meta"].(map[string]any)["partial_failure"] = len(failures) > 0
-	result["meta"].(map[string]any)["failed_venues"] = len(failures)
+	result["meta"].(map[string]any)["failed_venues"] = failedVenues
 	if throttle != nil {
 		return result, throttle
 	}
@@ -341,7 +393,7 @@ func (c *Client) Scan(ctx context.Context, o ScanOptions) (Result, error) {
 		return result, ctx.Err()
 	}
 	if len(failures) > 0 {
-		return result, &PartialError{len(failures), len(o.Venues)}
+		return result, &PartialError{failedVenues, len(o.Venues)}
 	}
 	return result, nil
 }

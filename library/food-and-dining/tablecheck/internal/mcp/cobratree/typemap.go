@@ -152,16 +152,18 @@ func positionalArgsForCommand(cmd *cobra.Command, blocked map[string]bool) []pos
 	})
 	var out []positionalArg
 	seenPositional := map[string]bool{}
-	for _, match := range positionalTokenPattern.FindAllStringSubmatch(cmd.Use, -1) {
-		if len(match) < 2 {
+	for _, match := range positionalTokenPattern.FindAllStringSubmatchIndex(cmd.Use, -1) {
+		if len(match) < 4 {
 			continue
 		}
-		raw := strings.TrimSpace(match[1])
+		raw := strings.TrimSpace(cmd.Use[match[2]:match[3]])
 		if strings.Contains(raw, "--") {
 			continue
 		}
 		required := strings.HasPrefix(raw, "<")
-		variadic := strings.Contains(raw, "...")
+		// Cobra's common `<slug>...` spelling places the ellipsis after
+		// the closing bracket, outside the captured positional token.
+		variadic := strings.Contains(raw, "...") || strings.HasPrefix(cmd.Use[match[3]:], "...")
 		// Strip positional decorations outright. A nested variadic like
 		// "[<slug>...]" leaves an inner ">" that end-trimming cannot reach
 		// (the "..." shields it), which would emit an invalid schema key.

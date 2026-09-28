@@ -75,7 +75,7 @@ The source calendar covers a time window around an anchor, not the full day. Wit
 
 Every availability result is a timestamped observation, not a reservation guarantee. Cached results retain the original fetch time and show cache age. `--refresh` bypasses local cache reads; it cannot force TableCheck's own cache to update.
 
-Default result limit is 10, maximum 50. Scans allow at most five venues and fourteen inclusive dates. Each command allows at most twenty HTTP attempts, one retry per request, and concurrency two. Requests and responses are bounded; expensive course and venue details are fetched only when needed. The returned calendar can cover more dates than requested; output stays inside the requested range.
+Default result limit is 10, maximum 50. Scans allow at most five venues and fourteen inclusive dates. Each command allows at most twenty HTTP attempts, one retry per request, and concurrency two. Requests and responses are bounded; expensive course and venue details are fetched only when needed. The returned calendar can cover more dates than requested; output stays inside the requested range. Scans fetch additional windows for uncovered dates within the shared request budget. Dates omitted even after their own check stay unknown; request failures and exhausted budgets remain explicit failures.
 
 Availability cache lifetime is 30 seconds; discovery and static details can live longer. Use `--cache-dir` to isolate a run. Result metadata reports requests, response bytes and latency; cached reads require no HTTP when all needed entries remain fresh.
 

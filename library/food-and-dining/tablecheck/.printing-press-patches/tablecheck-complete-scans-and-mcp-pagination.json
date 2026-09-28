@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "tablecheck-complete-scans-and-mcp-pagination",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-220537-e6065d2c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Complete bounded date scans and expose truthful MCP shortlist and terminal-page inputs.",
+  "reason": "Source calendars can omit requested dates, scan positionals were underdescribed, and terminal search pages can retain stale cursors. Preserve explicit evidence while completing bounded reads.",
+  "files": [
+    "internal/planner/availability.go",
+    "internal/planner/scan_window_test.go",
+    "internal/mcp/bound/bound.go",
+    "internal/mcp/bound/search_terminal_test.go",
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/cobratree/walker.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/scan_mirror_test.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Full race tests, vet, CLI/MCP builds, public package validation and all 87 mandatory live checks pass. A fourteen-day live scan passes 18 assertions, reuses cache with zero requests, and matches a separate final-date check; sparse-window, failure, MCP input and terminal-pagination regressions pass."
+}

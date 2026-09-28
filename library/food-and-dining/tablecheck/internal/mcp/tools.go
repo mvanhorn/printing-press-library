@@ -103,7 +103,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/shop_search", true, false, nil, mcpPageConfig{CursorParam: "search_after", NextCursorPath: "meta.search_after"}, []mcpParamBinding{{PublicName: "lat", WireName: "geo_latitude", Location: "query"}, {PublicName: "lon", WireName: "geo_longitude", Location: "query"}, {PublicName: "radius", WireName: "geo_distance", Location: "query"}, {PublicName: "universe-id", WireName: "shop_universe_id", Location: "query"}, {PublicName: "limit", WireName: "per_page", Location: "query", Default: "10"}, {PublicName: "include-ids", WireName: "include_ids", Location: "query", Default: "true"}, {PublicName: "sort", WireName: "sort_by", Location: "query", Default: "distance"}, {PublicName: "venue-type", WireName: "venue_type", Location: "query", Default: "tc"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "cuisine", WireName: "cuisines[]", Location: "query"}, {PublicName: "budget-min", WireName: "budget_dinner_avg_min", Location: "query"}, {PublicName: "budget-max", WireName: "budget_dinner_avg_max", Location: "query"}, {PublicName: "service-mode", WireName: "service_mode", Location: "query", Default: "dining"}, {PublicName: "date", WireName: "date", Location: "query"}, {PublicName: "time", WireName: "time", Location: "query"}, {PublicName: "party", WireName: "num_people", Location: "query"}, {PublicName: "availability-mode", WireName: "availability_mode", Location: "query"}, {PublicName: "availability-format", WireName: "availability_format", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v2/shop_search", true, false, nil, mcpPageConfig{CursorParam: "search_after", NextCursorPath: "meta.search_after", TerminalPath: "meta.last_page"}, []mcpParamBinding{{PublicName: "lat", WireName: "geo_latitude", Location: "query"}, {PublicName: "lon", WireName: "geo_longitude", Location: "query"}, {PublicName: "radius", WireName: "geo_distance", Location: "query"}, {PublicName: "universe-id", WireName: "shop_universe_id", Location: "query"}, {PublicName: "limit", WireName: "per_page", Location: "query", Default: "10"}, {PublicName: "include-ids", WireName: "include_ids", Location: "query", Default: "true"}, {PublicName: "sort", WireName: "sort_by", Location: "query", Default: "distance"}, {PublicName: "venue-type", WireName: "venue_type", Location: "query", Default: "tc"}, {PublicName: "locale", WireName: "locale", Location: "query", Default: "en"}, {PublicName: "cuisine", WireName: "cuisines[]", Location: "query"}, {PublicName: "budget-min", WireName: "budget_dinner_avg_min", Location: "query"}, {PublicName: "budget-max", WireName: "budget_dinner_avg_max", Location: "query"}, {PublicName: "service-mode", WireName: "service_mode", Location: "query", Default: "dining"}, {PublicName: "date", WireName: "date", Location: "query"}, {PublicName: "time", WireName: "time", Location: "query"}, {PublicName: "party", WireName: "num_people", Location: "query"}, {PublicName: "availability-mode", WireName: "availability_mode", Location: "query"}, {PublicName: "availability-format", WireName: "availability_format", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("source_venue",
@@ -169,6 +169,7 @@ type mcpParamBinding struct {
 type mcpPageConfig struct {
 	CursorParam    string
 	NextCursorPath string
+	TerminalPath   string
 }
 
 func formatMCPParamValue(v any) string {
@@ -470,6 +471,7 @@ func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, page
 		Cursor:         cursor,
 		CursorParam:    pageConfig.CursorParam,
 		NextCursorPath: pageConfig.NextCursorPath,
+		TerminalPath:   pageConfig.TerminalPath,
 	})
 	if platformSession != nil {
 		result = bound.WithMetadata(result, platformSession.OutputMetadata())

@@ -1,0 +1,245 @@
+{
+  "probe": "tablecheck_14_day_scan_final_date",
+  "started_at": "2026-09-28T02:37:40.518297+00:00",
+  "venue": "sushi-tokyo81",
+  "venue_id": "67e657634474874e35785280",
+  "party": 2,
+  "anchor_time": "18:00",
+  "from": "2026-09-30",
+  "to": "2026-10-13",
+  "inclusive_dates": 14,
+  "attempt_limit": 24,
+  "attempt_cap_reserved": 24,
+  "invocations": [
+    {
+      "name": "cold_scan",
+      "max_attempts": 20,
+      "exit_code": 0,
+      "started_at": "2026-09-28T02:37:40.518683+00:00",
+      "finished_at": "2026-09-28T02:37:41.548140+00:00",
+      "wall_time_ms": 1029.335,
+      "output_bytes": 53092,
+      "peak_rss": {
+        "value": 26902528,
+        "unit": "bytes",
+        "bytes": 26902528,
+        "tool": "/usr/bin/time -l"
+      },
+      "process_errors": [],
+      "requests": 2,
+      "response_bytes": 49716,
+      "source_latency_ms": 718,
+      "partial_failure": false
+    },
+    {
+      "name": "warm_scan",
+      "max_attempts": 2,
+      "exit_code": 0,
+      "started_at": "2026-09-28T02:37:41.550423+00:00",
+      "finished_at": "2026-09-28T02:37:41.574067+00:00",
+      "wall_time_ms": 23.607,
+      "output_bytes": 53071,
+      "peak_rss": {
+        "value": 21577728,
+        "unit": "bytes",
+        "bytes": 21577728,
+        "tool": "/usr/bin/time -l"
+      },
+      "process_errors": [],
+      "requests": 0,
+      "response_bytes": 0,
+      "source_latency_ms": 2,
+      "partial_failure": false
+    },
+    {
+      "name": "independent_final_check",
+      "max_attempts": 2,
+      "exit_code": 0,
+      "started_at": "2026-09-28T02:37:41.574871+00:00",
+      "finished_at": "2026-09-28T02:37:42.380451+00:00",
+      "wall_time_ms": 805.537,
+      "output_bytes": 4665,
+      "peak_rss": {
+        "value": 25542656,
+        "unit": "bytes",
+        "bytes": 25542656,
+        "tool": "/usr/bin/time -l"
+      },
+      "process_errors": [],
+      "requests": 2,
+      "response_bytes": 65806,
+      "source_latency_ms": 738,
+      "partial_failure": null
+    }
+  ],
+  "assertions": {
+    "cold_14_ordered_dates": true,
+    "cold_window": true,
+    "cold_identity_party_zone_anchor": true,
+    "cold_source_window_scope": true,
+    "cold_no_failed_dates": true,
+    "cold_request_cap": true,
+    "warm_zero_http": true,
+    "warm_under_30_seconds": true,
+    "warm_same_14_dates": true,
+    "warm_same_source_fetched_at": true,
+    "warm_same_venue_fetched_at": true,
+    "warm_cache_hits": true,
+    "warm_venue_cache_hits": true,
+    "warm_same_source_rows": true,
+    "independent_final_identity": true,
+    "independent_final_source_slots_coverage_status": true,
+    "global_attempt_ceiling": true,
+    "resource_use_measured": true
+  },
+  "errors": [],
+  "passed": true,
+  "cold_summary": {
+    "dates": [
+      "2026-09-30",
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-03",
+      "2026-10-04",
+      "2026-10-05",
+      "2026-10-06",
+      "2026-10-07",
+      "2026-10-08",
+      "2026-10-09",
+      "2026-10-10",
+      "2026-10-11",
+      "2026-10-12",
+      "2026-10-13"
+    ],
+    "statuses": {
+      "available": 10,
+      "closed": 2,
+      "unavailable": 2
+    },
+    "final_date": {
+      "slug": "sushi-tokyo81",
+      "venue_id": "67e657634474874e35785280",
+      "date": "2026-10-13",
+      "party": 2,
+      "time_zone": "Asia/Tokyo",
+      "query_anchor_time": "18:00",
+      "requested_time": "18:00",
+      "status": "available",
+      "source_status": "success",
+      "slots_total": 9,
+      "returned_slots": 9,
+      "slots_sha256": "b99820f55d95a38e8d26527bcae91ebc66c4c734c1f85db67cc16d7093e627d2",
+      "available_times": [
+        "17:30",
+        "18:00",
+        "20:00"
+      ],
+      "coverage": {
+        "time_scope": "source_time_window",
+        "full_day": false,
+        "date_present": true,
+        "closed": false,
+        "returned_from": "2026-09-28",
+        "returned_to": "2026-10-30",
+        "returned_time_from": "16:00",
+        "returned_time_to": "20:00",
+        "timeslots": 9,
+        "filtered_timestamp_count": 0
+      },
+      "source_fetched_at": "2026-09-28T02:37:41.486928Z",
+      "source_observed_at": "2026-09-28T02:37:41.486928Z"
+    }
+  },
+  "final_date_comparison": {
+    "fields_match": {
+      "status": true,
+      "source_status": true,
+      "slots": true,
+      "slots_total": true,
+      "available_times": true,
+      "day_local_coverage": true
+    },
+    "scan": {
+      "slug": "sushi-tokyo81",
+      "venue_id": "67e657634474874e35785280",
+      "date": "2026-10-13",
+      "party": 2,
+      "time_zone": "Asia/Tokyo",
+      "query_anchor_time": "18:00",
+      "requested_time": "18:00",
+      "status": "available",
+      "source_status": "success",
+      "slots_total": 9,
+      "returned_slots": 9,
+      "slots_sha256": "b99820f55d95a38e8d26527bcae91ebc66c4c734c1f85db67cc16d7093e627d2",
+      "available_times": [
+        "17:30",
+        "18:00",
+        "20:00"
+      ],
+      "coverage": {
+        "time_scope": "source_time_window",
+        "full_day": false,
+        "date_present": true,
+        "closed": false,
+        "returned_from": "2026-09-28",
+        "returned_to": "2026-10-30",
+        "returned_time_from": "16:00",
+        "returned_time_to": "20:00",
+        "timeslots": 9,
+        "filtered_timestamp_count": 0
+      },
+      "source_fetched_at": "2026-09-28T02:37:41.486928Z",
+      "source_observed_at": "2026-09-28T02:37:41.486928Z"
+    },
+    "independent": {
+      "slug": "sushi-tokyo81",
+      "venue_id": "67e657634474874e35785280",
+      "date": "2026-10-13",
+      "party": 2,
+      "time_zone": "Asia/Tokyo",
+      "query_anchor_time": "18:00",
+      "requested_time": "18:00",
+      "status": "available",
+      "source_status": "success",
+      "slots_total": 9,
+      "returned_slots": 9,
+      "slots_sha256": "b99820f55d95a38e8d26527bcae91ebc66c4c734c1f85db67cc16d7093e627d2",
+      "available_times": [
+        "17:30",
+        "18:00",
+        "20:00"
+      ],
+      "coverage": {
+        "time_scope": "source_time_window",
+        "full_day": false,
+        "date_present": true,
+        "closed": false,
+        "returned_from": "2026-09-28",
+        "returned_to": "2026-11-13",
+        "returned_time_from": "16:00",
+        "returned_time_to": "20:00",
+        "timeslots": 9,
+        "filtered_timestamp_count": 0
+      },
+      "source_fetched_at": "2026-09-28T02:37:42.321638Z",
+      "source_observed_at": "2026-09-28T02:37:42.321638Z"
+    },
+    "calendar_response_windows": {
+      "scan": {
+        "returned_from": "2026-09-28",
+        "returned_to": "2026-10-30"
+      },
+      "independent": {
+        "returned_from": "2026-09-28",
+        "returned_to": "2026-11-13"
+      }
+    },
+    "slot_difference_count": 0,
+    "slot_difference_examples": [],
+    "source_observation_gap_ms": 834.71,
+    "interpretation": "If source slots differ, inventory may have changed between independent reads; inspect the fetched_at timestamps and field comparisons before attributing a defect."
+  },
+  "finished_at": "2026-09-28T02:37:42.381244+00:00",
+  "observed_attempts": 4
+}

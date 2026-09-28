@@ -41,11 +41,13 @@ const (
 // Cursor is the opaque value supplied by the MCP caller. CursorParam is the
 // upstream request parameter name that can resume another API page, when one
 // exists. NextCursorPath is the dotted response path containing the upstream
-// cursor for the following API page.
+// cursor for the following API page. TerminalPath is an optional dotted
+// boolean response path whose explicit true value stops upstream pagination.
 type PageOptions struct {
 	Cursor         string
 	CursorParam    string
 	NextCursorPath string
+	TerminalPath   string
 }
 
 type endpointCursor struct {
@@ -309,6 +311,11 @@ func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byt
 		return nil, false
 	}
 	nextUpstream := extractStringPath(data, opts.NextCursorPath)
+	if extractBoolPath(data, opts.TerminalPath) {
+		// Some sources include a stale search_after token on their final page.
+		// Local continuation within this response is still handled below.
+		nextUpstream = ""
+	}
 	if nextUpstream != "" {
 		if state, err := decodeEndpointCursor(opts.Cursor); err == nil && nextUpstream == state.UpstreamCursor {
 			nextUpstream = ""
@@ -499,28 +506,35 @@ func decodeEndpointCursor(cursor string) (endpointCursor, error) {
 }
 
 func extractStringPath(data json.RawMessage, path string) string {
+	s, _ := extractPath(data, path).(string)
+	return s
+}
+
+func extractBoolPath(data json.RawMessage, path string) bool {
+	b, _ := extractPath(data, path).(bool)
+	return b
+}
+
+func extractPath(data json.RawMessage, path string) any {
 	path = strings.TrimSpace(path)
 	if path == "" {
-		return ""
+		return nil
 	}
 	var v any
 	if json.Unmarshal(data, &v) != nil {
-		return ""
+		return nil
 	}
 	for _, part := range strings.Split(path, ".") {
 		obj, ok := v.(map[string]any)
 		if !ok {
-			return ""
+			return nil
 		}
 		v, ok = obj[part]
 		if !ok {
-			return ""
+			return nil
 		}
 	}
-	if s, ok := v.(string); ok {
-		return s
-	}
-	return ""
+	return v
 }
 
 func previewEnvelope(data []byte, note string) string {

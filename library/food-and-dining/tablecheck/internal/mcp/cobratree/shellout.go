@@ -69,12 +69,16 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 			return boundedToolResultError(err.Error()), nil
 		}
 		finalArgs = append(finalArgs, positionalArgs...)
+		var rawPositionals []string
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
-			rawPositionals := positionalArgsFromRawArgsField(raw, positionals, len(positionalArgs))
+			rawPositionals = positionalArgsFromRawArgsField(raw, positionals, len(positionalArgs))
 			if err := validatePositionalArgsForMCPAtOffset(rawPositionals, readOnly, positionalWriteSinks, len(positionalArgs)); err != nil {
 				return boundedToolResultError(err.Error()), nil
 			}
 			finalArgs = append(finalArgs, rawPositionals...)
+		}
+		if len(commandPath) == 2 && commandPath[0] == "availability" && commandPath[1] == "scan" && len(positionalArgs)+len(rawPositionals) > 5 {
+			return boundedToolResultError("availability scan accepts at most five venue slugs"), nil
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
