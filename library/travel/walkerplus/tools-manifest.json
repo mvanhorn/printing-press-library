@@ -1,0 +1,36 @@
+{
+  "api_name": "walkerplus",
+  "base_url": "https://www.walkerplus.com",
+  "description": "Discover Japan events for a trip with source-backed dates and schedule confidence.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "event_list_ar0726e612292",
+      "description": "Fetch structured links from /event/ar0726e612292/. Returns the html.",
+      "method": "GET",
+      "path": "/event/ar0726e612292/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "event_list_list_eg0055",
+      "description": "Fetch structured links from /event_list/ar0726/eg0055/. Returns the html.",
+      "method": "GET",
+      "path": "/event_list/ar0726/eg0055/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Trip shortlist",
+      "command": "shortlist",
+      "description": "Find exact-edition trip candidates with schedule confidence, constraints and explainable ranking."
+    }
+  ]
+}

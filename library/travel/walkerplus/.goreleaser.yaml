@@ -1,0 +1,55 @@
+version: 2
+project_name: walkerplus-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: walkerplus-pp-cli
+    main: ./cmd/walkerplus-pp-cli
+    binary: walkerplus-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: walkerplus-pp-mcp
+    main: ./cmd/walkerplus-pp-mcp
+    binary: walkerplus-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: walkerplus-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Discover Japan events for a trip with source-backed dates and schedule confidence."
+    install: |
+      bin.install "walkerplus-pp-cli"
+      bin.install "walkerplus-pp-mcp"

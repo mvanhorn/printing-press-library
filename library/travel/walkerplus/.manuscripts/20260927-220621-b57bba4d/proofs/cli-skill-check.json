@@ -1,0 +1,14 @@
+{
+  "cli_dir": "<cli-dir>",
+  "skill_path": "<cli-dir>/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 8,
+  "findings": []
+}

@@ -1,0 +1,17 @@
+?   	walkerplus-pp-cli/cmd/walkerplus-pp-cli	[no test files]
+ok  	walkerplus-pp-cli/cmd/walkerplus-pp-mcp	0.476s
+?   	walkerplus-pp-cli/internal/cache	[no test files]
+ok  	walkerplus-pp-cli/internal/cli	1.883s
+ok  	walkerplus-pp-cli/internal/client	1.867s
+ok  	walkerplus-pp-cli/internal/cliutil	14.061s
+?   	walkerplus-pp-cli/internal/cliutil/testenv	[no test files]
+?   	walkerplus-pp-cli/internal/config	[no test files]
+ok  	walkerplus-pp-cli/internal/mcp	1.329s
+ok  	walkerplus-pp-cli/internal/mcp/bound	2.556s
+ok  	walkerplus-pp-cli/internal/mcp/cobratree	9.829s
+ok  	walkerplus-pp-cli/internal/platform	4.028s
+ok  	walkerplus-pp-cli/internal/store	3.820s
+?   	walkerplus-pp-cli/internal/types	[no test files]
+ok  	walkerplus-pp-cli/internal/walkerplus	8.592s
+ok  	walkerplus-pp-cli/internal/walkerplusacceptance	57.833s
+ok  	walkerplus-pp-cli/tests	4.291s

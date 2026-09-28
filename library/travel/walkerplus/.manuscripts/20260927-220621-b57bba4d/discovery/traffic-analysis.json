@@ -1,0 +1,105 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.walkerplus.com/event_list/ar0726/eg0055/",
+    "entry_count": 2,
+    "api_entry_count": 0,
+    "noise_entry_count": 2,
+    "host_distribution": {
+      "www.walkerplus.com": 2
+    },
+    "http_version_distribution": {
+      "h2": 2
+    },
+    "time_start": "2026-09-27T14:22:31.96382Z",
+    "time_end": "2026-09-27T14:22:31.964657Z"
+  },
+  "reachability": {
+    "mode": "browser_required",
+    "confidence": 0.9,
+    "reasons": [
+      "CAPTCHA challenge observed"
+    ],
+    "evidence": [
+      {
+        "entry_index": 0,
+        "method": "GET",
+        "host": "www.walkerplus.com",
+        "path": "/event_list/ar0726/eg0055/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "www.walkerplus.com",
+        "path": "/event/ar0726e612292/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "CAPTCHA marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.walkerplus.com",
+          "path": "/event_list/ar0726/eg0055/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.walkerplus.com",
+          "path": "/event/ar0726e612292/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        }
+      ],
+      "details": {
+        "signature": "application/ld+json"
+      }
+    }
+  ],
+  "auth": {},
+  "protections": [
+    {
+      "label": "captcha",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.walkerplus.com",
+          "path": "/event_list/ar0726/eg0055/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.walkerplus.com",
+          "path": "/event/ar0726e612292/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "CAPTCHA marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [],
+  "generation_hints": [
+    "requires_page_context",
+    "requires_protected_client"
+  ]
+}

@@ -1,0 +1,10 @@
+<li class="m-mainlist__item"><div class="m-mainlist-item">
+<a href="/event/{{.ID}}/"><span class="m-mainlist-item__ttl">{{.Title}}</span></a>
+<p class="m-mainlist-item-event__period">{{.Period}}</p>
+<div class="m-mainlist-item__link">
+<a class="m-mainlist-item__txt" href="/event/{{.ID}}/">{{.Description}}</a>
+<p class="m-mainlist-item__map"><a class="m-mainlist-item__maplink" href="/event_list/{{.PrefectureCode}}/">{{.PrefectureJA}}</a>{{.CityLink}}</p>
+<p class="m-mainlist-item-event__place">{{.Venue}}</p>
+<ul class="m-mainlist-item__tags">{{.CategoryLinks}}</ul></div>
+<div class="m-mainlist-item-category"><ul class="m-mainlist-item-category__categories">{{.ListingFacts}}</ul></div>
+</div></li>

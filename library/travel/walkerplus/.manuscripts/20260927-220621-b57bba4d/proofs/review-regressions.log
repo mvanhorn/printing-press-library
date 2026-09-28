@@ -1,0 +1,35 @@
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	0.521s
+--- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence (15.01s)
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/weekly_short_closed (1.50s)
+        review_regressions_test.go:43: want exactly one positive result, got 0: {Query:{cityPath: cityName: Prefecture:ar0313 City: Category:eg0120 From:2026-10-11 To:2026-10-13 Timing:overlap Sort:relevance Limit:10 Page:1 MaxPages:1 MaxDetails:10 Free:false Indoor:false} Events:[] Coverage:{CatalogRequests:0 CatalogRoutes:[] RequestedPages:1 ScannedPages:1 CandidateCount:1 DetailCount:1 ReturnedCount:0 ExcludedCount:1 RequestCount:4 CacheHits:0 ElapsedMS:1501 Truncated:false Incomplete:false Reasons:[native month routes have no year selector; undisclosed editions cannot be discovered] Routes:[https://www.walkerplus.com/event_list/10/ar0313/eg0120/] NativeYearLabels:[2026] NextPage:<nil> SourceTotal:0x52d8eff868b0}}
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/weekly_full_closed (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11]; want []
+        review_regressions_test.go:48: possible_days = []; want [2026-10-11 2026-10-13]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/weekly_label_closed (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11 2026-10-12]; want []
+        review_regressions_test.go:48: possible_days = []; want [2026-10-11 2026-10-13]
+        review_regressions_test.go:50: closed_weekdays = []; want [月曜]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/plain_closed (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11 2026-10-13]; want []
+        review_regressions_test.go:48: possible_days = []; want [2026-10-11 2026-10-13]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/daily_label_closed (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11 2026-10-12 2026-10-13]; want [2026-10-11 2026-10-13]
+        review_regressions_test.go:50: closed_weekdays = []; want [月曜]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/positive_monday_only (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11 2026-10-12]; want [2026-10-12]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/positive_then_closure (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11 2026-10-13]; want [2026-10-13]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/closure_then_positive (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-11]; want [2026-10-13]
+    --- FAIL: TestReviewWeeklyClosuresAndPositiveRecurrence/unsupported_monthly_first_sunday (1.50s)
+        review_regressions_test.go:47: confirmed_days = [2026-10-12]; want []
+        review_regressions_test.go:48: possible_days = []; want [2026-10-11 2026-10-12 2026-10-13]
+        review_regressions_test.go:53: unsupported monthly/nth-week schedule omitted unresolved explanation
+--- FAIL: TestReviewShortlistDefersMissingListingAttributesToDetail (0.50s)
+    review_regressions_test.go:119: Shortlist must recover exactly the detail-verified positive: IDs=[] coverage={CatalogRequests:0 CatalogRoutes:[] RequestedPages:1 ScannedPages:1 CandidateCount:6 DetailCount:0 ReturnedCount:0 ExcludedCount:6 RequestCount:1 CacheHits:0 ElapsedMS:501 Truncated:true Incomplete:false Reasons:[native month routes have no year selector; undisclosed editions cannot be discovered listing page budget reached] Routes:[https://www.walkerplus.com/event_list/10/ar0313113/shibuya/eg0120/] NativeYearLabels:[2026] NextPage:0x52d8efd81c50 SourceTotal:0x52d8efc37098}
+FAIL
+FAIL	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	15.707s
+FAIL
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	21.968s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	81.353s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/internal/walkerplusacceptance	21.483s

@@ -1,0 +1,3 @@
+# README / SKILL / AGENTS audit
+
+PASS — root Astra direct review against shipped help, source, approved manifest, final static skill check and live proofs. Commands/flags/examples resolve; no executable placeholders or unsupported CRUD/sync/auth claims. Read-only/no-auth scope and local-only unpublished installation are explicit. Unique features match the verified shortlist family. Price/admission distinction, source-versus-derived fields, city catalog overhead, confidence/coverage and cache bounds are documented. Exit codes match tested usage/notfound/source/rate-limit paths. AGENTS points to authoritative README/SKILL and source seams. No unresolved findings.

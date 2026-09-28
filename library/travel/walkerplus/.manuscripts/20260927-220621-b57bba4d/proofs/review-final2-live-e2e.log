@@ -1,0 +1,94 @@
+=== RUN   TestLiveMultiRegionCategories
+=== RUN   TestLiveMultiRegionCategories/tokyo_art
+    live_test.go:62: PASS command=["search" "--prefecture" "tokyo" "--category" "art-exhibitions" "--from" "2026-09-27" "--to" "2026-09-30" "--max-pages" "3" "--limit" "10"] stdout_bytes=24456 wall_ms=1024 diagnostics=""
+    live_test.go:116: PASS assertions=50 unique_events=10 scanned_pages=2 detail_count=0 request_count=2
+=== RUN   TestLiveMultiRegionCategories/kyoto_festival
+    live_test.go:62: PASS command=["search" "--prefecture" "kyoto" "--category" "festival" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "3" "--limit" "10"] stdout_bytes=22631 wall_ms=531 diagnostics=""
+    live_test.go:116: PASS assertions=50 unique_events=10 scanned_pages=2 detail_count=0 request_count=2
+=== RUN   TestLiveMultiRegionCategories/hokkaido_fireworks
+    live_test.go:62: PASS command=["search" "--prefecture" "hokkaido" "--category" "fireworks" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "3" "--limit" "10"] stdout_bytes=5496 wall_ms=61 diagnostics=""
+    live_test.go:116: PASS assertions=10 unique_events=2 scanned_pages=1 detail_count=0 request_count=1
+=== RUN   TestLiveMultiRegionCategories/miyagi_art
+    live_test.go:62: PASS command=["search" "--prefecture" "miyagi" "--category" "art-exhibitions" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "3" "--limit" "10"] stdout_bytes=5817 wall_ms=47 diagnostics=""
+    live_test.go:116: PASS assertions=10 unique_events=2 scanned_pages=1 detail_count=0 request_count=1
+--- PASS: TestLiveMultiRegionCategories (1.67s)
+    --- PASS: TestLiveMultiRegionCategories/tokyo_art (1.02s)
+    --- PASS: TestLiveMultiRegionCategories/kyoto_festival (0.53s)
+    --- PASS: TestLiveMultiRegionCategories/hokkaido_fireworks (0.06s)
+    --- PASS: TestLiveMultiRegionCategories/miyagi_art (0.05s)
+=== RUN   TestLiveKnownDetailEvidence
+=== RUN   TestLiveKnownDetailEvidence/free_optional_purchases
+    live_test.go:162: PASS command=["event" "ar0726e612484"] stdout_bytes=3285 wall_ms=1025 diagnostics=""
+    live_test.go:175: PASS actual source evidence id=ar0726e612484 title="京都パンフェスティバルin上賀茂神社 2026" requests=3
+=== RUN   TestLiveKnownDetailEvidence/paid_reservations
+    live_test.go:162: PASS command=["event" "ar0313e603640"] stdout_bytes=3728 wall_ms=1027 diagnostics=""
+    live_test.go:175: PASS actual source evidence id=ar0313e603640 title="はてな展" requests=3
+=== RUN   TestLiveKnownDetailEvidence/weather
+    live_test.go:162: PASS command=["event" "ar0101e66092"] stdout_bytes=3011 wall_ms=1035 diagnostics=""
+    live_test.go:175: PASS actual source evidence id=ar0101e66092 title="第45回 洞爺湖ロングラン花火大会" requests=3
+=== RUN   TestLiveKnownDetailEvidence/indoor
+    live_test.go:162: PASS command=["event" "ar0727e612159"] stdout_bytes=2885 wall_ms=1032 diagnostics=""
+    live_test.go:175: PASS actual source evidence id=ar0727e612159 title="緑と生き物メダカカーニバルVol.7" requests=3
+=== RUN   TestLiveKnownDetailEvidence/holiday_rule
+    live_test.go:162: PASS command=["event" "ar0204e612432"] stdout_bytes=4462 wall_ms=1030 diagnostics=""
+    live_test.go:175: PASS actual source evidence id=ar0204e612432 title="ポケモン×工芸展ー美とわざの大発見ー(宮城)" requests=3
+--- PASS: TestLiveKnownDetailEvidence (5.16s)
+    --- PASS: TestLiveKnownDetailEvidence/free_optional_purchases (1.03s)
+    --- PASS: TestLiveKnownDetailEvidence/paid_reservations (1.03s)
+    --- PASS: TestLiveKnownDetailEvidence/weather (1.04s)
+    --- PASS: TestLiveKnownDetailEvidence/indoor (1.03s)
+    --- PASS: TestLiveKnownDetailEvidence/holiday_rule (1.03s)
+=== RUN   TestLiveShortlistAndWrongYear
+    live_test.go:183: PASS command=["shortlist" "--prefecture" "kyoto" "--category" "festival" "--from" "2026-10-01" "--to" "2026-10-31" "--max-pages" "1" "--max-details" "3" "--limit" "3"] stdout_bytes=10645 wall_ms=4530 diagnostics=""
+    live_test.go:227: PASS command=["event" "ar0726e612292" "--select" "id,location.venue"] stdout_bytes=512 wall_ms=1030 diagnostics=""
+    live_test.go:232: PASS shortlist events=3 details=3 requests=10
+    live_test.go:233: PASS command=["search" "--prefecture" "kyoto" "--category" "festival" "--from" "2100-10-01" "--to" "2100-10-31" "--max-pages" "1"] stdout_bytes=1001 wall_ms=57 diagnostics=""
+    live_test.go:237: PASS negative wrong-year assertion: events=[] after one actual source page
+--- PASS: TestLiveShortlistAndWrongYear (5.62s)
+=== RUN   TestLiveCatalogs
+    live_test.go:243: PASS command=["categories"] stdout_bytes=5798 wall_ms=12 diagnostics=""
+    live_test.go:260: PASS command=["areas"] stdout_bytes=6758 wall_ms=10 diagnostics=""
+    live_test.go:264: PASS command=["areas" "--prefecture" "tokyo"] stdout_bytes=4736 wall_ms=489 diagnostics=""
+    live_test.go:277: PASS catalogs categories=36 prefectures=47 Tokyo_cities=28
+--- PASS: TestLiveCatalogs (0.51s)
+=== RUN   TestLiveCityCodesAliasesAndPrefecture
+    live_test.go:283: PASS command=["areas" "--prefecture" "tokyo"] stdout_bytes=4735 wall_ms=59 diagnostics=""
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/ar0313104
+    live_test.go:297: PASS command=["search" "--prefecture" "tokyo" "--city" "ar0313104" "--limit" "3" "--max-pages" "1"] stdout_bytes=7483 wall_ms=537 diagnostics=""
+    live_test.go:334: PASS city=ar0313104 events=3 catalog_requests=1 event_pages=1 actual_HTTP=2
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/shinjuku
+    live_test.go:297: PASS command=["search" "--prefecture" "tokyo" "--city" "shinjuku" "--limit" "3" "--max-pages" "1"] stdout_bytes=7483 wall_ms=548 diagnostics=""
+    live_test.go:334: PASS city=shinjuku events=3 catalog_requests=1 event_pages=1 actual_HTTP=2
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/新宿区
+    live_test.go:297: PASS command=["search" "--prefecture" "tokyo" "--city" "新宿区" "--limit" "3" "--max-pages" "1"] stdout_bytes=7483 wall_ms=541 diagnostics=""
+    live_test.go:334: PASS city=新宿区 events=3 catalog_requests=1 event_pages=1 actual_HTTP=2
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_ar0313104
+    live_test.go:356: PASS negative city=ar0313104 prefecture=kyoto exit2 no successful event result
+=== RUN   TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_shinjuku
+    live_test.go:356: PASS negative city=shinjuku prefecture=kyoto exit2 no successful event result
+--- PASS: TestLiveCityCodesAliasesAndPrefecture (1.76s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/ar0313104 (0.54s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/shinjuku (0.55s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/新宿区 (0.54s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_ar0313104 (0.02s)
+    --- PASS: TestLiveCityCodesAliasesAndPrefecture/wrong_prefecture_shinjuku (0.06s)
+=== RUN   TestLiveFreeAdmissionShortlist
+    live_test.go:364: PASS command=["shortlist" "--prefecture" "kyoto" "--category" "festival" "--from" "2026-10-10" "--to" "2026-10-11" "--free" "--max-pages" "3" "--max-details" "10" "--limit" "10"] stdout_bytes=10713 wall_ms=6535 diagnostics=""
+    live_test.go:386: PASS --free Kyoto Oct10-11 includes ar0726e612484 with paid-purchase caveat; events=3 details=4 actual_HTTP=14
+--- PASS: TestLiveFreeAdmissionShortlist (6.54s)
+=== RUN   TestLiveTimingBoundaryModes
+=== RUN   TestLiveTimingBoundaryModes/starts
+    live_test.go:394: PASS command=["shortlist" "--prefecture" "hokkaido" "--category" "fireworks" "--from" "2026-10-01" "--to" "2026-10-15" "--timing" "starts" "--max-pages" "1" "--max-details" "2" "--limit" "2"] stdout_bytes=4166 wall_ms=1538 diagnostics=""
+    live_test.go:426: PASS starts: TomakomaiOct10 included, long-run excluded, every source boundary insideOct1-15; events=1 details=1 HTTP=4
+=== RUN   TestLiveTimingBoundaryModes/ends
+    live_test.go:394: PASS command=["shortlist" "--prefecture" "hokkaido" "--category" "fireworks" "--from" "2026-10-01" "--to" "2026-10-15" "--timing" "ends" "--max-pages" "1" "--max-details" "2" "--limit" "2"] stdout_bytes=4160 wall_ms=1530 diagnostics=""
+    live_test.go:426: PASS ends: TomakomaiOct10 included, long-run excluded, every source boundary insideOct1-15; events=1 details=1 HTTP=4
+--- PASS: TestLiveTimingBoundaryModes (3.07s)
+    --- PASS: TestLiveTimingBoundaryModes/starts (1.54s)
+    --- PASS: TestLiveTimingBoundaryModes/ends (1.53s)
+=== RUN   TestLiveIndoorShortlist
+    live_test.go:437: PASS command=["shortlist" "--prefecture" "osaka" "--city" "ar0727100" "--category" "exhibitions" "--from" "2026-10-11" "--to" "2026-10-11" "--indoor" "--max-pages" "1" "--max-details" "3" "--limit" "3"] stdout_bytes=4094 wall_ms=5033 diagnostics=""
+    live_test.go:468: PASS --indoor: actual e612159 Oct11 included; every returned indoor=true; events=1 details=3 catalog_HTTP=1 total_HTTP=11
+--- PASS: TestLiveIndoorShortlist (5.04s)
+PASS
+ok  	github.com/mvanhorn/printing-press-library/library/travel/walkerplus/tests	29.556s

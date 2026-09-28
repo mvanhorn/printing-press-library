@@ -1,0 +1,125 @@
+{
+  "dir": "<cli-dir>",
+  "spec_path": "<cli-dir>/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 23,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 5,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 7,
+    "with_examples": 6,
+    "valid_examples": 6,
+    "missing": [
+      "schema"
+    ],
+    "detail": "6/7 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 35,
+      "registered": 33,
+      "unregistered": [
+        "event",
+        "newNovelShortlistCmd"
+      ]
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 3,
+      "mapped_steps": 2,
+      "unmapped_steps": [
+        "event ${EVENT_ID} --refresh --no-cache --select id,title_ja,source_url,start_date,end_date,location,schedule,admission,reservation_required,sources"
+      ],
+      "detail": "2/3 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 1,
+    "found": 1
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 1,
+    "exempted_via_store": 0
+  },
+  "description_drift_check": {
+    "expected": "Discover Japan events for a trip with source-backed dates and schedule confidence."
+  },
+  "source_client_check": {
+    "checked": 15
+  },
+  "print_json_filtered_check": {
+    "checked": 21
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 21
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "5 dead helper functions found",
+    "sync uses generic Upsert only",
+    "2 unregistered commands: event, newNovelShortlistCmd",
+    "1 unmapped workflow steps: event ${EVENT_ID} --refresh --no-cache --select id,title_ja,source_url,start_date,end_date,location,schedule,admission,reservation_required,sources"
+  ]
+}

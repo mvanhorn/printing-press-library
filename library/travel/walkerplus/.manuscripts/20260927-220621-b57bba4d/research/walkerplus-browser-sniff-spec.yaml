@@ -1,0 +1,60 @@
+name: walkerplus
+description: Discover Japan events for a trip with source-backed dates and schedule confidence.
+version: 0.1.0
+base_url: https://www.walkerplus.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/walkerplus-pp-cli/config.toml
+resources:
+    event:
+        description: Operations on ar0726e612292
+        endpoints:
+            list_ar0726e612292:
+                method: GET
+                path: /event/ar0726e612292/
+                description: Fetch structured links from /event/ar0726e612292/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    event_list:
+        description: Operations on eg0055
+        endpoints:
+            list_eg0055:
+                method: GET
+                path: /event_list/ar0726/eg0055/
+                description: Fetch structured links from /event_list/ar0726/eg0055/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}
+
+category: travel
+website_url: https://www.walkerplus.com/event_list/
+api_language: ja
+regions: [JP]
+health_check_path: /event_list/
+# User-approved read-through CLI: no persistent learning or sync database.
+learn:
+  disabled: true
+cache:
+  enabled: false

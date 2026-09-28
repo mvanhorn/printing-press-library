@@ -1,0 +1,11 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/walkerplus-pp-cli
+/walkerplus-pp-cli.exe
+/walkerplus-pp-mcp
+/walkerplus-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Workspace-local Printing Press state and Go caches
+.press/

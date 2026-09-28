@@ -1,0 +1,2 @@
+# Direct HTTP review
+Original browser-sniff analysis retained in discovery/traffic-analysis.json. Its CAPTCHA marker is a hidden google.com/recaptcha iframe in browser-rendered DOM. Independent unauthenticated curl returns HTTP200 and full event data on both captured Walkerplus routes. Verified raw bodies preserved as direct-kyoto.html and direct-detail.html. Reviewed analysis records direct_http; no browser bypass, cookies, or browser runtime required.

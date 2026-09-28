@@ -1,0 +1,36 @@
+{
+  "cli_dir": "<public-cli-dir>",
+  "module": "github.com/mvanhorn/printing-press-library/library/travel/walkerplus",
+  "go_test_exit": 0,
+  "go_vet_exit": 0,
+  "go_build_exit": 0,
+  "govulncheck_exit": 0,
+  "govulncheck_version": "v1.3.0",
+  "govulncheck_scope": "reachable-only default",
+  "passing_test_packages": 11,
+  "no_test_packages": 6,
+  "live_e2e_repeated": false,
+  "repo_verify_skill": {
+    "status": "PASS",
+    "recipes_checked": 19,
+    "findings": [],
+    "checks_run": [
+      "flag-names",
+      "flag-commands",
+      "positional-args",
+      "shell-var-quotes",
+      "unknown-command"
+    ]
+  },
+  "govulncheck_result": "No vulnerabilities found.",
+  "status": "PASS",
+  "source_changes": "none",
+  "github_actions": "none",
+  "logs": [
+    "public-go-test.log",
+    "public-go-vet.log",
+    "public-go-build.log",
+    "public-govulncheck.log",
+    "public-verify-skill.log"
+  ]
+}

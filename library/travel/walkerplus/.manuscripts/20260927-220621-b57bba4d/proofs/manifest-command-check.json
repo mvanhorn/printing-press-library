@@ -1,0 +1,22 @@
+[
+  {
+    "command": "search",
+    "resolves": true
+  },
+  {
+    "command": "shortlist",
+    "resolves": true
+  },
+  {
+    "command": "event",
+    "resolves": true
+  },
+  {
+    "command": "areas",
+    "resolves": true
+  },
+  {
+    "command": "categories",
+    "resolves": true
+  }
+]

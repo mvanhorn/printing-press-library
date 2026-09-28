@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T16:03:15.398283Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "walkerplus",
+  "display_name": "Walkerplus",
+  "cli_name": "walkerplus-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "walkerplus-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:c6481cd050a8699dc2f7fc86b6a3140b9ac8ffd54890d0719cd680c9db32ca9d",
+  "run_id": "20260927-220621-b57bba4d",
+  "category": "travel",
+  "regions": [
+    "JP"
+  ],
+  "api_language": "ja",
+  "description": "Discover Japan events for a trip with source-backed dates and schedule confidence.",
+  "mcp_binary": "walkerplus-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Trip shortlist",
+      "command": "shortlist",
+      "description": "Find exact-edition trip candidates with schedule confidence, constraints and explainable ranking."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Trip shortlist",
+      "command": "shortlist",
+      "description": "Find exact-edition trip candidates with schedule confidence, constraints and explainable ranking."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 8,
+    "total": 8,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}
