@@ -1,0 +1,130 @@
+{
+  "dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli",
+  "spec_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/spec.json",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 23,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 112,
+    "dead": 5,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": false,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found; defaultSyncResources empty (sync command is a no-op)"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 5,
+    "valid_examples": 5,
+    "missing": [
+      "lists alternatives",
+      "lists compare",
+      "lists note",
+      "lists remove",
+      "lists show"
+    ],
+    "detail": "5/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 57,
+      "registered": 57
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5,
+    "built_with_stub": [
+      "lists compare",
+      "lists refresh",
+      "lists add",
+      "lists alternatives",
+      "lists audit"
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 5
+  },
+  "description_drift_check": {
+    "expected": "Find Japan restaurants and bars, then keep a factual trip shortlist."
+  },
+  "source_client_check": {
+    "checked": 15
+  },
+  "print_json_filtered_check": {
+    "checked": 39
+  },
+  "test_presence": {
+    "checked": 4,
+    "missing_tests": [
+      "domain"
+    ],
+    "thin_tests": [
+      "notebook (2 test funcs)"
+    ]
+  },
+  "naming_check": {
+    "checked": 39
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "5 dead helper functions found",
+    "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path",
+    "5/5 novel features are TODO stubs: lists compare, lists refresh, lists add, lists alternatives, lists audit",
+    "pure-logic packages with no tests: domain"
+  ]
+}

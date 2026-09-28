@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "phase17-cluster-b",
+  "files": [
+    "internal/notebook/notebook.go",
+    "internal/cli/tabelog_lists_refresh.go",
+    "internal/client/client.go",
+    "internal/cli/deliver.go",
+    "internal/client/response_size_test.go",
+    "internal/cli/deliver_atomic_test.go",
+    "internal/cli/refresh_budget_facts_test.go"
+  ],
+  "call_sites": [
+    "changes, added, err = listSnapshotChanges",
+    "readDecodedBody(resp.Body)",
+    "writeDownloadUnder(dir, filepath.Base(path), body)"
+  ]
+}

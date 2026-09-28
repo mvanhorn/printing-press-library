@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-27T18:48:53.563757Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "tabelog",
+  "display_name": "Tabelog",
+  "cli_name": "tabelog-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "tabelog-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:b545085c284d1387ef843426f51731c5e73c624c0942f8c8bc6263e0407f123f",
+  "run_id": "20260927-212939-86ef661f",
+  "category": "food-and-dining",
+  "description": "Find Japan restaurants and bars, then keep a factual trip shortlist.",
+  "mcp_binary": "tabelog-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Offline factual comparison",
+      "command": "lists compare",
+      "description": "Compare saved restaurants, meal budgets and personal notes without network requests."
+    },
+    {
+      "name": "Bounded refresh with fact changes",
+      "command": "lists refresh",
+      "description": "Update selected saved restaurants and see changed facts while keeping personal notes."
+    },
+    {
+      "name": "Trip notebook with personal notes",
+      "command": "lists add",
+      "description": "Keep fetched restaurants and personal notes in a named trip list that can be resumed offline."
+    },
+    {
+      "name": "Saved alternatives with explicit constraints",
+      "command": "lists alternatives",
+      "description": "Find saved substitutes matching a candidate's verified area, category and optional meal budget."
+    },
+    {
+      "name": "Missing-evidence and freshness audit",
+      "command": "lists audit",
+      "description": "See which saved candidates have unfetched, unknown or old facts before requesting more details."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline factual comparison",
+      "command": "lists compare",
+      "description": "Compare saved restaurants, meal budgets and personal notes without network requests."
+    },
+    {
+      "name": "Bounded refresh with fact changes",
+      "command": "lists refresh",
+      "description": "Update selected saved restaurants and see changed facts while keeping personal notes."
+    },
+    {
+      "name": "Trip notebook with personal notes",
+      "command": "lists add",
+      "description": "Keep fetched restaurants and personal notes in a named trip list that can be resumed offline."
+    },
+    {
+      "name": "Saved alternatives with explicit constraints",
+      "command": "lists alternatives",
+      "description": "Find saved substitutes matching a candidate's verified area, category and optional meal budget."
+    },
+    {
+      "name": "Missing-evidence and freshness audit",
+      "command": "lists audit",
+      "description": "See which saved candidates have unfetched, unknown or old facts before requesting more details."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 93.75,
+    "passed": 15,
+    "total": 16,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A",
+      "total": 83
+    }
+  }
+}

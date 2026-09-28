@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "area": {
+        "area1": "A1301",
+        "area2": "A130101",
+        "prefecture": "tokyo",
+        "verified": true
+      },
+      "awards": [
+        "Selected for Tabelog Bar \"Tabelog 100\" 2022"
+      ],
+      "categories": [
+        "Bar"
+      ],
+      "closures": "Monday, Sunday",
+      "dinner_budget": {
+        "max_jpy": 4999,
+        "min_jpy": 4000,
+        "raw": "JPY 4,000 - JPY 4,999",
+        "source": "listing"
+      },
+      "facilities": [
+        "Credit card accepted",
+        "Non smoking"
+      ],
+      "id": "13002248",
+      "lunch_budget": {
+        "max_jpy": null,
+        "min_jpy": null,
+        "raw": "-",
+        "source": "listing"
+      },
+      "name": "BAR Opa Ginza",
+      "nearest_station": "Ginza Itchome Sta.",
+      "nearest_station_distance_m": 79,
+      "rating": 3.79,
+      "review_count": 341,
+      "url": "https://tabelog.com/en/tokyo/A1301/A130101/13002248/"
+    }
+  ],
+  "meta": {
+    "source": "local",
+    "source_url": "https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\u0026RdoCosTp=2\u0026SrtT=rt",
+    "fetched_at": "2026-09-27T16:07:42.69149Z",
+    "age_seconds": 4773,
+    "stale": false,
+    "source_surface": "listing",
+    "returned": 1,
+    "scanned": 1,
+    "pages": 0,
+    "has_more": false,
+    "requests": 0,
+    "bytes": 0,
+    "coverage": "cached_snapshot"
+  }
+}

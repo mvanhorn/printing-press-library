@@ -1,0 +1,34 @@
+=== RUN   TestNotebookPreservesUserDataAndRollsBackSnapshotBatch
+--- PASS: TestNotebookPreservesUserDataAndRollsBackSnapshotBatch (0.00s)
+=== RUN   TestUnsavedSnapshotBudgetProtectsListMembers
+--- PASS: TestUnsavedSnapshotBudgetProtectsListMembers (0.07s)
+PASS
+ok  	tabelog-pp-cli/internal/notebook	0.481s
+=== RUN   TestStreamingHTTPClientDropsWholeCallTimeout
+=== PAUSE TestStreamingHTTPClientDropsWholeCallTimeout
+=== RUN   TestClientNonBinaryResponseSizeLimit
+=== RUN   TestClientNonBinaryResponseSizeLimit/plain
+=== RUN   TestClientNonBinaryResponseSizeLimit/identity
+=== RUN   TestClientNonBinaryResponseSizeLimit/transparent-gzip
+=== RUN   TestClientNonBinaryResponseSizeLimit/error-body
+--- PASS: TestClientNonBinaryResponseSizeLimit (0.11s)
+    --- PASS: TestClientNonBinaryResponseSizeLimit/plain (0.03s)
+    --- PASS: TestClientNonBinaryResponseSizeLimit/identity (0.02s)
+    --- PASS: TestClientNonBinaryResponseSizeLimit/transparent-gzip (0.04s)
+    --- PASS: TestClientNonBinaryResponseSizeLimit/error-body (0.02s)
+=== RUN   TestClientBinaryResponseRetainsLargePayload
+--- PASS: TestClientBinaryResponseRetainsLargePayload (0.10s)
+=== CONT  TestStreamingHTTPClientDropsWholeCallTimeout
+--- PASS: TestStreamingHTTPClientDropsWholeCallTimeout (0.00s)
+PASS
+ok  	tabelog-pp-cli/internal/client	0.959s
+=== RUN   TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched
+--- PASS: TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched (0.00s)
+=== RUN   TestWriteDownloadUnderConcurrentOutputsRemainComplete
+--- PASS: TestWriteDownloadUnderConcurrentOutputsRemainComplete (0.02s)
+=== RUN   TestWriteDownloadUnderRejectsEscapeAndUsesPrivateMode
+--- PASS: TestWriteDownloadUnderRejectsEscapeAndUsesPrivateMode (0.00s)
+=== RUN   TestRefreshSeparatesBudgetFactsFromSourceProvenance
+--- PASS: TestRefreshSeparatesBudgetFactsFromSourceProvenance (0.01s)
+PASS
+ok  	tabelog-pp-cli/internal/cli	0.954s

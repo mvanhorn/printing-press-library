@@ -1,0 +1,34 @@
+=== RUN   TestRunOneFeatureCheckUsesHappyArgsOverlay
+--- PASS: TestRunOneFeatureCheckUsesHappyArgsOverlay (0.37s)
+=== RUN   TestRunOneFeatureCheckPreservesUnannotatedExample
+--- PASS: TestRunOneFeatureCheckPreservesUnannotatedExample (0.85s)
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/annotation_default_resolves_from_checkout
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/explicit_equals_home_wins
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/explicit_separated_home_wins
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/explicit_relative_home_is_preserved
+--- PASS: TestHappyArgsHomePrecedenceSharedByRunners (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/annotation_default_resolves_from_checkout (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/explicit_equals_home_wins (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/explicit_separated_home_wins (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/explicit_relative_home_is_preserved (0.00s)
+=== RUN   TestHappyArgsHomeDetectionHonorsFlagValuesAndTerminator
+--- PASS: TestHappyArgsHomeDetectionHonorsFlagValuesAndTerminator (0.00s)
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true
+--- PASS: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun (0.75s)
+    --- PASS: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json (0.39s)
+    --- PASS: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true (0.36s)
+=== RUN   TestLiveDogfoodDifferentJSONArgsStillExecute
+--- PASS: TestLiveDogfoodDifferentJSONArgsStillExecute (0.36s)
+=== RUN   TestLiveDogfoodFailedHappyRunIsNotReusedAsSuccess
+--- PASS: TestLiveDogfoodFailedHappyRunIsNotReusedAsSuccess (0.39s)
+=== RUN   TestLiveDogfoodReusedRunStillChecksJSONFidelity
+--- PASS: TestLiveDogfoodReusedRunStillChecksJSONFidelity (0.38s)
+=== RUN   TestAppendJSONArgDoesNotOverrideExplicitOutputMode
+--- PASS: TestAppendJSONArgDoesNotOverrideExplicitOutputMode (0.00s)
+=== RUN   TestRunLiveDogfoodJSONFidelityInheritsDryRunForMutator
+--- PASS: TestRunLiveDogfoodJSONFidelityInheritsDryRunForMutator (0.49s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	4.176s

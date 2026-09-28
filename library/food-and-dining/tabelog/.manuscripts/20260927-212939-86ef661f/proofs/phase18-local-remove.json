@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "id": "13002248",
+      "removed": true
+    }
+  ],
+  "meta": {
+    "source": "local",
+    "age_seconds": 0,
+    "stale": false,
+    "criteria": {
+      "list": "phase18-disposable-review",
+      "operation": "remove"
+    },
+    "returned": 1,
+    "scanned": 1,
+    "pages": 0,
+    "has_more": false,
+    "requests": 0,
+    "bytes": 0,
+    "coverage": "saved_list"
+  }
+}

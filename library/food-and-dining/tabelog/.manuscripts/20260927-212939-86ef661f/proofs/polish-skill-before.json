@@ -1,0 +1,14 @@
+{
+  "cli_dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli",
+  "skill_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 36,
+  "findings": []
+}

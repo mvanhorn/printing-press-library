@@ -1,0 +1,28 @@
+=== RUN   TestLiveDogfoodLocalFixtureConfinement
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/equals
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/space
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/no_authorization
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/no_local_annotation
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/remote_post
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/operator_home
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/no_home
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/relative_home
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/conflicting_homes
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/home_after_separator_is_data
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/home_as_note_is_data
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/note_then_real_home
+--- PASS: TestLiveDogfoodLocalFixtureConfinement (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/equals (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/space (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/no_authorization (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/no_local_annotation (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/remote_post (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/operator_home (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/no_home (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/relative_home (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/conflicting_homes (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/home_after_separator_is_data (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/home_as_note_is_data (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/note_then_real_home (0.00s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	0.599s

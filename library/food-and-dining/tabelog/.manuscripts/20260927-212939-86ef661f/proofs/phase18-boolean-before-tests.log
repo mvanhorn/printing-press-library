@@ -1,0 +1,25 @@
+=== RUN   TestLiveDogfoodApprovedLocalFixtureExecutesOnce
+--- PASS: TestLiveDogfoodApprovedLocalFixtureExecutesOnce (0.43s)
+=== RUN   TestLiveDogfoodBooleanAnnotationKeepsTypedArg
+    live_dogfood_public_fixture_test.go:188: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_public_fixture_test.go:188
+        	Error:      	Not equal: 
+        	            	expected: []string{"remove", "--json=true", "--note", "true"}
+        	            	actual  : []string{"remove", "--json", "true", "--note", "true"}
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,4 +1,5 @@
+        	            	-([]string) (len=4) {
+        	            	+([]string) (len=5) {
+        	            	  (string) (len=6) "remove",
+        	            	- (string) (len=11) "--json=true",
+        	            	+ (string) (len=6) "--json",
+        	            	+ (string) (len=4) "true",
+        	            	  (string) (len=6) "--note",
+        	Test:       	TestLiveDogfoodBooleanAnnotationKeepsTypedArg
+--- FAIL: TestLiveDogfoodBooleanAnnotationKeepsTypedArg (0.00s)
+FAIL
+FAIL	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	1.025s
+FAIL

@@ -1,0 +1,10 @@
+{
+  "searched_roots": [
+    "/Users/zjsng/printing-press",
+    "/Users/zjsng/Projects"
+  ],
+  "max_descendant_depth": 3,
+  "validated_public_clones": [
+    "/Users/zjsng/printing-press/.publish-repo-wasm-client-f65fabd2"
+  ]
+}

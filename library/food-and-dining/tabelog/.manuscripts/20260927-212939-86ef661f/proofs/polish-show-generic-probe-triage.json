@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {
+      "argv": [
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+        "show",
+        "mock-value",
+        "--dry-run",
+        "--agent",
+        "--home",
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/polish-show-dry-run-home"
+      ],
+      "exit_code": 2,
+      "stdout": "",
+      "stderr": "{\"code\":2,\"error\":\"use an HTTPS tabelog.com/en/ source URL\"}\n"
+    },
+    {
+      "argv": [
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+        "show",
+        "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+        "--dry-run",
+        "--agent",
+        "--home",
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/polish-show-dry-run-home"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"items\":[{\"action\":\"show\",\"criteria\":{\"cached_id_lookup\":false,\"detail_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\",\"restaurant\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\"},\"dry_run\":true,\"planned_lookups\":true}],\"meta\":{\"source\":\"dry-run\",\"age_seconds\":0,\"stale\":false,\"returned\":0,\"scanned\":0,\"pages\":0,\"has_more\":false,\"requests\":0,\"bytes\":0,\"coverage\":\"planned\",\"note\":\"No source request, cache write or local database access.\"}}\n",
+      "stderr": ""
+    }
+  ],
+  "home_created": false,
+  "network_io": false
+}

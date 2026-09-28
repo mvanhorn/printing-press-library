@@ -1,0 +1,54 @@
+{
+  "scope": "Disposable public-source saved notebook; no default user home",
+  "fixture_home": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home",
+  "ids": [
+    "13005012",
+    "13002248",
+    "13120361"
+  ],
+  "total_origin_requests": 2,
+  "steps": [
+    {
+      "command": "find",
+      "exit": 0,
+      "items": 5,
+      "requests": 1
+    },
+    {
+      "command": "show",
+      "exit": 0,
+      "items": 1,
+      "requests": 1
+    },
+    {
+      "command": "add-13005012",
+      "exit": 0,
+      "items": 1,
+      "requests": 0
+    },
+    {
+      "command": "add-13002248",
+      "exit": 0,
+      "items": 1,
+      "requests": 0
+    },
+    {
+      "command": "add-13120361",
+      "exit": 0,
+      "items": 1,
+      "requests": 0
+    },
+    {
+      "command": "fixture-note",
+      "exit": 0,
+      "items": 1,
+      "requests": 0
+    },
+    {
+      "command": "fixture-remove",
+      "exit": 0,
+      "items": 1,
+      "requests": 0
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "command": "areas",
+    "exit": 0,
+    "usage": "tabelog-pp-cli areas [QUERY] [flags]",
+    "leaf": true
+  },
+  {
+    "command": "cuisines",
+    "exit": 0,
+    "usage": "tabelog-pp-cli cuisines [QUERY] [flags]",
+    "leaf": true
+  },
+  {
+    "command": "find",
+    "exit": 0,
+    "usage": "tabelog-pp-cli find [flags]",
+    "leaf": true
+  },
+  {
+    "command": "show",
+    "exit": 0,
+    "usage": "tabelog-pp-cli show [URL_OR_CACHED_ID] [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists add",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists add LIST ID [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists show",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists show [LIST] [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists note",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists note LIST ID [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists remove",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists remove LIST ID [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists compare",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists compare LIST [ID ...] [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists refresh",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists refresh LIST [ID ...] [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists alternatives",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists alternatives LIST --for ID --match area,category [flags]",
+    "leaf": true
+  },
+  {
+    "command": "lists audit",
+    "exit": 0,
+    "usage": "tabelog-pp-cli lists audit LIST [flags]",
+    "leaf": true
+  }
+]

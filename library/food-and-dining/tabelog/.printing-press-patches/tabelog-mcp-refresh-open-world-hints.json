@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "tabelog-mcp-refresh-open-world-hints",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/intents.go",
+    "internal/mcp/tabelog_hints.go",
+    "internal/mcp/tabelog_list_hints_test.go",
+    "e2e/mcp_metadata_test.go"
+  ],
+  "call_sites": [
+    "applyTabelogToolHints(s)",
+    "s.AddTool(tool, registered.Handler)"
+  ],
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-212939-86ef661f",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Expose refresh as network-capable in MCP while offline comparison remains read-only and closed-world.",
+  "reason": "The generic local-write annotation cannot by itself describe refresh source access accurately.",
+  "validated_outcome": "Actual stdio tools/list and MCP catalog assertions passed."
+}

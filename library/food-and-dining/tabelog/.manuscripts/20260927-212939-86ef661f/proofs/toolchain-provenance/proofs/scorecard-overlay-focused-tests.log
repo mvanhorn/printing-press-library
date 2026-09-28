@@ -1,0 +1,24 @@
+=== RUN   TestRunOneFeatureCheckUsesHappyArgsOverlay
+--- PASS: TestRunOneFeatureCheckUsesHappyArgsOverlay (0.37s)
+=== RUN   TestRunOneFeatureCheckPreservesUnannotatedExample
+--- PASS: TestRunOneFeatureCheckPreservesUnannotatedExample (0.36s)
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/annotation_default_resolves_from_checkout
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/explicit_equals_home_wins
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/explicit_separated_home_wins
+=== RUN   TestHappyArgsHomePrecedenceSharedByRunners/explicit_relative_home_is_preserved
+--- PASS: TestHappyArgsHomePrecedenceSharedByRunners (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/annotation_default_resolves_from_checkout (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/explicit_equals_home_wins (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/explicit_separated_home_wins (0.00s)
+    --- PASS: TestHappyArgsHomePrecedenceSharedByRunners/explicit_relative_home_is_preserved (0.00s)
+=== RUN   TestHappyArgsHomeDetectionHonorsFlagValuesAndTerminator
+--- PASS: TestHappyArgsHomeDetectionHonorsFlagValuesAndTerminator (0.00s)
+=== RUN   TestLiveDogfoodStdinFixturePreservesHappyArgs
+--- PASS: TestLiveDogfoodStdinFixturePreservesHappyArgs (0.00s)
+=== RUN   TestLiveDogfoodHappyArgsReplacesNegativeExampleValues
+--- PASS: TestLiveDogfoodHappyArgsReplacesNegativeExampleValues (0.00s)
+=== RUN   TestLiveDogfoodHappyArgsHonorsPPHappyArgs
+--- PASS: TestLiveDogfoodHappyArgsHonorsPPHappyArgs (0.10s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	1.433s

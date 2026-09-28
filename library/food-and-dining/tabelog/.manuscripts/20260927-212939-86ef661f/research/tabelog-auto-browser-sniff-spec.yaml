@@ -1,0 +1,223 @@
+name: tabelog
+description: Discovered API spec for tabelog
+version: 0.1.0
+base_url: https://tabelog.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "keyword" from query: search input'
+config:
+    format: toml
+    path: ~/.config/tabelog-pp-cli/config.toml
+resources:
+    en:
+        description: Operations on keyword_suggest
+        endpoints:
+            get_A130103:
+                method: GET
+                path: /en/tokyo/A1301/A130103/{a130103_id}/
+                description: Fetch structured metadata from /en/tokyo/A1301/A130103/{a130103_id}/
+                params:
+                    - name: a130103_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The a130103_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            get_bar:
+                method: GET
+                path: /en/tokyo/A1301/A130101/rstLst/bar/{bar_id}/
+                description: Fetch structured metadata from /en/tokyo/A1301/A130101/rstLst/bar/{bar_id}/
+                params:
+                    - name: LstCosT
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: RdoCosTp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: SrtT
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bar_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The bar_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_bar:
+                method: GET
+                path: /en/tokyo/A1301/A130101/rstLst/bar/
+                description: Fetch structured links from /en/tokyo/A1301/A130101/rstLst/bar/
+                params:
+                    - name: SrtT
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_en:
+                method: GET
+                path: /en/
+                description: Fetch structured links from /en/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_keyword_suggest:
+                method: GET
+                path: /en/suggest/keyword_suggest
+                description: GET /en/suggest/keyword_suggest
+                params:
+                    - name: keyword
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: KeywordSuggest
+                pagination: null
+            list_rstLst:
+                method: GET
+                path: /en/rstLst/
+                description: Fetch structured links from /en/rstLst/
+                params:
+                    - name: Cat
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: LstAre
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: LstCos
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: LstCosT
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: LstPrf
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: RdoCosTp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: SrtT
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pcd
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    KeywordSuggest:
+        fields:
+            - name: LstAre
+              type: string
+            - name: LstPrf
+              type: string
+            - name: datatype
+              type: string
+            - name: exact_match
+              type: bool
+            - name: id_in_datatype
+              type: integer
+            - name: name
+              type: string
+            - name: pal
+              type: string
+            - name: station_id
+              type: string

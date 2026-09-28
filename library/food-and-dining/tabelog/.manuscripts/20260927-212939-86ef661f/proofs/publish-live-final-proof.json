@@ -1,0 +1,34 @@
+{
+  "kind": "publish-live-final-proof",
+  "status": "PASS",
+  "recorded_at": "2026-09-28T01:53:24.437811+00:00",
+  "mandatory_passed": 60,
+  "mandatory_failed": 0,
+  "skipped_unverified": 127,
+  "actual_local_mutator_effects": {
+    "add_inserted_previously_absent_member": true,
+    "note_changed_from_prepared_value": true,
+    "refresh_advanced_snapshot_time": true,
+    "remove_consumed_prepared_member": true,
+    "snapshot_preserved_after_remove": true
+  },
+  "state_verification_http_requests": 0,
+  "marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "marker_status": "pass",
+  "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+  "source_file_count": 147,
+  "marker_identical_in_embedded_archive_runstate": true,
+  "raw_stdout_private_deleted": true,
+  "raw_stdout_sha256": "e63a6425fb76a33980b075498441d99deb8c16f9207faec92daf7e4462fa1188",
+  "disposable_fixture_requarantined_outside_library_and_manuscripts": true,
+  "library_fixture_absent": true,
+  "docs_unchanged": true,
+  "successful_diagnostic_public_GETs": 1,
+  "fresh_matrix_public_GET_count": "not directly recorded by compact runner summary; four source-facing happy commands passed",
+  "sandbox_denied_attempts_not_completed_GETs": true,
+  "compact_proof_sha256": {
+    "publish-live-gate-summary.json": "1fa6b008f1acf95e1b36cc1619a1d78e14de2bbcdef55124014cc9c2c11c21f8",
+    "publish-live-mutator-before.json": "013342cfe4d1457a15f272054784b956d0c6a6f059ebb6b90616755f69a330e2",
+    "publish-live-mutator-after.json": "1b449b92c580aedf61cf001261849bae91fbed32f046a27a474467cf8b3655ac"
+  }
+}

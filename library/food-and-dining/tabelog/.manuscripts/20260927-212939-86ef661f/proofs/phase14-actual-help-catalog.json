@@ -1,0 +1,92 @@
+{
+  "binary": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+  "binary_sha256": "47593f2acf789e75583e7693fc71ed2eecb8a27717f262e4d0107a640a3e8049",
+  "scope": "Visible actual built command help recursively; intentional hidden generic surfaces excluded.",
+  "commands": [
+    {
+      "command": "(root)",
+      "exit_code": 0,
+      "help": "Find Japan restaurants and bars, then keep a factual trip shortlist.\n\nResolve a location, find a few candidates, inspect selected details, and save trip lists. Source ratings, meal budgets, unknown facts and retrieval times remain explicit. Run a command with --help for its criteria and examples.\n\nUsage:\n  tabelog-pp-cli [command]\n\nAvailable Commands:\n  areas         Resolve typed prefecture, area and station choices\n  cuisines      Browse verified English cuisine and bar taxonomy choices\n  doctor        Check CLI health\n  find          Find ranked restaurants within explicit location and meal criteria\n  help          Help about any command\n  lists         Keep notes and compare saved trip candidates\n  show          Inspect one restaurant's source facts and practical details\n  version       Print version\n\nFlags:\n      --agent                Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --compact              Compact output; source commands preserve restaurant decision facts\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default \"auto\")\n      --dry-run              Show request without sending\n  -h, --help                 help for tabelog-pp-cli\n      --home string          Root directory for config, data, state, and cache files\n      --json                 Output as JSON\n      --max-age duration     Age threshold for saved-evidence hints; 0 disables age checks (default 30m0s)\n      --no-cache             Bypass response cache\n      --plain                Output as plain tab-separated text\n      --quiet                Bare output, one value per line\n      --select string        Comma-separated fields to include in output (e.g. --select title,url)\n      --timeout duration     Request timeout (default 20s)\n  -v, --version              version for tabelog-pp-cli\n\nUse \"tabelog-pp-cli [command] --help\" for more information about a command."
+    },
+    {
+      "command": "areas",
+      "exit_code": 0,
+      "help": "Resolve typed prefecture, area and station choices\n\nUsage:\n  tabelog-pp-cli areas [QUERY] [flags]\n\nExamples:\n  tabelog-pp-cli areas Shinjuku --agent\n  tabelog-pp-cli areas Ginza --kind station --agent\n\nFlags:\n  -h, --help          help for areas\n      --kind string   Filter choices by area, station, or prefecture\n      --limit int     Maximum typed source choices to return (1\u2013100) (default 20)"
+    },
+    {
+      "command": "cuisines",
+      "exit_code": 0,
+      "help": "Browse verified English cuisine and bar taxonomy choices\n\nUsage:\n  tabelog-pp-cli cuisines [QUERY] [flags]\n\nExamples:\n  tabelog-pp-cli cuisines bar --agent\n  tabelog-pp-cli cuisines sushi --agent\n\nFlags:\n  -h, --help        help for cuisines\n      --limit int   Maximum cuisine/taxonomy choices to return (1\u2013100) (default 20)"
+    },
+    {
+      "command": "doctor",
+      "exit_code": 0,
+      "help": "Check CLI health\n\nUsage:\n  tabelog-pp-cli doctor [flags]\n\nExamples:\n  tabelog-pp-cli doctor\n  tabelog-pp-cli doctor --json\n  tabelog-pp-cli doctor --fail-on warn\n  tabelog-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor"
+    },
+    {
+      "command": "find",
+      "exit_code": 0,
+      "help": "Find ranked restaurants within explicit location and meal criteria\n\nUsage:\n  tabelog-pp-cli find [flags]\n\nExamples:\n  tabelog-pp-cli find --area tokyo --cuisine bar --limit 5 --agent\n  tabelog-pp-cli find --area https://tabelog.com/en/tokyo/A1301/A130101/rstLst/ --meal lunch --budget-max 2000\n\nFlags:\n      --area string      Required prefecture, typed location selector, or English area URL\n      --budget-max int   Source-supported maximum average-price threshold in JPY\n      --budget-min int   Source-supported minimum average-price threshold in JPY\n      --cuisine string   Verified cuisine slug or taxonomy choice (bar is broad category)\n  -h, --help             help for find\n      --keyword string   Free text within the verified source geography\n      --limit int        Maximum candidates to return (1\u201350); no detail fan-out (default 5)\n      --max-pages int    Maximum source pages to fetch (1\u20135), independently of result limit (default 1)\n      --meal string      Source average-price meal: lunch or dinner"
+    },
+    {
+      "command": "help",
+      "exit_code": 0,
+      "help": "Help provides help for any command in the application.\nSimply type tabelog-pp-cli help [path to command] for full details.\n\nUsage:\n  tabelog-pp-cli help [command] [flags]\n\nFlags:\n  -h, --help   help for help"
+    },
+    {
+      "command": "lists",
+      "exit_code": 0,
+      "help": "Save fetched restaurants in named trip lists. Show, compare, alternatives and audit use saved facts without network requests; refresh explicitly retrieves current facts.\n\nUsage:\n  tabelog-pp-cli lists [flags]\n  tabelog-pp-cli lists [command]\n\nExamples:\n  tabelog-pp-cli lists add tokyo-bars 13005012 --note 'Ginza bar option' --agent\n\nAvailable Commands:\n  add          Save a fetched restaurant and optional personal note\n  alternatives Find factual alternatives within the saved set\n  audit        Inspect missing and old evidence without fetching\n  compare      Compare saved facts and notes without fetching\n  note         Set a personal note on a saved candidate\n  refresh      Refresh selected saved facts and preserve personal notes\n  remove       Remove membership while retaining fetched source facts\n  show         Show saved candidates, or list the notebooks\n\nFlags:\n  -h, --help   help for lists\n\n\nUse \"tabelog-pp-cli lists [command] --help\" for more information about a command."
+    },
+    {
+      "command": "show",
+      "exit_code": 0,
+      "help": "Inspect one restaurant's source facts and practical details\n\nUsage:\n  tabelog-pp-cli show [URL_OR_CACHED_ID] [flags]\n\nExamples:\n  tabelog-pp-cli show https://tabelog.com/en/tokyo/A1301/A130103/13294162/ --agent\n  tabelog-pp-cli show 13294162 --data-source local\n\nFlags:\n  -h, --help   help for show"
+    },
+    {
+      "command": "version",
+      "exit_code": 0,
+      "help": "Print version\n\nUsage:\n  tabelog-pp-cli version [flags]\n\nFlags:\n  -h, --help   help for version"
+    },
+    {
+      "command": "lists add",
+      "exit_code": 0,
+      "help": "Save an already fetched restaurant in a named trip list. Re-adding preserves its position and note unless --note is supplied. Use lists refresh to update source facts.\n\nUsage:\n  tabelog-pp-cli lists add <list> <id> [flags]\n\nFlags:\n  -h, --help          help for add\n      --note string   Personal note; preserved on repeat add unless this flag is supplied"
+    },
+    {
+      "command": "lists alternatives",
+      "exit_code": 0,
+      "help": "Match saved candidates to an anchor's verified source area and exact normalized category labels. Optional meal budget checks the cached source bracket upper bound. Unknown matching fields are unevaluable; results preserve list order. Use lists compare for general comparison.\n\nUsage:\n  tabelog-pp-cli lists alternatives <list> [flags]\n\nFlags:\n      --budget-max int   Maximum known cached meal-bracket upper bound in JPY\n      --for string       Saved anchor restaurant ID\n  -h, --help             help for alternatives\n      --match string     Comma-separated anchor fields: area,category\n      --meal string      Meal for cached budget comparison: lunch or dinner"
+    },
+    {
+      "command": "lists audit",
+      "exit_code": 0,
+      "help": "Inspect saved evidence states and snapshot age. Findings distinguish detail_not_fetched, source_unknown and older_than_threshold. Source-unknown facts may stay unknown after another fetch. Use lists refresh to retrieve current facts.\n\nUsage:\n  tabelog-pp-cli lists audit <list> [flags]\n\nFlags:\n  -h, --help             help for audit\n      --max-age string   Snapshot age threshold; 0 disables age checks; supports h, d and w (default \"24h\")\n      --require string   Required evidence fields, comma-separated (default \"hours,payment,reservation,dinner_budget\")"
+    },
+    {
+      "command": "lists compare",
+      "exit_code": 0,
+      "help": "Compare known source facts, personal notes and snapshot ages in list order. Missing details remain not fetched; source-unknown facts remain unknown. Use lists alternatives to find a backup for one candidate.\n\nUsage:\n  tabelog-pp-cli lists compare <list> [id...] [flags]\n\nFlags:\n  -h, --help   help for compare"
+    },
+    {
+      "command": "lists note",
+      "exit_code": 0,
+      "help": "Set a personal note on a saved candidate\n\nUsage:\n  tabelog-pp-cli lists note <list> <id> [flags]\n\nFlags:\n  -h, --help          help for note\n      --note string   Personal note; an explicitly empty note clears it"
+    },
+    {
+      "command": "lists refresh",
+      "exit_code": 0,
+      "help": "Fetch current detail facts for up to 20 saved restaurants, at most two at a time within a 20-second operation deadline. Report changed source facts separately from newly obtained evidence. A failed record retains its last valid snapshot and note; any per-record failure gives a non-success exit. Use lists audit for a network-free evidence check.\n\nUsage:\n  tabelog-pp-cli lists refresh <list> [id...] [flags]\n\nFlags:\n  -h, --help   help for refresh"
+    },
+    {
+      "command": "lists remove",
+      "exit_code": 0,
+      "help": "Remove membership while retaining fetched source facts\n\nUsage:\n  tabelog-pp-cli lists remove <list> <id> [flags]\n\nFlags:\n  -h, --help   help for remove"
+    },
+    {
+      "command": "lists show",
+      "exit_code": 0,
+      "help": "Show saved candidates, or list the notebooks\n\nUsage:\n  tabelog-pp-cli lists show [list] [flags]\n\nFlags:\n  -h, --help   help for show"
+    }
+  ]
+}

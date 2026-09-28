@@ -1,0 +1,137 @@
+diff --git a/internal/generator/templates/helpers.go.tmpl b/internal/generator/templates/helpers.go.tmpl
+--- a/internal/generator/templates/helpers.go.tmpl
++++ b/internal/generator/templates/helpers.go.tmpl
+@@ -3026,7 +3026,6 @@
+ 				valid = "none"
+ 			}
+ 		}
+-		fmt.Fprintf(os.Stderr, "warning: --select %q matched no fields; valid fields: %s\n", requestedPaths[i], valid)
+ 		unmatched = append(unmatched, requestedPaths[i])
+ 	}
+ 	out := filtered
+@@ -3034,7 +3033,10 @@
+ 		out = data
+ 	}
+ 	if len(unmatched) > 0 && len(unmatched) == len(requestedPaths) && !state.anchoredIndeterminate && !state.fallbackIndeterminate {
+-		return out, usageErr(fmt.Errorf("--select matched no fields: %s", strings.Join(unmatched, ", ")))
++		return out, usageErr(fmt.Errorf("--select matched no fields: %s; valid fields: %s", strings.Join(unmatched, ", "), valid))
++	}
++	for _, path := range unmatched {
++		fmt.Fprintf(os.Stderr, "warning: --select %q matched no fields; valid fields: %s\n", path, valid)
+ 	}
+ 	return out, nil
+ }
+@@ -3046,6 +3048,7 @@
+ 	if err == nil || !isDryRunResponse(flags != nil && flags.dryRun, data) {
+ 		return err
+ 	}
++	fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+ 	return nil
+ }
+ 
+diff --git a/internal/generator/filter_fields_envelope_test.go b/internal/generator/filter_fields_envelope_test.go
+--- a/internal/generator/filter_fields_envelope_test.go
++++ b/internal/generator/filter_fields_envelope_test.go
+@@ -147,11 +147,11 @@
+ 	if string(gotBytes) != string(wantBytes) {
+ 		t.Fatalf("unknown selector changed the payload: got %s, want %s", gotBytes, wantBytes)
+ 	}
+-	if !strings.Contains(string(warning), "--select \"missing\" matched no fields") {
+-		t.Fatalf("warning = %q, want unknown-selector warning", warning)
+-	}
+-	if !strings.Contains(string(warning), "valid fields: items") {
+-		t.Fatalf("warning = %q, want valid top-level fields", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
++	}
++	if !strings.Contains(err.Error(), "valid fields: items") {
++		t.Fatalf("error = %q, want valid top-level fields", err)
+ 	}
+ }
+ 
+@@ -285,9 +285,9 @@
+ 		if !strings.Contains(err.Error(), field) {
+ 			t.Fatalf("error = %q, want it to name %q", err, field)
+ 		}
+-		if !strings.Contains(string(warning), "--select \""+field+"\" matched no fields") {
+-			t.Fatalf("warning = %q, want warning naming %q", warning, field)
+-		}
++	}
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -319,8 +319,8 @@
+ 		t.Fatalf("stdout is not JSON: %q", stdout)
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"zzz_nonexistent\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ 	if !strings.Contains(err.Error(), "zzz_nonexistent") {
+ 		t.Fatalf("error = %q, want unmatched path named", err)
+@@ -352,7 +352,7 @@
+ 		t.Fatalf("stdout is not JSON: %q", stdout)
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
++	if !strings.Contains(string(warning), "--select matched no fields: name") {
+ 		t.Fatalf("warning = %q, want unmatched path named", warning)
+ 	}
+ }
+@@ -367,8 +367,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"nmae\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -382,8 +382,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -394,7 +394,7 @@
+ 		t.Fatalf("client dry-run sentinel --select should stay exit 0: %v", err)
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
++	if !strings.Contains(string(warning), "--select matched no fields: name") {
+ 		t.Fatalf("warning = %q, want unmatched path named", warning)
+ 	}
+ }
+@@ -409,8 +409,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -424,8 +424,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 

@@ -1,0 +1,104 @@
+{
+  "live_check": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 2,
+    "features": [
+      {
+        "name": "Offline factual comparison",
+        "command": "lists compare",
+        "example": "tabelog-pp-cli lists compare tokyo-bars --agent",
+        "status": "pass",
+        "output_sample": "{\"items\":[{\"added_at\":\"2026-09-27T16:07:43.337346Z\",\"address\":\"\u003credacted\u003e\",\"age_seconds\":531,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listed\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"source_unknown\",\"hours\":\"known\",\"lunch_budget\":\"source_unknown\",\"payment\":\"known\",\"rating\":\"known\",\"reservation\":\"known\",\"review_count\":\"known\",\"transportation\":\"known\"},\"facilities\":[\"space/facilities: Relaxing space, Spacious seating, Counter seating, Live music\",\"non-smoking/smoking: Smoking allowed The revised Health Promotion Act for passive smoking prevention has been in effect since April 1, 2020. Please check with the restaurant for the most up-to-date information.\",\"private rooms: Unavailable\",\"parking: Unavailable\",\"drink: Wine, Cocktails available\"],\"fetched_at\":\"2026-09-27T16:07:43.308436Z\",\"hours\":\"Mon, Tue, Wed, Thu, Fri, Sat 3:00 PM - 12:00 AM Sun, Public Holiday 3:00 PM - 10:00 PM\",\"id\":\"13005012\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listed\"},\"name\":\"\u003credacted\u003e\",\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":104,\"note\":\"Public-source live fixture\",\"note_updated_at\":\"2026-09-27T16:07:43.337346Z\",\"payment\":\"Credit card accepted (VISA, Master, JCB, AMEX, Diners) Electronic money accepted QR code payments accepted (d Barai)\",\"rating\":3.79,\"reservation\":\"Reservations available\",\"review_count\":502,\"review_dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\",\"source\":\"reviews\"},\"review_lunch_budget\":{\"max_jpy\":2999,\"min_jpy\":2000,\"raw\":\"JPY 2,000 - JPY 2,999\",\"source\":\"reviews\"},\"sections\":[\"identity\",\"budgets\",\"practical\",\"facilities\"],\"service_charge\":\"No service charge or cover charge. (Appetizer: Peanuts with skin 300 yen) Original text サービス料・チャージ料なし。(つきだしの皮付きピーナッツ300円) This section has been automatically translated. Please check with the restaurant for accurate information.\",\"source_surface\":\"detail\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\",\"stale\":false,\"transportation\":\"2 minutes walk from Ginza Station, Exit B7 104 meters from Ginza.\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\"},{\"added_at\":\"2026-09-27T16:07:43.352891Z\",\"age_seconds\":532,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":\"Monday, Sunday\",\"dinner_budget\":{\"max_jpy\":4999,\"min_jpy\":4000,\"raw\":\"JPY 4,000 - JPY 4,999\",\"source\":\"listing\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"},\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"fetched_at\":\"2026-09-27T16:07:42.69149Z\",\"id\":\"13002248\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listing\"},\"name\":\"\u003credacted\u003e\",\"nearest_station\":\"Ginza Itchome Sta.\",\"nearest_station_distance_m\":79,\"note\":\"Public-source live fixture\",\"note_updated_at\":\"2026-09-27T16:07:43.352891Z\",\"rating\":3.79,\"review_count\":341,\"sections\":[\"listing\"],\"source_surface\":\"listing\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\u0026RdoCosTp=2\u0026SrtT=rt\",\"stale\":false,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13002248/\"},{\"added_at\":\"2026-09-27T16:07:43.366581Z\",\"age_seconds\":532,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\",\"source\":\"listing\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"…[truncated]"
+      },
+      {
+        "name": "Bounded refresh with fact changes",
+        "command": "lists refresh",
+        "example": "tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Trip notebook with personal notes",
+        "command": "lists add",
+        "example": "tabelog-pp-cli lists add tokyo-bars 13005012 --note \"Ginza bar option\" --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Saved alternatives with explicit constraints",
+        "command": "lists alternatives",
+        "example": "tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent",
+        "status": "pass",
+        "output_sample": "{\"items\":[{\"added_at\":\"2026-09-27T16:07:43.352891Z\",\"age_seconds\":532,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":\"Monday, Sunday\",\"dinner_budget\":{\"max_jpy\":4999,\"min_jpy\":4000,\"raw\":\"JPY 4,000 - JPY 4,999\",\"source\":\"listing\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"},\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"fetched_at\":\"2026-09-27T16:07:42.69149Z\",\"id\":\"13002248\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listing\"},\"name\":\"\u003credacted\u003e\",\"nearest_station\":\"Ginza Itchome Sta.\",\"nearest_station_distance_m\":79,\"note\":\"Public-source live fixture\",\"note_updated_at\":\"2026-09-27T16:07:43.352891Z\",\"rating\":3.79,\"reasons\":[{\"field\":\"area\",\"value\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true}},{\"field\":\"category\",\"value\":[\"Bar\"]},{\"field\":\"dinner_budget\",\"value\":{\"ceiling_jpy\":5000,\"upper_bound_jpy\":4999}}],\"review_count\":341,\"sections\":[\"listing\"],\"source_surface\":\"listing\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\u0026RdoCosTp=2\u0026SrtT=rt\",\"stale\":false,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13002248/\"},{\"added_at\":\"2026-09-27T16:07:43.366581Z\",\"age_seconds\":532,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\",\"source\":\"listing\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"},\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"fetched_at\":\"2026-09-27T16:07:42.69149Z\",\"id\":\"13120361\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listing\"},\"name\":\"\u003credacted\u003e\",\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":351,\"note\":\"Public-source live fixture\",\"note_updated_at\":\"2026-09-27T16:07:43.366581Z\",\"rating\":3.75,\"reasons\":[{\"field\":\"area\",\"value\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true}},{\"field\":\"category\",\"value\":[\"Bar\"]},{\"field\":\"dinner_budget\",\"value\":{\"ceiling_jpy\":5000,\"upper_bound_jpy\":3999}}],\"review_count\":272,\"sections\":[\"listing\"],\"source_surface\":\"listing\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\u0026RdoCosTp=2\u0026SrtT=rt\",\"stale\":false,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13120361/\"}],\"meta\":{\"age_seconds\":0,\"bytes\":0,\"coverage\":\"saved_list\",\"criteria\":{\"budget_max\":5000,\"budget_scope\":\"cached_bracket\",\"excluded\":[],\"for\":\"13005012\",\"list\":\"tokyo-bars\",\"match\":[\"area\",\"category\"],\"matched\":2,\"meal\":\"dinner\",\"operation\":\"alternatives\",\"unevaluable\":0,\"unmatched\":0},\"has_more\":false,\"pages\":0,\"requests\":0,\"returned\":2,\"scanned\":2,\"source\":\"local\",\"stale\":false}}"
+      },
+      {
+        "name": "Missing-evidence and freshness audit",
+        "command": "lists audit",
+        "example": "tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent",
+        "status": "pass",
+        "output_sample": "{\"items\":[{\"added_at\":\"2026-09-27T16:07:43.337346Z\",\"address\":\"\u003credacted\u003e\",\"age_seconds\":531,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listed\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"source_unknown\",\"hours\":\"known\",\"lunch_budget\":\"source_unknown\",\"payment\":\"known\",\"rating\":\"known\",\"reservation\":\"known\",\"review_count\":\"known\",\"transportation\":\"known\"},\"facilities\":[\"space/facilities: Relaxing space, Spacious seating, Counter seating, Live music\",\"non-smoking/smoking: Smoking allowed The revised Health Promotion Act for passive smoking prevention has been in effect since April 1, 2020. Please check with the restaurant for the most up-to-date information.\",\"private rooms: Unavailable\",\"parking: Unavailable\",\"drink: Wine, Cocktails available\"],\"fetched_at\":\"2026-09-27T16:07:43.308436Z\",\"findings\":[{\"code\":\"source_unknown\",\"field\":\"dinner_budget\"}],\"hours\":\"Mon, Tue, Wed, Thu, Fri, Sat 3:00 PM - 12:00 AM Sun, Public Holiday 3:00 PM - 10:00 PM\",\"id\":\"13005012\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listed\"},\"name\":\"\u003credacted\u003e\",\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":104,\"note\":\"Public-source live fixture\",\"note_updated_at\":\"2026-09-27T16:07:43.337346Z\",\"payment\":\"Credit card accepted (VISA, Master, JCB, AMEX, Diners) Electronic money accepted QR code payments accepted (d Barai)\",\"rating\":3.79,\"reservation\":\"Reservations available\",\"review_count\":502,\"review_dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\",\"source\":\"reviews\"},\"review_lunch_budget\":{\"max_jpy\":2999,\"min_jpy\":2000,\"raw\":\"JPY 2,000 - JPY 2,999\",\"source\":\"reviews\"},\"sections\":[\"identity\",\"budgets\",\"practical\",\"facilities\"],\"service_charge\":\"No service charge or cover charge. (Appetizer: Peanuts with skin 300 yen) Original text サービス料・チャージ料なし。(つきだしの皮付きピーナッツ300円) This section has been automatically translated. Please check with the restaurant for accurate information.\",\"source_surface\":\"detail\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\",\"stale\":false,\"transportation\":\"2 minutes walk from Ginza Station, Exit B7 104 meters from Ginza.\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\"},{\"added_at\":\"2026-09-27T16:07:43.352891Z\",\"age_seconds\":532,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":\"Monday, Sunday\",\"dinner_budget\":{\"max_jpy\":4999,\"min_jpy\":4000,\"raw\":\"JPY 4,000 - JPY 4,999\",\"source\":\"listing\"},\"evidence\":{\"address\":\"\u003credacted\u003e\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"},\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"fetched_at\":\"2026-09-27T16:07:42.69149Z\",\"findings\":[{\"code\":\"detail_not_fetched\",\"field\":\"hours\"},{\"code\":\"detail_not_fetched\",\"field\":\"payment\"},{\"code\":\"detail_not_fetched\",\"field\":\"reservation\"}],\"id\":\"13002248\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\",\"source\":\"listing\"},\"name\":\"\u003credacted\u003e\",\"nearest_station\":\"Ginza Itchome Sta.\",\"nearest_station_distance_m\":79,\"note\":\"Public-source live fixture\",\"note_updated_at\":\"2026-09-27T16:07:43.352891Z\",\"rating\":3.79,\"review_count\":341,\"sections\":[\"listing\"],\"source_surface\":\"listing\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\u0026RdoCosTp=2\u0026SrtT=rt\",\"stale\":false,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13002248/\"},{\"added_at\":\"2026-09-27T16:07:43.366581Z\",\"age_seconds\":532,\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\",\"s…[truncated]"
+      }
+    ],
+    "binary_refresh": {
+      "action": "rebuilt",
+      "stage_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/build/stage/bin/tabelog-pp-cli",
+      "binary_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/build/stage/bin/tabelog-pp-cli",
+      "reason": "staged binary was older than Go sources"
+    },
+    "ran_at": "2026-09-27T16:16:33.198538Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 3,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "tabelog",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 10,
+      "readme": 2,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 0,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 5,
+      "mcp_tool_design": 10,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 9,
+      "vision": 9,
+      "workflows": 10,
+      "insight": 4,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 4,
+      "dead_code": 1,
+      "live_api_verification": 0,
+      "total": 82,
+      "percentage": 82
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "readme scored 2/10 - needs improvement",
+      "insight scored 4/10 - needs improvement",
+      "dead_code scored 1/5 - needs improvement",
+      "MCP: 4 tools (4 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_description_quality",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

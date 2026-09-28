@@ -1,0 +1,110 @@
+{
+  "items": [
+    {
+      "id": "13005012",
+      "name": "SAMBOA BAR Ginza ten",
+      "url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+      "source_url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+      "rating": 3.79,
+      "review_count": 502,
+      "categories": [
+        "Bar"
+      ],
+      "area": {
+        "prefecture": "tokyo",
+        "area1": "A1301",
+        "area2": "A130101",
+        "verified": true
+      },
+      "nearest_station": "Ginza Sta.",
+      "nearest_station_distance_m": 104,
+      "lunch_budget": {
+        "raw": "-",
+        "min_jpy": null,
+        "max_jpy": null,
+        "source": "listed"
+      },
+      "dinner_budget": {
+        "raw": "-",
+        "min_jpy": null,
+        "max_jpy": null,
+        "source": "listed"
+      },
+      "review_lunch_budget": {
+        "raw": "JPY 2,000 - JPY 2,999",
+        "min_jpy": 2000,
+        "max_jpy": 2999,
+        "source": "reviews"
+      },
+      "review_dinner_budget": {
+        "raw": "JPY 3,000 - JPY 3,999",
+        "min_jpy": 3000,
+        "max_jpy": 3999,
+        "source": "reviews"
+      },
+      "closures": null,
+      "hours": "Mon, Tue, Wed, Thu, Fri, Sat 3:00 PM - 12:00 AM Sun, Public Holiday 3:00 PM - 10:00 PM",
+      "payment": "Credit card accepted (VISA, Master, JCB, AMEX, Diners) Electronic money accepted QR code payments accepted (d Barai)",
+      "reservation": "Reservations available",
+      "address": "東京都中央区銀座5-4-7 銀座サワモトビル Ｂ１Ｆ",
+      "transportation": "2 minutes walk from Ginza Station, Exit B7 104 meters from Ginza.",
+      "service_charge": "No service charge or cover charge. (Appetizer: Peanuts with skin 300 yen) Original text サービス料・チャージ料なし。(つきだしの皮付きピーナッツ300円) This section has been automatically translated. Please check with the restaurant for accurate information.",
+      "facilities": [
+        "space/facilities: Relaxing space, Spacious seating, Counter seating, Live music",
+        "non-smoking/smoking: Smoking allowed The revised Health Promotion Act for passive smoking prevention has been in effect since April 1, 2020. Please check with the restaurant for the most up-to-date information.",
+        "private rooms: Unavailable",
+        "parking: Unavailable",
+        "drink: Wine, Cocktails available"
+      ],
+      "fetched_at": "2026-09-27T17:25:47.567151Z",
+      "source_surface": "detail",
+      "sections": [
+        "identity",
+        "budgets",
+        "practical",
+        "facilities"
+      ],
+      "evidence": {
+        "address": "known",
+        "dinner_budget": "source_unknown",
+        "hours": "known",
+        "lunch_budget": "source_unknown",
+        "payment": "known",
+        "rating": "known",
+        "reservation": "known",
+        "review_count": "known",
+        "transportation": "known"
+      },
+      "note": "Updated acceptance note",
+      "added_at": "2026-09-27T17:25:46.945563Z",
+      "note_updated_at": "2026-09-27T17:25:46.977891Z",
+      "age_seconds": 0,
+      "stale": false,
+      "refresh_status": "ok",
+      "changes": [],
+      "added_evidence": []
+    }
+  ],
+  "meta": {
+    "source": "live",
+    "age_seconds": 0,
+    "stale": false,
+    "criteria": {
+      "concurrency": 2,
+      "ids": [
+        "13005012"
+      ],
+      "list": "phase18-disposable-review",
+      "max_venues": 20,
+      "operation": "refresh"
+    },
+    "returned": 1,
+    "scanned": 1,
+    "pages": 0,
+    "has_more": false,
+    "requests": 1,
+    "bytes": 0,
+    "coverage": "selected_saved_candidates",
+    "note": "Changes compare the same source fields; added_evidence records previously unavailable detail facts. Failed records retain their previous snapshots."
+  }
+}

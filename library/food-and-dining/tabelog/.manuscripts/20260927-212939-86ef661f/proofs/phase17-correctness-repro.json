@@ -1,0 +1,257 @@
+{
+  "binary_sha256": "51dae2d29ce58f49d7b7aa82bff5470060a41ee0ed0d2b26a3c57e1d33fb2db6",
+  "scope": "Controlled loopback replay; real captured source detail/listing fixtures; deliberate wrong-identity and active-sort mutations; no Internet request; disposable home only.",
+  "wrong_detail_identity": {
+    "args": [
+      "show",
+      "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+      "--data-source",
+      "live",
+      "--agent",
+      "--select",
+      "items.id,items.name,items.url,items.area"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "payload": {
+      "items": [
+        {
+          "area": {
+            "prefecture": "tokyo",
+            "area1": "A1301",
+            "area2": "A130101",
+            "verified": true
+          },
+          "id": "13005012",
+          "name": "Sushi Dokoro Isseki Sanchou",
+          "url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/"
+        }
+      ],
+      "meta": {
+        "source": "live",
+        "source_url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+        "fetched_at": "2026-09-27T16:31:55.432718Z",
+        "age_seconds": 0,
+        "stale": false,
+        "source_surface": "detail",
+        "returned": 1,
+        "scanned": 1,
+        "pages": 1,
+        "has_more": false,
+        "requests": 1,
+        "bytes": 13354,
+        "coverage": "detail_page"
+      }
+    }
+  },
+  "default_facilities": {
+    "args": [
+      "show",
+      "https://tabelog.com/en/tokyo/A1301/A130103/13294162/",
+      "--data-source",
+      "live",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "payload": {
+      "items": [
+        {
+          "address": "東京都港区新橋4-20-2 新橋フォーワンビル 1F",
+          "area": {
+            "area1": "A1301",
+            "area2": "A130103",
+            "prefecture": "tokyo",
+            "verified": true
+          },
+          "categories": [
+            "Sushi",
+            "Seafood"
+          ],
+          "closures": null,
+          "dinner_budget": {
+            "max_jpy": 14999,
+            "min_jpy": 10000,
+            "raw": "JPY 10,000 - JPY 14,999",
+            "source": "listed"
+          },
+          "hours": "Mon, Tue, Wed, Thu, Fri, Sat, Sun, Public Holiday, Day before public holiday, Day after public holiday 11:00 AM - 3:00 PM 4:30 PM - 10:30 PM",
+          "id": "13294162",
+          "lunch_budget": {
+            "max_jpy": 9999,
+            "min_jpy": 8000,
+            "raw": "JPY 8,000 - JPY 9,999",
+            "source": "listed"
+          },
+          "name": "Sushi Dokoro Isseki Sanchou",
+          "nearest_station": "Shiodome Sta.",
+          "nearest_station_distance_m": 250,
+          "payment": "Credit card accepted (VISA, Master, JCB, AMEX, Diners) Electronic money not accepted QR code payments not accepted",
+          "rating": 3.47,
+          "reservation": "Reservations available 【Regarding Reservations for Seats Only (Without Specifying a Course)】 If you choose to reserve seats only, you will be able to select the course content upon your arrival at the restaurant. Please note that a la carte options are not available. 【Regarding Late Arrivals】 If you are late for your reservation, there is a possibility that not all course items will be served. We appreciate your understanding.",
+          "review_count": 529,
+          "review_dinner_budget": {
+            "max_jpy": 19999,
+            "min_jpy": 15000,
+            "raw": "JPY 15,000 - JPY 19,999",
+            "source": "reviews"
+          },
+          "review_lunch_budget": {
+            "max_jpy": 19999,
+            "min_jpy": 15000,
+            "raw": "JPY 15,000 - JPY 19,999",
+            "source": "reviews"
+          },
+          "service_charge": "A service charge of 13% will be added. Original text サービス料13%頂戴しております。 This section has been automatically translated. Please check with the restaurant for accurate information.",
+          "transportation": "- 130 seconds on foot from JR Shimbashi Station. Remember it as 130 seconds for three birds with one stone! - A 3-minute walk from Toei Oedo Line and Yurikamome Shiodome Station. [Access by Car] - About 4 minutes from Shuto Expressway Shiodome IC. - Approximately 9 minutes from Tokyo Station. - About 55 minutes from Narita Airport. - About 16 minutes from Haneda Airport. - 270 meters from Shimbashi Station. 250 meters from Shiodome.",
+          "url": "https://tabelog.com/en/tokyo/A1301/A130103/13294162/"
+        }
+      ],
+      "meta": {
+        "source": "live",
+        "source_url": "https://tabelog.com/en/tokyo/A1301/A130103/13294162/",
+        "fetched_at": "2026-09-27T16:31:55.446991Z",
+        "age_seconds": 0,
+        "stale": false,
+        "source_surface": "detail",
+        "returned": 1,
+        "scanned": 1,
+        "pages": 1,
+        "has_more": false,
+        "requests": 1,
+        "bytes": 13354,
+        "coverage": "detail_page"
+      }
+    }
+  },
+  "projected_facilities": {
+    "args": [
+      "show",
+      "https://tabelog.com/en/tokyo/A1301/A130103/13294162/",
+      "--data-source",
+      "local",
+      "--agent",
+      "--select",
+      "items.id,items.facilities"
+    ],
+    "exit_code": 0,
+    "stderr": "warning: --select \"items.facilities\" matched no fields; valid fields: items, meta\n",
+    "payload": {
+      "items": [
+        {
+          "id": "13294162"
+        }
+      ],
+      "meta": {
+        "source": "local",
+        "source_url": "https://tabelog.com/en/tokyo/A1301/A130103/13294162/",
+        "fetched_at": "2026-09-27T16:31:55.446991Z",
+        "age_seconds": 0,
+        "stale": false,
+        "source_surface": "detail",
+        "returned": 1,
+        "scanned": 1,
+        "pages": 0,
+        "has_more": false,
+        "requests": 0,
+        "bytes": 0,
+        "coverage": "cached_snapshot"
+      }
+    }
+  },
+  "wrong_active_sort": {
+    "args": [
+      "find",
+      "--area",
+      "tokyo",
+      "--data-source",
+      "live",
+      "--limit",
+      "1",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "payload": {
+      "items": [
+        {
+          "area": {
+            "area1": "A1314",
+            "area2": "A131401",
+            "prefecture": "tokyo",
+            "verified": true
+          },
+          "awards": [
+            "The Tabelog Award 2026 Gold winner",
+            "Selected for Tabelog Japanese cuisine TOKYO \"Tabelog 100\" 2025"
+          ],
+          "categories": [
+            "Japanese Cuisine"
+          ],
+          "closures": "Sunday, Public Holiday",
+          "dinner_budget": {
+            "max_jpy": 59999,
+            "min_jpy": 50000,
+            "raw": "JPY 50,000 - JPY 59,999"
+          },
+          "id": "13136847",
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "name": "Shimbashi Hoshino",
+          "nearest_station": "Onarimon Sta.",
+          "nearest_station_distance_m": 416,
+          "rating": 4.66,
+          "review_count": 331,
+          "url": "https://tabelog.com/en/tokyo/A1314/A131401/13136847/"
+        }
+      ],
+      "meta": {
+        "source": "live",
+        "source_url": "https://tabelog.com/en/tokyo/rstLst/?SrtT=rt",
+        "fetched_at": "2026-09-27T16:31:55.470842Z",
+        "age_seconds": 0,
+        "stale": false,
+        "criteria": {
+          "area": {
+            "kind": "prefecture",
+            "name": "Tokyo",
+            "prefecture": "tokyo"
+          },
+          "budget_max": 0,
+          "budget_min": 0,
+          "cuisine": "",
+          "keyword": "",
+          "limit": 1,
+          "max_pages": 1,
+          "meal": ""
+        },
+        "source_sort": "highest_rated",
+        "source_surface": "listing",
+        "budget_source": "listing",
+        "returned": 1,
+        "scanned": 20,
+        "pages": 1,
+        "has_more": true,
+        "next_url": "https://tabelog.com/en/tokyo/rstLst/2/?SrtT=inbound_most_reserved",
+        "requests": 1,
+        "bytes": 120779,
+        "coverage": "source_pages",
+        "omitted_from_scanned": 19,
+        "next_url_scope": "after_scanned_pages"
+      }
+    }
+  },
+  "unknown_flag_machine_error": {
+    "args": [
+      "--agent",
+      "find",
+      "--not-a-real-flag"
+    ],
+    "exit_code": 2,
+    "stderr": "Error: unknown flag: --not-a-real-flag\n",
+    "payload": null
+  }
+}

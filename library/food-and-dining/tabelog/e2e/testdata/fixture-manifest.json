@@ -1,0 +1,154 @@
+[
+  {
+    "fixture": "tokyo-ranked.html",
+    "source_path": "discovery/public-source/tabelog.com-en-tokyo-rstLst-SrtT-rt-86c815e79fecbf3e.html",
+    "original_sha256": "95f3d6b1903d3843741fd28bbfbe833f57716a1a2d6f57dc61df43b64a863f6d",
+    "sanitized_sha256": "c62ea4875427d5792d57c4349ec759166c1bb825fe9fed78e31c9d7ec816f6c6",
+    "original_bytes": 313750,
+    "sanitized_bytes": 117492,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "ginza-bars.html",
+    "source_path": "discovery/native/ginza-bars-dinner5000.html",
+    "original_sha256": "1af33b84453ed1f06f04eb66245b4722a10683af23c328cebf70949fc96cf85d",
+    "sanitized_sha256": "b8a475c0c306854310c483a793eee213e68ab890859df243baf8be13de1744bc",
+    "original_bytes": 248244,
+    "sanitized_bytes": 83112,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "ginza-bars-page2.html",
+    "source_path": "discovery/native-confirm/ginza-budget-page2.html",
+    "original_sha256": "4cb88803d8c98ae308aac0041059774bf0d9bf36eba662080886533c2baca6a0",
+    "sanitized_sha256": "a5c1990ad3b796a95ac0bb6cd2e486954e47a92644a4b891dc79f6ecfc848349",
+    "original_bytes": 246815,
+    "sanitized_bytes": 84102,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "ginza-lunch.html",
+    "source_path": "discovery/native/ginza-lunch1000to2000.html",
+    "original_sha256": "07153f26a44784589b444a8b144d56afe7edcb307433c9de5713b6fd9c16701c",
+    "sanitized_sha256": "4d4fa0fd3840f8b66b7da6736377c0e63ffd3a6add2f468c37d5fccd37f7aa15",
+    "original_bytes": 279088,
+    "sanitized_bytes": 102802,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "ginza-keyword.html",
+    "source_path": "discovery/native/ginza-keyword-sushi.html",
+    "original_sha256": "c3d4bbc11f3932e77e32464d8b5d076c07337dc8f65e226ce0ee5077ab2dd201",
+    "sanitized_sha256": "9dd13a60fac8e22a61a8da0f6b516ce452e955eaaf0dcdfd3362335fa60e48e9",
+    "original_bytes": 266997,
+    "sanitized_bytes": 95441,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "station-shinjuku.html",
+    "source_path": "discovery/native-confirm/station-shinjuku-ranked.html",
+    "original_sha256": "e83cda028619e32370b55dbcd586e59ddec6ea9e9b2cd48c64cf3111afa85d09",
+    "sanitized_sha256": "b1251ea6c0a9dfb3b74c0d686a9abf10cf9b128fa0d316a702d8d101d0a54a71",
+    "original_bytes": 285592,
+    "sanitized_bytes": 104866,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "sushi-detail.html",
+    "source_path": "discovery/native-confirm/restaurant-detail.html",
+    "original_sha256": "ea1e7f9e544c4e033ef8c2a2285951175adc80d54eca619101471aeed654a9cb",
+    "sanitized_sha256": "2acfebc4c981a228975c8903e70e37e1aa922b6da70a0aef78defd37a9a5c2c1",
+    "original_bytes": 142590,
+    "sanitized_bytes": 13354,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "english-home.html",
+    "source_path": "discovery/native-confirm/english-home.html",
+    "original_sha256": "866f4248ace285bad4688ada04d8490b62078e7ed32d7c6a09696cce1a165334",
+    "sanitized_sha256": "a16a481ed4bba67f3f48270540c51a28396d66ec5bc7df1f3ac4bc6599907019",
+    "original_bytes": 287461,
+    "sanitized_bytes": 21555,
+    "transform": "Preserve public semantic source roots and canonical links; strip photos, reviewer bodies, non-JSONLD scripts, telemetry, ephemeral attributes, CSRF/nonce inputs. JSONLD keeps Restaurant/BreadcrumbList facts only."
+  },
+  {
+    "fixture": "suggest-ginza.json",
+    "source_path": "discovery/native-ajax/suggest-ginza.json",
+    "original_sha256": "ea37995daa14dc60b09e73d35f868e613ff1fa2c1257147490cc7152763bf621",
+    "sanitized_sha256": "19780871da7211934f6dbe2fa94dd1973677071a680b20ac6d2e05e01893d1ee",
+    "original_bytes": 2561,
+    "sanitized_bytes": 2562,
+    "transform": "Re-serialize the public typed suggestions array; preserve all source fields."
+  },
+  {
+    "fixture": "suggest-shinjuku.json",
+    "source_path": "discovery/native-ajax/suggest-shinjuku.json",
+    "original_sha256": "8dd72f5935727f61b8af5cd3abf56d0d1163ad6e968e7cc22ddda8d82fa2ce51",
+    "sanitized_sha256": "6320805081ad09d44afc259fe5338d8827149f9933e2dba7042e680b2b5827d2",
+    "original_bytes": 2754,
+    "sanitized_bytes": 2755,
+    "transform": "Re-serialize the public typed suggestions array; preserve all source fields."
+  },
+  {
+    "fixture": "suggest-bar.json",
+    "source_path": "discovery/native-ajax/suggest-bar.json",
+    "original_sha256": "5e4b1d1b9c175bf4312d5da4e3d28ac49a7d5b0341f654c7a3d80ea462254edf",
+    "sanitized_sha256": "5d51817d048542c3138eb403cc1568fb150420aeb86683f88312bc1d00cee560",
+    "original_bytes": 2670,
+    "sanitized_bytes": 2671,
+    "transform": "Re-serialize the public typed suggestions array; preserve all source fields."
+  },
+  {
+    "fixture": "ginza-bars-unknown.html",
+    "parent_fixture": "ginza-bars.html",
+    "sha256": "5f668c2b30da0981bde18e6d8683894ca99ef2e84f064a54793e9f4c7a009196",
+    "transform": "Only ID13120361 category label becomes '-' and ID13224720 average dinner price becomes '-'; retain canonical IDs/areas/other facts. These are synthetic source-unknown conditions, not live claims."
+  },
+  {
+    "fixture": "miyakawa-old.html",
+    "source_url": "https://tabelog.com/en/hokkaido/A0101/A010105/1046463/",
+    "http_status": 200,
+    "captured_at": "2026-09-27T14:41:38.596928+00:00",
+    "original_sha256": "f2976aff4bd9129246de8dd473446ed5d656c97f62ccda3cf39d128a3e7c7491",
+    "sanitized_sha256": "c6fe96965d10f8e2e76f47b1066398771393d44e0307f49f3952bc90d78c00af",
+    "original_bytes": 126059,
+    "sanitized_bytes": 17313,
+    "transform": "Keep real public semantic header, status/alert, source criteria/empty markers, JSONLD facts and detail tables. Remove reviewer content, photos, scripts, telemetry and ephemeral attributes/inputs."
+  },
+  {
+    "fixture": "miyakawa-current.html",
+    "source_url": "https://tabelog.com/en/hokkaido/A0101/A010105/1073214/",
+    "http_status": 200,
+    "captured_at": "2026-09-27T14:41:39.181676+00:00",
+    "original_sha256": "83b4b4f5e0b294b2d9d05b2d025e5a76786737e5fbde588382699368e827351d",
+    "sanitized_sha256": "40d60bdcfaca35ad8d04b196d32059ba49e516975a1a6aacce95b2e3db0014c7",
+    "original_bytes": 127404,
+    "sanitized_bytes": 15819,
+    "transform": "Keep real public semantic header, status/alert, source criteria/empty markers, JSONLD facts and detail tables. Remove reviewer content, photos, scripts, telemetry and ephemeral attributes/inputs."
+  },
+  {
+    "fixture": "ginza-empty.html",
+    "source_url": "https://tabelog.com/en/rstLst/?SrtT=rt&pal=tokyo&LstPrf=A1301&LstAre=A130101&area_datatype=Area2&area_id=Ginza&sw=zzztabeloge2ezerocandidates20260927",
+    "http_status": 200,
+    "captured_at": "2026-09-27T14:42:18.599599+00:00",
+    "original_sha256": "a26f263e65fb22ee15996336fef3b2cac472b62c06b7d2eec259bbbe73c46997",
+    "sanitized_sha256": "5884c298c2c1b95a97a5bf5e8b2f878257302a8c5102dc44d432f08fdf040686",
+    "original_bytes": 91683,
+    "sanitized_bytes": 29060,
+    "transform": "Keep real public semantic header, status/alert, source criteria/empty markers, JSONLD facts and detail tables. Remove reviewer content, photos, scripts, telemetry and ephemeral attributes/inputs."
+  },
+  {
+    "url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+    "http_status": 200,
+    "captured_at": "2026-09-27T15:03:03.664703+00:00",
+    "original_bytes": 101297,
+    "original_sha256": "0d1a122be1faa372baaea85ad4f0ac513613b53e2853fd89e11ff17ebe6ba8ea",
+    "method": "GET",
+    "transport": "Python standard urllib HTTP; no cookies/accounts/credentials; one request",
+    "sanitized_fixture": "samboa-detail.html",
+    "sanitized_sha256": "7868d818b9a8cc4f4b1d5e4beb524579857e206e4cc19b5d938175ec736c53cd",
+    "sanitized_bytes": 12143,
+    "transform": "Retain only real public detail header/status/JSONLD/table facts; no reviewer content, photos, CSRF inputs, telemetry, or non-JSONLD scripts.",
+    "fixture": "samboa-detail.html"
+  }
+]

@@ -1,0 +1,55 @@
+version: 2
+project_name: tabelog-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tabelog-pp-cli
+    main: ./cmd/tabelog-pp-cli
+    binary: tabelog-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/tabelog/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tabelog-pp-mcp
+    main: ./cmd/tabelog-pp-mcp
+    binary: tabelog-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tabelog-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library/tree/main/library/food-and-dining/tabelog"
+    description: "Find Japan restaurants and bars, then keep a factual trip shortlist."
+    install: |
+      bin.install "tabelog-pp-cli"
+      bin.install "tabelog-pp-mcp"

@@ -1,0 +1,120 @@
+--- current-author/SKILL.md
++++ dogfood-sync/SKILL.md
+@@ -26,6 +26,8 @@
+ 
+ If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+ 
++Discover candidates with source ratings, separate meal budgets and practical details. Save personal notes, compare offline, refresh selected places and inspect missing or old evidence in one lightweight CLI.
++
+ ## Workflow
+ 
+ 1. Resolve a location with `areas` and a category with `cuisines`. Use returned typed choices when names are ambiguous.
+@@ -47,15 +49,48 @@
+ 
+ ## Unique Capabilities
+ 
+-| Command | Use it for |
+-|---|---|
+-| `lists add` | Persist fetched candidates and personal notes |
+-| `lists compare` | Compare saved facts offline |
+-| `lists refresh` | Fetch current details and report changes |
+-| `lists alternatives` | Match saved backups against explicit constraints |
+-| `lists audit` | Find unfetched, unknown or old evidence |
++These capabilities aren't available in any other tool for this API.
+ 
+-For saved-candidate planning, read [docs/saved-lists.md](docs/saved-lists.md).
++### Offline decisions
++- **`lists compare`** — Compare saved restaurants, meal budgets and personal notes without network requests.
++
++  _Use this when choosing between candidates already saved for the trip._
++
++  ```bash
++  tabelog-pp-cli lists compare tokyo-bars --agent
++  ```
++- **`lists alternatives`** — Find saved substitutes matching a candidate's verified area, category and optional meal budget.
++
++  _Use this when choosing a backup from the saved set using specific known facts._
++
++  ```bash
++  tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent
++  ```
++
++### Freshness and evidence
++- **`lists refresh`** — Update selected saved restaurants and see changed facts while keeping personal notes.
++
++  _Use this when a saved candidate needs current facts before a meal decision._
++
++  ```bash
++  tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent
++  ```
++- **`lists audit`** — See which saved candidates have unfetched, unknown or old facts before requesting more details.
++
++  _Use this to select the exact saved candidates that need further checking._
++
++  ```bash
++  tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent
++  ```
++
++### Trip notes
++- **`lists add`** — Keep fetched restaurants and personal notes in a named trip list that can be resumed offline.
++
++  _Use this after fetching a candidate that should remain in the trip shortlist._
++
++  ```bash
++  tabelog-pp-cli lists add tokyo-bars 13005012 --note "Ginza bar option" --agent
++  ```
+ 
+ ## Accuracy and boundaries
+ 
+@@ -64,3 +99,51 @@
+ - Distinguish source-unknown facts from details not fetched. Report bounded coverage, stale data and partial refresh failures. `--data-source local` makes zero source requests; a cache miss does not mean no restaurants exist.
+ - On failure, inspect stdout for usable partial results and stderr for diagnostics. Domain errors are JSON under `--agent`; global flag-parser errors can be text.
+ - Booking, payment/account changes, live availability/open-now conclusions, walking routes and bulk review/image harvesting are outside this CLI's scope.
++
++## Recipes
++
++### Keep a discovery response compact
++
++```bash
++tabelog-pp-cli find --area tokyo --cuisine bar --meal dinner --budget-max 5000 --limit 5 --agent --select items.id,items.name,items.rating,items.url
++```
++
++Project candidate identity, rating and links while retaining essential provenance and coverage metadata.
++
++### Compare saved candidates offline
++
++```bash
++tabelog-pp-cli lists compare tokyo-bars --agent
++```
++
++View saved facts and notes together; separate meal budgets and unknowns remain visible.
++
++### Refresh one saved candidate
++
++```bash
++tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent
++```
++
++Fetch current detail facts for this ID, report changes and preserve its note and last valid snapshot on failure.
++
++### Find a factual saved backup
++
++```bash
++tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent
++```
++
++Match only within the saved set using verified area/category and a known cached dinner-bracket upper bound.
++
++### Audit evidence before more fetching
++
++```bash
++tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent
++```
++
++Distinguish details not fetched, source-unknown values and old snapshots without network calls.
++
++## Auth Setup
++
++The verified public English Tabelog sources require no account or API key. Optional MCP uses stdio and starts only when explicitly invoked.
++
++Run `tabelog-pp-cli doctor` to verify setup.

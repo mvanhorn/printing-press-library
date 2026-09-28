@@ -1,0 +1,4 @@
+=== RUN   TestLiveDogfoodFalseJSONDoesNotReuse
+--- PASS: TestLiveDogfoodFalseJSONDoesNotReuse (0.39s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	1.036s

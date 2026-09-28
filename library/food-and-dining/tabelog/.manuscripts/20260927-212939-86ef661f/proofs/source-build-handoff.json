@@ -1,0 +1,53 @@
+{
+  "phase_receipt_sequence": 23,
+  "next_phase": "14-agentic-skill-review (root has since entered reviews)",
+  "canonical_shipcheck": "phase12-shipcheck-3.json: all7PASS/exit0",
+  "novel_features_planned": 5,
+  "novel_features_built": 5,
+  "absorbed_core_behaviors": 8,
+  "post_review_e2e": {
+    "passed_cases": 67,
+    "failed_cases": 0,
+    "proof": "e2e-post-review-fixes.jsonl"
+  },
+  "machine_errors": {
+    "proof_before": "machine-errors-before.jsonl",
+    "proof_after": "machine-errors-after.jsonl",
+    "diagnostic_schema": {
+      "code": "existing process exit code",
+      "error": "actionable message"
+    },
+    "validation_error_tokens": 66,
+    "validation_error_stderr_bytes": 154,
+    "validation_http_requests": 0,
+    "framework_unknown_flag_parse_errors": "remain Cobra text outside the domain handler boundary"
+  },
+  "projected10": {
+    "tokens_p95": 403,
+    "stdout_bytes_p95": 1199,
+    "proof": "projection-error-measurements.json"
+  },
+  "live_fixture": {
+    "home": "working/tabelog-pp-cli/.printing-press-fixtures/live-home",
+    "origin_requests": 2,
+    "ids": [
+      "13005012",
+      "13002248",
+      "13120361"
+    ],
+    "proof": "live-fixture-seed.json",
+    "cleanup": "remove .printing-press-fixtures before packaging; ignored in .gitignore",
+    "runner_metadata": "pp:happy-args only; --home relative token is normalized by the repaired runner"
+  },
+  "supplemental_changed_files": [
+    "internal/cli/tabelog_machine_errors.go",
+    "e2e/machine_errors_test.go",
+    "e2e/projection_dry_run_test.go",
+    "internal/cli/tabelog_live_fixtures.go",
+    "internal/source/discovery.go (BudgetThresholds accessor)",
+    "internal/cli/tabelog_discovery.go (budget help)",
+    "e2e/README.md",
+    ".gitignore"
+  ],
+  "follow_up": "Root owns phases14 onward, tool runner fixes and final live acceptance. Source edits frozen for17 review."
+}

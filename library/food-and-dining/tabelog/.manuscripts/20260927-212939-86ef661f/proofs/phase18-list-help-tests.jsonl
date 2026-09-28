@@ -1,0 +1,24 @@
+{"Time":"2026-09-28T01:25:16.442639+08:00","Action":"start","Package":"tabelog-pp-cli/internal/cli"}
+{"Time":"2026-09-28T01:25:16.923223+08:00","Action":"run","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAddHelpWires"}
+{"Time":"2026-09-28T01:25:16.923279+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAddHelpWires","Output":"=== RUN   TestNovelListsAddHelpWires\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.924357+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAddHelpWires","Output":"--- PASS: TestNovelListsAddHelpWires (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.924378+08:00","Action":"pass","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAddHelpWires","Elapsed":0}
+{"Time":"2026-09-28T01:25:16.924401+08:00","Action":"run","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAlternativesHelpWires"}
+{"Time":"2026-09-28T01:25:16.924415+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAlternativesHelpWires","Output":"=== RUN   TestNovelListsAlternativesHelpWires\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.925622+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAlternativesHelpWires","Output":"--- PASS: TestNovelListsAlternativesHelpWires (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.925648+08:00","Action":"pass","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAlternativesHelpWires","Elapsed":0}
+{"Time":"2026-09-28T01:25:16.925659+08:00","Action":"run","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAuditHelpWires"}
+{"Time":"2026-09-28T01:25:16.925664+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAuditHelpWires","Output":"=== RUN   TestNovelListsAuditHelpWires\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.926232+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAuditHelpWires","Output":"--- PASS: TestNovelListsAuditHelpWires (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.926241+08:00","Action":"pass","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsAuditHelpWires","Elapsed":0}
+{"Time":"2026-09-28T01:25:16.926246+08:00","Action":"run","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsCompareHelpWires"}
+{"Time":"2026-09-28T01:25:16.926249+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsCompareHelpWires","Output":"=== RUN   TestNovelListsCompareHelpWires\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.92679+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsCompareHelpWires","Output":"--- PASS: TestNovelListsCompareHelpWires (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.926805+08:00","Action":"pass","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsCompareHelpWires","Elapsed":0}
+{"Time":"2026-09-28T01:25:16.926815+08:00","Action":"run","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsRefreshHelpWires"}
+{"Time":"2026-09-28T01:25:16.92682+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsRefreshHelpWires","Output":"=== RUN   TestNovelListsRefreshHelpWires\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.927297+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsRefreshHelpWires","Output":"--- PASS: TestNovelListsRefreshHelpWires (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.927314+08:00","Action":"pass","Package":"tabelog-pp-cli/internal/cli","Test":"TestNovelListsRefreshHelpWires","Elapsed":0}
+{"Time":"2026-09-28T01:25:16.92732+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-09-28T01:25:16.92831+08:00","Action":"output","Package":"tabelog-pp-cli/internal/cli","Output":"ok  \ttabelog-pp-cli/internal/cli\t0.485s\n"}
+{"Time":"2026-09-28T01:25:16.928326+08:00","Action":"pass","Package":"tabelog-pp-cli/internal/cli","Elapsed":0.486}

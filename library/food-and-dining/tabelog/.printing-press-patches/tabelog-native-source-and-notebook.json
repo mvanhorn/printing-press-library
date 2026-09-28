@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "tabelog-native-source-and-notebook",
+  "files": [
+    "internal/source/client.go",
+    "internal/source/cache.go",
+    "internal/source/parser.go",
+    "internal/source/discovery.go",
+    "internal/source/catalogs.json",
+    "internal/notebook/notebook.go",
+    "internal/cli/tabelog_helpers.go",
+    "internal/cli/tabelog_discovery.go",
+    "internal/cli/tabelog_lists.go",
+    "internal/cli/tabelog_lists_refresh.go",
+    "internal/cli/tabelog_live_fixtures.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/intents.go",
+    "internal/mcp/tabelog_hints.go",
+    "internal/domain/restaurant.go"
+  ],
+  "call_sites": [
+    "root.AddCommand(newTabelogFindCmd(flags)",
+    "cmd.AddCommand(newTabelogListAddCmd(flags)",
+    "applyTabelogToolHints(s)"
+  ],
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-212939-86ef661f",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve the native English HTML adapter, verified restaurant facts, and transaction-backed trip notebook.",
+  "reason": "Generated HTML stubs alone cannot enforce effective area, rank, identity, and saved-snapshot semantics.",
+  "validated_outcome": "Independent source oracle and full executable replay passed."
+}

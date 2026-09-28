@@ -1,0 +1,286 @@
+{
+  "name": "tabelog",
+  "description": "Public English Tabelog discovery source contract",
+  "version": "0.1.0",
+  "base_url": "https://tabelog.com",
+  "http_transport": "standard",
+  "health_check_path": "/en/",
+  "auth": {
+    "type": "none"
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/tabelog-pp-cli/config.toml"
+  },
+  "learn": {
+    "disabled": true
+  },
+  "mcp": {
+    "transport": [
+      "stdio"
+    ],
+    "endpoint_tools": "hidden"
+  },
+  "resources": {
+    "catalogs": {
+      "description": "Public location/category source catalogs",
+      "endpoints": {
+        "home": {
+          "method": "GET",
+          "path": "/en/",
+          "description": "Public prefecture and cuisine links; use anchors as authoritative catalog entries.",
+          "params": [],
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page"
+          },
+          "response": {
+            "type": "object",
+            "item": "SourceHTML"
+          }
+        },
+        "suggest": {
+          "method": "GET",
+          "path": "/en/suggest/keyword_suggest",
+          "description": "Public mixed-type suggestions. Requires ordinary AJAX Accept,X-Requested-With and Referer headers (source adapter contract).",
+          "params": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "required": true,
+              "description": "Location,cuisine or restaurant query"
+            }
+          ],
+          "response_format": "json",
+          "response": {
+            "type": "array",
+            "item": "Suggestion"
+          },
+          "happy_args": "--keyword=Shinjuku"
+        }
+      }
+    },
+    "restaurants": {
+      "description": "Public source restaurant pages",
+      "endpoints": {
+        "search": {
+          "method": "GET",
+          "path": "/en/rstLst/",
+          "description": "Search the observed public English HTML source; typed card extraction must be implemented in the source adapter.",
+          "params": [
+            {
+              "name": "SrtT",
+              "type": "string",
+              "default": "rt",
+              "enum": [
+                "rt"
+              ],
+              "description": "Observed source highest-rated order",
+              "flag_name": "source-sort"
+            },
+            {
+              "name": "pal",
+              "type": "string",
+              "description": "Prefecture slug",
+              "flag_name": "prefecture"
+            },
+            {
+              "name": "pcd",
+              "type": "int",
+              "description": "Prefecture numeric code from More filters",
+              "flag_name": "prefecture-code"
+            },
+            {
+              "name": "LstPrf",
+              "type": "string",
+              "description": "First area code or municipality code from suggestion",
+              "flag_name": "area1"
+            },
+            {
+              "name": "LstAre",
+              "type": "string",
+              "description": "Second area code",
+              "flag_name": "area2"
+            },
+            {
+              "name": "station_id",
+              "type": "string",
+              "description": "RailroadStation source ID",
+              "flag_name": "station-id"
+            },
+            {
+              "name": "area_datatype",
+              "type": "string",
+              "description": "Observed location type, e.g.Area2",
+              "flag_name": "location-type"
+            },
+            {
+              "name": "area_id",
+              "type": "string",
+              "description": "Observed selected location name or ID",
+              "flag_name": "location-id"
+            },
+            {
+              "name": "Cat",
+              "type": "string",
+              "enum": [
+                "RC",
+                "MC",
+                "SC",
+                "BC",
+                "YC",
+                "ZZ"
+              ],
+              "description": "Source category family; BC is Bar",
+              "flag_name": "category-family"
+            },
+            {
+              "name": "sw",
+              "type": "string",
+              "description": "Free text; effective geography must be checked",
+              "flag_name": "keyword"
+            },
+            {
+              "name": "RdoCosTp",
+              "type": "int",
+              "enum": [
+                "1",
+                "2"
+              ],
+              "description": "Source meal code:1 lunch,2 dinner",
+              "flag_name": "meal-code"
+            },
+            {
+              "name": "LstCos",
+              "type": "int",
+              "description": "Source minimum budget threshold index0..16",
+              "flag_name": "budget-min-code"
+            },
+            {
+              "name": "LstCosT",
+              "type": "int",
+              "description": "Source maximum budget threshold index0..16",
+              "flag_name": "budget-max-code"
+            }
+          ],
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page"
+          },
+          "response": {
+            "type": "object",
+            "item": "SourceHTML"
+          },
+          "happy_args": "--prefecture=tokyo;--area1=A1301;--area2=A130101;--source-sort=rt"
+        },
+        "get": {
+          "method": "GET",
+          "path": "/en/{pal}/{area1}/{area2}/{id}/",
+          "description": "Fetch public restaurant details as HTML containing tables and JSON-LD.",
+          "params": [
+            {
+              "name": "pal",
+              "type": "string",
+              "required": true,
+              "description": "Observed prefecture slug",
+              "flag_name": "prefecture"
+            },
+            {
+              "name": "area1",
+              "type": "string",
+              "required": true,
+              "description": "Source first area code"
+            },
+            {
+              "name": "area2",
+              "type": "string",
+              "required": true,
+              "description": "Source second area code"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "description": "Restaurant source ID"
+            }
+          ],
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page"
+          },
+          "response": {
+            "type": "object",
+            "item": "SourceHTML"
+          },
+          "happy_args": "--prefecture=tokyo;--area1=A1301;--area2=A130103;--id=13294162"
+        }
+      }
+    }
+  },
+  "types": {
+    "SourceHTML": {
+      "fields": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "Suggestion": {
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "datatype",
+          "type": "string"
+        },
+        {
+          "name": "id_in_datatype",
+          "type": "int"
+        },
+        {
+          "name": "exact_match",
+          "type": "bool"
+        },
+        {
+          "name": "pal",
+          "type": "string"
+        },
+        {
+          "name": "LstPrf",
+          "type": "string"
+        },
+        {
+          "name": "LstAre",
+          "type": "string"
+        },
+        {
+          "name": "station_id",
+          "type": "string"
+        },
+        {
+          "name": "site_name",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "sub_name",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "category": "food-and-dining",
+  "cache": {
+    "enabled": false
+  }
+}

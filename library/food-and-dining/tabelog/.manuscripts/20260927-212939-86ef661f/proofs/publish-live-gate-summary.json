@@ -1,0 +1,51 @@
+{
+  "kind": "publish-time-live-gate",
+  "status": "PASS",
+  "exit_code": 0,
+  "verdict": "PASS",
+  "mandatory_passed": 60,
+  "mandatory_failed": 0,
+  "skipped_unverified": 127,
+  "skip_reasons": {
+    "command hidden from public help": 60,
+    "ancestor command hidden from public help": 60,
+    "no positional argument": 2,
+    "mutating command dry-run only": 1,
+    "mutating command; error_path would call live API without --dry-run": 4
+  },
+  "failed_rows": [],
+  "mutator_happy_invocations": {
+    "lists add": {
+      "status": "pass",
+      "no_dry_run": true,
+      "confined_home": true,
+      "json_flag_explicit": false
+    },
+    "lists note": {
+      "status": "pass",
+      "no_dry_run": true,
+      "confined_home": true,
+      "json_flag_explicit": false
+    },
+    "lists refresh": {
+      "status": "pass",
+      "no_dry_run": true,
+      "confined_home": true,
+      "json_flag_explicit": false
+    },
+    "lists remove": {
+      "status": "pass",
+      "no_dry_run": true,
+      "confined_home": true,
+      "json_flag_explicit": true
+    }
+  },
+  "prior_marker_sha256": "85935d2c4f524dfc2d91a7276e073d77cc6dde7cf5af85e95cc6524818b86431",
+  "fresh_marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "marker_status": "pass",
+  "marker_source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+  "raw_transcript_sha256": "e63a6425fb76a33980b075498441d99deb8c16f9207faec92daf7e4462fa1188",
+  "raw_transcript_bytes": 140523,
+  "raw_transcript_private_and_deleted": true,
+  "transport": "native HTTPS; network-permitted; TABELOG_* test variables unset"
+}

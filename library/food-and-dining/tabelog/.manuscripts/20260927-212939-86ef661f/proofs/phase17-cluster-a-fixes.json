@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "findings_fixed": [
+    "C1",
+    "C2",
+    "C3",
+    "M3",
+    "M4"
+  ],
+  "origin_requests": 0,
+  "before_production_files": "proofs/phase17-cluster-a-before",
+  "before_oracle": {
+    "pass_events": 4,
+    "fail_events": 8,
+    "packages": {
+      "tabelog-pp-cli/internal/source": "fail"
+    },
+    "passed_tests": [
+      "TestDetailRequiresIndependentSourceIdentity/full_id",
+      "TestDetailRequiresIndependentSourceIdentity/full_id_with_fragment",
+      "TestDetailRequiresIndependentSourceIdentity/url_field",
+      "TestDetailRequiresIndependentSourceIdentity/canonical_relative"
+    ]
+  },
+  "before_executable": {
+    "pass_events": 1,
+    "fail_events": 13,
+    "packages": {
+      "tabelog-pp-cli/e2e": "fail"
+    },
+    "passed_tests": [
+      "TestCallerDeadlineStopsSourceBeforePersistence"
+    ]
+  },
+  "after_oracle": {
+    "pass_events": 20,
+    "fail_events": 0,
+    "packages": {
+      "tabelog-pp-cli/internal/source": "pass"
+    },
+    "passed_tests": [
+      "TestDetailRequiresIndependentSourceIdentity/full_id",
+      "TestDetailRequiresIndependentSourceIdentity/full_id_with_fragment",
+      "TestDetailRequiresIndependentSourceIdentity/url_field",
+      "TestDetailRequiresIndependentSourceIdentity/canonical_relative",
+      "TestDetailRequiresIndependentSourceIdentity/no_independent_identity",
+      "TestDetailRequiresIndependentSourceIdentity/fragment_only",
+      "TestDetailRequiresIndependentSourceIdentity/relative_self_id",
+      "TestDetailRequiresIndependentSourceIdentity/canonical_fragment",
+      "TestDetailRequiresIndependentSourceIdentity/same_id_wrong_route",
+      "TestDetailRequiresIndependentSourceIdentity/conflicting_url",
+      "TestDetailRequiresIndependentSourceIdentity/conflicting_canonical",
+      "TestDetailRequiresIndependentSourceIdentity",
+      "TestIndependentListingOraclePreservesContrastingFacts",
+      "TestIndependentDetailOracleKeepsPriceAndStationSourcesSeparate",
+      "TestRestaurantJSONLDArrayAndGraphRetainRatingCount/array",
+      "TestRestaurantJSONLDArrayAndGraphRetainRatingCount/graph",
+      "TestRestaurantJSONLDArrayAndGraphRetainRatingCount",
+      "TestRealRelocationPairKeepsDistinctSevenDigitIdentities/1046463",
+      "TestRealRelocationPairKeepsDistinctSevenDigitIdentities/1073214",
+      "TestRealRelocationPairKeepsDistinctSevenDigitIdentities"
+    ]
+  },
+  "after_executable": {
+    "pass_events": 17,
+    "fail_events": 0,
+    "packages": {
+      "tabelog-pp-cli/e2e": "pass"
+    },
+    "passed_tests": [
+      "TestGenuineSourceEmptyResultsAreDistinctFromDrift",
+      "TestRelocatedAndCurrentSameNameRecordsRemainDistinctWhenSaved",
+      "TestBudgetRequestsAndNativePaginationPreserveSourceRanking",
+      "TestDetailIdentityMismatchRetainsRawSnapshotAndNotes/different_venue",
+      "TestDetailIdentityMismatchRetainsRawSnapshotAndNotes/same_id_different_route",
+      "TestDetailIdentityMismatchRetainsRawSnapshotAndNotes/conflicting_canonical",
+      "TestDetailIdentityMismatchRetainsRawSnapshotAndNotes",
+      "TestUnfetchedWrongDetailDoesNotCreateAnIdentity",
+      "TestSelectedSortDriftCannotOverwriteRankedCache/other_selected",
+      "TestSelectedSortDriftCannotOverwriteRankedCache/no_selected",
+      "TestSelectedSortDriftCannotOverwriteRankedCache/two_selected",
+      "TestSelectedSortDriftCannotOverwriteRankedCache",
+      "TestEveryPageValidatesSelectedSort",
+      "TestEmptySourceDoesNotInventASortControl",
+      "TestDefaultSummaryRetainsKnownFacilitiesAndHelpUsesDomainFields",
+      "TestSourceCommandsIgnoreUnusedCheckpointAndExposeSnapshotFailures",
+      "TestCallerDeadlineStopsSourceBeforePersistence"
+    ]
+  },
+  "product_files": {
+    "internal/source/parser.go": {
+      "before_sha256": "2c40596f3a829985fb2869aa3a731b99554dcc241d22fa1fe8aafbb0efbd5ca3",
+      "after_sha256": "cd6485bc901fb1cd3b575344fab8332a6b43ef45d1808374e40140e2f2e85fb8"
+    },
+    "internal/source/discovery.go": {
+      "before_sha256": "876d4e756d9bbc1297f0f01a61a69802026a7da6525382aa3c500ed0fda582fb",
+      "after_sha256": "3311cb2e5a4eeb6f4627755da86bc5ccaeb9b6e9c1a9e9906bc77bada3a9f434"
+    },
+    "internal/cli/tabelog_helpers.go": {
+      "before_sha256": "66b5f345706e86e5f6b41697e628fb89b963a6c26c2d98f00a6e0f3d79e402fa",
+      "after_sha256": "31534dc01aec1377d6c41222784808dad77a945c6d44eff2db241b996c67a94e"
+    },
+    "internal/cli/tabelog_discovery.go": {
+      "before_sha256": "7d12aa7a33af7ea3d69a91ebb3ca22e989ced4b49a47d0197159c905faba1bd3",
+      "after_sha256": "fd94322e1d3af86d5125253098c47d7f32ee410d1f533eec46f75d48413611aa"
+    }
+  },
+  "new_regressions": [
+    "internal/source/identity_validation_test.go",
+    "e2e/source_validation_test.go"
+  ],
+  "measurement_proof": "proofs/phase17-cluster-a-measurements/measurement-results.json",
+  "measurement_revision": "Default find fixture target: 1,300 tokens; known facility facts retained. The old 1,188-token facility-omitting result is history, not a lossless accuracy baseline.",
+  "restoration": "Restore native source/domain/notebook modules and domain registration/render hooks before applying this patch. Apply only against matching before hashes; otherwise reimplement the documented invariants and run the recorded executable regressions."
+}

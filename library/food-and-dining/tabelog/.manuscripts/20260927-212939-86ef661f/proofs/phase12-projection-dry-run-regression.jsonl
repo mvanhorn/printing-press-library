@@ -1,0 +1,8 @@
+{"Time":"2026-09-27T23:37:50.654979+08:00","Action":"start","Package":"tabelog-pp-cli/e2e"}
+{"Time":"2026-09-27T23:37:51.52704+08:00","Action":"run","Package":"tabelog-pp-cli/e2e","Test":"TestProjectedDiscoveryDryRunPreservesPlanWithoutIO"}
+{"Time":"2026-09-27T23:37:51.527117+08:00","Action":"output","Package":"tabelog-pp-cli/e2e","Test":"TestProjectedDiscoveryDryRunPreservesPlanWithoutIO","Output":"=== RUN   TestProjectedDiscoveryDryRunPreservesPlanWithoutIO\n","OutputType":"frame"}
+{"Time":"2026-09-27T23:37:52.043725+08:00","Action":"output","Package":"tabelog-pp-cli/e2e","Test":"TestProjectedDiscoveryDryRunPreservesPlanWithoutIO","Output":"--- PASS: TestProjectedDiscoveryDryRunPreservesPlanWithoutIO (0.52s)\n","OutputType":"frame"}
+{"Time":"2026-09-27T23:37:52.043765+08:00","Action":"pass","Package":"tabelog-pp-cli/e2e","Test":"TestProjectedDiscoveryDryRunPreservesPlanWithoutIO","Elapsed":0.52}
+{"Time":"2026-09-27T23:37:52.0438+08:00","Action":"output","Package":"tabelog-pp-cli/e2e","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-09-27T23:37:52.044958+08:00","Action":"output","Package":"tabelog-pp-cli/e2e","Output":"ok  \ttabelog-pp-cli/e2e\t1.390s\n"}
+{"Time":"2026-09-27T23:37:52.044985+08:00","Action":"pass","Package":"tabelog-pp-cli/e2e","Elapsed":1.3900000000000001}

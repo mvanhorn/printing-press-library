@@ -1,0 +1,12 @@
+dogfood: using spec /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/spec.json (bundled)
+warning: no servers defined in spec; generated CLI will require base_url in config
+warning: accepted root-level 'mcp:' for backwards compatibility; rename to 'x-mcp:' per OpenAPI extension convention
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced README.md (Value Proposition) from research.json narrative
+dogfood: synced SKILL.md (Value Proposition) from research.json narrative
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Authentication) from research.json narrative
+dogfood: synced SKILL.md (Auth Setup) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative

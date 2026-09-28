@@ -1,0 +1,80 @@
+{
+  "items": [
+    {
+      "id": "13120361",
+      "name": "Sukiyabashi Sanboar",
+      "url": "https://tabelog.com/en/tokyo/A1301/A130101/13120361/",
+      "source_url": "https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\u0026RdoCosTp=2\u0026SrtT=rt",
+      "rating": 3.75,
+      "review_count": 272,
+      "categories": [
+        "Bar"
+      ],
+      "area": {
+        "prefecture": "tokyo",
+        "area1": "A1301",
+        "area2": "A130101",
+        "verified": true
+      },
+      "nearest_station": "Ginza Sta.",
+      "nearest_station_distance_m": 351,
+      "lunch_budget": {
+        "raw": "-",
+        "min_jpy": null,
+        "max_jpy": null,
+        "source": "listing"
+      },
+      "dinner_budget": {
+        "raw": "JPY 3,000 - JPY 3,999",
+        "min_jpy": 3000,
+        "max_jpy": 3999,
+        "source": "listing"
+      },
+      "closures": null,
+      "facilities": [
+        "Credit card accepted",
+        "Non smoking"
+      ],
+      "awards": [
+        "Selected for Tabelog Bar \"Tabelog 100\" 2022"
+      ],
+      "fetched_at": "2026-09-27T16:07:42.69149Z",
+      "source_surface": "listing",
+      "sections": [
+        "listing"
+      ],
+      "evidence": {
+        "address": "detail_not_fetched",
+        "dinner_budget": "known",
+        "hours": "detail_not_fetched",
+        "lunch_budget": "source_unknown",
+        "payment": "detail_not_fetched",
+        "rating": "known",
+        "reservation": "detail_not_fetched",
+        "review_count": "known",
+        "transportation": "detail_not_fetched"
+      },
+      "note": "Public-source acceptance candidate",
+      "added_at": "2026-09-27T17:25:46.967862Z",
+      "note_updated_at": "2026-09-27T17:25:46.967862Z",
+      "age_seconds": 4684,
+      "stale": true
+    }
+  ],
+  "meta": {
+    "source": "local",
+    "age_seconds": 0,
+    "stale": false,
+    "criteria": {
+      "list": "phase18-disposable-review",
+      "operation": "add"
+    },
+    "returned": 1,
+    "scanned": 1,
+    "pages": 0,
+    "has_more": false,
+    "requests": 0,
+    "bytes": 0,
+    "coverage": "saved_list"
+  }
+}

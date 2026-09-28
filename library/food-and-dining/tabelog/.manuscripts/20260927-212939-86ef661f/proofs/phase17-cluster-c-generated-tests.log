@@ -1,0 +1,20 @@
+=== RUN   TestFilterFieldsEnvelopeDescent_EmittedHelper
+=== PAUSE TestFilterFieldsEnvelopeDescent_EmittedHelper
+=== RUN   TestRecipeNarrativeEmitsMCPIntentTools
+=== PAUSE TestRecipeNarrativeEmitsMCPIntentTools
+=== RUN   TestGeneratedRecipePositionalBoundary
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+info: learn.enabled promotes VisionSet.Store=true (the learn package depends on internal/store)
+--- PASS: TestGeneratedRecipePositionalBoundary (3.33s)
+=== CONT  TestFilterFieldsEnvelopeDescent_EmittedHelper
+=== CONT  TestRecipeNarrativeEmitsMCPIntentTools
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+info: learn.enabled promotes VisionSet.Store=true (the learn package depends on internal/store)
+--- PASS: TestRecipeNarrativeEmitsMCPIntentTools (2.13s)
+--- PASS: TestFilterFieldsEnvelopeDescent_EmittedHelper (2.63s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/generator	7.304s

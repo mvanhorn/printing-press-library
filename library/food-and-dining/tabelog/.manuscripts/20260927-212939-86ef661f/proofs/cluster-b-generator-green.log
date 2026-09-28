@@ -1,0 +1,11 @@
+=== RUN   TestGeneratedClientStreamingTimeoutCarveOut
+=== PAUSE TestGeneratedClientStreamingTimeoutCarveOut
+=== RUN   TestGeneratedResponseSizeAndExclusiveDelivery
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+--- PASS: TestGeneratedResponseSizeAndExclusiveDelivery (2.12s)
+=== CONT  TestGeneratedClientStreamingTimeoutCarveOut
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+--- PASS: TestGeneratedClientStreamingTimeoutCarveOut (7.02s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/generator	9.688s

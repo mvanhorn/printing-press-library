@@ -1,0 +1,72 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "verdict": "FAIL",
+  "started_at": "2026-09-27T15:43:05Z",
+  "elapsed_ms": 16983,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:43:05Z",
+      "elapsed_ms": 7699,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press verify --dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli --write-manifest /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press.json --spec /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/research/tabelog-browser-sniff-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:43:13Z",
+      "elapsed_ms": 229,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/research.json --binary /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/build/stage/bin/tabelog-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:43:13Z",
+      "elapsed_ms": 3049,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press dogfood --dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli --spec /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/research/tabelog-browser-sniff-spec.yaml --research-dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:43:16Z",
+      "elapsed_ms": 23,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press workflow-verify --dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 3,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-09-27T15:43:16Z",
+      "elapsed_ms": 2052,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press apify-audit --dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli --research-dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:43:19Z",
+      "elapsed_ms": 2818,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press verify-skill --dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-27T15:43:21Z",
+      "elapsed_ms": 1109,
+      "command": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/cli-printing-press-v4.32.5-local-install/cli-printing-press scorecard --dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli --write-manifest /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press.json --research-dir /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f --spec /Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/research/tabelog-browser-sniff-spec.yaml --live-check"
+    }
+  ]
+}

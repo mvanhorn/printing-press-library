@@ -1,0 +1,270 @@
+--- a/internal/pipeline/live_check.go
++++ b/internal/pipeline/live_check.go
+@@ -969,6 +969,21 @@
+ 		result.Reason = "could not parse example: " + err.Error()
+ 		return result
+ 	}
++	if raw := strings.TrimSpace(f.Annotations[happyArgsAnnotation]); raw != "" {
++		path := f.Path
++		if len(path) == 0 {
++			path = liveCheckFeaturePathFromNovel(f.NovelFeature)
++		}
++		help, helpErr := runStdoutOnly(binaryPath, min(timeout, 15*time.Second), append(append([]string{}, path...), "--help")...)
++		if helpErr != nil {
++			return fail("reading command help for pp:happy-args: " + helpErr.Error())
++		}
++		command := liveDogfoodCommand{Path: path, Help: string(help), Annotations: f.Annotations}
++		args, err = overlayLiveDogfoodHappyArgs(args, command, parseHappyArgsAnnotation(raw), cliDir)
++		if err != nil {
++			return fail("resolving pp:happy-args: " + err.Error())
++		}
++	}
+ 
+ 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+ 	defer cancel()
+--- a/internal/pipeline/live_dogfood.go
++++ b/internal/pipeline/live_dogfood.go
+@@ -1710,7 +1710,16 @@
+ 			return results
+ 		}
+ 	}
+-	happyArgs, ok, parsedHappyArgs := liveDogfoodHappyArgsParsed(command)
++	happyArgs, ok, parsedHappyArgs, happyArgsErr := liveDogfoodHappyArgsParsed(command, ctx.cliDir)
++	if happyArgsErr != nil {
++		reason := "resolving pp:happy-args: " + happyArgsErr.Error()
++		results = append(results,
++			failedLiveDogfoodResult(commandName, LiveDogfoodTestHappy, nil, reason),
++			failedLiveDogfoodResult(commandName, LiveDogfoodTestJSON, nil, reason),
++		)
++		appendDryRunJSON(nil, false, stdinPayload, reason)
++		return results
++	}
+ 	if stdinFixture != "" {
+ 		happyArgs = liveDogfoodAppendStdinArg(happyArgs)
+ 		ok = true
+@@ -2506,8 +2515,8 @@
+ }
+ 
+ func liveDogfoodHappyArgs(command liveDogfoodCommand) ([]string, bool) {
+-	args, ok, _ := liveDogfoodHappyArgsParsed(command)
+-	return args, ok
++	args, ok, _, err := liveDogfoodHappyArgsParsed(command, "")
++	return args, ok && err == nil
+ }
+ 
+ func liveDogfoodAppendStdinArg(args []string) []string {
+@@ -2519,7 +2528,7 @@
+ 	return append(append([]string{}, args...), "--stdin")
+ }
+ 
+-func liveDogfoodHappyArgsParsed(command liveDogfoodCommand) ([]string, bool, happyArgs) {
++func liveDogfoodHappyArgsParsed(command liveDogfoodCommand, cliDir string) ([]string, bool, happyArgs, error) {
+ 	// pp:happy-args supplies real happy-path args, overlaying the Example-derived
+ 	// placeholders (e.g. "--ids example-value") that strict upstream validators
+ 	// reject with HTTP 400. Same `;`-separated `--flag=value` / `<name>=value`
+@@ -2531,14 +2540,18 @@
+ 		if !hasExample {
+ 			args = append([]string{}, command.Path...)
+ 		}
+-		args = overlayLiveDogfoodHappyArgs(args, command, parsed)
++		var err error
++		args, err = overlayLiveDogfoodHappyArgs(args, command, parsed, cliDir)
++		if err != nil {
++			return nil, false, parsed, err
++		}
+ 		args = normalizeLiveDogfoodNegativeNumericArgs(args, command.Path,
+ 			len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), liveDogfoodFlagValueNames(command.Help))
+-		return args, len(args) > len(command.Path) || hasExample, parsed
++		return args, len(args) > len(command.Path) || hasExample, parsed, nil
+ 	}
+ 	args, ok := liveDogfoodExampleArgs(command)
+ 	return normalizeLiveDogfoodNegativeNumericArgs(args, command.Path,
+-		len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), liveDogfoodFlagValueNames(command.Help)), ok, happyArgs{}
++		len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), liveDogfoodFlagValueNames(command.Help)), ok, happyArgs{}, nil
+ }
+ 
+ func liveDogfoodExampleArgs(command liveDogfoodCommand) ([]string, bool) {
+@@ -2579,17 +2592,57 @@
+ 	return nil, false
+ }
+ 
+-func overlayLiveDogfoodHappyArgs(args []string, command liveDogfoodCommand, parsed happyArgs) []string {
++func overlayLiveDogfoodHappyArgs(args []string, command liveDogfoodCommand, parsed happyArgs, cliDir string) ([]string, error) {
+ 	out := append([]string{}, args...)
+ 	valueFlags := liveDogfoodFlagValueNames(command.Help)
++	positionalCount := len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help)))
++	flags := make([]string, 0, len(parsed.flags))
++	explicitHome := liveDogfoodHasExplicitHome(args, command.Path, positionalCount, valueFlags)
++	for i := 0; i+1 < len(parsed.flags); i += 2 {
++		flag, value := parsed.flags[i], parsed.flags[i+1]
++		if flag == "--home" {
++			if explicitHome {
++				continue
++			}
++			if cliDir != "" && !filepath.IsAbs(value) {
++				var err error
++				value, err = filepath.Abs(filepath.Join(cliDir, value))
++				if err != nil {
++					return nil, fmt.Errorf("resolving fixture --home: %w", err)
++				}
++			}
++		}
++		flags = append(flags, flag, value)
++	}
+ 	if len(parsed.positionals) > 0 {
+ 		out = overlayLiveDogfoodPositionals(out, command.Path, parsed.positionals,
+-			len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), valueFlags)
+-	}
+-	if len(parsed.flags) > 0 {
+-		out = overlayLiveDogfoodFlags(out, command.Path, parsed.flags, len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), valueFlags)
+-	}
+-	return out
++			positionalCount, valueFlags)
++	}
++	if len(flags) > 0 {
++		out = overlayLiveDogfoodFlags(out, command.Path, flags, positionalCount, valueFlags)
++	}
++	return out, nil
++}
++
++// An explicit example home identifies its intended store; fixture defaults
++// must not redirect that command to a different store.
++func liveDogfoodHasExplicitHome(args, commandPath []string, positionalCount int, valueFlags map[string]struct{}) bool {
++	start := min(len(commandPath), len(args))
++	for i := start; i < len(args); i++ {
++		arg := args[i]
++		if arg == "--" {
++			break
++		}
++		if arg == "--home" || strings.HasPrefix(arg, "--home=") {
++			return true
++		}
++		_, typedValue := valueFlags[strings.TrimPrefix(arg, "--")]
++		if isLiveDogfoodFlagToken(arg) && !strings.Contains(arg, "=") && i+1 < len(args) &&
++			(typedValue || liveDogfoodFlagHasSeparateValueWithTypes(args, start, i, positionalCount, valueFlags)) {
++			i++
++		}
++	}
++	return false
+ }
+ 
+ func normalizeLiveDogfoodNegativeNumericArgs(args, commandPath []string, positionalCount int, valueFlags map[string]struct{}) []string {
+--- a/internal/pipeline/live_dogfood_test.go
++++ b/internal/pipeline/live_dogfood_test.go
+@@ -358,7 +358,8 @@
+ 		},
+ 	}
+ 
+-	happyArgs, ok, _ := liveDogfoodHappyArgsParsed(command)
++	happyArgs, ok, _, err := liveDogfoodHappyArgsParsed(command, "")
++	require.NoError(t, err)
+ 	require.True(t, ok)
+ 	happyArgs = liveDogfoodAppendStdinArg(happyArgs)
+ 
+--- /dev/null
++++ b/internal/pipeline/live_check_happy_args_test.go
+@@ -0,0 +1,104 @@
++package pipeline
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/stretchr/testify/require"
++)
++
++const fixtureListHelp = `Usage:
++  bin lists compare <list> [id...] [flags]
++
++Flags:
++      --agent         Compact JSON
++      --format string Output format
++      --home string   Store root
++      --note string   Note text
++`
++
++func TestRunOneFeatureCheckUsesHappyArgsOverlay(t *testing.T) {
++	dir := t.TempDir()
++	argsPath := filepath.Join(dir, "received-args.txt")
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf(`if [ "${3:-}" = "--help" ]; then
++cat <<'HELP'
++%s
++HELP
++exit 0
++fi
++printf '%%s\n' "$@" > %q
++printf '{"items":[{"id":"13005012","name":"Fixture restaurant"}],"list":"fixture-list"}\n'`, fixtureListHelp, argsPath))
++	feature := liveCheckFeature{
++		NovelFeature: NovelFeature{Name: "saved comparison", Command: "lists compare", Example: "bin lists compare public-list old-id --format=summary --agent"},
++		Path:         []string{"lists", "compare"},
++		Annotations:  map[string]string{mcpReadOnlyAnnotation: "true", happyArgsAnnotation: "<list>=fixture-list;<id>=13005012;--format=json;--home=.printing-press-fixtures/live-home"},
++	}
++	result := runOneFeatureCheckWithDataSource(dir, binary, feature, time.Second, false)
++	require.Equal(t, StatusPass, result.Status, result.Reason)
++	got, err := os.ReadFile(argsPath)
++	require.NoError(t, err)
++	want := []string{"lists", "compare", "fixture-list", "13005012", "--format=json", "--agent", "--home", filepath.Join(dir, ".printing-press-fixtures", "live-home")}
++	require.Equal(t, strings.Join(want, "\n")+"\n", string(got))
++	require.Equal(t, feature.Example, result.Example, "public research examples must remain unchanged")
++}
++
++func TestRunOneFeatureCheckPreservesUnannotatedExample(t *testing.T) {
++	dir := t.TempDir()
++	argsPath := filepath.Join(dir, "received-args.txt")
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf(`printf '%%s\n' "$@" > %q
++printf '{"items":[{"id":"13005012","name":"Restaurant"}],"list":"public-list"}\n'`, argsPath))
++	feature := liveCheckFeature{NovelFeature: NovelFeature{Name: "saved comparison", Command: "lists compare", Example: "bin lists compare public-list --agent"}, Path: []string{"lists", "compare"}, Annotations: map[string]string{mcpReadOnlyAnnotation: "true"}}
++	result := runOneFeatureCheckWithDataSource(dir, binary, feature, time.Second, false)
++	require.Equal(t, StatusPass, result.Status, result.Reason)
++	got, err := os.ReadFile(argsPath)
++	require.NoError(t, err)
++	require.Equal(t, "lists\ncompare\npublic-list\n--agent\n", string(got))
++}
++
++func TestHappyArgsHomePrecedenceSharedByRunners(t *testing.T) {
++	dir := t.TempDir()
++	cases := []struct {
++		name    string
++		example string
++		home    []string
++	}{
++		{"annotation default resolves from checkout", "bin lists compare public-list old-id --format=summary --agent", []string{"--home", filepath.Join(dir, ".printing-press-fixtures", "live-home")}},
++		{"explicit equals home wins", "bin lists compare public-list old-id --home=/chosen/home --format=summary --agent", []string{"--home=/chosen/home"}},
++		{"explicit separated home wins", "bin lists compare public-list old-id --home /chosen/home --format=summary --agent", []string{"--home", "/chosen/home"}},
++		{"explicit relative home is preserved", "bin lists compare public-list old-id --home=chosen-home --format=summary --agent", []string{"--home=chosen-home"}},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			command := liveDogfoodCommand{Path: []string{"lists", "compare"}, Help: fixtureListHelp + "\nExamples:\n  " + tc.example + "\n", Annotations: map[string]string{happyArgsAnnotation: "<list>=fixture-list;<id>=13005012;--format=json;--home=.printing-press-fixtures/live-home"}}
++			exampleArgs, err := parseExampleArgs(tc.example)
++			require.NoError(t, err)
++			scorecardArgs, err := overlayLiveDogfoodHappyArgs(exampleArgs, command, parseHappyArgsAnnotation(command.Annotations[happyArgsAnnotation]), dir)
++			require.NoError(t, err)
++			dogfoodArgs, ok, _, err := liveDogfoodHappyArgsParsed(command, dir)
++			require.NoError(t, err)
++			require.True(t, ok)
++			require.Equal(t, scorecardArgs, dogfoodArgs, "both runners must execute the same fixture args")
++			require.Equal(t, []string{"lists", "compare", "fixture-list", "13005012"}, scorecardArgs[:4])
++			require.Contains(t, scorecardArgs, "--format=json", "non-home annotation flag precedence must remain authoritative")
++			var home []string
++			for i, arg := range scorecardArgs {
++				if strings.HasPrefix(arg, "--home=") {
++					home = append(home, arg)
++				} else if arg == "--home" {
++					home = append(home, arg, scorecardArgs[i+1])
++				}
++			}
++			require.Equal(t, tc.home, home, "there must be exactly one non-conflicting home flag")
++		})
++	}
++}
++
++func TestHappyArgsHomeDetectionHonorsFlagValuesAndTerminator(t *testing.T) {
++	valueFlags := liveDogfoodFlagValueNames(fixtureListHelp)
++	require.False(t, liveDogfoodHasExplicitHome([]string{"lists", "compare", "list", "--note", "--home"}, []string{"lists", "compare"}, 2, valueFlags))
++	require.False(t, liveDogfoodHasExplicitHome([]string{"lists", "compare", "list", "--", "--home=/positional"}, []string{"lists", "compare"}, 2, valueFlags))
++}

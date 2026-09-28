@@ -1,0 +1,150 @@
+{
+  "files": [
+    {
+      "source_relative": "toolchain/scorecard-happy-args.patch",
+      "proof_relative": "proofs/toolchain-provenance/scorecard-happy-args.patch",
+      "sha256": "4fad46b57b433454a37445f636031ce2d343f0c277936a24660637beb9579070"
+    },
+    {
+      "source_relative": "toolchain/live-dogfood-json-reuse.patch",
+      "proof_relative": "proofs/toolchain-provenance/live-dogfood-json-reuse.patch",
+      "sha256": "6457cae0c89097aa98345ab0905f32546c0c5d430db068f9248984ed7af40d5b"
+    },
+    {
+      "source_relative": "toolchain/local-install-checker.patch",
+      "proof_relative": "proofs/toolchain-provenance/local-install-checker.patch",
+      "sha256": "32c5f401eebb8d72f477156aea2a72468ca1109e0b48c2549bedc81fdd172552"
+    },
+    {
+      "source_relative": "toolchain/dogfood-public-fixture.patch",
+      "proof_relative": "proofs/toolchain-provenance/dogfood-public-fixture.patch",
+      "sha256": "814fb9f796769397e9551a6facaa2f2271526400c7ba454ebfe5e73ba7db2bb4"
+    },
+    {
+      "source_relative": "toolchain/phase17-cumulative-toolchain.patch",
+      "proof_relative": "proofs/toolchain-provenance/phase17-cumulative-toolchain.patch",
+      "sha256": "5fa3d8bc3cfe67e3f97b6bbd373a1435bb160626935c10dfec0a612d15ea8ce1"
+    },
+    {
+      "source_relative": "toolchain/projection-diagnostic.patch",
+      "proof_relative": "proofs/toolchain-provenance/projection-diagnostic.patch",
+      "sha256": "2d0076b79997227732fd8ac3c01386c76cc4a3de686affc34717aa9e74652dbd"
+    },
+    {
+      "source_relative": "toolchain/phase18-cumulative-toolchain.patch",
+      "proof_relative": "proofs/toolchain-provenance/phase18-cumulative-toolchain.patch",
+      "sha256": "0e746e0f80ca6a1283fe7a2f63ce34bd1b3b7193650276c3df4da7d24fe9b798"
+    },
+    {
+      "source_relative": "toolchain/mcp-recipe-boundary.patch",
+      "proof_relative": "proofs/toolchain-provenance/mcp-recipe-boundary.patch",
+      "sha256": "c678d3d9ee0d8be3b0fd9f560fcbf5610779ea4c1d39398b34670deaf6c7bec0"
+    },
+    {
+      "source_relative": "toolchain/proofs/json-reuse-before-tests.log",
+      "proof_relative": "proofs/toolchain-provenance/proofs/json-reuse-before-tests.log",
+      "sha256": "609aa1d510d40b7f103d5738c2388cf1de3bb90e1aa9d3dda6d47f0d77bb5f0f"
+    },
+    {
+      "source_relative": "toolchain/proofs/scorecard-overlay-toolchain-proof.md",
+      "proof_relative": "proofs/toolchain-provenance/proofs/scorecard-overlay-toolchain-proof.md",
+      "sha256": "af9c220f09b8a7aeec32a0bc95b66fc27a30f38d33a9cbc7c5c08c6f21b44329"
+    },
+    {
+      "source_relative": "toolchain/proofs/json-reuse-toolchain-proof.md",
+      "proof_relative": "proofs/toolchain-provenance/proofs/json-reuse-toolchain-proof.md",
+      "sha256": "1b5edc27ee10d5f6e4fe323a9f5db308cafcf2e420344ac8dc5f3e64b0105255"
+    },
+    {
+      "source_relative": "toolchain/proofs/phase17-generator-toolchain-proof.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/phase17-generator-toolchain-proof.json",
+      "sha256": "d0eb3de4d53ccc031786e4bfe4366d6ed2b34340b482c11942e21f91c535cd72"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-focused-tests.log",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-focused-tests.log",
+      "sha256": "82098597464ce5469268f34c487844dc44422b5af8887f78ad8bf657930c0f23"
+    },
+    {
+      "source_relative": "toolchain/proofs/malformed-module-rejected.stderr",
+      "proof_relative": "proofs/toolchain-provenance/proofs/malformed-module-rejected.stderr",
+      "sha256": "7f413aeabf595d043e8c50cb3b4959e0eb0c0c1e4bcae1ca3bcfeb82e2c2cf38"
+    },
+    {
+      "source_relative": "toolchain/proofs/json-reuse-focused-tests.log",
+      "proof_relative": "proofs/toolchain-provenance/proofs/json-reuse-focused-tests.log",
+      "sha256": "8494bf0ec3077fa04dbf7e87d9d5bf42d3ddf463a699e75db951f30eeb32446f"
+    },
+    {
+      "source_relative": "toolchain/proofs/phase17-generator-toolchain-proof.md",
+      "proof_relative": "proofs/toolchain-provenance/proofs/phase17-generator-toolchain-proof.md",
+      "sha256": "a5fde92258d5a847c35e7e8663b3d835928adedd5a895a121781d828a7f5df2a"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-before.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-before.json",
+      "sha256": "0657edc6bdc5d8cf94642826a137275ccbbb2d8f7120368af04fb975e45af01a"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-version.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-version.json",
+      "sha256": "a2e1db6641048882248eb93924f2252746f8683520a686913da1b80cbc3a3b1a"
+    },
+    {
+      "source_relative": "toolchain/proofs/scorecard-overlay-focused-tests.log",
+      "proof_relative": "proofs/toolchain-provenance/proofs/scorecard-overlay-focused-tests.log",
+      "sha256": "375fb111993fc6eb35038dd06be12ebbb7ff223853ce13a03f6b8bab900faf90"
+    },
+    {
+      "source_relative": "toolchain/proofs/json-reuse-toolchain-proof.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/json-reuse-toolchain-proof.json",
+      "sha256": "770cdb1328a443e58cf6627f6314db27637536d7b986d41c17b978b457fc4911"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-after.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-after.json",
+      "sha256": "9a71fb7b136daeba5f07fd066819465c614375e1c906128a481643765e16b219"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-section-tabelog.md",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-section-tabelog.md",
+      "sha256": "35ff9983307a8a69ee8886edcab54ee970b75564f0a599fddfdbd2a60a1832dd"
+    },
+    {
+      "source_relative": "toolchain/proofs/scorecard-overlay-toolchain-proof.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/scorecard-overlay-toolchain-proof.json",
+      "sha256": "af29ad8edfd2cee4cbcc2ae1dffd482063c1797b5d218f2ac17fd19aa088f00c"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-toolchain-proof.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-toolchain-proof.json",
+      "sha256": "9853192136615ca0f9f75eeea788dc42b09a6f4f436bf802bd258666dd8f2e4d"
+    },
+    {
+      "source_relative": "toolchain/proofs/scorecard-overlay-before-tests.log",
+      "proof_relative": "proofs/toolchain-provenance/proofs/scorecard-overlay-before-tests.log",
+      "sha256": "528ebbe3153c23cf9926b4ddb831b8a0d95874a5d69749d34ffa61120faee62a"
+    },
+    {
+      "source_relative": "toolchain/proofs/phase18-dogfood-toolchain-proof.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/phase18-dogfood-toolchain-proof.json",
+      "sha256": "abd2c851d43a0c2b9c1a6429e5ead724bf2f534f30abfafde71f2e8f2843b39a"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-command-statuses.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-command-statuses.json",
+      "sha256": "48e72a4368b66e87e0e7b835f2f1b478a82f888a68e24a89a66d92ca5b03ffc1"
+    },
+    {
+      "source_relative": "toolchain/proofs/local-install-toolchain-proof.md",
+      "proof_relative": "proofs/toolchain-provenance/proofs/local-install-toolchain-proof.md",
+      "sha256": "87312d52317cd5b3f661ca261e7d764b3375b68c41c33013ac8e115ca808c93a"
+    },
+    {
+      "source_relative": "toolchain/proofs/published-local-rejected.json",
+      "proof_relative": "proofs/toolchain-provenance/proofs/published-local-rejected.json",
+      "sha256": "91e65eb88791b2f27877009c606ed6dd3ad1100dc47a5e7d06de6a39157c1f58"
+    }
+  ],
+  "tool_binary_included": false
+}

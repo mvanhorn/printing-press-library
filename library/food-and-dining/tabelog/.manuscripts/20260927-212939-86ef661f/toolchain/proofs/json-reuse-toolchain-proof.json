@@ -1,0 +1,40 @@
+{
+  "kind": "run-local upstream live-dogfood exact-JSON invocation reuse bugfix",
+  "upstream_version": "v4.32.5",
+  "upstream_git_hash": "7298ce9b1198c6689ae9a850e75b2ca2043c044a",
+  "source_path": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install",
+  "binary_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+  "binary_sha256": "551d228e887fb3f0774efc8e0bb1ee6beed6a3837847c652b3254be8cb787bfd",
+  "patch_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/live-dogfood-json-reuse.patch",
+  "patch_sha256": "6457cae0c89097aa98345ab0905f32546c0c5d430db068f9248984ed7af40d5b",
+  "condition": "Reuse the successful happy-run capture only when exit_code==0, no run error, and normalized jsonArgs exactly equal actual happy args. Otherwise preserve the second invocation. Existing JSON-fidelity and exit-status evaluation still run.",
+  "before": {
+    "exit_code": 1,
+    "counter": "Both explicit --json and --json=true invoke the non-idempotent mutation twice."
+  },
+  "after": {
+    "exit_code": 0,
+    "checks": [
+      "Explicit --json and --json=true apply the mutation once, with both happy and JSON verdicts passing.",
+      "CSV-to-JSON distinct arguments still invoke twice.",
+      "Failed happy run still invokes JSON separately and preserves both exit8 failures.",
+      "Captured successful non-JSON output still fails JSON fidelity without a second mutation.",
+      "Existing mutator dry-run fidelity, output-mode handling and scorecard/home overlay regressions remain green."
+    ]
+  },
+  "scope": {
+    "product_code_edited": false,
+    "product_gates_or_receipts_run": false,
+    "public_writes": false,
+    "default_removal_errors_changed": false,
+    "state_reseeded_or_import_seam_added": false,
+    "sourcecheck_or_JSON_validation_skipped": false,
+    "dependencies_and_cache": "Local GOMODCACHE metadata, read-only cached-source links and local GOCACHE; module downloads disabled; no full unrelated suite."
+  },
+  "cumulative_repairs": [
+    "local-install-checker.patch",
+    "scorecard-happy-args.patch",
+    "live-dogfood-json-reuse.patch"
+  ],
+  "current_binary_superseded_by": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/phase17-generator-toolchain-proof.json"
+}

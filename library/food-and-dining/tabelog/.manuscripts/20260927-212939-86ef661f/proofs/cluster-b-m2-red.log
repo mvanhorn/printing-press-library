@@ -1,0 +1,6 @@
+=== RUN   TestRefreshSeparatesBudgetFactsFromSourceProvenance
+    refresh_budget_facts_test.go:95: unchanged unknown lunch facts reported a delta: {Field:lunch_budget Previous:map[max_jpy:<nil> min_jpy:<nil> raw:- source:listing] Current:map[max_jpy:<nil> min_jpy:<nil> raw:- source:listed] PreviousState:source_unknown CurrentState:source_unknown}
+--- FAIL: TestRefreshSeparatesBudgetFactsFromSourceProvenance (0.02s)
+FAIL
+FAIL	tabelog-pp-cli/internal/cli	0.512s
+FAIL

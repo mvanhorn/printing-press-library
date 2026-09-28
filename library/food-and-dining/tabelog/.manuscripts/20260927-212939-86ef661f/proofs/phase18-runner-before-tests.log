@@ -1,0 +1,25 @@
+=== RUN   TestLiveDogfoodHiddenAndOverviewDoNotExecuteHappy
+    live_dogfood_public_fixture_test.go:34: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_public_fixture_test.go:34
+        	Error:      	Not equal: 
+        	            	expected: "skip"
+        	            	actual  : "fail"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,2 +1,2 @@
+        	            	-(pipeline.LiveDogfoodStatus) (len=4) "skip"
+        	            	+(pipeline.LiveDogfoodStatus) (len=4) "fail"
+        	            	 
+        	Test:       	TestLiveDogfoodHiddenAndOverviewDoNotExecuteHappy
+--- FAIL: TestLiveDogfoodHiddenAndOverviewDoNotExecuteHappy (0.37s)
+=== RUN   TestLiveDogfoodApprovedLocalFixtureExecutesOnce
+    live_dogfood_public_fixture_test.go:77: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_public_fixture_test.go:77
+        	Error:      	[]string{"remove", "--json", "--home", "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/TestLiveDogfoodApprovedLocalFixtureExecutesOnce2714574832/001/.printing-press-fixtures/live-home", "--dry-run"} should not contain "--dry-run"
+        	Test:       	TestLiveDogfoodApprovedLocalFixtureExecutesOnce
+--- FAIL: TestLiveDogfoodApprovedLocalFixtureExecutesOnce (0.39s)
+FAIL
+FAIL	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	1.333s
+FAIL

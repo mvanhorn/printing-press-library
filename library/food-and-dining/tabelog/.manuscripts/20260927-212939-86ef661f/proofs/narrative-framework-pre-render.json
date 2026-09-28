@@ -1,0 +1,19 @@
+{
+  "command": "cli-printing-press validate-narrative --strict --framework-only --json --research research.json",
+  "exit_code": 0,
+  "result": {
+    "walked": 1,
+    "missing": 0,
+    "empty": 0,
+    "results": [
+      {
+        "section": "quickstart",
+        "command": "tabelog-pp-cli doctor --dry-run",
+        "words": "doctor",
+        "status": "ok"
+      }
+    ],
+    "framework_only": true
+  },
+  "scope": "Pre-render framework vocabulary only; API/list command paths and runtime dry-run behavior require post-build full-example validation."
+}

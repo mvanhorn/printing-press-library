@@ -1,0 +1,72 @@
+{
+  "status": "initial_gate_findings_sanitized",
+  "finding_count": 12,
+  "files_changed": [
+    {
+      "path": "discovery/public-source/api.github.com-repos-tma15-python-tabelog-51ad9f5bed9043ac.json",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/api.github.com-repos-tma15-python-tabelog-51ad9f5bed9043ac.json",
+      "original_sha256": "8a7c6217b1be60dcfebcda3a73c0e95a3725b7556763a68541a6234a24475573",
+      "derived_sha256": "2c09fc2b3b8a383f19937cbd64a303f1bb911de50715a7c7607573836821e1bf",
+      "contact_occurrences_redacted": 0,
+      "git_ssh_urls_changed_to_https": 1,
+      "restaurant_or_replay_facts_changed": false
+    },
+    {
+      "path": "discovery/public-source/api.github.com-repos-xyx-is-tabelog_scraping-008b5adc5bf06679.json",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/api.github.com-repos-xyx-is-tabelog_scraping-008b5adc5bf06679.json",
+      "original_sha256": "c8df4bfbcd30bc798df7e8a0132b0616e7bdba4873d9c154c22a2473c4118ac7",
+      "derived_sha256": "099ec5a786952507141d636d26ddc6f927181f0b6d52ef2d613f1f19097d4cf3",
+      "contact_occurrences_redacted": 0,
+      "git_ssh_urls_changed_to_https": 1,
+      "restaurant_or_replay_facts_changed": false
+    },
+    {
+      "path": "discovery/public-source/pypi.org-pypi-gurume-json-111ae839a80e58c7.json",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/pypi.org-pypi-gurume-json-111ae839a80e58c7.json",
+      "original_sha256": "ad66a829069d8ee14cbba72073c116eb677cfd037b1100b861005bcd327b14fe",
+      "derived_sha256": "e34596ac5025521ccbbc1692e09e0043b63a46af100cc810b696876cac08e0e0",
+      "contact_occurrences_redacted": 1,
+      "git_ssh_urls_changed_to_https": 0,
+      "restaurant_or_replay_facts_changed": false
+    },
+    {
+      "path": "discovery/public-source/raw.githubusercontent.com-narumiruna-gurume-main-pyproject.toml-21af48c6875bc422.txt",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/raw.githubusercontent.com-narumiruna-gurume-main-pyproject.toml-21af48c6875bc422.txt",
+      "original_sha256": "133e9cecd4b04ce1c35076c042b80694c47f74b4b94eab04c70679b2c3c19c2f",
+      "derived_sha256": "03c4c70f4afaeacad162bf2eae4976e62f1a5a39b64d7ce3ad621d2584ae8051",
+      "contact_occurrences_redacted": 1,
+      "git_ssh_urls_changed_to_https": 0,
+      "restaurant_or_replay_facts_changed": false
+    },
+    {
+      "path": "discovery/public-source/raw.githubusercontent.com-tma15-python-tabelog-master-setup.py-c44aa25abcf9134f.txt",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/raw.githubusercontent.com-tma15-python-tabelog-master-setup.py-c44aa25abcf9134f.txt",
+      "original_sha256": "e3bfb848dc187afa673d4810988080b6b8ec734098a0e5398193605f9fd1e602",
+      "derived_sha256": "acf9c5fb9996f52296317f5d348f439f9d75f7129e82bd427a9fc3b5593bdf11",
+      "contact_occurrences_redacted": 1,
+      "git_ssh_urls_changed_to_https": 0,
+      "restaurant_or_replay_facts_changed": false
+    },
+    {
+      "path": "discovery/public-source/registry.npmjs.org---v1-search-text-tabelog-size-10-4647b8c1d6fa6b42.json",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/registry.npmjs.org---v1-search-text-tabelog-size-10-4647b8c1d6fa6b42.json",
+      "original_sha256": "d729ec1ea049e0b1ea40380f2cf501e759c0b8762c41010d9a454ec99bf7a9e9",
+      "derived_sha256": "58ecc0a9be1b86dcfced32046a2e871d6184a2d0b6d853586b2415a406b09eca",
+      "contact_occurrences_redacted": 6,
+      "git_ssh_urls_changed_to_https": 0,
+      "restaurant_or_replay_facts_changed": false
+    },
+    {
+      "path": "discovery/public-source/tech-blog.tabelog.com-entry-software-design-202312-chatgpt-214c9e6db2351bd0.html",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-pii-originals/discovery/public-source/tech-blog.tabelog.com-entry-software-design-202312-chatgpt-214c9e6db2351bd0.html",
+      "original_sha256": "bb4235b74b0dba4486f95c17b3e627b0f71001e8b55154506dffbf4f085ff049",
+      "derived_sha256": "8e39d00923cc2c07a52c1c0502e5fc000bee38a6b1e0ccf7f7824c87ebd8cd05",
+      "contact_occurrences_redacted": 1,
+      "git_ssh_urls_changed_to_https": 0,
+      "restaurant_or_replay_facts_changed": false
+    }
+  ],
+  "sensitive_values_logged": false,
+  "original_gate_report_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs-originals/phase20-pii-gate.json",
+  "original_gate_report_sha256": "235a177657b5ecdc437d2d3bf406a205567824f3b9413c01a87838672f73ddae"
+}

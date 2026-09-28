@@ -1,0 +1,136 @@
+{
+  "budget_provenance_only_changes": [
+    {
+      "field": "lunch_budget",
+      "previous": {
+        "max_jpy": null,
+        "min_jpy": null,
+        "raw": "-",
+        "source": "listing"
+      },
+      "current": {
+        "max_jpy": null,
+        "min_jpy": null,
+        "raw": "-",
+        "source": "listed"
+      },
+      "previous_state": "source_unknown",
+      "current_state": "source_unknown"
+    },
+    {
+      "field": "dinner_budget",
+      "previous": {
+        "max_jpy": 3999,
+        "min_jpy": 3000,
+        "raw": "JPY 3,000 - JPY 3,999",
+        "source": "listing"
+      },
+      "current": {
+        "max_jpy": null,
+        "min_jpy": null,
+        "raw": "-",
+        "source": "listed"
+      },
+      "previous_state": "known",
+      "current_state": "source_unknown"
+    }
+  ],
+  "prior_budgets": {
+    "dinner_budget": {
+      "raw": "JPY 3,000 - JPY 3,999",
+      "min_jpy": 3000,
+      "max_jpy": 3999,
+      "source": "listing"
+    },
+    "lunch_budget": {
+      "raw": "-",
+      "min_jpy": null,
+      "max_jpy": null,
+      "source": "listing"
+    }
+  },
+  "current_budgets": {
+    "dinner_budget": {
+      "raw": "-",
+      "min_jpy": null,
+      "max_jpy": null,
+      "source": "listed"
+    },
+    "lunch_budget": {
+      "raw": "-",
+      "min_jpy": null,
+      "max_jpy": null,
+      "source": "listed"
+    }
+  },
+  "documented_select_example": {
+    "exit": 0,
+    "stdout": "{\"items\":[{\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\"},{\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13002248/\"},{\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13120361/\"},{\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13224720/\"},{\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13060180/\"}],\"meta\":{\"source\":\"local\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"age_seconds\":0,\"stale\":false,\"criteria\":{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"kind\":\"area\",\"name\":\"Ginza\",\"prefecture\":\"tokyo\"},\"budget_max\":5000,\"budget_min\":0,\"cuisine\":\"bar\",\"keyword\":\"\",\"limit\":5,\"max_pages\":1,\"meal\":\"dinner\"},\"source_sort\":\"highest_rated\",\"source_surface\":\"listing\",\"budget_source\":\"listing\",\"returned\":5,\"scanned\":20,\"pages\":1,\"has_more\":true,\"next_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/2/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"requests\":0,\"bytes\":0,\"coverage\":\"source_pages\",\"omitted_from_scanned\":15,\"next_url_scope\":\"after_scanned_pages\"}}\n",
+    "stderr": "warning: --select \"title\" matched no fields; valid fields: items, meta\n",
+    "replay_requests": 0
+  },
+  "all_invalid_projection_diagnostic": {
+    "exit": 2,
+    "stdout": "{\"items\":[{\"id\":\"13005012\",\"name\":\"SAMBOA BAR Ginza ten\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"rating\":3.79,\"review_count\":502,\"categories\":[\"Bar\"],\"area\":{\"prefecture\":\"tokyo\",\"area1\":\"A1301\",\"area2\":\"A130101\",\"verified\":true},\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":104,\"lunch_budget\":{\"raw\":\"-\",\"min_jpy\":null,\"max_jpy\":null,\"source\":\"listing\"},\"dinner_budget\":{\"raw\":\"JPY 3,000 - JPY 3,999\",\"min_jpy\":3000,\"max_jpy\":3999,\"source\":\"listing\"},\"closures\":null,\"facilities\":[\"Credit card accepted\",\"Smoking allowed\"],\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"source_surface\":\"listing\",\"sections\":[\"listing\"],\"evidence\":{\"address\":\"detail_not_fetched\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"}},{\"id\":\"13002248\",\"name\":\"BAR Opa Ginza\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13002248/\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"rating\":3.79,\"review_count\":341,\"categories\":[\"Bar\"],\"area\":{\"prefecture\":\"tokyo\",\"area1\":\"A1301\",\"area2\":\"A130101\",\"verified\":true},\"nearest_station\":\"Ginza Itchome Sta.\",\"nearest_station_distance_m\":79,\"lunch_budget\":{\"raw\":\"-\",\"min_jpy\":null,\"max_jpy\":null,\"source\":\"listing\"},\"dinner_budget\":{\"raw\":\"JPY 4,000 - JPY 4,999\",\"min_jpy\":4000,\"max_jpy\":4999,\"source\":\"listing\"},\"closures\":\"Monday, Sunday\",\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"source_surface\":\"listing\",\"sections\":[\"listing\"],\"evidence\":{\"address\":\"detail_not_fetched\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"}},{\"id\":\"13120361\",\"name\":\"Sukiyabashi Sanboar\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13120361/\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"rating\":3.75,\"review_count\":272,\"categories\":[\"Bar\"],\"area\":{\"prefecture\":\"tokyo\",\"area1\":\"A1301\",\"area2\":\"A130101\",\"verified\":true},\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":351,\"lunch_budget\":{\"raw\":\"-\",\"min_jpy\":null,\"max_jpy\":null,\"source\":\"listing\"},\"dinner_budget\":{\"raw\":\"JPY 3,000 - JPY 3,999\",\"min_jpy\":3000,\"max_jpy\":3999,\"source\":\"listing\"},\"closures\":null,\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"source_surface\":\"listing\",\"sections\":[\"listing\"],\"evidence\":{\"address\":\"detail_not_fetched\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"source_unknown\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"}},{\"id\":\"13224720\",\"name\":\"ROCK FISH\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13224720/\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"rating\":3.67,\"review_count\":254,\"categories\":[\"Bar\"],\"area\":{\"prefecture\":\"tokyo\",\"area1\":\"A1301\",\"area2\":\"A130101\",\"verified\":true},\"nearest_station\":\"Uchisaiwaicho Sta.\",\"nearest_station_distance_m\":400,\"lunch_budget\":{\"raw\":\"JPY 2,000 - JPY 2,999\",\"min_jpy\":2000,\"max_jpy\":2999,\"source\":\"listing\"},\"dinner_budget\":{\"raw\":\"JPY 2,000 - JPY 2,999\",\"min_jpy\":2000,\"max_jpy\":2999,\"source\":\"listing\"},\"closures\":\"- Due to the nature of the site, the accuracy of restaurant information cannot be guaranteed.\",\"facilities\":[\"Credit card accepted\",\"Non smoking\"],\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"source_surface\":\"listing\",\"sections\":[\"listing\"],\"evidence\":{\"address\":\"detail_not_fetched\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"known\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"}},{\"id\":\"13060180\",\"name\":\"Beer Hall Lion Ginza nanachome ten\",\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13060180/\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"rating\":3.65,\"review_count\":1573,\"categories\":[\"Beer hall\",\"Beer bar\",\"Steak\"],\"area\":{\"prefecture\":\"tokyo\",\"area1\":\"A1301\",\"area2\":\"A130101\",\"verified\":true},\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":310,\"lunch_budget\":{\"raw\":\"JPY 3,000 - JPY 3,999\",\"min_jpy\":3000,\"max_jpy\":3999,\"source\":\"listing\"},\"dinner_budget\":{\"raw\":\"JPY 3,000 - JPY 3,999\",\"min_jpy\":3000,\"max_jpy\":3999,\"source\":\"listing\"},\"closures\":null,\"facilities\":[\"Credit card accepted\",\"Non smoking\",\"Wi-Fi available\",\"Children welcome\"],\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"source_surface\":\"listing\",\"sections\":[\"listing\"],\"evidence\":{\"address\":\"detail_not_fetched\",\"dinner_budget\":\"known\",\"hours\":\"detail_not_fetched\",\"lunch_budget\":\"known\",\"payment\":\"detail_not_fetched\",\"rating\":\"known\",\"reservation\":\"detail_not_fetched\",\"review_count\":\"known\",\"transportation\":\"detail_not_fetched\"}}],\"meta\":{\"source\":\"local\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"age_seconds\":0,\"stale\":false,\"criteria\":{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"kind\":\"area\",\"name\":\"Ginza\",\"prefecture\":\"tokyo\"},\"budget_max\":5000,\"budget_min\":0,\"cuisine\":\"bar\",\"keyword\":\"\",\"limit\":5,\"max_pages\":1,\"meal\":\"dinner\"},\"source_sort\":\"highest_rated\",\"source_surface\":\"listing\",\"budget_source\":\"listing\",\"returned\":5,\"scanned\":20,\"pages\":1,\"has_more\":true,\"next_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/2/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"requests\":0,\"bytes\":0,\"coverage\":\"source_pages\",\"omitted_from_scanned\":15,\"next_url_scope\":\"after_scanned_pages\"}}\n",
+    "stderr": "warning: --select \"nonexistent\" matched no fields; valid fields: items, meta\n{\"code\":2,\"error\":\"--select matched no fields: nonexistent\"}\n"
+  },
+  "metadata_write_deadline_probe": {
+    "exit": 0,
+    "stdout": "{\"items\":[{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\"},\"id\":\"13005012\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\"},\"name\":\"SAMBOA BAR Ginza ten\",\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":104,\"rating\":3.79,\"review_count\":502,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13005012/\"},{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":\"Monday, Sunday\",\"dinner_budget\":{\"max_jpy\":4999,\"min_jpy\":4000,\"raw\":\"JPY 4,000 - JPY 4,999\"},\"id\":\"13002248\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\"},\"name\":\"BAR Opa Ginza\",\"nearest_station\":\"Ginza Itchome Sta.\",\"nearest_station_distance_m\":79,\"rating\":3.79,\"review_count\":341,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13002248/\"},{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"awards\":[\"Selected for Tabelog Bar \\\"Tabelog 100\\\" 2022\"],\"categories\":[\"Bar\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\"},\"id\":\"13120361\",\"lunch_budget\":{\"max_jpy\":null,\"min_jpy\":null,\"raw\":\"-\"},\"name\":\"Sukiyabashi Sanboar\",\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":351,\"rating\":3.75,\"review_count\":272,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13120361/\"},{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"categories\":[\"Bar\"],\"closures\":\"- Due to the nature of the site, the accuracy of restaurant information cannot be guaranteed.\",\"dinner_budget\":{\"max_jpy\":2999,\"min_jpy\":2000,\"raw\":\"JPY 2,000 - JPY 2,999\"},\"id\":\"13224720\",\"lunch_budget\":{\"max_jpy\":2999,\"min_jpy\":2000,\"raw\":\"JPY 2,000 - JPY 2,999\"},\"name\":\"ROCK FISH\",\"nearest_station\":\"Uchisaiwaicho Sta.\",\"nearest_station_distance_m\":400,\"rating\":3.67,\"review_count\":254,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13224720/\"},{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"prefecture\":\"tokyo\",\"verified\":true},\"categories\":[\"Beer hall\",\"Beer bar\",\"Steak\"],\"closures\":null,\"dinner_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\"},\"id\":\"13060180\",\"lunch_budget\":{\"max_jpy\":3999,\"min_jpy\":3000,\"raw\":\"JPY 3,000 - JPY 3,999\"},\"name\":\"Beer Hall Lion Ginza nanachome ten\",\"nearest_station\":\"Ginza Sta.\",\"nearest_station_distance_m\":310,\"rating\":3.65,\"review_count\":1573,\"url\":\"https://tabelog.com/en/tokyo/A1301/A130101/13060180/\"}],\"meta\":{\"source\":\"local\",\"source_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"fetched_at\":\"2026-09-27T16:38:06.435318Z\",\"age_seconds\":0,\"stale\":false,\"criteria\":{\"area\":{\"area1\":\"A1301\",\"area2\":\"A130101\",\"kind\":\"area\",\"name\":\"Ginza\",\"prefecture\":\"tokyo\"},\"budget_max\":5000,\"budget_min\":0,\"cuisine\":\"bar\",\"keyword\":\"\",\"limit\":5,\"max_pages\":1,\"meal\":\"dinner\"},\"source_sort\":\"highest_rated\",\"source_surface\":\"listing\",\"budget_source\":\"listing\",\"returned\":5,\"scanned\":20,\"pages\":1,\"has_more\":true,\"next_url\":\"https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/2/?LstCosT=5\\u0026RdoCosTp=2\\u0026SrtT=rt\",\"requests\":0,\"bytes\":0,\"coverage\":\"source_pages\",\"omitted_from_scanned\":15,\"next_url_scope\":\"after_scanned_pages\"}}\n",
+    "stderr": "",
+    "elapsed_ms": 229.41829217597842,
+    "requested_timeout_ms": 100,
+    "replay_requests": 0,
+    "scope": "Isolated actual CLI DB with an artificial slow INSERT trigger on generic sync_state to exercise the unbounded post-snapshot metadata write"
+  },
+  "retention_index_probe": {
+    "engine": "Python SQLite 3.53.4",
+    "scope": "private synthetic SQL fixture using current production schema/query; no product DB modified",
+    "snapshots": 10000,
+    "memberships": 9000,
+    "payload_bytes_each": 128,
+    "before_ms": 1215.6261247582734,
+    "candidate_index_ms": 12.22512498497963,
+    "same_total": true,
+    "plan_before": [
+      [
+        3,
+        0,
+        216,
+        "SCAN s"
+      ],
+      [
+        6,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        10,
+        6,
+        214,
+        "SCAN m USING COVERING INDEX sqlite_autoindex_tabelog_memberships_1"
+      ]
+    ],
+    "plan_candidate_index": [
+      [
+        3,
+        0,
+        216,
+        "SCAN s"
+      ],
+      [
+        6,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        10,
+        6,
+        54,
+        "SEARCH m USING COVERING INDEX candidate_fix_membership_restaurant (restaurant_id=?)"
+      ]
+    ]
+  }
+}

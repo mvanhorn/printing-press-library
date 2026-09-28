@@ -1,0 +1,36 @@
+{
+  "kind": "run-local upstream scorecard fixture-overlay bugfix",
+  "upstream_version": "v4.32.5",
+  "upstream_git_hash": "7298ce9b1198c6689ae9a850e75b2ca2043c044a",
+  "source_path": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install",
+  "binary_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+  "binary_sha256": "6f2964ba9184c9bfc1252681dff0d7d03d6846cfc08bb1f4985b69fbd9d26d28",
+  "patch_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/scorecard-happy-args.patch",
+  "patch_sha256": "4fad46b57b433454a37445f636031ce2d343f0c277936a24660637beb9579070",
+  "behavior": "Scorecard now applies the shared live-dogfood happy-args overlay to research examples. Explicit Example --home wins; annotation default relative home resolves against cliDir. Other annotation flags/positionals retain precedence, and regular examples are unchanged.",
+  "before": {
+    "test_exit": 1,
+    "evidence": "Same executable regression fails upstream because original example args are executed instead of the annotated list/id; unannotated-example regression passes."
+  },
+  "after": {
+    "test_exit": 0,
+    "evidence": "Execution args match annotated fixture list/id/format and absolute checkout fixture home; explicit equals/separated home forms, no duplicates, ordinary examples, flag-value/terminator handling, and existing happy-args regressions pass."
+  },
+  "tests_log": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-focused-tests.log",
+  "baseline_log": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-before-tests.log",
+  "scope": {
+    "product_code_edited": false,
+    "product_gates_or_receipts_run": false,
+    "public_writes": false,
+    "mutation_guards_changed": false,
+    "default_removal_behavior_changed": false,
+    "module_cache": "Local metadata cache and read-only links to cached source; GOMODCACHE/GOCACHE both run-local outside research RUN; downloads disabled."
+  },
+  "prior_install_checker_preserved": {
+    "artifact": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/artifacts/cli-printing-press-install-checker",
+    "sha256": "2461433c103dfb590604bd3f41a2d2b40a6c2796e65b616c3981acbba395b9cb"
+  },
+  "full_unrelated_suite": "not rerun per explicit task scope",
+  "historical_binary_artifact": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/artifacts/cli-printing-press-scorecard-overlay",
+  "current_binary_superseded_by": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/json-reuse-toolchain-proof.json"
+}

@@ -1,0 +1,23 @@
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json
+    live_dogfood_json_reuse_test.go:64: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_json_reuse_test.go:64
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 2
+        	Test:       	TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json
+        	Messages:   	JSON fidelity must not repeat the same successful mutation
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true
+    live_dogfood_json_reuse_test.go:64: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_json_reuse_test.go:64
+        	Error:      	Not equal: 
+        	            	expected: 1
+        	            	actual  : 2
+        	Test:       	TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true
+        	Messages:   	JSON fidelity must not repeat the same successful mutation
+--- FAIL: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun (0.80s)
+    --- FAIL: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json (0.40s)
+    --- FAIL: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true (0.40s)
+FAIL
+FAIL	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	1.432s
+FAIL

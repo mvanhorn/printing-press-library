@@ -1,0 +1,89 @@
+{
+  "findings_fixed": [
+    "M1",
+    "M2",
+    "S2",
+    "S3"
+  ],
+  "upstream_generator_version": "v4.32.5",
+  "upstream_generator_commit": "7298ce9b1198c6689ae9a850e75b2ca2043c044a",
+  "local_generator_source": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install",
+  "native_source_decoded_limit_bytes": 4194304,
+  "generated_nonbinary_limit_bytes": 33554432,
+  "restoration": [
+    "Apply the generator patch before a reprint on the matching upstream generator source.",
+    "Preserve the handwritten notebook/refresh modules and public-fixture regression as custom source; the product patch records the phase17 delta against the captured phase11-era baseline.",
+    "Client/delivery generated output will already contain the template changes after regeneration; their product patch hunks are an audit/fallback record, not a second application step."
+  ],
+  "tests": {
+    "product": "proofs/cluster-b-green.log",
+    "generator": "proofs/cluster-b-generator-green.log",
+    "before": "proofs/cluster-b-red.log",
+    "budget_before": "proofs/cluster-b-m2-red.log",
+    "retention_before": "proofs/cluster-b-retention-before.json",
+    "retention_after": "proofs/cluster-b-retention-after.json"
+  },
+  "files": [
+    {
+      "kind": "product",
+      "path": "internal/notebook/notebook.go",
+      "before_sha256": "720b36d4646404f980f6bb9292fe0fccfde6ddc11707877e8970604f05bd7b0c",
+      "after_sha256": "175f2099e260958b07d3af18cb8ca80b9134ff78f46c4536ef379a663620bbd9"
+    },
+    {
+      "kind": "product",
+      "path": "internal/cli/tabelog_lists_refresh.go",
+      "before_sha256": "841ce98bf7a70aba03b614d8e11cb2449f32358ff8487b6d334861ec03a37ee7",
+      "after_sha256": "3df433f04a7eca9b84fcabc401980187a7e2e43a82c8fb8cd43fc153d17bf788"
+    },
+    {
+      "kind": "product",
+      "path": "internal/client/client.go",
+      "before_sha256": "8c45b1726bb1714c3d581722b21ca3d70a618cc6dd002605ea44a9f7c2824e01",
+      "after_sha256": "3fd9ae7aa45c8aa1dc08bdb14852c95227995f67122ab407f9475e47d2ab3bbb"
+    },
+    {
+      "kind": "product",
+      "path": "internal/cli/deliver.go",
+      "before_sha256": "6f445b0362d3b1209451f331cd4be678b2f9f0daaf582bd262620aeffb667865",
+      "after_sha256": "622aa1547ddfe134b0ad48a2e50adb187ad07ad774827065890f0b718f7d1190"
+    },
+    {
+      "kind": "product",
+      "path": "internal/client/response_size_test.go",
+      "before_sha256": null,
+      "after_sha256": "a5daacd4bf1432af8c70fd96628f6d179adcc68324f451ac1419058590cff3ac"
+    },
+    {
+      "kind": "product",
+      "path": "internal/cli/deliver_atomic_test.go",
+      "before_sha256": null,
+      "after_sha256": "31bf672ecd24de2a3c7f8822d8cc68745c5cc492eae2bcf0d80dd4c77ae58c74"
+    },
+    {
+      "kind": "product",
+      "path": "internal/cli/refresh_budget_facts_test.go",
+      "before_sha256": null,
+      "after_sha256": "ac571d0b77d59298ed52fbf5b24bf4edfc4253f1d5d3f9db7d1ea197a9a472bb"
+    },
+    {
+      "kind": "generator",
+      "path": "internal/generator/templates/client.go.tmpl",
+      "before_sha256": "0f025609302fb0e9de9e61f73568ab3eab6d1b0c67051e13cbe01b12893da95f",
+      "after_sha256": "b8d6603a4ef5a98be91f2a3dc518f1dc0e6fa5cf926a583f02a7a5939bbe079c"
+    },
+    {
+      "kind": "generator",
+      "path": "internal/generator/templates/deliver.go.tmpl",
+      "before_sha256": "83fca5bb71f9a71bd5d6a9cb7bfc34881ae6c9390fde884f46f9df79389381c5",
+      "after_sha256": "eaedef2a8079bcb27dbe4ded934d51e34eb93aeb488325749da0f1303992cef1"
+    },
+    {
+      "kind": "generator",
+      "path": "internal/generator/response_delivery_security_test.go",
+      "before_sha256": null,
+      "after_sha256": "b2e8fbbbf932e35d9941da3d07d6da16c3fc4300fac7f81c063ac5094913b71b"
+    }
+  ],
+  "transport_scope": "All emitted no-auth Tabelog nonbinary request-response paths and the matching generic request-transport template. Optional OAuth-specific body readers are not emitted for this CLI and remain unchanged; this is not a universal auth-client repair."
+}

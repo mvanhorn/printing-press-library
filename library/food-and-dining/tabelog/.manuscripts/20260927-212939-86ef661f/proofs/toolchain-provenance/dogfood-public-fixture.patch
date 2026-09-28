@@ -1,0 +1,676 @@
+diff --git a/internal/pipeline/dogfood.go b/internal/pipeline/dogfood.go
+--- a/internal/pipeline/dogfood.go
++++ b/internal/pipeline/dogfood.go
+@@ -215,6 +215,7 @@
+ 	Name        string                `json:"name"`
+ 	Annotations map[string]string     `json:"annotations,omitempty"`
+ 	Runnable    bool                  `json:"runnable,omitempty"`
++	Hidden      bool                  `json:"hidden,omitempty"`
+ 	Subcommands []dogfoodAgentCommand `json:"subcommands,omitempty"`
+ }
+ 
+diff --git a/internal/pipeline/live_dogfood.go b/internal/pipeline/live_dogfood.go
+--- a/internal/pipeline/live_dogfood.go
++++ b/internal/pipeline/live_dogfood.go
+@@ -109,6 +109,7 @@
+ 	// destructive-at-auth, and live execution of mutating Example probes
+ 	// that do not advertise --dry-run. Default skips both so the matrix
+ 	// cannot rotate runner credentials or create leftover resources.
++	// Explicit local-write probes may execute in prepared confined fixture homes.
+ 	AllowDestructive bool
+ }
+ 
+@@ -145,6 +146,8 @@
+ 	Path        []string
+ 	Help        string
+ 	Annotations map[string]string
++	HelpOnly    bool
++	SkipReason  string
+ }
+ 
+ const liveDogfoodParentGroupAnnotation = "pp:parent-group"
+@@ -811,6 +814,9 @@
+ 		return
+ 	}
+ 	for _, command := range commands {
++		if command.SkipReason != "" || command.HelpOnly {
++			continue
++		}
+ 		if len(command.Path) == 1 && command.Path[0] == "sync" {
+ 			_ = runLiveDogfoodProcess(ctx.binaryPath, ctx.cliDir, []string{"sync"}, liveDogfoodPreSyncTimeout(ctx.timeout))
+ 			return
+@@ -831,7 +837,7 @@
+ func buildSiblingMap(commands []liveDogfoodCommand) map[string][]liveDogfoodCommand {
+ 	siblings := map[string][]liveDogfoodCommand{}
+ 	for _, c := range commands {
+-		if len(c.Path) == 0 {
++		if len(c.Path) == 0 || c.SkipReason != "" || c.HelpOnly {
+ 			continue
+ 		}
+ 		key := strings.Join(c.Path[:len(c.Path)-1], " ")
+@@ -1417,20 +1423,26 @@
+ }
+ 
+ func collectLiveDogfoodCommands(prefix []string, command dogfoodAgentCommand, cmds *[]liveDogfoodCommand) {
++	collectLiveDogfoodCommandsWithVisibility(prefix, command, false, cmds)
++}
++
++func collectLiveDogfoodCommandsWithVisibility(prefix []string, command dogfoodAgentCommand, ancestorHidden bool, cmds *[]liveDogfoodCommand) {
+ 	if command.Name == "" || liveDogfoodFrameworkSkip[command.Name] {
+ 		return
+ 	}
+ 
+ 	next := append(append([]string{}, prefix...), command.Name)
+-	if len(command.Subcommands) == 0 {
+-		*cmds = append(*cmds, liveDogfoodCommand{Path: next, Annotations: command.Annotations})
+-		return
+-	}
+-	if command.Runnable && !annotationIsTrueValue(command.Annotations[liveDogfoodParentGroupAnnotation]) {
+-		*cmds = append(*cmds, liveDogfoodCommand{Path: next, Annotations: command.Annotations})
+-	}
++	entry := liveDogfoodCommand{Path: next, Annotations: command.Annotations}
++	if command.Hidden {
++		entry.SkipReason = "command hidden from public help"
++	} else if ancestorHidden {
++		entry.SkipReason = "ancestor command hidden from public help"
++	} else if len(command.Subcommands) > 0 && (!command.Runnable || annotationIsTrueValue(command.Annotations[liveDogfoodParentGroupAnnotation])) {
++		entry.HelpOnly = true
++	}
++	*cmds = append(*cmds, entry)
+ 	for _, sub := range command.Subcommands {
+-		collectLiveDogfoodCommands(next, sub, cmds)
++		collectLiveDogfoodCommandsWithVisibility(next, sub, ancestorHidden || command.Hidden, cmds)
+ 	}
+ }
+ 
+@@ -1595,6 +1607,9 @@
+ 
+ func runLiveDogfoodCommand(command liveDogfoodCommand, ctx resolveCtx) []LiveDogfoodTestResult {
+ 	commandName := strings.Join(command.Path, " ")
++	if command.SkipReason != "" {
++		return skippedLiveDogfoodCommandResults(commandName, command.SkipReason)
++	}
+ 
+ 	// Destructive-at-auth short-circuit: commands that rotate or revoke
+ 	// the runner's bearer would 401-cascade every subsequent test. Skips
+@@ -1614,7 +1629,7 @@
+ 	helpResult := liveDogfoodResult(commandName, LiveDogfoodTestHelp, helpArgs, helpRun, ctx.authEnvValue)
+ 	helpPassed := helpRun.exitCode == 0
+ 	help := helpRun.stdout + helpRun.stderr
+-	if helpPassed && extractExamplesSection(help) == "" {
++	if helpPassed && !command.HelpOnly && extractExamplesSection(help) == "" {
+ 		helpPassed = false
+ 		helpResult.Status = LiveDogfoodStatusFail
+ 		helpResult.Reason = "missing Examples section"
+@@ -1625,6 +1640,9 @@
+ 	}
+ 
+ 	results := []LiveDogfoodTestResult{helpResult}
++	if command.HelpOnly {
++		return results
++	}
+ 	if !helpPassed {
+ 		results = append(results,
+ 			skippedLiveDogfoodResult(commandName, LiveDogfoodTestHappy, "help check failed"),
+@@ -1789,6 +1807,9 @@
+ 		return results
+ 	default:
+ 		happyArgs = resolvedArgs
++		if liveDogfoodApprovedLocalFixture(command, happyArgs, ctx) {
++			useDryRun = false
++		}
+ 
+ 		// Skip live Example execution for classified mutators that cannot
+ 		// preview. Stdin fixtures are curated request bodies, so they still
+@@ -2156,15 +2177,18 @@
+ }
+ 
+ func liveDogfoodJSONRequested(args []string) bool {
++	requested := false
+ 	for _, arg := range args {
+ 		if arg == "--" {
+ 			break
+ 		}
+-		if arg == "--json" || strings.HasPrefix(arg, "--json=") {
+-			return true
+-		}
+-	}
+-	return false
++		if arg == "--json" {
++			requested = true
++		} else if value, ok := strings.CutPrefix(arg, "--json="); ok {
++			requested = !strings.EqualFold(strings.TrimSpace(value), "false") && strings.TrimSpace(value) != "0"
++		}
++	}
++	return requested
+ }
+ 
+ func liveDogfoodJSONValid(run liveDogfoodRun) bool {
+@@ -2623,7 +2647,13 @@
+ 			positionalCount, valueFlags)
+ 	}
+ 	if len(flags) > 0 {
+-		out = overlayLiveDogfoodFlags(out, command.Path, flags, positionalCount, valueFlags)
++		booleanFlags := map[string]struct{}{}
++		for _, name := range extractFlagNames(command.Help) {
++			if _, typedValue := valueFlags[name]; !typedValue {
++				booleanFlags[name] = struct{}{}
++			}
++		}
++		out = overlayLiveDogfoodFlags(out, command.Path, flags, positionalCount, valueFlags, booleanFlags)
+ 	}
+ 	return out, nil
+ }
+@@ -2647,6 +2677,75 @@
+ 		}
+ 	}
+ 	return false
++}
++
++// Live local writes require an explicit prepared fixture home. Remote mutation
++// policy is unchanged, even when an endpoint also advertises local writes.
++func liveDogfoodApprovedLocalFixture(command liveDogfoodCommand, args []string, ctx resolveCtx) bool {
++	if !ctx.allowDestructive || !annotationIsTrueValue(command.Annotations[mcpLocalWriteAnnotation]) {
++		return false
++	}
++	if method := strings.ToUpper(strings.TrimSpace(command.Annotations[endpointMethodAnnotation])); method != "" && method != "GET" && method != "HEAD" {
++		return false
++	}
++	valueFlags := liveDogfoodFlagValueNames(command.Help)
++	positionalCount := len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help)))
++	start := min(len(command.Path), len(args))
++	home := ""
++	for i := start; i < len(args); i++ {
++		arg := args[i]
++		if arg == "--" {
++			break
++		}
++		if arg == "--home" || strings.HasPrefix(arg, "--home=") {
++			if home != "" {
++				return false
++			}
++			if arg == "--home" {
++				if i+1 >= len(args) {
++					return false
++				}
++				i++
++				home = args[i]
++			} else {
++				home = strings.TrimPrefix(arg, "--home=")
++			}
++			if home == "" {
++				return false
++			}
++			continue
++		}
++		_, typedValue := valueFlags[strings.TrimPrefix(arg, "--")]
++		if isLiveDogfoodFlagToken(arg) && !strings.Contains(arg, "=") && i+1 < len(args) &&
++			(typedValue || liveDogfoodFlagHasSeparateValueWithTypes(args, start, i, positionalCount, valueFlags)) {
++			i++
++		}
++	}
++	if !filepath.IsAbs(home) || ctx.cliDir == "" {
++		return false
++	}
++	cliDir, err := filepath.Abs(ctx.cliDir)
++	if err != nil {
++		return false
++	}
++	fixtureDir := filepath.Join(cliDir, ".printing-press-fixtures")
++	inside := func(root, path string) bool {
++		rel, err := filepath.Rel(root, path)
++		return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel)
++	}
++	if !inside(fixtureDir, filepath.Clean(home)) {
++		return false
++	}
++	realCLI, err := filepath.EvalSymlinks(cliDir)
++	if err != nil {
++		return false
++	}
++	realFixture, err := filepath.EvalSymlinks(fixtureDir)
++	if err != nil || realFixture != filepath.Join(realCLI, ".printing-press-fixtures") {
++		return false
++	}
++	realHome, err := filepath.EvalSymlinks(home)
++	return err == nil && inside(realFixture, realHome)
+ }
+ 
+ func normalizeLiveDogfoodNegativeNumericArgs(args, commandPath []string, positionalCount int, valueFlags map[string]struct{}) []string {
+@@ -2748,11 +2847,13 @@
+ 	return out
+ }
+ 
+-func overlayLiveDogfoodFlags(args, commandPath, flags []string, positionalCount int, valueFlags map[string]struct{}) []string {
++func overlayLiveDogfoodFlags(args, commandPath, flags []string, positionalCount int, valueFlags, booleanFlags map[string]struct{}) []string {
+ 	out := append([]string{}, args...)
+ 	for i := 0; i+1 < len(flags); i += 2 {
+ 		flag := flags[i]
+ 		value := flags[i+1]
++		_, boolFlag := booleanFlags[strings.TrimPrefix(flag, "--")]
++		boolValue := boolFlag && (strings.EqualFold(value, "true") || strings.EqualFold(value, "false"))
+ 		replaced := false
+ 		start := min(len(commandPath), len(out))
+ 		for j := start; j < len(out); j++ {
+@@ -2765,7 +2866,9 @@
+ 			if arg != flag {
+ 				continue
+ 			}
+-			if isNegativeNumericArg(value) {
++			if boolValue {
++				out[j] = flag + "=" + value
++			} else if isNegativeNumericArg(value) {
+ 				separate := liveDogfoodFlagHasSeparateValueWithTypes(out, start, j, positionalCount, valueFlags)
+ 				out[j] = flag + "=" + value
+ 				if separate {
+@@ -2780,7 +2883,7 @@
+ 			break
+ 		}
+ 		if !replaced {
+-			if isNegativeNumericArg(value) {
++			if boolValue || isNegativeNumericArg(value) {
+ 				out = append(out, flag+"="+value)
+ 			} else {
+ 				out = append(out, flag, value)
+@@ -3179,6 +3282,13 @@
+ 	}
+ 	dryRun, hasDryRun := liveDogfoodJSONBool(payload["dry_run"])
+ 	if !hasDryRun || !dryRun {
++		// Preserve the original top-level contract when its marker is present.
++		// A separate collection envelope must prove every item is a plan.
++		if _, topLevelMarker := payload["dry_run"]; !topLevelMarker {
++			if status, reason, recognized := liveDogfoodDryRunEnvelope(payload); recognized {
++				return status, reason
++			}
++		}
+ 		if requireHonour {
+ 			return LiveDogfoodStatusFail, "missing dry_run:true"
+ 		}
+@@ -3189,6 +3299,42 @@
+ 		return LiveDogfoodStatusFail, "empty dry-run action"
+ 	}
+ 	return LiveDogfoodStatusPass, ""
++}
++
++func liveDogfoodDryRunEnvelope(payload map[string]any) (LiveDogfoodStatus, string, bool) {
++	meta, ok := payload["meta"].(map[string]any)
++	if !ok || (meta["source"] != "dry-run" && meta["coverage"] != "dry_run") {
++		return "", "", false
++	}
++	items, ok := payload["items"].([]any)
++	if !ok || len(items) == 0 {
++		return LiveDogfoodStatusFail, "empty or missing dry-run items", true
++	}
++	for _, item := range items {
++		plan, ok := item.(map[string]any)
++		if !ok {
++			return LiveDogfoodStatusFail, "non-plan dry-run item", true
++		}
++		action, _ := plan["action"].(string)
++		operation, _ := plan["operation"].(string)
++		if strings.TrimSpace(action) == "" && strings.TrimSpace(operation) == "" {
++			return LiveDogfoodStatusFail, "empty dry-run action", true
++		}
++		marked := false
++		for _, key := range []string{"dry_run", "planned"} {
++			if value, exists := plan[key]; exists {
++				flag, typed := liveDogfoodJSONBool(value)
++				if !typed || !flag {
++					return LiveDogfoodStatusFail, "non-plan dry-run item", true
++				}
++				marked = true
++			}
++		}
++		if !marked {
++			return LiveDogfoodStatusFail, "non-plan dry-run item", true
++		}
++	}
++	return LiveDogfoodStatusPass, "", true
+ }
+ 
+ func parseLiveDogfoodJSONObject(stdout string) (map[string]any, bool) {
+@@ -3220,21 +3366,15 @@
+ 
+ func appendJSONArg(args []string) []string {
+ 	out := append([]string{}, args...)
+-	for _, arg := range out {
+-		if arg == "--" {
+-			break
+-		}
+-		if arg == "--json" {
+-			return out
+-		}
+-		if value, ok := strings.CutPrefix(arg, "--json="); ok {
+-			value = strings.TrimSpace(value)
+-			if !strings.EqualFold(value, "false") && value != "0" {
+-				return out
+-			}
+-		}
+-	}
+-	if hasExplicitOutputMode(out) {
++	if liveDogfoodJSONRequested(out) {
++		return out
++	}
++	// JSON flags were evaluated in order above. An earlier true flag must
++	// not mask a final --json=false while checking other output modes.
++	otherModes := slices.DeleteFunc(slices.Clone(out), func(arg string) bool {
++		return arg == "--json" || strings.HasPrefix(arg, "--json=")
++	})
++	if hasExplicitOutputMode(otherModes) {
+ 		return out
+ 	}
+ 	if terminator := slices.Index(out, "--"); terminator >= 0 {
+diff --git a/internal/pipeline/live_dogfood_test.go b/internal/pipeline/live_dogfood_test.go
+--- a/internal/pipeline/live_dogfood_test.go
++++ b/internal/pipeline/live_dogfood_test.go
+@@ -7336,7 +7336,7 @@
+ 	assert.NotContains(t, names, "auth login")
+ 	assert.Contains(t, names, "group", "runnable parents must be included")
+ 	assert.Contains(t, names, "group run")
+-	assert.NotContains(t, names, "generated", "generated parent shims must stay out of the matrix")
++	assert.Contains(t, names, "generated", "generated parent shims receive help-only coverage")
+ 	assert.Contains(t, names, "generated run")
+ 	assert.Contains(t, names, "tasks list", "non-auth commands must still be collected")
+ }
+@@ -7367,7 +7367,7 @@
+ 	for _, command := range commands {
+ 		names = append(names, strings.Join(command.Path, " "))
+ 	}
+-	assert.Equal(t, []string{"generated run", "group", "group run"}, names)
++	assert.Equal(t, []string{"generated", "generated run", "group", "group run"}, names)
+ }
+ 
+ // TestLiveDogfoodSuccessExitCodes covers the helper that WU-1 (retro F1)
+diff --git a/internal/generator/templates/agent_context.go.tmpl b/internal/generator/templates/agent_context.go.tmpl
+--- a/internal/generator/templates/agent_context.go.tmpl
++++ b/internal/generator/templates/agent_context.go.tmpl
+@@ -89,6 +89,7 @@
+ 	Annotations map[string]string     `json:"annotations,omitempty"`
+ 	Flags       []agentContextFlag    `json:"flags,omitempty"`
+ 	Runnable    bool                  `json:"runnable,omitempty"`
++	Hidden      bool                  `json:"hidden,omitempty"`
+ 	Subcommands []agentContextCommand `json:"subcommands,omitempty"`
+ }
+ 
+@@ -249,6 +250,7 @@
+ 			Use:      sub.Use,
+ 			Short:    sub.Short,
+ 			Runnable: sub.Runnable(),
++			Hidden:   sub.Hidden,
+ 		}
+ 		// Surface Cobra annotations (e.g., pp:endpoint, mcp:read-only) so
+ 		// agents and the live-dogfood classifier can detect destructive-at-auth
+diff --git a/internal/cli/dogfood.go b/internal/cli/dogfood.go
+--- a/internal/cli/dogfood.go
++++ b/internal/cli/dogfood.go
+@@ -118,7 +118,7 @@
+ 	cmd.Flags().StringVar(&writeAcceptance, "write-acceptance", "", "Write phase5-acceptance.json to this path on every outcome (status:pass on success, status:fail with a failure_summary block on failure)")
+ 	cmd.Flags().StringVar(&authEnv, "auth-env", "", "Environment variable that proves an API credential was available for the acceptance marker. For oauth2_refresh, a refresh-token-shaped env var is copied into a shared sandbox credential file so rotation persists across subprocesses")
+ 	cmd.Flags().StringVar(&authTier, "auth-tier", "", "Credential tier for live dogfood; falls back to PP_AUTH_TIER and skips commands annotated pp:requires-tier on mismatch")
+-	cmd.Flags().BoolVar(&allowDestructive, "allow-destructive", false, "Re-enable destructive-at-auth endpoints and live mutating Example probes that do not advertise --dry-run. Default skips both.")
++	cmd.Flags().BoolVar(&allowDestructive, "allow-destructive", false, "Re-enable destructive-at-auth endpoints, mutating probes without previews, and local-write probes in prepared confined fixture homes.")
+ 	cmd.Flags().BoolVar(&overwriteCommandMirror, "overwrite-command-mirror", false, "Overwrite a differing command_mirror_capabilities block in internal/mcp/tools.go from research.json")
+ 	_ = cmd.MarkFlagRequired("dir")
+ 	return cmd
+diff --git a/internal/pipeline/live_dogfood_public_fixture_test.go b/internal/pipeline/live_dogfood_public_fixture_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/pipeline/live_dogfood_public_fixture_test.go
+@@ -0,0 +1,215 @@
++package pipeline
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/stretchr/testify/require"
++)
++
++func TestLiveDogfoodHiddenAndOverviewDoNotExecuteHappy(t *testing.T) {
++	dir := t.TempDir()
++	counter := filepath.Join(dir, "called")
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf(`if [ "${2:-}" = "--help" ]; then
++  printf 'Examples:\n  fixture group child --json\n'
++  exit 0
++fi
++printf 'unexpected\n' >> %q
++exit 77
++`, counter))
++	var commands []liveDogfoodCommand
++	collectLiveDogfoodCommands(nil, dogfoodAgentCommand{Name: "hidden", Hidden: true, Subcommands: []dogfoodAgentCommand{{Name: "child", Runnable: true}}}, &commands)
++	collectLiveDogfoodCommands(nil, dogfoodAgentCommand{Name: "group", Subcommands: []dogfoodAgentCommand{{Name: "child", Runnable: true}}}, &commands)
++	collectLiveDogfoodCommands(nil, dogfoodAgentCommand{Name: "runnable", Runnable: true, Subcommands: []dogfoodAgentCommand{{Name: "child", Runnable: true}}}, &commands)
++	for _, command := range commands {
++		name := strings.Join(command.Path, " ")
++		if name == "hidden" || name == "hidden child" || name == "group" {
++			results := runLiveDogfoodCommand(command, resolveCtx{binaryPath: binary, cliDir: dir, timeout: time.Second})
++			if strings.HasPrefix(name, "hidden") {
++				for _, result := range results {
++					require.Equal(t, LiveDogfoodStatusSkip, result.Status)
++					require.Contains(t, result.Reason, "hidden")
++				}
++			} else {
++				require.Len(t, results, 1)
++				require.Equal(t, LiveDogfoodTestHelp, results[0].Kind)
++				require.Equal(t, LiveDogfoodStatusPass, results[0].Status)
++			}
++		}
++		if name == "runnable" {
++			require.False(t, command.HelpOnly, "real runnable parents retain happy-path coverage")
++		}
++	}
++	_, err := os.Stat(counter)
++	require.True(t, os.IsNotExist(err), "hidden/overview nodes must not invoke a child Example")
++}
++
++func TestLiveDogfoodApprovedLocalFixtureExecutesOnce(t *testing.T) {
++	dir := t.TempDir()
++	home := filepath.Join(dir, ".printing-press-fixtures", "live-home")
++	require.NoError(t, os.MkdirAll(home, 0700))
++	counter := filepath.Join(home, "mutation-count")
++	help := "Usage:\n  fixture remove [flags]\n\nExamples:\n  fixture remove --json\n\nFlags:\n      --home string Store root\n      --json Output JSON\n      --dry-run Preview only\n"
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf(`if [ "${2:-}" = "--help" ]; then
++cat <<'HELP'
++%s
++HELP
++exit 0
++fi
++case " $* " in *" --dry-run "*) printf '{"dry_run":true,"action":"remove"}\n'; exit 0 ;; esac
++n=0
++if [ -f %q ]; then n=$(cat %q); fi
++n=$((n + 1))
++printf '%%s\n' "$n" > %q
++if [ "$n" -gt 1 ]; then printf 'membership missing\n' >&2; exit 8; fi
++printf '{"removed":1}\n'
++`, help, counter, counter, counter))
++	command := liveDogfoodCommand{Path: []string{"remove"}, Annotations: map[string]string{mcpLocalWriteAnnotation: "true", "pp:happy-args": "--home=.printing-press-fixtures/live-home;--json=true"}}
++	results := runLiveDogfoodCommand(command, resolveCtx{binaryPath: binary, cliDir: dir, timeout: time.Second, allowDestructive: true})
++	for _, kind := range []LiveDogfoodTestKind{LiveDogfoodTestHappy, LiveDogfoodTestJSON, LiveDogfoodTestDryRunJSON} {
++		result := resultOfKind(t, results, kind)
++		require.Equal(t, LiveDogfoodStatusPass, result.Status, result.Reason)
++		if kind != LiveDogfoodTestDryRunJSON {
++			require.NotContains(t, result.Args, "--dry-run")
++		}
++	}
++	raw, err := os.ReadFile(counter)
++	require.NoError(t, err)
++	require.Equal(t, "1", strings.TrimSpace(string(raw)))
++}
++
++func TestLiveDogfoodLocalFixtureConfinement(t *testing.T) {
++	dir := t.TempDir()
++	home := filepath.Join(dir, ".printing-press-fixtures", "live-home")
++	require.NoError(t, os.MkdirAll(home, 0700))
++	outside := t.TempDir()
++	command := liveDogfoodCommand{Path: []string{"remove"}, Help: "Usage:\n  fixture remove [flags]\n\nFlags:\n      --home string Store root\n      --note string Personal note\n", Annotations: map[string]string{mcpLocalWriteAnnotation: "true"}}
++	ctx := resolveCtx{cliDir: dir, allowDestructive: true}
++	for _, tc := range []struct {
++		name                       string
++		args                       []string
++		allow, local, remote, want bool
++	}{
++		{"equals", []string{"remove", "--home=" + home}, true, true, false, true},
++		{"space", []string{"remove", "--home", home}, true, true, false, true},
++		{"no authorization", []string{"remove", "--home", home}, false, true, false, false},
++		{"no local annotation", []string{"remove", "--home", home}, true, false, false, false},
++		{"remote post", []string{"remove", "--home", home}, true, true, true, false},
++		{"operator home", []string{"remove", "--home", outside}, true, true, false, false},
++		{"no home", []string{"remove"}, true, true, false, false},
++		{"relative home", []string{"remove", "--home", ".printing-press-fixtures/live-home"}, true, true, false, false},
++		{"conflicting homes", []string{"remove", "--home", home, "--home=" + outside}, true, true, false, false},
++		{"home after separator is data", []string{"remove", "--", "--home=" + home}, true, true, false, false},
++		{"home as note is data", []string{"remove", "--note", "--home=" + home}, true, true, false, false},
++		{"note then real home", []string{"remove", "--note", "--home=" + outside, "--home", home}, true, true, false, true},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			copy := command
++			copy.Annotations = map[string]string{}
++			if tc.local {
++				copy.Annotations[mcpLocalWriteAnnotation] = "true"
++			}
++			if tc.remote {
++				copy.Annotations[endpointMethodAnnotation] = "POST"
++			}
++			copyCtx := ctx
++			copyCtx.allowDestructive = tc.allow
++			require.Equal(t, tc.want, liveDogfoodApprovedLocalFixture(copy, tc.args, copyCtx))
++		})
++	}
++	linkedHome := filepath.Join(dir, ".printing-press-fixtures", "linked-home")
++	exact := command
++	exact.Path = []string{"lists", "remove"}
++	exact.Help = "Usage:\n  fixture lists remove <list> <id> [flags]\n\nFlags:\n      --agent Agent JSON defaults\n      --json Output JSON\n      --home string Store root\n      --note string Personal note\n"
++	require.True(t, liveDogfoodApprovedLocalFixture(exact, []string{"lists", "remove", "fixture-remove", "13005012", "--agent", "--json=true", "--home", home}, ctx))
++	require.False(t, liveDogfoodApprovedLocalFixture(exact, []string{"lists", "remove", "fixture-remove", "13005012", "--agent", "--json=true", "--note", "--home=" + home}, ctx))
++	require.NoError(t, os.Symlink(outside, linkedHome))
++	require.False(t, liveDogfoodApprovedLocalFixture(command, []string{"remove", "--home", linkedHome}, ctx))
++	alias := filepath.Join(t.TempDir(), "checkout-alias")
++	require.NoError(t, os.Symlink(dir, alias))
++	aliasCtx := ctx
++	aliasCtx.cliDir = alias
++	require.True(t, liveDogfoodApprovedLocalFixture(command, []string{"remove", "--home", filepath.Join(alias, ".printing-press-fixtures", "live-home")}, aliasCtx))
++	linkedRoot := t.TempDir()
++	require.NoError(t, os.Symlink(outside, filepath.Join(linkedRoot, ".printing-press-fixtures")))
++	linkedCtx := ctx
++	linkedCtx.cliDir = linkedRoot
++	require.False(t, liveDogfoodApprovedLocalFixture(command, []string{"remove", "--home", filepath.Join(linkedRoot, ".printing-press-fixtures")}, linkedCtx))
++}
++
++func TestLiveDogfoodHiddenNeverPreSyncsOrResolvesCompanions(t *testing.T) {
++	dir := t.TempDir()
++	counter := filepath.Join(dir, "called")
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf("printf 'unexpected\\n' >> %q\nexit 77\n", counter))
++	commands := []liveDogfoodCommand{{Path: []string{"sync"}, SkipReason: "command hidden from public help"}, {Path: []string{"list"}, HelpOnly: true}}
++	runLiveDogfoodPreSync(commands, resolveCtx{binaryPath: binary, cliDir: dir, timeout: time.Second})
++	require.Empty(t, buildSiblingMap(commands))
++	_, err := os.Stat(counter)
++	require.True(t, os.IsNotExist(err))
++}
++
++func TestLiveDogfoodStrictDryRunEnvelope(t *testing.T) {
++	for _, tc := range []struct {
++		name, payload string
++		pass          bool
++	}{
++		{"source action", `{"items":[{"action":"find","dry_run":true}],"meta":{"source":"dry-run"}}`, true},
++		{"coverage operation", `{"items":[{"operation":"remove","planned":true}],"meta":{"coverage":"dry_run"}}`, true},
++		{"every item planned", `{"items":[{"operation":"note","planned":true},{"action":"show","dry_run":true}],"meta":{"source":"dry-run"}}`, true},
++		{"ordinary data", `{"items":[{"id":"123","name":"venue"}],"meta":{"source":"live"}}`, false},
++		{"no meta marker", `{"items":[{"action":"find","dry_run":true}],"meta":{"source":"local"}}`, false},
++		{"empty items", `{"items":[],"meta":{"source":"dry-run"}}`, false},
++		{"missing items", `{"meta":{"source":"dry-run"}}`, false},
++		{"wrong items type", `{"items":{},"meta":{"source":"dry-run"}}`, false},
++		{"no action", `{"items":[{"planned":true}],"meta":{"coverage":"dry_run"}}`, false},
++		{"whitespace action", `{"items":[{"action":"  ","dry_run":true}],"meta":{"source":"dry-run"}}`, false},
++		{"no true marker", `{"items":[{"operation":"remove"}],"meta":{"coverage":"dry_run"}}`, false},
++		{"false marker", `{"items":[{"operation":"remove","planned":false}],"meta":{"coverage":"dry_run"}}`, false},
++		{"string marker", `{"items":[{"operation":"remove","planned":"true"}],"meta":{"coverage":"dry_run"}}`, false},
++		{"contradictory markers", `{"items":[{"operation":"remove","planned":false,"dry_run":true}],"meta":{"coverage":"dry_run"}}`, false},
++		{"mixed plans and data", `{"items":[{"operation":"remove","planned":true},{"id":"123"}],"meta":{"coverage":"dry_run"}}`, false},
++		{"legacy missing action remains failure", `{"dry_run":true,"action":"","items":[{"operation":"remove","planned":true}],"meta":{"coverage":"dry_run"}}`, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			status, reason := liveDogfoodDryRunJSONContract(liveDogfoodRun{stdout: tc.payload}, false)
++			if tc.pass {
++				require.Equal(t, LiveDogfoodStatusPass, status, reason)
++			} else {
++				require.NotEqual(t, LiveDogfoodStatusPass, status)
++			}
++		})
++	}
++}
++
++func TestLiveDogfoodBooleanAnnotationKeepsTypedArg(t *testing.T) {
++	command := liveDogfoodCommand{Path: []string{"remove"}, Help: "Usage:\n  fixture remove [flags]\n\nFlags:\n      --json Output JSON\n      --note string Personal note\n"}
++	for _, value := range []string{"true", "false"} {
++		args, err := overlayLiveDogfoodHappyArgs([]string{"remove"}, command, parseHappyArgsAnnotation("--json="+value+";--note="+value), t.TempDir())
++		require.NoError(t, err)
++		require.Equal(t, []string{"remove", "--json=" + value, "--note", value}, args)
++		if value == "false" {
++			require.False(t, liveDogfoodJSONRequested(args))
++			require.NotEqual(t, args, appendJSONArg(args), "false does not request JSON or qualify for exact-args reuse")
++		} else {
++			require.True(t, liveDogfoodJSONRequested(args))
++		}
++	}
++	require.False(t, liveDogfoodJSONRequested([]string{"remove", "--json=true", "--json=false"}))
++	require.NotEqual(t, []string{"remove", "--json=true", "--json=false"}, appendJSONArg([]string{"remove", "--json=true", "--json=false"}))
++}
++
++func TestLiveDogfoodFalseJSONDoesNotReuse(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--json=false", "repeatable")
++	require.Equal(t, 2, count)
++	happy := resultOfKind(t, results, LiveDogfoodTestHappy)
++	jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++	require.Equal(t, LiveDogfoodStatusPass, happy.Status, happy.Reason)
++	require.Equal(t, LiveDogfoodStatusPass, jsonResult.Status, jsonResult.Reason)
++	require.NotEqual(t, happy.Args, jsonResult.Args)
++	require.False(t, liveDogfoodJSONRequested(happy.Args))
++	require.True(t, liveDogfoodJSONRequested(jsonResult.Args))
++}
+diff --git a/internal/generator/agent_context_visibility_test.go b/internal/generator/agent_context_visibility_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/generator/agent_context_visibility_test.go
+@@ -0,0 +1,37 @@
++package generator
++
++import (
++	"os"
++	"path/filepath"
++	"testing"
++
++	"github.com/stretchr/testify/require"
++)
++
++func TestGeneratedAgentContextVisibility(t *testing.T) {
++	dir := filepath.Join(t.TempDir(), "visibility-pp-cli")
++	require.NoError(t, New(minimalSpec("visibility"), dir).Generate())
++	requireGeneratedCompiles(t, dir)
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "internal", "cli", "visibility_test.go"), []byte(`package cli
++import (
++ "encoding/json"
++ "strings"
++ "testing"
++ "github.com/spf13/cobra"
++)
++func TestAgentVisibilityMetadataPreservesDiscovery(t *testing.T) {
++ root := &cobra.Command{Use:"fixture"}
++ hidden := &cobra.Command{Use:"hidden", Hidden:true}
++ child := &cobra.Command{Use:"child", Run:func(*cobra.Command,[]string){}}
++ hidden.AddCommand(child)
++ root.AddCommand(hidden)
++ commands := collectAgentCommands(root)
++ if len(commands)!=1 || !commands[0].Hidden || commands[0].Runnable || len(commands[0].Subcommands)!=1 || !commands[0].Subcommands[0].Runnable {
++  t.Fatalf("discovery lost visibility/runnability: %+v",commands)
++ }
++ raw,err:=json.Marshal(commands)
++ if err!=nil || !strings.Contains(string(raw),"\"hidden\":true") { t.Fatalf("metadata=%s err=%v",raw,err) }
++}
++`), 0600))
++	runGoCommandRequired(t, dir, "test", "./internal/cli", "-run", "^TestAgentVisibilityMetadataPreservesDiscovery$", "-count=1")
++}

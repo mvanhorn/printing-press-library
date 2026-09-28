@@ -1,0 +1,28 @@
+=== RUN   TestRecipeIntentHandlerBuildsRecipeArgs
+--- PASS: TestRecipeIntentHandlerBuildsRecipeArgs (1.02s)
+=== RUN   TestRecipeIntentHandlerOverridesParams
+--- PASS: TestRecipeIntentHandlerOverridesParams (0.59s)
+PASS
+ok  	tabelog-pp-cli/internal/mcp	2.147s
+=== RUN   TestMachineAllInvalidProjectionHasOneDiagnostic
+=== RUN   TestMachineAllInvalidProjectionHasOneDiagnostic/--agent
+=== RUN   TestMachineAllInvalidProjectionHasOneDiagnostic/--json
+--- PASS: TestMachineAllInvalidProjectionHasOneDiagnostic (0.69s)
+    --- PASS: TestMachineAllInvalidProjectionHasOneDiagnostic/--agent (0.68s)
+    --- PASS: TestMachineAllInvalidProjectionHasOneDiagnostic/--json (0.01s)
+=== RUN   TestMachinePartialProjectionKeepsWarning
+--- PASS: TestMachinePartialProjectionKeepsWarning (0.01s)
+=== RUN   TestHumanAllInvalidProjectionKeepsCobraError
+--- PASS: TestHumanAllInvalidProjectionKeepsCobraError (0.01s)
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/--dry-run
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/--json
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/#00
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/___
+--- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags (1.30s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/--dry-run (1.25s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/--json (0.02s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/#00 (0.01s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/___ (0.01s)
+PASS
+ok  	tabelog-pp-cli/e2e	3.382s

@@ -1,0 +1,217 @@
+{
+  "status": "PASS",
+  "HTTP_requests": 0,
+  "source": "independent aria-labeled price nodes in already-retrieved source cache",
+  "checks": [
+    {
+      "area": "tokyo-bar",
+      "id": "13302758",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13302758",
+      "meal": "dinner",
+      "raw": "JPY 30,000 - JPY 39,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13112228",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13112228",
+      "meal": "dinner",
+      "raw": "JPY 4,000 - JPY 4,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13283765",
+      "meal": "lunch",
+      "raw": "JPY 6,000 - JPY 7,999",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13283765",
+      "meal": "dinner",
+      "raw": "JPY 10,000 - JPY 14,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13196404",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13196404",
+      "meal": "dinner",
+      "raw": "JPY 40,000 - JPY 49,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13204358",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "tokyo-bar",
+      "id": "13204358",
+      "meal": "dinner",
+      "raw": "JPY 15,000 - JPY 19,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26030764",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26030764",
+      "meal": "dinner",
+      "raw": "JPY 50,000 - JPY 59,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26033124",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26033124",
+      "meal": "dinner",
+      "raw": "JPY 40,000 - JPY 49,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26016833",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26016833",
+      "meal": "dinner",
+      "raw": "JPY 50,000 - JPY 59,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26012136",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26012136",
+      "meal": "dinner",
+      "raw": "-",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26040349",
+      "meal": "lunch",
+      "raw": "JPY 20,000 - JPY 29,999",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "kyoto",
+      "id": "26040349",
+      "meal": "dinner",
+      "raw": "JPY 30,000 - JPY 39,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27095402",
+      "meal": "lunch",
+      "raw": "JPY 30,000 - JPY 39,999",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27095402",
+      "meal": "dinner",
+      "raw": "-",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27001286",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27001286",
+      "meal": "dinner",
+      "raw": "JPY 40,000 - JPY 49,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27117938",
+      "meal": "lunch",
+      "raw": "JPY 15,000 - JPY 19,999",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27117938",
+      "meal": "dinner",
+      "raw": "JPY 15,000 - JPY 19,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27135992",
+      "meal": "lunch",
+      "raw": "-",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27135992",
+      "meal": "dinner",
+      "raw": "JPY 20,000 - JPY 29,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27119864",
+      "meal": "lunch",
+      "raw": "JPY 40,000 - JPY 49,999",
+      "assertion": "explicit Average lunch price source label matches exact raw value"
+    },
+    {
+      "area": "osaka",
+      "id": "27119864",
+      "meal": "dinner",
+      "raw": "JPY 40,000 - JPY 49,999",
+      "assertion": "explicit Average dinner price source label matches exact raw value"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "scope": "MCP metadata only; actual CLI behavior, local-write classification, schemas, child-CLI tenant ownership and handlers retained.",
+  "reserved_or_generator_changes": false,
+  "product_hashes": {
+    "internal/mcp/tools.go": {
+      "before_sha256": "e2383cb6370233dd16c1256a48c5c232f3e10b70fc88b1ecd85804126146396a",
+      "after_sha256": "17cc21602c3f0fc83ba6f6508c45c69387a2bfc4e7ed6f894c114fc4187471bc"
+    },
+    "internal/mcp/intents.go": {
+      "before_sha256": "f46090346b11c149ecd5153edf64e2f35497c5a6b0fb3ed1049c9f2a920d8bfe",
+      "after_sha256": "939e23aade2a12e5db53ef1bdc0b90e6150f82f33ecdf30c4e3813931ae97574"
+    },
+    "internal/mcp/tabelog_hints.go": {
+      "before_sha256": null,
+      "after_sha256": "2f739aa95894275444e2057ccddda31320c38e05d0873d7de4292d153f530826"
+    }
+  },
+  "runtime_assertions": [
+    "lists_refresh: openWorldHint true, non-read-only, nonDestructive; existing input schema and child-cli meta remain.",
+    "compare_saved_candidates_offline: readOnly true, destructive false, openWorld false.",
+    "refresh_one_saved_candidate: readOnly false, destructive false, openWorld true.",
+    "All four mutating CLI list leaves retain mcp:local-write=true and isolated happy arguments."
+  ],
+  "tests": {
+    "before": {
+      "pass_events": 4,
+      "fail_events": 9,
+      "package_results": {
+        "tabelog-pp-cli/internal/mcp": "fail",
+        "tabelog-pp-cli/e2e": "fail"
+      }
+    },
+    "after": {
+      "pass_events": 19,
+      "fail_events": 0,
+      "package_results": {
+        "tabelog-pp-cli/internal/mcp": "pass",
+        "tabelog-pp-cli/internal/cli": "pass",
+        "tabelog-pp-cli/e2e": "pass"
+      }
+    }
+  },
+  "test_files": [
+    "internal/mcp/tabelog_list_hints_test.go",
+    "e2e/mcp_metadata_test.go"
+  ],
+  "origin_requests": 0,
+  "tool_api": "Installed mcp-go v0.57.0 GetTool/ToolOption/AddTool; metadata override after the unchanged reserved Cobra mirror registration.",
+  "reprint_instructions": "Restore custom internal/mcp/tabelog_hints.go plus the applyTabelogToolHints call after RegisterAll. Preserve the declarative comparison/refresh recipe hints in intents.go during regeneration, along with the earlier safe positional recipe boundary. Run actual catalog/tenant regression and stdio tools/list test.",
+  "source_freeze": "No further Go edits by this agent after the passing focused run. Source_research owns rebuilt delivery binaries and runner owner owns fresh live acceptance; previous marker is invalidated."
+}

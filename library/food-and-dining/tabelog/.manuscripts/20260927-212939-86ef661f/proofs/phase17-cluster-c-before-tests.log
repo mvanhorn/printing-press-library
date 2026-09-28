@@ -1,0 +1,24 @@
+=== RUN   TestMachineAllInvalidProjectionHasOneDiagnostic
+=== RUN   TestMachineAllInvalidProjectionHasOneDiagnostic/--agent
+    projection_diagnostics_test.go:35: diagnostic must be one JSON object, without duplicate Cobra prose: "warning: --select \"items.missing\" matched no fields; valid fields: items, meta\nwarning: --select \"items.also_missing\" matched no fields; valid fields: items, meta\n{\"code\":2,\"error\":\"--select matched no fields: items.missing, items.also_missing\"}\n"
+=== RUN   TestMachineAllInvalidProjectionHasOneDiagnostic/--json
+    projection_diagnostics_test.go:35: diagnostic must be one JSON object, without duplicate Cobra prose: "warning: --select \"items.missing\" matched no fields; valid fields: items, meta\nwarning: --select \"items.also_missing\" matched no fields; valid fields: items, meta\n{\"code\":2,\"error\":\"--select matched no fields: items.missing, items.also_missing\"}\n"
+--- FAIL: TestMachineAllInvalidProjectionHasOneDiagnostic (0.54s)
+    --- FAIL: TestMachineAllInvalidProjectionHasOneDiagnostic/--agent (0.53s)
+    --- FAIL: TestMachineAllInvalidProjectionHasOneDiagnostic/--json (0.01s)
+=== RUN   TestMachinePartialProjectionKeepsWarning
+--- PASS: TestMachinePartialProjectionKeepsWarning (0.01s)
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/--dry-run
+    recipe_boundary_test.go:112: got <nil> (<nil>), want true (bool)
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/--home=/untrusted
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/#00
+=== RUN   TestRecipeRefreshRequiredIDCannotBecomeFlags/___
+--- FAIL: TestRecipeRefreshRequiredIDCannotBecomeFlags (1.64s)
+    --- FAIL: TestRecipeRefreshRequiredIDCannotBecomeFlags/--dry-run (1.59s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/--home=/untrusted (0.02s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/#00 (0.01s)
+    --- PASS: TestRecipeRefreshRequiredIDCannotBecomeFlags/___ (0.01s)
+FAIL
+FAIL	tabelog-pp-cli/e2e	6.027s
+FAIL

@@ -1,0 +1,12 @@
+{
+  "reason": "Anonymous public source HTML contains irrelevant vendor static-map credential/signature fields; removed from retained text artifacts and runtime cache. Restaurant semantic fixtures remain intact.",
+  "changed_files": [
+    "discovery/browser-sniff-core-capture.json",
+    "discovery/browser-sniff-capture.json",
+    "discovery/native-optional/restaurant-reviews.html",
+    "discovery/native-optional/restaurant-menus.html",
+    "discovery/native-confirm/restaurant-detail.html",
+    "discovery/public-source/tabelog.com-en-tokyo-A1301-A130103-13294162-8e710fdd585afbfe.html"
+  ],
+  "origin_sizes_and_original_hashes": "Describe actual pre-sanitization HTTP bodies; retained text artifacts are sanitized derivatives."
+}

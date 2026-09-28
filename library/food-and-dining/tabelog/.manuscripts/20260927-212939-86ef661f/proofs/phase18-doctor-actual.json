@@ -1,0 +1,49 @@
+{
+  "api": "reachable (HTTP 500 at /)",
+  "auth": "not required",
+  "base_url": "https://tabelog.com",
+  "cache": {
+    "db_bytes": 249856,
+    "db_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home/data/data.db",
+    "migration_pending": false,
+    "resources": [
+      {
+        "last_synced_at": "2026-09-27T16:07:43Z",
+        "rows": 1,
+        "staleness": "1h51m0s",
+        "type": "restaurants"
+      }
+    ],
+    "schema_version": 6,
+    "stale_after": "6h0m0s",
+    "status": "fresh",
+    "store_schema_version": 6
+  },
+  "config": "ok",
+  "config_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home/config/config.toml",
+  "paths": {
+    "cache": {
+      "dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home/cache",
+      "rung": "--home",
+      "source": "--home"
+    },
+    "config": {
+      "dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home/config",
+      "rung": "--home",
+      "source": "--home"
+    },
+    "data": {
+      "dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home/data",
+      "rung": "--home",
+      "source": "--home"
+    },
+    "state": {
+      "dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home/state",
+      "rung": "--home",
+      "source": "--home"
+    },
+    "status": "ok"
+  },
+  "verify_mode": "normal operation",
+  "version": "0.0.0-dev"
+}

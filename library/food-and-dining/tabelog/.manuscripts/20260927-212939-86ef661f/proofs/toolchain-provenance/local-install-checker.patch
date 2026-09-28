@@ -1,0 +1,259 @@
+--- a/internal/cli/verify_skill.go
++++ b/internal/cli/verify_skill.go
+@@ -14,6 +14,7 @@
+ 	"github.com/mvanhorn/cli-printing-press/v4/internal/generator"
+ 	"github.com/mvanhorn/cli-printing-press/v4/internal/pipeline"
+ 	"github.com/spf13/cobra"
++	"golang.org/x/mod/modfile"
+ )
+ 
+ // verifySkillScript is the full text of scripts/verify-skill/verify_skill.py
+@@ -25,6 +26,22 @@
+ var verifySkillScript string
+ 
+ const canonicalSectionsCheckName = "canonical-sections"
++
++const canonicalLocalSkillInstallSectionFormat = "## Prerequisites: Install the CLI\n" +
++	"\n" +
++	"This skill drives the `%[1]s-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:\n" +
++	"\n" +
++	"This CLI uses a local Go module. Run the following from the root of this source checkout (requires Go 1.26.6 or newer):\n" +
++	"\n" +
++	"```bash\n" +
++	"go install ./cmd/%[1]s-pp-cli\n" +
++	"```\n" +
++	"\n" +
++	"Go installs the binary into `$GOBIN` when set, otherwise `$GOPATH/bin` (default `$HOME/go/bin`). Add that directory to `$PATH` for the agent/runtime that will invoke this skill, or invoke the installed binary by its full path.\n" +
++	"\n" +
++	"Verify: `%[1]s-pp-cli --version`\n" +
++	"\n" +
++	"If `--version` reports \"command not found\" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.\n"
+ 
+ const (
+ 	pythonPython3 = "python3"
+@@ -134,6 +151,8 @@
+ // verify-skill tests carry no .printing-press.json api_name and no go.mod,
+ // and forcing the check to fire on those would convert every fixture into
+ // a maintenance burden without catching a real bug.
++// The generator's exact bare module also permits canonical checkout install
++// instructions; remotely-qualified modules retain the public install contract.
+ func runCanonicalSectionsCheck(dir string) (finding canonicalFinding, hasFinding bool, skipped bool, err error) {
+ 	manifest, mErr := pipeline.ReadCLIManifest(dir)
+ 	if mErr != nil {
+@@ -144,8 +163,20 @@
+ 		return canonicalFinding{}, false, true, nil
+ 	}
+ 
+-	if _, gErr := os.Stat(filepath.Join(dir, "go.mod")); gErr != nil {
++	goModPath := filepath.Join(dir, "go.mod")
++	goModBytes, gErr := os.ReadFile(goModPath)
++	if os.IsNotExist(gErr) {
+ 		return canonicalFinding{}, false, true, nil
++	}
++	if gErr != nil {
++		return canonicalFinding{}, false, false, fmt.Errorf("reading go.mod: %w", gErr)
++	}
++	goMod, gErr := modfile.Parse(goModPath, goModBytes, nil)
++	if gErr != nil {
++		return canonicalFinding{}, false, false, fmt.Errorf("parsing go.mod: %w", gErr)
++	}
++	if goMod.Module == nil {
++		return canonicalFinding{}, false, false, fmt.Errorf("go.mod must declare a module path")
+ 	}
+ 
+ 	skillBytes, sErr := os.ReadFile(filepath.Join(dir, "SKILL.md"))
+@@ -155,6 +186,14 @@
+ 	skill := string(skillBytes)
+ 
+ 	expected := generator.CanonicalSkillInstallSection(name, manifest.Category)
++	localExpected := ""
++	if goMod.Module.Mod.Path == name+"-pp-cli" {
++		localExpected = fmt.Sprintf(canonicalLocalSkillInstallSectionFormat, name)
++	}
++	evidenceExpected := expected
++	if localExpected != "" {
++		evidenceExpected = localExpected + "\nOr the existing generator install block:\n\n" + expected
++	}
+ 	got, ok := ExtractInstallSectionForTest(skill)
+ 	if !ok {
+ 		return canonicalFinding{
+@@ -162,10 +201,13 @@
+ 			Severity: "error",
+ 			Command:  "(file: SKILL.md)",
+ 			Detail:   "install section is missing or malformed; this section is generator-owned. Regenerate the printed CLI to restore it.",
+-			Evidence: fmt.Sprintf("expected canonical block:\n%s", expected),
++			Evidence: fmt.Sprintf("expected canonical block:\n%s", evidenceExpected),
+ 		}, true, false, nil
+ 	}
+ 	if normalizeLineEndings(got) == normalizeLineEndings(expected) {
++		return canonicalFinding{}, false, false, nil
++	}
++	if localExpected != "" && normalizeLineEndings(got) == normalizeLineEndings(localExpected) {
+ 		return canonicalFinding{}, false, false, nil
+ 	}
+ 	return canonicalFinding{
+@@ -173,7 +215,7 @@
+ 		Severity: "error",
+ 		Command:  "(file: SKILL.md)",
+ 		Detail:   "install section drift: hand-edit detected in a generator-owned section. Regenerate the printed CLI to restore the canonical text — do not edit this section by hand.",
+-		Evidence: fmt.Sprintf("expected (from generator):\n%s\n\ngot (from SKILL.md):\n%s", expected, got),
++		Evidence: fmt.Sprintf("expected canonical install instructions:\n%s\n\ngot (from SKILL.md):\n%s", evidenceExpected, got),
+ 	}, true, false, nil
+ }
+ 
+@@ -226,7 +268,7 @@
+   3. positional-args — positional args in bash recipes match the command's Use: field
+   4. shell-var-quotes — every shell variable expanded in generated bash code blocks is double-quoted
+   5. unknown-command — every referenced command path maps to a cobra Use: declaration
+-  6. canonical-sections — the Prerequisites: Install the CLI section matches what the generator would emit (defends against post-publish edits to generator-owned text)
++  6. canonical-sections — the Prerequisites: Install the CLI section matches the generator's public install block, or the exact checkout install block for its bare local Go module (defends against install instruction drift)
+ 
+ Fails when the SKILL advertises commands, flags, or arguments that the binary
+ doesn't actually provide — which is how the recipe-goat "search --max-time"
+--- /dev/null
++++ b/internal/cli/verify_skill_local_test.go
+@@ -0,0 +1,113 @@
++package cli
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	"github.com/mvanhorn/cli-printing-press/v4/internal/generator"
++	"github.com/stretchr/testify/require"
++)
++
++func TestCanonicalSectionsLocalModuleInstallContract(t *testing.T) {
++	t.Parallel()
++	local := fmt.Sprintf(canonicalLocalSkillInstallSectionFormat, "myapi")
++	public := generator.CanonicalSkillInstallSection("myapi", "productivity")
++	cases := []struct {
++		name        string
++		module      string
++		section     string
++		wantFinding bool
++	}{
++		{"exact local module with checkout install", "myapi-pp-cli", local, false},
++		{"local checkout with CRLF", "myapi-pp-cli", strings.ReplaceAll(local, "\n", "\r\n"), false},
++		{"local generated public block remains compatible", "myapi-pp-cli", public, false},
++		{"published module with public install", "github.com/mvanhorn/printing-press-library/library/productivity/myapi", public, false},
++		{"published module cannot use local exception", "github.com/mvanhorn/printing-press-library/library/productivity/myapi", local, true},
++		{"other qualified module cannot use local exception", "github.com/example/myapi-pp-cli", local, true},
++		{"different bare module cannot use local exception", "different-pp-cli", local, true},
++		{"local install command drift", "myapi-pp-cli", strings.Replace(local, "go install ./cmd/myapi-pp-cli", "go install ./cmd/nonexistent", 1), true},
++		{"local verification drift", "myapi-pp-cli", strings.Replace(local, "Verify: `myapi-pp-cli --version`", "Verify: `myapi-pp-cli --help`", 1), true},
++		{"local missing start delimiter", "myapi-pp-cli", strings.Replace(local, generator.SkillInstallSectionStartHeading, "## Install", 1), true},
++		{"local missing end delimiter", "myapi-pp-cli", strings.Replace(local, generator.SkillInstallSectionEndSubstr, "", 1), true},
++		{"published flag strip still fails", "github.com/example/myapi-pp-cli", strings.Replace(public, " --cli-only", "", 1), true},
++		{"local public flag strip still fails", "myapi-pp-cli", strings.Replace(public, " --cli-only", "", 1), true},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			t.Parallel()
++			dir := writeLocalCanonicalFixture(t, "module "+tc.module+"\n\ngo 1.26.6\n", tc.section)
++			finding, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++			require.NoError(t, err)
++			require.False(t, skipped, "local installation must be checked, never skipped")
++			require.Equal(t, tc.wantFinding, hasFinding)
++			if tc.wantFinding {
++				require.Equal(t, canonicalSectionsCheckName, finding.Check)
++				require.Equal(t, "error", finding.Severity)
++				require.NotEmpty(t, finding.Evidence)
++			}
++		})
++	}
++}
++
++func TestCanonicalSectionsGoModEvidence(t *testing.T) {
++	t.Parallel()
++	local := fmt.Sprintf(canonicalLocalSkillInstallSectionFormat, "myapi")
++	cases := []struct {
++		name    string
++		goMod   string
++		wantErr string
++	}{
++		{"quoted exact module and comment", "// local module\nmodule \"myapi-pp-cli\" // checkout\n\ngo 1.26.6\n", ""},
++		{"malformed module directive", "module myapi-pp-cli unexpected\n", "parsing go.mod"},
++		{"malformed version directive", "module myapi-pp-cli\ngo invalid\n", "parsing go.mod"},
++		{"missing module directive", "go 1.26.6\n", "must declare a module path"},
++		{"empty module file", "", "must declare a module path"},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			t.Parallel()
++			dir := writeLocalCanonicalFixture(t, tc.goMod, local)
++			_, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++			require.False(t, skipped, "invalid module evidence must fail, never skip the check")
++			require.False(t, hasFinding)
++			if tc.wantErr == "" {
++				require.NoError(t, err)
++			} else {
++				require.ErrorContains(t, err, tc.wantErr)
++			}
++		})
++	}
++}
++
++func TestCanonicalSectionsMissingGoModStillSkipsMinimalFixture(t *testing.T) {
++	t.Parallel()
++	dir := writeLocalCanonicalFixture(t, "module myapi-pp-cli\n", "")
++	require.NoError(t, os.Remove(filepath.Join(dir, "go.mod")))
++	_, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++	require.NoError(t, err)
++	require.False(t, hasFinding)
++	require.True(t, skipped)
++}
++
++func TestCanonicalSectionsUnreadableGoModFails(t *testing.T) {
++	t.Parallel()
++	dir := writeLocalCanonicalFixture(t, "module myapi-pp-cli\n", "")
++	require.NoError(t, os.Remove(filepath.Join(dir, "go.mod")))
++	require.NoError(t, os.Mkdir(filepath.Join(dir, "go.mod"), 0o755))
++	_, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++	require.ErrorContains(t, err, "reading go.mod")
++	require.False(t, hasFinding)
++	require.False(t, skipped)
++}
++
++func writeLocalCanonicalFixture(t *testing.T, goMod, section string) string {
++	t.Helper()
++	dir := t.TempDir()
++	require.NoError(t, os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(`{"api_name":"myapi","cli_name":"myapi-pp-cli","category":"productivity"}`), 0o644))
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goMod), 0o644))
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# My API\n\n"+section+"\n## Workflow\n"), 0o644))
++	return dir
++}
+--- a/skills/printing-press/SKILL.md
++++ b/skills/printing-press/SKILL.md
+@@ -37,6 +37,10 @@
+ 
+ ## Boundaries
+ 
++- **Keep install instructions tied to the module.** The exact bare `<api>-pp-cli`
++  module may use canonical source-checkout installation; qualified modules retain
++  canonical public installation. See [shipcheck](phases/12-shipcheck.md) before
++  changing the prerequisites block.
+ - **Never leak a secret.** API key **values**, token **values**, passwords, and session
+   cookies must never reach source, manuscripts, proofs, READMEs, HARs, receipts, or
+   anything committed. Env var **names** and placeholders are safe. Phase 5.6 and publish
+--- a/skills/printing-press/phases/12-shipcheck.md
++++ b/skills/printing-press/phases/12-shipcheck.md
+@@ -25,6 +25,15 @@
+ During shipcheck, the verify and scorecard legs persist their summaries back into `$CLI_WORK_DIR/.printing-press.json`: `verify.pass_rate`, `verify.verdict`, `scorecard.steinberger.percentage`, `scorecard.steinberger.grade`, and `novel_features_built` from the run's `research.json`. Do not hand-edit those fields; rerun shipcheck (or the standalone leg with `--write-manifest`) when they are stale. [Phase 0](03-resolve-and-reuse.md)'s sub-60 reprint gate relies on this persisted score on the next run.
+ 
+ If a leg fails, re-run that one leg standalone (e.g., `cli-printing-press verify-skill --dir <CLI_WORK_DIR>`) for focused iteration; once it passes, re-run the full `shipcheck` umbrella to confirm no regression in the others.
++
++The `verify-skill` canonical-sections check permits exact source-checkout install
++instructions only when `go.mod` declares the generator's bare `<api>-pp-cli`
++module. The block requires `go install ./cmd/<api>-pp-cli` from the checkout root,
++binary-directory guidance, and version verification. A finding reports the exact
++accepted block to restore. Qualified modules must retain the canonical public
++installer block. Existing generator install blocks remain accepted for local
++modules; do not invent a public download location for an unpublished CLI or skip
++the canonical-sections check to repair its docs.
+ 
+ Interpretation:
+ - `dogfood` catches dead flags, dead helpers, invalid paths, example drift, broken data wiring, command tree/config field wiring bugs, stale static MCP surfaces, and novel features that were planned but not built

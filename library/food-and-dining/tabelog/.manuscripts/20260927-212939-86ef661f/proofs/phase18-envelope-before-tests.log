@@ -1,0 +1,82 @@
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/source_action
+    live_dogfood_public_fixture_test.go:175: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_public_fixture_test.go:175
+        	Error:      	Not equal: 
+        	            	expected: "pass"
+        	            	actual  : "skip"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,2 +1,2 @@
+        	            	-(pipeline.LiveDogfoodStatus) (len=4) "pass"
+        	            	+(pipeline.LiveDogfoodStatus) (len=4) "skip"
+        	            	 
+        	Test:       	TestLiveDogfoodStrictDryRunEnvelope/source_action
+        	Messages:   	command does not honour --dry-run
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/coverage_operation
+    live_dogfood_public_fixture_test.go:175: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_public_fixture_test.go:175
+        	Error:      	Not equal: 
+        	            	expected: "pass"
+        	            	actual  : "skip"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,2 +1,2 @@
+        	            	-(pipeline.LiveDogfoodStatus) (len=4) "pass"
+        	            	+(pipeline.LiveDogfoodStatus) (len=4) "skip"
+        	            	 
+        	Test:       	TestLiveDogfoodStrictDryRunEnvelope/coverage_operation
+        	Messages:   	command does not honour --dry-run
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/every_item_planned
+    live_dogfood_public_fixture_test.go:175: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install/internal/pipeline/live_dogfood_public_fixture_test.go:175
+        	Error:      	Not equal: 
+        	            	expected: "pass"
+        	            	actual  : "skip"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,2 +1,2 @@
+        	            	-(pipeline.LiveDogfoodStatus) (len=4) "pass"
+        	            	+(pipeline.LiveDogfoodStatus) (len=4) "skip"
+        	            	 
+        	Test:       	TestLiveDogfoodStrictDryRunEnvelope/every_item_planned
+        	Messages:   	command does not honour --dry-run
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/ordinary_data
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/no_meta_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/empty_items
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/missing_items
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/wrong_items_type
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/no_action
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/whitespace_action
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/no_true_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/false_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/string_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/contradictory_markers
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/mixed_plans_and_data
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/legacy_missing_action_remains_failure
+--- FAIL: TestLiveDogfoodStrictDryRunEnvelope (0.00s)
+    --- FAIL: TestLiveDogfoodStrictDryRunEnvelope/source_action (0.00s)
+    --- FAIL: TestLiveDogfoodStrictDryRunEnvelope/coverage_operation (0.00s)
+    --- FAIL: TestLiveDogfoodStrictDryRunEnvelope/every_item_planned (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/ordinary_data (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/no_meta_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/empty_items (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/missing_items (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/wrong_items_type (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/no_action (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/whitespace_action (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/no_true_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/false_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/string_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/contradictory_markers (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/mixed_plans_and_data (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/legacy_missing_action_remains_failure (0.00s)
+FAIL
+FAIL	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	0.556s
+FAIL

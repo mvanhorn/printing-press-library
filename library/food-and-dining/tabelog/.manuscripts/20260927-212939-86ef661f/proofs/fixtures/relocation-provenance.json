@@ -1,0 +1,26 @@
+[
+  {
+    "label": "old",
+    "url": "https://tabelog.com/en/hokkaido/A0101/A010105/1046463/",
+    "effective_url": "https://tabelog.com/en/hokkaido/A0101/A010105/1046463/",
+    "http_status": 200,
+    "captured_at": "2026-09-27T14:41:38.596928+00:00",
+    "original_bytes": 126059,
+    "original_sha256": "f2976aff4bd9129246de8dd473446ed5d656c97f62ccda3cf39d128a3e7c7491",
+    "method": "GET",
+    "transport": "Python standard urllib HTTP; no cookies/accounts/credentials; one request per URL",
+    "sanitized_fixture": "working/tabelog-pp-cli/e2e/testdata/miyakawa-old.html"
+  },
+  {
+    "label": "current",
+    "url": "https://tabelog.com/en/hokkaido/A0101/A010105/1073214/",
+    "effective_url": "https://tabelog.com/en/hokkaido/A0101/A010105/1073214/",
+    "http_status": 200,
+    "captured_at": "2026-09-27T14:41:39.181676+00:00",
+    "original_bytes": 127404,
+    "original_sha256": "83b4b4f5e0b294b2d9d05b2d025e5a76786737e5fbde588382699368e827351d",
+    "method": "GET",
+    "transport": "Python standard urllib HTTP; no cookies/accounts/credentials; one request per URL",
+    "sanitized_fixture": "working/tabelog-pp-cli/e2e/testdata/miyakawa-current.html"
+  }
+]

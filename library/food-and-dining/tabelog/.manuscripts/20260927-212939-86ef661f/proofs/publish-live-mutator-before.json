@@ -1,0 +1,53 @@
+{
+  "kind": "publish-live-mutator-baseline",
+  "target_id": "13005012",
+  "tokyo_bars_target_present": false,
+  "fixture_note_before": "Before publish live note",
+  "fixture_remove_target_present": true,
+  "snapshot_fetched_at_before": "2026-09-27T18:28:23.394256Z",
+  "fixture_confined": true,
+  "preparation": [
+    {
+      "command": "lists show",
+      "requests": 0
+    },
+    {
+      "command": "lists remove",
+      "requests": 0
+    },
+    {
+      "command": "lists show",
+      "requests": 0
+    },
+    {
+      "command": "lists note",
+      "requests": 0
+    },
+    {
+      "command": "lists show",
+      "requests": 0
+    },
+    {
+      "command": "lists add",
+      "requests": 0
+    },
+    {
+      "command": "lists show",
+      "requests": 0
+    },
+    {
+      "command": "lists show",
+      "requests": 0
+    },
+    {
+      "command": "lists show",
+      "requests": 0
+    },
+    {
+      "command": "show 13005012",
+      "requests": 0
+    }
+  ],
+  "local_verification_http_requests": 0,
+  "accepted_stage_cli_sha256": "5d14bc325f315491147f6c702274f76f2837629d57066b35132de20006b196b7"
+}

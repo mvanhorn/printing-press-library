@@ -1,0 +1,51 @@
+{
+  "kind": "final-live-acceptance-artifact-manifest",
+  "recorded_at": "2026-09-27T18:38:55.933761+00:00",
+  "result": "PASS",
+  "mandatory_passed": 60,
+  "mandatory_failed": 0,
+  "skipped_unverified": 127,
+  "blocked_fixture": 0,
+  "actual_local_mutators": [
+    "add",
+    "note",
+    "refresh",
+    "remove"
+  ],
+  "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+  "freeze_go_files_matched": 144,
+  "canonical_source_files_matched": 147,
+  "traffic": {
+    "successful_native_GETs": 24,
+    "initial_hidden_generated_GET_attempts": 5,
+    "actual_doctor_GET_attempts": 1,
+    "total_bounded_GET_attempts": 30,
+    "additional_state_verification_HTTP_requests": 0
+  },
+  "binaries": {
+    "press": "032e255a51aca7917c0cdc6d214f3523a962009aee6fc6d2abba7d8b73b9128a",
+    "accepted_stage_cli": "5d14bc325f315491147f6c702274f76f2837629d57066b35132de20006b196b7",
+    "working_cli": "743183fa161dfa91231f9f1d2b9c3c393358f1c5ae8927ee6b497cb9f1de9b98",
+    "MCP": "5ec093ef0e01c051ad8aba995620ec419f1d57918b33f78db4653438a36ac721"
+  },
+  "artifacts": {
+    "proofs/phase18-acceptance-report.md": "af29d6d31ae82148aa23670114ce980283c61d623713e3e6f07166152cf01767",
+    "proofs/phase5-acceptance.json": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+    "proofs/phase18-accepted-marker-original.json": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+    "proofs/phase18-dogfood-results.json": "2b74685a8479e6ea79b0539106cb8490771f89683890daacdd774929881a6d61",
+    "proofs/phase18-mutator-state-before.json": "0284e8480998ce25a34dc5165223ad8b53c62188698d78df9d475a499a23befe",
+    "proofs/phase18-mutator-state-after.json": "ad358b3ceb0339c2383380c3d92040a1620fb77d0600e40ea941ffd8d8da9733",
+    "proofs/phase18-remove-consumed.json": "c95b6dae13d5445ff6294965f05dbe28908bc598d8c57477ad7bc994bd1c49ff",
+    "proofs/phase18-note-verified.json": "f78f37d616a3b68793287dcf080a36fd913c27df047f117be8ca75a2f2afacdd",
+    "proofs/phase18-live-supplement.json": "e10b83245ed2246da7591bec151850710790a8ef699c6bfd5ac9c5fb7590474b",
+    "proofs/phase18-independent-meal-price-checks.json": "2bb364554ced74f7c89c2904a001172eb25f10531e6f57e9799275a6eec8905e",
+    "proofs/phase18-source-fingerprint-match.json": "ff134d28258a7dd827cd96c6236c194fd6a455b79b5325ca1709c8ffb151a828",
+    "proofs/phase19-source-freeze.json": "c49ddb1f4007b7c43f23791f1c7830aa306e175143c639331ad6dca0bdc68d9f",
+    "proofs/phase18-authored-docs-status.json": "80ca764b7253648b2f0459e1f90cc753f02e5078ac85d0e3ca255ae6acd47c3a",
+    "proofs/phase18-doctor-actual.json": "1d6fec6b24635418a0bd5e3feb4ffa29985f52ba7d501002f20bb21b15b87054",
+    "proofs/phase18-agent-context-visibility.patch": "38d7740e4b82d4adcf3a5c4bb8add0e3070b3d08d84861d84a1783037dc4aa8b",
+    "toolchain/dogfood-public-fixture.patch": "814fb9f796769397e9551a6facaa2f2271526400c7ba454ebfe5e73ba7db2bb4",
+    "toolchain/phase18-cumulative-toolchain.patch": "0e746e0f80ca6a1283fe7a2f63ce34bd1b3b7193650276c3df4da7d24fe9b798",
+    "toolchain/proofs/phase18-dogfood-toolchain-proof.json": "abd2c851d43a0c2b9c1a6429e5ead724bf2f534f30abfafde71f2e8f2843b39a"
+  }
+}

@@ -1,0 +1,11 @@
+--- a/internal/cli/tabelog_lists.go
++++ b/internal/cli/tabelog_lists.go
+@@ -299,7 +299,7 @@
+ }
+ 
+ func newTabelogListRemoveCmd(flags *rootFlags) *cobra.Command {
+-	cmd := &cobra.Command{Use: "remove <list> <id>", Short: "Remove membership while retaining fetched source facts", Example: "  tabelog-pp-cli lists remove tokyo-bars 13005012 --agent"}
++	cmd := &cobra.Command{Use: "remove <list> <id>", Short: "Remove membership while retaining fetched source facts", Example: "  tabelog-pp-cli lists remove tokyo-bars 13005012 --agent", Annotations: listWriteAnnotations()}
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 2, 2); err != nil {
+ 			return err

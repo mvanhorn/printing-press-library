@@ -1,0 +1,144 @@
+--- current-author/README.md
++++ dogfood-sync/README.md
+@@ -1,6 +1,8 @@
+ # Tabelog CLI
+ 
+-Find restaurants and bars for a Japan trip, then keep a factual shortlist with personal notes. This native Go executable reads public English Tabelog pages, returns compact structured results, and keeps saved comparisons available offline.
++**Find Japan restaurants and bars, then keep a factual trip shortlist.**
++
++Discover candidates with source ratings, separate meal budgets and practical details. Save personal notes, compare offline, refresh selected places and inspect missing or old evidence in one lightweight CLI.
+ 
+ ## Build and run
+ 
+@@ -38,17 +40,77 @@
+ tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent
+ ```
+ 
++## Authentication
++
++The verified public English Tabelog sources require no account or API key. Optional MCP uses stdio and starts only when explicitly invoked.
++
++## Quick Start
++
++```bash
++# Check the command setup without network requests or writes.
++tabelog-pp-cli doctor --dry-run
++
++# Get a compact Tokyo bar shortlist in the source's highest-rated order.
++tabelog-pp-cli find --area tokyo --cuisine bar --meal dinner --budget-max 5000 --limit 5 --agent
++
++# Fetch the canonical SAMBOA BAR Ginza ten page before using its cached ID.
++tabelog-pp-cli show https://tabelog.com/en/tokyo/A1301/A130101/13005012/ --agent
++
++# Save the fetched candidate and a personal note.
++tabelog-pp-cli lists add tokyo-bars 13005012 --note "Ginza bar option" --agent
++
++# Compare the saved facts and notes without network requests.
++tabelog-pp-cli lists compare tokyo-bars --agent
++
++# Inspect missing evidence and snapshot age before further fetching.
++tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent
++
++```
++
+ ## Unique Features
+ 
+-| Command | Result |
+-|---|---|
+-| `lists add` | Fetched candidates and personal notes in named lists |
+-| `lists compare` | Offline comparison of saved facts and notes |
+-| `lists refresh` | Current facts, changes and visible per-ID failures |
+-| `lists alternatives` | Saved backups matching explicit constraints |
+-| `lists audit` | Unfetched, source-unknown and old evidence identified separately |
++These capabilities aren't available in any other tool for this API.
+ 
+-`lists show`, `lists note`, and `lists remove` maintain notebooks. Notes survive source refreshes; failed requests preserve valid snapshots. See [saved-list semantics and examples](docs/saved-lists.md).
++### Offline decisions
++- **`lists compare`** — Compare saved restaurants, meal budgets and personal notes without network requests.
++
++  _Use this when choosing between candidates already saved for the trip._
++
++  ```bash
++  tabelog-pp-cli lists compare tokyo-bars --agent
++  ```
++- **`lists alternatives`** — Find saved substitutes matching a candidate's verified area, category and optional meal budget.
++
++  _Use this when choosing a backup from the saved set using specific known facts._
++
++  ```bash
++  tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent
++  ```
++
++### Freshness and evidence
++- **`lists refresh`** — Update selected saved restaurants and see changed facts while keeping personal notes.
++
++  _Use this when a saved candidate needs current facts before a meal decision._
++
++  ```bash
++  tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent
++  ```
++- **`lists audit`** — See which saved candidates have unfetched, unknown or old facts before requesting more details.
++
++  _Use this to select the exact saved candidates that need further checking._
++
++  ```bash
++  tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent
++  ```
++
++### Trip notes
++- **`lists add`** — Keep fetched restaurants and personal notes in a named trip list that can be resumed offline.
++
++  _Use this after fetching a candidate that should remain in the trip shortlist._
++
++  ```bash
++  tabelog-pp-cli lists add tokyo-bars 13005012 --note "Ginza bar option" --agent
++  ```
+ 
+ ## Output and freshness
+ 
+@@ -82,3 +144,45 @@
+ - [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press): generated foundation.
+ 
+ Apache-2.0; see [LICENSE](LICENSE).
++
++## Recipes
++
++### Keep a discovery response compact
++
++```bash
++tabelog-pp-cli find --area tokyo --cuisine bar --meal dinner --budget-max 5000 --limit 5 --agent --select items.id,items.name,items.rating,items.url
++```
++
++Project candidate identity, rating and links while retaining essential provenance and coverage metadata.
++
++### Compare saved candidates offline
++
++```bash
++tabelog-pp-cli lists compare tokyo-bars --agent
++```
++
++View saved facts and notes together; separate meal budgets and unknowns remain visible.
++
++### Refresh one saved candidate
++
++```bash
++tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent
++```
++
++Fetch current detail facts for this ID, report changes and preserve its note and last valid snapshot on failure.
++
++### Find a factual saved backup
++
++```bash
++tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent
++```
++
++Match only within the saved set using verified area/category and a known cached dinner-bracket upper bound.
++
++### Audit evidence before more fetching
++
++```bash
++tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent
++```
++
++Distinguish details not fetched, source-unknown values and old snapshots without network calls.

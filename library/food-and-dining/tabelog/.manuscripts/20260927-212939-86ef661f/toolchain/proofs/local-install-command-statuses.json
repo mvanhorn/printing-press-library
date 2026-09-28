@@ -1,0 +1,14 @@
+[
+  {
+    "check": "local-install-after",
+    "exit_code": 0
+  },
+  {
+    "check": "published-local-rejected",
+    "exit_code": 1
+  },
+  {
+    "check": "malformed-module-rejected",
+    "exit_code": 1
+  }
+]

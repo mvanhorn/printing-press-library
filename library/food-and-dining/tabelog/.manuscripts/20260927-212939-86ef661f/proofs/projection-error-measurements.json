@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "binary_sha256": "ed5f125b5d54123542a96933bb3c5db094f7cd6275e75f31c11aa6adc5ef816b",
+  "tokenizer": {
+    "package": "tiktoken",
+    "version": "0.14.0",
+    "encoding": "o200k_base"
+  },
+  "method": "20 fresh-home projected10 subprocesses over existing sanitized loopback HTML; one validation failure; no origin requests. nearest-rank p95.",
+  "projection10": {
+    "selection": "items.id,items.name,items.rating",
+    "samples": [
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1198,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      },
+      {
+        "tokens": 403,
+        "stdout_bytes": 1199,
+        "http_requests": 1
+      }
+    ],
+    "p95": {
+      "tokens": 403,
+      "stdout_bytes": 1199,
+      "http_requests": 1
+    },
+    "checks": {
+      "tokens_500": true,
+      "bytes_2kib": true
+    }
+  },
+  "validation_error": {
+    "exit_code": 2,
+    "tokens": 66,
+    "stdout_bytes": 0,
+    "stderr_bytes": 154,
+    "http_requests": 0,
+    "structured": true,
+    "text": "{\"code\":2,\"error\":\"unsupported budget threshold 1500; use 1000,2000,3000,4000,5000,6000,8000,10000,15000,20000,30000,40000,50000,60000,80000,100000 JPY\"}\n"
+  }
+}

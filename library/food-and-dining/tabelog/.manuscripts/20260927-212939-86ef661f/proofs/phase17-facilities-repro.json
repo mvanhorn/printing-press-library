@@ -1,0 +1,147 @@
+{
+  "scope": "Unmodified real listing fixture; loopback only; disposable home; compare default summary with full-record projection.",
+  "default": {
+    "args": [
+      "find",
+      "--area",
+      "tokyo",
+      "--limit",
+      "1",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "payload": {
+      "items": [
+        {
+          "area": {
+            "area1": "A1314",
+            "area2": "A131401",
+            "prefecture": "tokyo",
+            "verified": true
+          },
+          "awards": [
+            "The Tabelog Award 2026 Gold winner",
+            "Selected for Tabelog Japanese cuisine TOKYO \"Tabelog 100\" 2025"
+          ],
+          "categories": [
+            "Japanese Cuisine"
+          ],
+          "closures": "Sunday, Public Holiday",
+          "dinner_budget": {
+            "max_jpy": 59999,
+            "min_jpy": 50000,
+            "raw": "JPY 50,000 - JPY 59,999"
+          },
+          "id": "13136847",
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "name": "Shimbashi Hoshino",
+          "nearest_station": "Onarimon Sta.",
+          "nearest_station_distance_m": 416,
+          "rating": 4.66,
+          "review_count": 331,
+          "url": "https://tabelog.com/en/tokyo/A1314/A131401/13136847/"
+        }
+      ],
+      "meta": {
+        "source": "live",
+        "source_url": "https://tabelog.com/en/tokyo/rstLst/?SrtT=rt",
+        "fetched_at": "2026-09-27T16:35:15.71092Z",
+        "age_seconds": 0,
+        "stale": false,
+        "criteria": {
+          "area": {
+            "kind": "prefecture",
+            "name": "Tokyo",
+            "prefecture": "tokyo"
+          },
+          "budget_max": 0,
+          "budget_min": 0,
+          "cuisine": "",
+          "keyword": "",
+          "limit": 1,
+          "max_pages": 1,
+          "meal": ""
+        },
+        "source_sort": "highest_rated",
+        "source_surface": "listing",
+        "budget_source": "listing",
+        "returned": 1,
+        "scanned": 20,
+        "pages": 1,
+        "has_more": true,
+        "next_url": "https://tabelog.com/en/tokyo/rstLst/2/?SrtT=rt",
+        "requests": 1,
+        "bytes": 117492,
+        "coverage": "source_pages",
+        "omitted_from_scanned": 19,
+        "next_url_scope": "after_scanned_pages"
+      }
+    }
+  },
+  "projected": {
+    "args": [
+      "find",
+      "--area",
+      "tokyo",
+      "--limit",
+      "1",
+      "--data-source",
+      "local",
+      "--agent",
+      "--select",
+      "items.id,items.facilities"
+    ],
+    "exit_code": 0,
+    "stderr": "",
+    "payload": {
+      "items": [
+        {
+          "facilities": [
+            "Credit card accepted",
+            "Non smoking"
+          ],
+          "id": "13136847"
+        }
+      ],
+      "meta": {
+        "source": "local",
+        "source_url": "https://tabelog.com/en/tokyo/rstLst/?SrtT=rt",
+        "fetched_at": "2026-09-27T16:35:15.71092Z",
+        "age_seconds": 0,
+        "stale": false,
+        "criteria": {
+          "area": {
+            "kind": "prefecture",
+            "name": "Tokyo",
+            "prefecture": "tokyo"
+          },
+          "budget_max": 0,
+          "budget_min": 0,
+          "cuisine": "",
+          "keyword": "",
+          "limit": 1,
+          "max_pages": 1,
+          "meal": ""
+        },
+        "source_sort": "highest_rated",
+        "source_surface": "listing",
+        "budget_source": "listing",
+        "returned": 1,
+        "scanned": 20,
+        "pages": 1,
+        "has_more": true,
+        "next_url": "https://tabelog.com/en/tokyo/rstLst/2/?SrtT=rt",
+        "requests": 0,
+        "bytes": 0,
+        "coverage": "source_pages",
+        "omitted_from_scanned": 19,
+        "next_url_scope": "after_scanned_pages"
+      }
+    }
+  }
+}

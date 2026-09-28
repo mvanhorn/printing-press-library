@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-09-27T18:13:24.560786Z",
+  "cli_dir": "\u003ccli-dir\u003e/tabelog-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated conditional client-profile list leaf is not registered in this no-auth CLI (registeredPlatformSource is nil); runtime MCP catalog omits it. Its concise Short accurately describes its dormant management operation. Scanner should exclude unregistered conditional leaves."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "tabelog-durable-patch-artifacts",
+  "files": [
+    ".printing-press-patches/phase17-cluster-b-generator.patch",
+    ".printing-press-patches/phase18-list-help-product.patch",
+    ".printing-press-patches/phase19-polish-cleanup.patch",
+    ".printing-press-patches/phase17-cluster-b-product.patch",
+    ".printing-press-patches/phase18-remove-write-classification.patch",
+    ".printing-press-patches/phase19-mcp-hints-product.patch",
+    ".printing-press-patches/phase17-cluster-a-product.patch"
+  ],
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-212939-86ef661f",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep exact hand-patch artifacts available to reconstruct custom source on a reprint.",
+  "reason": "A future reprint must carry these verified changes or deliberately reimplement their behavior.",
+  "validated_outcome": "Phase 20 promote and patch-record checks passed."
+}

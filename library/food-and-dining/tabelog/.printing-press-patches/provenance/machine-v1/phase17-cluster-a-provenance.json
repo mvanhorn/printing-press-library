@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "phase17-cluster-a",
+  "files": [
+    "internal/source/parser.go",
+    "internal/source/discovery.go",
+    "internal/cli/tabelog_helpers.go",
+    "internal/cli/tabelog_discovery.go",
+    "internal/source/identity_validation_test.go",
+    "e2e/source_validation_test.go"
+  ],
+  "call_sites": [
+    "root.AddCommand(newTabelogFindCmd(flags)",
+    "validateDetailIdentity(doc, schema, canonical)",
+    "selectedListingSort(out)"
+  ]
+}
