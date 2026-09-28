@@ -1,0 +1,11 @@
+{
+  "url": "https://tabelog.com/en/rstLst/?SrtT=rt&pal=tokyo&LstPrf=A1301&LstAre=A130101&area_datatype=Area2&area_id=Ginza&sw=zzztabeloge2ezerocandidates20260927",
+  "effective_url": "https://tabelog.com/en/rstLst/?SrtT=rt&pal=tokyo&LstPrf=A1301&LstAre=A130101&area_datatype=Area2&area_id=Ginza&sw=zzztabeloge2ezerocandidates20260927",
+  "http_status": 200,
+  "captured_at": "2026-09-27T14:42:18.599599+00:00",
+  "original_bytes": 91683,
+  "original_sha256": "a26f263e65fb22ee15996336fef3b2cac472b62c06b7d2eec259bbbe73c46997",
+  "method": "GET",
+  "transport": "Python standard urllib HTTP; no cookies/accounts/credentials; one request",
+  "sanitized_fixture": "working/tabelog-pp-cli/e2e/testdata/ginza-empty.html"
+}

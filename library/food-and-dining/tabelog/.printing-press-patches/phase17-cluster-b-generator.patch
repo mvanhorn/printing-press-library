@@ -1,0 +1,277 @@
+--- a/internal/generator/templates/client.go.tmpl
++++ b/internal/generator/templates/client.go.tmpl
+@@ -2442,7 +2442,12 @@
+ 			return nil, 0, lastErr
+ 		}
+ 
+-		respBody, err := io.ReadAll(resp.Body)
++		var respBody []byte
++		if binaryResponse {
++			respBody, err = io.ReadAll(resp.Body)
++		} else {
++			respBody, err = readDecodedBody(resp.Body)
++		}
+ 		_ = resp.Body.Close()
+ 		if err != nil {
+ 			return nil, 0, fmt.Errorf("reading response: %w", err)
+@@ -3664,9 +3669,8 @@
+ 	return out
+ }
+ 
+-// maxDecodedBodyBytes caps inflated Content-Encoding output. A small gzip or
+-// deflate body can expand without bound; past this the request fails instead
+-// of materializing the rest.
++// maxDecodedBodyBytes caps nonbinary reads and inflated Content-Encoding output.
++// Past this the request fails instead of materializing the rest.
+ const maxDecodedBodyBytes = 32 << 20
+ 
+ var ErrDecodedBodyTooLarge = errors.New("decoded response exceeds size limit")
+--- a/internal/generator/templates/deliver.go.tmpl
++++ b/internal/generator/templates/deliver.go.tmpl
+@@ -143,16 +143,21 @@
+ 	if err := os.MkdirAll(dir, 0o700); err != nil {
+ 		return fmt.Errorf("creating download dir: %w", err)
+ 	}
+-	tmp := path + ".tmp"
+-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
++	file, err := os.CreateTemp(dir, "."+name+"-*")
++	if err != nil {
++		return fmt.Errorf("creating temporary download: %w", err)
++	}
++	tmp := file.Name()
++	defer os.Remove(tmp)
++	if _, err := file.Write(body); err != nil {
++		_ = file.Close()
+ 		return fmt.Errorf("writing download: %w", err)
+ 	}
++	if err := file.Close(); err != nil {
++		return fmt.Errorf("closing download: %w", err)
++	}
+ 	if err := os.Rename(tmp, path); err != nil {
+-		_ = os.Remove(tmp)
+ 		return fmt.Errorf("replacing download: %w", err)
+-	}
+-	if err := os.Chmod(path, 0o600); err != nil {
+-		return fmt.Errorf("setting download permissions: %w", err)
+ 	}
+ 	return nil
+ }
+--- /dev/null
++++ b/internal/generator/response_delivery_security_test.go
+@@ -0,0 +1,216 @@
++package generator
++
++import (
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	"github.com/mvanhorn/cli-printing-press/v4/internal/naming"
++	"github.com/mvanhorn/cli-printing-press/v4/internal/spec"
++	"github.com/stretchr/testify/require"
++)
++
++// Generate a fresh fixture and exercise its real HTTP and filesystem boundaries.
++func TestGeneratedResponseSizeAndExclusiveDelivery(t *testing.T) {
++	apiSpec := minimalSpec("security-guards")
++	apiSpec.Auth = spec.AuthConfig{Type: "none"}
++	apiSpec.Learn.Disabled = true
++	dir := filepath.Join(t.TempDir(), naming.CLI(apiSpec.Name))
++	require.NoError(t, New(apiSpec, dir).Generate())
++	module := generatedModulePath(t, dir)
++	clientTest := strings.ReplaceAll(responseSizeRegressionSource, "tabelog-pp-cli/internal/config", module+"/internal/config")
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "internal", "client", "response_size_regression_test.go"), []byte(clientTest), 0600))
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "internal", "cli", "delivery_atomic_regression_test.go"), []byte(deliveryAtomicRegressionSource), 0600))
++	runGoCommand(t, dir, "test", "-mod=mod", "./internal/client", "./internal/cli", "-run", "^(TestClientNonBinaryResponseSizeLimit|TestClientBinaryResponseRetainsLargePayload|TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched|TestWriteDownloadUnderConcurrentOutputsRemainComplete)$", "-count=1")
++}
++
++const responseSizeRegressionSource = `package client
++
++import (
++	"bytes"
++	"compress/gzip"
++	"context"
++	"errors"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"testing"
++	"time"
++
++	"tabelog-pp-cli/internal/config"
++)
++
++type fixtureBodyReader struct{}
++
++func (fixtureBodyReader) Read(p []byte) (int, error) {
++	for i := range p {
++		p[i] = 'x'
++	}
++	return len(p), nil
++}
++
++// Exercise the HTTP boundary, including Go's transparent decompression and
++// failure responses, without retaining a giant source fixture in the repo.
++func TestClientNonBinaryResponseSizeLimit(t *testing.T) {
++	for _, tc := range []struct {
++		name     string
++		encoding string
++		status   int
++	}{
++		{"plain", "", http.StatusOK},
++		{"identity", "identity", http.StatusOK},
++		{"transparent-gzip", "gzip", http.StatusOK},
++		{"error-body", "", http.StatusBadRequest},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++				w.Header().Set("Content-Type", "application/json")
++				if tc.encoding != "" {
++					w.Header().Set("Content-Encoding", tc.encoding)
++				}
++				w.WriteHeader(tc.status)
++				var out io.Writer = w
++				if tc.encoding == "gzip" {
++					if r.Header.Get("Accept-Encoding") != "gzip" {
++						t.Error("client did not request transparent gzip")
++					}
++					compressed := gzip.NewWriter(w)
++					defer compressed.Close()
++					out = compressed
++				}
++				_, _ = io.CopyN(out, fixtureBodyReader{}, int64(maxDecodedBodyBytes)+1)
++			}))
++			defer server.Close()
++			c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 1000)
++			c.NoCache = true
++			_, err := c.Get(context.Background(), "/fixture", nil)
++			if !errors.Is(err, ErrDecodedBodyTooLarge) {
++				t.Fatalf("oversized %s body was not rejected by the size guard: %v", tc.name, err)
++			}
++		})
++	}
++}
++
++func TestClientBinaryResponseRetainsLargePayload(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.Header().Set("Content-Type", "application/octet-stream")
++		_, _ = io.CopyN(w, fixtureBodyReader{}, int64(maxDecodedBodyBytes)+1)
++	}))
++	defer server.Close()
++	c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 1000)
++	c.NoCache = true
++	data, err := c.GetWithHeaders(context.Background(), "/fixture", nil, map[string]string{BinaryResponseHeader: "true"})
++	if err != nil {
++		t.Fatal(err)
++	}
++	body, _, ok := UnwrapBinaryResponse(data)
++	if !ok || len(body) != maxDecodedBodyBytes+1 || bytes.Count(body, []byte{'x'}) != len(body) {
++		t.Fatalf("binary payload was capped or damaged: recognized=%t bytes=%d", ok, len(body))
++	}
++}
++`
++
++const deliveryAtomicRegressionSource = `package cli
++
++import (
++	"bytes"
++	"crypto/sha256"
++	"fmt"
++	"os"
++	"path/filepath"
++	"sync"
++	"testing"
++)
++
++func TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched(t *testing.T) {
++	root := t.TempDir()
++	dir := filepath.Join(root, "downloads")
++	if err := os.MkdirAll(dir, 0700); err != nil {
++		t.Fatal(err)
++	}
++	sentinel := filepath.Join(root, "sentinel")
++	if err := os.WriteFile(sentinel, []byte("keep this unrelated file"), 0600); err != nil {
++		t.Fatal(err)
++	}
++	oldTemp := filepath.Join(dir, "trip.json.tmp")
++	if err := os.Symlink(sentinel, oldTemp); err != nil {
++		t.Skipf("symlinks unavailable: %v", err)
++	}
++	body := []byte("complete intended output")
++	if err := writeDownloadUnder(dir, "trip.json", body); err != nil {
++		t.Fatal(err)
++	}
++	got, err := os.ReadFile(sentinel)
++	if err != nil || string(got) != "keep this unrelated file" {
++		t.Fatalf("predictable temporary symlink clobbered the sentinel: %q, %v", got, err)
++	}
++	got, err = os.ReadFile(filepath.Join(dir, "trip.json"))
++	if err != nil || !bytes.Equal(got, body) {
++		t.Fatalf("intended output is incomplete: %q, %v", got, err)
++	}
++	info, err := os.Lstat(oldTemp)
++	if err != nil || info.Mode()&os.ModeSymlink == 0 {
++		t.Fatalf("unused predictable symlink was replaced: %v", err)
++	}
++}
++
++func TestWriteDownloadUnderConcurrentOutputsRemainComplete(t *testing.T) {
++	dir := t.TempDir()
++	const writers = 16
++	bodies := make([][]byte, writers)
++	valid := map[[sha256.Size]byte]bool{}
++	for i := range bodies {
++		bodies[i] = append([]byte(fmt.Sprintf("writer %02d\n", i)), bytes.Repeat([]byte{byte('A' + i)}, 256<<10)...)
++		valid[sha256.Sum256(bodies[i])] = true
++	}
++	if err := writeDownloadUnder(dir, "trip.json", bodies[0]); err != nil {
++		t.Fatal(err)
++	}
++	var wg sync.WaitGroup
++	start, done := make(chan struct{}), make(chan struct{})
++	errors := make(chan error, writers)
++	for _, body := range bodies {
++		wg.Add(1)
++		go func(body []byte) {
++			defer wg.Done()
++			<-start
++			errors <- writeDownloadUnder(dir, "trip.json", body)
++		}(body)
++	}
++	go func() { wg.Wait(); close(done) }()
++	close(start)
++	var readErr error
++reading:
++	for {
++		select {
++		case <-done:
++			break reading
++		default:
++			body, err := os.ReadFile(filepath.Join(dir, "trip.json"))
++			if err != nil || !valid[sha256.Sum256(body)] {
++				readErr = fmt.Errorf("reader observed incomplete output: bytes=%d error=%v", len(body), err)
++				break reading
++			}
++		}
++	}
++	<-done
++	close(errors)
++	for err := range errors {
++		if err != nil {
++			t.Errorf("concurrent delivery failed: %v", err)
++		}
++	}
++	if readErr != nil {
++		t.Error(readErr)
++	}
++	body, err := os.ReadFile(filepath.Join(dir, "trip.json"))
++	if err != nil || !valid[sha256.Sum256(body)] {
++		t.Fatalf("final output is incomplete: bytes=%d error=%v", len(body), err)
++	}
++	entries, err := os.ReadDir(dir)
++	if err != nil || len(entries) != 1 || entries[0].Name() != "trip.json" {
++		t.Fatalf("delivery leaked temporary files: %+v, %v", entries, err)
++	}
++}
++`

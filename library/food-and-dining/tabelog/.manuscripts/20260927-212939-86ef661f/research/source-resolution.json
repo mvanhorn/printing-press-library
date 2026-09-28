@@ -1,0 +1,57 @@
+{
+  "api_name": "tabelog",
+  "mode": "website",
+  "browser_sniff_target_url": "https://tabelog.com/en/",
+  "spec_path": "",
+  "resolved_at": "2026-09-27T13:32:34.645456+00:00",
+  "prior_research": {
+    "found": false,
+    "manuscripts_path": "/Users/zjsng/printing-press/manuscripts/tabelog"
+  },
+  "local_library": {
+    "exists": false,
+    "path": "/Users/zjsng/printing-press/library/tabelog"
+  },
+  "lock": {
+    "held": false,
+    "stale": false,
+    "has_cli": false
+  },
+  "public_registry_check": {
+    "skipped": true,
+    "reason": "Website mode with BROWSER_SNIFF_TARGET_URL set."
+  },
+  "authentication": {
+    "key_gate": "skipped",
+    "reason": "Anonymous native HTTP returned homepage and restaurant ranking HTML successfully. No account or key requested or searched."
+  },
+  "sandbox_probe": {
+    "url": "https://tabelog.com/en/",
+    "status": "000",
+    "curl_exit_code": 6,
+    "error": "Could not resolve host: tabelog.com",
+    "resolved_with": "Authorized network-capable read-only fetch."
+  },
+  "native_http_probes": [
+    {
+      "url": "https://tabelog.com/en/",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "capture_path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-fetch-docs/tabelog.com-en-c7c19bc899ef5784.html",
+      "body_kind": "HTML",
+      "title": "Tabelog - Japan Food & Restaurant Guide for Travelers",
+      "restaurant_links": 0,
+      "body_bytes": 287461
+    },
+    {
+      "url": "https://tabelog.com/en/tokyo/rstLst/?SrtT=rt",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "capture_path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-fetch-docs/tabelog.com-en-tokyo-rstLst-SrtT-rt-86c815e79fecbf3e.html",
+      "body_kind": "HTML",
+      "title": "Best Restaurants in Tokyo  | Tabelog",
+      "restaurant_links": 20,
+      "body_bytes": 313750
+    }
+  ]
+}

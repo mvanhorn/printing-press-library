@@ -1,0 +1,9 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/tabelog-pp-cli
+/tabelog-pp-cli.exe
+/tabelog-pp-mcp
+/tabelog-pp-mcp.exe
+/bin/
+/build/
+/dist/
+/.printing-press-fixtures/

@@ -1,0 +1,52 @@
+--- a/internal/source/discovery.go
++++ b/internal/source/discovery.go
+@@ -126,7 +126,7 @@
+ 	}
+ 	path := filepath.Join(c.CacheDir, ".choices.json")
+ 	m := map[string]domain.Choice{}
+-	if b, e := os.ReadFile(path); e == nil && len(b) <= 1<<20 {
++	if b, e := os.ReadFile(path); e == nil && len(b) <= 1<<20 { // #nosec G304 -- fixed .choices.json file under the configured private cache directory.
+ 		_ = json.Unmarshal(b, &m)
+ 	}
+ 	if len(m) > 1024 {
+--- a/internal/cli/tabelog_helpers.go
++++ b/internal/cli/tabelog_helpers.go
+@@ -26,7 +26,7 @@
+ 	}
+ 	nb := notebook.New(db.DB())
+ 	if e = nb.Init(ctx); e != nil {
+-		db.Close()
++		_ = db.Close()
+ 		return nil, nil, e
+ 	}
+ 	return db, nb, nil
+--- a/internal/notebook/notebook.go
++++ b/internal/notebook/notebook.go
+@@ -179,7 +179,7 @@
+ 	for rows.Next() {
+ 		var v victim
+ 		if err := rows.Scan(&v.id, &v.bytes); err != nil {
+-			rows.Close()
++			_ = rows.Close()
+ 			return err
+ 		}
+ 		if total > unsavedSnapshotBudget {
+@@ -188,7 +188,7 @@
+ 		}
+ 	}
+ 	if err := rows.Err(); err != nil {
+-		rows.Close()
++		_ = rows.Close()
+ 		return err
+ 	}
+ 	if err := rows.Close(); err != nil {
+--- a/internal/cli/lists_alternatives.go
++++ b/internal/cli/lists_alternatives.go
+@@ -3,4 +3,6 @@
+ import "github.com/spf13/cobra"
+ 
+ // Preserve the generated constructor path as a delegate to its full implementation.
+-func newNovelListsAlternativesCmd(flags *rootFlags) *cobra.Command { return newTabelogListAlternativesCmd(flags) }
++func newNovelListsAlternativesCmd(flags *rootFlags) *cobra.Command {
++	return newTabelogListAlternativesCmd(flags)
++}

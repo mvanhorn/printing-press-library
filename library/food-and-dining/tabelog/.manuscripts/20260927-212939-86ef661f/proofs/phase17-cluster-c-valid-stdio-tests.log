@@ -1,0 +1,4 @@
+=== RUN   TestRecipeCompareAcceptsLiteralFlagShapedListName
+--- PASS: TestRecipeCompareAcceptsLiteralFlagShapedListName (1.66s)
+PASS
+ok  	tabelog-pp-cli/e2e	2.884s

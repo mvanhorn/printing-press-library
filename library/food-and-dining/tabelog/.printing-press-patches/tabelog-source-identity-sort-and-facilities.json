@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "tabelog-source-identity-sort-and-facilities",
+  "files": [
+    "internal/source/parser.go",
+    "internal/source/discovery.go",
+    "internal/cli/tabelog_helpers.go",
+    "internal/cli/tabelog_discovery.go",
+    "internal/source/identity_validation_test.go",
+    "e2e/source_validation_test.go"
+  ],
+  "call_sites": [
+    "root.AddCommand(newTabelogFindCmd(flags)",
+    "validateDetailIdentity(doc, schema, canonical)",
+    "selectedListingSort(out)"
+  ],
+  "applied_at": "2026-09-27",
+  "base_run_id": "20260927-212939-86ef661f",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Reject mismatched restaurant identity or source ranking and retain known facilities in compact output.",
+  "reason": "A plausible but wrong source page could otherwise poison the cache or hide decision-critical facts.",
+  "validated_outcome": "Phase 17 integrated replay and source checks passed."
+}

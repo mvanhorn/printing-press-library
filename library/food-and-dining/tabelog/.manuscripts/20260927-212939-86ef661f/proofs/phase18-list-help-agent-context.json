@@ -1,0 +1,1107 @@
+{
+  "schema_version": "4",
+  "cli": {
+    "name": "tabelog-pp-cli",
+    "description": "Find Japan restaurants and bars, then keep a factual trip shortlist.",
+    "version": "0.0.0-dev"
+  },
+  "auth": {
+    "mode": "none",
+    "env_vars": []
+  },
+  "paths": {
+    "config_dir": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/tabelog-list-help-godh31sf/config",
+    "data_dir": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/tabelog-list-help-godh31sf/data",
+    "state_dir": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/tabelog-list-help-godh31sf/state",
+    "cache_dir": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/tabelog-list-help-godh31sf/cache"
+  },
+  "discovery": {
+    "source": "traffic-analysis",
+    "target_url": "https://tabelog.com/en/",
+    "entry_count": 13,
+    "api_entry_count": 3,
+    "reachability": "browser_http (78% confidence)",
+    "protocols": [
+      "ssr_embedded_data (85% confidence)",
+      "rest_json (75% confidence)",
+      "html_scrape (55% confidence)"
+    ],
+    "auth_candidates": [
+      "none"
+    ],
+    "protections": [
+      "perimeterx (80% confidence)"
+    ],
+    "generation_hints": [
+      "browser_http_transport",
+      "requires_protected_client"
+    ],
+    "candidate_commands": [
+      "list_keyword_suggest \u2014 Derived from observed GET /en/suggest/keyword_suggest traffic."
+    ]
+  },
+  "commands": [
+    {
+      "name": "analytics",
+      "use": "analytics",
+      "short": "Run analytics queries on locally synced data",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "group-by",
+          "type": "string",
+          "usage": "Field to group by"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Max groups to show",
+          "default": "25"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "usage": "Resource type to analyze"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "api",
+      "use": "api [interface]",
+      "short": "Browse API resource interfaces by raw name",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true"
+      },
+      "runnable": true
+    },
+    {
+      "name": "areas",
+      "use": "areas [QUERY]",
+      "short": "Resolve typed prefecture, area and station choices",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "query=Shinjuku"
+      },
+      "flags": [
+        {
+          "name": "kind",
+          "type": "string",
+          "usage": "Filter choices by area, station, or prefecture"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum typed source choices to return (1\u2013100)",
+          "default": "20"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "catalogs",
+      "use": "catalogs",
+      "short": "Public location/category source catalogs",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "agent",
+          "type": "bool",
+          "usage": "Set agent-friendly output defaults (--json --compact --no-input --no-color)",
+          "default": "false"
+        },
+        {
+          "name": "audit-dir",
+          "type": "string",
+          "usage": "Aggregate the receipt and index under this audit directory"
+        },
+        {
+          "name": "client-profile",
+          "type": "string",
+          "usage": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)"
+        },
+        {
+          "name": "compact",
+          "type": "bool",
+          "usage": "Compact output; source commands preserve restaurant decision facts",
+          "default": "false"
+        },
+        {
+          "name": "config",
+          "type": "string",
+          "usage": "Config file path"
+        },
+        {
+          "name": "csv",
+          "type": "bool",
+          "usage": "Output as CSV (table and array responses)",
+          "default": "false"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "usage": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests",
+          "default": "auto"
+        },
+        {
+          "name": "deliver",
+          "type": "string",
+          "usage": "Route output to a sink: stdout (default), file:<path>, webhook:<url>"
+        },
+        {
+          "name": "dry-run",
+          "type": "bool",
+          "usage": "Show request without sending",
+          "default": "false"
+        },
+        {
+          "name": "home",
+          "type": "string",
+          "usage": "Root directory for config, data, state, and cache files"
+        },
+        {
+          "name": "human-friendly",
+          "type": "bool",
+          "usage": "Enable colored output and rich formatting",
+          "default": "false"
+        },
+        {
+          "name": "json",
+          "type": "bool",
+          "usage": "Output as JSON",
+          "default": "false"
+        },
+        {
+          "name": "max-age",
+          "type": "duration",
+          "usage": "Age threshold for saved-evidence hints; 0 disables age checks",
+          "default": "30m0s"
+        },
+        {
+          "name": "no-cache",
+          "type": "bool",
+          "usage": "Bypass response cache",
+          "default": "false"
+        },
+        {
+          "name": "no-color",
+          "type": "bool",
+          "usage": "Disable colored output",
+          "default": "false"
+        },
+        {
+          "name": "no-input",
+          "type": "bool",
+          "usage": "Disable all interactive prompts (for CI/agents)",
+          "default": "false"
+        },
+        {
+          "name": "plain",
+          "type": "bool",
+          "usage": "Output as plain tab-separated text",
+          "default": "false"
+        },
+        {
+          "name": "profile",
+          "type": "string",
+          "usage": "Apply values from a saved run profile; this does not select a client (see 'tabelog-pp-cli profile list')"
+        },
+        {
+          "name": "quiet",
+          "type": "bool",
+          "usage": "Bare output, one value per line",
+          "default": "false"
+        },
+        {
+          "name": "rate-limit",
+          "type": "float64",
+          "usage": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers)",
+          "default": "auto"
+        },
+        {
+          "name": "receipt",
+          "type": "bool",
+          "usage": "Write an atomic private run receipt",
+          "default": "false"
+        },
+        {
+          "name": "receipt-file",
+          "type": "string",
+          "usage": "Override the run receipt destination"
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "usage": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained"
+        },
+        {
+          "name": "timeout",
+          "type": "duration",
+          "usage": "Request timeout",
+          "default": "20s"
+        },
+        {
+          "name": "yes",
+          "type": "bool",
+          "usage": "Skip confirmation prompts (explicit confirmation for scripts)",
+          "default": "false"
+        }
+      ],
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "home",
+          "use": "home",
+          "short": "Public prefecture and cuisine links; use anchors as authoritative catalog entries.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "catalogs.home",
+            "pp:method": "GET",
+            "pp:path": "/en/"
+          },
+          "runnable": true
+        },
+        {
+          "name": "suggest",
+          "use": "suggest",
+          "short": "Public mixed-type suggestions.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "catalogs.suggest",
+            "pp:happy-args": "--keyword=Shinjuku",
+            "pp:method": "GET",
+            "pp:path": "/en/suggest/keyword_suggest",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "usage": "Location,cuisine or restaurant query"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "completion",
+      "use": "completion",
+      "short": "Generate the autocompletion script for the specified shell",
+      "subcommands": [
+        {
+          "name": "bash",
+          "use": "bash",
+          "short": "Generate the autocompletion script for bash",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "fish",
+          "use": "fish",
+          "short": "Generate the autocompletion script for fish",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "powershell",
+          "use": "powershell",
+          "short": "Generate the autocompletion script for powershell",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "zsh",
+          "use": "zsh",
+          "short": "Generate the autocompletion script for zsh",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "cuisines",
+      "use": "cuisines [QUERY]",
+      "short": "Browse verified English cuisine and bar taxonomy choices",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "query=bar"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum cuisine/taxonomy choices to return (1\u2013100)",
+          "default": "20"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "doctor",
+      "use": "doctor",
+      "short": "Check CLI health",
+      "flags": [
+        {
+          "name": "fail-on",
+          "type": "string",
+          "usage": "Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: path warnings plus errors; error: errors only. Default is never."
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "export",
+      "use": "export <resource> [id]",
+      "short": "Export data to JSONL or JSON for backup, migration, or analysis",
+      "annotations": {
+        "mcp:hidden": "true"
+      },
+      "flags": [
+        {
+          "name": "format",
+          "type": "string",
+          "usage": "Output format: jsonl or json",
+          "default": "jsonl"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum records to export (0 = unlimited)",
+          "default": "0"
+        },
+        {
+          "name": "no-cache",
+          "type": "bool",
+          "usage": "Bypass response cache for fresh data",
+          "default": "false"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "usage": "Output file path (default: stdout)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "feedback",
+      "use": "feedback [text]",
+      "short": "Record feedback about this CLI (local by default; upstream opt-in)",
+      "annotations": {
+        "mcp:hidden": "true"
+      },
+      "flags": [
+        {
+          "name": "send",
+          "type": "bool",
+          "usage": "POST to the configured feedback endpoint in addition to local write",
+          "default": "false"
+        },
+        {
+          "name": "stdin",
+          "type": "bool",
+          "usage": "Read feedback body from stdin rather than arguments",
+          "default": "false"
+        }
+      ],
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List recent feedback entries",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum number of recent entries to return",
+              "default": "20"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "find",
+      "use": "find",
+      "short": "Find ranked restaurants within explicit location and meal criteria",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--area=tokyo;--cuisine=bar;--limit=5"
+      },
+      "flags": [
+        {
+          "name": "area",
+          "type": "string",
+          "usage": "Required prefecture, typed location selector, or English area URL"
+        },
+        {
+          "name": "budget-max",
+          "type": "int",
+          "usage": "Source-supported maximum average-price threshold in JPY",
+          "default": "0"
+        },
+        {
+          "name": "budget-min",
+          "type": "int",
+          "usage": "Source-supported minimum average-price threshold in JPY",
+          "default": "0"
+        },
+        {
+          "name": "cuisine",
+          "type": "string",
+          "usage": "Verified cuisine slug or taxonomy choice (bar is broad category)"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "usage": "Free text within the verified source geography"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum candidates to return (1\u201350); no detail fan-out",
+          "default": "5"
+        },
+        {
+          "name": "max-pages",
+          "type": "int",
+          "usage": "Maximum source pages to fetch (1\u20135), independently of result limit",
+          "default": "1"
+        },
+        {
+          "name": "meal",
+          "type": "string",
+          "usage": "Source average-price meal: lunch or dinner"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "help",
+      "use": "help [command]",
+      "short": "Help about any command",
+      "runnable": true
+    },
+    {
+      "name": "lists",
+      "use": "lists",
+      "short": "Keep notes and compare saved trip candidates",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "auto",
+        "pp:parent-group": "true"
+      },
+      "subcommands": [
+        {
+          "name": "add",
+          "use": "add <list> <id>",
+          "short": "Save a fetched restaurant and optional personal note",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:happy-args": "list=tokyo-bars;id=13005012;--note=Ginza bar fixture;--home=.printing-press-fixtures/live-home"
+          },
+          "flags": [
+            {
+              "name": "note",
+              "type": "string",
+              "usage": "Personal note; preserved on repeat add unless this flag is supplied"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "alternatives",
+          "use": "alternatives <list>",
+          "short": "Find factual alternatives within the saved set",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:happy-args": "list=tokyo-bars;--for=13005012;--match=area,category;--meal=dinner;--budget-max=5000;--home=.printing-press-fixtures/live-home"
+          },
+          "flags": [
+            {
+              "name": "budget-max",
+              "type": "int",
+              "usage": "Maximum known cached meal-bracket upper bound in JPY",
+              "default": "0"
+            },
+            {
+              "name": "for",
+              "type": "string",
+              "usage": "Saved anchor restaurant ID"
+            },
+            {
+              "name": "match",
+              "type": "string",
+              "usage": "Comma-separated anchor fields: area,category"
+            },
+            {
+              "name": "meal",
+              "type": "string",
+              "usage": "Meal for cached budget comparison: lunch or dinner"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "audit",
+          "use": "audit <list>",
+          "short": "Inspect missing and old evidence without fetching",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:happy-args": "list=tokyo-bars;--require=hours,payment,reservation,dinner_budget;--max-age=24h;--home=.printing-press-fixtures/live-home"
+          },
+          "flags": [
+            {
+              "name": "max-age",
+              "type": "string",
+              "usage": "Snapshot age threshold; 0 disables age checks; supports h, d and w",
+              "default": "24h"
+            },
+            {
+              "name": "require",
+              "type": "string",
+              "usage": "Required evidence fields, comma-separated",
+              "default": "hours,payment,reservation,dinner_budget"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "compare",
+          "use": "compare <list> [id...]",
+          "short": "Compare saved facts and notes without fetching",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:happy-args": "list=tokyo-bars;--home=.printing-press-fixtures/live-home"
+          },
+          "runnable": true
+        },
+        {
+          "name": "note",
+          "use": "note <list> <id>",
+          "short": "Set a personal note on a saved candidate",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:happy-args": "list=fixture-note;id=13005012;--note=Updated fixture note;--home=.printing-press-fixtures/live-home"
+          },
+          "flags": [
+            {
+              "name": "note",
+              "type": "string",
+              "usage": "Personal note; an explicitly empty note clears it"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "refresh",
+          "use": "refresh <list> [id...]",
+          "short": "Refresh selected saved facts and preserve personal notes",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:happy-args": "list=tokyo-bars;id=13005012;--home=.printing-press-fixtures/live-home"
+          },
+          "runnable": true
+        },
+        {
+          "name": "remove",
+          "use": "remove <list> <id>",
+          "short": "Remove membership while retaining fetched source facts",
+          "annotations": {
+            "pp:happy-args": "list=fixture-remove;id=13005012;--json=true;--home=.printing-press-fixtures/live-home"
+          },
+          "runnable": true
+        },
+        {
+          "name": "show",
+          "use": "show [list]",
+          "short": "Show saved candidates, or list the notebooks",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:happy-args": "list=tokyo-bars;--home=.printing-press-fixtures/live-home"
+          },
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "use": "profile",
+      "short": "Named sets of flags saved for reuse",
+      "annotations": {
+        "mcp:hidden": "true",
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "delete",
+          "use": "delete <name>",
+          "short": "Remove a profile",
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List saved profiles",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "runnable": true
+        },
+        {
+          "name": "save",
+          "use": "save <name> [--<flag> <value> ...]",
+          "short": "Save the current invocation's non-default flags as a named profile",
+          "flags": [
+            {
+              "name": "description",
+              "type": "string",
+              "usage": "Short description shown in 'profile list'"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "show",
+          "use": "show <name>",
+          "short": "Show a profile's values as JSON",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "runnable": true
+        },
+        {
+          "name": "use",
+          "use": "use <name>",
+          "short": "Print the flag values a profile will apply (does not execute anything)",
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants",
+      "use": "restaurants",
+      "short": "Public source restaurant pages",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true",
+        "pp:api-resource": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "get",
+          "use": "get",
+          "short": "Fetch public restaurant details as HTML containing tables and JSON-LD.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "restaurants.get",
+            "pp:happy-args": "--prefecture=tokyo;--area1=A1301;--area2=A130103;--id=13294162",
+            "pp:method": "GET",
+            "pp:path": "/en/{pal}/{area1}/{area2}/{id}/",
+            "pp:requires-input": "true"
+          },
+          "flags": [
+            {
+              "name": "area1",
+              "type": "string",
+              "usage": "Source first area code"
+            },
+            {
+              "name": "area2",
+              "type": "string",
+              "usage": "Source second area code"
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "usage": "Restaurant source ID"
+            },
+            {
+              "name": "prefecture",
+              "type": "string",
+              "usage": "Observed prefecture slug"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "search",
+          "use": "search",
+          "short": "Search the observed public English HTML source; typed card extraction must be implemented in the source adapter.",
+          "annotations": {
+            "mcp:read-only": "true",
+            "pp:endpoint": "restaurants.search",
+            "pp:happy-args": "--prefecture=tokyo;--area1=A1301;--area2=A130101;--source-sort=rt",
+            "pp:method": "GET",
+            "pp:path": "/en/rstLst/"
+          },
+          "flags": [
+            {
+              "name": "area1",
+              "type": "string",
+              "usage": "First area code or municipality code from suggestion"
+            },
+            {
+              "name": "area2",
+              "type": "string",
+              "usage": "Second area code"
+            },
+            {
+              "name": "budget-max-code",
+              "type": "int",
+              "usage": "Source maximum budget threshold index0..16",
+              "default": "0"
+            },
+            {
+              "name": "budget-min-code",
+              "type": "int",
+              "usage": "Source minimum budget threshold index0..16",
+              "default": "0"
+            },
+            {
+              "name": "category-family",
+              "type": "string",
+              "usage": "Source category family; BC is Bar (one of: RC, MC, SC, BC, YC, ZZ)"
+            },
+            {
+              "name": "keyword",
+              "type": "string",
+              "usage": "Free text; effective geography must be checked"
+            },
+            {
+              "name": "location-id",
+              "type": "string",
+              "usage": "Observed selected location name or ID"
+            },
+            {
+              "name": "location-type",
+              "type": "string",
+              "usage": "Observed location type, e.g.Area2"
+            },
+            {
+              "name": "meal-code",
+              "type": "int",
+              "usage": "Source meal code:1 lunch,2 dinner (one of: 1, 2)",
+              "default": "0"
+            },
+            {
+              "name": "prefecture",
+              "type": "string",
+              "usage": "Prefecture slug"
+            },
+            {
+              "name": "prefecture-code",
+              "type": "int",
+              "usage": "Prefecture numeric code from More filters",
+              "default": "0"
+            },
+            {
+              "name": "source-sort",
+              "type": "string",
+              "usage": "Observed source highest-rated order (one of: rt)",
+              "default": "rt"
+            },
+            {
+              "name": "station-id",
+              "type": "string",
+              "usage": "RailroadStation source ID"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "use": "search <query>",
+      "short": "Full-text search across synced data or live API",
+      "annotations": {
+        "mcp:hidden": "true"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum results to return",
+          "default": "50"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "usage": "Filter by resource type"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "show",
+      "use": "show [URL_OR_CACHED_ID]",
+      "short": "Inspect one restaurant's source facts and practical details",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "restaurant=https://tabelog.com/en/tokyo/A1301/A130103/13294162/"
+      },
+      "runnable": true
+    },
+    {
+      "name": "sync",
+      "use": "sync",
+      "short": "Sync API data to local SQLite for offline search and analysis",
+      "annotations": {
+        "mcp:hidden": "true"
+      },
+      "flags": [
+        {
+          "name": "concurrency",
+          "type": "int",
+          "usage": "Number of parallel sync workers",
+          "default": "4"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "full",
+          "type": "bool",
+          "usage": "Full resync (ignore previous checkpoint)",
+          "default": "false"
+        },
+        {
+          "name": "global-param",
+          "type": "stringArray",
+          "usage": "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.",
+          "default": "[]"
+        },
+        {
+          "name": "latest-only",
+          "type": "bool",
+          "usage": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).",
+          "default": "false"
+        },
+        {
+          "name": "max-pages",
+          "type": "int",
+          "usage": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)",
+          "default": "0"
+        },
+        {
+          "name": "no-prune",
+          "type": "bool",
+          "usage": "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns after a complete walk)",
+          "default": "false"
+        },
+        {
+          "name": "param",
+          "type": "stringArray",
+          "usage": "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) \u2014 overriding them corrupts resume state.",
+          "default": "[]"
+        },
+        {
+          "name": "resource-param",
+          "type": "stringArray",
+          "usage": "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.",
+          "default": "[]"
+        },
+        {
+          "name": "resources",
+          "type": "stringSlice",
+          "usage": "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).",
+          "default": "[]"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "usage": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)"
+        },
+        {
+          "name": "strict",
+          "type": "bool",
+          "usage": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).",
+          "default": "false"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "tail",
+      "use": "tail [resource]",
+      "short": "Stream live changes by polling the API at regular intervals",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true",
+        "pp:no-error-path-probe": "true"
+      },
+      "flags": [
+        {
+          "name": "follow",
+          "type": "bool",
+          "usage": "Keep running (set --follow=false for single poll)",
+          "default": "true"
+        },
+        {
+          "name": "interval",
+          "type": "duration",
+          "usage": "Poll interval",
+          "default": "10s"
+        },
+        {
+          "name": "resource",
+          "type": "string",
+          "usage": "Resource type to tail"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "version",
+      "use": "version",
+      "short": "Print version",
+      "runnable": true
+    },
+    {
+      "name": "which",
+      "use": "which [query]",
+      "short": "Find the command that implements a capability",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum number of matches to return",
+          "default": "3"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "workflow",
+      "use": "workflow",
+      "short": "Compound workflows that combine multiple API operations",
+      "annotations": {
+        "mcp:hidden": "true",
+        "mcp:read-only": "true",
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "archive",
+          "use": "archive",
+          "short": "Sync all resources to local store for offline access and search",
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "full",
+              "type": "bool",
+              "usage": "Full re-archive (ignore previous sync state)",
+              "default": "false"
+            },
+            {
+              "name": "max-pages",
+              "type": "int",
+              "usage": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)",
+              "default": "0"
+            },
+            {
+              "name": "timeout",
+              "type": "duration",
+              "usage": "Maximum time to spend archiving (0 = no timeout)",
+              "default": "30m0s"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "status",
+          "use": "status",
+          "short": "Show local archive status and sync state for all resources",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    }
+  ],
+  "available_profiles": [],
+  "feedback_endpoint_configured": false
+}

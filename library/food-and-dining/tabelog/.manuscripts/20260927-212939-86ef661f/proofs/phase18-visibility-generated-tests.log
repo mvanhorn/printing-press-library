@@ -1,0 +1,6 @@
+=== RUN   TestGeneratedAgentContextVisibility
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+--- PASS: TestGeneratedAgentContextVisibility (2.41s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/generator	3.114s

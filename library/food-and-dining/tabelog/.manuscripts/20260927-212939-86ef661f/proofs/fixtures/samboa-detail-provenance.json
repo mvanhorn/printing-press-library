@@ -1,0 +1,13 @@
+{
+  "url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+  "http_status": 200,
+  "captured_at": "2026-09-27T15:03:03.664703+00:00",
+  "original_bytes": 101297,
+  "original_sha256": "0d1a122be1faa372baaea85ad4f0ac513613b53e2853fd89e11ff17ebe6ba8ea",
+  "method": "GET",
+  "transport": "Python standard urllib HTTP; no cookies/accounts/credentials; one request",
+  "sanitized_fixture": "samboa-detail.html",
+  "sanitized_sha256": "7868d818b9a8cc4f4b1d5e4beb524579857e206e4cc19b5d938175ec736c53cd",
+  "sanitized_bytes": 12143,
+  "transform": "Retain only real public detail header/status/JSONLD/table facts; no reviewer content, photos, CSRF inputs, telemetry, or non-JSONLD scripts."
+}

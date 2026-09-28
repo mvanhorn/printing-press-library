@@ -1,0 +1,23 @@
+Save an already fetched restaurant in a named trip list. Re-adding preserves its position and note unless --note is supplied. Use lists refresh to update source facts.
+
+Usage:
+  tabelog-pp-cli lists add LIST ID [flags]
+
+Flags:
+  -h, --help          help for add
+      --note string   Personal note; preserved on repeat add unless this flag is supplied
+
+Global Flags:
+      --agent                Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --compact              Compact output; source commands preserve restaurant decision facts
+      --csv                  Output as CSV (table and array responses)
+      --data-source string   auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default "auto")
+      --dry-run              Show request without sending
+      --home string          Root directory for config, data, state, and cache files
+      --json                 Output as JSON
+      --max-age duration     Age threshold for saved-evidence hints; 0 disables age checks (default 30m0s)
+      --no-cache             Bypass response cache
+      --plain                Output as plain tab-separated text
+      --quiet                Bare output, one value per line
+      --select string        Comma-separated fields to include in output (e.g. --select title,url)
+      --timeout duration     Request timeout (default 20s)

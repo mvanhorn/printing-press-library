@@ -1,0 +1,735 @@
+{
+  "schema_version": 1,
+  "purpose": "Independent source-fact oracle authored before CLI/parser generation. Values were annotated from existing public English HTML, not CLI output.",
+  "normalization": {
+    "text": "Decode HTML entities and collapse layout whitespace; preserve complete names, labels, and budget text.",
+    "ratings": "String form retains exact source precision; numeric representations must retain the same value.",
+    "unknowns": "A displayed dash or absent station is unknown, never zero.",
+    "awards": "Distinct displayed badge labels; repeated tooltip text is not an additional award.",
+    "closure": "Regular closed days and permanent closure are different facts.",
+    "price": "Primary Average price and Average price (Based on reviews) remain separate."
+  },
+  "sources": {
+    "tokyo_highest_rated": {
+      "path": "discovery/public-source/tabelog.com-en-tokyo-rstLst-SrtT-rt-86c815e79fecbf3e.html",
+      "url": "https://tabelog.com/en/tokyo/rstLst/?SrtT=rt",
+      "http_status": 200,
+      "archived_at": "2026-09-27T13:34:43.465540+00:00",
+      "captured_at": null,
+      "date_note": "Exact fetch time is unavailable; archived_at is the source manifest archive time immediately after public HTTP capture.",
+      "sha256": "95f3d6b1903d3843741fd28bbfbe833f57716a1a2d6f57dc61df43b64a863f6d",
+      "bytes": 313750,
+      "manifest_path": "discovery/public-source/capture-manifest.json"
+    },
+    "sushi_detail": {
+      "path": "discovery/public-source/tabelog.com-en-tokyo-A1301-A130103-13294162-8e710fdd585afbfe.html",
+      "url": "https://tabelog.com/en/tokyo/A1301/A130103/13294162/",
+      "http_status": 200,
+      "archived_at": "2026-09-27T13:34:43.465540+00:00",
+      "captured_at": null,
+      "date_note": "Exact fetch time is unavailable; archived_at is the source manifest archive time immediately after public HTTP capture.",
+      "sha256": "4f0c16cb909e233c0d6ad782bdf611561873b950df287d00e4efac12e17c2b6c",
+      "bytes": 142670,
+      "manifest_path": "discovery/public-source/capture-manifest.json"
+    },
+    "ginza_bars_dinner_5000": {
+      "path": "discovery/native/ginza-bars-dinner5000.html",
+      "url": "https://tabelog.com/en/rstLst/?SrtT=rt&pcd=13&LstPrf=A1301&LstAre=A130101&Cat=BC&RdoCosTp=2&LstCos=0&LstCosT=5",
+      "http_status": 200,
+      "capture_method": "Go net/http standard",
+      "credentials": "none",
+      "captured_at": "2026-09-27T13:42:58Z",
+      "archived_at": null,
+      "sha256": "1af33b84453ed1f06f04eb66245b4722a10683af23c328cebf70949fc96cf85d",
+      "bytes": 248244,
+      "manifest_path": "discovery/native/native-replay-manifest.json",
+      "corroborating_browser_source": "ginza_bars_dinner_5000_browser"
+    },
+    "ginza_bars_dinner_5000_browser": {
+      "path": "discovery/browser-ginza-bars-dinner5000.html",
+      "url": "https://tabelog.com/en/rstLst/?PG=1&from_search=&voluntary_search=1&from_search_form=1&lid=&SrtT=rt&pcd=13&LstPrf=A1301&LstAre=A130101&station_id=&Cat=BC&LstCat=&RdoCosTp=2&LstCos=0&LstCosT=5&vac_net=0&search_date=September+28%2C+2026+%28Mon%29+&svd=20260928&svt=1900&svps=2&LstRev=0&LstSitu=0&LstSmoking=0",
+      "http_status": null,
+      "capture_method": "Browser DOM HTML export after submitting the public English More filters form. This is not a claimed raw HTTP response.",
+      "captured_at": "2026-09-27T13:41:39.084649+00:00",
+      "archived_at": null,
+      "sha256": "ee6d2c974c9a427c476250b4c7e7488b06d3ead9fccccbb6f730235faa72f704",
+      "bytes": 280558,
+      "manifest_path": "discovery/browser-budget-submit-ui.json",
+      "source_condition": "Restaurants in Ginza\nDinner - JPY 5,000 Ginza Bar More filters"
+    },
+    "budget_controls": {
+      "path": "discovery/browser-more-filters-ui.json",
+      "url": "https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/?SrtT=rt",
+      "http_status": null,
+      "capture_method": "Browser DOM control inventory of public English More filters panel.",
+      "captured_at": "2026-09-27T13:40:55.839386+00:00",
+      "archived_at": null,
+      "sha256": "201c6da9d674dc9e795fabba147bb3321803ecf5c306e90d88ed1da8a3cd64c1",
+      "bytes": 52989,
+      "contains_review_bodies": false
+    },
+    "miyakawa_old": {
+      "path": "working/tabelog-pp-cli/e2e/testdata/miyakawa-old.html",
+      "url": "https://tabelog.com/en/hokkaido/A0101/A010105/1046463/",
+      "http_status": 200,
+      "captured_at": "2026-09-27T14:41:38.596928+00:00",
+      "sha256": "c6fe96965d10f8e2e76f47b1066398771393d44e0307f49f3952bc90d78c00af",
+      "bytes": 17313,
+      "original_sha256": "f2976aff4bd9129246de8dd473446ed5d656c97f62ccda3cf39d128a3e7c7491",
+      "original_bytes": 126059,
+      "capture_method": "Python standard urllib HTTP; no cookies/accounts/credentials; one request per URL",
+      "sanitized": true
+    },
+    "miyakawa_current": {
+      "path": "working/tabelog-pp-cli/e2e/testdata/miyakawa-current.html",
+      "url": "https://tabelog.com/en/hokkaido/A0101/A010105/1073214/",
+      "http_status": 200,
+      "captured_at": "2026-09-27T14:41:39.181676+00:00",
+      "sha256": "40d60bdcfaca35ad8d04b196d32059ba49e516975a1a6aacce95b2e3db0014c7",
+      "bytes": 15819,
+      "original_sha256": "83b4b4f5e0b294b2d9d05b2d025e5a76786737e5fbde588382699368e827351d",
+      "original_bytes": 127404,
+      "capture_method": "Python standard urllib HTTP; no cookies/accounts/credentials; one request per URL",
+      "sanitized": true
+    },
+    "ginza_genuine_empty": {
+      "path": "working/tabelog-pp-cli/e2e/testdata/ginza-empty.html",
+      "url": "https://tabelog.com/en/rstLst/?SrtT=rt&pal=tokyo&LstPrf=A1301&LstAre=A130101&area_datatype=Area2&area_id=Ginza&sw=zzztabeloge2ezerocandidates20260927",
+      "http_status": 200,
+      "captured_at": "2026-09-27T14:42:18.599599+00:00",
+      "sha256": "5884c298c2c1b95a97a5bf5e8b2f878257302a8c5102dc44d432f08fdf040686",
+      "bytes": 29060,
+      "original_sha256": "a26f263e65fb22ee15996336fef3b2cac472b62c06b7d2eec259bbbe73c46997",
+      "original_bytes": 91683,
+      "capture_method": "Python standard urllib HTTP; no cookies/accounts/credentials; one request",
+      "sanitized": true
+    }
+  },
+  "listings": [
+    {
+      "source": "tokyo_highest_rated",
+      "sort_label": "Highest rated",
+      "source_sort_query": {
+        "SrtT": "rt"
+      },
+      "displayed_start": 1,
+      "displayed_end": 20,
+      "displayed_total": 139392,
+      "ordered_ids": [
+        "13136847",
+        "13243463",
+        "13249117",
+        "13018162",
+        "13300481",
+        "13196420",
+        "13015251",
+        "13200949",
+        "13188186",
+        "13205298",
+        "13124391",
+        "13252991",
+        "13224635",
+        "13266251",
+        "13246316",
+        "13219857",
+        "13185763",
+        "13245499",
+        "13159567",
+        "13001043"
+      ],
+      "provisional_default_limit": 5,
+      "default_expected_ids": [
+        "13136847",
+        "13243463",
+        "13249117",
+        "13018162",
+        "13300481"
+      ]
+    },
+    {
+      "source": "ginza_bars_dinner_5000",
+      "sort_label": "Highest rated",
+      "source_sort_query": {
+        "SrtT": "rt"
+      },
+      "source_filter_query": {
+        "Cat": "BC",
+        "RdoCosTp": "2",
+        "LstCos": "0",
+        "LstCosT": "5"
+      },
+      "filter_meaning": "Ginza; Bar; dinner price from no lower bound through JPY 5,000 according to the actual public form submission.",
+      "first_expected_id": "13005012"
+    }
+  ],
+  "records": [
+    {
+      "key": "shimbashi_hoshino_listing",
+      "kind": "restaurant_listing_card",
+      "source": "tokyo_highest_rated",
+      "source_lines": [
+        1556,
+        1634
+      ],
+      "source_order_position": 1,
+      "selection_reason": "Unknown lunch budget, known station meters and regular closures, two distinct displayed awards.",
+      "expected": {
+        "id": "13136847",
+        "name": "Shimbashi Hoshino",
+        "canonical_url": "https://tabelog.com/en/tokyo/A1314/A131401/13136847/",
+        "rating": "4.66",
+        "displayed_count": {
+          "value": 331,
+          "source_label": "Number of reviewers",
+          "semantics": "reviewers"
+        },
+        "categories": [
+          "Japanese Cuisine"
+        ],
+        "area_genre_source_text": "Onarimon Sta. 416m / Japanese Cuisine",
+        "nearest_station": {
+          "label": "Onarimon Sta.",
+          "meters": 416,
+          "distance_reference": "nearest_station_not_user"
+        },
+        "budget": {
+          "source_label": "Average dinner price / Average lunch price",
+          "dinner": {
+            "source_text": "JPY 50,000 - JPY 59,999",
+            "currency": "JPY",
+            "min": 50000,
+            "max": 59999,
+            "unknown": false
+          },
+          "lunch": {
+            "source_text": "-",
+            "currency": null,
+            "min": null,
+            "max": null,
+            "unknown": true
+          }
+        },
+        "closure": {
+          "regular_closed_days_source_text": "Sunday, Public Holiday",
+          "regular_closed_days_unknown": false,
+          "permanently_closed": null,
+          "permanent_closure_note": "No explicit permanent-closure notice is established by this capture; absence is not proof that the venue is open."
+        },
+        "awards": [
+          "The Tabelog Award 2026 Gold winner",
+          "Selected for Tabelog Japanese cuisine TOKYO \"Tabelog 100\" 2025"
+        ]
+      }
+    },
+    {
+      "key": "trace_listing",
+      "kind": "restaurant_listing_card",
+      "source": "tokyo_highest_rated",
+      "source_lines": [
+        2898,
+        2968
+      ],
+      "source_order_position": 15,
+      "selection_reason": "Real absence of nearest-station label/meters; unknown lunch and closures; Silver award rather than Gold.",
+      "expected": {
+        "id": "13246316",
+        "name": "Trace",
+        "canonical_url": "https://tabelog.com/en/tokyo/A1307/A130703/13246316/",
+        "rating": "4.53",
+        "displayed_count": {
+          "value": 284,
+          "source_label": "Number of reviewers",
+          "semantics": "reviewers"
+        },
+        "categories": [
+          "Innovative",
+          "French"
+        ],
+        "area_genre_source_text": "Innovative, French",
+        "nearest_station": {
+          "label": null,
+          "meters": null,
+          "distance_reference": null
+        },
+        "budget": {
+          "source_label": "Average dinner price / Average lunch price",
+          "dinner": {
+            "source_text": "JPY 40,000 - JPY 49,999",
+            "currency": "JPY",
+            "min": 40000,
+            "max": 49999,
+            "unknown": false
+          },
+          "lunch": {
+            "source_text": "-",
+            "currency": null,
+            "min": null,
+            "max": null,
+            "unknown": true
+          }
+        },
+        "closure": {
+          "regular_closed_days_source_text": "-",
+          "regular_closed_days_unknown": true,
+          "permanently_closed": null,
+          "permanent_closure_note": "No explicit permanent-closure notice is established by this capture; absence is not proof that the venue is open."
+        },
+        "awards": [
+          "The Tabelog Award 2026 Silver winner",
+          "Selected for Tabelog Innovative/Creative Cuisine \"Tabelog 100\" 2025"
+        ]
+      }
+    },
+    {
+      "key": "sawada_listing",
+      "kind": "restaurant_listing_card",
+      "source": "tokyo_highest_rated",
+      "source_lines": [
+        3382,
+        3447
+      ],
+      "source_order_position": 20,
+      "selection_reason": "Different lunch and dinner budgets; preserve source rating precision and keep holiday disclaimer outside the closure value.",
+      "expected": {
+        "id": "13001043",
+        "name": "Sawada",
+        "canonical_url": "https://tabelog.com/en/tokyo/A1301/A130101/13001043/",
+        "rating": "4.50",
+        "displayed_count": {
+          "value": 614,
+          "source_label": "Number of reviewers",
+          "semantics": "reviewers"
+        },
+        "categories": [
+          "Sushi"
+        ],
+        "area_genre_source_text": "Ginza Sta. 186m / Sushi",
+        "nearest_station": {
+          "label": "Ginza Sta.",
+          "meters": 186,
+          "distance_reference": "nearest_station_not_user"
+        },
+        "budget": {
+          "source_label": "Average dinner price / Average lunch price",
+          "dinner": {
+            "source_text": "JPY 50,000 - JPY 59,999",
+            "currency": "JPY",
+            "min": 50000,
+            "max": 59999,
+            "unknown": false
+          },
+          "lunch": {
+            "source_text": "JPY 40,000 - JPY 49,999",
+            "currency": "JPY",
+            "min": 40000,
+            "max": 49999,
+            "unknown": false
+          }
+        },
+        "closure": {
+          "regular_closed_days_source_text": "Monday, Thursday, Sunday",
+          "regular_closed_days_unknown": false,
+          "permanently_closed": null,
+          "permanent_closure_note": "No explicit permanent-closure notice is established by this capture; absence is not proof that the venue is open."
+        },
+        "awards": [
+          "The Tabelog Award 2026 Gold winner",
+          "Selected for Tabelog Sushi TOKYO \"Tabelog 100\" 2025"
+        ]
+      }
+    },
+    {
+      "key": "sushi_isseki_sanchou_detail",
+      "kind": "restaurant_detail",
+      "source": "sushi_detail",
+      "source_lines_by_field": {
+        "json_ld": [
+          38,
+          40
+        ],
+        "identity_rating_count": [
+          151,
+          172
+        ],
+        "nearest_station": [
+          180,
+          190
+        ],
+        "address": [
+          969,
+          976
+        ],
+        "station_distance": [
+          990,
+          1005
+        ],
+        "business_hours": [
+          1010,
+          1028
+        ],
+        "budget": [
+          1032,
+          1063
+        ]
+      },
+      "selection_reason": "Visible primary budgets differ from review-based budgets; JSON-LD ratingCount is present while reviewCount is absent; access mentions two different stations.",
+      "expected": {
+        "id": "13294162",
+        "name": "Sushi Dokoro Isseki Sanchou",
+        "japanese_alias": "鮨処 一石三鳥",
+        "canonical_url": "https://tabelog.com/en/tokyo/A1301/A130103/13294162/",
+        "rating": "3.47",
+        "displayed_count": {
+          "value": 529,
+          "source_label": "reviews",
+          "semantics": "displayed_reviews",
+          "json_ld_key": "ratingCount",
+          "json_ld_reviewCount_present": false
+        },
+        "categories": [
+          "Sushi",
+          "Seafood"
+        ],
+        "nearest_station": {
+          "label": "Shiodome Sta.",
+          "meters": 250,
+          "distance_reference": "nearest_station_not_user",
+          "meters_source_text": "250 meters from Shiodome.",
+          "other_station_distance": {
+            "label": "Shimbashi Station",
+            "meters": 270,
+            "source_text": "- 270 meters from Shimbashi Station."
+          }
+        },
+        "budget": {
+          "source_label": "Average price",
+          "dinner": {
+            "source_text": "JPY 10,000 - JPY 14,999",
+            "currency": "JPY",
+            "min": 10000,
+            "max": 14999,
+            "unknown": false
+          },
+          "lunch": {
+            "source_text": "JPY 8,000 - JPY 9,999",
+            "currency": "JPY",
+            "min": 8000,
+            "max": 9999,
+            "unknown": false
+          }
+        },
+        "review_based_budget": {
+          "source_label": "Average price (Based on reviews)",
+          "dinner": {
+            "source_text": "JPY 15,000 - JPY 19,999",
+            "currency": "JPY",
+            "min": 15000,
+            "max": 19999,
+            "unknown": false
+          },
+          "lunch": {
+            "source_text": "JPY 15,000 - JPY 19,999",
+            "currency": "JPY",
+            "min": 15000,
+            "max": 19999,
+            "unknown": false
+          }
+        },
+        "address": "東京都港区新橋4-20-2 新橋フォーワンビル 1F",
+        "json_ld_streetAddress": "",
+        "business_hours": {
+          "days_source_text": "Mon, Tue, Wed, Thu, Fri, Sat, Sun, Public Holiday, Day before public holiday, Day after public holiday",
+          "intervals_source_text": [
+            "11:00 AM - 3:00 PM",
+            "4:30 PM - 10:30 PM"
+          ]
+        },
+        "closure": {
+          "regular_closed_days_source_text": null,
+          "regular_closed_days_unknown": true,
+          "permanently_closed": null,
+          "permanent_closure_note": "No explicit permanent-closure notice is established by this capture; absence is not proof that the venue is open."
+        },
+        "awards": [],
+        "awards_note": "No displayed award badge was found in this detail capture; this does not assert that the venue has never won an award.",
+        "closure_false_positive_guard": "The sentence Phone lines are currently closed. is not a restaurant-closure notice."
+      }
+    },
+    {
+      "key": "samboa_bar_ginza_listing",
+      "kind": "bar_listing_card",
+      "source": "ginza_bars_dinner_5000",
+      "source_lines": [
+        1044,
+        1099
+      ],
+      "source_order_position": 1,
+      "selection_reason": "A bar with lower dinner budget, unknown lunch/closures, one older displayed award, and smoking allowed.",
+      "expected": {
+        "id": "13005012",
+        "name": "SAMBOA BAR Ginza ten",
+        "canonical_url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+        "rating": "3.79",
+        "displayed_count": {
+          "value": 502,
+          "source_label": "Number of reviewers",
+          "semantics": "reviewers"
+        },
+        "categories": [
+          "Bar"
+        ],
+        "area_genre_source_text": "Ginza Sta. 104m / Bar",
+        "nearest_station": {
+          "label": "Ginza Sta.",
+          "meters": 104,
+          "distance_reference": "nearest_station_not_user"
+        },
+        "budget": {
+          "source_label": "Average dinner price / Average lunch price",
+          "dinner": {
+            "source_text": "JPY 3,000 - JPY 3,999",
+            "currency": "JPY",
+            "min": 3000,
+            "max": 3999,
+            "unknown": false
+          },
+          "lunch": {
+            "source_text": "-",
+            "currency": null,
+            "min": null,
+            "max": null,
+            "unknown": true
+          }
+        },
+        "closure": {
+          "regular_closed_days_source_text": "-",
+          "regular_closed_days_unknown": true,
+          "permanently_closed": null,
+          "permanent_closure_note": "No explicit permanent-closure notice is established by this card; absence is not proof that the venue is open."
+        },
+        "awards": [
+          "Selected for Tabelog Bar \"Tabelog 100\" 2022"
+        ],
+        "displayed_facilities": [
+          "Credit card accepted",
+          "Smoking allowed"
+        ]
+      }
+    },
+    {
+      "key": "sushi_miyakawa_old",
+      "kind": "restaurant_detail",
+      "source": "miyakawa_old",
+      "selection_reason": "Real same-name distinct7-digit IDs; historical relocation evidence must survive parsing and saving.",
+      "expected": {
+        "id": "1046463",
+        "name": "Sushi Miyakawa",
+        "canonical_url": "https://tabelog.com/en/hokkaido/A0101/A010105/1046463/",
+        "rating": "4.46",
+        "displayed_count": {
+          "value": 254,
+          "source_label": "reviews",
+          "json_ld_key": "ratingCount"
+        },
+        "nearest_station": {
+          "label": "Maruyama Koen Sta.",
+          "meters": 133,
+          "distance_reference": "nearest_station_not_user"
+        },
+        "dinner_budget": {
+          "source_text": "JPY 20,000 - JPY 29,999",
+          "min": 20000,
+          "max": 29999
+        },
+        "lunch_budget_unknown": true,
+        "status": "Relocated",
+        "source_warnings": [
+          "This is information from before the relocation."
+        ],
+        "status_absence_means": "Unknown; do not infer open."
+      }
+    },
+    {
+      "key": "sushi_miyakawa_current",
+      "kind": "restaurant_detail",
+      "source": "miyakawa_current",
+      "selection_reason": "Real same-name distinct7-digit IDs; historical relocation evidence must survive parsing and saving.",
+      "expected": {
+        "id": "1073214",
+        "name": "Sushi Miyakawa",
+        "canonical_url": "https://tabelog.com/en/hokkaido/A0101/A010105/1073214/",
+        "rating": "4.48",
+        "displayed_count": {
+          "value": 266,
+          "source_label": "reviews",
+          "json_ld_key": "ratingCount"
+        },
+        "nearest_station": {
+          "label": "Nishi Nijuhatchome Sta.",
+          "meters": 270,
+          "distance_reference": "nearest_station_not_user"
+        },
+        "dinner_budget": {
+          "source_text": "JPY 30,000 - JPY 39,999",
+          "min": 30000,
+          "max": 39999
+        },
+        "lunch_budget_unknown": true,
+        "status": null,
+        "source_warnings": [],
+        "status_absence_means": "Unknown; do not infer open."
+      }
+    }
+  ],
+  "failure_fixtures": [
+    {
+      "path": "proofs/fixtures/listing-missing-cards.html",
+      "sha256": "1c8564bc96fe724ed45fea9dc8b77b57d0f7ffcb3779f903b899d0312b1d0285",
+      "bytes": 586,
+      "source": "tokyo_highest_rated",
+      "construction": "Preserve the real title, active highest-rated label, nonzero page count, and listing container; omit all cards and unrelated body content. This is a deliberately reduced drift response, not a claimed live capture.",
+      "expected": {
+        "exit_nonzero": true,
+        "classification": "source_drift_or_incomplete_listing",
+        "must_not_return_empty_success": true
+      },
+      "contains_review_bodies": false
+    }
+  ],
+  "pending": [],
+  "contains_review_bodies": false,
+  "cli_test_execution": "Deferred until generation and feature-contract approval.",
+  "filter_contract": {
+    "source": "budget_controls",
+    "meal_parameter": "RdoCosTp",
+    "meal_values": {
+      "dinner": "2",
+      "lunch": "1"
+    },
+    "minimum_price_parameter": "LstCos",
+    "maximum_price_parameter": "LstCosT",
+    "price_codes": [
+      {
+        "code": "0",
+        "yen": null,
+        "min_label": "No min",
+        "max_label": "No max"
+      },
+      {
+        "code": "1",
+        "yen": 1000,
+        "min_label": "JPY 1,000",
+        "max_label": "JPY 1,000"
+      },
+      {
+        "code": "2",
+        "yen": 2000,
+        "min_label": "JPY 2,000",
+        "max_label": "JPY 2,000"
+      },
+      {
+        "code": "3",
+        "yen": 3000,
+        "min_label": "JPY 3,000",
+        "max_label": "JPY 3,000"
+      },
+      {
+        "code": "4",
+        "yen": 4000,
+        "min_label": "JPY 4,000",
+        "max_label": "JPY 4,000"
+      },
+      {
+        "code": "5",
+        "yen": 5000,
+        "min_label": "JPY 5,000",
+        "max_label": "JPY 5,000"
+      },
+      {
+        "code": "6",
+        "yen": 6000,
+        "min_label": "JPY 6,000",
+        "max_label": "JPY 6,000"
+      },
+      {
+        "code": "7",
+        "yen": 8000,
+        "min_label": "JPY 8,000",
+        "max_label": "JPY 8,000"
+      },
+      {
+        "code": "8",
+        "yen": 10000,
+        "min_label": "JPY 10,000",
+        "max_label": "JPY 10,000"
+      },
+      {
+        "code": "9",
+        "yen": 15000,
+        "min_label": "JPY 15,000",
+        "max_label": "JPY 15,000"
+      },
+      {
+        "code": "10",
+        "yen": 20000,
+        "min_label": "JPY 20,000",
+        "max_label": "JPY 20,000"
+      },
+      {
+        "code": "11",
+        "yen": 30000,
+        "min_label": "JPY 30,000",
+        "max_label": "JPY 30,000"
+      },
+      {
+        "code": "12",
+        "yen": 40000,
+        "min_label": "JPY 40,000",
+        "max_label": "JPY 40,000"
+      },
+      {
+        "code": "13",
+        "yen": 50000,
+        "min_label": "JPY 50,000",
+        "max_label": "JPY 50,000"
+      },
+      {
+        "code": "14",
+        "yen": 60000,
+        "min_label": "JPY 60,000",
+        "max_label": "JPY 60,000"
+      },
+      {
+        "code": "15",
+        "yen": 80000,
+        "min_label": "JPY 80,000",
+        "max_label": "JPY 80,000"
+      },
+      {
+        "code": "16",
+        "yen": 100000,
+        "min_label": "JPY 100,000",
+        "max_label": "JPY 100,000"
+      }
+    ],
+    "code_zero_means": "Unbounded, not JPY zero.",
+    "value_semantics": "These are integer-code strings, never literal yen amounts. For dinner through JPY 5,000 send RdoCosTp=2&LstCos=0&LstCosT=5.",
+    "unlisted_yen_policy": "Pending final feature contract; tests must verify exact supported mappings or an explicitly documented conversion, never silent arbitrary code coercion."
+  },
+  "genuine_empty": {
+    "source": "ginza_genuine_empty",
+    "expected_count": 0,
+    "page_count_text": "0 results",
+    "empty_subject": "No restaurants match \"Ginza zzztabeloge2ezerocandidates20260927\".",
+    "recognition_classes": [
+      "c-page-count",
+      "rstlist-notfound",
+      "rstlist-notfound__subject"
+    ],
+    "keyword": "zzztabeloge2ezerocandidates20260927"
+  },
+  "additional_live_requests": {
+    "count": 4,
+    "purpose": "Old/current relocation pair, genuine empty response, and SAMBOA same-ID detail/listing preservation; one GET each, no retries."
+  }
+}

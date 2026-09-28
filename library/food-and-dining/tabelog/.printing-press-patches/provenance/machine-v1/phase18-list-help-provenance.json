@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "phase18-list-help",
+  "files": [
+    "internal/cli/tabelog_lists.go",
+    "internal/cli/tabelog_lists_refresh.go"
+  ],
+  "call_sites": [
+    "parent.Short, parent.Long, parent.Example =",
+    "cmd.AddCommand(newTabelogListAddCmd(flags)"
+  ]
+}

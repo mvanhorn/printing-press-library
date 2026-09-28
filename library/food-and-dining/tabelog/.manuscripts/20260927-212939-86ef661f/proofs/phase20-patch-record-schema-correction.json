@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "all_machine_records_normalized",
+  "records": [
+    {
+      "record": ".printing-press-patches/phase18-list-help-provenance.json",
+      "rich_provenance": ".printing-press-patches/provenance/phase18-list-help-provenance.json",
+      "proof_copy": "proofs/durable-patch-provenance/phase18-list-help-provenance.json",
+      "rich_original_sha256": "e92345401297ce5535d10a2eefd63d707d2d1e7e3b6745983949fcfb8472ff5e",
+      "record_sha256": "f90a673c22bd31b6ff83ca0611a856296de3ff0fd7c67706b105e06c859d8159",
+      "files": 2,
+      "call_sites": 2
+    },
+    {
+      "record": ".printing-press-patches/phase17-cluster-b-provenance.json",
+      "rich_provenance": ".printing-press-patches/provenance/phase17-cluster-b-provenance.json",
+      "proof_copy": "proofs/durable-patch-provenance/phase17-cluster-b-provenance.json",
+      "rich_original_sha256": "11c9e3dfe18218fe14fa9184907a0fe13fdb2486e765735c7d75a24c8586bdb3",
+      "record_sha256": "f8bb13ea296c90ee64c6649d87f5a2d7bace0d5b548772f245747f17d9b0dd08",
+      "files": 7,
+      "call_sites": 3
+    },
+    {
+      "record": ".printing-press-patches/phase19-polish-cleanup-provenance.json",
+      "rich_provenance": ".printing-press-patches/provenance/phase19-polish-cleanup-provenance.json",
+      "proof_copy": "proofs/durable-patch-provenance/phase19-polish-cleanup-provenance.json",
+      "rich_original_sha256": "8b7ccaf8203427a24817aac80101f46dfb5825926ade861eb3dc3b0916204228",
+      "record_sha256": "e1a51b89fc4dc16a35743a046d13e0fdfdce980035490bd20f6fb992a3939cff",
+      "files": 4,
+      "call_sites": 0
+    },
+    {
+      "record": ".printing-press-patches/phase19-mcp-hints-provenance.json",
+      "rich_provenance": ".printing-press-patches/provenance/phase19-mcp-hints-provenance.json",
+      "proof_copy": "proofs/durable-patch-provenance/phase19-mcp-hints-provenance.json",
+      "rich_original_sha256": "374bb2f0a3e22a2daf44b443aee9e1f5f03cd5429fe16616cf887bfd6188ba02",
+      "record_sha256": "b54bad5c401f17515c1a58880d21164b2edd96b5c6cea3ea8fc71d668f93874e",
+      "files": 5,
+      "call_sites": 2
+    },
+    {
+      "record": ".printing-press-patches/phase17-cluster-a-provenance.json",
+      "rich_provenance": ".printing-press-patches/provenance/phase17-cluster-a-provenance.json",
+      "proof_copy": "proofs/durable-patch-provenance/phase17-cluster-a-provenance.json",
+      "rich_original_sha256": "39cb31c9985ad5e956acb1cf7b1656c72d4ba8cbd72e9f212f88683b02cb2096",
+      "record_sha256": "9bbda46f3ad685156628b9a4d16abc8b406f032fc294ed3731b68b5eac3a295e",
+      "files": 6,
+      "call_sites": 3
+    },
+    {
+      "record": ".printing-press-patches/phase18-remove-classification-provenance.json",
+      "rich_provenance": ".printing-press-patches/provenance/phase18-remove-classification-provenance.json",
+      "proof_copy": "proofs/durable-patch-provenance/phase18-remove-classification-provenance.json",
+      "rich_original_sha256": "34906e2b516388a9f1e9135af86dc22b314597c2893cef565ebc760eed24aa29",
+      "record_sha256": "3354470eb9774b79db2d23f4d06e9009ff1ddba11daa2646fd631d2b8a0df665",
+      "files": 3,
+      "call_sites": 1
+    }
+  ],
+  "machine_record_count": 8,
+  "patch_artifact_count": 7,
+  "additional_records": [
+    "native-website-and-notebook-contract.json",
+    "durable-actual-patch-artifacts.json"
+  ],
+  "rich_provenance_preserved": true,
+  "call_sites_checked_only_against_actual_source": true,
+  "go_source_changed": false,
+  "gate_bypassed": false
+}

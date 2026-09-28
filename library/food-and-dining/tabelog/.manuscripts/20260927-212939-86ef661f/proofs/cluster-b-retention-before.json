@@ -1,0 +1,31 @@
+{
+  "stage": "before",
+  "source_requests": 0,
+  "fixture_home": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-retention-fixture",
+  "init_command": [
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+    "lists",
+    "show",
+    "--agent",
+    "--home",
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-retention-fixture",
+    "--timeout",
+    "10s"
+  ],
+  "snapshots": 10000,
+  "saved_snapshots": 9000,
+  "unsaved_snapshots": 1000,
+  "saved_payload_bytes": 2376000,
+  "unsaved_payload_bytes": 264000,
+  "query_plan": [
+    "SCAN s",
+    "CORRELATED SCALAR SUBQUERY 1",
+    "SCAN m USING COVERING INDEX sqlite_autoindex_tabelog_memberships_1"
+  ],
+  "durations_ms": [
+    1155.6545412167907,
+    1172.7794161997736,
+    1177.6198339648545
+  ],
+  "median_ms": 1172.7794161997736
+}

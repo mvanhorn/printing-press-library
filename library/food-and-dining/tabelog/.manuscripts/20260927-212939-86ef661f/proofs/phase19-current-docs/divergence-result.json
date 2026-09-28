@@ -1,0 +1,8 @@
+{
+  "public_clone": "/Users/zjsng/printing-press/.publish-repo-wasm-client-f65fabd2",
+  "matching_cli_directories": [],
+  "outcome": "clone found but does not contain this CLI; current working tree is canonical",
+  "non_cli_name_matches": [
+    "/Users/zjsng/printing-press/.publish-repo-wasm-client-f65fabd2/library/travel/wanderlust-goat/internal/tabelog"
+  ]
+}

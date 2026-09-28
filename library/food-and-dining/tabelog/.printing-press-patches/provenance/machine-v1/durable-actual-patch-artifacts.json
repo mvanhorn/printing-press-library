@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "durable-actual-patch-artifacts",
+  "files": [
+    ".printing-press-patches/phase17-cluster-b-generator.patch",
+    ".printing-press-patches/phase18-list-help-product.patch",
+    ".printing-press-patches/phase19-polish-cleanup.patch",
+    ".printing-press-patches/phase17-cluster-b-product.patch",
+    ".printing-press-patches/phase18-remove-write-classification.patch",
+    ".printing-press-patches/phase19-mcp-hints-product.patch",
+    ".printing-press-patches/phase17-cluster-a-product.patch"
+  ]
+}

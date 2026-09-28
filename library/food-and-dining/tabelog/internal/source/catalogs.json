@@ -1,0 +1,923 @@
+{
+  "captured_at": "2026-09-27T13:45:31Z",
+  "prefectures": [
+    {
+      "name": "Tokyo",
+      "kind": "prefecture",
+      "selector": "tokyo",
+      "url": "https://tabelog.com/en/tokyo/",
+      "prefecture": "tokyo",
+      "exact_match": true
+    },
+    {
+      "name": "Osaka",
+      "kind": "prefecture",
+      "selector": "osaka",
+      "url": "https://tabelog.com/en/osaka/",
+      "prefecture": "osaka",
+      "exact_match": true
+    },
+    {
+      "name": "Kyoto",
+      "kind": "prefecture",
+      "selector": "kyoto",
+      "url": "https://tabelog.com/en/kyoto/",
+      "prefecture": "kyoto",
+      "exact_match": true
+    },
+    {
+      "name": "Fukuoka",
+      "kind": "prefecture",
+      "selector": "fukuoka",
+      "url": "https://tabelog.com/en/fukuoka/",
+      "prefecture": "fukuoka",
+      "exact_match": true
+    },
+    {
+      "name": "Hokkaido",
+      "kind": "prefecture",
+      "selector": "hokkaido",
+      "url": "https://tabelog.com/en/hokkaido/",
+      "prefecture": "hokkaido",
+      "exact_match": true
+    },
+    {
+      "name": "Aichi",
+      "kind": "prefecture",
+      "selector": "aichi",
+      "url": "https://tabelog.com/en/aichi/",
+      "prefecture": "aichi",
+      "exact_match": true
+    },
+    {
+      "name": "Aomori",
+      "kind": "prefecture",
+      "selector": "aomori",
+      "url": "https://tabelog.com/en/aomori/",
+      "prefecture": "aomori",
+      "exact_match": true
+    },
+    {
+      "name": "Iwate",
+      "kind": "prefecture",
+      "selector": "iwate",
+      "url": "https://tabelog.com/en/iwate/",
+      "prefecture": "iwate",
+      "exact_match": true
+    },
+    {
+      "name": "Miyagi",
+      "kind": "prefecture",
+      "selector": "miyagi",
+      "url": "https://tabelog.com/en/miyagi/",
+      "prefecture": "miyagi",
+      "exact_match": true
+    },
+    {
+      "name": "Akita",
+      "kind": "prefecture",
+      "selector": "akita",
+      "url": "https://tabelog.com/en/akita/",
+      "prefecture": "akita",
+      "exact_match": true
+    },
+    {
+      "name": "Yamagata",
+      "kind": "prefecture",
+      "selector": "yamagata",
+      "url": "https://tabelog.com/en/yamagata/",
+      "prefecture": "yamagata",
+      "exact_match": true
+    },
+    {
+      "name": "Fukushima",
+      "kind": "prefecture",
+      "selector": "fukushima",
+      "url": "https://tabelog.com/en/fukushima/",
+      "prefecture": "fukushima",
+      "exact_match": true
+    },
+    {
+      "name": "Ibaraki",
+      "kind": "prefecture",
+      "selector": "ibaraki",
+      "url": "https://tabelog.com/en/ibaraki/",
+      "prefecture": "ibaraki",
+      "exact_match": true
+    },
+    {
+      "name": "Tochigi",
+      "kind": "prefecture",
+      "selector": "tochigi",
+      "url": "https://tabelog.com/en/tochigi/",
+      "prefecture": "tochigi",
+      "exact_match": true
+    },
+    {
+      "name": "Gunma",
+      "kind": "prefecture",
+      "selector": "gunma",
+      "url": "https://tabelog.com/en/gunma/",
+      "prefecture": "gunma",
+      "exact_match": true
+    },
+    {
+      "name": "Saitama",
+      "kind": "prefecture",
+      "selector": "saitama",
+      "url": "https://tabelog.com/en/saitama/",
+      "prefecture": "saitama",
+      "exact_match": true
+    },
+    {
+      "name": "Chiba",
+      "kind": "prefecture",
+      "selector": "chiba",
+      "url": "https://tabelog.com/en/chiba/",
+      "prefecture": "chiba",
+      "exact_match": true
+    },
+    {
+      "name": "Kanagawa",
+      "kind": "prefecture",
+      "selector": "kanagawa",
+      "url": "https://tabelog.com/en/kanagawa/",
+      "prefecture": "kanagawa",
+      "exact_match": true
+    },
+    {
+      "name": "Niigata",
+      "kind": "prefecture",
+      "selector": "niigata",
+      "url": "https://tabelog.com/en/niigata/",
+      "prefecture": "niigata",
+      "exact_match": true
+    },
+    {
+      "name": "Toyama",
+      "kind": "prefecture",
+      "selector": "toyama",
+      "url": "https://tabelog.com/en/toyama/",
+      "prefecture": "toyama",
+      "exact_match": true
+    },
+    {
+      "name": "Ishikawa",
+      "kind": "prefecture",
+      "selector": "ishikawa",
+      "url": "https://tabelog.com/en/ishikawa/",
+      "prefecture": "ishikawa",
+      "exact_match": true
+    },
+    {
+      "name": "Fukui",
+      "kind": "prefecture",
+      "selector": "fukui",
+      "url": "https://tabelog.com/en/fukui/",
+      "prefecture": "fukui",
+      "exact_match": true
+    },
+    {
+      "name": "Yamanashi",
+      "kind": "prefecture",
+      "selector": "yamanashi",
+      "url": "https://tabelog.com/en/yamanashi/",
+      "prefecture": "yamanashi",
+      "exact_match": true
+    },
+    {
+      "name": "Nagano",
+      "kind": "prefecture",
+      "selector": "nagano",
+      "url": "https://tabelog.com/en/nagano/",
+      "prefecture": "nagano",
+      "exact_match": true
+    },
+    {
+      "name": "Gifu",
+      "kind": "prefecture",
+      "selector": "gifu",
+      "url": "https://tabelog.com/en/gifu/",
+      "prefecture": "gifu",
+      "exact_match": true
+    },
+    {
+      "name": "Shizuoka",
+      "kind": "prefecture",
+      "selector": "shizuoka",
+      "url": "https://tabelog.com/en/shizuoka/",
+      "prefecture": "shizuoka",
+      "exact_match": true
+    },
+    {
+      "name": "Mie",
+      "kind": "prefecture",
+      "selector": "mie",
+      "url": "https://tabelog.com/en/mie/",
+      "prefecture": "mie",
+      "exact_match": true
+    },
+    {
+      "name": "Shiga",
+      "kind": "prefecture",
+      "selector": "shiga",
+      "url": "https://tabelog.com/en/shiga/",
+      "prefecture": "shiga",
+      "exact_match": true
+    },
+    {
+      "name": "Hyogo",
+      "kind": "prefecture",
+      "selector": "hyogo",
+      "url": "https://tabelog.com/en/hyogo/",
+      "prefecture": "hyogo",
+      "exact_match": true
+    },
+    {
+      "name": "Nara",
+      "kind": "prefecture",
+      "selector": "nara",
+      "url": "https://tabelog.com/en/nara/",
+      "prefecture": "nara",
+      "exact_match": true
+    },
+    {
+      "name": "Wakayama",
+      "kind": "prefecture",
+      "selector": "wakayama",
+      "url": "https://tabelog.com/en/wakayama/",
+      "prefecture": "wakayama",
+      "exact_match": true
+    },
+    {
+      "name": "Tottori",
+      "kind": "prefecture",
+      "selector": "tottori",
+      "url": "https://tabelog.com/en/tottori/",
+      "prefecture": "tottori",
+      "exact_match": true
+    },
+    {
+      "name": "Shimane",
+      "kind": "prefecture",
+      "selector": "shimane",
+      "url": "https://tabelog.com/en/shimane/",
+      "prefecture": "shimane",
+      "exact_match": true
+    },
+    {
+      "name": "Okayama",
+      "kind": "prefecture",
+      "selector": "okayama",
+      "url": "https://tabelog.com/en/okayama/",
+      "prefecture": "okayama",
+      "exact_match": true
+    },
+    {
+      "name": "Hiroshima",
+      "kind": "prefecture",
+      "selector": "hiroshima",
+      "url": "https://tabelog.com/en/hiroshima/",
+      "prefecture": "hiroshima",
+      "exact_match": true
+    },
+    {
+      "name": "Yamaguchi",
+      "kind": "prefecture",
+      "selector": "yamaguchi",
+      "url": "https://tabelog.com/en/yamaguchi/",
+      "prefecture": "yamaguchi",
+      "exact_match": true
+    },
+    {
+      "name": "Tokushima",
+      "kind": "prefecture",
+      "selector": "tokushima",
+      "url": "https://tabelog.com/en/tokushima/",
+      "prefecture": "tokushima",
+      "exact_match": true
+    },
+    {
+      "name": "Kagawa",
+      "kind": "prefecture",
+      "selector": "kagawa",
+      "url": "https://tabelog.com/en/kagawa/",
+      "prefecture": "kagawa",
+      "exact_match": true
+    },
+    {
+      "name": "Ehime",
+      "kind": "prefecture",
+      "selector": "ehime",
+      "url": "https://tabelog.com/en/ehime/",
+      "prefecture": "ehime",
+      "exact_match": true
+    },
+    {
+      "name": "Kochi",
+      "kind": "prefecture",
+      "selector": "kochi",
+      "url": "https://tabelog.com/en/kochi/",
+      "prefecture": "kochi",
+      "exact_match": true
+    },
+    {
+      "name": "Saga",
+      "kind": "prefecture",
+      "selector": "saga",
+      "url": "https://tabelog.com/en/saga/",
+      "prefecture": "saga",
+      "exact_match": true
+    },
+    {
+      "name": "Nagasaki",
+      "kind": "prefecture",
+      "selector": "nagasaki",
+      "url": "https://tabelog.com/en/nagasaki/",
+      "prefecture": "nagasaki",
+      "exact_match": true
+    },
+    {
+      "name": "Kumamoto",
+      "kind": "prefecture",
+      "selector": "kumamoto",
+      "url": "https://tabelog.com/en/kumamoto/",
+      "prefecture": "kumamoto",
+      "exact_match": true
+    },
+    {
+      "name": "Oita",
+      "kind": "prefecture",
+      "selector": "oita",
+      "url": "https://tabelog.com/en/oita/",
+      "prefecture": "oita",
+      "exact_match": true
+    },
+    {
+      "name": "Miyazaki",
+      "kind": "prefecture",
+      "selector": "miyazaki",
+      "url": "https://tabelog.com/en/miyazaki/",
+      "prefecture": "miyazaki",
+      "exact_match": true
+    },
+    {
+      "name": "Kagoshima",
+      "kind": "prefecture",
+      "selector": "kagoshima",
+      "url": "https://tabelog.com/en/kagoshima/",
+      "prefecture": "kagoshima",
+      "exact_match": true
+    },
+    {
+      "name": "Okinawa",
+      "kind": "prefecture",
+      "selector": "okinawa",
+      "url": "https://tabelog.com/en/okinawa/",
+      "prefecture": "okinawa",
+      "exact_match": true
+    }
+  ],
+  "cuisines": [
+    {
+      "name": "Washoku (Japanese cuisine)",
+      "kind": "cuisine",
+      "selector": "washoku",
+      "genre": "washoku",
+      "url": "https://tabelog.com/en/rstLst/washoku/",
+      "exact_match": true
+    },
+    {
+      "name": "Sushi",
+      "kind": "cuisine",
+      "selector": "sushi",
+      "genre": "sushi",
+      "url": "https://tabelog.com/en/rstLst/sushi/",
+      "exact_match": true
+    },
+    {
+      "name": "Yakiniku (Japanese BBQ)",
+      "kind": "cuisine",
+      "selector": "yakiniku",
+      "genre": "yakiniku",
+      "url": "https://tabelog.com/en/rstLst/yakiniku/",
+      "exact_match": true
+    },
+    {
+      "name": "Izakaya (Japanese style tavern)",
+      "kind": "cuisine",
+      "selector": "izakaya",
+      "genre": "izakaya",
+      "url": "https://tabelog.com/en/rstLst/izakaya/",
+      "exact_match": true
+    },
+    {
+      "name": "Ramen, Tsukemen (Dipping noodles)",
+      "kind": "cuisine",
+      "selector": "ramen",
+      "genre": "ramen",
+      "url": "https://tabelog.com/en/rstLst/ramen/",
+      "exact_match": true
+    },
+    {
+      "name": "Cafe, Kissa (Japanese coffee shop)",
+      "kind": "cuisine",
+      "selector": "cafe",
+      "genre": "cafe",
+      "url": "https://tabelog.com/en/rstLst/cafe/",
+      "exact_match": true
+    },
+    {
+      "name": "Bar",
+      "kind": "cuisine",
+      "selector": "bar",
+      "genre": "bar",
+      "url": "https://tabelog.com/en/rstLst/bar/",
+      "exact_match": true
+    },
+    {
+      "name": "Bistro",
+      "kind": "cuisine",
+      "selector": "bistro",
+      "genre": "bistro",
+      "url": "https://tabelog.com/en/rstLst/bistro/",
+      "exact_match": true
+    },
+    {
+      "name": "Cake",
+      "kind": "cuisine",
+      "selector": "cake",
+      "genre": "cake",
+      "url": "https://tabelog.com/en/rstLst/cake/",
+      "exact_match": true
+    },
+    {
+      "name": "Chinese",
+      "kind": "cuisine",
+      "selector": "chinese",
+      "genre": "chinese",
+      "url": "https://tabelog.com/en/rstLst/chinese/",
+      "exact_match": true
+    },
+    {
+      "name": "Curry",
+      "kind": "cuisine",
+      "selector": "curry",
+      "genre": "curry",
+      "url": "https://tabelog.com/en/rstLst/curry/",
+      "exact_match": true
+    },
+    {
+      "name": "Dumpling",
+      "kind": "cuisine",
+      "selector": "gyouza",
+      "genre": "gyouza",
+      "url": "https://tabelog.com/en/rstLst/gyouza/",
+      "exact_match": true
+    },
+    {
+      "name": "Hamburger",
+      "kind": "cuisine",
+      "selector": "hamburger",
+      "genre": "hamburger",
+      "url": "https://tabelog.com/en/rstLst/hamburger/",
+      "exact_match": true
+    },
+    {
+      "name": "Hamburger steak",
+      "kind": "cuisine",
+      "selector": "hamburgersteak",
+      "genre": "hamburgersteak",
+      "url": "https://tabelog.com/en/rstLst/hamburgersteak/",
+      "exact_match": true
+    },
+    {
+      "name": "Japanese Cuisine",
+      "kind": "cuisine",
+      "selector": "japanese",
+      "genre": "japanese",
+      "url": "https://tabelog.com/en/rstLst/japanese/",
+      "exact_match": true
+    },
+    {
+      "name": "Kushi-age (Deep-fried skewers)",
+      "kind": "cuisine",
+      "selector": "kushiage",
+      "genre": "kushiage",
+      "url": "https://tabelog.com/en/rstLst/kushiage/",
+      "exact_match": true
+    },
+    {
+      "name": "Monjyayaki",
+      "kind": "cuisine",
+      "selector": "monjya",
+      "genre": "monjya",
+      "url": "https://tabelog.com/en/rstLst/monjya/",
+      "exact_match": true
+    },
+    {
+      "name": "Motsu-nabe",
+      "kind": "cuisine",
+      "selector": "motsu",
+      "genre": "motsu",
+      "url": "https://tabelog.com/en/rstLst/motsu/",
+      "exact_match": true
+    },
+    {
+      "name": "Nabe (Japanese hot pot)",
+      "kind": "cuisine",
+      "selector": "nabe",
+      "genre": "nabe",
+      "url": "https://tabelog.com/en/rstLst/nabe/",
+      "exact_match": true
+    },
+    {
+      "name": "Okonomiyaki (Japanese savory pancake)",
+      "kind": "cuisine",
+      "selector": "okonomiyaki",
+      "genre": "okonomiyaki",
+      "url": "https://tabelog.com/en/rstLst/okonomiyaki/",
+      "exact_match": true
+    },
+    {
+      "name": "Bread, Sandwich",
+      "kind": "cuisine",
+      "selector": "pan",
+      "genre": "pan",
+      "url": "https://tabelog.com/en/rstLst/pan/",
+      "exact_match": true
+    },
+    {
+      "name": "Pasta",
+      "kind": "cuisine",
+      "selector": "pasta",
+      "genre": "pasta",
+      "url": "https://tabelog.com/en/rstLst/pasta/",
+      "exact_match": true
+    },
+    {
+      "name": "Restaurants",
+      "kind": "cuisine",
+      "selector": "RC",
+      "genre": "RC",
+      "url": "https://tabelog.com/en/rstLst/RC/",
+      "exact_match": true
+    },
+    {
+      "name": "Kaiten sushi (Conveyor belt sushi)",
+      "kind": "cuisine",
+      "selector": "RC010202",
+      "genre": "RC010202",
+      "url": "https://tabelog.com/en/rstLst/RC010202/",
+      "exact_match": true
+    },
+    {
+      "name": "Sukiyaki (Japanese sweet soy hotpot)",
+      "kind": "cuisine",
+      "selector": "RC0107",
+      "genre": "RC0107",
+      "url": "https://tabelog.com/en/rstLst/RC0107/",
+      "exact_match": true
+    },
+    {
+      "name": "Crab",
+      "kind": "cuisine",
+      "selector": "RC011213",
+      "genre": "RC011213",
+      "url": "https://tabelog.com/en/rstLst/RC011213/",
+      "exact_match": true
+    },
+    {
+      "name": "Beef cutlet",
+      "kind": "cuisine",
+      "selector": "RC012502",
+      "genre": "RC012502",
+      "url": "https://tabelog.com/en/rstLst/RC012502/",
+      "exact_match": true
+    },
+    {
+      "name": "Gyutan (Beef tongue)",
+      "kind": "cuisine",
+      "selector": "RC019907",
+      "genre": "RC019907",
+      "url": "https://tabelog.com/en/rstLst/RC019907/",
+      "exact_match": true
+    },
+    {
+      "name": "Teppanyaki",
+      "kind": "cuisine",
+      "selector": "RC020103",
+      "genre": "RC020103",
+      "url": "https://tabelog.com/en/rstLst/RC020103/",
+      "exact_match": true
+    },
+    {
+      "name": "Omurice (Omelette rice)",
+      "kind": "cuisine",
+      "selector": "RC020912",
+      "genre": "RC020912",
+      "url": "https://tabelog.com/en/rstLst/RC020912/",
+      "exact_match": true
+    },
+    {
+      "name": "Ryokan (Traditional Japanese inn)",
+      "kind": "cuisine",
+      "selector": "ryokan",
+      "genre": "ryokan",
+      "url": "https://tabelog.com/en/rstLst/ryokan/",
+      "exact_match": true
+    },
+    {
+      "name": "Crepe, Galette",
+      "kind": "cuisine",
+      "selector": "SC0219",
+      "genre": "SC0219",
+      "url": "https://tabelog.com/en/rstLst/SC0219/",
+      "exact_match": true
+    },
+    {
+      "name": "Pancake",
+      "kind": "cuisine",
+      "selector": "SC1005",
+      "genre": "SC1005",
+      "url": "https://tabelog.com/en/rstLst/SC1005/",
+      "exact_match": true
+    },
+    {
+      "name": "Seafood",
+      "kind": "cuisine",
+      "selector": "seafood",
+      "genre": "seafood",
+      "url": "https://tabelog.com/en/rstLst/seafood/",
+      "exact_match": true
+    },
+    {
+      "name": "Soba (Buckwheat noodles)",
+      "kind": "cuisine",
+      "selector": "soba",
+      "genre": "soba",
+      "url": "https://tabelog.com/en/rstLst/soba/",
+      "exact_match": true
+    },
+    {
+      "name": "Steak",
+      "kind": "cuisine",
+      "selector": "steak",
+      "genre": "steak",
+      "url": "https://tabelog.com/en/rstLst/steak/",
+      "exact_match": true
+    },
+    {
+      "name": "Sweets",
+      "kind": "cuisine",
+      "selector": "sweets",
+      "genre": "sweets",
+      "url": "https://tabelog.com/en/rstLst/sweets/",
+      "exact_match": true
+    },
+    {
+      "name": "Shabu shabu (Japanese hotpot)",
+      "kind": "cuisine",
+      "selector": "syabusyabu",
+      "genre": "syabusyabu",
+      "url": "https://tabelog.com/en/rstLst/syabusyabu/",
+      "exact_match": true
+    },
+    {
+      "name": "Cafeteria",
+      "kind": "cuisine",
+      "selector": "teishoku",
+      "genre": "teishoku",
+      "url": "https://tabelog.com/en/rstLst/teishoku/",
+      "exact_match": true
+    },
+    {
+      "name": "Tempura",
+      "kind": "cuisine",
+      "selector": "tempura",
+      "genre": "tempura",
+      "url": "https://tabelog.com/en/rstLst/tempura/",
+      "exact_match": true
+    },
+    {
+      "name": "Tonkatsu (Pork cutlet)",
+      "kind": "cuisine",
+      "selector": "tonkatsu",
+      "genre": "tonkatsu",
+      "url": "https://tabelog.com/en/rstLst/tonkatsu/",
+      "exact_match": true
+    },
+    {
+      "name": "Udon (Wheat noodles)",
+      "kind": "cuisine",
+      "selector": "udon",
+      "genre": "udon",
+      "url": "https://tabelog.com/en/rstLst/udon/",
+      "exact_match": true
+    },
+    {
+      "name": "Unagi (Eel)",
+      "kind": "cuisine",
+      "selector": "unagi",
+      "genre": "unagi",
+      "url": "https://tabelog.com/en/rstLst/unagi/",
+      "exact_match": true
+    },
+    {
+      "name": "Buffet",
+      "kind": "cuisine",
+      "selector": "viking",
+      "genre": "viking",
+      "url": "https://tabelog.com/en/rstLst/viking/",
+      "exact_match": true
+    },
+    {
+      "name": "Yakitori (Grilled chicken skewers)",
+      "kind": "cuisine",
+      "selector": "yakitori",
+      "genre": "yakitori",
+      "url": "https://tabelog.com/en/rstLst/yakitori/",
+      "exact_match": true
+    },
+    {
+      "name": "Bar",
+      "kind": "cuisine",
+      "selector": "BC01",
+      "genre": "BC01",
+      "url": "https://tabelog.com/en/rstLst/BC01/",
+      "exact_match": true
+    }
+  ],
+  "areas": [
+    {
+      "name": "Ginza",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1301/A130101/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1301/A130101/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1301",
+      "area2": "A130101",
+      "exact_match": true
+    },
+    {
+      "name": "Shinjuku",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1304/A130401/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1304/A130401/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1304",
+      "area2": "A130401",
+      "exact_match": true
+    },
+    {
+      "name": "Shibuya",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1303/A130301/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1303/A130301/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1303",
+      "area2": "A130301",
+      "exact_match": true
+    },
+    {
+      "name": "Harajuku",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1306/A130601/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1306/A130601/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1306",
+      "area2": "A130601",
+      "exact_match": true
+    },
+    {
+      "name": "Ebisu",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1303/A130302/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1303/A130302/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1303",
+      "area2": "A130302",
+      "exact_match": true
+    },
+    {
+      "name": "Roppongi",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1307/A130701/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1307/A130701/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1307",
+      "area2": "A130701",
+      "exact_match": true
+    },
+    {
+      "name": "Ueno",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1311/A131101/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1311/A131101/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1311",
+      "area2": "A131101",
+      "exact_match": true
+    },
+    {
+      "name": "Asakusa",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1311/A131102/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1311/A131102/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1311",
+      "area2": "A131102",
+      "exact_match": true
+    },
+    {
+      "name": "Akihabara",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1310/A131001/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1310/A131001/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1310",
+      "area2": "A131001",
+      "exact_match": true
+    },
+    {
+      "name": "Ikebukuro",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/tokyo/A1305/A130501/rstLst/",
+      "url": "https://tabelog.com/en/tokyo/A1305/A130501/rstLst/",
+      "prefecture": "tokyo",
+      "area1": "A1305",
+      "area2": "A130501",
+      "exact_match": true
+    },
+    {
+      "name": "Osaka",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/osaka/A2701/rstLst/",
+      "url": "https://tabelog.com/en/osaka/A2701/rstLst/",
+      "prefecture": "osaka",
+      "area1": "A2701",
+      "area2": "",
+      "exact_match": true
+    },
+    {
+      "name": "Kyoto",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/kyoto/A2601/rstLst/",
+      "url": "https://tabelog.com/en/kyoto/A2601/rstLst/",
+      "prefecture": "kyoto",
+      "area1": "A2601",
+      "area2": "",
+      "exact_match": true
+    },
+    {
+      "name": "Gion",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/kyoto/A2601/A260301/rstLst/",
+      "url": "https://tabelog.com/en/kyoto/A2601/A260301/rstLst/",
+      "prefecture": "kyoto",
+      "area1": "A2601",
+      "area2": "A260301",
+      "exact_match": true
+    },
+    {
+      "name": "Sapporo",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/hokkaido/A0101/rstLst/",
+      "url": "https://tabelog.com/en/hokkaido/A0101/rstLst/",
+      "prefecture": "hokkaido",
+      "area1": "A0101",
+      "area2": "",
+      "exact_match": true
+    },
+    {
+      "name": "Nagoya",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/aichi/A2301/rstLst/",
+      "url": "https://tabelog.com/en/aichi/A2301/rstLst/",
+      "prefecture": "aichi",
+      "area1": "A2301",
+      "area2": "",
+      "exact_match": true
+    },
+    {
+      "name": "Yokohama",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/kanagawa/A1401/rstLst/",
+      "url": "https://tabelog.com/en/kanagawa/A1401/rstLst/",
+      "prefecture": "kanagawa",
+      "area1": "A1401",
+      "area2": "",
+      "exact_match": true
+    },
+    {
+      "name": "Hiroshima",
+      "kind": "area",
+      "selector": "https://tabelog.com/en/hiroshima/A3401/rstLst/",
+      "url": "https://tabelog.com/en/hiroshima/A3401/rstLst/",
+      "prefecture": "hiroshima",
+      "area1": "A3401",
+      "area2": "",
+      "exact_match": true
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+---POLISH-RESULT---
+scorecard_before: 82
+scorecard_after: 82
+verify_before: 93.75
+verify_after: 93.75
+dogfood_before: PASS
+dogfood_after: PASS
+dogfood_live_matrix_before: exercised
+dogfood_live_matrix_after: exercised
+govet_before: 0
+govet_after: 0
+gosec_before: 4
+gosec_after: 0
+tools_audit_before: 1 pending
+tools_audit_after: 0 pending
+publish_validate_before: skipped (mid-pipeline)
+publish_validate_after: skipped (mid-pipeline)
+fixes_applied:
+- Explicit best-effort closes preserve existing read/initialization failures; successful persistence failures remain propagated.
+- Added a narrow fixed-private-cache-path G304 rationale and formatted the alternatives delegate.
+- Corrected refresh and recipe MCP hints with preserved handlers, schemas, local-write classification and tenant ownership.
+- Restored current compact authored docs after dogfood sync; saved durable cleanup and metadata patches.
+skipped_findings:
+- Raw dogfood WARNs are accepted framework noise: unused compatibility helpers and hidden generic raw-sync population advice.
+- Synthetic noncanonical show probe remains rejected; genuine canonical dry-run succeeds without I/O.
+- Thin Short belongs to an unregistered platform leaf; actual runtime catalog omits it.
+- 21 generated/reserved scanner findings are individually accepted with constrained behavior evidence; no universal auth-client safety claim.
+- Score-only README/insight/dead-code suggestions do not justify expanding approved scope.
+- Global Cobra flag-parser errors may remain plain text, as accurately documented in README; domain/partial-refresh JSON behavior is unchanged.
+remaining_issues: []
+ship_recommendation: ship
+further_polish_recommended: no
+further_polish_reasoning: All scoped gates and actual mutation acceptance pass; another polish invocation would repeat accepted framework tradeoffs.
+---END-POLISH-RESULT---

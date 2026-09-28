@@ -1,0 +1,93 @@
+{
+  "kind": "run-local upstream checker bugfix",
+  "upstream_module": "github.com/mvanhorn/cli-printing-press/v4",
+  "upstream_version": "v4.32.5",
+  "upstream_git_hash": "7298ce9b1198c6689ae9a850e75b2ca2043c044a",
+  "upstream_module_ziphash": "h1:BLLgr35mTGazGs/GYHiqAMCGR35RE7mKGB1lGgna/d8=",
+  "source_path": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install",
+  "binary_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+  "binary_sha256": "2461433c103dfb590604bd3f41a2d2b40a6c2796e65b616c3981acbba395b9cb",
+  "version_reports": "4.32.5; run-local patch identified by this provenance",
+  "patch_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/local-install-checker.patch",
+  "patch_sha256": "32c5f401eebb8d72f477156aea2a72468ca1109e0b48c2549bedc81fdd172552",
+  "changed_files": [
+    {
+      "file": "internal/cli/verify_skill.go",
+      "baseline_sha256": "9cc2d4892326ad39da9d8eff01976698c8fdd7de178ad56946710424bf0fe2d3",
+      "patched_sha256": "a495a980c8e4bc4b7d69e1ce4b602fa0368cc943011da0453e37bc246559899f"
+    },
+    {
+      "file": "internal/cli/verify_skill_local_test.go",
+      "baseline_sha256": null,
+      "patched_sha256": "94b97828eabfd9f02019db97c2df7e87d0a858f49ce2f5f88735fdb286b97f11"
+    },
+    {
+      "file": "skills/printing-press/SKILL.md",
+      "baseline_sha256": "b874320c0a09c102360d090357a5d1795da0175efa096398d97b9f14b464ef66",
+      "patched_sha256": "88315abf85fd930e9aa995d126a4430c440272d73481f8a37e95afea0885d129"
+    },
+    {
+      "file": "skills/printing-press/phases/12-shipcheck.md",
+      "baseline_sha256": "9bbd845a4261ff115c393e213e35b2836c0e469f0380a8eaf744beb73700e592",
+      "patched_sha256": "07fbdcb90c3713b8e307e0b98244bf206ad9f4aacba255d2ec6eac0a3bce225d"
+    }
+  ],
+  "guard": "Only module exactly <api_name>-pp-cli accepts the exact checkout-install block as an alternative to the existing generated public block. All other modules retain the public block requirement. Missing/malformed blocks and malformed/unreadable go.mod fail.",
+  "focused_tests": {
+    "status": "pass",
+    "new_behavior_cases": 20,
+    "existing_canonical_subprocess_tests": 6,
+    "log": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-focused-tests.log"
+  },
+  "before_after": {
+    "same_truthful_local_fixture": {
+      "installed_upstream_exit": 1,
+      "patched_exit": 0
+    },
+    "qualified_module_local_block_exit": 1,
+    "malformed_module_exit": 1,
+    "fixtures_current_path": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/proofs",
+    "historical_invocation_paths_preserved_in_outputs": true
+  },
+  "full_suite": {
+    "status": "attempted; failed under environment limitations",
+    "command": "env GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local GOFLAGS='-mod=readonly -p=2' GOCACHE=<then-run-local-cache> go test ./...",
+    "exit_code": 1,
+    "limitations": [
+      "Missing chromedp/cdproto/keychain dependencies with module downloads disabled.",
+      "Sandbox denies httptest localhost listeners.",
+      "Cached Go module archive omits nested-module test fixture directories used by regenmerge tests."
+    ],
+    "failed_packages": [
+      "github.com/mvanhorn/cli-printing-press/v4/cmd/press-auth",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/pressauth",
+      "github.com/mvanhorn/cli-printing-press/v4/cmd/manifest-gen",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/cli",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/crowdsniff",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/docspec",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/generator",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/openapi",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/pipeline",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/pipeline/mcpsync",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/pipeline/regenmerge",
+      "github.com/mvanhorn/cli-printing-press/v4/internal/reachability"
+    ],
+    "full_log": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/proofs/local-install-upstream-full-tests.log",
+    "broad_retry": false
+  },
+  "scope": {
+    "product_source_or_receipts_edited": false,
+    "public_writes": false,
+    "global_installed_binary_unchanged": true,
+    "cached_press_source_hashes_unchanged": true,
+    "global_cache_metadata_note": "Go broad-suite resolution created empty download lock metadata for missing modules despite GOPROXY=off. No cached module source was modified or installed globally; lock files were retained because there was no pre-run metadata baseline.",
+    "source_and_fixtures_outside_research_run": true
+  },
+  "final_checks": {
+    "patch_applies_cleanly_to_cached_upstream": true,
+    "relocated_binary_passes_truthful_local_fixture": true,
+    "source_or_fixture_directories_inside_research_run": []
+  },
+  "historical_binary_artifact": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/artifacts/cli-printing-press-install-checker",
+  "current_binary_superseded_by": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-toolchain-proof.json"
+}

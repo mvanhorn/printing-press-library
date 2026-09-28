@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "pass",
+  "promoted_dir": "/Users/zjsng/printing-press/library/tabelog",
+  "archive_dir": "/Users/zjsng/printing-press/manuscripts/tabelog/20260927-212939-86ef661f",
+  "canonical_cli": "/Users/zjsng/printing-press/library/tabelog/build/stage/bin/tabelog-pp-cli",
+  "cli_sha256": "5d14bc325f315491147f6c702274f76f2837629d57066b35132de20006b196b7",
+  "mcp_sha256": "708e2c61ec2c5d0762979b6606120e62c31fb66ec4ef6f5a7665c911b72e2832",
+  "bundle_sha256": "68e281404262d81e92dad2d766fb3987927dcaea3747eefc66044f8b19f9c4b0",
+  "runtime_version_output": "tabelog-pp-cli 0.0.0-dev",
+  "visible_list_leaves": [
+    "add",
+    "alternatives",
+    "audit",
+    "compare",
+    "note",
+    "refresh",
+    "remove",
+    "show"
+  ],
+  "registered_mcp_tools": 14,
+  "mcp_workflow_hints_verified": true,
+  "source_files_match_working": 147,
+  "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+  "marker_status": "pass",
+  "marker_level": "full",
+  "marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "runtime_test_origins": 0,
+  "disposable_artifacts_excluded": true,
+  "library_size": {
+    "files": 759,
+    "bytes": 94890094
+  },
+  "archive_size": {
+    "files": 542,
+    "bytes": 8677278
+  },
+  "receipts_changed": false,
+  "published_pr": false,
+  "inventory_scope": "final archive and embedded proof synchronization",
+  "archive_marker_equals_run": true,
+  "embedded_marker_equals_run": true
+}

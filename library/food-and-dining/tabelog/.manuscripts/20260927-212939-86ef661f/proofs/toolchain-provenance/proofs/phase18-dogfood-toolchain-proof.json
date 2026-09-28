@@ -1,0 +1,154 @@
+{
+  "kind": "run-local durable full-live dogfood visibility, local fixture, plan envelope and boolean-annotation repairs",
+  "upstream_version": "v4.32.5",
+  "upstream_git_hash": "7298ce9b1198c6689ae9a850e75b2ca2043c044a",
+  "source_path": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install",
+  "binary_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+  "binary_sha256": "032e255a51aca7917c0cdc6d214f3523a962009aee6fc6d2abba7d8b73b9128a",
+  "previous_binary_sha256": "27928d2154f911fbf34eeea0ecd8a9fd509c33f253ab2f868a08828a2fb70f66",
+  "patches": {
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/dogfood-public-fixture.patch": "814fb9f796769397e9551a6facaa2f2271526400c7ba454ebfe5e73ba7db2bb4",
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase18-agent-context-visibility.patch": "38d7740e4b82d4adcf3a5c4bb8add0e3070b3d08d84861d84a1783037dc4aa8b",
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/phase18-cumulative-toolchain.patch": "0e746e0f80ca6a1283fe7a2f63ce34bd1b3b7193650276c3df4da7d24fe9b798"
+  },
+  "changed_source_files": {
+    "internal/cli/dogfood.go": "285c12124739f23d2ef36ffbc874e1d694ec9fe880c81f1bb78a58835d21a48f",
+    "internal/cli/verify_skill.go": "a495a980c8e4bc4b7d69e1ce4b602fa0368cc943011da0453e37bc246559899f",
+    "internal/cli/verify_skill_local_test.go": "94b97828eabfd9f02019db97c2df7e87d0a858f49ce2f5f88735fdb286b97f11",
+    "internal/generator/agent_context_visibility_test.go": "0ecfcd56f5081bf4918328007e3493ef87b8ee4ceed7ce176633325d8d95cc30",
+    "internal/generator/filter_fields_envelope_test.go": "bbbabe52d6165e5bb54bfd0c7c45dff2abf047124792e05c4f742f798cfa9be8",
+    "internal/generator/recipe_positional_boundary_test.go": "a69143aab9b12e04764fe4805cd79cd19e284c30a8dd4984fc9b924061ed1221",
+    "internal/generator/response_delivery_security_test.go": "b2e8fbbbf932e35d9941da3d07d6da16c3fc4300fac7f81c063ac5094913b71b",
+    "internal/generator/templates/agent_context.go.tmpl": "8df9cbe6057a4a16b5d9acd96100f5de4b210e16edd89e9c7ca0f192c8351aa8",
+    "internal/generator/templates/client.go.tmpl": "b8d6603a4ef5a98be91f2a3dc518f1dc0e6fa5cf926a583f02a7a5939bbe079c",
+    "internal/generator/templates/deliver.go.tmpl": "eaedef2a8079bcb27dbe4ded934d51e34eb93aeb488325749da0f1303992cef1",
+    "internal/generator/templates/helpers.go.tmpl": "591dc7d02c3183b5709f2130e30a04958caef6768ce9b3a30004b23d53324c37",
+    "internal/generator/templates/mcp_intents.go.tmpl": "843675a09e381bfe3f21352b029b7e388527379027b1ae178d55b3e80cf2d67f",
+    "internal/generator/templates/mcp_recipe_intents_test.go.tmpl": "6018b4a9178dda22fafed214eb4f6459ef6d6a6d1d105e289af34dd5186217a0",
+    "internal/pipeline/dogfood.go": "676cec52fd78336616eed2fb9910ba42744b448c1c452b4a6709589035793ca8",
+    "internal/pipeline/live_check.go": "f56cbd142d4fdeca8ca03594bf14e43a3dd557b8131dddcb1c66a4341271aba8",
+    "internal/pipeline/live_check_happy_args_test.go": "32cec3d066e0eaf8780be62f2788f3dcaaca0b62d561ca0ff7747e9278b86a78",
+    "internal/pipeline/live_dogfood.go": "a384c235e10fc3483d565e3e3b177f2eaeff71ff26a0d42fd18f99cf7bcee998",
+    "internal/pipeline/live_dogfood_json_reuse_test.go": "9dc5a061a7ca89e0dec56e15790f5de5fe043320ab4b70e0886a07a7c37c6302",
+    "internal/pipeline/live_dogfood_public_fixture_test.go": "ab9f2e2a8817dd4240712a585da103cc02a59d20c3ecee6f1ffe1499bf2cf6eb",
+    "internal/pipeline/live_dogfood_test.go": "cfd5cacc9c81cc1dd552d1c09b69542a4ff4724df063e7e1c0a6f24683f22ef1",
+    "skills/printing-press/SKILL.md": "88315abf85fd930e9aa995d126a4430c440272d73481f8a37e95afea0885d129",
+    "skills/printing-press/phases/12-shipcheck.md": "07fbdcb90c3713b8e307e0b98244bf206ad9f4aacba255d2ec6eac0a3bce225d"
+  },
+  "before_logs": [
+    "phase18-runner-before-tests.log",
+    "phase18-envelope-before-tests.log",
+    "phase18-boolean-before-tests.log"
+  ],
+  "after_logs": [
+    "phase18-runner-focused-tests.log",
+    "phase18-false-json-focused-tests.log",
+    "phase18-visibility-generated-tests.log"
+  ],
+  "contracts": [
+    "hidden/self and hidden/ancestor nodes are explicitly skipped, never passed; they cannot pre-sync or resolve companions",
+    "overview groups receive help only; actual runnable parents retain execution coverage; full agent discovery remains present",
+    "actual local writes require allow-destructive, local-write annotation, explicit absolute home in prepared fixture storage and realpath confinement",
+    "remote mutation dry-run policy remains; separate explicit dry-run probes remain",
+    "collection plans require explicit dry-run metadata and every nonempty item to have a nonempty action/operation plus boolean true plan marker",
+    "known boolean annotation flags retain --flag=value; true/false text on string flags stays a string argument",
+    "json=false does not request JSON or authorize reuse; exact successful equal-args capture remains the only reuse condition"
+  ],
+  "canonical_acceptance": {
+    "report": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase18-dogfood-results.json",
+    "marker": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase5-acceptance.json",
+    "marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+    "marker_edited_by_agent": false,
+    "mandatory_passed": 60,
+    "mandatory_failed": 0,
+    "skipped": 127,
+    "blocked_fixture": 0,
+    "skip_reasons": {
+      "command hidden from public help": 60,
+      "ancestor command hidden from public help": 60,
+      "no positional argument": 2,
+      "mutating command dry-run only": 1,
+      "mutating command; error_path would call live API without --dry-run": 4
+    },
+    "actual_mutator_args": {
+      "lists add": [
+        "lists",
+        "add",
+        "tokyo-bars",
+        "13005012",
+        "--note",
+        "Ginza bar fixture",
+        "--agent",
+        "--home",
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home"
+      ],
+      "lists note": [
+        "lists",
+        "note",
+        "fixture-note",
+        "13005012",
+        "--note",
+        "Updated fixture note",
+        "--agent",
+        "--home",
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home"
+      ],
+      "lists remove": [
+        "lists",
+        "remove",
+        "fixture-remove",
+        "13005012",
+        "--agent",
+        "--json=true",
+        "--home",
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home"
+      ],
+      "lists refresh": [
+        "lists",
+        "refresh",
+        "tokyo-bars",
+        "13005012",
+        "--agent",
+        "--home",
+        "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home"
+      ]
+    },
+    "fixture_effects": {
+      "add": "previously absent membership inserted with fixture note",
+      "note": "previous fixture note changed",
+      "refresh": "last valid detail snapshot timestamp advanced",
+      "remove": "prepared dedicated membership consumed; source snapshot retained"
+    },
+    "freeze_go_files_matched": 144,
+    "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+    "current_normalized_fingerprint_matches_marker": true,
+    "stage_binary_sha256": "5d14bc325f315491147f6c702274f76f2837629d57066b35132de20006b196b7",
+    "root_binary_sha256": "743183fa161dfa91231f9f1d2b9c3c393358f1c5ae8927ee6b497cb9f1de9b98",
+    "MCP_binary_sha256": "5ec093ef0e01c051ad8aba995620ec419f1d57918b33f78db4653438a36ac721",
+    "acceptance_report": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase18-acceptance-report.md",
+    "acceptance_report_sha256": "af29d6d31ae82148aa23670114ce980283c61d623713e3e6f07166152cf01767",
+    "full_matrix_sha256": "2b74685a8479e6ea79b0539106cb8490771f89683890daacdd774929881a6d61",
+    "normalized_source_files_matched": 147,
+    "mutation_state_before": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase18-mutator-state-before.json",
+    "mutation_state_after": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase18-mutator-state-after.json"
+  },
+  "scope": {
+    "public_writes": false,
+    "account_or_site_mutations": false,
+    "original_global_Press_module_source_changed": false,
+    "global_installed_binary_sha256": "c3d00939bb06d3fd706d2e49d237f895aa7add6b21f0fe496d46c0b956796f2c",
+    "cache": "This agent used isolated module/build caches; no broad unrelated suite or golden/publication-ready claim. Prior global-cache audit limitation is preserved."
+  },
+  "traffic": {
+    "successful_native_GETs": 24,
+    "initial_hidden_generated_GET_attempts": 5,
+    "actual_doctor_GET_attempts": 1,
+    "total_bounded_GET_attempts": 30,
+    "additional_state_verification_HTTP_requests": 0
+  },
+  "patch_application_checks": {
+    "phase18_patch_against_archived_phase17_source": "PASS",
+    "printed_visibility_patch_against_archived_before": "PASS",
+    "cumulative_patch_against_v4.32.5_source": "PASS"
+  }
+}

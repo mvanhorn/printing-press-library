@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "phase18-remove-classification",
+  "files": [
+    "internal/cli/tabelog_lists.go",
+    "internal/cli/tabelog_list_classification_test.go",
+    "internal/mcp/tabelog_list_hints_test.go"
+  ],
+  "call_sites": [
+    "newTabelogListRemoveCmd(flags)"
+  ]
+}

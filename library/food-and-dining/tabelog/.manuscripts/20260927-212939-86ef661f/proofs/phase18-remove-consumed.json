@@ -1,0 +1,19 @@
+{
+  "items": [],
+  "meta": {
+    "source": "local",
+    "age_seconds": 0,
+    "stale": false,
+    "criteria": {
+      "list": "fixture-remove",
+      "operation": "show"
+    },
+    "returned": 0,
+    "scanned": 0,
+    "pages": 0,
+    "has_more": false,
+    "requests": 0,
+    "bytes": 0,
+    "coverage": "saved_list"
+  }
+}

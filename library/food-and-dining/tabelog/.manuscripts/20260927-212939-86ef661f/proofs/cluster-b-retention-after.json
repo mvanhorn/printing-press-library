@@ -1,0 +1,32 @@
+{
+  "stage": "after",
+  "source_requests": 0,
+  "fixture_home": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-retention-fixture",
+  "init_command": [
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-verification-cli",
+    "lists",
+    "show",
+    "--agent",
+    "--home",
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-retention-fixture",
+    "--timeout",
+    "10s"
+  ],
+  "snapshots": 10000,
+  "saved_snapshots": 9000,
+  "unsaved_snapshots": 1000,
+  "saved_payload_bytes": 2376000,
+  "unsaved_payload_bytes": 264000,
+  "query_plan": [
+    "SCAN s",
+    "CORRELATED SCALAR SUBQUERY 1",
+    "SEARCH m USING COVERING INDEX tabelog_membership_restaurant (restaurant_id=?)"
+  ],
+  "durations_ms": [
+    2.2989590652287006,
+    1.9924999214708805,
+    1.9064168445765972
+  ],
+  "median_ms": 1.9924999214708805,
+  "speedup_ratio": 588.5969698478169
+}

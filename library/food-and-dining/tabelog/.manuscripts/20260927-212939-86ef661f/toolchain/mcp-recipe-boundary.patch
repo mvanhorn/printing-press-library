@@ -1,0 +1,147 @@
+diff --git a/internal/generator/templates/mcp_intents.go.tmpl b/internal/generator/templates/mcp_intents.go.tmpl
+--- a/internal/generator/templates/mcp_intents.go.tmpl
++++ b/internal/generator/templates/mcp_intents.go.tmpl
+@@ -185,12 +185,13 @@
+ 	input := req.GetArguments()
+ 	args := []string{
+ 	}
++	positionals := []string{}
+ {{- range .Args}}
+ {{- if .Static}}
+ 	args = append(args, {{printf "%q" .Token}})
+ {{- else if .Param.Positional}}
+ 	var missing{{.Param.GoName}} bool
+-	args, missing{{.Param.GoName}} = appendRecipePositional(args, input[{{printf "%q" .Param.InputName}}], {{.Param.Required}})
++	positionals, missing{{.Param.GoName}} = appendRecipePositional(positionals, input[{{printf "%q" .Param.InputName}}], {{.Param.Required}})
+ 	if missing{{.Param.GoName}} {
+ 		return mcplib.NewToolResultError({{printf "%q" (printf "%s is required" .Param.InputName)}}), nil
+ 	}
+@@ -205,6 +206,10 @@
+ {{- end}}
+ {{- end}}
+ 
++	if len(positionals) > 0 {
++		args = append(args, "--")
++		args = append(args, positionals...)
++	}
+ 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
+ 	if err != nil {
+ 		return mcplib.NewToolResultError(err.Error()), nil
+diff --git a/internal/generator/templates/mcp_recipe_intents_test.go.tmpl b/internal/generator/templates/mcp_recipe_intents_test.go.tmpl
+--- a/internal/generator/templates/mcp_recipe_intents_test.go.tmpl
++++ b/internal/generator/templates/mcp_recipe_intents_test.go.tmpl
+@@ -39,10 +39,9 @@
+ {{- range (index .RecipeIntents 0).Args}}
+ {{- if .Static}}
+ 		{{printf "%q" .Token}},
++{{- else if .Param.Positional}}
+ {{- else if .Param.Required}}
+-{{- if .Param.Positional}}
+-		"required-value",
+-{{- else if .Param.UseEquals}}
++{{- if .Param.UseEquals}}
+ 		{{printf "%q" (printf "--%s=required-value" .Param.FlagName)}},
+ {{- else}}
+ 		{{printf "%q" (printf "--%s" .Param.FlagName)}}, "required-value",
+@@ -56,6 +55,20 @@
+ {{- else}}
+ 		{{printf "%q" (printf "--%s" .Param.FlagName)}}, {{printf "%q" .Param.Default}},
+ {{- end}}
++{{- end}}
++{{- end}}
++{{- end}}
++{{- $hasPositionals := false}}
++{{- range (index .RecipeIntents 0).Args}}
++{{- if and (not .Static) .Param.Positional .Param.Required}}
++{{- $hasPositionals = true}}
++{{- end}}
++{{- end}}
++{{- if $hasPositionals}}
++		"--",
++{{- range (index .RecipeIntents 0).Args}}
++{{- if and (not .Static) .Param.Positional .Param.Required}}
++		"required-value",
+ {{- end}}
+ {{- end}}
+ {{- end}}
+diff --git a/internal/generator/recipe_positional_boundary_test.go b/internal/generator/recipe_positional_boundary_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/generator/recipe_positional_boundary_test.go
+@@ -0,0 +1,76 @@
++package generator
++
++import (
++	"os"
++	"path/filepath"
++	"testing"
++
++	"github.com/stretchr/testify/require"
++)
++
++// Exercise freshly generated handlers, including a named flag that follows the
++// positional in the recipe. Every flag must precede the literal argv boundary.
++func TestGeneratedRecipePositionalBoundary(t *testing.T) {
++	apiSpec := minimalSpec("literalrecipes")
++	outputDir := filepath.Join(t.TempDir(), "literalrecipes-pp-cli")
++	gen := New(apiSpec, outputDir)
++	gen.VisionSet = VisionTemplateSet{MCP: true}
++	gen.Narrative = &ReadmeNarrative{Recipes: []Recipe{{
++		Title: "Literal lookup", Command: "literalrecipes-pp-cli get 12345678 --format=summary --json",
++		Explanation: "Look up an ID with an explicit format.",
++	}}}
++	require.NoError(t, gen.Generate())
++	requireGeneratedCompiles(t, outputDir)
++	require.NoError(t, os.WriteFile(filepath.Join(outputDir, "internal", "mcp", "positional_boundary_test.go"), []byte(recipePositionalBoundarySource), 0600))
++	runGoCommandRequired(t, outputDir, "test", "./internal/mcp", "-count=1")
++}
++
++const recipePositionalBoundarySource = `package mcp
++
++import (
++	"context"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	mcplib "github.com/mark3labs/mcp-go/mcp"
++)
++
++func TestLiteralPositionalCannotBecomeFlag(t *testing.T) {
++	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
++	t.Cleanup(func() { recipeCLIPath, recipeCLIPathErr = oldPath, oldErr })
++	recipeCLIPath, recipeCLIPathErr = writeRecipeIntentRecorder(t), nil
++	for _, id := range []string{"--dry-run", "--home=/untrusted", "12345678"} {
++		t.Run(id, func(t *testing.T) {
++			req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"id": id}}}
++			result, err := handleLiteralLookup(context.Background(), req)
++			if err != nil || result == nil || result.IsError {
++				t.Fatalf("literal handler failed: result=%v err=%v", result, err)
++			}
++			got := strings.TrimSpace(recipeToolText(t, result))
++			want := "get --format=summary --json -- " + id
++			if got != want {
++				t.Fatalf("argv=%q, want %q", got, want)
++			}
++		})
++	}
++}
++
++func TestRequiredLiteralCannotBeEmpty(t *testing.T) {
++	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
++	t.Cleanup(func() { recipeCLIPath, recipeCLIPathErr = oldPath, oldErr })
++	// A nonexistent executable distinguishes the required-input guard from an
++	// attempted shellout: its failure must never replace the missing-ID error.
++	recipeCLIPath, recipeCLIPathErr = filepath.Join(t.TempDir(), "not-an-executable"), nil
++	for _, args := range []map[string]any{nil, {"id": ""}, {"id": "   "}} {
++		req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: args}}
++		result, err := handleLiteralLookup(context.Background(), req)
++		if err != nil || result == nil || !result.IsError {
++			t.Fatalf("required argument not rejected: result=%v err=%v", result, err)
++		}
++		if got := recipeToolText(t, result); got != "id is required" {
++			t.Fatalf("guard error=%q", got)
++		}
++	}
++}
++`

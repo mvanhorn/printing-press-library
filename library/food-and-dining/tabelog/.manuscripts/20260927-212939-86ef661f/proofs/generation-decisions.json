@@ -1,0 +1,12 @@
+{
+  "category": "food-and-dining",
+  "http_transport": "standard",
+  "auth": "none",
+  "learning": "disabled: user explicitly requests low-resource bounded trip workflows; no hidden learning writes",
+  "cache_freshness": "disabled: saved user trip state uses explicit age and refresh",
+  "mcp_transport": [
+    "stdio"
+  ],
+  "mcp_endpoint_tools": "hidden: useful handwritten commands will provide public mirrored surface",
+  "public_names_evidence": "English live form inputs and research/website-replay-contract.md"
+}

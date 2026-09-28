@@ -1,0 +1,17 @@
+{
+  "validation": {
+    "go_build": "passed",
+    "sqlite_transaction_test": "passed",
+    "saved_member_retention_test": "passed"
+  },
+  "bare_dry_run": {
+    "commands": ["add", "show", "note", "remove", "compare", "refresh", "alternatives", "audit"],
+    "all_exit_codes": 0,
+    "all_coverage_values": "dry_run",
+    "files_created_in_isolated_home": []
+  },
+  "notes": [
+    "No live origin probes were run by the list implementation agent.",
+    "Executable fixture E2E is owned by test_design; the shared formatter must retain list-specific fields."
+  ]
+}

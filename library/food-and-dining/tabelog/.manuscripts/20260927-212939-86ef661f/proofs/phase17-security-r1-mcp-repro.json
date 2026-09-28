@@ -1,0 +1,29 @@
+{
+  "trigger": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "refresh_one_saved_candidate",
+      "arguments": {
+        "slug": "security-review-empty-list",
+        "id": "--dry-run"
+      }
+    }
+  },
+  "actual_result": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"items\":[{\"ids\":[],\"list\":\"security-review-empty-list\",\"operation\":\"refresh\",\"planned\":true}],\"meta\":{\"source\":\"live\",\"age_seconds\":0,\"stale\":false,\"criteria\":{\"concurrency\":2,\"ids\":[],\"list\":\"security-review-empty-list\",\"max_venues\":20,\"operation\":\"refresh\"},\"returned\":0,\"scanned\":0,\"pages\":0,\"has_more\":false,\"requests\":0,\"bytes\":0,\"coverage\":\"dry_run\",\"note\":\"No storage or network access; saved membership and source detail lookups remain planned.\"}}\n"
+        }
+      ]
+    }
+  },
+  "disposable_home": "/private/tmp/tabelog-security-r1-uf310z4j/home",
+  "files_created_in_home": [],
+  "safety": "Only --dry-run injection was invoked; no webhook, delivery, source probe or notebook seed."
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "phase19-polish-cleanup",
+  "files": [
+    "internal/source/discovery.go",
+    "internal/cli/tabelog_helpers.go",
+    "internal/notebook/notebook.go",
+    "internal/cli/lists_alternatives.go"
+  ],
+  "call_sites": []
+}

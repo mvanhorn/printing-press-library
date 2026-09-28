@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "status": "dry_run_only",
+  "run_id": "20260927-212939-86ef661f",
+  "read_guidance": [
+    "/Users/zjsng/.agents/skills/printing-press/phases/20-promote-and-archive.md",
+    "/Users/zjsng/.agents/skills/printing-press/references/secret-protection.md"
+  ],
+  "scope": "No promotion, archival, receipt mutation, source edits, data moves or cleanup performed by this manifest.",
+  "working_dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli",
+  "library_target": "/Users/zjsng/printing-press/library/tabelog",
+  "library_target_exists": false,
+  "promotion_path": "A: first print; target absent",
+  "archive_target": "/Users/zjsng/printing-press/manuscripts/tabelog/20260927-212939-86ef661f",
+  "embedded_target": "/Users/zjsng/printing-press/library/tabelog/.manuscripts/20260927-212939-86ef661f",
+  "inventory": {
+    "proofs": {
+      "regular_files": 1452,
+      "bytes": 121243353,
+      "symlinks": 4
+    },
+    "research": {
+      "regular_files": 12,
+      "bytes": 115172,
+      "symlinks": 0
+    },
+    "discovery": {
+      "regular_files": 109,
+      "bytes": 9002454,
+      "symlinks": 0
+    },
+    "toolchain": {
+      "regular_files": 29,
+      "bytes": 75311719,
+      "symlinks": 0
+    }
+  },
+  "working_inventory": {
+    "regular_files": 212,
+    "bytes": 103653715,
+    "symlinks": 0
+  },
+  "quarantine_base": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine",
+  "planned_quarantine": [
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/working/.printing-press-fixtures",
+      "reason": "Disposable live notebook/source cache. Wait until final actual-write acceptance and all measurements finish.",
+      "inventory": {
+        "regular_files": 8,
+        "bytes": 2066849,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/working/tabelog-pp-cli",
+      "reason": "Current verified working/debug executable; duplicate of canonical staged CLI only after staged artifacts are refreshed and verified.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22025650,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tokenizer-venv",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tokenizer-venv",
+      "reason": "Recreatable third-party environment; external Python symlink blocks publishable manuscript copy.",
+      "inventory": {
+        "regular_files": 1135,
+        "bytes": 20010608,
+        "symlinks": 4
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tokenizer-cache",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tokenizer-cache",
+      "reason": "Recreatable tokenizer data; retain tokenizer version/encoding and measured output proofs.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 3613922,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-retention-fixture",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/cluster-b-retention-fixture",
+      "reason": "Synthetic SQLite benchmark home; retain setup/reproducer, plans, counts and timings.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 5709824,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase11-core-samples/home",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/phase11-core-samples/home",
+      "reason": "Scratch source/store home; retain sibling samples and substantive fixtures.",
+      "inventory": {
+        "regular_files": 2,
+        "bytes": 574059,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-verification-cli",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/cluster-b-verification-cli",
+      "reason": "Compiled test executable; retain hash and tests/proofs.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22074834,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tabelog-list-checkpoint",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tabelog-list-checkpoint",
+      "reason": "Compiled test executable; retain implementation checkpoint proof.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22041122,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tabelog-e2e-measurement",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tabelog-e2e-measurement",
+      "reason": "Historical measurement executable; retain metrics, code and binary hash.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22041058,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase17-cluster-a-measurements/tabelog-pp-cli",
+      "planned_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/phase17-cluster-a-measurements/tabelog-pp-cli",
+      "reason": "Compiled final-facility measurement executable; retain final metrics, samples, tokenizer/method and hash.",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22075266,
+        "symlinks": 0
+      },
+      "action_now": "none"
+    }
+  ],
+  "runtime": {
+    "current_verified_working_cli": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+    "current_working_cli_sha256": "7da222c345c8b1dd26d595667340677e3d701a3161280ed91d638252f462db18",
+    "canonical_packaged_cli": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/build/stage/bin/tabelog-pp-cli",
+    "canonical_packaged_mcp": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/build/stage/bin/tabelog-pp-mcp",
+    "canonical_bundle": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/build/tabelog-pp-mcp-darwin-arm64.mcpb",
+    "stage_status": "Existing staged CLI/MCP/bundle precede the removal-classification fix by filesystem mtimes. Refresh from frozen sources before delivery; lock promote normally refreshes canonical artifacts. Keep current working binary until that succeeds."
+  },
+  "toolchain": {
+    "active_patched_binary": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+    "exclude_binary_from_deliverable": true,
+    "source_and_caches_outside_run": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f",
+    "archive_compact_text_files": [
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/scorecard-happy-args.patch",
+        "archive_relative_path": "toolchain/scorecard-happy-args.patch",
+        "bytes": 11961
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/live-dogfood-json-reuse.patch",
+        "archive_relative_path": "toolchain/live-dogfood-json-reuse.patch",
+        "bytes": 5059
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/local-install-checker.patch",
+        "archive_relative_path": "toolchain/local-install-checker.patch",
+        "bytes": 13025
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/dogfood-public-fixture.patch",
+        "archive_relative_path": "toolchain/dogfood-public-fixture.patch",
+        "bytes": 28833
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/phase17-cumulative-toolchain.patch",
+        "archive_relative_path": "toolchain/phase17-cumulative-toolchain.patch",
+        "bytes": 51474
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/projection-diagnostic.patch",
+        "archive_relative_path": "toolchain/projection-diagnostic.patch",
+        "bytes": 5490
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/phase18-cumulative-toolchain.patch",
+        "archive_relative_path": "toolchain/phase18-cumulative-toolchain.patch",
+        "bytes": 79489
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/mcp-recipe-boundary.patch",
+        "archive_relative_path": "toolchain/mcp-recipe-boundary.patch",
+        "bytes": 5632
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/json-reuse-before-tests.log",
+        "archive_relative_path": "toolchain/proofs/json-reuse-before-tests.log",
+        "bytes": 1477
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-toolchain-proof.md",
+        "archive_relative_path": "toolchain/proofs/scorecard-overlay-toolchain-proof.md",
+        "bytes": 1121
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/json-reuse-toolchain-proof.md",
+        "archive_relative_path": "toolchain/proofs/json-reuse-toolchain-proof.md",
+        "bytes": 1163
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/phase17-generator-toolchain-proof.json",
+        "archive_relative_path": "toolchain/proofs/phase17-generator-toolchain-proof.json",
+        "bytes": 6409
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-focused-tests.log",
+        "archive_relative_path": "toolchain/proofs/local-install-focused-tests.log",
+        "bytes": 8840
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/malformed-module-rejected.stderr",
+        "archive_relative_path": "toolchain/proofs/malformed-module-rejected.stderr",
+        "bytes": 177
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/json-reuse-focused-tests.log",
+        "archive_relative_path": "toolchain/proofs/json-reuse-focused-tests.log",
+        "bytes": 2367
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/phase17-generator-toolchain-proof.md",
+        "archive_relative_path": "toolchain/proofs/phase17-generator-toolchain-proof.md",
+        "bytes": 1795
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-before.json",
+        "archive_relative_path": "toolchain/proofs/local-install-before.json",
+        "bytes": 2521
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-version.json",
+        "archive_relative_path": "toolchain/proofs/local-install-version.json",
+        "bytes": 65
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-focused-tests.log",
+        "archive_relative_path": "toolchain/proofs/scorecard-overlay-focused-tests.log",
+        "bytes": 1679
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/json-reuse-toolchain-proof.json",
+        "archive_relative_path": "toolchain/proofs/json-reuse-toolchain-proof.json",
+        "bytes": 2433
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-after.json",
+        "archive_relative_path": "toolchain/proofs/local-install-after.json",
+        "bytes": 132
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-section-tabelog.md",
+        "archive_relative_path": "toolchain/proofs/local-install-section-tabelog.md",
+        "bytes": 813
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-toolchain-proof.json",
+        "archive_relative_path": "toolchain/proofs/scorecard-overlay-toolchain-proof.json",
+        "bytes": 2852
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-toolchain-proof.json",
+        "archive_relative_path": "toolchain/proofs/local-install-toolchain-proof.json",
+        "bytes": 5424
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/scorecard-overlay-before-tests.log",
+        "archive_relative_path": "toolchain/proofs/scorecard-overlay-before-tests.log",
+        "bytes": 1100
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-command-statuses.json",
+        "archive_relative_path": "toolchain/proofs/local-install-command-statuses.json",
+        "bytes": 206
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/local-install-toolchain-proof.md",
+        "archive_relative_path": "toolchain/proofs/local-install-toolchain-proof.md",
+        "bytes": 2413
+      },
+      {
+        "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/published-local-rejected.json",
+        "archive_relative_path": "toolchain/proofs/published-local-rejected.json",
+        "bytes": 2535
+      }
+    ],
+    "text_file_count": 28,
+    "text_bytes": 246485,
+    "note": "Keep standalone patched Press executable in runstate for remaining pipeline commands. Archive patch/provenance text, not the executable, tool source or dependency/build caches. No claim is made that global cache metadata was unchanged."
+  },
+  "sanitization": {
+    "scope": "Read-only inventory/pattern presence; not a completed archive PII gate. No values exposed and no artifacts rewritten.",
+    "api_key_exact_value_scan": "No operator API key supplied; AuthNone source. No exact key value available to scan.",
+    "research": {
+      "files": 12,
+      "bytes": 115172,
+      "session_state_files": 0,
+      "vendor_google_key_shaped_matches": 0,
+      "csrf_markers": 0
+    },
+    "discovery": {
+      "files": 109,
+      "bytes": 9002454,
+      "session_state_files": 0,
+      "vendor_google_key_shaped_matches": 0,
+      "capture_format": "Custom JSON entries[] with request_headers, response_headers, request_body, response_body; not HAR log.entries.",
+      "capture_files": [
+        {
+          "path": "discovery/browser-sniff-core-capture.json",
+          "entries": 11,
+          "auth_header_or_query_names": 0,
+          "nonempty_response_bodies": 11,
+          "response_body_characters": 2003986
+        },
+        {
+          "path": "discovery/browser-sniff-capture.json",
+          "entries": 13,
+          "auth_header_or_query_names": 0,
+          "nonempty_response_bodies": 13,
+          "response_body_characters": 2426105
+        }
+      ],
+      "csrf_status": {
+        "already_redacted_files": [
+          "discovery/native-optional/restaurant-reviews.html",
+          "discovery/native-optional/restaurant-menus.html",
+          "discovery/native-confirm/restaurant-detail.html"
+        ],
+        "needs_derived_archive_redaction": [
+          "discovery/public-source/tabelog.com-en-tokyo-A1301-A130103-13294162-8e710fdd585afbfe.html"
+        ]
+      }
+    },
+    "planned_transform": "Create a derived archive/export copy: strip response_body from each custom capture entry, remove auth/cookie headers and cookie fields, redact auth query values both in raw URLs and any query arrays, redact CSRF values in the identified original detail HTML. Preserve observed method/path/non-auth parameters/status and compact UI/traffic evidence. Keep original capture files/hashes in local runstate; record derived hashes. Run required PII/secret checks against intended final manuscript/staging scope after these transformations."
+  },
+  "preserve": {
+    "research": "All research manuscripts and research.json; approved brief/absorb scope, brainstorm, source replay/implementation contract, source resolution and ecosystem evidence.",
+    "proofs": "All substantive Markdown/JSON/JSONL reports, logs, reproducible Python/Go source, fixture/oracle manifests, original source and generator diffs, before/after provenance, measurements/samples and independent reviews; exclude only enumerated recreatable environments/homes/binaries.",
+    "product": "All current source/tests, sanitized e2e fixtures/manifest, docs, durable .printing-press-patches records, canonical CLI/MCP/bundle. Do not remove Go test/source files; they are fingerprinted.",
+    "pipeline": "Preserve phase receipts and current state/run identity in local runstate; archive compact final delivery/provenance record as root directs."
+  },
+  "authority": {
+    "historical": [
+      "proofs/2026-09-27-fix-tabelog-pp-cli-build-log.md",
+      "proofs/2026-09-27-fix-tabelog-pp-cli-shipcheck.md",
+      "proofs/measurement-results.json",
+      "proofs/phase12-shipcheck-*.json"
+    ],
+    "historical_note": "Phase12 snapshots include old facility-omitting1188-token output, score83 and older error observations. Retain unchanged as history; final score is currently82 pending final polish.",
+    "final_source_accuracy": [
+      "proofs/phase17-cluster-a-fixes.md",
+      "proofs/phase17-integrated-results.jsonl",
+      "proofs/phase17-integrated-summary.json"
+    ],
+    "final_measurements": "proofs/phase17-cluster-a-measurements/measurement-results.json",
+    "final_measurement_facts": {
+      "find_tokens": 1247,
+      "find_cold_p95_ms": 22.457,
+      "find_warm_p95_ms": 18.741,
+      "find_cold_bytes": 3897,
+      "fixture_token_target": 1300
+    },
+    "final_live": "Latest refreshed proofs/phase5-acceptance.json plus matching final canonical matrix and actual-mutator post-state evidence, after polish source freeze.",
+    "final_polish": "Source_research final polish verdict/proofs, pending.",
+    "delivery_index": "Root-authored concise final delivery index, pending; retain dense historical manuscripts without rewriting them."
+  },
+  "gates": {
+    "current_marker_snapshot": {
+      "status": "pass",
+      "level": "full",
+      "matrix_size": 60,
+      "tests_passed": 60,
+      "source_fingerprint": "c494ceb4bbe9a746f1bae9368bf06877619271f5ca169a5115522cbd07262098",
+      "source_file_count": 143
+    },
+    "current_marker_authority": "Old marker precedes new removal annotation and two new Go regressions; cannot authorize promotion after those changes. Runner owner will rerun full actual-write live matrix after polish freezes source.",
+    "remaining_prerequisites": [
+      "Root go-ahead after phase19/final live acceptance.",
+      "Fresh pass marker bound to final Go/mod/sum/spec source tree and actual saved-list mutations.",
+      "Quarantine/exclude external-link venv and the exact disposable assets only after their active uses finish.",
+      "Prepare derived sanitized manuscript scope and required secret/PII gate without modifying source-fingerprint inputs afterward.",
+      "Refresh canonical staged runtime artifacts; preserve durable patch records and check their referents."
+    ],
+    "fingerprint_scope": "All .go plus go.mod/go.sum/spec.json/yaml/yml; skips .git/.manuscripts/.printing-press. Enumerated fixture DB/cache/binaries/venv removal is outside fingerprint scope, while adding/removing Go tests changes it.",
+    "embedding": "With no W/.manuscripts or archived run today, promote validates runstate proof fallback, stages curated research/proofs/discovery and research.json into .manuscripts/run-id before atomic swap. A preexisting embedded subtree wins; if one is prepared manually, synchronize the final marker and every final proof there. Archive after promotion; keep embedded/archive marker copies current."
+  }
+}

@@ -1,0 +1,53 @@
+--- a/internal/mcp/tools.go
++++ b/internal/mcp/tools.go
+@@ -49,6 +49,7 @@
+ 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+ 	// not already covered by a typed endpoint or framework MCP tool.
+ 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
++	applyTabelogToolHints(s)
+ }
+ 
+ type mcpParamBinding struct {
+--- a/internal/mcp/intents.go
++++ b/internal/mcp/intents.go
+@@ -32,7 +32,9 @@
+ 		mcplib.NewTool("compare_saved_candidates_offline",
+ 			mcplib.WithDescription("View saved facts and notes together; separate meal budgets and unknowns remain visible."),
+ 			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")),
+-			mcplib.WithOpenWorldHintAnnotation(true),
++			mcplib.WithReadOnlyHintAnnotation(true),
++			mcplib.WithDestructiveHintAnnotation(false),
++			mcplib.WithOpenWorldHintAnnotation(false),
+ 		),
+ 		handleCompareSavedCandidatesOffline,
+ 	)
+@@ -41,6 +43,8 @@
+ 			mcplib.WithDescription("Fetch current detail facts for this ID, report changes and preserve its note and last valid snapshot on failure."),
+ 			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")),
+ 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Override the recipe's positional id value.")),
++			mcplib.WithReadOnlyHintAnnotation(false),
++			mcplib.WithDestructiveHintAnnotation(false),
+ 			mcplib.WithOpenWorldHintAnnotation(true),
+ 		),
+ 		handleRefreshOneSavedCandidate,
+--- /dev/null
++++ b/internal/mcp/tabelog_hints.go
+@@ -0,0 +1,18 @@
++package mcp
++
++import (
++	mcplib "github.com/mark3labs/mcp-go/mcp"
++	"github.com/mark3labs/mcp-go/server"
++)
++
++// Refresh writes only to the local notebook, but it also retrieves public
++// remote details. Preserve the local-write tier while describing that I/O.
++func applyTabelogToolHints(s *server.MCPServer) {
++	registered := s.GetTool("lists_refresh")
++	if registered == nil {
++		return
++	}
++	tool := registered.Tool
++	mcplib.WithOpenWorldHintAnnotation(true)(&tool)
++	s.AddTool(tool, registered.Handler)
++}

@@ -1,0 +1,205 @@
+{
+  "api_name": "tabelog",
+  "base_url": "https://tabelog.com",
+  "description": "Find Japan restaurants and bars, then keep a factual trip shortlist.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalogs_home",
+      "description": "Public prefecture and cuisine links; use anchors as authoritative catalog entries. Returns the SourceHTML.",
+      "method": "GET",
+      "path": "/en/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "catalogs_suggest",
+      "description": "Public mixed-type suggestions. Requires ordinary AJAX Accept,X-Requested-With and Referer headers (source adapter contract). Required: keyword. Returns array of Suggestion.",
+      "method": "GET",
+      "path": "/en/suggest/keyword_suggest",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Location,cuisine or restaurant query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants_get",
+      "description": "Fetch public restaurant details as HTML containing tables and JSON-LD. Required: prefecture, area1, area2, id. Returns the SourceHTML.",
+      "method": "GET",
+      "path": "/en/{pal}/{area1}/{area2}/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "prefecture",
+          "wire_name": "pal",
+          "type": "string",
+          "location": "path",
+          "description": "Observed prefecture slug",
+          "required": true
+        },
+        {
+          "name": "area1",
+          "type": "string",
+          "location": "path",
+          "description": "Source first area code",
+          "required": true
+        },
+        {
+          "name": "area2",
+          "type": "string",
+          "location": "path",
+          "description": "Source second area code",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Restaurant source ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants_search",
+      "description": "Search the observed public English HTML source; typed card extraction must be implemented in the source adapter. Optional: source-sort (default: rt), prefecture, prefecture-code (plus 10 more). Returns the SourceHTML.",
+      "method": "GET",
+      "path": "/en/rstLst/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source-sort",
+          "wire_name": "SrtT",
+          "type": "string",
+          "location": "query",
+          "description": "Observed source highest-rated order"
+        },
+        {
+          "name": "prefecture",
+          "wire_name": "pal",
+          "type": "string",
+          "location": "query",
+          "description": "Prefecture slug"
+        },
+        {
+          "name": "prefecture-code",
+          "wire_name": "pcd",
+          "type": "int",
+          "location": "query",
+          "description": "Prefecture numeric code from More filters"
+        },
+        {
+          "name": "area1",
+          "wire_name": "LstPrf",
+          "type": "string",
+          "location": "query",
+          "description": "First area code or municipality code from suggestion"
+        },
+        {
+          "name": "area2",
+          "wire_name": "LstAre",
+          "type": "string",
+          "location": "query",
+          "description": "Second area code"
+        },
+        {
+          "name": "station-id",
+          "wire_name": "station_id",
+          "type": "string",
+          "location": "query",
+          "description": "RailroadStation source ID"
+        },
+        {
+          "name": "location-type",
+          "wire_name": "area_datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Observed location type, e.g.Area2"
+        },
+        {
+          "name": "location-id",
+          "wire_name": "area_id",
+          "type": "string",
+          "location": "query",
+          "description": "Observed selected location name or ID"
+        },
+        {
+          "name": "category-family",
+          "wire_name": "Cat",
+          "type": "string",
+          "location": "query",
+          "description": "Source category family; BC is Bar"
+        },
+        {
+          "name": "keyword",
+          "wire_name": "sw",
+          "type": "string",
+          "location": "query",
+          "description": "Free text; effective geography must be checked"
+        },
+        {
+          "name": "meal-code",
+          "wire_name": "RdoCosTp",
+          "type": "int",
+          "location": "query",
+          "description": "Source meal code:1 lunch,2 dinner"
+        },
+        {
+          "name": "budget-min-code",
+          "wire_name": "LstCos",
+          "type": "int",
+          "location": "query",
+          "description": "Source minimum budget threshold index0..16"
+        },
+        {
+          "name": "budget-max-code",
+          "wire_name": "LstCosT",
+          "type": "int",
+          "location": "query",
+          "description": "Source maximum budget threshold index0..16"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Offline factual comparison",
+      "command": "lists compare",
+      "description": "Compare saved restaurants, meal budgets and personal notes without network requests."
+    },
+    {
+      "name": "Bounded refresh with fact changes",
+      "command": "lists refresh",
+      "description": "Update selected saved restaurants and see changed facts while keeping personal notes."
+    },
+    {
+      "name": "Trip notebook with personal notes",
+      "command": "lists add",
+      "description": "Keep fetched restaurants and personal notes in a named trip list that can be resumed offline."
+    },
+    {
+      "name": "Saved alternatives with explicit constraints",
+      "command": "lists alternatives",
+      "description": "Find saved substitutes matching a candidate's verified area, category and optional meal budget."
+    },
+    {
+      "name": "Missing-evidence and freshness audit",
+      "command": "lists audit",
+      "description": "See which saved candidates have unfetched, unknown or old facts before requesting more details."
+    }
+  ]
+}

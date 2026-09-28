@@ -1,0 +1,146 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 16,
+    "passed": 15,
+    "failed": 1,
+    "critical": 0,
+    "pass_rate": 93.75,
+    "data_pipeline": true,
+    "data_pipeline_detail": "PASS: sync completed (sql unavailable, table validation skipped)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "resource-path:tail",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "resource-path:export",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "areas",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "cuisines",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "find",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "lists",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "show",
+        "kind": "read",
+        "help": true,
+        "dry_run": false,
+        "execute": false,
+        "score": 1
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "lists add",
+        "positionals": [
+          "mock-value",
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists alternatives",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists audit",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists compare",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists note",
+        "positionals": [
+          "mock-value",
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists refresh",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists remove",
+        "positionals": [
+          "mock-value",
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "lists show",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli"
+  }
+}

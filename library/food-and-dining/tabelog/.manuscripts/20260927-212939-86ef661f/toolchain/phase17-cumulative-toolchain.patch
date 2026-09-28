@@ -1,0 +1,1227 @@
+diff --git a/internal/cli/verify_skill.go b/internal/cli/verify_skill.go
+--- a/internal/cli/verify_skill.go
++++ b/internal/cli/verify_skill.go
+@@ -14,6 +14,7 @@
+ 	"github.com/mvanhorn/cli-printing-press/v4/internal/generator"
+ 	"github.com/mvanhorn/cli-printing-press/v4/internal/pipeline"
+ 	"github.com/spf13/cobra"
++	"golang.org/x/mod/modfile"
+ )
+ 
+ // verifySkillScript is the full text of scripts/verify-skill/verify_skill.py
+@@ -25,6 +26,22 @@
+ var verifySkillScript string
+ 
+ const canonicalSectionsCheckName = "canonical-sections"
++
++const canonicalLocalSkillInstallSectionFormat = "## Prerequisites: Install the CLI\n" +
++	"\n" +
++	"This skill drives the `%[1]s-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:\n" +
++	"\n" +
++	"This CLI uses a local Go module. Run the following from the root of this source checkout (requires Go 1.26.6 or newer):\n" +
++	"\n" +
++	"```bash\n" +
++	"go install ./cmd/%[1]s-pp-cli\n" +
++	"```\n" +
++	"\n" +
++	"Go installs the binary into `$GOBIN` when set, otherwise `$GOPATH/bin` (default `$HOME/go/bin`). Add that directory to `$PATH` for the agent/runtime that will invoke this skill, or invoke the installed binary by its full path.\n" +
++	"\n" +
++	"Verify: `%[1]s-pp-cli --version`\n" +
++	"\n" +
++	"If `--version` reports \"command not found\" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.\n"
+ 
+ const (
+ 	pythonPython3 = "python3"
+@@ -134,6 +151,8 @@
+ // verify-skill tests carry no .printing-press.json api_name and no go.mod,
+ // and forcing the check to fire on those would convert every fixture into
+ // a maintenance burden without catching a real bug.
++// The generator's exact bare module also permits canonical checkout install
++// instructions; remotely-qualified modules retain the public install contract.
+ func runCanonicalSectionsCheck(dir string) (finding canonicalFinding, hasFinding bool, skipped bool, err error) {
+ 	manifest, mErr := pipeline.ReadCLIManifest(dir)
+ 	if mErr != nil {
+@@ -144,8 +163,20 @@
+ 		return canonicalFinding{}, false, true, nil
+ 	}
+ 
+-	if _, gErr := os.Stat(filepath.Join(dir, "go.mod")); gErr != nil {
++	goModPath := filepath.Join(dir, "go.mod")
++	goModBytes, gErr := os.ReadFile(goModPath)
++	if os.IsNotExist(gErr) {
+ 		return canonicalFinding{}, false, true, nil
++	}
++	if gErr != nil {
++		return canonicalFinding{}, false, false, fmt.Errorf("reading go.mod: %w", gErr)
++	}
++	goMod, gErr := modfile.Parse(goModPath, goModBytes, nil)
++	if gErr != nil {
++		return canonicalFinding{}, false, false, fmt.Errorf("parsing go.mod: %w", gErr)
++	}
++	if goMod.Module == nil {
++		return canonicalFinding{}, false, false, fmt.Errorf("go.mod must declare a module path")
+ 	}
+ 
+ 	skillBytes, sErr := os.ReadFile(filepath.Join(dir, "SKILL.md"))
+@@ -155,6 +186,14 @@
+ 	skill := string(skillBytes)
+ 
+ 	expected := generator.CanonicalSkillInstallSection(name, manifest.Category)
++	localExpected := ""
++	if goMod.Module.Mod.Path == name+"-pp-cli" {
++		localExpected = fmt.Sprintf(canonicalLocalSkillInstallSectionFormat, name)
++	}
++	evidenceExpected := expected
++	if localExpected != "" {
++		evidenceExpected = localExpected + "\nOr the existing generator install block:\n\n" + expected
++	}
+ 	got, ok := ExtractInstallSectionForTest(skill)
+ 	if !ok {
+ 		return canonicalFinding{
+@@ -162,10 +201,13 @@
+ 			Severity: "error",
+ 			Command:  "(file: SKILL.md)",
+ 			Detail:   "install section is missing or malformed; this section is generator-owned. Regenerate the printed CLI to restore it.",
+-			Evidence: fmt.Sprintf("expected canonical block:\n%s", expected),
++			Evidence: fmt.Sprintf("expected canonical block:\n%s", evidenceExpected),
+ 		}, true, false, nil
+ 	}
+ 	if normalizeLineEndings(got) == normalizeLineEndings(expected) {
++		return canonicalFinding{}, false, false, nil
++	}
++	if localExpected != "" && normalizeLineEndings(got) == normalizeLineEndings(localExpected) {
+ 		return canonicalFinding{}, false, false, nil
+ 	}
+ 	return canonicalFinding{
+@@ -173,7 +215,7 @@
+ 		Severity: "error",
+ 		Command:  "(file: SKILL.md)",
+ 		Detail:   "install section drift: hand-edit detected in a generator-owned section. Regenerate the printed CLI to restore the canonical text — do not edit this section by hand.",
+-		Evidence: fmt.Sprintf("expected (from generator):\n%s\n\ngot (from SKILL.md):\n%s", expected, got),
++		Evidence: fmt.Sprintf("expected canonical install instructions:\n%s\n\ngot (from SKILL.md):\n%s", evidenceExpected, got),
+ 	}, true, false, nil
+ }
+ 
+@@ -226,7 +268,7 @@
+   3. positional-args — positional args in bash recipes match the command's Use: field
+   4. shell-var-quotes — every shell variable expanded in generated bash code blocks is double-quoted
+   5. unknown-command — every referenced command path maps to a cobra Use: declaration
+-  6. canonical-sections — the Prerequisites: Install the CLI section matches what the generator would emit (defends against post-publish edits to generator-owned text)
++  6. canonical-sections — the Prerequisites: Install the CLI section matches the generator's public install block, or the exact checkout install block for its bare local Go module (defends against install instruction drift)
+ 
+ Fails when the SKILL advertises commands, flags, or arguments that the binary
+ doesn't actually provide — which is how the recipe-goat "search --max-time"
+diff --git a/internal/cli/verify_skill_local_test.go b/internal/cli/verify_skill_local_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/cli/verify_skill_local_test.go
+@@ -0,0 +1,113 @@
++package cli
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	"github.com/mvanhorn/cli-printing-press/v4/internal/generator"
++	"github.com/stretchr/testify/require"
++)
++
++func TestCanonicalSectionsLocalModuleInstallContract(t *testing.T) {
++	t.Parallel()
++	local := fmt.Sprintf(canonicalLocalSkillInstallSectionFormat, "myapi")
++	public := generator.CanonicalSkillInstallSection("myapi", "productivity")
++	cases := []struct {
++		name        string
++		module      string
++		section     string
++		wantFinding bool
++	}{
++		{"exact local module with checkout install", "myapi-pp-cli", local, false},
++		{"local checkout with CRLF", "myapi-pp-cli", strings.ReplaceAll(local, "\n", "\r\n"), false},
++		{"local generated public block remains compatible", "myapi-pp-cli", public, false},
++		{"published module with public install", "github.com/mvanhorn/printing-press-library/library/productivity/myapi", public, false},
++		{"published module cannot use local exception", "github.com/mvanhorn/printing-press-library/library/productivity/myapi", local, true},
++		{"other qualified module cannot use local exception", "github.com/example/myapi-pp-cli", local, true},
++		{"different bare module cannot use local exception", "different-pp-cli", local, true},
++		{"local install command drift", "myapi-pp-cli", strings.Replace(local, "go install ./cmd/myapi-pp-cli", "go install ./cmd/nonexistent", 1), true},
++		{"local verification drift", "myapi-pp-cli", strings.Replace(local, "Verify: `myapi-pp-cli --version`", "Verify: `myapi-pp-cli --help`", 1), true},
++		{"local missing start delimiter", "myapi-pp-cli", strings.Replace(local, generator.SkillInstallSectionStartHeading, "## Install", 1), true},
++		{"local missing end delimiter", "myapi-pp-cli", strings.Replace(local, generator.SkillInstallSectionEndSubstr, "", 1), true},
++		{"published flag strip still fails", "github.com/example/myapi-pp-cli", strings.Replace(public, " --cli-only", "", 1), true},
++		{"local public flag strip still fails", "myapi-pp-cli", strings.Replace(public, " --cli-only", "", 1), true},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			t.Parallel()
++			dir := writeLocalCanonicalFixture(t, "module "+tc.module+"\n\ngo 1.26.6\n", tc.section)
++			finding, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++			require.NoError(t, err)
++			require.False(t, skipped, "local installation must be checked, never skipped")
++			require.Equal(t, tc.wantFinding, hasFinding)
++			if tc.wantFinding {
++				require.Equal(t, canonicalSectionsCheckName, finding.Check)
++				require.Equal(t, "error", finding.Severity)
++				require.NotEmpty(t, finding.Evidence)
++			}
++		})
++	}
++}
++
++func TestCanonicalSectionsGoModEvidence(t *testing.T) {
++	t.Parallel()
++	local := fmt.Sprintf(canonicalLocalSkillInstallSectionFormat, "myapi")
++	cases := []struct {
++		name    string
++		goMod   string
++		wantErr string
++	}{
++		{"quoted exact module and comment", "// local module\nmodule \"myapi-pp-cli\" // checkout\n\ngo 1.26.6\n", ""},
++		{"malformed module directive", "module myapi-pp-cli unexpected\n", "parsing go.mod"},
++		{"malformed version directive", "module myapi-pp-cli\ngo invalid\n", "parsing go.mod"},
++		{"missing module directive", "go 1.26.6\n", "must declare a module path"},
++		{"empty module file", "", "must declare a module path"},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			t.Parallel()
++			dir := writeLocalCanonicalFixture(t, tc.goMod, local)
++			_, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++			require.False(t, skipped, "invalid module evidence must fail, never skip the check")
++			require.False(t, hasFinding)
++			if tc.wantErr == "" {
++				require.NoError(t, err)
++			} else {
++				require.ErrorContains(t, err, tc.wantErr)
++			}
++		})
++	}
++}
++
++func TestCanonicalSectionsMissingGoModStillSkipsMinimalFixture(t *testing.T) {
++	t.Parallel()
++	dir := writeLocalCanonicalFixture(t, "module myapi-pp-cli\n", "")
++	require.NoError(t, os.Remove(filepath.Join(dir, "go.mod")))
++	_, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++	require.NoError(t, err)
++	require.False(t, hasFinding)
++	require.True(t, skipped)
++}
++
++func TestCanonicalSectionsUnreadableGoModFails(t *testing.T) {
++	t.Parallel()
++	dir := writeLocalCanonicalFixture(t, "module myapi-pp-cli\n", "")
++	require.NoError(t, os.Remove(filepath.Join(dir, "go.mod")))
++	require.NoError(t, os.Mkdir(filepath.Join(dir, "go.mod"), 0o755))
++	_, hasFinding, skipped, err := runCanonicalSectionsCheck(dir)
++	require.ErrorContains(t, err, "reading go.mod")
++	require.False(t, hasFinding)
++	require.False(t, skipped)
++}
++
++func writeLocalCanonicalFixture(t *testing.T, goMod, section string) string {
++	t.Helper()
++	dir := t.TempDir()
++	require.NoError(t, os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(`{"api_name":"myapi","cli_name":"myapi-pp-cli","category":"productivity"}`), 0o644))
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goMod), 0o644))
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# My API\n\n"+section+"\n## Workflow\n"), 0o644))
++	return dir
++}
+diff --git a/internal/generator/filter_fields_envelope_test.go b/internal/generator/filter_fields_envelope_test.go
+--- a/internal/generator/filter_fields_envelope_test.go
++++ b/internal/generator/filter_fields_envelope_test.go
+@@ -147,11 +147,11 @@
+ 	if string(gotBytes) != string(wantBytes) {
+ 		t.Fatalf("unknown selector changed the payload: got %s, want %s", gotBytes, wantBytes)
+ 	}
+-	if !strings.Contains(string(warning), "--select \"missing\" matched no fields") {
+-		t.Fatalf("warning = %q, want unknown-selector warning", warning)
+-	}
+-	if !strings.Contains(string(warning), "valid fields: items") {
+-		t.Fatalf("warning = %q, want valid top-level fields", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
++	}
++	if !strings.Contains(err.Error(), "valid fields: items") {
++		t.Fatalf("error = %q, want valid top-level fields", err)
+ 	}
+ }
+ 
+@@ -285,9 +285,9 @@
+ 		if !strings.Contains(err.Error(), field) {
+ 			t.Fatalf("error = %q, want it to name %q", err, field)
+ 		}
+-		if !strings.Contains(string(warning), "--select \""+field+"\" matched no fields") {
+-			t.Fatalf("warning = %q, want warning naming %q", warning, field)
+-		}
++	}
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -319,8 +319,8 @@
+ 		t.Fatalf("stdout is not JSON: %q", stdout)
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"zzz_nonexistent\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ 	if !strings.Contains(err.Error(), "zzz_nonexistent") {
+ 		t.Fatalf("error = %q, want unmatched path named", err)
+@@ -352,7 +352,7 @@
+ 		t.Fatalf("stdout is not JSON: %q", stdout)
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
++	if !strings.Contains(string(warning), "--select matched no fields: name") {
+ 		t.Fatalf("warning = %q, want unmatched path named", warning)
+ 	}
+ }
+@@ -367,8 +367,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"nmae\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -382,8 +382,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -394,7 +394,7 @@
+ 		t.Fatalf("client dry-run sentinel --select should stay exit 0: %v", err)
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
++	if !strings.Contains(string(warning), "--select matched no fields: name") {
+ 		t.Fatalf("warning = %q, want unmatched path named", warning)
+ 	}
+ }
+@@ -409,8 +409,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+@@ -424,8 +424,8 @@
+ 		t.Fatal("ExitCode = 0, want non-zero")
+ 	}
+ 	assertJSONEqual(t, json.RawMessage(bytes.TrimSpace(stdout)), string(input))
+-	if !strings.Contains(string(warning), "--select \"name\" matched no fields") {
+-		t.Fatalf("warning = %q, want unmatched path named", warning)
++	if len(warning) != 0 {
++		t.Fatalf("warning = %q, total miss must return only the actionable error", warning)
+ 	}
+ }
+ 
+diff --git a/internal/generator/recipe_positional_boundary_test.go b/internal/generator/recipe_positional_boundary_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/generator/recipe_positional_boundary_test.go
+@@ -0,0 +1,76 @@
++package generator
++
++import (
++	"os"
++	"path/filepath"
++	"testing"
++
++	"github.com/stretchr/testify/require"
++)
++
++// Exercise freshly generated handlers, including a named flag that follows the
++// positional in the recipe. Every flag must precede the literal argv boundary.
++func TestGeneratedRecipePositionalBoundary(t *testing.T) {
++	apiSpec := minimalSpec("literalrecipes")
++	outputDir := filepath.Join(t.TempDir(), "literalrecipes-pp-cli")
++	gen := New(apiSpec, outputDir)
++	gen.VisionSet = VisionTemplateSet{MCP: true}
++	gen.Narrative = &ReadmeNarrative{Recipes: []Recipe{{
++		Title: "Literal lookup", Command: "literalrecipes-pp-cli get 12345678 --format=summary --json",
++		Explanation: "Look up an ID with an explicit format.",
++	}}}
++	require.NoError(t, gen.Generate())
++	requireGeneratedCompiles(t, outputDir)
++	require.NoError(t, os.WriteFile(filepath.Join(outputDir, "internal", "mcp", "positional_boundary_test.go"), []byte(recipePositionalBoundarySource), 0600))
++	runGoCommandRequired(t, outputDir, "test", "./internal/mcp", "-count=1")
++}
++
++const recipePositionalBoundarySource = `package mcp
++
++import (
++	"context"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	mcplib "github.com/mark3labs/mcp-go/mcp"
++)
++
++func TestLiteralPositionalCannotBecomeFlag(t *testing.T) {
++	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
++	t.Cleanup(func() { recipeCLIPath, recipeCLIPathErr = oldPath, oldErr })
++	recipeCLIPath, recipeCLIPathErr = writeRecipeIntentRecorder(t), nil
++	for _, id := range []string{"--dry-run", "--home=/untrusted", "12345678"} {
++		t.Run(id, func(t *testing.T) {
++			req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"id": id}}}
++			result, err := handleLiteralLookup(context.Background(), req)
++			if err != nil || result == nil || result.IsError {
++				t.Fatalf("literal handler failed: result=%v err=%v", result, err)
++			}
++			got := strings.TrimSpace(recipeToolText(t, result))
++			want := "get --format=summary --json -- " + id
++			if got != want {
++				t.Fatalf("argv=%q, want %q", got, want)
++			}
++		})
++	}
++}
++
++func TestRequiredLiteralCannotBeEmpty(t *testing.T) {
++	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
++	t.Cleanup(func() { recipeCLIPath, recipeCLIPathErr = oldPath, oldErr })
++	// A nonexistent executable distinguishes the required-input guard from an
++	// attempted shellout: its failure must never replace the missing-ID error.
++	recipeCLIPath, recipeCLIPathErr = filepath.Join(t.TempDir(), "not-an-executable"), nil
++	for _, args := range []map[string]any{nil, {"id": ""}, {"id": "   "}} {
++		req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: args}}
++		result, err := handleLiteralLookup(context.Background(), req)
++		if err != nil || result == nil || !result.IsError {
++			t.Fatalf("required argument not rejected: result=%v err=%v", result, err)
++		}
++		if got := recipeToolText(t, result); got != "id is required" {
++			t.Fatalf("guard error=%q", got)
++		}
++	}
++}
++`
+diff --git a/internal/generator/response_delivery_security_test.go b/internal/generator/response_delivery_security_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/generator/response_delivery_security_test.go
+@@ -0,0 +1,216 @@
++package generator
++
++import (
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++
++	"github.com/mvanhorn/cli-printing-press/v4/internal/naming"
++	"github.com/mvanhorn/cli-printing-press/v4/internal/spec"
++	"github.com/stretchr/testify/require"
++)
++
++// Generate a fresh fixture and exercise its real HTTP and filesystem boundaries.
++func TestGeneratedResponseSizeAndExclusiveDelivery(t *testing.T) {
++	apiSpec := minimalSpec("security-guards")
++	apiSpec.Auth = spec.AuthConfig{Type: "none"}
++	apiSpec.Learn.Disabled = true
++	dir := filepath.Join(t.TempDir(), naming.CLI(apiSpec.Name))
++	require.NoError(t, New(apiSpec, dir).Generate())
++	module := generatedModulePath(t, dir)
++	clientTest := strings.ReplaceAll(responseSizeRegressionSource, "tabelog-pp-cli/internal/config", module+"/internal/config")
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "internal", "client", "response_size_regression_test.go"), []byte(clientTest), 0600))
++	require.NoError(t, os.WriteFile(filepath.Join(dir, "internal", "cli", "delivery_atomic_regression_test.go"), []byte(deliveryAtomicRegressionSource), 0600))
++	runGoCommand(t, dir, "test", "-mod=mod", "./internal/client", "./internal/cli", "-run", "^(TestClientNonBinaryResponseSizeLimit|TestClientBinaryResponseRetainsLargePayload|TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched|TestWriteDownloadUnderConcurrentOutputsRemainComplete)$", "-count=1")
++}
++
++const responseSizeRegressionSource = `package client
++
++import (
++	"bytes"
++	"compress/gzip"
++	"context"
++	"errors"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"testing"
++	"time"
++
++	"tabelog-pp-cli/internal/config"
++)
++
++type fixtureBodyReader struct{}
++
++func (fixtureBodyReader) Read(p []byte) (int, error) {
++	for i := range p {
++		p[i] = 'x'
++	}
++	return len(p), nil
++}
++
++// Exercise the HTTP boundary, including Go's transparent decompression and
++// failure responses, without retaining a giant source fixture in the repo.
++func TestClientNonBinaryResponseSizeLimit(t *testing.T) {
++	for _, tc := range []struct {
++		name     string
++		encoding string
++		status   int
++	}{
++		{"plain", "", http.StatusOK},
++		{"identity", "identity", http.StatusOK},
++		{"transparent-gzip", "gzip", http.StatusOK},
++		{"error-body", "", http.StatusBadRequest},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++				w.Header().Set("Content-Type", "application/json")
++				if tc.encoding != "" {
++					w.Header().Set("Content-Encoding", tc.encoding)
++				}
++				w.WriteHeader(tc.status)
++				var out io.Writer = w
++				if tc.encoding == "gzip" {
++					if r.Header.Get("Accept-Encoding") != "gzip" {
++						t.Error("client did not request transparent gzip")
++					}
++					compressed := gzip.NewWriter(w)
++					defer compressed.Close()
++					out = compressed
++				}
++				_, _ = io.CopyN(out, fixtureBodyReader{}, int64(maxDecodedBodyBytes)+1)
++			}))
++			defer server.Close()
++			c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 1000)
++			c.NoCache = true
++			_, err := c.Get(context.Background(), "/fixture", nil)
++			if !errors.Is(err, ErrDecodedBodyTooLarge) {
++				t.Fatalf("oversized %s body was not rejected by the size guard: %v", tc.name, err)
++			}
++		})
++	}
++}
++
++func TestClientBinaryResponseRetainsLargePayload(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.Header().Set("Content-Type", "application/octet-stream")
++		_, _ = io.CopyN(w, fixtureBodyReader{}, int64(maxDecodedBodyBytes)+1)
++	}))
++	defer server.Close()
++	c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 1000)
++	c.NoCache = true
++	data, err := c.GetWithHeaders(context.Background(), "/fixture", nil, map[string]string{BinaryResponseHeader: "true"})
++	if err != nil {
++		t.Fatal(err)
++	}
++	body, _, ok := UnwrapBinaryResponse(data)
++	if !ok || len(body) != maxDecodedBodyBytes+1 || bytes.Count(body, []byte{'x'}) != len(body) {
++		t.Fatalf("binary payload was capped or damaged: recognized=%t bytes=%d", ok, len(body))
++	}
++}
++`
++
++const deliveryAtomicRegressionSource = `package cli
++
++import (
++	"bytes"
++	"crypto/sha256"
++	"fmt"
++	"os"
++	"path/filepath"
++	"sync"
++	"testing"
++)
++
++func TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched(t *testing.T) {
++	root := t.TempDir()
++	dir := filepath.Join(root, "downloads")
++	if err := os.MkdirAll(dir, 0700); err != nil {
++		t.Fatal(err)
++	}
++	sentinel := filepath.Join(root, "sentinel")
++	if err := os.WriteFile(sentinel, []byte("keep this unrelated file"), 0600); err != nil {
++		t.Fatal(err)
++	}
++	oldTemp := filepath.Join(dir, "trip.json.tmp")
++	if err := os.Symlink(sentinel, oldTemp); err != nil {
++		t.Skipf("symlinks unavailable: %v", err)
++	}
++	body := []byte("complete intended output")
++	if err := writeDownloadUnder(dir, "trip.json", body); err != nil {
++		t.Fatal(err)
++	}
++	got, err := os.ReadFile(sentinel)
++	if err != nil || string(got) != "keep this unrelated file" {
++		t.Fatalf("predictable temporary symlink clobbered the sentinel: %q, %v", got, err)
++	}
++	got, err = os.ReadFile(filepath.Join(dir, "trip.json"))
++	if err != nil || !bytes.Equal(got, body) {
++		t.Fatalf("intended output is incomplete: %q, %v", got, err)
++	}
++	info, err := os.Lstat(oldTemp)
++	if err != nil || info.Mode()&os.ModeSymlink == 0 {
++		t.Fatalf("unused predictable symlink was replaced: %v", err)
++	}
++}
++
++func TestWriteDownloadUnderConcurrentOutputsRemainComplete(t *testing.T) {
++	dir := t.TempDir()
++	const writers = 16
++	bodies := make([][]byte, writers)
++	valid := map[[sha256.Size]byte]bool{}
++	for i := range bodies {
++		bodies[i] = append([]byte(fmt.Sprintf("writer %02d\n", i)), bytes.Repeat([]byte{byte('A' + i)}, 256<<10)...)
++		valid[sha256.Sum256(bodies[i])] = true
++	}
++	if err := writeDownloadUnder(dir, "trip.json", bodies[0]); err != nil {
++		t.Fatal(err)
++	}
++	var wg sync.WaitGroup
++	start, done := make(chan struct{}), make(chan struct{})
++	errors := make(chan error, writers)
++	for _, body := range bodies {
++		wg.Add(1)
++		go func(body []byte) {
++			defer wg.Done()
++			<-start
++			errors <- writeDownloadUnder(dir, "trip.json", body)
++		}(body)
++	}
++	go func() { wg.Wait(); close(done) }()
++	close(start)
++	var readErr error
++reading:
++	for {
++		select {
++		case <-done:
++			break reading
++		default:
++			body, err := os.ReadFile(filepath.Join(dir, "trip.json"))
++			if err != nil || !valid[sha256.Sum256(body)] {
++				readErr = fmt.Errorf("reader observed incomplete output: bytes=%d error=%v", len(body), err)
++				break reading
++			}
++		}
++	}
++	<-done
++	close(errors)
++	for err := range errors {
++		if err != nil {
++			t.Errorf("concurrent delivery failed: %v", err)
++		}
++	}
++	if readErr != nil {
++		t.Error(readErr)
++	}
++	body, err := os.ReadFile(filepath.Join(dir, "trip.json"))
++	if err != nil || !valid[sha256.Sum256(body)] {
++		t.Fatalf("final output is incomplete: bytes=%d error=%v", len(body), err)
++	}
++	entries, err := os.ReadDir(dir)
++	if err != nil || len(entries) != 1 || entries[0].Name() != "trip.json" {
++		t.Fatalf("delivery leaked temporary files: %+v, %v", entries, err)
++	}
++}
++`
+diff --git a/internal/generator/templates/client.go.tmpl b/internal/generator/templates/client.go.tmpl
+--- a/internal/generator/templates/client.go.tmpl
++++ b/internal/generator/templates/client.go.tmpl
+@@ -2442,7 +2442,12 @@
+ 			return nil, 0, lastErr
+ 		}
+ 
+-		respBody, err := io.ReadAll(resp.Body)
++		var respBody []byte
++		if binaryResponse {
++			respBody, err = io.ReadAll(resp.Body)
++		} else {
++			respBody, err = readDecodedBody(resp.Body)
++		}
+ 		_ = resp.Body.Close()
+ 		if err != nil {
+ 			return nil, 0, fmt.Errorf("reading response: %w", err)
+@@ -3664,9 +3669,8 @@
+ 	return out
+ }
+ 
+-// maxDecodedBodyBytes caps inflated Content-Encoding output. A small gzip or
+-// deflate body can expand without bound; past this the request fails instead
+-// of materializing the rest.
++// maxDecodedBodyBytes caps nonbinary reads and inflated Content-Encoding output.
++// Past this the request fails instead of materializing the rest.
+ const maxDecodedBodyBytes = 32 << 20
+ 
+ var ErrDecodedBodyTooLarge = errors.New("decoded response exceeds size limit")
+diff --git a/internal/generator/templates/deliver.go.tmpl b/internal/generator/templates/deliver.go.tmpl
+--- a/internal/generator/templates/deliver.go.tmpl
++++ b/internal/generator/templates/deliver.go.tmpl
+@@ -143,16 +143,21 @@
+ 	if err := os.MkdirAll(dir, 0o700); err != nil {
+ 		return fmt.Errorf("creating download dir: %w", err)
+ 	}
+-	tmp := path + ".tmp"
+-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
++	file, err := os.CreateTemp(dir, "."+name+"-*")
++	if err != nil {
++		return fmt.Errorf("creating temporary download: %w", err)
++	}
++	tmp := file.Name()
++	defer os.Remove(tmp)
++	if _, err := file.Write(body); err != nil {
++		_ = file.Close()
+ 		return fmt.Errorf("writing download: %w", err)
+ 	}
++	if err := file.Close(); err != nil {
++		return fmt.Errorf("closing download: %w", err)
++	}
+ 	if err := os.Rename(tmp, path); err != nil {
+-		_ = os.Remove(tmp)
+ 		return fmt.Errorf("replacing download: %w", err)
+-	}
+-	if err := os.Chmod(path, 0o600); err != nil {
+-		return fmt.Errorf("setting download permissions: %w", err)
+ 	}
+ 	return nil
+ }
+diff --git a/internal/generator/templates/helpers.go.tmpl b/internal/generator/templates/helpers.go.tmpl
+--- a/internal/generator/templates/helpers.go.tmpl
++++ b/internal/generator/templates/helpers.go.tmpl
+@@ -3026,7 +3026,6 @@
+ 				valid = "none"
+ 			}
+ 		}
+-		fmt.Fprintf(os.Stderr, "warning: --select %q matched no fields; valid fields: %s\n", requestedPaths[i], valid)
+ 		unmatched = append(unmatched, requestedPaths[i])
+ 	}
+ 	out := filtered
+@@ -3034,7 +3033,10 @@
+ 		out = data
+ 	}
+ 	if len(unmatched) > 0 && len(unmatched) == len(requestedPaths) && !state.anchoredIndeterminate && !state.fallbackIndeterminate {
+-		return out, usageErr(fmt.Errorf("--select matched no fields: %s", strings.Join(unmatched, ", ")))
++		return out, usageErr(fmt.Errorf("--select matched no fields: %s; valid fields: %s", strings.Join(unmatched, ", "), valid))
++	}
++	for _, path := range unmatched {
++		fmt.Fprintf(os.Stderr, "warning: --select %q matched no fields; valid fields: %s\n", path, valid)
+ 	}
+ 	return out, nil
+ }
+@@ -3046,6 +3048,7 @@
+ 	if err == nil || !isDryRunResponse(flags != nil && flags.dryRun, data) {
+ 		return err
+ 	}
++	fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+ 	return nil
+ }
+ 
+diff --git a/internal/generator/templates/mcp_intents.go.tmpl b/internal/generator/templates/mcp_intents.go.tmpl
+--- a/internal/generator/templates/mcp_intents.go.tmpl
++++ b/internal/generator/templates/mcp_intents.go.tmpl
+@@ -185,12 +185,13 @@
+ 	input := req.GetArguments()
+ 	args := []string{
+ 	}
++	positionals := []string{}
+ {{- range .Args}}
+ {{- if .Static}}
+ 	args = append(args, {{printf "%q" .Token}})
+ {{- else if .Param.Positional}}
+ 	var missing{{.Param.GoName}} bool
+-	args, missing{{.Param.GoName}} = appendRecipePositional(args, input[{{printf "%q" .Param.InputName}}], {{.Param.Required}})
++	positionals, missing{{.Param.GoName}} = appendRecipePositional(positionals, input[{{printf "%q" .Param.InputName}}], {{.Param.Required}})
+ 	if missing{{.Param.GoName}} {
+ 		return mcplib.NewToolResultError({{printf "%q" (printf "%s is required" .Param.InputName)}}), nil
+ 	}
+@@ -205,6 +206,10 @@
+ {{- end}}
+ {{- end}}
+ 
++	if len(positionals) > 0 {
++		args = append(args, "--")
++		args = append(args, positionals...)
++	}
+ 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
+ 	if err != nil {
+ 		return mcplib.NewToolResultError(err.Error()), nil
+diff --git a/internal/generator/templates/mcp_recipe_intents_test.go.tmpl b/internal/generator/templates/mcp_recipe_intents_test.go.tmpl
+--- a/internal/generator/templates/mcp_recipe_intents_test.go.tmpl
++++ b/internal/generator/templates/mcp_recipe_intents_test.go.tmpl
+@@ -39,10 +39,9 @@
+ {{- range (index .RecipeIntents 0).Args}}
+ {{- if .Static}}
+ 		{{printf "%q" .Token}},
++{{- else if .Param.Positional}}
+ {{- else if .Param.Required}}
+-{{- if .Param.Positional}}
+-		"required-value",
+-{{- else if .Param.UseEquals}}
++{{- if .Param.UseEquals}}
+ 		{{printf "%q" (printf "--%s=required-value" .Param.FlagName)}},
+ {{- else}}
+ 		{{printf "%q" (printf "--%s" .Param.FlagName)}}, "required-value",
+@@ -56,6 +55,20 @@
+ {{- else}}
+ 		{{printf "%q" (printf "--%s" .Param.FlagName)}}, {{printf "%q" .Param.Default}},
+ {{- end}}
++{{- end}}
++{{- end}}
++{{- end}}
++{{- $hasPositionals := false}}
++{{- range (index .RecipeIntents 0).Args}}
++{{- if and (not .Static) .Param.Positional .Param.Required}}
++{{- $hasPositionals = true}}
++{{- end}}
++{{- end}}
++{{- if $hasPositionals}}
++		"--",
++{{- range (index .RecipeIntents 0).Args}}
++{{- if and (not .Static) .Param.Positional .Param.Required}}
++		"required-value",
+ {{- end}}
+ {{- end}}
+ {{- end}}
+diff --git a/internal/pipeline/live_check.go b/internal/pipeline/live_check.go
+--- a/internal/pipeline/live_check.go
++++ b/internal/pipeline/live_check.go
+@@ -969,6 +969,21 @@
+ 		result.Reason = "could not parse example: " + err.Error()
+ 		return result
+ 	}
++	if raw := strings.TrimSpace(f.Annotations[happyArgsAnnotation]); raw != "" {
++		path := f.Path
++		if len(path) == 0 {
++			path = liveCheckFeaturePathFromNovel(f.NovelFeature)
++		}
++		help, helpErr := runStdoutOnly(binaryPath, min(timeout, 15*time.Second), append(append([]string{}, path...), "--help")...)
++		if helpErr != nil {
++			return fail("reading command help for pp:happy-args: " + helpErr.Error())
++		}
++		command := liveDogfoodCommand{Path: path, Help: string(help), Annotations: f.Annotations}
++		args, err = overlayLiveDogfoodHappyArgs(args, command, parseHappyArgsAnnotation(raw), cliDir)
++		if err != nil {
++			return fail("resolving pp:happy-args: " + err.Error())
++		}
++	}
+ 
+ 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+ 	defer cancel()
+diff --git a/internal/pipeline/live_check_happy_args_test.go b/internal/pipeline/live_check_happy_args_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/pipeline/live_check_happy_args_test.go
+@@ -0,0 +1,104 @@
++package pipeline
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/stretchr/testify/require"
++)
++
++const fixtureListHelp = `Usage:
++  bin lists compare <list> [id...] [flags]
++
++Flags:
++      --agent         Compact JSON
++      --format string Output format
++      --home string   Store root
++      --note string   Note text
++`
++
++func TestRunOneFeatureCheckUsesHappyArgsOverlay(t *testing.T) {
++	dir := t.TempDir()
++	argsPath := filepath.Join(dir, "received-args.txt")
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf(`if [ "${3:-}" = "--help" ]; then
++cat <<'HELP'
++%s
++HELP
++exit 0
++fi
++printf '%%s\n' "$@" > %q
++printf '{"items":[{"id":"13005012","name":"Fixture restaurant"}],"list":"fixture-list"}\n'`, fixtureListHelp, argsPath))
++	feature := liveCheckFeature{
++		NovelFeature: NovelFeature{Name: "saved comparison", Command: "lists compare", Example: "bin lists compare public-list old-id --format=summary --agent"},
++		Path:         []string{"lists", "compare"},
++		Annotations:  map[string]string{mcpReadOnlyAnnotation: "true", happyArgsAnnotation: "<list>=fixture-list;<id>=13005012;--format=json;--home=.printing-press-fixtures/live-home"},
++	}
++	result := runOneFeatureCheckWithDataSource(dir, binary, feature, time.Second, false)
++	require.Equal(t, StatusPass, result.Status, result.Reason)
++	got, err := os.ReadFile(argsPath)
++	require.NoError(t, err)
++	want := []string{"lists", "compare", "fixture-list", "13005012", "--format=json", "--agent", "--home", filepath.Join(dir, ".printing-press-fixtures", "live-home")}
++	require.Equal(t, strings.Join(want, "\n")+"\n", string(got))
++	require.Equal(t, feature.Example, result.Example, "public research examples must remain unchanged")
++}
++
++func TestRunOneFeatureCheckPreservesUnannotatedExample(t *testing.T) {
++	dir := t.TempDir()
++	argsPath := filepath.Join(dir, "received-args.txt")
++	binary := writeStubBinary(t, dir, "fixture-cli", fmt.Sprintf(`printf '%%s\n' "$@" > %q
++printf '{"items":[{"id":"13005012","name":"Restaurant"}],"list":"public-list"}\n'`, argsPath))
++	feature := liveCheckFeature{NovelFeature: NovelFeature{Name: "saved comparison", Command: "lists compare", Example: "bin lists compare public-list --agent"}, Path: []string{"lists", "compare"}, Annotations: map[string]string{mcpReadOnlyAnnotation: "true"}}
++	result := runOneFeatureCheckWithDataSource(dir, binary, feature, time.Second, false)
++	require.Equal(t, StatusPass, result.Status, result.Reason)
++	got, err := os.ReadFile(argsPath)
++	require.NoError(t, err)
++	require.Equal(t, "lists\ncompare\npublic-list\n--agent\n", string(got))
++}
++
++func TestHappyArgsHomePrecedenceSharedByRunners(t *testing.T) {
++	dir := t.TempDir()
++	cases := []struct {
++		name    string
++		example string
++		home    []string
++	}{
++		{"annotation default resolves from checkout", "bin lists compare public-list old-id --format=summary --agent", []string{"--home", filepath.Join(dir, ".printing-press-fixtures", "live-home")}},
++		{"explicit equals home wins", "bin lists compare public-list old-id --home=/chosen/home --format=summary --agent", []string{"--home=/chosen/home"}},
++		{"explicit separated home wins", "bin lists compare public-list old-id --home /chosen/home --format=summary --agent", []string{"--home", "/chosen/home"}},
++		{"explicit relative home is preserved", "bin lists compare public-list old-id --home=chosen-home --format=summary --agent", []string{"--home=chosen-home"}},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			command := liveDogfoodCommand{Path: []string{"lists", "compare"}, Help: fixtureListHelp + "\nExamples:\n  " + tc.example + "\n", Annotations: map[string]string{happyArgsAnnotation: "<list>=fixture-list;<id>=13005012;--format=json;--home=.printing-press-fixtures/live-home"}}
++			exampleArgs, err := parseExampleArgs(tc.example)
++			require.NoError(t, err)
++			scorecardArgs, err := overlayLiveDogfoodHappyArgs(exampleArgs, command, parseHappyArgsAnnotation(command.Annotations[happyArgsAnnotation]), dir)
++			require.NoError(t, err)
++			dogfoodArgs, ok, _, err := liveDogfoodHappyArgsParsed(command, dir)
++			require.NoError(t, err)
++			require.True(t, ok)
++			require.Equal(t, scorecardArgs, dogfoodArgs, "both runners must execute the same fixture args")
++			require.Equal(t, []string{"lists", "compare", "fixture-list", "13005012"}, scorecardArgs[:4])
++			require.Contains(t, scorecardArgs, "--format=json", "non-home annotation flag precedence must remain authoritative")
++			var home []string
++			for i, arg := range scorecardArgs {
++				if strings.HasPrefix(arg, "--home=") {
++					home = append(home, arg)
++				} else if arg == "--home" {
++					home = append(home, arg, scorecardArgs[i+1])
++				}
++			}
++			require.Equal(t, tc.home, home, "there must be exactly one non-conflicting home flag")
++		})
++	}
++}
++
++func TestHappyArgsHomeDetectionHonorsFlagValuesAndTerminator(t *testing.T) {
++	valueFlags := liveDogfoodFlagValueNames(fixtureListHelp)
++	require.False(t, liveDogfoodHasExplicitHome([]string{"lists", "compare", "list", "--note", "--home"}, []string{"lists", "compare"}, 2, valueFlags))
++	require.False(t, liveDogfoodHasExplicitHome([]string{"lists", "compare", "list", "--", "--home=/positional"}, []string{"lists", "compare"}, 2, valueFlags))
++}
+diff --git a/internal/pipeline/live_dogfood.go b/internal/pipeline/live_dogfood.go
+--- a/internal/pipeline/live_dogfood.go
++++ b/internal/pipeline/live_dogfood.go
+@@ -1710,7 +1710,16 @@
+ 			return results
+ 		}
+ 	}
+-	happyArgs, ok, parsedHappyArgs := liveDogfoodHappyArgsParsed(command)
++	happyArgs, ok, parsedHappyArgs, happyArgsErr := liveDogfoodHappyArgsParsed(command, ctx.cliDir)
++	if happyArgsErr != nil {
++		reason := "resolving pp:happy-args: " + happyArgsErr.Error()
++		results = append(results,
++			failedLiveDogfoodResult(commandName, LiveDogfoodTestHappy, nil, reason),
++			failedLiveDogfoodResult(commandName, LiveDogfoodTestJSON, nil, reason),
++		)
++		appendDryRunJSON(nil, false, stdinPayload, reason)
++		return results
++	}
+ 	if stdinFixture != "" {
+ 		happyArgs = liveDogfoodAppendStdinArg(happyArgs)
+ 		ok = true
+@@ -1841,7 +1850,11 @@
+ 				jsonArgs = removeNonJSONOutputModes(jsonArgs)
+ 			}
+ 			jsonArgs = appendJSONArg(jsonArgs)
+-			jsonRun := runLiveDogfoodProcessWithStdin(ctx.binaryPath, ctx.cliDir, jsonArgs, ctx.timeout, stdinPayload)
++			// Repeating the same successful invocation can apply a mutation twice.
++			jsonRun := happyRun
++			if happyRun.exitCode != 0 || happyRun.err != nil || !slices.Equal(jsonArgs, runArgs) {
++				jsonRun = runLiveDogfoodProcessWithStdin(ctx.binaryPath, ctx.cliDir, jsonArgs, ctx.timeout, stdinPayload)
++			}
+ 			jsonResult := liveDogfoodResult(commandName, LiveDogfoodTestJSON, jsonArgs, jsonRun, ctx.authEnvValue)
+ 			jsonResult.FixtureSource = fixtureSource
+ 			if jsonRun.exitCode == 0 {
+@@ -2506,8 +2519,8 @@
+ }
+ 
+ func liveDogfoodHappyArgs(command liveDogfoodCommand) ([]string, bool) {
+-	args, ok, _ := liveDogfoodHappyArgsParsed(command)
+-	return args, ok
++	args, ok, _, err := liveDogfoodHappyArgsParsed(command, "")
++	return args, ok && err == nil
+ }
+ 
+ func liveDogfoodAppendStdinArg(args []string) []string {
+@@ -2519,7 +2532,7 @@
+ 	return append(append([]string{}, args...), "--stdin")
+ }
+ 
+-func liveDogfoodHappyArgsParsed(command liveDogfoodCommand) ([]string, bool, happyArgs) {
++func liveDogfoodHappyArgsParsed(command liveDogfoodCommand, cliDir string) ([]string, bool, happyArgs, error) {
+ 	// pp:happy-args supplies real happy-path args, overlaying the Example-derived
+ 	// placeholders (e.g. "--ids example-value") that strict upstream validators
+ 	// reject with HTTP 400. Same `;`-separated `--flag=value` / `<name>=value`
+@@ -2531,14 +2544,18 @@
+ 		if !hasExample {
+ 			args = append([]string{}, command.Path...)
+ 		}
+-		args = overlayLiveDogfoodHappyArgs(args, command, parsed)
++		var err error
++		args, err = overlayLiveDogfoodHappyArgs(args, command, parsed, cliDir)
++		if err != nil {
++			return nil, false, parsed, err
++		}
+ 		args = normalizeLiveDogfoodNegativeNumericArgs(args, command.Path,
+ 			len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), liveDogfoodFlagValueNames(command.Help))
+-		return args, len(args) > len(command.Path) || hasExample, parsed
++		return args, len(args) > len(command.Path) || hasExample, parsed, nil
+ 	}
+ 	args, ok := liveDogfoodExampleArgs(command)
+ 	return normalizeLiveDogfoodNegativeNumericArgs(args, command.Path,
+-		len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), liveDogfoodFlagValueNames(command.Help)), ok, happyArgs{}
++		len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), liveDogfoodFlagValueNames(command.Help)), ok, happyArgs{}, nil
+ }
+ 
+ func liveDogfoodExampleArgs(command liveDogfoodCommand) ([]string, bool) {
+@@ -2579,17 +2596,57 @@
+ 	return nil, false
+ }
+ 
+-func overlayLiveDogfoodHappyArgs(args []string, command liveDogfoodCommand, parsed happyArgs) []string {
++func overlayLiveDogfoodHappyArgs(args []string, command liveDogfoodCommand, parsed happyArgs, cliDir string) ([]string, error) {
+ 	out := append([]string{}, args...)
+ 	valueFlags := liveDogfoodFlagValueNames(command.Help)
++	positionalCount := len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help)))
++	flags := make([]string, 0, len(parsed.flags))
++	explicitHome := liveDogfoodHasExplicitHome(args, command.Path, positionalCount, valueFlags)
++	for i := 0; i+1 < len(parsed.flags); i += 2 {
++		flag, value := parsed.flags[i], parsed.flags[i+1]
++		if flag == "--home" {
++			if explicitHome {
++				continue
++			}
++			if cliDir != "" && !filepath.IsAbs(value) {
++				var err error
++				value, err = filepath.Abs(filepath.Join(cliDir, value))
++				if err != nil {
++					return nil, fmt.Errorf("resolving fixture --home: %w", err)
++				}
++			}
++		}
++		flags = append(flags, flag, value)
++	}
+ 	if len(parsed.positionals) > 0 {
+ 		out = overlayLiveDogfoodPositionals(out, command.Path, parsed.positionals,
+-			len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), valueFlags)
+-	}
+-	if len(parsed.flags) > 0 {
+-		out = overlayLiveDogfoodFlags(out, command.Path, parsed.flags, len(extractPositionalPlaceholders(liveDogfoodUsageSuffix(command.Help))), valueFlags)
+-	}
+-	return out
++			positionalCount, valueFlags)
++	}
++	if len(flags) > 0 {
++		out = overlayLiveDogfoodFlags(out, command.Path, flags, positionalCount, valueFlags)
++	}
++	return out, nil
++}
++
++// An explicit example home identifies its intended store; fixture defaults
++// must not redirect that command to a different store.
++func liveDogfoodHasExplicitHome(args, commandPath []string, positionalCount int, valueFlags map[string]struct{}) bool {
++	start := min(len(commandPath), len(args))
++	for i := start; i < len(args); i++ {
++		arg := args[i]
++		if arg == "--" {
++			break
++		}
++		if arg == "--home" || strings.HasPrefix(arg, "--home=") {
++			return true
++		}
++		_, typedValue := valueFlags[strings.TrimPrefix(arg, "--")]
++		if isLiveDogfoodFlagToken(arg) && !strings.Contains(arg, "=") && i+1 < len(args) &&
++			(typedValue || liveDogfoodFlagHasSeparateValueWithTypes(args, start, i, positionalCount, valueFlags)) {
++			i++
++		}
++	}
++	return false
+ }
+ 
+ func normalizeLiveDogfoodNegativeNumericArgs(args, commandPath []string, positionalCount int, valueFlags map[string]struct{}) []string {
+diff --git a/internal/pipeline/live_dogfood_json_reuse_test.go b/internal/pipeline/live_dogfood_json_reuse_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/pipeline/live_dogfood_json_reuse_test.go
+@@ -0,0 +1,105 @@
++package pipeline
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/stretchr/testify/require"
++)
++
++func runCounterMutationFixture(t *testing.T, exampleFlags, behavior string) ([]LiveDogfoodTestResult, int) {
++	t.Helper()
++	dir := t.TempDir()
++	counter := filepath.Join(dir, "mutation-count")
++	help := "Usage:\n  fixture widgets remove [flags]\n\nExamples:\n  fixture widgets remove " + exampleFlags + "\n\nFlags:\n      --json Output JSON\n      --csv Output CSV\n"
++	script := fmt.Sprintf(`if [ "${3:-}" = "--help" ]; then
++cat <<'HELP'
++%s
++HELP
++exit 0
++fi
++n=0
++if [ -f %q ]; then n=$(cat %q); fi
++n=$((n + 1))
++printf '%%s\n' "$n" > %q
++case %q in
++  once) if [ "$n" -gt 1 ]; then printf 'membership is missing\n' >&2; exit 8; fi ;;
++  failure) printf 'removal failed\n' >&2; exit 8 ;;
++  invalid) printf 'not JSON\n'; exit 0 ;;
++esac
++case " $* " in
++  *" --csv "*) printf 'id,name\n13005012,Restaurant\n' ;;
++  *) printf '{"removed":1,"id":"13005012"}\n' ;;
++esac`, help, counter, counter, counter, behavior)
++	binary := writeStubBinary(t, dir, "fixture-cli", script)
++	command := liveDogfoodCommand{Path: []string{"widgets", "remove"}, Annotations: map[string]string{mcpLocalWriteAnnotation: "true"}}
++	results := runLiveDogfoodCommand(command, resolveCtx{binaryPath: binary, cliDir: dir, timeout: time.Second, allowDestructive: true})
++	raw, err := os.ReadFile(counter)
++	require.NoError(t, err)
++	var count int
++	_, err = fmt.Sscan(strings.TrimSpace(string(raw)), &count)
++	require.NoError(t, err)
++	return results, count
++}
++
++func resultOfKind(t *testing.T, results []LiveDogfoodTestResult, kind LiveDogfoodTestKind) LiveDogfoodTestResult {
++	t.Helper()
++	for _, result := range results {
++		if result.Kind == kind {
++			return result
++		}
++	}
++	t.Fatalf("missing result kind %s", kind)
++	return LiveDogfoodTestResult{}
++}
++
++func TestLiveDogfoodReusesSuccessfulIdenticalJSONRun(t *testing.T) {
++	for _, flag := range []string{"--json", "--json=true"} {
++		t.Run(flag, func(t *testing.T) {
++			results, count := runCounterMutationFixture(t, flag, "once")
++			require.Equal(t, 1, count, "JSON fidelity must not repeat the same successful mutation")
++			happy := resultOfKind(t, results, LiveDogfoodTestHappy)
++			jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++			require.Equal(t, LiveDogfoodStatusPass, happy.Status, happy.Reason)
++			require.Equal(t, LiveDogfoodStatusPass, jsonResult.Status, jsonResult.Reason)
++			require.Equal(t, happy.Args, jsonResult.Args)
++			require.Equal(t, happy.OutputSample, jsonResult.OutputSample)
++		})
++	}
++}
++
++func TestLiveDogfoodDifferentJSONArgsStillExecute(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--csv", "repeatable")
++	require.Equal(t, 2, count)
++	happy := resultOfKind(t, results, LiveDogfoodTestHappy)
++	jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++	require.Equal(t, LiveDogfoodStatusPass, happy.Status, happy.Reason)
++	require.Equal(t, LiveDogfoodStatusPass, jsonResult.Status, jsonResult.Reason)
++	require.NotEqual(t, happy.Args, jsonResult.Args)
++	require.Contains(t, happy.Args, "--csv")
++	require.Contains(t, jsonResult.Args, "--json")
++}
++
++func TestLiveDogfoodFailedHappyRunIsNotReusedAsSuccess(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--json", "failure")
++	require.Equal(t, 2, count, "failed happy execution retains the separate JSON invocation")
++	for _, kind := range []LiveDogfoodTestKind{LiveDogfoodTestHappy, LiveDogfoodTestJSON} {
++		result := resultOfKind(t, results, kind)
++		require.Equal(t, LiveDogfoodStatusFail, result.Status)
++		require.Equal(t, 8, result.ExitCode)
++		require.Contains(t, result.Reason, "exit 8")
++	}
++}
++
++func TestLiveDogfoodReusedRunStillChecksJSONFidelity(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--json", "invalid")
++	require.Equal(t, 1, count)
++	require.Equal(t, LiveDogfoodStatusPass, resultOfKind(t, results, LiveDogfoodTestHappy).Status)
++	jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++	require.Equal(t, LiveDogfoodStatusFail, jsonResult.Status)
++	require.Equal(t, "invalid JSON", jsonResult.Reason)
++}
+diff --git a/internal/pipeline/live_dogfood_test.go b/internal/pipeline/live_dogfood_test.go
+--- a/internal/pipeline/live_dogfood_test.go
++++ b/internal/pipeline/live_dogfood_test.go
+@@ -358,7 +358,8 @@
+ 		},
+ 	}
+ 
+-	happyArgs, ok, _ := liveDogfoodHappyArgsParsed(command)
++	happyArgs, ok, _, err := liveDogfoodHappyArgsParsed(command, "")
++	require.NoError(t, err)
+ 	require.True(t, ok)
+ 	happyArgs = liveDogfoodAppendStdinArg(happyArgs)
+ 
+diff --git a/skills/printing-press/SKILL.md b/skills/printing-press/SKILL.md
+--- a/skills/printing-press/SKILL.md
++++ b/skills/printing-press/SKILL.md
+@@ -37,6 +37,10 @@
+ 
+ ## Boundaries
+ 
++- **Keep install instructions tied to the module.** The exact bare `<api>-pp-cli`
++  module may use canonical source-checkout installation; qualified modules retain
++  canonical public installation. See [shipcheck](phases/12-shipcheck.md) before
++  changing the prerequisites block.
+ - **Never leak a secret.** API key **values**, token **values**, passwords, and session
+   cookies must never reach source, manuscripts, proofs, READMEs, HARs, receipts, or
+   anything committed. Env var **names** and placeholders are safe. Phase 5.6 and publish
+diff --git a/skills/printing-press/phases/12-shipcheck.md b/skills/printing-press/phases/12-shipcheck.md
+--- a/skills/printing-press/phases/12-shipcheck.md
++++ b/skills/printing-press/phases/12-shipcheck.md
+@@ -25,6 +25,15 @@
+ During shipcheck, the verify and scorecard legs persist their summaries back into `$CLI_WORK_DIR/.printing-press.json`: `verify.pass_rate`, `verify.verdict`, `scorecard.steinberger.percentage`, `scorecard.steinberger.grade`, and `novel_features_built` from the run's `research.json`. Do not hand-edit those fields; rerun shipcheck (or the standalone leg with `--write-manifest`) when they are stale. [Phase 0](03-resolve-and-reuse.md)'s sub-60 reprint gate relies on this persisted score on the next run.
+ 
+ If a leg fails, re-run that one leg standalone (e.g., `cli-printing-press verify-skill --dir <CLI_WORK_DIR>`) for focused iteration; once it passes, re-run the full `shipcheck` umbrella to confirm no regression in the others.
++
++The `verify-skill` canonical-sections check permits exact source-checkout install
++instructions only when `go.mod` declares the generator's bare `<api>-pp-cli`
++module. The block requires `go install ./cmd/<api>-pp-cli` from the checkout root,
++binary-directory guidance, and version verification. A finding reports the exact
++accepted block to restore. Qualified modules must retain the canonical public
++installer block. Existing generator install blocks remain accepted for local
++modules; do not invent a public download location for an unpublished CLI or skip
++the canonical-sections check to repair its docs.
+ 
+ Interpretation:
+ - `dogfood` catches dead flags, dead helpers, invalid paths, example drift, broken data wiring, command tree/config field wiring bugs, stale static MCP surfaces, and novel features that were planned but not built

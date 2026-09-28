@@ -1,0 +1,233 @@
+{
+  "api_name": "tabelog",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Gurume",
+      "url": "https://github.com/narumiruna/gurume",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tabelog_scraping",
+      "url": "https://github.com/xyx-is/tabelog_scraping",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "The approved saved-list workflows need personal notes, offline comparisons and per-record provenance beyond the inspected discovery wrappers.",
+    "Source blocks and parser changes must leave each last valid saved snapshot usable."
+  ],
+  "patterns": [
+    "Gurume contributed discovery, typed suggestions, separate meal budgets, structured output and actionable failure concepts.",
+    "The Ruby card parser contributed source-ID, source-URL, retrieval-time and separate meal-budget provenance patterns; native English evidence determines current wire fields.",
+    "Exact HTTP and parsing contracts are in research/website-replay-contract.md; supported yen thresholds map to the observed source enumeration.",
+    "The approved manifest marks all five novel workflows hand-code; its Buildability and brainstorm Survivors sections remain authoritative.",
+    "Learning is disabled; source work uses bounded foreground HTTP with explicit freshness and optional stdio MCP.",
+    "Budget brackets, reservation policies and station-relative meters remain source facts with their original meaning."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-27T14:06:09Z",
+  "novel_features": [
+    {
+      "name": "Offline factual comparison",
+      "command": "lists compare",
+      "description": "Compare saved restaurants, meal budgets and personal notes without network requests.",
+      "rationale": "Saved source snapshots, list membership and notes can be viewed together while keeping unknown facts and retrieval times visible.",
+      "example": "tabelog-pp-cli lists compare tokyo-bars --agent",
+      "why_it_matters": "Use this when choosing between candidates already saved for the trip.",
+      "group": "Offline decisions"
+    },
+    {
+      "name": "Bounded refresh with fact changes",
+      "command": "lists refresh",
+      "description": "Update selected saved restaurants and see changed facts while keeping personal notes.",
+      "rationale": "Comparing each last valid snapshot with a current detail response reveals factual changes and preserves useful saved data when a request fails.",
+      "example": "tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent",
+      "why_it_matters": "Use this when a saved candidate needs current facts before a meal decision.",
+      "group": "Freshness and evidence"
+    },
+    {
+      "name": "Trip notebook with personal notes",
+      "command": "lists add",
+      "description": "Keep fetched restaurants and personal notes in a named trip list that can be resumed offline.",
+      "rationale": "Local list membership and notes preserve the traveler's choices alongside source facts and links.",
+      "example": "tabelog-pp-cli lists add tokyo-bars 13005012 --note \"Ginza bar option\" --agent",
+      "why_it_matters": "Use this after fetching a candidate that should remain in the trip shortlist.",
+      "group": "Trip notes"
+    },
+    {
+      "name": "Saved alternatives with explicit constraints",
+      "command": "lists alternatives",
+      "description": "Find saved substitutes matching a candidate's verified area, category and optional meal budget.",
+      "rationale": "Comparing an anchor with other saved candidates makes the matching facts and unevaluable cases explicit.",
+      "example": "tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent",
+      "why_it_matters": "Use this when choosing a backup from the saved set using specific known facts.",
+      "group": "Offline decisions"
+    },
+    {
+      "name": "Missing-evidence and freshness audit",
+      "command": "lists audit",
+      "description": "See which saved candidates have unfetched, unknown or old facts before requesting more details.",
+      "rationale": "Source-section provenance and retrieval times distinguish missing evidence from facts the source leaves unknown.",
+      "example": "tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent",
+      "why_it_matters": "Use this to select the exact saved candidates that need further checking.",
+      "group": "Freshness and evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline factual comparison",
+      "command": "lists compare",
+      "description": "Compare saved restaurants, meal budgets and personal notes without network requests.",
+      "rationale": "Saved source snapshots, list membership and notes can be viewed together while keeping unknown facts and retrieval times visible.",
+      "example": "tabelog-pp-cli lists compare tokyo-bars --agent",
+      "why_it_matters": "Use this when choosing between candidates already saved for the trip.",
+      "group": "Offline decisions"
+    },
+    {
+      "name": "Bounded refresh with fact changes",
+      "command": "lists refresh",
+      "description": "Update selected saved restaurants and see changed facts while keeping personal notes.",
+      "rationale": "Comparing each last valid snapshot with a current detail response reveals factual changes and preserves useful saved data when a request fails.",
+      "example": "tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent",
+      "why_it_matters": "Use this when a saved candidate needs current facts before a meal decision.",
+      "group": "Freshness and evidence"
+    },
+    {
+      "name": "Trip notebook with personal notes",
+      "command": "lists add",
+      "description": "Keep fetched restaurants and personal notes in a named trip list that can be resumed offline.",
+      "rationale": "Local list membership and notes preserve the traveler's choices alongside source facts and links.",
+      "example": "tabelog-pp-cli lists add tokyo-bars 13005012 --note \"Ginza bar option\" --agent",
+      "why_it_matters": "Use this after fetching a candidate that should remain in the trip shortlist.",
+      "group": "Trip notes"
+    },
+    {
+      "name": "Saved alternatives with explicit constraints",
+      "command": "lists alternatives",
+      "description": "Find saved substitutes matching a candidate's verified area, category and optional meal budget.",
+      "rationale": "Comparing an anchor with other saved candidates makes the matching facts and unevaluable cases explicit.",
+      "example": "tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent",
+      "why_it_matters": "Use this when choosing a backup from the saved set using specific known facts.",
+      "group": "Offline decisions"
+    },
+    {
+      "name": "Missing-evidence and freshness audit",
+      "command": "lists audit",
+      "description": "See which saved candidates have unfetched, unknown or old facts before requesting more details.",
+      "rationale": "Source-section provenance and retrieval times distinguish missing evidence from facts the source leaves unknown.",
+      "example": "tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent",
+      "why_it_matters": "Use this to select the exact saved candidates that need further checking.",
+      "group": "Freshness and evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Tabelog",
+    "headline": "Find Japan restaurants and bars, then keep a factual trip shortlist.",
+    "value_prop": "Discover candidates with source ratings, separate meal budgets and practical details. Save personal notes, compare offline, refresh selected places and inspect missing or old evidence in one lightweight CLI.",
+    "auth_narrative": "The verified public English Tabelog sources require no account or API key. Optional MCP uses stdio and starts only when explicitly invoked.",
+    "quickstart": [
+      {
+        "command": "tabelog-pp-cli doctor --dry-run",
+        "comment": "Check the command setup without network requests or writes."
+      },
+      {
+        "command": "tabelog-pp-cli find --area tokyo --cuisine bar --meal dinner --budget-max 5000 --limit 5 --agent",
+        "comment": "Get a compact Tokyo bar shortlist in the source's highest-rated order."
+      },
+      {
+        "command": "tabelog-pp-cli show https://tabelog.com/en/tokyo/A1301/A130101/13005012/ --agent",
+        "comment": "Fetch the canonical SAMBOA BAR Ginza ten page before using its cached ID."
+      },
+      {
+        "command": "tabelog-pp-cli lists add tokyo-bars 13005012 --note \"Ginza bar option\" --agent",
+        "comment": "Save the fetched candidate and a personal note."
+      },
+      {
+        "command": "tabelog-pp-cli lists compare tokyo-bars --agent",
+        "comment": "Compare the saved facts and notes without network requests."
+      },
+      {
+        "command": "tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent",
+        "comment": "Inspect missing evidence and snapshot age before further fetching."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "An area name is ambiguous.",
+        "fix": "Run tabelog-pp-cli areas Shinjuku --agent and choose a typed source location before find."
+      },
+      {
+        "symptom": "A bare restaurant ID has not been fetched.",
+        "fix": "Run show with its canonical English Tabelog URL first, then use the returned ID for saved-list commands."
+      },
+      {
+        "symptom": "A meal budget threshold is rejected.",
+        "fix": "Choose a documented source-supported yen threshold and specify lunch or dinner; 5000 is a supported maximum threshold."
+      },
+      {
+        "symptom": "Live requests report a block, challenge or rate limit.",
+        "fix": "Use tabelog-pp-cli lists compare tokyo-bars --agent for saved facts and retry live requests later."
+      },
+      {
+        "symptom": "Audit reports unfetched, unknown or old evidence.",
+        "fix": "Use tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent for selected old or unfetched snapshots; source-unknown facts may remain unknown."
+      }
+    ],
+    "when_to_use": "Use this for Japan restaurant and bar discovery, practical source facts, and saved meal shortlists. Resolve ambiguous locations with areas, fetch candidates with find or show, then use lists to keep notes, compare offline and choose which records to refresh.",
+    "anti_triggers": [
+      "Booking a table, paying, changing a reservation or syncing a Tabelog account.",
+      "Proving current seat availability or whether a venue is open now.",
+      "Calculating walking routes or distance from the traveler.",
+      "Bulk review-text harvesting, image downloads or nationwide crawling."
+    ],
+    "recipes": [
+      {
+        "title": "Keep a discovery response compact",
+        "command": "tabelog-pp-cli find --area tokyo --cuisine bar --meal dinner --budget-max 5000 --limit 5 --agent --select items.id,items.name,items.rating,items.url",
+        "explanation": "Project candidate identity, rating and links while retaining essential provenance and coverage metadata."
+      },
+      {
+        "title": "Compare saved candidates offline",
+        "command": "tabelog-pp-cli lists compare tokyo-bars --agent",
+        "explanation": "View saved facts and notes together; separate meal budgets and unknowns remain visible."
+      },
+      {
+        "title": "Refresh one saved candidate",
+        "command": "tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent",
+        "explanation": "Fetch current detail facts for this ID, report changes and preserve its note and last valid snapshot on failure."
+      },
+      {
+        "title": "Find a factual saved backup",
+        "command": "tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent",
+        "explanation": "Match only within the saved set using verified area/category and a known cached dinner-bracket upper bound."
+      },
+      {
+        "title": "Audit evidence before more fetching",
+        "command": "tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent",
+        "explanation": "Distinguish details not fetched, source-unknown values and old snapshots without network calls."
+      }
+    ],
+    "trigger_phrases": [
+      "Find bars in Ginza for my Japan trip",
+      "Find Japan lunch spots within my meal budget",
+      "Compare my saved Tokyo restaurants",
+      "Refresh my Japan meal shortlist",
+      "Check which saved restaurants need more details",
+      "use tabelog",
+      "run tabelog-pp-cli"
+    ]
+  }
+}

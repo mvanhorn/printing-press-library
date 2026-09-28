@@ -1,0 +1,228 @@
+--- a/internal/source/parser.go
++++ b/internal/source/parser.go
+@@ -192,11 +192,12 @@
+ }
+ 
+ type Listing struct {
+-	Items     []domain.Restaurant
+-	NextURL   string
+-	Condition string
+-	Title     string
+-	Document  *html.Node
++	Items      []domain.Restaurant
++	NextURL    string
++	Condition  string
++	Title      string
++	SourceSort string
++	Document   *html.Node
+ }
+ 
+ func ParseListing(body []byte, sourceURL string, t time.Time) (Listing, error) {
+@@ -308,6 +309,10 @@
+ 			return Listing{}, fail("parser_drift", "source page has no recognizable restaurant cards or verified zero-result state")
+ 		}
+ 	}
++	out.SourceSort, e = selectedListingSort(out)
++	if e != nil {
++		return Listing{}, e
++	}
+ 	return out, nil
+ }
+ 
+@@ -326,6 +331,80 @@
+ 			r.Evidence[key] = "known"
+ 		}
+ 	}
++}
++
++func restaurantSchemaType(v any) bool {
++	switch x := v.(type) {
++	case string:
++		return x == "Restaurant" || x == "https://schema.org/Restaurant" || x == "http://schema.org/Restaurant"
++	case []any:
++		for _, typ := range x {
++			if restaurantSchemaType(typ) {
++				return true
++			}
++		}
++	}
++	return false
++}
++
++// A requested URL is not evidence of the returned venue. Validate the page's
++// independent canonical/schema identity before any raw or normalized write.
++func validateDetailIdentity(doc *html.Node, schema map[string]any, requested string) error {
++	base, _ := url.Parse(requested)
++	verified := false
++	check := func(raw string, nodeReference bool) error {
++		raw = strings.TrimSpace(raw)
++		u, e := url.Parse(raw)
++		if e != nil || raw == "" {
++			return fail("parser_drift", "detail page has an invalid source-declared restaurant identity")
++		}
++		// A fragment-only schema @id names a node, not an independent venue route.
++		if u.Host == "" && (u.Path == "" || u.Path == "." || u.Path == "./") {
++			if nodeReference && u.Path == "" && u.RawQuery == "" && u.Fragment != "" {
++				return nil
++			}
++			return fail("parser_drift", "detail page has no independent source-declared restaurant identity route")
++		}
++		canonical, _, _, e := RestaurantURL(base.ResolveReference(u).String())
++		if e != nil {
++			return fail("parser_drift", "detail page has an invalid source-declared restaurant identity")
++		}
++		if canonical != requested {
++			return fail("constraint_mismatch", "source returned a different restaurant identity or canonical route")
++		}
++		verified = true
++		return nil
++	}
++	var identityErr error
++	walk(doc, func(n *html.Node) {
++		if identityErr != nil || n.Data != "link" {
++			return
++		}
++		for _, rel := range strings.Fields(attr(n, "rel")) {
++			if strings.EqualFold(rel, "canonical") {
++				identityErr = check(attr(n, "href"), false)
++				return
++			}
++		}
++	})
++	if identityErr != nil {
++		return identityErr
++	}
++	for _, key := range []string{"@id", "url"} {
++		if v, ok := schema[key]; ok {
++			raw, ok := v.(string)
++			if !ok {
++				return fail("parser_drift", "detail schema has an unrecognized restaurant identity value")
++			}
++			if e := check(raw, key == "@id"); e != nil {
++				return e
++			}
++		}
++	}
++	if !verified {
++		return fail("parser_drift", "detail page lost its source-declared canonical restaurant identity")
++	}
++	return nil
+ }
+ 
+ func ParseDetail(body []byte, sourceURL string, t time.Time) (domain.Restaurant, error) {
+@@ -347,8 +426,7 @@
+ 				visitJSON(i)
+ 			}
+ 		case map[string]any:
+-			typ := fmt.Sprint(x["@type"])
+-			if strings.Contains(typ, "Restaurant") && schema == nil {
++			if restaurantSchemaType(x["@type"]) && schema == nil {
+ 				schema = x
+ 			}
+ 			if g, ok := x["@graph"]; ok {
+@@ -364,6 +442,9 @@
+ 			}
+ 		}
+ 	})
++	if e = validateDetailIdentity(doc, schema, canonical); e != nil {
++		return domain.Restaurant{}, e
++	}
+ 	if schema != nil {
+ 		if s, ok := schema["name"].(string); ok {
+ 			r.Name = s
+--- a/internal/source/discovery.go
++++ b/internal/source/discovery.go
+@@ -440,6 +440,31 @@
+ 	}
+ 	return r, r.prefecture != ""
+ }
++func selectedListingSort(l Listing) (string, error) {
++	active := 0
++	ranked := false
++	walk(l.Document, func(n *html.Node) {
++		if class(n, "navi-rstlst__tab") && class(n, "is-active") {
++			active++
++			ranked = class(n, "navi-rstlst__tab--rank") && strings.EqualFold(text(n), "Highest rated")
++		}
++	})
++	if active == 0 && len(l.Items) == 0 {
++		// Genuine empty pages omit sorting controls. No ordering is claimed.
++		return "not_applicable", nil
++	}
++	if active != 1 || !ranked {
++		return "", fail("constraint_mismatch", "source did not confirm the selected highest-rated ranking sort")
++	}
++	if l.NextURL != "" {
++		u, _ := url.Parse(l.NextURL)
++		if sort := u.Query().Get("SrtT"); sort != "" && sort != "rt" {
++			return "", fail("constraint_mismatch", "source next-page link changed the ranking sort")
++		}
++	}
++	return "highest_rated", nil
++}
++
+ func validateListing(l Listing, area domain.Choice, genre string, o FindOptions) error {
+ 	// Next and sort links describe the effective complete query. Ancestor,
+ 	// sidebar and footer links cannot prove its geographic level or filters.
+@@ -562,7 +587,7 @@
+ 	if area.StationID != "" {
+ 		areaCriteria["station_id"] = area.StationID
+ 	}
+-	meta := domain.Meta{SourceSort: "highest_rated", SourceSurface: "listing", BudgetSource: "listing", Criteria: map[string]any{"area": areaCriteria, "cuisine": genre, "meal": o.Meal, "budget_min": o.BudgetMin, "budget_max": o.BudgetMax, "keyword": o.Keyword, "limit": o.Limit, "max_pages": o.MaxPages}, SourceURL: raw}
++	meta := domain.Meta{SourceSurface: "listing", BudgetSource: "listing", Criteria: map[string]any{"area": areaCriteria, "cuisine": genre, "meal": o.Meal, "budget_min": o.BudgetMin, "budget_max": o.BudgetMax, "keyword": o.Keyword, "limit": o.Limit, "max_pages": o.MaxPages}, SourceURL: raw}
+ 	next := raw
+ 	for page := 0; page < o.MaxPages && next != "" && len(selected) < o.Limit; page++ {
+ 		if urls[next] {
+@@ -579,6 +604,9 @@
+ 		}
+ 		if e = validateListing(l, area, genre, o); e != nil {
+ 			return nil, nil, domain.Meta{}, e
++		}
++		if meta.SourceSort == "" || l.SourceSort == "highest_rated" {
++			meta.SourceSort = l.SourceSort
+ 		}
+ 		if e = c.cacheWrite(next, b, t); e != nil {
+ 			return nil, nil, domain.Meta{}, e
+--- a/internal/cli/tabelog_helpers.go
++++ b/internal/cli/tabelog_helpers.go
+@@ -107,7 +107,7 @@
+ 		return out
+ 	case map[string]any:
+ 		if _, ok := x["source_surface"]; ok && x["id"] != nil && x["name"] != nil && x["url"] != nil {
+-			keep := []string{"id", "name", "url", "rating", "review_count", "categories", "area", "nearest_station", "nearest_station_distance_m", "lunch_budget", "dinner_budget", "review_lunch_budget", "review_dinner_budget", "fetched_at", "source_surface", "status", "source_warnings", "hours", "payment", "reservation", "address", "transportation", "service_charge", "closures", "awards"}
++			keep := []string{"id", "name", "url", "rating", "review_count", "categories", "area", "nearest_station", "nearest_station_distance_m", "lunch_budget", "dinner_budget", "review_lunch_budget", "review_dinner_budget", "fetched_at", "source_surface", "status", "source_warnings", "hours", "payment", "reservation", "address", "transportation", "service_charge", "closures", "awards", "facilities"}
+ 			out := map[string]any{}
+ 			for _, k := range keep {
+ 				if a, ok := x[k]; ok {
+@@ -274,6 +274,9 @@
+ 		if f := root.PersistentFlags().Lookup("compact"); f != nil {
+ 			f.Usage = "Compact output; source commands preserve restaurant decision facts"
+ 		}
++		if f := root.PersistentFlags().Lookup("select"); f != nil {
++			f.Usage = "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained"
++		}
+ 		if f := root.PersistentFlags().Lookup("max-age"); f != nil {
+ 			f.Usage = "Age threshold for saved-evidence hints; 0 disables age checks"
+ 		}
+--- a/internal/cli/tabelog_discovery.go
++++ b/internal/cli/tabelog_discovery.go
+@@ -73,9 +73,6 @@
+ 			if e = nb.ReplaceSnapshots(ctx, snapshots); e != nil {
+ 				return e
+ 			}
+-		}
+-		if e = db.SaveSyncStateAt("restaurants", "", len(all), meta.FetchedAt); e != nil {
+-			return e
+ 		}
+ 		return tripPrint(cmd, flags, items, meta)
+ 	}
+@@ -149,9 +146,6 @@
+ 			return tripSourceFailure(cmd, flags, e)
+ 		}
+ 		if e = tripReplace(ctx, nb, r); e != nil {
+-			return e
+-		}
+-		if e = db.SaveSyncStateAt("restaurants", "", 1, r.FetchedAt); e != nil {
+ 			return e
+ 		}
+ 		meta := c.Meta()

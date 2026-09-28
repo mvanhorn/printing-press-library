@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "binary_sha256": "ffa8a41a5b07ddaef88c6e61010c07a7152f701f6c4fe7a39d368d0871fa8f72",
+  "origin_requests": 0,
+  "leaf_help": [
+    {
+      "leaf": "add",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists add tokyo-bars 13005012 --note 'Ginza bar option' --agent"
+    },
+    {
+      "leaf": "show",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists show tokyo-bars --agent"
+    },
+    {
+      "leaf": "note",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists note tokyo-bars 13005012 --note 'Try after dinner' --agent"
+    },
+    {
+      "leaf": "remove",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists remove tokyo-bars 13005012 --agent"
+    },
+    {
+      "leaf": "compare",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists compare tokyo-bars 13005012 --agent"
+    },
+    {
+      "leaf": "refresh",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent"
+    },
+    {
+      "leaf": "alternatives",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent"
+    },
+    {
+      "leaf": "audit",
+      "exit_code": 0,
+      "examples": "tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent"
+    }
+  ],
+  "parent": {
+    "exit_code": 0,
+    "renders_help": true,
+    "requires_fetched_candidate": true,
+    "creates_database": false
+  }
+}

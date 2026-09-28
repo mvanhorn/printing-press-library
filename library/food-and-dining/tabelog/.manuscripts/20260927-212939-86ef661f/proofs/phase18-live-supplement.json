@@ -1,0 +1,808 @@
+{
+  "status": "PASS",
+  "source_transport": "native HTTPS Tabelog; no test-mode/loopback override",
+  "binary_sha256": "c20bc042b7ba51645544fda845c9cbc1f923a87084cb77d002bd4bc9a4cd9fa4",
+  "fixture_home": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures/live-home",
+  "initial_two_supplement_GETs": [
+    "phase18-live-tokyo-bar.json",
+    "phase18-live-kyoto.json"
+  ],
+  "supplement_additional_GETs": 5,
+  "cross_checks": {
+    "tokyo_bar": {
+      "url": "https://tabelog.com/en/tokyo/rstLst/bar/?SrtT=rt",
+      "retrieved_at": "2026-09-27T17:20:49.853437Z",
+      "decoded_bytes": 285552,
+      "sha256": "689ba00cfdcdd891bcec0875ae76ad9bdbd6aaffae8dfc20982d80ac4b73182e",
+      "checks": [
+        "identity/name/order",
+        "rating/count",
+        "verbatim budget/bounds",
+        "active highest-rated source tab"
+      ],
+      "returned": 5,
+      "scanned": 20,
+      "pages": 1,
+      "has_more": true,
+      "rows": [
+        {
+          "id": "13302758",
+          "name": "TACUBO Shirokanedai",
+          "url": "https://tabelog.com/en/tokyo/A1316/A131602/13302758/",
+          "rating": 4.06,
+          "review_count": 266,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 39999,
+            "min_jpy": 30000,
+            "raw": "JPY 30,000 - JPY 39,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "13112228",
+          "name": "Sanlucar BAR",
+          "url": "https://tabelog.com/en/tokyo/A1309/A130905/13112228/",
+          "rating": 3.98,
+          "review_count": 472,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 4999,
+            "min_jpy": 4000,
+            "raw": "JPY 4,000 - JPY 4,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "13283765",
+          "name": "The Bvlgari Bar",
+          "url": "https://tabelog.com/en/tokyo/A1302/A130201/13283765/",
+          "rating": 3.98,
+          "review_count": 430,
+          "lunch_budget": {
+            "max_jpy": 7999,
+            "min_jpy": 6000,
+            "raw": "JPY 6,000 - JPY 7,999"
+          },
+          "dinner_budget": {
+            "max_jpy": 14999,
+            "min_jpy": 10000,
+            "raw": "JPY 10,000 - JPY 14,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "13196404",
+          "name": "Nogizaka Shin",
+          "url": "https://tabelog.com/en/tokyo/A1307/A130701/13196404/",
+          "rating": 3.98,
+          "review_count": 195,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 49999,
+            "min_jpy": 40000,
+            "raw": "JPY 40,000 - JPY 49,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "13204358",
+          "name": "BOTTEGA",
+          "url": "https://tabelog.com/en/tokyo/A1307/A130703/13204358/",
+          "rating": 3.96,
+          "review_count": 525,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 19999,
+            "min_jpy": 15000,
+            "raw": "JPY 15,000 - JPY 19,999"
+          },
+          "status": null,
+          "source_warnings": null
+        }
+      ]
+    },
+    "kyoto": {
+      "url": "https://tabelog.com/en/kyoto/rstLst/?SrtT=rt",
+      "retrieved_at": "2026-09-27T17:22:32.344987Z",
+      "decoded_bytes": 296632,
+      "sha256": "05601f876a1b21c22ee56949340a2131c546875689c0950f323debd82211be99",
+      "checks": [
+        "identity/name/order",
+        "rating/count",
+        "verbatim budget/bounds",
+        "active highest-rated source tab"
+      ],
+      "returned": 5,
+      "scanned": 20,
+      "pages": 1,
+      "has_more": true,
+      "rows": [
+        {
+          "id": "26030764",
+          "name": "Dojin",
+          "url": "https://tabelog.com/en/kyoto/A2601/A260301/26030764/",
+          "rating": 4.63,
+          "review_count": 287,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 59999,
+            "min_jpy": 50000,
+            "raw": "JPY 50,000 - JPY 59,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "26033124",
+          "name": "Ninshu Rou",
+          "url": "https://tabelog.com/en/kyoto/A2601/A260503/26033124/",
+          "rating": 4.61,
+          "review_count": 412,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 49999,
+            "min_jpy": 40000,
+            "raw": "JPY 40,000 - JPY 49,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "26016833",
+          "name": "Iida",
+          "url": "https://tabelog.com/en/kyoto/A2601/A260202/26016833/",
+          "rating": 4.56,
+          "review_count": 250,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 59999,
+            "min_jpy": 50000,
+            "raw": "JPY 50,000 - JPY 59,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "26012136",
+          "name": "Ogata",
+          "url": "https://tabelog.com/en/kyoto/A2601/A260201/26012136/",
+          "rating": 4.53,
+          "review_count": 587,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "26040349",
+          "name": "Tokuha Motonari",
+          "url": "https://tabelog.com/en/kyoto/A2601/A260503/26040349/",
+          "rating": 4.52,
+          "review_count": 272,
+          "lunch_budget": {
+            "max_jpy": 29999,
+            "min_jpy": 20000,
+            "raw": "JPY 20,000 - JPY 29,999"
+          },
+          "dinner_budget": {
+            "max_jpy": 39999,
+            "min_jpy": 30000,
+            "raw": "JPY 30,000 - JPY 39,999"
+          },
+          "status": null,
+          "source_warnings": null
+        }
+      ]
+    },
+    "osaka": {
+      "url": "https://tabelog.com/en/osaka/rstLst/?SrtT=rt",
+      "retrieved_at": "2026-09-27T17:25:46.262704Z",
+      "decoded_bytes": 304492,
+      "sha256": "bdce8ce74d8bb6c5cb2d13b243e19d094c67434d6dcc41a4b37d62fe02ba8882",
+      "checks": [
+        "identity/name/order",
+        "rating/count",
+        "verbatim budget/bounds",
+        "active highest-rated source tab"
+      ],
+      "returned": 5,
+      "scanned": 20,
+      "pages": 1,
+      "has_more": true,
+      "rows": [
+        {
+          "id": "27095402",
+          "name": "Sushi Sanshin",
+          "url": "https://tabelog.com/en/osaka/A2701/A270204/27095402/",
+          "rating": 4.6,
+          "review_count": 676,
+          "lunch_budget": {
+            "max_jpy": 39999,
+            "min_jpy": 30000,
+            "raw": "JPY 30,000 - JPY 39,999"
+          },
+          "dinner_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "27001286",
+          "name": "Honko Getsu",
+          "url": "https://tabelog.com/en/osaka/A2701/A270202/27001286/",
+          "rating": 4.54,
+          "review_count": 403,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 49999,
+            "min_jpy": 40000,
+            "raw": "JPY 40,000 - JPY 49,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "27117938",
+          "name": "Torisho Ishii",
+          "url": "https://tabelog.com/en/osaka/A2701/A270103/27117938/",
+          "rating": 4.45,
+          "review_count": 615,
+          "lunch_budget": {
+            "max_jpy": 19999,
+            "min_jpy": 15000,
+            "raw": "JPY 15,000 - JPY 19,999"
+          },
+          "dinner_budget": {
+            "max_jpy": 19999,
+            "min_jpy": 15000,
+            "raw": "JPY 15,000 - JPY 19,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "27135992",
+          "name": "Tanaka Yoshihide",
+          "url": "https://tabelog.com/en/osaka/A2701/A270107/27135992/",
+          "rating": 4.42,
+          "review_count": 287,
+          "lunch_budget": {
+            "max_jpy": null,
+            "min_jpy": null,
+            "raw": "-"
+          },
+          "dinner_budget": {
+            "max_jpy": 29999,
+            "min_jpy": 20000,
+            "raw": "JPY 20,000 - JPY 29,999"
+          },
+          "status": null,
+          "source_warnings": null
+        },
+        {
+          "id": "27119864",
+          "name": "Numata",
+          "url": "https://tabelog.com/en/osaka/A2701/A270101/27119864/",
+          "rating": 4.41,
+          "review_count": 325,
+          "lunch_budget": {
+            "max_jpy": 49999,
+            "min_jpy": 40000,
+            "raw": "JPY 40,000 - JPY 49,999"
+          },
+          "dinner_budget": {
+            "max_jpy": 49999,
+            "min_jpy": 40000,
+            "raw": "JPY 40,000 - JPY 49,999"
+          },
+          "status": null,
+          "source_warnings": null
+        }
+      ]
+    },
+    "kyoto_detail": {
+      "url": "https://tabelog.com/en/kyoto/A2601/A260301/26030764/",
+      "retrieved_at": "2026-09-27T17:25:46.924247Z",
+      "decoded_bytes": 123642,
+      "sha256": "6061aa2666ee6cd6643bd18dc3c88705dbe41885fc77d9d2dfdb2d1970be56e6",
+      "checks": [
+        "JSON-LD independent identity/name/rating/count",
+        "practical table meal prices",
+        "source title status"
+      ],
+      "record": {
+        "id": "26030764",
+        "name": "Dojin",
+        "url": "https://tabelog.com/en/kyoto/A2601/A260301/26030764/",
+        "rating": 4.63,
+        "review_count": 287,
+        "lunch_budget": {
+          "max_jpy": null,
+          "min_jpy": null,
+          "raw": "-",
+          "source": "listed"
+        },
+        "dinner_budget": {
+          "max_jpy": 59999,
+          "min_jpy": 50000,
+          "raw": "JPY 50,000 - JPY 59,999",
+          "source": "listed"
+        },
+        "review_lunch_budget": null,
+        "review_dinner_budget": {
+          "max_jpy": 79999,
+          "min_jpy": 60000,
+          "raw": "JPY 60,000 - JPY 79,999",
+          "source": "reviews"
+        },
+        "status": null,
+        "source_warnings": null
+      }
+    },
+    "samboa_detail": {
+      "url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+      "retrieved_at": "2026-09-27T17:25:47.567151Z",
+      "decoded_bytes": 101166,
+      "sha256": "d4b37f8ceeb6fdbc2ad08893f608a73341cad0d371e8c7183c50ad37de0a7268",
+      "checks": [
+        "JSON-LD independent identity/name/rating/count",
+        "practical table meal prices",
+        "source title status"
+      ],
+      "record": {
+        "id": "13005012",
+        "name": "SAMBOA BAR Ginza ten",
+        "url": "https://tabelog.com/en/tokyo/A1301/A130101/13005012/",
+        "rating": 3.79,
+        "review_count": 502,
+        "lunch_budget": {
+          "raw": "-",
+          "min_jpy": null,
+          "max_jpy": null,
+          "source": "listed"
+        },
+        "dinner_budget": {
+          "raw": "-",
+          "min_jpy": null,
+          "max_jpy": null,
+          "source": "listed"
+        },
+        "review_lunch_budget": {
+          "raw": "JPY 2,000 - JPY 2,999",
+          "min_jpy": 2000,
+          "max_jpy": 2999,
+          "source": "reviews"
+        },
+        "review_dinner_budget": {
+          "raw": "JPY 3,000 - JPY 3,999",
+          "min_jpy": 3000,
+          "max_jpy": 3999,
+          "source": "reviews"
+        },
+        "status": null,
+        "source_warnings": null
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "live-osaka",
+      "args": [
+        "find",
+        "--area",
+        "osaka",
+        "--limit",
+        "5",
+        "--data-source",
+        "live",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 1,
+      "source": "live",
+      "retrieved_at": "2026-09-27T17:25:46.262704Z",
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "live-kyoto-detail",
+      "args": [
+        "show",
+        "https://tabelog.com/en/kyoto/A2601/A260301/26030764/",
+        "--data-source",
+        "live",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 1,
+      "source": "live",
+      "retrieved_at": "2026-09-27T17:25:46.924247Z",
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-add-13005012",
+      "args": [
+        "lists",
+        "add",
+        "phase18-disposable-review",
+        "13005012",
+        "--note",
+        "Public-source acceptance candidate",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-add-13002248",
+      "args": [
+        "lists",
+        "add",
+        "phase18-disposable-review",
+        "13002248",
+        "--note",
+        "Public-source acceptance candidate",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-add-13120361",
+      "args": [
+        "lists",
+        "add",
+        "phase18-disposable-review",
+        "13120361",
+        "--note",
+        "Public-source acceptance candidate",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-note",
+      "args": [
+        "lists",
+        "note",
+        "phase18-disposable-review",
+        "13005012",
+        "--note",
+        "Updated acceptance note",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-list-show",
+      "args": [
+        "lists",
+        "show",
+        "phase18-disposable-review",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-compare",
+      "args": [
+        "lists",
+        "compare",
+        "phase18-disposable-review",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-alternatives",
+      "args": [
+        "lists",
+        "alternatives",
+        "phase18-disposable-review",
+        "--for",
+        "13005012",
+        "--match",
+        "area,category",
+        "--meal",
+        "dinner",
+        "--budget-max",
+        "5000",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-audit",
+      "args": [
+        "lists",
+        "audit",
+        "phase18-disposable-review",
+        "--require",
+        "hours,payment,reservation,dinner_budget",
+        "--max-age",
+        "24h",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "live-selected-refresh",
+      "args": [
+        "lists",
+        "refresh",
+        "phase18-disposable-review",
+        "13005012",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 1,
+      "source": "live",
+      "retrieved_at": null,
+      "execution": "reuse prior successful captured invocation; no new request"
+    },
+    {
+      "name": "local-remove",
+      "args": [
+        "lists",
+        "remove",
+        "phase18-disposable-review",
+        "13002248",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "elapsed_seconds": 0.012
+    },
+    {
+      "name": "local-after-remove",
+      "args": [
+        "lists",
+        "show",
+        "phase18-disposable-review",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": null,
+      "elapsed_seconds": 0.011
+    },
+    {
+      "name": "local-removed-snapshot",
+      "args": [
+        "show",
+        "13002248",
+        "--data-source",
+        "local",
+        "--json"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": "2026-09-27T16:07:42.69149Z",
+      "elapsed_seconds": 0.011
+    },
+    {
+      "name": "cached-tokyo-auto",
+      "args": [
+        "find",
+        "--area",
+        "tokyo",
+        "--limit",
+        "5",
+        "--data-source",
+        "auto",
+        "--agent",
+        "--cuisine",
+        "bar"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "cache",
+      "retrieved_at": "2026-09-27T17:20:49.853437Z",
+      "elapsed_seconds": 0.022
+    },
+    {
+      "name": "cached-tokyo-local",
+      "args": [
+        "find",
+        "--area",
+        "tokyo",
+        "--limit",
+        "5",
+        "--data-source",
+        "local",
+        "--agent",
+        "--cuisine",
+        "bar"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": "2026-09-27T17:20:49.853437Z",
+      "elapsed_seconds": 0.022
+    },
+    {
+      "name": "cached-kyoto-auto",
+      "args": [
+        "find",
+        "--area",
+        "kyoto",
+        "--limit",
+        "5",
+        "--data-source",
+        "auto",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "cache",
+      "retrieved_at": "2026-09-27T17:22:32.344987Z",
+      "elapsed_seconds": 0.022
+    },
+    {
+      "name": "cached-kyoto-local",
+      "args": [
+        "find",
+        "--area",
+        "kyoto",
+        "--limit",
+        "5",
+        "--data-source",
+        "local",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": "2026-09-27T17:22:32.344987Z",
+      "elapsed_seconds": 0.022
+    },
+    {
+      "name": "cached-osaka-auto",
+      "args": [
+        "find",
+        "--area",
+        "osaka",
+        "--limit",
+        "5",
+        "--data-source",
+        "auto",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "cache",
+      "retrieved_at": "2026-09-27T17:25:46.262704Z",
+      "elapsed_seconds": 0.022
+    },
+    {
+      "name": "cached-osaka-local",
+      "args": [
+        "find",
+        "--area",
+        "osaka",
+        "--limit",
+        "5",
+        "--data-source",
+        "local",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": "2026-09-27T17:25:46.262704Z",
+      "elapsed_seconds": 0.022
+    },
+    {
+      "name": "cached-detail-13005012",
+      "args": [
+        "show",
+        "13005012",
+        "--data-source",
+        "local",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": "2026-09-27T17:25:47.567151Z",
+      "elapsed_seconds": 0.011
+    },
+    {
+      "name": "cached-detail-26030764",
+      "args": [
+        "show",
+        "26030764",
+        "--data-source",
+        "local",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "requests": 0,
+      "source": "local",
+      "retrieved_at": "2026-09-27T17:25:46.924247Z",
+      "elapsed_seconds": 0.011
+    }
+  ],
+  "completed_at": "2026-09-27T17:27:16.117729+00:00"
+}

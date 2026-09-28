@@ -1,0 +1,78 @@
+{
+  "result": "PASS \u2014 no findings.",
+  "checks": [
+    {
+      "name": "Trigger phrases match capabilities",
+      "file_line": "SKILL.md:3",
+      "result": "PASS",
+      "evidence": "Restaurant/bar discovery, page inspection, saved comparisons and freshness checks correspond to find, show, lists compare and lists audit. Typed areas/cuisines support the documented discovery workflow.",
+      "fix": "none"
+    },
+    {
+      "name": "Verified-set alignment",
+      "file_line": "SKILL.md:50",
+      "result": "PASS",
+      "evidence": "The five Unique Capabilities commands exactly equal novel_features_built: lists add, compare, refresh, alternatives and audit. Planned and verified sets are identical; no planned-only feature appears.",
+      "fix": "none"
+    },
+    {
+      "name": "Novel-feature descriptions match commands",
+      "file_line": "SKILL.md:52",
+      "result": "PASS",
+      "evidence": "Actual help confirms persistence of fetched candidates/notes, offline comparison, current-detail refresh with changes, saved-set constraint matching, and unfetched/unknown/old evidence auditing. Concise table wording preserves these semantics.",
+      "fix": "none"
+    },
+    {
+      "name": "Stub/gated disclosure",
+      "file_line": "SKILL.md:58",
+      "result": "PASS",
+      "evidence": "No advertised feature is an intentional stub or known setup-gated response. Linked saved-list guidance discloses fetch-first IDs, saved-only alternatives, unknown evidence, refresh limits and partial failures. Accuracy boundaries exclude live availability and booking.",
+      "fix": "none"
+    },
+    {
+      "name": "Auth narrative accuracy",
+      "file_line": "SKILL.md:11",
+      "result": "PASS",
+      "evidence": "Public English sources require no account/API key, matching auth_type none. The skill advertises no auth command absent from the actual help tree. Source-checkout installation and version verification describe the unpublished module accurately.",
+      "fix": "none"
+    },
+    {
+      "name": "Recipe output claims",
+      "file_line": "SKILL.md:41",
+      "result": "PASS",
+      "evidence": "The compact find invocation uses real flags and claims items/meta structured results, compact JSON and projected facts. Envelope/provenance source definitions support the prose. Linked saved-list examples match actual positional arguments and documented offline/current-fetch behavior.",
+      "fix": "none"
+    },
+    {
+      "name": "Marketing-copy smell",
+      "file_line": "SKILL.md:48",
+      "result": "PASS",
+      "evidence": "The skill uses concrete commands, factual boundaries and short workflow instructions. It promises no universal ranking, automatic booking, current availability, routing or unsupported capability, and contains no unverified promotional superlatives.",
+      "fix": "none"
+    }
+  ],
+  "help_invocations": 17,
+  "binary_sha256": "47593f2acf789e75583e7693fc71ed2eecb8a27717f262e4d0107a640a3e8049",
+  "planned_unique_commands": [
+    "lists add",
+    "lists alternatives",
+    "lists audit",
+    "lists compare",
+    "lists refresh"
+  ],
+  "verified_unique_commands": [
+    "lists add",
+    "lists alternatives",
+    "lists audit",
+    "lists compare",
+    "lists refresh"
+  ],
+  "product_files_sha256": {
+    "SKILL.md": "141e467337a279630e98218aa4e57333201431462b0601ba5b676a7f10176819",
+    "README.md": "e62d5e9ada1585a2b7f7e8731906afae58716d0e99d222e98a1a09056a2a8442",
+    "AGENTS.md": "a608249caf5dba3d31a77a0c3ec47d031072aec0e198adb62f1995229c4c3c88"
+  },
+  "runtime_commands_run": false,
+  "product_edits": false,
+  "receipts_run": false
+}

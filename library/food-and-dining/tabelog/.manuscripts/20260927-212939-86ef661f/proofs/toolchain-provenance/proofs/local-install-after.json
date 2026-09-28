@@ -1,0 +1,9 @@
+{
+  "cli_dir": "",
+  "skill_path": "",
+  "checks_run": [
+    "canonical-sections"
+  ],
+  "recipes_checked": 0,
+  "findings": null
+}

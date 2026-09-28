@@ -1,0 +1,22 @@
+=== RUN   TestRunOneFeatureCheckUsesHappyArgsOverlay
+    live_check_happy_args_before_test.go:41: 
+        	Error Trace:	/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/scorecard-overlay-baseline/internal/pipeline/live_check_happy_args_before_test.go:41
+        	Error:      	Not equal: 
+        	            	expected: "pass"
+        	            	actual  : "fail"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1,2 +1,2 @@
+        	            	-(pipeline.LiveStatus) (len=4) "pass"
+        	            	+(pipeline.LiveStatus) (len=4) "fail"
+        	            	 
+        	Test:       	TestRunOneFeatureCheckUsesHappyArgsOverlay
+        	Messages:   	output does not contain any token from query "old-id"
+--- FAIL: TestRunOneFeatureCheckUsesHappyArgsOverlay (0.38s)
+=== RUN   TestRunOneFeatureCheckPreservesUnannotatedExample
+--- PASS: TestRunOneFeatureCheckPreservesUnannotatedExample (0.37s)
+FAIL
+FAIL	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	1.354s
+FAIL

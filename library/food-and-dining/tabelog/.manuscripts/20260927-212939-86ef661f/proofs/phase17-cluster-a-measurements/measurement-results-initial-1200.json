@@ -1,0 +1,831 @@
+{
+  "schema_version": 1,
+  "status": "fail",
+  "host": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64"
+  },
+  "binary_sha256": "3771b04390dd73bcd1ec1335253f53fbc5e116daf909b813d7551d5f206c299e",
+  "tokenizer": {
+    "package": "tiktoken",
+    "version": "0.14.0",
+    "encoding": "o200k_base"
+  },
+  "method": "20 subprocesses per profile by default; nearest-rank p95; macOS /usr/bin/time -l measures each CLI process; loopback HTTP serves sanitized public-source fixtures. Tokenizer/replay-server CPU and memory are outside the measured CLI process.",
+  "profiles": [
+    {
+      "command": "find",
+      "mode": "cold",
+      "samples": [
+        {
+          "wall_ms": 291.103,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 30.0,
+          "peak_rss_bytes": 28311552
+        },
+        {
+          "wall_ms": 24.343,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28672000
+        },
+        {
+          "wall_ms": 21.681,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28524544
+        },
+        {
+          "wall_ms": 20.432,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28049408
+        },
+        {
+          "wall_ms": 20.752,
+          "stdout_bytes": 3895,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28655616
+        },
+        {
+          "wall_ms": 20.432,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28639232
+        },
+        {
+          "wall_ms": 20.42,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28688384
+        },
+        {
+          "wall_ms": 21.818,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28344320
+        },
+        {
+          "wall_ms": 22.199,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28295168
+        },
+        {
+          "wall_ms": 22.705,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28049408
+        },
+        {
+          "wall_ms": 24.768,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28704768
+        },
+        {
+          "wall_ms": 22.588,
+          "stdout_bytes": 3895,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28180480
+        },
+        {
+          "wall_ms": 22.242,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28377088
+        },
+        {
+          "wall_ms": 21.907,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28573696
+        },
+        {
+          "wall_ms": 21.899,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28786688
+        },
+        {
+          "wall_ms": 22.404,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28622848
+        },
+        {
+          "wall_ms": 22.93,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28065792
+        },
+        {
+          "wall_ms": 36.642,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 20.0,
+          "peak_rss_bytes": 28327936
+        },
+        {
+          "wall_ms": 21.997,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 28229632
+        },
+        {
+          "wall_ms": 36.727,
+          "stdout_bytes": 3897,
+          "tokens": 1247,
+          "http_requests": 1,
+          "http_response_bytes": 117492,
+          "cpu_ms": 20.0,
+          "peak_rss_bytes": 27721728
+        }
+      ],
+      "seed_requests": 0,
+      "p95": {
+        "wall_ms": 36.727,
+        "cpu_ms": 20.0,
+        "peak_rss_bytes": 28704768,
+        "stdout_bytes": 3897,
+        "tokens": 1247,
+        "total_http_requests": 20,
+        "total_http_response_bytes": 2349840
+      },
+      "checks": {
+        "tokens": false,
+        "stdout_bytes": true,
+        "cpu": true,
+        "rss": true,
+        "bounded_requests": true
+      }
+    },
+    {
+      "command": "find",
+      "mode": "warm",
+      "samples": [
+        {
+          "wall_ms": 20.55,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26247168
+        },
+        {
+          "wall_ms": 20.86,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26525696
+        },
+        {
+          "wall_ms": 18.928,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25968640
+        },
+        {
+          "wall_ms": 18.472,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26542080
+        },
+        {
+          "wall_ms": 17.667,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25935872
+        },
+        {
+          "wall_ms": 21.613,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26656768
+        },
+        {
+          "wall_ms": 38.97,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26050560
+        },
+        {
+          "wall_ms": 27.121,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26148864
+        },
+        {
+          "wall_ms": 19.758,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25853952
+        },
+        {
+          "wall_ms": 20.737,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 27017216
+        },
+        {
+          "wall_ms": 21.076,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25853952
+        },
+        {
+          "wall_ms": 21.98,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25526272
+        },
+        {
+          "wall_ms": 21.372,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26755072
+        },
+        {
+          "wall_ms": 20.691,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25853952
+        },
+        {
+          "wall_ms": 19.695,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26738688
+        },
+        {
+          "wall_ms": 19.056,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26361856
+        },
+        {
+          "wall_ms": 19.621,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26722304
+        },
+        {
+          "wall_ms": 19.762,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 26181632
+        },
+        {
+          "wall_ms": 30.718,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25968640
+        },
+        {
+          "wall_ms": 18.521,
+          "stdout_bytes": 3893,
+          "tokens": 1246,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 25935872
+        }
+      ],
+      "seed_requests": 1,
+      "p95": {
+        "wall_ms": 30.718,
+        "cpu_ms": 10.0,
+        "peak_rss_bytes": 26755072,
+        "stdout_bytes": 3893,
+        "tokens": 1246,
+        "total_http_requests": 0,
+        "total_http_response_bytes": 0
+      },
+      "checks": {
+        "tokens": false,
+        "stdout_bytes": true,
+        "cpu": true,
+        "rss": true,
+        "bounded_requests": true,
+        "cached_latency": true
+      }
+    },
+    {
+      "command": "show",
+      "mode": "cold",
+      "samples": [
+        {
+          "wall_ms": 16.023,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26001408
+        },
+        {
+          "wall_ms": 17.018,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25886720
+        },
+        {
+          "wall_ms": 15.55,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26214400
+        },
+        {
+          "wall_ms": 17.597,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25804800
+        },
+        {
+          "wall_ms": 19.016,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25231360
+        },
+        {
+          "wall_ms": 33.242,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 20.0,
+          "peak_rss_bytes": 26148864
+        },
+        {
+          "wall_ms": 20.051,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25968640
+        },
+        {
+          "wall_ms": 15.468,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25395200
+        },
+        {
+          "wall_ms": 15.891,
+          "stdout_bytes": 2547,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26214400
+        },
+        {
+          "wall_ms": 15.968,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26034176
+        },
+        {
+          "wall_ms": 15.867,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25640960
+        },
+        {
+          "wall_ms": 15.75,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26001408
+        },
+        {
+          "wall_ms": 16.095,
+          "stdout_bytes": 2547,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25886720
+        },
+        {
+          "wall_ms": 16.05,
+          "stdout_bytes": 2547,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26001408
+        },
+        {
+          "wall_ms": 16.195,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25804800
+        },
+        {
+          "wall_ms": 16.617,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26050560
+        },
+        {
+          "wall_ms": 16.119,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 26542080
+        },
+        {
+          "wall_ms": 15.962,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25640960
+        },
+        {
+          "wall_ms": 16.137,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25542656
+        },
+        {
+          "wall_ms": 17.253,
+          "stdout_bytes": 2548,
+          "tokens": 715,
+          "http_requests": 1,
+          "http_response_bytes": 13354,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 25935872
+        }
+      ],
+      "seed_requests": 0,
+      "p95": {
+        "wall_ms": 20.051,
+        "cpu_ms": 0.0,
+        "peak_rss_bytes": 26214400,
+        "stdout_bytes": 2548,
+        "tokens": 715,
+        "total_http_requests": 20,
+        "total_http_response_bytes": 267080
+      },
+      "checks": {
+        "tokens": true,
+        "stdout_bytes": true,
+        "cpu": true,
+        "rss": true,
+        "bounded_requests": true
+      }
+    },
+    {
+      "command": "show",
+      "mode": "warm",
+      "samples": [
+        {
+          "wall_ms": 12.866,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21889024
+        },
+        {
+          "wall_ms": 13.045,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21807104
+        },
+        {
+          "wall_ms": 23.38,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 21659648
+        },
+        {
+          "wall_ms": 16.863,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21938176
+        },
+        {
+          "wall_ms": 12.563,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21692416
+        },
+        {
+          "wall_ms": 13.095,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21970944
+        },
+        {
+          "wall_ms": 13.161,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21889024
+        },
+        {
+          "wall_ms": 12.903,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 23281664
+        },
+        {
+          "wall_ms": 13.132,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21823488
+        },
+        {
+          "wall_ms": 13.394,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21856256
+        },
+        {
+          "wall_ms": 17.339,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21725184
+        },
+        {
+          "wall_ms": 42.875,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 10.0,
+          "peak_rss_bytes": 21987328
+        },
+        {
+          "wall_ms": 16.98,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21725184
+        },
+        {
+          "wall_ms": 12.566,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21823488
+        },
+        {
+          "wall_ms": 15.764,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21823488
+        },
+        {
+          "wall_ms": 12.585,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21839872
+        },
+        {
+          "wall_ms": 12.454,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21692416
+        },
+        {
+          "wall_ms": 12.749,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21807104
+        },
+        {
+          "wall_ms": 13.004,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 22282240
+        },
+        {
+          "wall_ms": 13.689,
+          "stdout_bytes": 2549,
+          "tokens": 714,
+          "http_requests": 0,
+          "http_response_bytes": 0,
+          "cpu_ms": 0.0,
+          "peak_rss_bytes": 21823488
+        }
+      ],
+      "seed_requests": 1,
+      "p95": {
+        "wall_ms": 23.38,
+        "cpu_ms": 10.0,
+        "peak_rss_bytes": 22282240,
+        "stdout_bytes": 2549,
+        "tokens": 714,
+        "total_http_requests": 0,
+        "total_http_response_bytes": 0
+      },
+      "checks": {
+        "tokens": true,
+        "stdout_bytes": true,
+        "cpu": true,
+        "rss": true,
+        "bounded_requests": true,
+        "cached_latency": true
+      }
+    }
+  ]
+}

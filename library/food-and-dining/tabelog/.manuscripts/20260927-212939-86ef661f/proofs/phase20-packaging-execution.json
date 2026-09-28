@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "status": "packaging_prepared",
+  "accepted_stage_cli_sha256": "5d14bc325f315491147f6c702274f76f2837629d57066b35132de20006b196b7",
+  "accepted_marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+  "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+  "source_files_unchanged": 147,
+  "quarantine": [
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/.printing-press-fixtures",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/working/.printing-press-fixtures",
+      "inventory": {
+        "regular_files": 8,
+        "bytes": 2066849,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/tabelog-pp-cli",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/working/tabelog-pp-cli",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22025650,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tokenizer-venv",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tokenizer-venv",
+      "inventory": {
+        "regular_files": 1135,
+        "bytes": 20010608,
+        "symlinks": 4
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tokenizer-cache",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tokenizer-cache",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 3613922,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-retention-fixture",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/cluster-b-retention-fixture",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 5709824,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase11-core-samples/home",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/phase11-core-samples/home",
+      "inventory": {
+        "regular_files": 2,
+        "bytes": 574059,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/cluster-b-verification-cli",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/cluster-b-verification-cli",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22074834,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tabelog-list-checkpoint",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tabelog-list-checkpoint",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22041122,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/tabelog-e2e-measurement",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/tabelog-e2e-measurement",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22041058,
+        "symlinks": 0
+      }
+    },
+    {
+      "source": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase17-cluster-a-measurements/tabelog-pp-cli",
+      "quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/proofs/phase17-cluster-a-measurements/tabelog-pp-cli",
+      "inventory": {
+        "regular_files": 1,
+        "bytes": 22075266,
+        "symlinks": 0
+      }
+    }
+  ],
+  "sanitized_discovery": [
+    {
+      "path": "discovery/browser-sniff-core-capture.json",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-originals/discovery/browser-sniff-core-capture.json",
+      "original_sha256": "ca85afa64f4d009130041a0612c4b1a9d98b0c0604695e2815c3e9395a968c16",
+      "derived_sha256": "1c1805e3767ed99ef54146b01e715f2bce6a5124b5ed5558632829dcc864cdb7",
+      "original_bytes": 2101480,
+      "derived_bytes": 5535,
+      "counts": {
+        "response_bodies_removed": 11,
+        "auth_headers_removed": 0,
+        "cookie_fields_cleared": 0,
+        "auth_query_values_redacted": 0
+      }
+    },
+    {
+      "path": "discovery/browser-sniff-capture.json",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-originals/discovery/browser-sniff-capture.json",
+      "original_sha256": "b412e4e532d4f0db169860104cb00d2f9e1ed708a7a0a4ef90ff14199b2423f0",
+      "derived_sha256": "e5726036a07aae26650d3b0790b1e4b1ca83a1359c1dc5d2c92fb9f635c21329",
+      "original_bytes": 2544399,
+      "derived_bytes": 6469,
+      "counts": {
+        "response_bodies_removed": 13,
+        "auth_headers_removed": 0,
+        "cookie_fields_cleared": 0,
+        "auth_query_values_redacted": 0
+      }
+    },
+    {
+      "path": "discovery/public-source/tabelog.com-en-tokyo-A1301-A130103-13294162-8e710fdd585afbfe.html",
+      "original_quarantine": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/packaging-quarantine/discovery-originals/discovery/public-source/tabelog.com-en-tokyo-A1301-A130103-13294162-8e710fdd585afbfe.html",
+      "original_sha256": "85c862db4ccde7cd5e6ccabf2e7b1514b1cf24cb0ef0cd67a362af5449c506b1",
+      "derived_sha256": "705582f04deb81006410ed030acb354d838e09632c72497ebedccf44243fbfbb",
+      "original_bytes": 142619,
+      "derived_bytes": 142541,
+      "counts": {
+        "csrf_values_redacted": 1
+      },
+      "restaurant_facts_retained": true
+    }
+  ],
+  "toolchain_text_files": [
+    {
+      "path": "proofs/toolchain-provenance/scorecard-happy-args.patch",
+      "bytes": 11961,
+      "sha256": "4fad46b57b433454a37445f636031ce2d343f0c277936a24660637beb9579070"
+    },
+    {
+      "path": "proofs/toolchain-provenance/live-dogfood-json-reuse.patch",
+      "bytes": 5059,
+      "sha256": "6457cae0c89097aa98345ab0905f32546c0c5d430db068f9248984ed7af40d5b"
+    },
+    {
+      "path": "proofs/toolchain-provenance/local-install-checker.patch",
+      "bytes": 13025,
+      "sha256": "32c5f401eebb8d72f477156aea2a72468ca1109e0b48c2549bedc81fdd172552"
+    },
+    {
+      "path": "proofs/toolchain-provenance/dogfood-public-fixture.patch",
+      "bytes": 29444,
+      "sha256": "814fb9f796769397e9551a6facaa2f2271526400c7ba454ebfe5e73ba7db2bb4"
+    },
+    {
+      "path": "proofs/toolchain-provenance/phase17-cumulative-toolchain.patch",
+      "bytes": 51474,
+      "sha256": "5fa3d8bc3cfe67e3f97b6bbd373a1435bb160626935c10dfec0a612d15ea8ce1"
+    },
+    {
+      "path": "proofs/toolchain-provenance/projection-diagnostic.patch",
+      "bytes": 5490,
+      "sha256": "2d0076b79997227732fd8ac3c01386c76cc4a3de686affc34717aa9e74652dbd"
+    },
+    {
+      "path": "proofs/toolchain-provenance/phase18-cumulative-toolchain.patch",
+      "bytes": 80100,
+      "sha256": "0e746e0f80ca6a1283fe7a2f63ce34bd1b3b7193650276c3df4da7d24fe9b798"
+    },
+    {
+      "path": "proofs/toolchain-provenance/mcp-recipe-boundary.patch",
+      "bytes": 5632,
+      "sha256": "c678d3d9ee0d8be3b0fd9f560fcbf5610779ea4c1d39398b34670deaf6c7bec0"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/json-reuse-before-tests.log",
+      "bytes": 1477,
+      "sha256": "609aa1d510d40b7f103d5738c2388cf1de3bb90e1aa9d3dda6d47f0d77bb5f0f"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/scorecard-overlay-toolchain-proof.md",
+      "bytes": 1121,
+      "sha256": "af9c220f09b8a7aeec32a0bc95b66fc27a30f38d33a9cbc7c5c08c6f21b44329"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/json-reuse-toolchain-proof.md",
+      "bytes": 1163,
+      "sha256": "1b5edc27ee10d5f6e4fe323a9f5db308cafcf2e420344ac8dc5f3e64b0105255"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/phase17-generator-toolchain-proof.json",
+      "bytes": 6583,
+      "sha256": "d0eb3de4d53ccc031786e4bfe4366d6ed2b34340b482c11942e21f91c535cd72"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-focused-tests.log",
+      "bytes": 8840,
+      "sha256": "82098597464ce5469268f34c487844dc44422b5af8887f78ad8bf657930c0f23"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/malformed-module-rejected.stderr",
+      "bytes": 177,
+      "sha256": "7f413aeabf595d043e8c50cb3b4959e0eb0c0c1e4bcae1ca3bcfeb82e2c2cf38"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/json-reuse-focused-tests.log",
+      "bytes": 2367,
+      "sha256": "8494bf0ec3077fa04dbf7e87d9d5bf42d3ddf463a699e75db951f30eeb32446f"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/phase17-generator-toolchain-proof.md",
+      "bytes": 1795,
+      "sha256": "a5fde92258d5a847c35e7e8663b3d835928adedd5a895a121781d828a7f5df2a"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-before.json",
+      "bytes": 2521,
+      "sha256": "0657edc6bdc5d8cf94642826a137275ccbbb2d8f7120368af04fb975e45af01a"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-version.json",
+      "bytes": 65,
+      "sha256": "a2e1db6641048882248eb93924f2252746f8683520a686913da1b80cbc3a3b1a"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/scorecard-overlay-focused-tests.log",
+      "bytes": 1679,
+      "sha256": "375fb111993fc6eb35038dd06be12ebbb7ff223853ce13a03f6b8bab900faf90"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/json-reuse-toolchain-proof.json",
+      "bytes": 2433,
+      "sha256": "770cdb1328a443e58cf6627f6314db27637536d7b986d41c17b978b457fc4911"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-after.json",
+      "bytes": 132,
+      "sha256": "9a71fb7b136daeba5f07fd066819465c614375e1c906128a481643765e16b219"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-section-tabelog.md",
+      "bytes": 813,
+      "sha256": "35ff9983307a8a69ee8886edcab54ee970b75564f0a599fddfdbd2a60a1832dd"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/scorecard-overlay-toolchain-proof.json",
+      "bytes": 2852,
+      "sha256": "af29ad8edfd2cee4cbcc2ae1dffd482063c1797b5d218f2ac17fd19aa088f00c"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-toolchain-proof.json",
+      "bytes": 5424,
+      "sha256": "9853192136615ca0f9f75eeea788dc42b09a6f4f436bf802bd258666dd8f2e4d"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/scorecard-overlay-before-tests.log",
+      "bytes": 1100,
+      "sha256": "528ebbe3153c23cf9926b4ddb831b8a0d95874a5d69749d34ffa61120faee62a"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-command-statuses.json",
+      "bytes": 206,
+      "sha256": "48e72a4368b66e87e0e7b835f2f1b478a82f888a68e24a89a66d92ca5b03ffc1"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/local-install-toolchain-proof.md",
+      "bytes": 2413,
+      "sha256": "87312d52317cd5b3f661ca261e7d764b3375b68c41c33013ac8e115ca808c93a"
+    },
+    {
+      "path": "proofs/toolchain-provenance/proofs/published-local-rejected.json",
+      "bytes": 2535,
+      "sha256": "91e65eb88791b2f27877009c606ed6dd3ad1100dc47a5e7d06de6a39157c1f58"
+    }
+  ],
+  "tool_binary_included": false,
+  "replay_fixtures_unchanged": true,
+  "origin_requests": 0,
+  "receipts_changed": false
+}

@@ -1,0 +1,123 @@
+--- a/internal/pipeline/live_dogfood.go
++++ b/internal/pipeline/live_dogfood.go
+@@ -1850,7 +1850,11 @@
+ 				jsonArgs = removeNonJSONOutputModes(jsonArgs)
+ 			}
+ 			jsonArgs = appendJSONArg(jsonArgs)
+-			jsonRun := runLiveDogfoodProcessWithStdin(ctx.binaryPath, ctx.cliDir, jsonArgs, ctx.timeout, stdinPayload)
++			// Repeating the same successful invocation can apply a mutation twice.
++			jsonRun := happyRun
++			if happyRun.exitCode != 0 || happyRun.err != nil || !slices.Equal(jsonArgs, runArgs) {
++				jsonRun = runLiveDogfoodProcessWithStdin(ctx.binaryPath, ctx.cliDir, jsonArgs, ctx.timeout, stdinPayload)
++			}
+ 			jsonResult := liveDogfoodResult(commandName, LiveDogfoodTestJSON, jsonArgs, jsonRun, ctx.authEnvValue)
+ 			jsonResult.FixtureSource = fixtureSource
+ 			if jsonRun.exitCode == 0 {
+--- /dev/null
++++ b/internal/pipeline/live_dogfood_json_reuse_test.go
+@@ -0,0 +1,105 @@
++package pipeline
++
++import (
++	"fmt"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/stretchr/testify/require"
++)
++
++func runCounterMutationFixture(t *testing.T, exampleFlags, behavior string) ([]LiveDogfoodTestResult, int) {
++	t.Helper()
++	dir := t.TempDir()
++	counter := filepath.Join(dir, "mutation-count")
++	help := "Usage:\n  fixture widgets remove [flags]\n\nExamples:\n  fixture widgets remove " + exampleFlags + "\n\nFlags:\n      --json Output JSON\n      --csv Output CSV\n"
++	script := fmt.Sprintf(`if [ "${3:-}" = "--help" ]; then
++cat <<'HELP'
++%s
++HELP
++exit 0
++fi
++n=0
++if [ -f %q ]; then n=$(cat %q); fi
++n=$((n + 1))
++printf '%%s\n' "$n" > %q
++case %q in
++  once) if [ "$n" -gt 1 ]; then printf 'membership is missing\n' >&2; exit 8; fi ;;
++  failure) printf 'removal failed\n' >&2; exit 8 ;;
++  invalid) printf 'not JSON\n'; exit 0 ;;
++esac
++case " $* " in
++  *" --csv "*) printf 'id,name\n13005012,Restaurant\n' ;;
++  *) printf '{"removed":1,"id":"13005012"}\n' ;;
++esac`, help, counter, counter, counter, behavior)
++	binary := writeStubBinary(t, dir, "fixture-cli", script)
++	command := liveDogfoodCommand{Path: []string{"widgets", "remove"}, Annotations: map[string]string{mcpLocalWriteAnnotation: "true"}}
++	results := runLiveDogfoodCommand(command, resolveCtx{binaryPath: binary, cliDir: dir, timeout: time.Second, allowDestructive: true})
++	raw, err := os.ReadFile(counter)
++	require.NoError(t, err)
++	var count int
++	_, err = fmt.Sscan(strings.TrimSpace(string(raw)), &count)
++	require.NoError(t, err)
++	return results, count
++}
++
++func resultOfKind(t *testing.T, results []LiveDogfoodTestResult, kind LiveDogfoodTestKind) LiveDogfoodTestResult {
++	t.Helper()
++	for _, result := range results {
++		if result.Kind == kind {
++			return result
++		}
++	}
++	t.Fatalf("missing result kind %s", kind)
++	return LiveDogfoodTestResult{}
++}
++
++func TestLiveDogfoodReusesSuccessfulIdenticalJSONRun(t *testing.T) {
++	for _, flag := range []string{"--json", "--json=true"} {
++		t.Run(flag, func(t *testing.T) {
++			results, count := runCounterMutationFixture(t, flag, "once")
++			require.Equal(t, 1, count, "JSON fidelity must not repeat the same successful mutation")
++			happy := resultOfKind(t, results, LiveDogfoodTestHappy)
++			jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++			require.Equal(t, LiveDogfoodStatusPass, happy.Status, happy.Reason)
++			require.Equal(t, LiveDogfoodStatusPass, jsonResult.Status, jsonResult.Reason)
++			require.Equal(t, happy.Args, jsonResult.Args)
++			require.Equal(t, happy.OutputSample, jsonResult.OutputSample)
++		})
++	}
++}
++
++func TestLiveDogfoodDifferentJSONArgsStillExecute(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--csv", "repeatable")
++	require.Equal(t, 2, count)
++	happy := resultOfKind(t, results, LiveDogfoodTestHappy)
++	jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++	require.Equal(t, LiveDogfoodStatusPass, happy.Status, happy.Reason)
++	require.Equal(t, LiveDogfoodStatusPass, jsonResult.Status, jsonResult.Reason)
++	require.NotEqual(t, happy.Args, jsonResult.Args)
++	require.Contains(t, happy.Args, "--csv")
++	require.Contains(t, jsonResult.Args, "--json")
++}
++
++func TestLiveDogfoodFailedHappyRunIsNotReusedAsSuccess(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--json", "failure")
++	require.Equal(t, 2, count, "failed happy execution retains the separate JSON invocation")
++	for _, kind := range []LiveDogfoodTestKind{LiveDogfoodTestHappy, LiveDogfoodTestJSON} {
++		result := resultOfKind(t, results, kind)
++		require.Equal(t, LiveDogfoodStatusFail, result.Status)
++		require.Equal(t, 8, result.ExitCode)
++		require.Contains(t, result.Reason, "exit 8")
++	}
++}
++
++func TestLiveDogfoodReusedRunStillChecksJSONFidelity(t *testing.T) {
++	results, count := runCounterMutationFixture(t, "--json", "invalid")
++	require.Equal(t, 1, count)
++	require.Equal(t, LiveDogfoodStatusPass, resultOfKind(t, results, LiveDogfoodTestHappy).Status)
++	jsonResult := resultOfKind(t, results, LiveDogfoodTestJSON)
++	require.Equal(t, LiveDogfoodStatusFail, jsonResult.Status)
++	require.Equal(t, "invalid JSON", jsonResult.Reason)
++}

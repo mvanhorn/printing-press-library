@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "findings": [],
+  "eligible_samples": [
+    "lists compare",
+    "lists alternatives",
+    "lists audit"
+  ],
+  "excluded": {
+    "lists refresh": "mutating example requires --allow-destructive",
+    "lists add": "mutating example requires --allow-destructive"
+  },
+  "source_file": "proofs/polish-scorecard-after.json",
+  "source_sha256": "c2f32a24e1c34288354a67eface16c0fb5c4bbdc46b5f754ca70be85286ef121",
+  "ground_truth": "research.json novel_features and novel_features_built",
+  "checks": [
+    "semantic intent",
+    "format/permalinks",
+    "requested source aggregation",
+    "claimed ordering/ranking"
+  ],
+  "origin_requests": 0,
+  "product_edits": false,
+  "sample_limits": "Compare/audit tails are bounded; privacy redactions are not format bugs."
+}

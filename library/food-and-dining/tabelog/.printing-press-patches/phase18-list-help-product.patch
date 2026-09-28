@@ -1,0 +1,100 @@
+--- a/internal/cli/tabelog_lists.go
++++ b/internal/cli/tabelog_lists.go
+@@ -38,7 +38,13 @@
+ 			root.AddCommand(candidate)
+ 			return
+ 		}
+-		parent.Short, parent.Long = candidate.Short, candidate.Long
++		parent.Short, parent.Long, parent.Example = candidate.Short, candidate.Long, candidate.Example
++		// Lists is an overview group; only its leaves execute workflows.
++		parent.Run, parent.RunE = nil, nil
++		if parent.Annotations == nil {
++			parent.Annotations = map[string]string{}
++		}
++		parent.Annotations["pp:parent-group"] = "true"
+ 		for _, child := range candidate.Commands() {
+ 			for _, existing := range parent.Commands() {
+ 				if existing.Name() == child.Name() {
+@@ -51,7 +57,7 @@
+ }
+ 
+ func newTabelogListsCmd(flags *rootFlags) *cobra.Command {
+-	cmd := &cobra.Command{Use: "lists", Short: "Keep notes and compare saved trip candidates", Long: "Save fetched restaurants in named trip lists. Show, compare, alternatives and audit use saved facts without network requests; refresh explicitly retrieves current facts."}
++	cmd := &cobra.Command{Use: "lists", Short: "Keep notes and compare saved trip candidates", Long: "Save fetched restaurants in named trip lists. Add requires a candidate fetched with find or show first. Show, compare, alternatives and audit use saved facts without network requests; refresh explicitly retrieves current facts.", Example: "  tabelog-pp-cli lists show --agent\n  tabelog-pp-cli lists compare tokyo-bars --agent", Annotations: map[string]string{"pp:parent-group": "true"}}
+ 	cmd.AddCommand(newTabelogListAddCmd(flags), newTabelogListShowCmd(flags), newTabelogListNoteCmd(flags), newTabelogListRemoveCmd(flags), newTabelogListCompareCmd(flags), newTabelogListAlternativesCmd(flags), newTabelogListAuditCmd(flags), newTabelogListRefreshCmd(flags))
+ 	return cmd
+ }
+@@ -168,7 +174,7 @@
+ 
+ func newTabelogListAddCmd(flags *rootFlags) *cobra.Command {
+ 	var note string
+-	cmd := &cobra.Command{Use: "add <list> <id>", Short: "Save a fetched restaurant and optional personal note", Long: "Save an already fetched restaurant in a named trip list. Re-adding preserves its position and note unless --note is supplied. Use lists refresh to update source facts.", Annotations: listWriteAnnotations()}
++	cmd := &cobra.Command{Use: "add <list> <id>", Short: "Save a fetched restaurant and optional personal note", Long: "Save an already fetched restaurant in a named trip list. Re-adding preserves its position and note unless --note is supplied. Use lists refresh to update source facts.", Example: "  tabelog-pp-cli lists add tokyo-bars 13005012 --note 'Ginza bar option' --agent", Annotations: listWriteAnnotations()}
+ 	cmd.Flags().StringVar(&note, "note", "", "Personal note; preserved on repeat add unless this flag is supplied")
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 2, 2); err != nil {
+@@ -206,7 +212,7 @@
+ }
+ 
+ func newTabelogListShowCmd(flags *rootFlags) *cobra.Command {
+-	cmd := &cobra.Command{Use: "show [list]", Short: "Show saved candidates, or list the notebooks", Annotations: listReadAnnotations()}
++	cmd := &cobra.Command{Use: "show [list]", Short: "Show saved candidates, or list the notebooks", Example: "  tabelog-pp-cli lists show tokyo-bars --agent", Annotations: listReadAnnotations()}
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 0, 1); err != nil {
+ 			return err
+@@ -253,7 +259,7 @@
+ 
+ func newTabelogListNoteCmd(flags *rootFlags) *cobra.Command {
+ 	var note string
+-	cmd := &cobra.Command{Use: "note <list> <id>", Short: "Set a personal note on a saved candidate", Annotations: listWriteAnnotations()}
++	cmd := &cobra.Command{Use: "note <list> <id>", Short: "Set a personal note on a saved candidate", Example: "  tabelog-pp-cli lists note tokyo-bars 13005012 --note 'Try after dinner' --agent", Annotations: listWriteAnnotations()}
+ 	cmd.Flags().StringVar(&note, "note", "", "Personal note; an explicitly empty note clears it")
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 2, 2); err != nil {
+@@ -293,7 +299,7 @@
+ }
+ 
+ func newTabelogListRemoveCmd(flags *rootFlags) *cobra.Command {
+-	cmd := &cobra.Command{Use: "remove <list> <id>", Short: "Remove membership while retaining fetched source facts"}
++	cmd := &cobra.Command{Use: "remove <list> <id>", Short: "Remove membership while retaining fetched source facts", Example: "  tabelog-pp-cli lists remove tokyo-bars 13005012 --agent"}
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 2, 2); err != nil {
+ 			return err
+@@ -321,7 +327,7 @@
+ }
+ 
+ func newTabelogListCompareCmd(flags *rootFlags) *cobra.Command {
+-	cmd := &cobra.Command{Use: "compare <list> [id...]", Short: "Compare saved facts and notes without fetching", Long: "Compare known source facts, personal notes and snapshot ages in list order. Missing details remain not fetched; source-unknown facts remain unknown. Use lists alternatives to find a backup for one candidate.", Annotations: listReadAnnotations()}
++	cmd := &cobra.Command{Use: "compare <list> [id...]", Short: "Compare saved facts and notes without fetching", Long: "Compare known source facts, personal notes and snapshot ages in list order. Missing details remain not fetched; source-unknown facts remain unknown. Use lists alternatives to find a backup for one candidate.", Example: "  tabelog-pp-cli lists compare tokyo-bars 13005012 --agent", Annotations: listReadAnnotations()}
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 1, -1); err != nil {
+ 			return err
+@@ -488,7 +494,7 @@
+ func newTabelogListAlternativesCmd(flags *rootFlags) *cobra.Command {
+ 	var anchorID, match, meal string
+ 	var budgetMax int
+-	cmd := &cobra.Command{Use: "alternatives <list>", Short: "Find factual alternatives within the saved set", Long: "Match saved candidates to an anchor's verified source area and exact normalized category labels. Optional meal budget checks the cached source bracket upper bound. Unknown matching fields are unevaluable; results preserve list order. Use lists compare for general comparison.", Annotations: listReadAnnotations()}
++	cmd := &cobra.Command{Use: "alternatives <list>", Short: "Find factual alternatives within the saved set", Long: "Match saved candidates to an anchor's verified source area and exact normalized category labels. Optional meal budget checks the cached source bracket upper bound. Unknown matching fields are unevaluable; results preserve list order. Use lists compare for general comparison.", Example: "  tabelog-pp-cli lists alternatives tokyo-bars --for 13005012 --match area,category --meal dinner --budget-max 5000 --agent", Annotations: listReadAnnotations()}
+ 	cmd.Flags().StringVar(&anchorID, "for", "", "Saved anchor restaurant ID")
+ 	cmd.Flags().StringVar(&match, "match", "", "Comma-separated anchor fields: area,category")
+ 	cmd.Flags().StringVar(&meal, "meal", "", "Meal for cached budget comparison: lunch or dinner")
+@@ -648,7 +654,7 @@
+ 
+ func newTabelogListAuditCmd(flags *rootFlags) *cobra.Command {
+ 	var require, ageText string
+-	cmd := &cobra.Command{Use: "audit <list>", Short: "Inspect missing and old evidence without fetching", Long: "Inspect saved evidence states and snapshot age. Findings distinguish detail_not_fetched, source_unknown and older_than_threshold. Source-unknown facts may stay unknown after another fetch. Use lists refresh to retrieve current facts.", Annotations: listReadAnnotations()}
++	cmd := &cobra.Command{Use: "audit <list>", Short: "Inspect missing and old evidence without fetching", Long: "Inspect saved evidence states and snapshot age. Findings distinguish detail_not_fetched, source_unknown and older_than_threshold. Source-unknown facts may stay unknown after another fetch. Use lists refresh to retrieve current facts.", Example: "  tabelog-pp-cli lists audit tokyo-bars --require hours,payment,reservation,dinner_budget --max-age 24h --agent", Annotations: listReadAnnotations()}
+ 	cmd.Flags().StringVar(&require, "require", "hours,payment,reservation,dinner_budget", "Required evidence fields, comma-separated")
+ 	cmd.Flags().StringVar(&ageText, "max-age", "24h", "Snapshot age threshold; 0 disables age checks; supports h, d and w")
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+--- a/internal/cli/tabelog_lists_refresh.go
++++ b/internal/cli/tabelog_lists_refresh.go
+@@ -84,7 +84,7 @@
+ }
+ 
+ func newTabelogListRefreshCmd(flags *rootFlags) *cobra.Command {
+-	cmd := &cobra.Command{Use: "refresh <list> [id...]", Short: "Refresh selected saved facts and preserve personal notes", Long: "Fetch current detail facts for up to 20 saved restaurants, at most two at a time within a 20-second operation deadline. Report changed source facts separately from newly obtained evidence. A failed record retains its last valid snapshot and note; any per-record failure gives a non-success exit. Use lists audit for a network-free evidence check.", Annotations: listWriteAnnotations()}
++	cmd := &cobra.Command{Use: "refresh <list> [id...]", Short: "Refresh selected saved facts and preserve personal notes", Long: "Fetch current detail facts for up to 20 saved restaurants, at most two at a time within a 20-second operation deadline. Report changed source facts separately from newly obtained evidence. A failed record retains its last valid snapshot and note; any per-record failure gives a non-success exit. Use lists audit for a network-free evidence check.", Example: "  tabelog-pp-cli lists refresh tokyo-bars 13005012 --agent", Annotations: listWriteAnnotations()}
+ 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+ 		if err := listArgCount(flags, args, 1, -1); err != nil {
+ 			return err

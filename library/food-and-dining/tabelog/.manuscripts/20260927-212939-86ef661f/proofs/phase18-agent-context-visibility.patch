@@ -1,0 +1,19 @@
+diff --git a/internal/cli/agent_context.go b/internal/cli/agent_context.go
+--- a/internal/cli/agent_context.go
++++ b/internal/cli/agent_context.go
+@@ -80,6 +80,7 @@
+ 	Annotations map[string]string     `json:"annotations,omitempty"`
+ 	Flags       []agentContextFlag    `json:"flags,omitempty"`
+ 	Runnable    bool                  `json:"runnable,omitempty"`
++	Hidden      bool                  `json:"hidden,omitempty"`
+ 	Subcommands []agentContextCommand `json:"subcommands,omitempty"`
+ }
+ 
+@@ -207,6 +208,7 @@
+ 			Use:      sub.Use,
+ 			Short:    sub.Short,
+ 			Runnable: sub.Runnable(),
++			Hidden:   sub.Hidden,
+ 		}
+ 		// Surface Cobra annotations (e.g., pp:endpoint, mcp:read-only) so
+ 		// agents and the live-dogfood classifier can detect destructive-at-auth

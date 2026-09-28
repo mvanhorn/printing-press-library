@@ -1,0 +1,110 @@
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract
+=== RUN   TestCanonicalSectionsGoModEvidence
+=== PAUSE TestCanonicalSectionsGoModEvidence
+=== RUN   TestCanonicalSectionsMissingGoModStillSkipsMinimalFixture
+=== PAUSE TestCanonicalSectionsMissingGoModStillSkipsMinimalFixture
+=== RUN   TestCanonicalSectionsUnreadableGoModFails
+=== PAUSE TestCanonicalSectionsUnreadableGoModFails
+=== RUN   TestVerifySkill_CanonicalSectionsPassesOnFreshFixture
+=== PAUSE TestVerifySkill_CanonicalSectionsPassesOnFreshFixture
+=== RUN   TestVerifySkill_CanonicalSectionsNormalizesCRLF
+=== PAUSE TestVerifySkill_CanonicalSectionsNormalizesCRLF
+=== RUN   TestVerifySkill_CanonicalSectionsCatchesFlagStrip
+=== PAUSE TestVerifySkill_CanonicalSectionsCatchesFlagStrip
+=== RUN   TestVerifySkill_CanonicalSectionsCatchesFabricatedInstall
+=== PAUSE TestVerifySkill_CanonicalSectionsCatchesFabricatedInstall
+=== RUN   TestVerifySkill_CanonicalSectionsSkipsWithoutManifest
+=== PAUSE TestVerifySkill_CanonicalSectionsSkipsWithoutManifest
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract
+=== CONT  TestVerifySkill_CanonicalSectionsNormalizesCRLF
+=== CONT  TestCanonicalSectionsUnreadableGoModFails
+=== CONT  TestCanonicalSectionsMissingGoModStillSkipsMinimalFixture
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/exact_local_module_with_checkout_install
+=== CONT  TestVerifySkill_CanonicalSectionsCatchesFabricatedInstall
+=== CONT  TestCanonicalSectionsGoModEvidence
+=== CONT  TestVerifySkill_CanonicalSectionsSkipsWithoutManifest
+=== CONT  TestVerifySkill_CanonicalSectionsPassesOnFreshFixture
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/exact_local_module_with_checkout_install
+=== CONT  TestVerifySkill_CanonicalSectionsCatchesFlagStrip
+=== RUN   TestCanonicalSectionsGoModEvidence/quoted_exact_module_and_comment
+=== PAUSE TestCanonicalSectionsGoModEvidence/quoted_exact_module_and_comment
+=== RUN   TestCanonicalSectionsGoModEvidence/malformed_module_directive
+=== PAUSE TestCanonicalSectionsGoModEvidence/malformed_module_directive
+=== RUN   TestCanonicalSectionsGoModEvidence/malformed_version_directive
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_checkout_with_CRLF
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_checkout_with_CRLF
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_generated_public_block_remains_compatible
+=== PAUSE TestCanonicalSectionsGoModEvidence/malformed_version_directive
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_generated_public_block_remains_compatible
+=== RUN   TestCanonicalSectionsGoModEvidence/missing_module_directive
+=== PAUSE TestCanonicalSectionsGoModEvidence/missing_module_directive
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/published_module_with_public_install
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/published_module_with_public_install
+=== RUN   TestCanonicalSectionsGoModEvidence/empty_module_file
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/published_module_cannot_use_local_exception
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/published_module_cannot_use_local_exception
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/other_qualified_module_cannot_use_local_exception
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/other_qualified_module_cannot_use_local_exception
+=== PAUSE TestCanonicalSectionsGoModEvidence/empty_module_file
+=== CONT  TestCanonicalSectionsGoModEvidence/quoted_exact_module_and_comment
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/different_bare_module_cannot_use_local_exception
+=== CONT  TestCanonicalSectionsGoModEvidence/missing_module_directive
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/different_bare_module_cannot_use_local_exception
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_install_command_drift
+=== CONT  TestCanonicalSectionsGoModEvidence/empty_module_file
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_install_command_drift
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_verification_drift
+=== CONT  TestCanonicalSectionsGoModEvidence/malformed_version_directive
+=== CONT  TestCanonicalSectionsGoModEvidence/malformed_module_directive
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_verification_drift
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_missing_start_delimiter
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_missing_start_delimiter
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_missing_end_delimiter
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_missing_end_delimiter
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/published_flag_strip_still_fails
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/published_flag_strip_still_fails
+=== RUN   TestCanonicalSectionsLocalModuleInstallContract/local_public_flag_strip_still_fails
+=== PAUSE TestCanonicalSectionsLocalModuleInstallContract/local_public_flag_strip_still_fails
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/exact_local_module_with_checkout_install
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_install_command_drift
+--- PASS: TestCanonicalSectionsMissingGoModStillSkipsMinimalFixture (0.01s)
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/published_module_cannot_use_local_exception
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/different_bare_module_cannot_use_local_exception
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/other_qualified_module_cannot_use_local_exception
+--- PASS: TestCanonicalSectionsUnreadableGoModFails (0.01s)
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_missing_end_delimiter
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_public_flag_strip_still_fails
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/published_flag_strip_still_fails
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_missing_start_delimiter
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_verification_drift
+--- PASS: TestCanonicalSectionsGoModEvidence (0.00s)
+    --- PASS: TestCanonicalSectionsGoModEvidence/missing_module_directive (0.01s)
+    --- PASS: TestCanonicalSectionsGoModEvidence/empty_module_file (0.01s)
+    --- PASS: TestCanonicalSectionsGoModEvidence/malformed_version_directive (0.01s)
+    --- PASS: TestCanonicalSectionsGoModEvidence/quoted_exact_module_and_comment (0.01s)
+    --- PASS: TestCanonicalSectionsGoModEvidence/malformed_module_directive (0.01s)
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_generated_public_block_remains_compatible
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/published_module_with_public_install
+=== CONT  TestCanonicalSectionsLocalModuleInstallContract/local_checkout_with_CRLF
+--- PASS: TestCanonicalSectionsLocalModuleInstallContract (0.00s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/exact_local_module_with_checkout_install (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_install_command_drift (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_missing_end_delimiter (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/published_module_cannot_use_local_exception (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/different_bare_module_cannot_use_local_exception (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_verification_drift (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/other_qualified_module_cannot_use_local_exception (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_generated_public_block_remains_compatible (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_public_flag_strip_still_fails (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/published_flag_strip_still_fails (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_missing_start_delimiter (0.01s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/published_module_with_public_install (0.00s)
+    --- PASS: TestCanonicalSectionsLocalModuleInstallContract/local_checkout_with_CRLF (0.00s)
+--- PASS: TestVerifySkill_CanonicalSectionsSkipsWithoutManifest (2.41s)
+--- PASS: TestVerifySkill_CanonicalSectionsNormalizesCRLF (2.41s)
+--- PASS: TestVerifySkill_CanonicalSectionsCatchesFabricatedInstall (2.41s)
+--- PASS: TestVerifySkill_CanonicalSectionsCatchesFlagStrip (2.41s)
+--- PASS: TestVerifySkill_CanonicalSectionsPassesOnFreshFixture (2.41s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/cli	3.233s

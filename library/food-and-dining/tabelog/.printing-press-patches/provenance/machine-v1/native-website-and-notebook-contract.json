@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "native-website-and-notebook-contract",
+  "files": [
+    "internal/source/client.go",
+    "internal/source/cache.go",
+    "internal/source/parser.go",
+    "internal/source/discovery.go",
+    "internal/source/catalogs.json",
+    "internal/notebook/notebook.go",
+    "internal/cli/tabelog_helpers.go",
+    "internal/cli/tabelog_discovery.go",
+    "internal/cli/tabelog_lists.go",
+    "internal/cli/tabelog_lists_refresh.go",
+    "internal/cli/tabelog_live_fixtures.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/intents.go",
+    "internal/mcp/tabelog_hints.go",
+    "internal/domain/restaurant.go"
+  ],
+  "call_sites": [
+    "root.AddCommand(newTabelogFindCmd(flags)",
+    "cmd.AddCommand(newTabelogListAddCmd(flags)",
+    "applyTabelogToolHints(s)"
+  ]
+}

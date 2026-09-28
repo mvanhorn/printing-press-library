@@ -1,0 +1,94 @@
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json
+=== RUN   TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true
+--- PASS: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun (0.82s)
+    --- PASS: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json (0.41s)
+    --- PASS: TestLiveDogfoodReusesSuccessfulIdenticalJSONRun/--json=true (0.41s)
+=== RUN   TestLiveDogfoodDifferentJSONArgsStillExecute
+--- PASS: TestLiveDogfoodDifferentJSONArgsStillExecute (0.39s)
+=== RUN   TestLiveDogfoodFailedHappyRunIsNotReusedAsSuccess
+--- PASS: TestLiveDogfoodFailedHappyRunIsNotReusedAsSuccess (0.38s)
+=== RUN   TestLiveDogfoodHiddenAndOverviewDoNotExecuteHappy
+--- PASS: TestLiveDogfoodHiddenAndOverviewDoNotExecuteHappy (0.37s)
+=== RUN   TestLiveDogfoodApprovedLocalFixtureExecutesOnce
+--- PASS: TestLiveDogfoodApprovedLocalFixtureExecutesOnce (0.38s)
+=== RUN   TestLiveDogfoodLocalFixtureConfinement
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/equals
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/space
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/no_authorization
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/no_local_annotation
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/remote_post
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/operator_home
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/no_home
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/relative_home
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/conflicting_homes
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/home_after_separator_is_data
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/home_as_note_is_data
+=== RUN   TestLiveDogfoodLocalFixtureConfinement/note_then_real_home
+--- PASS: TestLiveDogfoodLocalFixtureConfinement (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/equals (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/space (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/no_authorization (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/no_local_annotation (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/remote_post (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/operator_home (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/no_home (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/relative_home (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/conflicting_homes (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/home_after_separator_is_data (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/home_as_note_is_data (0.00s)
+    --- PASS: TestLiveDogfoodLocalFixtureConfinement/note_then_real_home (0.00s)
+=== RUN   TestLiveDogfoodHiddenNeverPreSyncsOrResolvesCompanions
+--- PASS: TestLiveDogfoodHiddenNeverPreSyncsOrResolvesCompanions (0.00s)
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/source_action
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/coverage_operation
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/every_item_planned
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/ordinary_data
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/no_meta_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/empty_items
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/missing_items
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/wrong_items_type
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/no_action
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/whitespace_action
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/no_true_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/false_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/string_marker
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/contradictory_markers
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/mixed_plans_and_data
+=== RUN   TestLiveDogfoodStrictDryRunEnvelope/legacy_missing_action_remains_failure
+--- PASS: TestLiveDogfoodStrictDryRunEnvelope (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/source_action (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/coverage_operation (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/every_item_planned (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/ordinary_data (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/no_meta_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/empty_items (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/missing_items (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/wrong_items_type (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/no_action (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/whitespace_action (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/no_true_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/false_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/string_marker (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/contradictory_markers (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/mixed_plans_and_data (0.00s)
+    --- PASS: TestLiveDogfoodStrictDryRunEnvelope/legacy_missing_action_remains_failure (0.00s)
+=== RUN   TestLiveDogfoodBooleanAnnotationKeepsTypedArg
+--- PASS: TestLiveDogfoodBooleanAnnotationKeepsTypedArg (0.00s)
+=== RUN   TestAppendJSONArgDoesNotOverrideExplicitOutputMode
+--- PASS: TestAppendJSONArgDoesNotOverrideExplicitOutputMode (0.00s)
+=== RUN   TestRunLiveDogfoodDryRunJSONSkipsMutatingUnlessAllowed
+--- PASS: TestRunLiveDogfoodDryRunJSONSkipsMutatingUnlessAllowed (0.31s)
+=== RUN   TestLiveDogfoodDryRunJSONContract
+=== PAUSE TestLiveDogfoodDryRunJSONContract
+=== RUN   TestLiveDogfoodSkipsInteractiveAuthCommands
+=== PAUSE TestLiveDogfoodSkipsInteractiveAuthCommands
+=== RUN   TestDiscoverLiveDogfoodCommandsPreservesRunnableParents
+--- PASS: TestDiscoverLiveDogfoodCommandsPreservesRunnableParents (0.12s)
+=== CONT  TestLiveDogfoodDryRunJSONContract
+=== CONT  TestLiveDogfoodSkipsInteractiveAuthCommands
+--- PASS: TestLiveDogfoodSkipsInteractiveAuthCommands (0.00s)
+--- PASS: TestLiveDogfoodDryRunJSONContract (0.00s)
+PASS
+ok  	github.com/mvanhorn/cli-printing-press/v4/internal/pipeline	3.360s

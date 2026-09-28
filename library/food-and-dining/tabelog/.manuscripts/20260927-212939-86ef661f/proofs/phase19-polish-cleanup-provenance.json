@@ -1,0 +1,28 @@
+{
+  "run_id": "20260927-212939-86ef661f",
+  "kind": "handwritten diagnostic cleanup and gofmt only",
+  "generator_modified": false,
+  "files": [
+    {
+      "path": "internal/source/discovery.go",
+      "before_sha256": "3311cb2e5a4eeb6f4627755da86bc5ccaeb9b6e9c1a9e9906bc77bada3a9f434",
+      "after_sha256": "5d3423479b472fdec9f7f3896ab0498d81ef3ec58d07bbe45f9186e1ce1ddce7"
+    },
+    {
+      "path": "internal/cli/tabelog_helpers.go",
+      "before_sha256": "31534dc01aec1377d6c41222784808dad77a945c6d44eff2db241b996c67a94e",
+      "after_sha256": "e4b0514c433628f30fec04de983262fb226f14d33c781cea0210d8215505375f"
+    },
+    {
+      "path": "internal/notebook/notebook.go",
+      "before_sha256": "175f2099e260958b07d3af18cb8ca80b9134ff78f46c4536ef379a663620bbd9",
+      "after_sha256": "e53c8b67a4b420d17755d4050faad2a23207ffcf05c888debfb1dfcc769d735d"
+    },
+    {
+      "path": "internal/cli/lists_alternatives.go",
+      "before_sha256": "39ab5e8676539e318b39c31787734a831259e03cb0022a6eb27a379ed6a6f693",
+      "after_sha256": "90ea77f47f9468f56a742be77cb8202c171e02d4433d966eb153170dd9249595"
+    }
+  ],
+  "patch_sha256": "1841e782342e678e5d0cacefe781ca3dd9ebfe02ace2eb21f1a1ef6f51633306"
+}

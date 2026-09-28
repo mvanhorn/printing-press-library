@@ -1,0 +1,130 @@
+{
+  "input_bundle": {
+    "working_dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli",
+    "printing_press_bin": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+    "planned_novel_features": 5,
+    "built_novel_features": 5,
+    "missing_novel_features": [],
+    "prior_sub60_reprint": false,
+    "partial_transcendence_override": "none",
+    "standalone": false,
+    "publication_authorized": false
+  },
+  "pinned_inputs": {
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli/spec.json": "b545085c284d1387ef843426f51731c5e73c624c0942f8c8bc6263e0407f123f",
+    "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/research.json": "c5da1a2d52f58502b8c1952d0393d0e00b0dce8b670ab33d2f0ebb5f483da9eb"
+  },
+  "dogfood": {
+    "before_raw": "WARN",
+    "after_raw": "WARN",
+    "accepted_scoped_warnings": [
+      "5 uncalled generated compatibility helpers",
+      "empty generic raw sync resource list; actual source population via find/show/refresh"
+    ],
+    "triaged_gate": "PASS",
+    "raw_warning_preserved": true
+  },
+  "verify": {
+    "before_percentage": 93.75,
+    "after_percentage": 93.75,
+    "critical_failures": 0,
+    "remaining_generic_probe": "show synthetic noncanonical target rejected; genuine canonical dry-run passes with no home creation"
+  },
+  "scorecard": {
+    "before": 82,
+    "after": 82,
+    "grade": "A",
+    "eligible_pass_samples": 3,
+    "mutating_examples_excluded": 2,
+    "qualifier": "exercised"
+  },
+  "verify_skill": {
+    "before_findings": 0,
+    "after_findings": 0,
+    "final_compact_recipes_checked": 10
+  },
+  "workflow": {
+    "before": "workflow-pass",
+    "after": "workflow-pass",
+    "scope": "no separate generated workflow manifest; executable/list workflow acceptance is separately owned"
+  },
+  "go_vet": {
+    "before": 0,
+    "after": 0,
+    "final_after_hint_fix": 0
+  },
+  "gosec": {
+    "version": "v2.26.1",
+    "before_raw_findings": 25,
+    "after_raw_findings": 21,
+    "before_relevant_handwritten": 4,
+    "after_relevant_handwritten": 0,
+    "individual_triage_proof": "phase19-security-triage.md",
+    "final_after_hint_fix_raw": 21,
+    "final_after_hint_fix_relevant": 0
+  },
+  "pii": {
+    "before_findings": 0,
+    "after_findings": 0,
+    "manuscripts_dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f",
+    "pending": 0,
+    "incomplete": false
+  },
+  "mcp_tools_audit": {
+    "before_pending": 1,
+    "after_pending": 0,
+    "accepted": 1,
+    "runtime_tools_manually_judged": 14,
+    "metadata_correction_pending": false,
+    "final_wire_proof": "polish-runtime-mcp-catalog-final.json",
+    "refreshed_wire_assertions": "all corrected hints pass;14tools unchanged"
+  },
+  "output_review": {
+    "status": "PASS",
+    "eligible_samples": 3,
+    "four_checks_applied": true,
+    "proof": "polish-output-review.md",
+    "reviewer": "website_contract"
+  },
+  "compact_docs": {
+    "snapshot": "phase19-current-docs/snapshot.json",
+    "preserved_exactly": true,
+    "dogfood_sync_changes_restored": true
+  },
+  "library_divergence": {
+    "status": "clone found but does not contain this CLI",
+    "canonical_dir": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/working/tabelog-pp-cli",
+    "proof": "phase19-current-docs/divergence-result.json"
+  },
+  "lock_interpretation": "Explicit delegated same-run parent handoff; parent-held polish lock is the coordination mechanism, not a competing print. Retained; no release or library switch.",
+  "publish_validate_before": "skipped (mid-pipeline)",
+  "publish_validate_after": "skipped (mid-pipeline)",
+  "latest_resource_measurement": {
+    "proof": "phase17-cluster-a-measurements/measurement-results.json",
+    "cold_find_tokens": 1247,
+    "cold_find_p95_ms": 22.457,
+    "warm_find_p95_ms": 18.741,
+    "max_rss_bytes": 28688384,
+    "scope": "existing independent executable replay measurements; not a new live-origin benchmark"
+  },
+  "final_acceptance": {
+    "status": "pass",
+    "level": "full",
+    "mandatory_passed": 60,
+    "mandatory_matrix_size": 60,
+    "failed": 0,
+    "explicit_nonmandatory_skips": 127,
+    "marker_sha256": "0cf2b91a7e5db2fca27a515da7cac896775c7f164bb9c1fa69268bab1e30d9f5",
+    "source_fingerprint": "2ec6b885c306712fa145566d457030d4ef4816aa6f4b1237cff0e08524a85465",
+    "actual_mutations_verified": [
+      "add",
+      "note",
+      "refresh",
+      "remove"
+    ],
+    "accepted_stage_cli_sha256": "5d14bc325f315491147f6c702274f76f2837629d57066b35132de20006b196b7"
+  },
+  "ship_recommendation": "ship",
+  "remaining_issues": [],
+  "canonical_report": "20260928-fix-tabelog-pp-cli-polish.md"
+}

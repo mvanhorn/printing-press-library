@@ -1,0 +1,1026 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "tools": [
+      {
+        "_meta": {
+          "pp:cli-command": "areas",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Resolve typed prefecture, area and station choices",
+        "inputSchema": {
+          "properties": {
+            "QUERY": {
+              "description": "Positional argument [QUERY]",
+              "type": "string"
+            },
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "kind": {
+              "description": "Filter choices by area, station, or prefecture",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum typed source choices to return (1\u2013100) (default: 20)",
+              "type": "number"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "areas"
+      },
+      {
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "description": "View saved facts and notes together; separate meal budgets and unknowns remain visible.",
+        "inputSchema": {
+          "properties": {
+            "slug": {
+              "description": "Override the recipe's positional slug value.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "slug"
+          ],
+          "type": "object"
+        },
+        "name": "compare_saved_candidates_offline"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "cuisines",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Browse verified English cuisine and bar taxonomy choices",
+        "inputSchema": {
+          "properties": {
+            "QUERY": {
+              "description": "Positional argument [QUERY]",
+              "type": "string"
+            },
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "limit": {
+              "description": "Maximum cuisine/taxonomy choices to return (1\u2013100) (default: 20)",
+              "type": "number"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "cuisines"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "find",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Find ranked restaurants within explicit location and meal criteria",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "area": {
+              "description": "Required prefecture, typed location selector, or English area URL",
+              "type": "string"
+            },
+            "budget-max": {
+              "description": "Source-supported maximum average-price threshold in JPY (default: 0)",
+              "type": "number"
+            },
+            "budget-min": {
+              "description": "Source-supported minimum average-price threshold in JPY (default: 0)",
+              "type": "number"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "cuisine": {
+              "description": "Verified cuisine slug or taxonomy choice (bar is broad category)",
+              "type": "string"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "keyword": {
+              "description": "Free text within the verified source geography",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum candidates to return (1\u201350); no detail fan-out (default: 5)",
+              "type": "number"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "max-pages": {
+              "description": "Maximum source pages to fetch (1\u20135), independently of result limit (default: 1)",
+              "type": "number"
+            },
+            "meal": {
+              "description": "Source average-price meal: lunch or dinner",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "find"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists add",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "description": "Save a fetched restaurant and optional personal note",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "id": {
+              "description": "Positional argument <id>",
+              "type": "string"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "note": {
+              "description": "Personal note; preserved on repeat add unless this flag is supplied",
+              "type": "string"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list",
+            "id"
+          ],
+          "type": "object"
+        },
+        "name": "lists_add"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists alternatives",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Find factual alternatives within the saved set",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "budget-max": {
+              "description": "Maximum known cached meal-bracket upper bound in JPY (default: 0)",
+              "type": "number"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "for": {
+              "description": "Saved anchor restaurant ID",
+              "type": "string"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "match": {
+              "description": "Comma-separated anchor fields: area,category",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "meal": {
+              "description": "Meal for cached budget comparison: lunch or dinner",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list"
+          ],
+          "type": "object"
+        },
+        "name": "lists_alternatives"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists audit",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Inspect missing and old evidence without fetching",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Snapshot age threshold; 0 disables age checks; supports h, d and w (default: 24h)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "require": {
+              "description": "Required evidence fields, comma-separated (default: hours,payment,reservation,dinner_budget)",
+              "type": "string"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list"
+          ],
+          "type": "object"
+        },
+        "name": "lists_audit"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists compare",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Compare saved facts and notes without fetching",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "id": {
+              "description": "Positional argument [id...]",
+              "type": "string"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list"
+          ],
+          "type": "object"
+        },
+        "name": "lists_compare"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists note",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "description": "Set a personal note on a saved candidate",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "id": {
+              "description": "Positional argument <id>",
+              "type": "string"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "note": {
+              "description": "Personal note; an explicitly empty note clears it",
+              "type": "string"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list",
+            "id"
+          ],
+          "type": "object"
+        },
+        "name": "lists_note"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists refresh",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Refresh selected saved facts and preserve personal notes",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "id": {
+              "description": "Positional argument [id...]",
+              "type": "string"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list"
+          ],
+          "type": "object"
+        },
+        "name": "lists_refresh"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists remove",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "description": "Remove membership while retaining fetched source facts",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "id": {
+              "description": "Positional argument <id>",
+              "type": "string"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument <list>",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "list",
+            "id"
+          ],
+          "type": "object"
+        },
+        "name": "lists_remove"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "lists show",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Show saved candidates, or list the notebooks",
+        "inputSchema": {
+          "properties": {
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "list": {
+              "description": "Positional argument [list]",
+              "type": "string"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "lists_show"
+      },
+      {
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Fetch current detail facts for this ID, report changes and preserve its note and last valid snapshot on failure.",
+        "inputSchema": {
+          "properties": {
+            "id": {
+              "description": "Override the recipe's positional id value.",
+              "type": "string"
+            },
+            "slug": {
+              "description": "Override the recipe's positional slug value.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "slug",
+            "id"
+          ],
+          "type": "object"
+        },
+        "name": "refresh_one_saved_candidate"
+      },
+      {
+        "_meta": {
+          "pp:cli-command": "show",
+          "pp:tenant-gate": "child-cli"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "description": "Inspect one restaurant's source facts and practical details",
+        "inputSchema": {
+          "properties": {
+            "URL_OR_CACHED_ID": {
+              "description": "Positional argument [URL_OR_CACHED_ID]",
+              "type": "string"
+            },
+            "agent": {
+              "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+              "type": "boolean"
+            },
+            "compact": {
+              "description": "Compact output; source commands preserve restaurant decision facts (default: false)",
+              "type": "boolean"
+            },
+            "csv": {
+              "description": "Output as CSV (table and array responses) (default: false)",
+              "type": "boolean"
+            },
+            "data-source": {
+              "description": "auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default: auto)",
+              "type": "string"
+            },
+            "dry-run": {
+              "description": "Show request without sending (default: false)",
+              "type": "boolean"
+            },
+            "json": {
+              "description": "Output as JSON (default: false)",
+              "type": "boolean"
+            },
+            "max-age": {
+              "description": "Age threshold for saved-evidence hints; 0 disables age checks (default: 30m0s)",
+              "type": "string"
+            },
+            "no-cache": {
+              "description": "Bypass response cache (default: false)",
+              "type": "boolean"
+            },
+            "plain": {
+              "description": "Output as plain tab-separated text (default: false)",
+              "type": "boolean"
+            },
+            "quiet": {
+              "description": "Bare output, one value per line (default: false)",
+              "type": "boolean"
+            },
+            "select": {
+              "description": "Comma-separated output fields (e.g. items.id,items.name,items.rating); essential metadata is retained",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Request timeout (default: 20s)",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "type": "object"
+        },
+        "name": "show"
+      }
+    ]
+  }
+}

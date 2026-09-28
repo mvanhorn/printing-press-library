@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "product",
+    "path": "internal/notebook/notebook.go"
+  },
+  {
+    "kind": "product",
+    "path": "internal/cli/tabelog_lists_refresh.go"
+  },
+  {
+    "kind": "product",
+    "path": "internal/client/client.go"
+  },
+  {
+    "kind": "product",
+    "path": "internal/cli/deliver.go"
+  },
+  {
+    "kind": "generator",
+    "path": "internal/generator/templates/client.go.tmpl"
+  },
+  {
+    "kind": "generator",
+    "path": "internal/generator/templates/deliver.go.tmpl"
+  }
+]

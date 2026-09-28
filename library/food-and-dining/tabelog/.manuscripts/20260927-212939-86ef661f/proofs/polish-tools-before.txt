@@ -1,0 +1,6 @@
+tools-audit: 1 pending finding(s)
+
+KIND                  COMMAND          FILE:LINE                       EVIDENCE
+thin-short            list             platform_client.go:517          List client profiles
+
+next: thin-short on list (platform_client.go:517)

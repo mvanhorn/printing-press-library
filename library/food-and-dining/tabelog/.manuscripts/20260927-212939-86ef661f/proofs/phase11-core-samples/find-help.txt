@@ -1,0 +1,34 @@
+Find ranked restaurants within explicit location and meal criteria
+
+Usage:
+  tabelog-pp-cli find [flags]
+
+Examples:
+  tabelog-pp-cli find --area tokyo --cuisine bar --limit 5 --agent
+  tabelog-pp-cli find --area https://tabelog.com/en/tokyo/A1301/A130101/rstLst/ --meal lunch --budget-max 2000
+
+Flags:
+      --area string      Required prefecture, typed location selector, or English area URL
+      --budget-max int   Source-supported maximum average-price threshold in JPY
+      --budget-min int   Source-supported minimum average-price threshold in JPY
+      --cuisine string   Verified cuisine slug or taxonomy choice (bar is broad category)
+  -h, --help             help for find
+      --keyword string   Free text within the verified source geography
+      --limit int        Maximum candidates to return (1–50); no detail fan-out (default 5)
+      --max-pages int    Maximum source pages to fetch (1–5), independently of result limit (default 1)
+      --meal string      Source average-price meal: lunch or dinner
+
+Global Flags:
+      --agent                Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --compact              Compact output; source commands preserve restaurant decision facts
+      --csv                  Output as CSV (table and array responses)
+      --data-source string   auto uses fresh cache or fetches; live bypasses cache; local makes no network requests (default "auto")
+      --dry-run              Show request without sending
+      --home string          Root directory for config, data, state, and cache files
+      --json                 Output as JSON
+      --max-age duration     Age threshold for saved-evidence hints; 0 disables age checks (default 30m0s)
+      --no-cache             Bypass response cache
+      --plain                Output as plain tab-separated text
+      --quiet                Bare output, one value per line
+      --select string        Comma-separated fields to include in output (e.g. --select title,url)
+      --timeout duration     Request timeout (default 20s)

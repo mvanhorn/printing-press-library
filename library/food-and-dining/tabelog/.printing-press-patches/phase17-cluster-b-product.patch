@@ -1,0 +1,407 @@
+--- a/internal/notebook/notebook.go
++++ b/internal/notebook/notebook.go
+@@ -41,6 +41,7 @@
+ 		`CREATE TABLE IF NOT EXISTS tabelog_notebooks (name TEXT PRIMARY KEY, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)`,
+ 		`CREATE TABLE IF NOT EXISTS tabelog_memberships (list_name TEXT NOT NULL, restaurant_id TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', position INTEGER NOT NULL, added_at TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY(list_name, restaurant_id), FOREIGN KEY(list_name) REFERENCES tabelog_notebooks(name), FOREIGN KEY(restaurant_id) REFERENCES tabelog_snapshots(id))`,
+ 		`CREATE INDEX IF NOT EXISTS tabelog_membership_order ON tabelog_memberships(list_name, position)`,
++		`CREATE INDEX IF NOT EXISTS tabelog_membership_restaurant ON tabelog_memberships(restaurant_id)`,
+ 	} {
+ 		if _, err = tx.ExecContext(ctx, statement); err != nil {
+ 			return fmt.Errorf("initialize notebook: %w", err)
+--- a/internal/cli/tabelog_lists_refresh.go
++++ b/internal/cli/tabelog_lists_refresh.go
+@@ -38,6 +38,14 @@
+ 	"reservation", "address", "transportation", "service_charge", "facilities", "awards",
+ }
+ 
++func listBudgetFacts(value any) any {
++	budget, ok := value.(map[string]any)
++	if !ok {
++		return value
++	}
++	return map[string]any{"raw": budget["raw"], "min_jpy": budget["min_jpy"], "max_jpy": budget["max_jpy"]}
++}
++
+ func listSnapshotChanges(previous, current domain.Restaurant) ([]listFactChange, []listFactChange, error) {
+ 	beforeRaw, err := json.Marshal(previous)
+ 	if err != nil {
+@@ -57,7 +65,12 @@
+ 	changes, added := make([]listFactChange, 0), make([]listFactChange, 0)
+ 	for _, field := range refreshFactFields {
+ 		oldState, newState := savedFieldState(previous, field), savedFieldState(current, field)
+-		if oldState == newState && reflect.DeepEqual(before[field], after[field]) {
++		oldFact, newFact := before[field], after[field]
++		switch field {
++		case "lunch_budget", "dinner_budget", "review_lunch_budget", "review_dinner_budget":
++			oldFact, newFact = listBudgetFacts(oldFact), listBudgetFacts(newFact)
++		}
++		if oldState == newState && reflect.DeepEqual(oldFact, newFact) {
+ 			continue
+ 		}
+ 		change := listFactChange{field, before[field], after[field], oldState, newState}
+--- a/internal/client/client.go
++++ b/internal/client/client.go
+@@ -1327,7 +1327,12 @@
+ 			return nil, 0, lastErr
+ 		}
+ 
+-		respBody, err := io.ReadAll(resp.Body)
++		var respBody []byte
++		if binaryResponse {
++			respBody, err = io.ReadAll(resp.Body)
++		} else {
++			respBody, err = readDecodedBody(resp.Body)
++		}
+ 		_ = resp.Body.Close()
+ 		if err != nil {
+ 			return nil, 0, fmt.Errorf("reading response: %w", err)
+@@ -1643,9 +1648,8 @@
+ 	return out
+ }
+ 
+-// maxDecodedBodyBytes caps inflated Content-Encoding output. A small gzip or
+-// deflate body can expand without bound; past this the request fails instead
+-// of materializing the rest.
++// maxDecodedBodyBytes caps nonbinary reads and inflated Content-Encoding output.
++// Past this the request fails instead of materializing the rest.
+ const maxDecodedBodyBytes = 32 << 20
+ 
+ var ErrDecodedBodyTooLarge = errors.New("decoded response exceeds size limit")
+--- a/internal/cli/deliver.go
++++ b/internal/cli/deliver.go
+@@ -144,16 +144,21 @@
+ 	if err := os.MkdirAll(dir, 0o700); err != nil {
+ 		return fmt.Errorf("creating download dir: %w", err)
+ 	}
+-	tmp := path + ".tmp"
+-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
++	file, err := os.CreateTemp(dir, "."+name+"-*")
++	if err != nil {
++		return fmt.Errorf("creating temporary download: %w", err)
++	}
++	tmp := file.Name()
++	defer os.Remove(tmp)
++	if _, err := file.Write(body); err != nil {
++		_ = file.Close()
+ 		return fmt.Errorf("writing download: %w", err)
+ 	}
++	if err := file.Close(); err != nil {
++		return fmt.Errorf("closing download: %w", err)
++	}
+ 	if err := os.Rename(tmp, path); err != nil {
+-		_ = os.Remove(tmp)
+ 		return fmt.Errorf("replacing download: %w", err)
+-	}
+-	if err := os.Chmod(path, 0o600); err != nil {
+-		return fmt.Errorf("setting download permissions: %w", err)
+ 	}
+ 	return nil
+ }
+--- /dev/null
++++ b/internal/client/response_size_test.go
+@@ -0,0 +1,84 @@
++package client
++
++import (
++	"bytes"
++	"compress/gzip"
++	"context"
++	"errors"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"testing"
++	"time"
++
++	"tabelog-pp-cli/internal/config"
++)
++
++type fixtureBodyReader struct{}
++
++func (fixtureBodyReader) Read(p []byte) (int, error) {
++	for i := range p {
++		p[i] = 'x'
++	}
++	return len(p), nil
++}
++
++// Exercise the HTTP boundary, including Go's transparent decompression and
++// failure responses, without retaining a giant source fixture in the repo.
++func TestClientNonBinaryResponseSizeLimit(t *testing.T) {
++	for _, tc := range []struct {
++		name     string
++		encoding string
++		status   int
++	}{
++		{"plain", "", http.StatusOK},
++		{"identity", "identity", http.StatusOK},
++		{"transparent-gzip", "gzip", http.StatusOK},
++		{"error-body", "", http.StatusBadRequest},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++				w.Header().Set("Content-Type", "application/json")
++				if tc.encoding != "" {
++					w.Header().Set("Content-Encoding", tc.encoding)
++				}
++				w.WriteHeader(tc.status)
++				var out io.Writer = w
++				if tc.encoding == "gzip" {
++					if r.Header.Get("Accept-Encoding") != "gzip" {
++						t.Error("client did not request transparent gzip")
++					}
++					compressed := gzip.NewWriter(w)
++					defer compressed.Close()
++					out = compressed
++				}
++				_, _ = io.CopyN(out, fixtureBodyReader{}, int64(maxDecodedBodyBytes)+1)
++			}))
++			defer server.Close()
++			c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 1000)
++			c.NoCache = true
++			_, err := c.Get(context.Background(), "/fixture", nil)
++			if !errors.Is(err, ErrDecodedBodyTooLarge) {
++				t.Fatalf("oversized %s body was not rejected by the size guard: %v", tc.name, err)
++			}
++		})
++	}
++}
++
++func TestClientBinaryResponseRetainsLargePayload(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		w.Header().Set("Content-Type", "application/octet-stream")
++		_, _ = io.CopyN(w, fixtureBodyReader{}, int64(maxDecodedBodyBytes)+1)
++	}))
++	defer server.Close()
++	c := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 1000)
++	c.NoCache = true
++	data, err := c.GetWithHeaders(context.Background(), "/fixture", nil, map[string]string{BinaryResponseHeader: "true"})
++	if err != nil {
++		t.Fatal(err)
++	}
++	body, _, ok := UnwrapBinaryResponse(data)
++	if !ok || len(body) != maxDecodedBodyBytes+1 || bytes.Count(body, []byte{'x'}) != len(body) {
++		t.Fatalf("binary payload was capped or damaged: recognized=%t bytes=%d", ok, len(body))
++	}
++}
+--- /dev/null
++++ b/internal/cli/deliver_atomic_test.go
+@@ -0,0 +1,102 @@
++package cli
++
++import (
++	"bytes"
++	"crypto/sha256"
++	"fmt"
++	"os"
++	"path/filepath"
++	"sync"
++	"testing"
++)
++
++func TestWriteDownloadUnderLeavesPredictableTempSymlinkUntouched(t *testing.T) {
++	root := t.TempDir()
++	dir := filepath.Join(root, "downloads")
++	if err := os.MkdirAll(dir, 0700); err != nil {
++		t.Fatal(err)
++	}
++	sentinel := filepath.Join(root, "sentinel")
++	if err := os.WriteFile(sentinel, []byte("keep this unrelated file"), 0600); err != nil {
++		t.Fatal(err)
++	}
++	oldTemp := filepath.Join(dir, "trip.json.tmp")
++	if err := os.Symlink(sentinel, oldTemp); err != nil {
++		t.Skipf("symlinks unavailable: %v", err)
++	}
++	body := []byte("complete intended output")
++	if err := writeDownloadUnder(dir, "trip.json", body); err != nil {
++		t.Fatal(err)
++	}
++	got, err := os.ReadFile(sentinel)
++	if err != nil || string(got) != "keep this unrelated file" {
++		t.Fatalf("predictable temporary symlink clobbered the sentinel: %q, %v", got, err)
++	}
++	got, err = os.ReadFile(filepath.Join(dir, "trip.json"))
++	if err != nil || !bytes.Equal(got, body) {
++		t.Fatalf("intended output is incomplete: %q, %v", got, err)
++	}
++	info, err := os.Lstat(oldTemp)
++	if err != nil || info.Mode()&os.ModeSymlink == 0 {
++		t.Fatalf("unused predictable symlink was replaced: %v", err)
++	}
++}
++
++func TestWriteDownloadUnderConcurrentOutputsRemainComplete(t *testing.T) {
++	dir := t.TempDir()
++	const writers = 16
++	bodies := make([][]byte, writers)
++	valid := map[[sha256.Size]byte]bool{}
++	for i := range bodies {
++		bodies[i] = append([]byte(fmt.Sprintf("writer %02d\n", i)), bytes.Repeat([]byte{byte('A' + i)}, 256<<10)...)
++		valid[sha256.Sum256(bodies[i])] = true
++	}
++	if err := writeDownloadUnder(dir, "trip.json", bodies[0]); err != nil {
++		t.Fatal(err)
++	}
++	var wg sync.WaitGroup
++	start, done := make(chan struct{}), make(chan struct{})
++	errors := make(chan error, writers)
++	for _, body := range bodies {
++		wg.Add(1)
++		go func(body []byte) {
++			defer wg.Done()
++			<-start
++			errors <- writeDownloadUnder(dir, "trip.json", body)
++		}(body)
++	}
++	go func() { wg.Wait(); close(done) }()
++	close(start)
++	var readErr error
++reading:
++	for {
++		select {
++		case <-done:
++			break reading
++		default:
++			body, err := os.ReadFile(filepath.Join(dir, "trip.json"))
++			if err != nil || !valid[sha256.Sum256(body)] {
++				readErr = fmt.Errorf("reader observed incomplete output: bytes=%d error=%v", len(body), err)
++				break reading
++			}
++		}
++	}
++	<-done
++	close(errors)
++	for err := range errors {
++		if err != nil {
++			t.Errorf("concurrent delivery failed: %v", err)
++		}
++	}
++	if readErr != nil {
++		t.Error(readErr)
++	}
++	body, err := os.ReadFile(filepath.Join(dir, "trip.json"))
++	if err != nil || !valid[sha256.Sum256(body)] {
++		t.Fatalf("final output is incomplete: bytes=%d error=%v", len(body), err)
++	}
++	entries, err := os.ReadDir(dir)
++	if err != nil || len(entries) != 1 || entries[0].Name() != "trip.json" {
++		t.Fatalf("delivery leaked temporary files: %+v, %v", entries, err)
++	}
++}
+--- /dev/null
++++ b/internal/cli/refresh_budget_facts_test.go
+@@ -0,0 +1,113 @@
++package cli
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"net/http"
++	"net/http/httptest"
++	"os"
++	"path/filepath"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"tabelog-pp-cli/internal/cliutil"
++	"tabelog-pp-cli/internal/domain"
++	"tabelog-pp-cli/internal/source"
++)
++
++func TestRefreshSeparatesBudgetFactsFromSourceProvenance(t *testing.T) {
++	home := t.TempDir()
++	restore, err := cliutil.SetHomeOverride(home)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer restore()
++	listing, err := os.ReadFile(filepath.Join("..", "..", "e2e", "testdata", "ginza-bars.html"))
++	if err != nil {
++		t.Fatal(err)
++	}
++	detail, err := os.ReadFile(filepath.Join("..", "..", "e2e", "testdata", "samboa-detail.html"))
++	if err != nil {
++		t.Fatal(err)
++	}
++	parsed, err := source.ParseListing(listing, "https://tabelog.com/en/tokyo/A1301/A130101/rstLst/bar/", time.Now().Add(-time.Hour))
++	if err != nil {
++		t.Fatal(err)
++	}
++	var previous domain.Restaurant
++	for _, venue := range parsed.Items {
++		if venue.ID == "13005012" {
++			previous = venue
++		}
++	}
++	if previous.ID == "" || previous.LunchBudget.Raw != "-" || previous.LunchBudget.Source != "listing" {
++		t.Fatal("public listing fixture no longer has the expected unknown lunch budget")
++	}
++	var requests atomic.Int64
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		requests.Add(1)
++		if r.URL.Path != "/en/tokyo/A1301/A130101/13005012/" {
++			http.NotFound(w, r)
++			return
++		}
++		w.Header().Set("Content-Type", "text/html")
++		_, _ = w.Write(detail)
++	}))
++	defer server.Close()
++	t.Setenv("TABELOG_TEST_MODE", "1")
++	t.Setenv("TABELOG_TEST_BASE_URL", server.URL)
++	ctx := context.Background()
++	flags := &rootFlags{agent: true, dataSource: "auto", timeout: 5 * time.Second}
++	db, nb, err := tripOpen(ctx, flags)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err := tripReplace(ctx, nb, previous); err != nil {
++		t.Fatal(err)
++	}
++	if err := nb.Add(ctx, "facts", previous.ID, "Keep this note", true); err != nil {
++		t.Fatal(err)
++	}
++	if err := db.Close(); err != nil {
++		t.Fatal(err)
++	}
++	cmd := RootCmd()
++	var out bytes.Buffer
++	cmd.SetOut(&out)
++	cmd.SetArgs([]string{"lists", "refresh", "facts", previous.ID, "--agent", "--home", home, "--timeout", "5s"})
++	if err := cmd.Execute(); err != nil {
++		t.Fatalf("refresh: %v", err)
++	}
++	var result struct {
++		Items []listRefreshItem `json:"items"`
++	}
++	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
++		t.Fatal(err)
++	}
++	if len(result.Items) != 1 || result.Items[0].RefreshStatus != "ok" || requests.Load() != 1 {
++		t.Fatalf("unexpected refresh result: %s; requests=%d", out.String(), requests.Load())
++	}
++	item := result.Items[0]
++	for _, change := range append(item.Changes, item.AddedEvidence...) {
++		if change.Field == "lunch_budget" {
++			t.Fatalf("unchanged unknown lunch facts reported a delta: %+v", change)
++		}
++	}
++	if len(item.AddedEvidence) == 0 {
++		t.Fatal("genuinely new detail evidence disappeared")
++	}
++	db, nb, err = tripOpen(ctx, flags)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer db.Close()
++	stored, err := tripSnapshot(ctx, nb, previous.ID)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if stored.Surface != "detail" || stored.LunchBudget.Source != "listed" || stored.LunchBudget.Raw != "-" || item.Note != "Keep this note" {
++		t.Fatal("fact-diff filtering damaged complete provenance or the personal note")
++	}
++}

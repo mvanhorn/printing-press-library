@@ -1,0 +1,86 @@
+{
+  "kind": "run-local durable generator repair, S1 recipe argv boundary and T1 projection diagnostics",
+  "upstream_version": "v4.32.5",
+  "upstream_git_hash": "7298ce9b1198c6689ae9a850e75b2ca2043c044a",
+  "upstream_module_ziphash": "h1:BLLgr35mTGazGs/GYHiqAMCGR35RE7mKGB1lGgna/d8=",
+  "source_path": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/cli-printing-press-v4.32.5-local-install",
+  "binary_path": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/bin/cli-printing-press",
+  "binary_sha256": "27928d2154f911fbf34eeea0ecd8a9fd509c33f253ab2f868a08828a2fb70f66",
+  "previous_binary_sha256": "551d228e887fb3f0774efc8e0bb1ee6beed6a3837847c652b3254be8cb787bfd",
+  "previous_binary_archive": "/Users/zjsng/printing-press/toolchain-fixes/20260927-212939-86ef661f/artifacts/cli-printing-press-before-phase17",
+  "global_binary_sha256": "c3d00939bb06d3fd706d2e49d237f895aa7add6b21f0fe496d46c0b956796f2c",
+  "patches": {
+    "local-install-checker.patch": "32c5f401eebb8d72f477156aea2a72468ca1109e0b48c2549bedc81fdd172552",
+    "scorecard-happy-args.patch": "4fad46b57b433454a37445f636031ce2d343f0c277936a24660637beb9579070",
+    "live-dogfood-json-reuse.patch": "6457cae0c89097aa98345ab0905f32546c0c5d430db068f9248984ed7af40d5b",
+    "mcp-recipe-boundary.patch": "c678d3d9ee0d8be3b0fd9f560fcbf5610779ea4c1d39398b34670deaf6c7bec0",
+    "projection-diagnostic.patch": "2d0076b79997227732fd8ac3c01386c76cc4a3de686affc34717aa9e74652dbd",
+    "phase17-cumulative-toolchain.patch": "5fa3d8bc3cfe67e3f97b6bbd373a1435bb160626935c10dfec0a612d15ea8ce1"
+  },
+  "changed_source_files": {
+    "internal/cli/verify_skill.go": "a495a980c8e4bc4b7d69e1ce4b602fa0368cc943011da0453e37bc246559899f",
+    "internal/cli/verify_skill_local_test.go": "94b97828eabfd9f02019db97c2df7e87d0a858f49ce2f5f88735fdb286b97f11",
+    "internal/generator/filter_fields_envelope_test.go": "bbbabe52d6165e5bb54bfd0c7c45dff2abf047124792e05c4f742f798cfa9be8",
+    "internal/generator/recipe_positional_boundary_test.go": "a69143aab9b12e04764fe4805cd79cd19e284c30a8dd4984fc9b924061ed1221",
+    "internal/generator/response_delivery_security_test.go": "b2e8fbbbf932e35d9941da3d07d6da16c3fc4300fac7f81c063ac5094913b71b",
+    "internal/generator/templates/client.go.tmpl": "b8d6603a4ef5a98be91f2a3dc518f1dc0e6fa5cf926a583f02a7a5939bbe079c",
+    "internal/generator/templates/deliver.go.tmpl": "eaedef2a8079bcb27dbe4ded934d51e34eb93aeb488325749da0f1303992cef1",
+    "internal/generator/templates/helpers.go.tmpl": "591dc7d02c3183b5709f2130e30a04958caef6768ce9b3a30004b23d53324c37",
+    "internal/generator/templates/mcp_intents.go.tmpl": "843675a09e381bfe3f21352b029b7e388527379027b1ae178d55b3e80cf2d67f",
+    "internal/generator/templates/mcp_recipe_intents_test.go.tmpl": "6018b4a9178dda22fafed214eb4f6459ef6d6a6d1d105e289af34dd5186217a0",
+    "internal/pipeline/live_check.go": "f56cbd142d4fdeca8ca03594bf14e43a3dd557b8131dddcb1c66a4341271aba8",
+    "internal/pipeline/live_check_happy_args_test.go": "32cec3d066e0eaf8780be62f2788f3dcaaca0b62d561ca0ff7747e9278b86a78",
+    "internal/pipeline/live_dogfood.go": "ba6a18b7ae287f4b0ad519ec50e5712032b07fddedfcf939a36f54d248d6546c",
+    "internal/pipeline/live_dogfood_json_reuse_test.go": "9dc5a061a7ca89e0dec56e15790f5de5fe043320ab4b70e0886a07a7c37c6302",
+    "internal/pipeline/live_dogfood_test.go": "9d5a3a52a403df99f2bfb4ee66e473b800c3f9ed4fa90da19dfd4c021b95a64b",
+    "skills/printing-press/SKILL.md": "88315abf85fd930e9aa995d126a4430c440272d73481f8a37e95afea0885d129",
+    "skills/printing-press/phases/12-shipcheck.md": "07fbdcb90c3713b8e307e0b98244bf206ad9f4aacba255d2ec6eac0a3bce225d"
+  },
+  "before": {
+    "exit_code": 1,
+    "log": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase17-cluster-c-before-tests.log",
+    "S1": "stdio ID --dry-run became a successful dry-run flag",
+    "T1": "two prose warnings preceded the JSON diagnostic in both --agent and --json"
+  },
+  "after": {
+    "exit_code": 0,
+    "logs": [
+      "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase17-cluster-c-focused-tests.log",
+      "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase17-cluster-c-valid-stdio-tests.log",
+      "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/proofs/phase17-cluster-c-generated-tests.log"
+    ],
+    "checks": [
+      "actual stdio flag-shaped and empty IDs reject with no files written",
+      "actual stdio literal --dry-run list reads its saved ID without additional HTTP",
+      "actual --agent and --json total misses have one actionable diagnostic",
+      "successful partial-match warnings and human Cobra errors remain",
+      "freshly generated modules compile and run named/static flags before -- and literal IDs after",
+      "existing empty/whitespace required-input guards remain before shellout",
+      "freshly generated envelope helper cases preserve dry-run sentinel warning downgrade"
+    ]
+  },
+  "cumulative_binary_includes": [
+    "prior three local checker/runner repairs",
+    "S1 and T1 templates",
+    "cluster B bounded nonbinary response reads and exclusive delivery templates"
+  ],
+  "scope": {
+    "public_writes": false,
+    "origin_requests": false,
+    "receipts_run": false,
+    "reserved_cliutil_or_cobratree_changed": false,
+    "pre_RunE_Cobra_error_rewrite": false,
+    "full_unrelated_suite_run": false,
+    "dependencies": "Pinned golang.org/x/text v0.14.0 downloaded to isolated GOMODCACHE only; focused tests then GOPROXY=off.",
+    "validation_limit": "Root authorized focused/fresh-generation checks here; builder owns integrated product suite. Broad Press suite previously failed on documented environment limitations and was not retried. No golden script or publication-ready claim.",
+    "global_installed_binary_changed": false,
+    "original_global_Press_module_source_changed": false,
+    "cache_audit_boundary": "This agent used isolated cache/build paths. Cluster B reports its generated tests inherited the global module cache; this cumulative proof does not claim that all agents left download/cache metadata unchanged."
+  },
+  "patch_application_checks": {
+    "upstream_S1_T1": "PASS",
+    "upstream_cumulative": "PASS",
+    "printed_cluster_C_against_archived_before": "PASS"
+  },
+  "current_binary_superseded_by": "/Users/zjsng/printing-press/.runstate/zjsng-a9b2d4f4/runs/20260927-212939-86ef661f/toolchain/proofs/phase18-dogfood-toolchain-proof.json"
+}
