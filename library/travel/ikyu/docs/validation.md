@@ -4,10 +4,10 @@ Verified locally on 2026-09-27 UTC / 2026-09-28 Japan time. Anonymous, read-only
 
 ## Evidence
 
-- Go tests, fresh builds and vet passed; four independent-parser Python tests passed. Deterministic assertions cover source points prices, fractional rates, occupancy/date normalization, baths, meal/cancellation equivalence, partial failures, rate limits, bounds, exact integer JSON, observed monetary differences, and per-plan budget/meal filtering.
+- Go tests, fresh builds and vet passed; four independent-parser Python tests passed. Deterministic assertions cover source points prices, fractional rates, occupancy/date normalization, baths, meal/cancellation equivalence, partial failures, rate limits, bounds, exact integer JSON, observed monetary differences, per-plan budget/meal filtering, and unpriced search candidates with strict filter handling.
 - Printing Press shipcheck: all legs pass, verification 100%, score 80/A. [Shipcheck proof](../.manuscripts/20260927-221505-c26573aa/proofs/2026-09-27-fix-ikyu-pp-cli-shipcheck.md).
 - Full live matrix: 62/62 executed checks pass, zero failures; 38 framework/fixture/access probes are skipped or unverified. All seven stay commands passed live happy-path, JSON fidelity and dry-run checks. [Binary-owned acceptance](../.manuscripts/20260927-221505-c26573aa/proofs/phase5-acceptance.json).
-- Independent public HTML/SSR checks cover hotel 八ヶ岳高原ロッジ and ryokan 蓼科 親湯温泉: exact room/plan names, meals, every ordered cancellation field, ten price fields, visible earn-mode headline/points and source stay echoes. [Live evidence](../.manuscripts/20260927-221505-c26573aa/proofs/publish-review-live-acceptance.json).
+- Independent public HTML/SSR checks cover hotel 八ヶ岳高原ロッジ and ryokan 蓼科 親湯温泉: exact room/plan names, meals, every ordered cancellation field, ten price fields, visible earn-mode headline/points and source stay echoes. [Live evidence](../.manuscripts/20260927-221505-c26573aa/proofs/publish-account-search-live-acceptance.json).
 
 - Review fixes also passed a fresh live comparison and a 30,000 JPY room-plan budget check. [Regression evidence](../.manuscripts/20260927-221505-c26573aa/proofs/publish-review-regression-live.json).
 
@@ -19,16 +19,16 @@ Measured on this macOS host with separate empty caches, then identical immediate
 
 | Command | Requests cold/warm | Latency ms cold/warm | Peak RSS MiB cold/warm | Output bytes cold/warm |
 |---|---:|---:|---:|---:|---:|
-| `destinations` | 1/0 | 69.0/21.1 | 32.0/26.0 | 628/623 |
-| `search` | 2/0 | 1828.1/36.3 | 38.7/30.1 | 5666/5662 |
-| `property` | 1/0 | 218.7/20.0 | 23.8/18.5 | 3408/3406 |
-| `rooms` | 1/0 | 258.9/19.6 | 24.4/18.7 | 7758/7756 |
-| `offer` | 1/0 | 377.5/19.1 | 23.6/19.3 | 8974/8972 |
-| `compare` | 2/0 | 771.4/21.5 | 24.6/20.5 | 18415/18413 |
-| `dates` | 2/0 | 775.4/11.8 | 24.8/20.1 | 17275/17273 |
-| `offer_projection` | 1/0 | 290.4/14.7 | 24.4/18.9 | 191/188 |
+| `destinations` | 1/0 | 66.4/20.1 | 32.8/26.3 | 628/623 |
+| `search` | 2/0 | 539.2/29.7 | 38.6/30.2 | 5615/5611 |
+| `property` | 1/0 | 185.0/12.3 | 24.2/18.7 | 3426/3424 |
+| `rooms` | 1/0 | 207.4/12.8 | 24.4/18.8 | 7758/7756 |
+| `offer` | 1/0 | 301.7/11.9 | 24.2/19.2 | 8992/8990 |
+| `compare` | 2/0 | 762.5/12.2 | 25.1/20.7 | 18451/18449 |
+| `dates` | 2/0 | 987.9/13.4 | 24.8/20.9 | 17311/17309 |
+| `offer_projection` | 1/0 | 297.8/11.1 | 24.3/18.9 | 191/188 |
 
-[Full measurements and exact arguments](../.manuscripts/20260927-221505-c26573aa/proofs/publish-final-efficiency-metrics.json). Field projection reduced the measured offer from 8,974 to 191 bytes. Search uses heavier SSR pages; room/offer details use small JSON queries and are fetched lazily.
+[Full measurements and exact arguments](../.manuscripts/20260927-221505-c26573aa/proofs/publish-account-search-efficiency-metrics.json). Field projection reduced the measured offer from 8,992 to 191 bytes. Search uses heavier SSR pages; room/offer details use small JSON queries and are fetched lazily.
 
 ## Reproduce
 

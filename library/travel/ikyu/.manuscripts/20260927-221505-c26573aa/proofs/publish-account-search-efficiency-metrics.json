@@ -1,0 +1,310 @@
+{
+  "status": "pass",
+  "measured_at": "2026-09-28T02:33:31.138689+00:00",
+  "stay": {
+    "check_in": "2026-10-19",
+    "check_out": "2026-10-20"
+  },
+  "method": "separate empty public cache per command; identical warm command immediately afterward; request counters include redirects and retries; decoded response bytes; OS peak RSS",
+  "commands": [
+    {
+      "command": "destinations",
+      "arguments": [
+        "stay",
+        "destinations",
+        "tokyo",
+        "--limit",
+        "3"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 628,
+        "requests": 1,
+        "response_bytes_decoded": 1231605,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.066412,
+        "peak_rss_bytes": 34390016,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 623,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 1,
+        "stale_hits": 0,
+        "wall_seconds": 0.02006,
+        "peak_rss_bytes": 27607040,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "search",
+      "arguments": [
+        "stay",
+        "search",
+        "--destination",
+        "tokyo",
+        "--check-in",
+        "2026-10-19",
+        "--check-out",
+        "2026-10-20",
+        "--adults",
+        "2",
+        "--rooms",
+        "1",
+        "--limit",
+        "3"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 5615,
+        "requests": 2,
+        "response_bytes_decoded": 2374386,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.539237,
+        "peak_rss_bytes": 40484864,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 5611,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 2,
+        "stale_hits": 0,
+        "wall_seconds": 0.029723,
+        "peak_rss_bytes": 31703040,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "property",
+      "arguments": [
+        "stay",
+        "property",
+        "00002889"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 3426,
+        "requests": 1,
+        "response_bytes_decoded": 3571,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.184966,
+        "peak_rss_bytes": 25329664,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 3424,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 1,
+        "stale_hits": 0,
+        "wall_seconds": 0.012251,
+        "peak_rss_bytes": 19595264,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "rooms",
+      "arguments": [
+        "stay",
+        "rooms",
+        "00002889",
+        "--check-in",
+        "2026-10-19",
+        "--check-out",
+        "2026-10-20",
+        "--adults",
+        "2",
+        "--rooms",
+        "1",
+        "--limit",
+        "2",
+        "--plan-limit",
+        "3"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 7758,
+        "requests": 1,
+        "response_bytes_decoded": 3897,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.207406,
+        "peak_rss_bytes": 25542656,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 7756,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 1,
+        "stale_hits": 0,
+        "wall_seconds": 0.012849,
+        "peak_rss_bytes": 19693568,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "offer",
+      "arguments": [
+        "stay",
+        "offer",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-in",
+        "2026-10-19",
+        "--check-out",
+        "2026-10-20",
+        "--adults",
+        "2",
+        "--rooms",
+        "1"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 8992,
+        "requests": 1,
+        "response_bytes_decoded": 7089,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.301718,
+        "peak_rss_bytes": 25346048,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 8990,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 1,
+        "stale_hits": 0,
+        "wall_seconds": 0.011888,
+        "peak_rss_bytes": 20168704,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "compare",
+      "arguments": [
+        "stay",
+        "compare",
+        "--offers",
+        "00000600:10012775:11572245,00002889:10193741:11055986",
+        "--check-in",
+        "2026-10-19",
+        "--check-out",
+        "2026-10-20",
+        "--adults",
+        "2",
+        "--rooms",
+        "1"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 18451,
+        "requests": 2,
+        "response_bytes_decoded": 11874,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.762525,
+        "peak_rss_bytes": 26312704,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 18449,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 2,
+        "stale_hits": 0,
+        "wall_seconds": 0.012164,
+        "peak_rss_bytes": 21725184,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "dates",
+      "arguments": [
+        "stay",
+        "dates",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-ins",
+        "2026-10-19,2026-10-20",
+        "--nights",
+        "1"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 17311,
+        "requests": 2,
+        "response_bytes_decoded": 13829,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.987874,
+        "peak_rss_bytes": 26001408,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 17309,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 2,
+        "stale_hits": 0,
+        "wall_seconds": 0.013418,
+        "peak_rss_bytes": 21905408,
+        "peak_rss_source": "/usr/bin/time -l"
+      }
+    },
+    {
+      "command": "offer_projection",
+      "arguments": [
+        "stay",
+        "offer",
+        "00002889",
+        "10193741",
+        "11055986",
+        "--check-in",
+        "2026-10-19",
+        "--check-out",
+        "2026-10-20",
+        "--adults",
+        "2",
+        "--rooms",
+        "1",
+        "--fields",
+        "data.property.id,data.plan.id,data.offer.price.instant_points_payable,stats"
+      ],
+      "status": "pass",
+      "cold": {
+        "output_bytes": 191,
+        "requests": 1,
+        "response_bytes_decoded": 7089,
+        "cache_hits": 0,
+        "stale_hits": 0,
+        "wall_seconds": 0.2978,
+        "peak_rss_bytes": 25477120,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "warm": {
+        "output_bytes": 188,
+        "requests": 0,
+        "response_bytes_decoded": 0,
+        "cache_hits": 1,
+        "stale_hits": 0,
+        "wall_seconds": 0.011123,
+        "peak_rss_bytes": 19791872,
+        "peak_rss_source": "/usr/bin/time -l"
+      },
+      "output_bytes_saved": 8801
+    }
+  ],
+  "selectors": {
+    "hotel": "00000600:10012775:11572245",
+    "ryokan": "00002889:10193741:11055986"
+  }
+}

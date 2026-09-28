@@ -384,6 +384,12 @@ func (c *Client) Search(ctx context.Context, r SearchRequest) (SearchResult, err
 		}
 		if e.Node.Amount == nil {
 			out.Coverage.Unknown = append(out.Coverage.Unknown, p.ID+": dated price absent")
+			if !hasPreferences(r.Preferences) {
+				gap := "Dated price and availability are unverified; inspect exact room-plan detail for the requested stay."
+				p.DetailGap = &gap
+				p.URL, _ = CanonicalURL(p.ID, "", "", &r.Stay)
+				out.Data = append(out.Data, p)
+			}
 			continue
 		}
 		if err := verifyAmount(*e.Node.Amount, r.Stay, false); err != nil {

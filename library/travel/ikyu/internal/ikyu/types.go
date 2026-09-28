@@ -107,7 +107,8 @@ type Property struct {
 	Scores         CategoryScores `json:"scores"`
 	Notes          *string        `json:"notes"`
 	BathFacilities []BathFacility `json:"bath_facilities,omitempty"`
-	Price          *Price         `json:"from_price,omitempty"`
+	Price          *Price         `json:"from_price"`
+	DetailGap      *string        `json:"detail_gap,omitempty"`
 }
 type BathFacility struct {
 	Name      string `json:"name"`

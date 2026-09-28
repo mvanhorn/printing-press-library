@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ikyu-unpriced-search-candidates",
+  "applied_at": "2026-09-28T02:26:11.971903+00:00",
+  "base_run_id": "20260927-221505-c26573aa",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep unpriced properties visible in unfiltered discovery with explicit missing-price and availability evidence.",
+  "reason": "A missing dated quote must not erase source property identity, while requested budget and room/plan preferences still require observed matches.",
+  "files": [
+    "internal/ikyu/ssr.go",
+    "internal/ikyu/types.go",
+    "internal/ikyu/search_missing_price_test.go"
+  ]
+}

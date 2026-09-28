@@ -39,7 +39,7 @@ Find Ikyu Japan hotels/ryokan, then inspect the exact room and plan before handi
 ## Workflow
 
 1. Establish destination, Japan check-in/check-out dates, adult and A–F child counts **per room**, room count, budget basis and required preferences. Use `stay destinations` for supported source names/paths. Unequal occupancy per room requires Ikyu's booking screen.
-2. Run `stay search` with a small limit. Inspect page coverage before widening; advance by `pagination.scanned`, not the filtered result count. Search summaries are not complete room/plan evidence.
+2. Run `stay search` with a small limit. Inspect page coverage before widening; advance by `pagination.scanned`, not the filtered result count. Search summaries are not complete room/plan evidence. Unpriced candidates carry explicit gaps and do not prove availability.
 3. Run `stay property` for shared facilities and review categories; `stay rooms` for selected-room size, beds, views and bath facts. Each requested preference must be verified or explicitly unknown.
 4. Run `stay offer` for the selected property, room and plan. Confirm echoed dates/party, meals, cancellation, conditional price assumptions and availability time. Exact lookup uses the default points variant; preserve a summary’s different variant as an unresolved alternative.
 5. Use `stay compare` for up to five exact offers for one stay, or `stay dates` for up to seven explicit dates for one exact room/plan. Present observed price differences separately from compatibility, and preserve item errors.
