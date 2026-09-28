@@ -6,11 +6,11 @@
   "display_name": "Rakuten Travel",
   "cli_name": "rakuten-travel-pp-cli",
   "creator": {
-    "handle": "zjsng-trav",
+    "handle": "zjsng",
     "name": "zjsng"
   },
-  "owner": "zjsng-trav",
-  "printer": "zjsng-trav",
+  "owner": "zjsng",
+  "printer": "zjsng",
   "printer_name": "zjsng",
   "spec_path": "rakuten-travel-browser-sniff-spec.yaml",
   "spec_format": "internal",

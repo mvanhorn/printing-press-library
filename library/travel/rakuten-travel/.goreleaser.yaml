@@ -46,7 +46,7 @@ checksum:
 brews:
   - name: rakuten-travel-pp-cli
     repository:
-      owner: zjsng-trav
+      owner: zjsng
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
     description: "Inspect real Japan room offers with explicit dates, party and price units."
