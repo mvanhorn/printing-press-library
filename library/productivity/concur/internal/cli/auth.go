@@ -445,6 +445,12 @@ type chromeChannelDir struct {
 	DataDir string
 }
 
+// chromeChannelDirsOverride lets tests substitute a synthetic Chrome
+// user-data directory instead of probing real OS-specific install locations
+// that don't exist in a test sandbox. Always nil in production; auth_test.go
+// sets and restores it around individual test cases.
+var chromeChannelDirsOverride func() ([]chromeChannelDir, error)
+
 // chromeChannelDirs returns the user-data directories of every installed Google
 // Chrome release channel (stable, Beta, Dev, Canary), stable-first. Only
 // directories that exist on disk are returned, so a user who runs only Chrome
@@ -452,6 +458,16 @@ type chromeChannelDir struct {
 // macOS "Chrome Safe Storage" Keychain key, so only the data-dir path differs
 // per channel — cookie decryption needs no per-channel handling.
 func chromeChannelDirs() ([]chromeChannelDir, error) {
+	if chromeChannelDirsOverride != nil {
+		return chromeChannelDirsOverride()
+	}
+	return chromeChannelDirsReal()
+}
+
+// chromeChannelDirsReal is the production implementation, split out from
+// chromeChannelDirs so tests can substitute chromeChannelDirsOverride above
+// without touching real Chrome installations on the machine running the test.
+func chromeChannelDirsReal() ([]chromeChannelDir, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -503,9 +519,67 @@ func chromeChannelDirs() ([]chromeChannelDir, error) {
 }
 
 // chromeProfileDirNames returns the profile subdirectory names ("Default",
-// "Profile 1", ...) under a channel's data dir. A read error yields no names so
-// one unreadable channel never sinks discovery across the others.
+// "Profile 1", a custom-renamed profile, ...) under a channel's data dir. A
+// read error yields no names so one unreadable channel never sinks discovery
+// across the others.
+//
+// PATCH(amend-2026-09-28: custom-named profile directories were invisible to
+// both --profile <name> and auto-detection): Chrome allows a profile's own
+// directory to be renamed away from the "Default"/"Profile N" convention --
+// confirmed live with a dedicated automation profile directory literally
+// named "ConcurAutomation" (displayed as "Person 1" in Chrome's own profile
+// switcher) holding a real, cookie-bearing, logged-in session. The original
+// version of this function matched only "Default" or a "Profile " prefix,
+// so any such profile was silently excluded from BOTH resolveProfileByName
+// (--profile <name> always failed with "Chrome profile ... not found", or
+// downstream "no Chrome profile has cookies for <domain>") and
+// discoverChromeProfiles (auto-detection never saw it as a candidate either
+// -- this was not --profile-specific). Chrome's own "Local State" JSON file
+// at the user-data-dir root is the authoritative source for which profile
+// directories actually exist (profile.info_cache keys) regardless of naming,
+// so read that first and fall back to the original heuristic only when it
+// can't be read -- keeping behavior unchanged for the installations that
+// heuristic already covered correctly.
 func chromeProfileDirNames(dataDir string) []string {
+	if names := chromeProfileDirNamesFromLocalState(dataDir); names != nil {
+		return names
+	}
+	return chromeProfileDirNamesFallback(dataDir)
+}
+
+// chromeProfileDirNamesFromLocalState reads Chrome's "Local State" file (JSON,
+// sibling to the profile directories) for the authoritative list of profile
+// directory names via profile.info_cache's keys. Returns nil -- not an empty
+// slice -- on any read/parse error or an empty cache, so the caller can tell
+// "fall back to the heuristic" apart from "there really are zero profiles."
+func chromeProfileDirNamesFromLocalState(dataDir string) []string {
+	data, err := os.ReadFile(filepath.Join(dataDir, "Local State"))
+	if err != nil {
+		return nil
+	}
+	var state struct {
+		Profile struct {
+			InfoCache map[string]json.RawMessage `json:"info_cache"`
+		} `json:"profile"`
+	}
+	if err := json.Unmarshal(data, &state); err != nil {
+		return nil
+	}
+	if len(state.Profile.InfoCache) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(state.Profile.InfoCache))
+	for dirName := range state.Profile.InfoCache {
+		names = append(names, dirName)
+	}
+	sort.Strings(names) // deterministic order for tests and reproducible auto-detect prompts
+	return names
+}
+
+// chromeProfileDirNamesFallback is the pre-patch heuristic (a bare "Default"
+// or a "Profile " prefix only), retained for Chrome installations where
+// "Local State" cannot be read.
+func chromeProfileDirNamesFallback(dataDir string) []string {
 	entries, err := os.ReadDir(dataDir)
 	if err != nil {
 		return nil

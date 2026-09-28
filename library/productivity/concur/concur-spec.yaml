@@ -336,6 +336,29 @@ resources:
   expenses:
     description: "Expense line items within a report"
     endpoints:
+      list:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses"
+        description: "List every expense line item on a report -- confirmed live 2026-09-28 that this exact collection URL (same path 'create' POSTs to) supports GET and returns a bare JSON array, even though neither 'reports get' nor any prior version of this spec exposed it. Before this endpoint existed in the CLI, the only way to see an existing report's line items (expense IDs, receipt attachment state, per-expense vendor/businessPurpose) was to hand-roll an authenticated HTTP call against this same URL."
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Report ID whose expenses to list"
+        response:
+          type: array
+          item: Expense
       get:
         method: GET
         path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}"

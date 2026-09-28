@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "id": "expenses-list-command",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.32.2",
+  "summary": "Added `expenses list --report-id <id>`: there was no live way to enumerate an existing report's expense line items.",
+  "reason": "Confirmed live 2026-09-28: `reports get <id>` returns only the report header (a prior patch already corrected its --help text to stop over-promising an expenses array it never returned -- see PR #2003's reports-get-help-text-overpromises finding), there is no `expenses list` command, and `sync --resources expenses` explicitly refuses (\"expenses sync requires per-report iteration, not yet implemented -- there is no flat 'all expenses' endpoint\"). All three left zero live way to see an existing report's expense IDs, receipt-attachment state, or per-expense vendor/businessPurpose -- the only path this session was a hand-rolled authenticated curl call against the same collection URL `expenses create` already POSTs to. Confirmed that same URL supports GET and returns a bare JSON array (not the paginated Spring HAL envelope `reports list` uses) with full expense detail including receiptImageId, which is also the only live way to confirm a receipt attachment actually persisted server-side rather than trusting a mutating call's own reported success.",
+  "files": [
+    "concur-spec.yaml",
+    "internal/cli/expenses_list.go",
+    "internal/cli/expenses.go",
+    "internal/cli/expenses_list_test.go"
+  ],
+  "changes": [
+    {
+      "file": "concur-spec.yaml",
+      "description": "Added a `list:` operation under the `expenses:` resource (GET on the same collection path `create:` already POSTs to, `/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses`, response type array/Expense) -- the spec previously declared only `create` for this path, which is why no list command existed; this was a spec-authoring gap, not a deliberate prior removal (checked remove-confirmed-broken-endpoints.json and remove-hollow-coverage-novel-features.json -- neither mentions this path)."
+    },
+    {
+      "file": "internal/cli/expenses_list.go",
+      "description": "New file, hand-authored to match this codebase's generated-command conventions exactly (modeled on expenses_get.go's param/flag handling -- user_id, context_type, report_id, no positional arg needed since report_id alone scopes the collection -- combined with attendees_list.go's bare-JSON-array response handling, since this collection's GET response is unwrapped, unlike reports list's paginated envelope)."
+    },
+    {
+      "file": "internal/cli/expenses.go",
+      "description": "Hand-wired newExpensesListCmd() into the command tree (same convention as the pre-existing hand-wired apply-rules registration in this file, with a matching comment about re-adding it after any future `generate --force`) -- not registered via addNovelCommandIfAbsent since this is a spec-declared endpoint, not a novel/transcendence feature."
+    },
+    {
+      "file": "internal/cli/expenses_list_test.go",
+      "description": "New file. Covers the bare-array response shape end-to-end via a mocked HTTP server (TestExpensesList_BareArrayResponse, asserting the exact request path and that receiptImageId survives the response pipeline -- the field a caller checks to confirm a receipt attachment persisted) and the required --report-id flag (TestExpensesList_RequiresReportID)."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., and go test ./... (all packages) all clean. Live-verified against a real report on a real tenant (`expenses list --report-id <a real report ID> --agent`) before writing the mocked test: returned the exact expense filed on that report, including its expenseType, vendor, businessPurpose, and receiptImageId, wrapped in the standard {meta,results} provenance envelope.",
+  "upstream_issue": null
+}

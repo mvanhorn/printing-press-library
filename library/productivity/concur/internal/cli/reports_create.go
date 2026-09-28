@@ -26,8 +26,34 @@ func newReportsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "create",
-		Short:       "Create a new expense report header",
+		Use:   "create",
+		Short: "Create a new expense report header",
+		// PATCH(amend-2026-09-28: same undocumented-fallback gap as
+		// expenses create; see that file for the full rationale). This
+		// command already had the policyId-required browser fallback
+		// before that patch -- only the Long text describing its optional
+		// persistent-session setup was missing.
+		Long: `Create a new expense report header. On a policy-gated tenant where a plain
+API create needs a policyId this CLI cannot resolve, this command falls
+back to driving Concur's real "Create Expense Report" form via
+agent-browser -- which needs its own logged-in browser session. By default
+that's an isolated, freshly-launched Chrome with no saved session, so the
+fallback fails with "not logged in" on every single invocation.
+
+OPTIONAL, to avoid that repeated login entirely: run a dedicated Chrome
+profile with remote debugging enabled and log into Concur there once. Use
+a real named profile (Chrome menu -> "Add Person", or chrome://settings ->
+Add profile) rather than a throwaway --user-data-dir, so 'auth login
+--chrome --profile "<name>"' can also read its cookies:
+
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+    --remote-debugging-port=9222 --profile-directory="<profile dir name>"
+
+This command (and every other browser-fallback command in this CLI) then
+auto-detects that session (tries ports 9222, 9333, 9229, or set
+CONCUR_CDP_PORT) and attaches to it instead of launching its own isolated,
+unauthenticated Chrome. See 'hotels search --help' for the two approaches
+that were tried and disproven before landing on this one.`,
 		Example:     "  concur-pp-cli reports create --name \"October Travel\" --purpose \"Client site visit\"",
 		Annotations: map[string]string{"pp:endpoint": "reports.create", "pp:method": "POST", "pp:path": "/expensereports/v4/users/{user_id}/context/{context_type}/reports"},
 		RunE: func(cmd *cobra.Command, args []string) error {

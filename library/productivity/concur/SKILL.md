@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [concur-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/accounting/concur/cmd/concur-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/productivity/concur/cmd/concur-pp-cli
 ---
 
 # SAP Concur — Printing Press CLI
@@ -32,7 +32,7 @@ This skill drives the `concur-pp-cli` binary. **You must verify the CLI is insta
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/accounting/concur/cmd/concur-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/concur/cmd/concur-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
@@ -115,6 +115,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 - `concur-pp-cli expenses create` — Create an expense inside a report (core v3-equivalent fields: type, date, amount, currency, payment type)
 - `concur-pp-cli expenses get` — Get a single expense with its filled/empty field manifest
+- `concur-pp-cli expenses list` — List every expense line item on a report (the only live way to enumerate an existing report's expenses -- `reports get` returns only the header)
 - `concur-pp-cli expenses update` — Fill or change writable fields on an expense (core + custom/list fields)
 
 **flights** — Search flight locations, travel policy preferences, and real flight availability (creates a live shopping session -- searches only, never books)
@@ -183,6 +184,17 @@ concur-pp-cli which "<capability in your own words>"
 ```bash
 concur-pp-cli expenses scan-duplicates --agent
 ```
+
+### See what's actually on an existing report
+
+```bash
+concur-pp-cli expenses list --user-id <uid> --report-id <report_id> --agent
+```
+
+`reports get` returns only the report header -- this is the only live way to see the report's
+actual line items: each expense's ID, type, vendor, business purpose, amount, and
+`receiptImageId` (check this is non-null to confirm a receipt attachment actually persisted
+server-side rather than trusting a mutating call's own reported success).
 
 ### Compare real flight and hotel options before requesting travel
 
@@ -563,7 +575,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/accounting/concur/cmd/concur-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/productivity/concur/cmd/concur-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

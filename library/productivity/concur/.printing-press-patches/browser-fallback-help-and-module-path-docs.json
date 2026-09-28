@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "id": "browser-fallback-help-and-module-path-docs",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.32.2",
+  "summary": "Two documentation-only fixes found while dogfooding the browser-automation fallbacks: (1) the one-time dedicated-Chrome setup that avoids repeated fallback logins was documented only on `hotels search --help`, not on any of the four commands whose own error message says \"see --help\" for it; (2) README.md and SKILL.md's `go install` instructions pointed at the wrong module path.",
+  "reason": "(1) Confirmed live 2026-09-28 on the current binary (`expenses create --help`, `expenses update --help`, `reports submit --help`, `reports create --help`, and root `--help`) that none of them mention CDP, debug ports, or the one-time setup at all -- the runtime error each of their browser fallbacks prints (\"...or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help\") points at their OWN --help, which had nothing. The actual recipe already existed, correctly, on `hotels search --help` (added by the prior unify-browser-auth-sessions.json patch) and in the published README's Authentication section -- it just wasn't repeated on the other four commands that hit the identical gap, so a user hitting the error on e.g. `expenses create` had no reason to think to check a different command's help text. (2) `go install github.com/mvanhorn/printing-press-library/library/accounting/concur/cmd/concur-pp-cli@latest` (and the matching concur-pp-mcp line) 404s -- this CLI's actual module path is `library/productivity/concur`, confirmed by a real `go install` of that path succeeding live 2026-09-28. A fresh user following either doc file's own install instructions verbatim fails at the very first step.",
+  "files": [
+    "internal/cli/expenses_create.go",
+    "internal/cli/expenses_update.go",
+    "internal/cli/reports_submit.go",
+    "internal/cli/reports_create.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/expenses_create.go",
+      "description": "Added a Long help text (this command had none before) documenting the browser fallback's optional persistent-session setup, consistent with hotels_search.go's existing Long text."
+    },
+    {
+      "file": "internal/cli/expenses_update.go",
+      "description": "Same addition as expenses_create.go."
+    },
+    {
+      "file": "internal/cli/reports_submit.go",
+      "description": "Same addition as expenses_create.go, plus a closing reminder not to trust this command's own success message alone (matches the verification step this session actually used: reports get --select approvalStatus,isSubmitted,submitDate)."
+    },
+    {
+      "file": "internal/cli/reports_create.go",
+      "description": "Same addition as expenses_create.go (this command's fallback is for a missing policyId, not the shared 404/405 defect the other three hit, but shares the identical isolated-unauthenticated-browser gap and setup fix)."
+    },
+    {
+      "file": "README.md",
+      "description": "Fixed the go install module path on both the concur-pp-cli and concur-pp-mcp lines (library/accounting/concur -> library/productivity/concur)."
+    },
+    {
+      "file": "SKILL.md",
+      "description": "Same module-path fix, at all three occurrences (the MCP server config example and both go install lines)."
+    }
+  ],
+  "validated_outcome": "go build, go vet ./..., gofmt (no new drift introduced by these edits -- two pre-existing, untouched files already had unrelated gofmt drift, confirmed via git status that this patch's diff does not touch either), and go test ./... all clean. `go install github.com/mvanhorn/printing-press-library/library/productivity/concur/cmd/concur-pp-cli@latest` re-run live to confirm the corrected path actually installs.",
+  "upstream_issue": null
+}

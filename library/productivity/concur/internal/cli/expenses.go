@@ -17,6 +17,13 @@ func newExpensesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newExpensesCreateCmd(flags))
 	cmd.AddCommand(newExpensesGetCmd(flags))
+	// Hand-wired: absorbed amend-2026-09-28 finding F2 (no way to list an
+	// existing report's expenses). Not in research.json's novel_features
+	// (it's a spec-declared endpoint, not a novel/transcendence feature) so
+	// it won't be re-added by addNovelCommandIfAbsent on a future
+	// `generate --force`. Re-add this line manually after any future
+	// regeneration of this DO-NOT-EDIT file, same as apply-rules below.
+	cmd.AddCommand(newExpensesListCmd(flags))
 	cmd.AddCommand(newExpensesUpdateCmd(flags))
 	addNovelCommandIfAbsent(cmd, newNovelExpensesScanDuplicatesCmd(flags))
 	// Hand-wired: absorbed feature #25 (not a novel/transcendence feature, so

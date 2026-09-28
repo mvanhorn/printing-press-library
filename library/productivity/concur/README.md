@@ -36,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install concur --agent claude-code --age
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/accounting/concur/cmd/concur-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/concur/cmd/concur-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -103,7 +103,7 @@ If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), i
 
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/accounting/concur/cmd/concur-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/concur/cmd/concur-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
@@ -223,6 +223,18 @@ concur-pp-cli expenses scan-duplicates --agent
 ```
 
 Scan the local SQLite cache for likely double-entered transactions across all your reports.
+
+### See what's actually on an existing report
+
+```bash
+concur-pp-cli expenses list --user-id <uid> --report-id <report_id> --agent
+```
+
+`reports get` returns only the report header (name, total, status, dates) -- this is the only
+live way to see the report's actual line items: each expense's ID, type, vendor, business
+purpose, amount, and `receiptImageId` (the field to check, non-null, to confirm a receipt
+attachment actually persisted server-side rather than trusting a mutating call's own reported
+success).
 
 ### Compare real flight and hotel options before requesting travel
 
@@ -347,6 +359,7 @@ Expense line items within a report
 
 - **`concur-pp-cli expenses create`** - Create an expense inside a report (core v3-equivalent fields: type, date, amount, currency, payment type)
 - **`concur-pp-cli expenses get`** - Get a single expense with its filled/empty field manifest
+- **`concur-pp-cli expenses list`** - List every expense line item on a report (the only live way to enumerate an existing report's expenses -- `reports get` returns only the header)
 - **`concur-pp-cli expenses update`** - Fill or change writable fields on an expense (core + custom/list fields)
 
 ### flights

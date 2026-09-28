@@ -35,6 +35,33 @@ func newExpensesCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create an expense inside a report (core v3-equivalent fields: type, date, amount, currency, payment type)",
+		// PATCH(amend-2026-09-28: "see --help" in the fallback's own error
+		// message pointed nowhere -- this Long text is the fix): if the
+		// direct API call hits the confirmed live 404 defect, this command
+		// falls back to driving Concur's real web form via agent-browser,
+		// which needs its own logged-in browser session and otherwise
+		// fails with "not logged in" on every invocation.
+		Long: `Create an expense inside a report. If the direct API call hits a confirmed
+live backend defect (a fully-valid body 404s instead of persisting), this
+command falls back to driving Concur's real "New Expense" form via
+agent-browser -- which needs its own logged-in browser session. By default
+that's an isolated, freshly-launched Chrome with no saved session, so the
+fallback fails with "not logged in" on every single invocation.
+
+OPTIONAL, to avoid that repeated login entirely: run a dedicated Chrome
+profile with remote debugging enabled and log into Concur there once. Use
+a real named profile (Chrome menu -> "Add Person", or chrome://settings ->
+Add profile) rather than a throwaway --user-data-dir, so 'auth login
+--chrome --profile "<name>"' can also read its cookies:
+
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+    --remote-debugging-port=9222 --profile-directory="<profile dir name>"
+
+This command (and every other browser-fallback command in this CLI) then
+auto-detects that session (tries ports 9222, 9333, 9229, or set
+CONCUR_CDP_PORT) and attaches to it instead of launching its own isolated,
+unauthenticated Chrome. See 'hotels search --help' for the two approaches
+that were tried and disproven before landing on this one.`,
 		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  concur-pp-cli expenses create --user-id 550e8400-e29b-41d4-a716-446655440000 --context-type TRAVELER --report-id 550e8400-e29b-41d4-a716-446655440000 --type example-value",
 		Annotations: map[string]string{"pp:endpoint": "expenses.create", "pp:method": "POST", "pp:path": "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses"},
