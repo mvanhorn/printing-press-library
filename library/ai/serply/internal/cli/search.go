@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/serply/internal/store"
@@ -81,9 +82,6 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
-	searchResponsePaths := []string{
-		"entries",
-	}
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -110,27 +108,32 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			// This API has a search endpoint: GET /v1/news
 			if flags.dataSource != "local" {
-				c, err := flags.newClient()
-				if err != nil {
-					return err
+				path, params, responsePaths, targetErr := liveSearchRequest(resourceType, query)
+				if targetErr != nil {
+					if flags.dataSource == "live" {
+						return targetErr
+					}
+					fmt.Fprintf(cmd.ErrOrStderr(), "%s; searching local data.\n", targetErr.Error())
+				} else {
+					c, err := flags.newClient()
+					if err != nil {
+						return err
+					}
+					data, getErr := c.Get(cmd.Context(), path, params)
+					if getErr == nil {
+						// Live search succeeded
+						results := extractSearchResults(data, responsePaths...)
+						prov := DataProvenance{Source: "live"}
+						return outputSearchResults(cmd, flags, results, limit, prov)
+					}
+					// Check if it's a network error for auto-mode fallback
+					if flags.dataSource == "live" || !isNetworkError(getErr) {
+						return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
+					}
+					// auto mode + network error: fall through to local FTS
+					fmt.Fprintf(cmd.ErrOrStderr(), "API unreachable, falling back to local search.\n")
 				}
-				data, getErr := c.Get(cmd.Context(), "/v1/news", map[string]string{
-					"q": query,
-				})
-				if getErr == nil {
-					// Live search succeeded
-					results := extractSearchResults(data, searchResponsePaths...)
-					prov := DataProvenance{Source: "live"}
-					return outputSearchResults(cmd, flags, results, limit, prov)
-				}
-				// Check if it's a network error for auto-mode fallback
-				if flags.dataSource == "live" || !isNetworkError(getErr) {
-					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
-				}
-				// auto mode + network error: fall through to local FTS
-				fmt.Fprintf(cmd.ErrOrStderr(), "API unreachable, falling back to local search.\n")
 			}
 
 			// Local FTS search
@@ -237,6 +240,36 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
+}
+
+// liveSearchRequest maps --type onto the Serply vertical that actually serves
+// that resource. An empty type keeps the historical default, GET /v1/news.
+func liveSearchRequest(resourceType, query string) (string, map[string]string, []string, error) {
+	params := map[string]string{"q": query}
+	switch strings.ToLower(strings.TrimSpace(resourceType)) {
+	case "":
+		return "/v1/news", params, []string{"entries"}, nil
+	case "news":
+		return "/v1/news", params, []string{"entries"}, nil
+	case "bing":
+		return "/v1/b/search", params, []string{"results"}, nil
+	case "scholar":
+		return "/v1/scholar", params, []string{"articles"}, nil
+	case "videos":
+		return "/v1/video", params, []string{"results"}, nil
+	case "images":
+		return "/v1/image", params, []string{"image_results", "results"}, nil
+	case "web":
+		return "/v1/search", params, []string{"results"}, nil
+	case "job-search":
+		return "/v1/job/search", params, []string{"jobs"}, nil
+	case "products":
+		return "/v1/product/search", params, []string{"products"}, nil
+	case "maps":
+		return "/v1/maps/search/" + url.PathEscape(query), map[string]string{}, []string{"places"}, nil
+	default:
+		return "", nil, nil, fmt.Errorf("no live search endpoint for --type %q", resourceType)
+	}
 }
 
 // outputSearchResults filters, counts, and outputs search results with provenance.

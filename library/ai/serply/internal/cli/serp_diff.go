@@ -95,12 +95,27 @@ func diffSerps(baseline, current []serpResult) (entered, left []serpResult, move
 	return entered, left, moved, unchanged
 }
 
-func serpSnapshotPath(q string, opts serpOptions) (string, error) {
+func activeClientProfile(flags *rootFlags) string {
+	if flags == nil {
+		return ""
+	}
+	if flags.platformSession != nil {
+		if name := strings.TrimSpace(flags.platformSession.ProfileName); name != "" {
+			return name
+		}
+	}
+	if name := strings.TrimSpace(flags.clientProfileName); name != "" {
+		return name
+	}
+	return strings.TrimSpace(os.Getenv("PRINTING_PRESS_CLIENT_PROFILE"))
+}
+
+func serpSnapshotPath(q string, opts serpOptions, profile string) (string, error) {
 	dir, err := cliutil.DataDir()
 	if err != nil {
 		return "", err
 	}
-	key := strings.Join([]string{strings.ToLower(strings.TrimSpace(q)), strings.ToUpper(opts.Location), strings.ToLower(opts.Device), strings.ToLower(opts.Gl), strings.ToLower(opts.Hl), strconv.Itoa(opts.Num)}, "\x00")
+	key := strings.Join([]string{strings.ToLower(strings.TrimSpace(q)), strings.ToUpper(opts.Location), strings.ToLower(opts.Device), strings.ToLower(opts.Gl), strings.ToLower(opts.Hl), strconv.Itoa(opts.Num), strings.TrimSpace(profile)}, "\x00")
 	sum := sha256.Sum256([]byte(key))
 	return filepath.Join(dir, "serp-snapshots", hex.EncodeToString(sum[:8])+".json"), nil
 }
@@ -184,7 +199,7 @@ func newNovelSerpDiffCmd(flags *rootFlags) *cobra.Command {
 		Short: "See which URLs entered, left, or moved in a results page since the last time you ran the same query.",
 		Long: strings.Trim(`
 Run a Google web search and compare it with the last stored run of the same
-query, location, device, result depth (--num), gl and hl. The first run stores a baseline and
+query, location, device, result depth (--num), gl, hl and client profile. The first run stores a baseline and
 reports first_run=true. Later runs list the URLs that entered, left or moved.
 Snapshots live in the CLI data directory; the last 10 runs per query are kept.
 --offline compares the two most recent stored runs without spending a credit.
@@ -214,7 +229,7 @@ it for a one-off search; use 'web' instead.`, "\n"),
 			if err := validateDevice(opts.Device); err != nil {
 				return err
 			}
-			path, err := serpSnapshotPath(flagQ, opts)
+			path, err := serpSnapshotPath(flagQ, opts, activeClientProfile(flags))
 			if err != nil {
 				return err
 			}

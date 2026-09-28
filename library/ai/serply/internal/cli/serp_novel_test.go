@@ -10,6 +10,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/ai/serply/internal/platform"
 )
 
 func TestParseSerpResultsWeb(t *testing.T) {
@@ -145,12 +147,12 @@ func TestSerpSnapshotRoundTripAndCap(t *testing.T) {
 
 func TestSerpSnapshotPathSeparatesLocation(t *testing.T) {
 	t.Setenv("SERPLY_HOME", t.TempDir())
-	us, err := serpSnapshotPath("Serp API", serpOptions{Location: "us"})
+	us, err := serpSnapshotPath("Serp API", serpOptions{Location: "us"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	gb, _ := serpSnapshotPath("serp api", serpOptions{Location: "GB"})
-	us2, _ := serpSnapshotPath("serp api ", serpOptions{Location: "US"})
+	gb, _ := serpSnapshotPath("serp api", serpOptions{Location: "GB"}, "")
+	us2, _ := serpSnapshotPath("serp api ", serpOptions{Location: "US"}, "")
 	if us == gb {
 		t.Error("different locations must not share a snapshot file")
 	}
@@ -161,15 +163,15 @@ func TestSerpSnapshotPathSeparatesLocation(t *testing.T) {
 
 func TestSerpSnapshotPathSeparatesDepth(t *testing.T) {
 	t.Setenv("SERPLY_HOME", t.TempDir())
-	shallow, err := serpSnapshotPath("serp api", serpOptions{Num: 5, Location: "US"})
+	shallow, err := serpSnapshotPath("serp api", serpOptions{Num: 5, Location: "US"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	deep, err := serpSnapshotPath("serp api", serpOptions{Num: 10, Location: "US"})
+	deep, err := serpSnapshotPath("serp api", serpOptions{Num: 10, Location: "US"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	same, err := serpSnapshotPath("serp api", serpOptions{Num: 5, Location: "us"})
+	same, err := serpSnapshotPath("serp api", serpOptions{Num: 5, Location: "us"}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,6 +180,50 @@ func TestSerpSnapshotPathSeparatesDepth(t *testing.T) {
 	}
 	if shallow != same {
 		t.Fatal("the same depth and location should share a snapshot file")
+	}
+}
+
+func TestSerpSnapshotPathSeparatesClientProfile(t *testing.T) {
+	t.Setenv("SERPLY_HOME", t.TempDir())
+	opts := serpOptions{Num: 10, Location: "US"}
+	tenantA, err := serpSnapshotPath("serp api", opts, "tenant-a")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tenantB, err := serpSnapshotPath("serp api", opts, "tenant-b")
+	if err != nil {
+		t.Fatal(err)
+	}
+	shared, err := serpSnapshotPath("serp api", opts, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	again, err := serpSnapshotPath("serp api", opts, " tenant-a ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tenantA == tenantB || tenantA == shared {
+		t.Fatal("client profiles must not share a serp snapshot file")
+	}
+	if tenantA != again {
+		t.Fatal("profile whitespace should not split history")
+	}
+}
+
+func TestActiveClientProfileResolution(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "from-env")
+	if got := activeClientProfile(&rootFlags{}); got != "from-env" {
+		t.Fatalf("env profile = %q", got)
+	}
+	if got := activeClientProfile(&rootFlags{clientProfileName: "from-flag"}); got != "from-flag" {
+		t.Fatalf("flag profile = %q", got)
+	}
+	flags := &rootFlags{
+		clientProfileName: "from-flag",
+		platformSession:   &platform.Session{ProfileName: "from-session"},
+	}
+	if got := activeClientProfile(flags); got != "from-session" {
+		t.Fatalf("session profile = %q", got)
 	}
 }
 

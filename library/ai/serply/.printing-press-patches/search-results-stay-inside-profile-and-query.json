@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "search-results-stay-inside-profile-and-query",
+  "applied_at": "2026-09-28",
+  "base_run_id": "20260927-204544-983131a6",
+  "base_printing_press_version": "4.32.5",
+  "summary": "SERP snapshot history is partitioned by client profile, local fallback refuses a query it cannot apply, and live search follows --type to that vertical.",
+  "reason": "serp diff stored every profile in one snapshot file, so one client's runs became another's baseline. Offline fallback treated q as an unsupported control and returned the resource's stored rows from a different query. search --type only affected the local branch, so auto mode live-requested /v1/news for every type.",
+  "files": [
+    "internal/cli/serp_diff.go",
+    "internal/cli/serp_novel_test.go",
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_query_test.go",
+    "internal/cli/search.go",
+    "internal/cli/search_live_test.go",
+    ".manuscripts/20260927-204544-983131a6/proofs/2026-09-27-204750-dogfood-results.json"
+  ],
+  "validated_outcome": "Snapshot paths differ by client profile; a network fallback with q does not return another query's row; search --type bing requests /v1/b/search."
+}

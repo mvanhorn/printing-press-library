@@ -25,6 +25,12 @@ import (
 
 const networkFallbackReason = "api_unreachable"
 
+// errLocalQueryUnfiltered is returned when a local read is asked to satisfy
+// q/query/search. The store keeps rows by resource type, not by the query
+// that produced them, so returning them would present another query's rows
+// as this query's results.
+var errLocalQueryUnfiltered = errors.New("local store cannot apply query filter")
+
 type liveAllRejectReason string
 
 const (
@@ -240,7 +246,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		// Network error — try local fallback
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'serply-pp-cli sync --resources images,news,scholar,videos' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, localFallbackError(err, fallbackErr)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -338,7 +344,7 @@ func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client
 		}
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'serply-pp-cli sync --resources images,news,scholar,videos' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, localFallbackError(err, fallbackErr)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -750,6 +756,9 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		if !sawValid {
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'serply-pp-cli sync --resources images,news,scholar,videos' first", resourceType)
 		}
+		if key, val, ok := localQuerySelector(params); ok {
+			return nil, DataProvenance{}, fmt.Errorf("%w: refusing local %s results for %s=%q", errLocalQueryUnfiltered, resourceType, key, val)
+		}
 		if len(unsupported) > 0 {
 			warnWriter := hintWriter
 			if warnWriter == nil {
@@ -978,6 +987,40 @@ type localListQuery struct {
 	unsupported []string
 	limit       int
 	offset      int
+}
+
+func localQuerySelector(params map[string]string) (string, string, bool) {
+	if len(params) == 0 {
+		return "", "", false
+	}
+	type hit struct {
+		key string
+		val string
+	}
+	var hits []hit
+	for key, val := range params {
+		val = strings.TrimSpace(val)
+		if val == "" {
+			continue
+		}
+		canon := strings.ReplaceAll(localParamCanon(key), "_", "")
+		switch canon {
+		case "q", "query", "search":
+			hits = append(hits, hit{key: key, val: val})
+		}
+	}
+	if len(hits) == 0 {
+		return "", "", false
+	}
+	sort.Slice(hits, func(i, j int) bool { return hits[i].key < hits[j].key })
+	return hits[0].key, hits[0].val, true
+}
+
+func localFallbackError(networkErr, fallbackErr error) error {
+	if errors.Is(fallbackErr, errLocalQueryUnfiltered) {
+		return fmt.Errorf("API unreachable and local results were not used because the query filter cannot be applied offline: %w", fallbackErr)
+	}
+	return fmt.Errorf("API unreachable and no local data. Run 'serply-pp-cli sync --resources images,news,scholar,videos' to enable offline access.\n\nOriginal error: %w", networkErr)
 }
 
 func parseLocalListQuery(params map[string]string) localListQuery {
