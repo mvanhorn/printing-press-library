@@ -83,7 +83,7 @@ func runAppScrape(cmd *cobra.Command, flags *rootFlags, slug, mode string, limit
 		}
 		items := []imagecache.FetchItem{}
 		for _, s := range payload.Screens {
-			items = append(items, imagecache.FetchItem{ImageURL: val(s, "imageUrlFull", "imageUrl", "image_url"), Platform: val(s, "platform"), AppSlug: full, ScreenID: val(s, "id", "screenId")})
+			items = append(items, imagecache.FetchItem{ImageURL: val(s, "imageUrlFull", "imageUrl", "image_url", "screenUrl"), Platform: val(s, "platform"), AppSlug: full, ScreenID: val(s, "id", "screenId")})
 		}
 		paths, errs := cache.FetchMany(cmd.Context(), items, imagecache.CDNOpts{}, 8)
 		for _, s := range payload.Screens {
@@ -109,9 +109,9 @@ func runAppScrape(cmd *cobra.Command, flags *rootFlags, slug, mode string, limit
 	case "screens":
 		return flags.printJSON(cmd, payload.Screens)
 	case "versions":
-		return flags.printJSON(cmd, []map[string]any{})
+		return flags.printJSON(cmd, payload.Versions)
 	default:
-		return flags.printJSON(cmd, map[string]any{"slug": payload.Slug, "app_name": payload.AppName, "flows": payload.Flows, "screens": payload.Screens})
+		return flags.printJSON(cmd, map[string]any{"slug": payload.Slug, "app_name": payload.AppName, "flows": payload.Flows, "screens": payload.Screens, "versions": payload.Versions})
 	}
 }
 

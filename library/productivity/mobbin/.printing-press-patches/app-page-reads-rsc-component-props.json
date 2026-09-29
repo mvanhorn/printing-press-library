@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "app-page-reads-rsc-component-props",
+  "applied_at": "2026-09-29",
+  "base_run_id": "20260708-153634-73e98316",
+  "base_printing_press_version": "4.27.1",
+  "summary": "App page scraping reads screens, partialFlows and appInfo.appVersions from the React Server Component props on /apps/<slug>/screens, following $<row>:path references and decoding $undefined and $$ markers.",
+  "reason": "Mobbin replaced the old [{\"value\":[flows]},{\"value\":[screens]}] payload with component props that may live in another RSC row, so `app <slug>` failed for every app. The page shape is a moving target; a regen must re-check the live page rather than trust a fixed marker.",
+  "files": [
+    "internal/appscrape/appscrape.go",
+    "internal/appscrape/appscrape_test.go",
+    "internal/appscrape/testdata/app_page_rsc.html",
+    "internal/cli/app.go"
+  ],
+  "validated_outcome": "Live 2026-09-29: app flows/screens/versions return 167/634/1 rows for the airbnb help-example slug (served as Google Photos) and 32/112/1 for Brick; flow counts match appVersionFlowsCount."
+}
