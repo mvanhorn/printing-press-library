@@ -118,7 +118,12 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 		// flag-driven modes replace them entirely: multi-city (>=2 --segment)
 		// and batch (--trip). The Args validator still requires exactly 3
 		// positionals for the plain single-search form.
-		Use:         "flights [origin destination date]",
+		// PATCH(amend-2026-09-29: one bracket per positional) — a single
+		// "[origin destination date]" group made the MCP tool expose one
+		// string property that was passed as ONE argv element ("accepts 3
+		// arg(s), received 1"). Separate brackets give origin/destination/date
+		// their own MCP properties.
+		Use:         "flights [origin] [destination] [date]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:       "Search Google Flights for a specific date (free, no API key required)",
 		Long: `flights is flight-goat's headline command. It queries Google Flights via

@@ -138,12 +138,15 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 <details>
 <summary>Manual JSON config (advanced)</summary>
 
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and its companion CLI, then configure it manually. The MCP server runs each tool by executing `flight-goat-pp-cli`, so install both at the same version:
 
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-cli@latest
 ```
+
+The server looks for the CLI next to its own executable, then at `FLIGHT_GOAT_CLI_PATH`, then on `PATH`. If the CLI is installed elsewhere, add `"FLIGHT_GOAT_CLI_PATH": "/absolute/path/to/flight-goat-pp-cli"` to the `env` block below.
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 

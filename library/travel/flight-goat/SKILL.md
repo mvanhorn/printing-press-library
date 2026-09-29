@@ -582,10 +582,12 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-1. Install the MCP server:
+1. Install the MCP server and its companion CLI (same version). The MCP server runs each tool by executing `flight-goat-pp-cli`, so every tool call fails with "companion CLI binary not found" until the CLI is installed too:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-cli@latest
    ```
+   The server looks for the CLI next to its own executable, then at `FLIGHT_GOAT_CLI_PATH`, then on `PATH`. If the CLI lives elsewhere, set `FLIGHT_GOAT_CLI_PATH` to its absolute path in the MCP host's `env` block.
 2. Register with Claude Code:
    ```bash
    claude mcp add flight-goat-pp-mcp -- flight-goat-pp-mcp
