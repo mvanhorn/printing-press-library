@@ -213,3 +213,36 @@ func TestResolveRef(t *testing.T) {
 		t.Fatalf("decode($L64) = %#v", got)
 	}
 }
+
+// Props whose screens/partialFlows references point nowhere are a scrape
+// failure, never a successful empty app.
+func TestParse_UnresolvableReferenceErrors(t *testing.T) {
+	cases := map[string]string{
+		"missing row": `4d:["$","$La7",null,{"appSlug":"x","screens":"$99:props:screens","partialFlows":"$99:props:partialFlows"}]` + "\n",
+		"missing path": `2e:["$","$L2f",null,{"other":[]}]` + "\n" +
+			`4d:["$","$La7",null,{"appSlug":"x","screens":"$2e:props:screens","partialFlows":"$2e:props:partialFlows"}]` + "\n",
+		"one side unresolved": `4d:["$","$La7",null,{"appSlug":"x","screens":[{"id":"s1"}],"partialFlows":"$99:props:partialFlows"}]` + "\n",
+	}
+	for name, stream := range cases {
+		got, err := Parse(pushScript(stream), "x")
+		if err == nil {
+			t.Fatalf("%s: expected error, got %+v", name, got)
+		}
+		if !strings.Contains(err.Error(), "unresolvable") {
+			t.Fatalf("%s: error should name the unresolved props, got %v", name, err)
+		}
+	}
+}
+
+// Broken props still defer to a legacy payload when the page carries one.
+func TestParse_UnresolvableReferenceFallsBackToLegacy(t *testing.T) {
+	stream := `4d:["$","$La7",null,{"appSlug":"x","screens":"$99:props:screens","partialFlows":"$99:props:partialFlows"}]` + "\n" +
+		`1:[{"value":[{"id":"f1"}]},{"value":[{"id":"s1"}]}]` + "\n"
+	got, err := Parse(pushScript(stream), "x")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Flows) != 1 || len(got.Screens) != 1 {
+		t.Fatalf("got %+v", got)
+	}
+}

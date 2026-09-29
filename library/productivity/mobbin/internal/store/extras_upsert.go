@@ -90,7 +90,7 @@ platform=excluded.platform, image_url=excluded.image_url, image_url_full=exclude
 raw_json=excluded.raw_json, captured_at=excluded.captured_at, synced_at=excluded.synced_at`,
 			id, firstStringX(sc, "appId", "app_id"), firstStringX(sc, "appVersionId", "app_version_id"),
 			firstStringX(sc, "flowId", "flow_id"), firstStringX(sc, "platform"),
-			firstStringX(sc, "imageUrl", "image_url"), firstStringX(sc, "imageUrlFull", "image_url_full", "fullImageUrl"),
+			firstStringX(sc, "imageUrl", "image_url", "screenUrl"), firstStringX(sc, "imageUrlFull", "image_url_full", "fullImageUrl", "screenUrl"),
 			firstStringX(sc, "ocrText", "ocr_text", "text"), rawJSONX(sc),
 			firstStringX(sc, "capturedAt", "captured_at"), nowX())
 		return err

@@ -210,55 +210,81 @@ func syncScrapedApps(ctx context.Context, c *client.Client, db *store.Store, app
 			fmt.Fprintf(stderr, "warning: scrape failed for %s: %v\n", slug, err)
 			continue
 		}
-		screenFlow := map[string]string{}
-		for _, flow := range payload.Flows {
-			flow["appId"] = firstSyncString(app, "id", "appId")
-			flow["platform"] = platform
-			screenIDs := []string{}
-			for _, fs := range nestedMaps(flow, "screens") {
-				screenID := firstSyncString(fs, "screenId", "id")
-				if screenID != "" {
-					screenFlow[screenID] = firstSyncString(flow, "id", "flowId")
-					screenIDs = append(screenIDs, screenID)
-				}
-			}
-			flow["screenIds"] = screenIDs
-			flow["stepCount"] = len(screenIDs)
-			if err := db.UpsertFlow(ctx, flow); err == nil {
-				counts.Flows++
-			}
-			if version := appVersionFrom(flow, app); version != nil {
-				if err := db.UpsertAppVersion(ctx, version); err == nil {
-					counts.AppVersions++
-				}
+		sc := storeScrapedApp(ctx, db, app, platform, payload)
+		counts.Flows += sc.Flows
+		counts.Screens += sc.Screens
+		counts.AppVersions += sc.AppVersions
+		counts.ScreenPatterns += sc.ScreenPatterns
+		counts.ScreenElements += sc.ScreenElements
+	}
+	return counts
+}
+
+// storeScrapedApp writes one scraped app page into the domain tables. App
+// versions come from the page's own version list (publishedAt) when it has
+// one; row-derived versions only fill in ids that list does not cover, so a
+// screen's createdAt never overwrites a version's published date.
+func storeScrapedApp(ctx context.Context, db *store.Store, app map[string]any, platform string, payload *appscrape.AppPagePayload) syncCounts {
+	counts := syncCounts{}
+	parsedVersions := map[string]bool{}
+	for _, v := range payload.Versions {
+		version := appVersionFromPage(v, app)
+		if version == nil {
+			continue
+		}
+		parsedVersions[fmt.Sprint(version["id"])] = true
+		if err := db.UpsertAppVersion(ctx, version); err == nil {
+			counts.AppVersions++
+		}
+	}
+	screenFlow := map[string]string{}
+	for _, flow := range payload.Flows {
+		flow["appId"] = firstSyncString(app, "id", "appId")
+		flow["platform"] = platform
+		screenIDs := []string{}
+		for _, fs := range nestedMaps(flow, "screens") {
+			screenID := firstSyncString(fs, "screenId", "id")
+			if screenID != "" {
+				screenFlow[screenID] = firstSyncString(flow, "id", "flowId")
+				screenIDs = append(screenIDs, screenID)
 			}
 		}
-		for _, screen := range payload.Screens {
-			screen["platform"] = platform
-			if firstSyncString(screen, "appId", "app_id") == "" {
-				screen["appId"] = firstSyncString(app, "id", "appId")
+		flow["screenIds"] = screenIDs
+		flow["stepCount"] = len(screenIDs)
+		if err := db.UpsertFlow(ctx, flow); err == nil {
+			counts.Flows++
+		}
+		if version := appVersionFrom(flow, app); version != nil && !parsedVersions[fmt.Sprint(version["id"])] {
+			if err := db.UpsertAppVersion(ctx, version); err == nil {
+				counts.AppVersions++
 			}
-			if flowID := screenFlow[firstSyncString(screen, "id", "screenId")]; flowID != "" {
-				screen["flowId"] = flowID
+		}
+	}
+	for _, screen := range payload.Screens {
+		screen["platform"] = platform
+		if firstSyncString(screen, "appId", "app_id") == "" {
+			screen["appId"] = firstSyncString(app, "id", "appId")
+		}
+		if flowID := screenFlow[firstSyncString(screen, "id", "screenId")]; flowID != "" {
+			screen["flowId"] = flowID
+		}
+		if err := db.UpsertScreen(ctx, screen); err == nil {
+			counts.Screens++
+		}
+		if version := appVersionFrom(screen, app); version != nil && !parsedVersions[fmt.Sprint(version["id"])] {
+			if err := db.UpsertAppVersion(ctx, version); err == nil {
+				counts.AppVersions++
 			}
-			if err := db.UpsertScreen(ctx, screen); err == nil {
-				counts.Screens++
+		}
+		screenID := firstSyncString(screen, "id", "screenId")
+		for _, slug := range labelSlugs(firstValue(screen, "screenPatterns", "screen_patterns", "animation_screen_patterns")) {
+			if err := db.UpsertScreenPattern(ctx, screenID, slug); err == nil {
+				counts.ScreenPatterns++
 			}
-			if version := appVersionFrom(screen, app); version != nil {
-				if err := db.UpsertAppVersion(ctx, version); err == nil {
-					counts.AppVersions++
-				}
-			}
-			screenID := firstSyncString(screen, "id", "screenId")
-			for _, slug := range labelSlugs(firstValue(screen, "screenPatterns", "screen_patterns", "animation_screen_patterns")) {
-				if err := db.UpsertScreenPattern(ctx, screenID, slug); err == nil {
-					counts.ScreenPatterns++
-				}
-			}
-			for _, slug := range labelSlugs(firstValue(screen, "screenElements", "screen_elements", "animation_ui_elements")) {
-				if err := db.UpsertScreenElement(ctx, screenID, slug); err == nil {
-					counts.ScreenElements++
-				}
+		}
+		for _, slug := range labelSlugs(firstValue(screen, "screenElements", "screen_elements", "animation_ui_elements")) {
+			if err := db.UpsertScreenElement(ctx, screenID, slug); err == nil {
+				counts.ScreenElements++
 			}
 		}
 	}
@@ -316,6 +342,21 @@ func upsertSyncItems(ctx context.Context, db *store.Store, data json.RawMessage,
 		}
 	}
 	return apps, screenCount, nil
+}
+
+// appVersionFromPage maps an appInfo.appVersions entry from the app page.
+func appVersionFromPage(v, app map[string]any) map[string]any {
+	id := firstSyncString(v, "id", "appVersionId")
+	if id == "" {
+		return nil
+	}
+	return map[string]any{
+		"id":         id,
+		"appId":      firstSyncString(app, "id", "appId"),
+		"version":    firstSyncString(v, "version", "appVersion"),
+		"capturedAt": firstSyncString(v, "publishedAt", "createdAt"),
+		"app":        app,
+	}
 }
 
 func appVersionFrom(row, app map[string]any) map[string]any {

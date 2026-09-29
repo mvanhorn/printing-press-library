@@ -61,3 +61,24 @@ GROUP BY screens.app_id, apps.app_name ORDER BY n DESC`)
 		t.Fatalf("bench JOIN rows = %#v, want one Stripe row", rows)
 	}
 }
+
+// App-page screens carry their image only as screenUrl; the mirror must keep it.
+func TestUpsertScreenAcceptsScreenURL(t *testing.T) {
+	ctx := context.Background()
+	db, err := OpenWithContext(ctx, filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("OpenWithContext() error = %v", err)
+	}
+	defer db.Close()
+	const url = "https://example.com/app_screens/scr_2.png"
+	if err := db.UpsertScreen(ctx, map[string]any{"id": "scr_2", "appId": "app_1", "screenUrl": url}); err != nil {
+		t.Fatalf("UpsertScreen() error = %v", err)
+	}
+	rows, err := db.RawQuery(ctx, "SELECT image_url, image_url_full FROM screens WHERE id = 'scr_2'")
+	if err != nil {
+		t.Fatalf("RawQuery() error = %v", err)
+	}
+	if len(rows) != 1 || rows[0]["image_url"] != url || rows[0]["image_url_full"] != url {
+		t.Fatalf("image urls = %#v, want %s in both columns", rows, url)
+	}
+}

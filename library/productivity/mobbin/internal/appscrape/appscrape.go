@@ -5,6 +5,7 @@ package appscrape
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -37,13 +38,16 @@ func Fetch(ctx context.Context, c *client.Client, slug string) (*AppPagePayload,
 // a [{"value":[flows]},{"value":[screens]}] array, which is still accepted.
 func Parse(html, slug string) (*AppPagePayload, error) {
 	stream := flightStream(html)
-	out, ok := parseAppPageProps(stream, slug)
-	if !ok {
-		var err error
-		out, err = parseLegacyValuePayload(stream, slug)
-		if err != nil {
+	out, err := parseAppPageProps(stream, slug)
+	if err != nil {
+		legacy, legacyErr := parseLegacyValuePayload(stream, slug)
+		if legacyErr != nil {
+			if errors.Is(err, errNoAppProps) {
+				return nil, legacyErr
+			}
 			return nil, err
 		}
+		out = legacy
 	}
 	if out.AppName == "" {
 		out.AppName = findString(out.Screens, "appName", "app_name")
@@ -79,9 +83,17 @@ func flightStream(html string) string {
 	return b.String()
 }
 
-func parseAppPageProps(stream, slug string) (*AppPagePayload, bool) {
+var errNoAppProps = errors.New("no app page props in RSC stream")
+
+// parseAppPageProps returns errNoAppProps when the page has no props object,
+// and a descriptive error when props exist but screens or partialFlows do not
+// decode to arrays (for example a "$<row>:path" reference that points
+// nowhere). Only literal arrays count as data; an empty array is a valid
+// empty app, a missing one is a scrape failure.
+func parseAppPageProps(stream, slug string) (*AppPagePayload, error) {
 	fl := newFlightRows(stream)
 	var empty *AppPagePayload
+	var broken error
 	for _, id := range fl.order {
 		body := fl.raw[id]
 		if !strings.Contains(body, `"partialFlows"`) {
@@ -91,8 +103,15 @@ func parseAppPageProps(stream, slug string) (*AppPagePayload, bool) {
 		if !ok {
 			continue
 		}
-		screens := toRows(fl.decode(props["screens"], 0))
-		flows := toRows(fl.decode(props["partialFlows"], 0))
+		screensV, screensOK := fl.decode(props["screens"], 0).([]any)
+		flowsV, flowsOK := fl.decode(props["partialFlows"], 0).([]any)
+		if !screensOK || !flowsOK {
+			if broken == nil {
+				broken = fmt.Errorf("app page props in RSC row %s have unresolvable screens (%v) or partialFlows (%v)", id, describeRef(props["screens"]), describeRef(props["partialFlows"]))
+			}
+			continue
+		}
+		screens, flows := toRows(screensV), toRows(flowsV)
 		out := &AppPagePayload{Slug: slug, Screens: screens, Flows: flows}
 		if len(screens) == 0 && len(flows) == 0 {
 			// Keep looking for a copy that carries data, but an app page
@@ -113,12 +132,29 @@ func parseAppPageProps(stream, slug string) (*AppPagePayload, bool) {
 			}
 		}
 		fillAppInfo(fl, props, out)
-		return out, true
+		return out, nil
 	}
 	if empty != nil {
-		return empty, true
+		return empty, nil
 	}
-	return nil, false
+	if broken != nil {
+		return nil, broken
+	}
+	return nil, errNoAppProps
+}
+
+// describeRef names a props value for error messages without dumping data.
+func describeRef(v any) string {
+	switch n := v.(type) {
+	case string:
+		return fmt.Sprintf("%q", n)
+	case nil:
+		return "null"
+	case []any:
+		return "array"
+	default:
+		return fmt.Sprintf("%T", v)
+	}
 }
 
 func fillAppInfo(fl *flightRows, props map[string]any, out *AppPagePayload) {
