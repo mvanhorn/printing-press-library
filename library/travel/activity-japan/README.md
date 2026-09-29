@@ -60,7 +60,7 @@ Every source request has a 2 MiB body cap. Novel commands refresh plan, price, a
 - The source sometimes uses zero as a party maximum sentinel. The CLI reports that raw source value while treating the traveler maximum as unknown. An ambiguously named passenger-count field is preserved but not used as a minimum party size.
 - Source prose may be machine translated or inconsistent. The CLI preserves it as source text rather than converting uncertain duration or cancellation wording into stronger claims.
 
-Use `activity-japan-pp-cli <group> <command> --help` for current flags. Source endpoint mirrors under `source-plan` expose raw website JSON for investigation.
+Use `activity-japan-pp-cli <group> <command> --help` for current flags. Source endpoint mirrors under `source-plan` expose raw website JSON for investigation. The raw `source-plan stock-check` result does not validate party or age eligibility; use `experience check` for a party-aware stock observation.
 
 ## Authentication
 

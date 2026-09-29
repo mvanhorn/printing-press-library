@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-29T02:16:28.654163+00:00",
+  "base_run_id": "20260928-195045-6c9729d4",
+  "base_printing_press_version": "4.32.5",
+  "id": "activity-japan-review-constraints",
+  "summary": "Require the inputs needed to evaluate comparison constraints and label raw stock mirrors as eligibility-unvalidated.",
+  "reason": "A date-free instant-only comparison omitted the requested verdict, while raw source stock results could be mistaken for eligible availability.",
+  "files": [
+    "internal/cli/activity_japan_commands.go",
+    "internal/cli/activity_japan_output_test.go",
+    "spec.yaml",
+    "mcp-descriptions.json",
+    "README.md"
+  ]
+}

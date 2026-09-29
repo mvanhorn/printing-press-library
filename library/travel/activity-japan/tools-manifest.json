@@ -1,5 +1,5 @@
 {
-  "api_name": "Activity Japan",
+  "api_name": "activity-japan",
   "base_url": "https://gd.activityjapan.com",
   "description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
   "mcp_ready": "full",
@@ -87,7 +87,7 @@
     },
     {
       "name": "source_plan_stock_check",
-      "description": "Recheck selected course and participant count without submitting a reservation. Required: plan_id, c_id, date, status, count, type (default: 2). Returns the StockCheckEnvelope.",
+      "description": "Fetch the raw Activity Japan stock response for an exact plan, course, date, source status and count. Required: plan_id, c_id, date, status, count, type (pass 2 for the observed website mode). Returns StockCheckEnvelope. This raw tool does not validate the plan's party or age limits and does not reserve a place; use the experience check CLI command for a party-aware observation.",
       "method": "GET",
       "path": "/plan/check_calendar_data",
       "no_auth": true,
@@ -124,7 +124,7 @@
           "name": "count",
           "type": "int",
           "location": "query",
-          "description": "Requested basic-fee participant quantity",
+          "description": "Raw basic-fee quantity; plan eligibility is not checked by this endpoint mirror",
           "required": true
         },
         {

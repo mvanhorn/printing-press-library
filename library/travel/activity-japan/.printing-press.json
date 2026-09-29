@@ -6,8 +6,8 @@
   "display_name": "Activity Japan",
   "cli_name": "activity-japan-pp-cli",
   "creator": {
-    "name": "zjsng",
-    "handle": "zjsng"
+    "handle": "zjsng",
+    "name": "zjsng"
   },
   "owner": "zjsng",
   "printer": "zjsng",
@@ -15,7 +15,7 @@
   "spec_path": "activity-japan-curated-spec.yaml",
   "spec_format": "internal",
   "spec_source": "sniffed",
-  "spec_checksum": "sha256:8a5f7e71d2b631ab3a9a97d292134da0624c07174057ec092950a78568c1f215",
+  "spec_checksum": "sha256:95ebce6b96468b8a970df1a6160568d15203b9199b3e7cf9d36b87901b6924c0",
   "run_id": "20260928-195045-6c9729d4",
   "category": "travel",
   "description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",

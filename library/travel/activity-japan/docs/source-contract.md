@@ -20,6 +20,8 @@ For an adult subtotal, honor both the dated option's `price_item_min/max` and th
 
 `/plan/check_calendar_data` is a read-only GET recheck of plan/course/date/status/count/type=2. The site's script maps result `1` to no change; `2` to request→instant; `3` to instant→request; `4` to no longer bookable; `5` to stock insufficient for count. The `stock` field is a source observation; it is not a reservation. Enforce plan `people_min`/`people_max` first: an over-limit request can receive result `3`, which does not make the traveler eligible. Recheck date and course IDs echoed by the CLI request. Do not claim availability based only on operating period or session name list.
 
+The generated `source-plan stock-check` CLI and `source_plan_stock_check` MCP tool expose that endpoint's raw result for investigation. They do not check the plan's party or age limits. Use `experience check` for the bounded, party-aware observation; a raw source result alone is not evidence that the traveler is eligible.
+
 ## Conditions and language
 
 The detail envelope carries `age_start/end`, `people_min/max`, `basic_min_passenger_count`, `necessary_time_comment`, `basic_meeting_time`, `basic_meeting_place`, address, inclusions, exclusions, rental equipment, attention text, payment and cancellation text. Venue address, meeting place and pickup remain separate; do not infer pickup from an access map. `period_start/end` can be `0000-00-00 00:00:00`, a placeholder rather than a real date. `support_language` is a Boolean whose value changes by `lang_flag`; it is locale-specific source evidence, not a complete instructor language list. The plan page may show a specific Supported language label, which takes precedence when captured. Site locale alone never proves instructor language.

@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "source_plan_stock_check": "Fetch the raw Activity Japan stock response for an exact plan, course, date, source status and count. Required: plan_id, c_id, date, status, count, type (pass 2 for the observed website mode). Returns StockCheckEnvelope. This raw tool does not validate the plan's party or age limits and does not reserve a place; use the experience check CLI command for a party-aware observation."
+  }
+}

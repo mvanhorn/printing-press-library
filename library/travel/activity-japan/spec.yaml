@@ -73,7 +73,7 @@ resources:
       stock_check:
         method: GET
         path: /plan/check_calendar_data
-        description: Recheck selected course and participant count without submitting a reservation
+        description: Fetch a raw source stock response without submitting a reservation; this mirror does not validate plan party or age limits
         params:
           - name: plan_id
             type: string
@@ -95,7 +95,7 @@ resources:
           - name: count
             type: int
             required: true
-            description: Requested basic-fee participant quantity
+            description: Raw basic-fee quantity; plan eligibility is not checked by this endpoint mirror
           - name: type
             type: int
             required: true

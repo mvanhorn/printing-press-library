@@ -76,12 +76,12 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("source_plan_stock_check",
-			mcplib.WithDescription("Recheck selected course and participant count without submitting a reservation. Required: plan_id, c_id, date, status, count, type (default: 2). Returns the StockCheckEnvelope."),
+			mcplib.WithDescription("Fetch the raw Activity Japan stock response for an exact plan, course, date, source status and count. Required: plan_id, c_id, date, status, count, type (pass 2 for the observed website mode). Returns StockCheckEnvelope. This raw tool does not validate the plan's party or age limits and does not reserve a place; use the experience check CLI command for a party-aware observation."),
 			mcplib.WithString("plan_id", mcplib.Required(), mcplib.Description("Exact source plan ID")),
 			mcplib.WithString("c_id", mcplib.Required(), mcplib.Description("Exact source course/session ID")),
 			mcplib.WithString("date", mcplib.Required(), mcplib.Description("Activity date in Asia/Tokyo, YYYY-MM-DD")),
 			mcplib.WithString("status", mcplib.Required(), mcplib.Description("Source course status from the latest session observation")),
-			mcplib.WithNumber("count", mcplib.Required(), mcplib.Description("Requested basic-fee participant quantity")),
+			mcplib.WithNumber("count", mcplib.Required(), mcplib.Description("Raw basic-fee quantity; plan eligibility is not checked by this endpoint mirror")),
 			mcplib.WithNumber("type", mcplib.Required(), mcplib.Description("Source check mode observed in the plan page script")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -351,12 +351,10 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case strings.Contains(msg, "HTTP 401"):
 				return mcpToolError("authentication failed: " + msg +
 					"\nhint: check your API credentials." +
-					"\n      See API docs: https://gd.activityjapan.com" +
 					"\n      Run 'activity-japan-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcpToolError("permission denied: " + msg +
 					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
-					"\n      See API docs: https://gd.activityjapan.com" +
 					"\n      Run 'activity-japan-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -875,7 +873,7 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 	}
 	ctx := map[string]any{
 		"api":         "activity-japan",
-		"description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
+		"description": "Read-only Activity Japan plan data and date observations",
 		"archetype":   "generic",
 		"tool_count":  len(s.ListTools()),
 		"paths":       paths,

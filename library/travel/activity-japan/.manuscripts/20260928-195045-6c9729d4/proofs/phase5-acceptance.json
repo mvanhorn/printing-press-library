@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "450e52d17a7cf48da4fd36d8485b3b5694289d089144b9d675a65f2ae5581b66",
+  "source_fingerprint": "6ff3b6e960f6e7c2de75beb687ced2ff46d1b5b60eac25087ab8bd705c21edc2",
   "source_files": {
     "cmd/activity-japan-pp-cli/main.go": "74548a08239467bf8ff9ae0e748c877c7d0c95ba03f1bc66aa838f04f4d70fab",
     "cmd/activity-japan-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -24,8 +24,8 @@
     "internal/activityjapan/sitemap_test.go": "fe8d37e46eaece0b04d3324b9ad716cada7ff7eda89a86f655a37274cb13d22f",
     "internal/cache/cache.go": "3bc84bdc4a56f2093b015fb7dd2153b6a3cc803f029d89d1157b4f5975fe26b6",
     "internal/cli/activity_japan_client_bounds.go": "4f214cd725a148d7fcde35d172213cf990f38e5cf727bca2115dbe9656aa6775",
-    "internal/cli/activity_japan_commands.go": "e9192d1d10009ee2b965d7addffc39440606821f58cdc4237102a7da9bc012f5",
-    "internal/cli/activity_japan_output_test.go": "6db6e31e4726c98875dc06a984b614a5ea8de45d7861f82c06710cbe487fb270",
+    "internal/cli/activity_japan_commands.go": "723861dc66b29bbb83871c4e245c05c67afaf3fbf6f01f7d3829ad00f627c1fe",
+    "internal/cli/activity_japan_output_test.go": "af983b3424ac4001d8a2f250d4bad6c66f88a02c35b71715c5c6daa86e4153b4",
     "internal/cli/agent_context.go": "206da327d21c98f58a16906051642199be72d661a7fb80569a2ce7c64977ac8c",
     "internal/cli/api_discovery.go": "7fb3abf51625d130fd2f55cd06bf6edbb3298e34c2603bbd5a745ca901f0fbf9",
     "internal/cli/channel_workflow.go": "69a5e31b38da290aea2f94223bdd65ef6bb0ff5757efb1d5ebb01550fcbbf56d",
@@ -105,7 +105,7 @@
     "internal/mcp/cobratree/walker.go": "aec212c403f5792fbd6aa990a243eb5f3011f4b8572d121e0efcf7f53aa67d39",
     "internal/mcp/platform_gate.go": "18c2b6a2690653df1803e6784843d3501311f8de1a4839e2d74b61f8139ebf68",
     "internal/mcp/platform_gate_test.go": "0f8db370cbcfed88760b9f5e3026595f16a9525d450c04a9b9984bcf2af5427a",
-    "internal/mcp/tools.go": "b8d3a5bfdcf67393fd1cb3d3585c8907c473d26da1fa301f353fd069841eadfa",
+    "internal/mcp/tools.go": "eb64cf7cf2830e87b9f824d940898afd9b17447e0f4e89ae2243e2b826232cdc",
     "internal/mcp/tools_test.go": "5b3a137d709762815c4951f8d6256b3e8c5b9fcedd31424f198193d5f7ab4b71",
     "internal/platform/conformance_test.go": "25699fa8d03d2e2cc1efed3b5ac532d58e3a634ad7ec5b00bf6c017de3f29f35",
     "internal/platform/doctor.go": "74fb43bfa5399a38d71741d584fff94284bdc46278319873be0a14de4e0c94c5",
@@ -122,6 +122,6 @@
     "internal/store/store.go": "55c5ca5d99c1a1cf3fb1e6551b3702f1e151d9290dfe2e12677574c323b55bfa",
     "internal/store/upsert_batch_test.go": "28c7a2f3ac373f66b3c74b86c4febe3b86724be95c29c8966fbe0d8ef268be2f",
     "internal/types/types.go": "bc9f3bb435d99571b9f93cfe32564c87f121e1fcafeda6f7ab3684bc31e42575",
-    "spec.yaml": "8a5f7e71d2b631ab3a9a97d292134da0624c07174057ec092950a78568c1f215"
+    "spec.yaml": "95ebce6b96468b8a970df1a6160568d15203b9199b3e7cf9d36b87901b6924c0"
   }
 }

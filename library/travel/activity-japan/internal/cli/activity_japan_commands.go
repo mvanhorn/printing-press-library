@@ -40,6 +40,10 @@ func init() {
 				if example, ok := examples[leaf.Name()]; ok {
 					leaf.Example = example
 				}
+				if leaf.Name() == "stock-check" {
+					leaf.Short = "Fetch raw stock response without validating plan eligibility"
+					leaf.Long = "Returns the Activity Japan source stock result for an exact plan, course, date and count. This raw mirror does not validate the plan's party or age limits, and its result is not a reservation. Use experience check for a party-aware stock observation."
+				}
 			}
 		}
 	})
@@ -124,6 +128,19 @@ func ajPlanParty(plan activityjapan.Plan, participants int) error {
 	}
 	if plan.PartyMax != nil && participants > *plan.PartyMax {
 		return usageErr(fmt.Errorf("plan allows at most %d participants", *plan.PartyMax))
+	}
+	return nil
+}
+
+func ajCompareRequestBounds(date string, adults, age, maxJPY, maxMinutes int, instant bool) error {
+	if adults < 0 || adults > 50 || age < -1 || age > 120 || maxJPY < 0 || maxMinutes < 0 {
+		return usageErr(errors.New("invalid adults, age, max-jpy or max-minutes bound"))
+	}
+	if instant && date == "" {
+		return usageErr(errors.New("--instant-only requires --date to evaluate availability"))
+	}
+	if maxJPY > 0 && (date == "" || adults == 0) {
+		return usageErr(errors.New("--max-jpy requires --date and --adults to evaluate a party budget"))
 	}
 	return nil
 }
@@ -505,8 +522,8 @@ func ajCompare(flags *rootFlags) *cobra.Command {
 				return usageErr(e)
 			}
 		}
-		if adults < 0 || adults > 50 || age < -1 || age > 120 || maxJPY < 0 || maxMinutes < 0 {
-			return usageErr(errors.New("invalid adults, age, max-jpy or max-minutes bound"))
+		if e := ajCompareRequestBounds(date, adults, age, maxJPY, maxMinutes, instant); e != nil {
+			return e
 		}
 		ctx, cancel := ajContext(cmd.Context(), flags)
 		defer cancel()

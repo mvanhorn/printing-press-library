@@ -51,3 +51,36 @@ func TestBriefPartyGuardUsesPlanBounds(t *testing.T) {
 		t.Fatalf("maximum not enforced: %v", err)
 	}
 }
+
+func TestCompareRequiresInputsForDatedConstraints(t *testing.T) {
+	cases := []struct {
+		name, date, want string
+		adults, budget   int
+		instant          bool
+	}{
+		{name: "instant without date", instant: true, want: "--instant-only requires --date"},
+		{name: "budget without date", adults: 2, budget: 7000, want: "--max-jpy requires --date and --adults"},
+		{name: "budget without party", date: "2026-10-08", budget: 7000, want: "--max-jpy requires --date and --adults"},
+		{name: "dated constraints", date: "2026-10-08", adults: 2, budget: 7000, instant: true},
+		{name: "unknown constraints"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ajCompareRequestBounds(tc.date, tc.adults, -1, tc.budget, 0, tc.instant)
+			if tc.want == "" && err != nil {
+				t.Fatal(err)
+			}
+			if tc.want != "" && (err == nil || !strings.Contains(err.Error(), tc.want)) {
+				t.Fatalf("wanted %q, got %v", tc.want, err)
+			}
+		})
+	}
+}
+
+func TestRawStockMirrorLabelsUnvalidatedEligibility(t *testing.T) {
+	root := newRootCmd(&rootFlags{})
+	leaf, _, err := root.Find([]string{"source-plan", "stock-check"})
+	if err != nil || leaf == nil || !strings.Contains(leaf.Short, "raw stock") || !strings.Contains(leaf.Long, "does not validate the plan's party or age limits") {
+		t.Fatalf("raw stock warning missing from CLI help: command=%v err=%v", leaf, err)
+	}
+}
