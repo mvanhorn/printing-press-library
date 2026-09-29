@@ -1,0 +1,21 @@
+{
+  "verify_before_percent": 100,
+  "verify_after_percent": 100,
+  "scorecard_before": 80,
+  "scorecard_after": 80,
+  "tools_audit_pending_before": 1,
+  "tools_audit_pending_after": 0,
+  "tools_audit_accepted_generated": 1,
+  "gosec_total_before": 35,
+  "gosec_total_after": 30,
+  "gosec_hand_authored_before": 5,
+  "gosec_hand_authored_after": 0,
+  "pii_audit_strict": "pass",
+  "full_live_dogfood": {
+    "passed": 89,
+    "matrix_size": 89,
+    "skipped": 46
+  },
+  "ship_recommendation": "ship",
+  "publish_validate": "skipped (mid-pipeline; local delivery only)"
+}

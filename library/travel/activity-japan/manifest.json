@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "activity-japan-pp-mcp",
+  "display_name": "Activity Japan",
+  "version": "0.1.0",
+  "description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/activity-japan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/activity-japan-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

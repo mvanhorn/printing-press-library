@@ -1,0 +1,135 @@
+{
+  "observed_at_utc": "2026-09-28T15:44:41.152055+00:00",
+  "date": "2026-10-08",
+  "checks": [
+    {
+      "check": "Kyoto search-to-detail identity and original name",
+      "pass": true,
+      "observed": {
+        "plan_id": "62375",
+        "operator_id": "9326",
+        "observed_at": "2026-09-29T00:44:03+09:00"
+      }
+    },
+    {
+      "check": "Kyoto headline versus options",
+      "pass": true,
+      "observed": {
+        "headline_jpy": 1800,
+        "option_ids": [
+          "176511",
+          "186798"
+        ]
+      }
+    },
+    {
+      "check": "Osaka sushi source price IDs and adult age band",
+      "pass": true,
+      "observed": {
+        "headline_jpy": 9000,
+        "adult_subtotal_jpy": 18000,
+        "child_subtotal": null,
+        "infant_subtotal": null
+      }
+    },
+    {
+      "check": "Okinawa outdoor plan identity and mixed duration prose",
+      "pass": true,
+      "observed": {
+        "plan_id": "2044",
+        "age_min_years": 2,
+        "derived_total_minutes": null
+      }
+    },
+    {
+      "check": "Dated session IDs, statuses and pagination",
+      "pass": true,
+      "observed": {
+        "total": 11,
+        "states": [
+          "instant_confirmable",
+          "not_accepted"
+        ]
+      }
+    },
+    {
+      "check": "Dated party stock remains unconfirmed",
+      "pass": true,
+      "observed": {
+        "session_id": "189637",
+        "result": "1",
+        "availability": "instant_confirmable"
+      }
+    },
+    {
+      "check": "Fukuoka reservation-request state",
+      "pass": true,
+      "observed": {
+        "date": "2026-10-01",
+        "states": [
+          "reservation_request"
+        ]
+      }
+    },
+    {
+      "check": "Pair unit prices one group, not two people",
+      "pass": true,
+      "observed": {
+        "option_id": "184975",
+        "subtotal_jpy": 4800
+      }
+    },
+    {
+      "check": "Group stock count refuses unverified basis",
+      "pass": true,
+      "observed": {
+        "error": "Error: stock quantity basis is unverified for group or unknown-unit options; use experience sessions and handoff"
+      }
+    },
+    {
+      "check": "Distinct selected-date prices",
+      "pass": true,
+      "observed": {
+        "dates": [
+          "2026-10-07",
+          "2026-10-08"
+        ],
+        "option_176511_jpy": [
+          2000,
+          1800
+        ]
+      }
+    },
+    {
+      "check": "Duration comparison preserves unknown",
+      "pass": true,
+      "observed": {
+        "2044": "unknown",
+        "62375": "match"
+      }
+    },
+    {
+      "check": "Separate English and Japanese sitemap presence",
+      "pass": true,
+      "observed": {
+        "en_count": 11331,
+        "ja_count": 17942
+      }
+    },
+    {
+      "check": "Canonical English handoff",
+      "pass": true,
+      "observed": {
+        "url": "https://en.activityjapan.com/publish/plan/62375"
+      }
+    },
+    {
+      "check": "Invalid plan HTML is an error",
+      "pass": true,
+      "observed": {
+        "error": "Error: Activity Japan /get_plan_price_info: GET /get_plan_price_info: expected JSON, API returned HTML instead of JSON: HTML document (40351 bytes): The page you were looking for was not found."
+      }
+    }
+  ],
+  "passed": 14
+}

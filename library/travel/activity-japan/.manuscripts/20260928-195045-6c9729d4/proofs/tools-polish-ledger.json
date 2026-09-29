@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-09-28T16:29:30.383416Z",
+  "cli_dir": "\u003ccli-dir\u003e/activity-japan-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform client command; List client profiles precisely describes its no-argument, names-only read result. Generator template could expand the Short in a future release."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-28T16:29:05.124244Z"
+  }
+}

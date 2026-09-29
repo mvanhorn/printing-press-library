@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-28T16:38:59.294629Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "activity-japan",
+  "display_name": "Activity Japan",
+  "cli_name": "activity-japan-pp-cli",
+  "creator": {
+    "name": "zjsng",
+    "handle": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "activity-japan-curated-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:8a5f7e71d2b631ab3a9a97d292134da0624c07174057ec092950a78568c1f215",
+  "run_id": "20260928-195045-6c9729d4",
+  "category": "travel",
+  "description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
+  "mcp_binary": "activity-japan-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Date-fit scan",
+      "command": "experience dates",
+      "description": "See observed session and option-price differences across up to seven itinerary dates."
+    },
+    {
+      "name": "Constraint-aware shortlist",
+      "command": "experience compare",
+      "description": "Compare a few known plans against explicit age, party, time, price, and language constraints."
+    },
+    {
+      "name": "Price-basis report",
+      "command": "experience price",
+      "description": "See source option IDs, selected-date amounts, participant basis, and excluded extras."
+    },
+    {
+      "name": "Language-surface check",
+      "command": "inventory languages",
+      "description": "Check whether a plan ID is indexed in English, Japanese, or both."
+    },
+    {
+      "name": "Handoff readiness",
+      "command": "experience brief",
+      "description": "Get a compact booking-handoff packet with known conditions and unresolved questions."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Date-fit scan",
+      "command": "experience dates",
+      "description": "See observed session and option-price differences across up to seven itinerary dates."
+    },
+    {
+      "name": "Constraint-aware shortlist",
+      "command": "experience compare",
+      "description": "Compare a few known plans against explicit age, party, time, price, and language constraints."
+    },
+    {
+      "name": "Price-basis report",
+      "command": "experience price",
+      "description": "See source option IDs, selected-date amounts, participant basis, and excluded extras."
+    },
+    {
+      "name": "Language-surface check",
+      "command": "inventory languages",
+      "description": "Check whether a plan ID is indexed in English, Japanese, or both."
+    },
+    {
+      "name": "Handoff readiness",
+      "command": "experience brief",
+      "description": "Get a compact booking-handoff packet with known conditions and unresolved questions."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 23,
+    "total": 23,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

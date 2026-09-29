@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS",
+  "level": "full",
+  "matrix_size": 89,
+  "passed": 89,
+  "failed": 0,
+  "skipped": 46,
+  "skip_kinds": {
+    "happy_path": 7,
+    "json_fidelity": 7,
+    "dry_run_json": 13,
+    "error_path": 14,
+    "error_path_real": 5
+  },
+  "acceptance_status": "pass",
+  "source_fingerprint": "450e52d17a7cf48da4fd36d8485b3b5694289d089144b9d675a65f2ae5581b66",
+  "ran_at": "2026-09-28T16:34:09.636689Z"
+}

@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/activity-japan-pp-cli
+/activity-japan-pp-cli.exe
+/activity-japan-pp-mcp
+/activity-japan-pp-mcp.exe
+/bin/
+/build/
+/dist/

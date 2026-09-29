@@ -1,0 +1,238 @@
+{
+  "endpoint": "GET /get_plan_price_info",
+  "method": "GET",
+  "raw_url": "https://gd.activityjapan.com/get_plan_price_info?plan_id=62375&lang_flag=ja&url=https%3A%2F%2Factivityjapan.com%2Fpublish%2Fplan%2F62375",
+  "status": 200,
+  "request_body": null,
+  "response_body": {
+    "discount_flag": 1,
+    "option_price": 1,
+    "plan_data": {
+      "address": "〒616-8385 京都府京都市右京区嵯峨天龍寺芒ノ馬場町３−２５ 2階",
+      "age_end": 100,
+      "age_start": 2,
+      "area_id": "203",
+      "base_price": 2000,
+      "basic_meeting_place": "Chopsticks Studio Kyoto",
+      "basic_meeting_time": "ご予約時間の5分前にお越しください。",
+      "basic_min_passenger_count": 1,
+      "campaign_message": "WEB限定価格 10%OFF",
+      "can_reservation_cancel_day": 1,
+      "can_reservation_day": 0,
+      "can_reservation_time": 18,
+      "city_id": "261084",
+      "clothes_belongings": "特にございません。",
+      "clothes_rental": "エプロン（無料）、作業道具（無料）",
+      "coupon_use_flag": 1,
+      "credit_prepayment": 2,
+      "credit_prepayment_close_day": 0,
+      "default_message_note": "",
+      "delete_flag": 0,
+      "discount_end_date": "2030-12-31 00:00:00",
+      "discount_price": 200,
+      "discount_start_date": "2026-09-18 00:00:00",
+      "display_end_date": "2030-12-31 00:00:00",
+      "display_start_date": "2026-09-18 00:00:00",
+      "equipment_list": [
+        1,
+        4
+      ],
+      "first_activity": {
+        "activity_id": 104,
+        "activity_name": "箸作り体験",
+        "code": "chopsticks-making",
+        "decription": null,
+        "sort": 111,
+        "top_flag": 1
+      },
+      "free_info_list": [],
+      "include_charge": "体験料、体験道具、材料の木（3種類から選択）、消費税",
+      "introduction": "【世界に一膳だけ。自分の手でつくる“マイ箸”】\r\n\r\n好きな木を選んで、削って、磨いて。\r\n世界に一膳だけのオリジナル箸をつくってみませんか？\r\n\r\nChopsticks Studio Kyotoでは、10種類以上の木材からお気に入りを選び、自分の手で一本ずつ箸の形に仕上げていきます。\r\n\r\n木によって、色・木目・手触りはさまざま。\r\n定番の木材はもちろん、思わず目を引く珍しい色合いの木材もご用意しています。\r\n「どの木にしよう？」と選ぶところから、箸づくりの楽しさが始まります。\r\n\r\n二人で同じ木を選んでお揃いの箸を作ったり、それぞれ好きな色や木目を選んだり。\r\nカップルやご夫婦のデート・記念日はもちろん、友達や家族との思い出づくりにもおすすめです。\r\n\r\nもちろん、お一人でのご参加も大歓迎！\r\nスタッフが削り方から仕上げまで丁寧にサポートするので、ものづくりが初めての方やお子さまでも安心して楽しめます。\r\n少しずつ箸の形になっていく工程は、初めてでも思わず夢中になる楽しさです。\r\n\r\n完成した箸は、そのままお持ち帰りいただけます。\r\n作って終わりではなく、毎日の食卓で実際に使えるのも箸づくりならでは。\r\n自分で選び、自分の手で仕上げた一膳だからこそ、使うたびに愛着が湧いてきます。\r\n\r\nさらに、**お名前・記念日・メッセージの刻印（オプション）**も可能。\r\n自分用にはもちろん、大切な方への特別なプレゼントや、二人の記念品にもぴったりです。\r\n\r\nいつもの休日に、ちょっと特別なものづくりを。\r\n世界に一膳だけの“マイ箸”を、自分の手でつくってみませんか？\r\n\r\n【こんな方におすすめ】\r\n・いつもと少し違うデートを楽しみたい\r\n・お揃いのものを自分たちで作りたい\r\n・友達や家族との思い出を形に残したい\r\n・一人で気軽にものづくりを楽しみたい\r\n・自分だけのオリジナルアイテムが欲しい\r\n・大切な方への特別なプレゼントを作りたい\r\n・作ったあとも毎日使えるものを作りたい\r\n\r\n【団体・法人利用について】\r\n団体貸切、修学旅行・校外学習、企業研修・チームビルディングなどのご相談も承ります。\r\n英語対応も可能です。法人予約のお支払い方法などもお気軽にご相談ください。",
+      "is_discount": 1,
+      "lat": "135.677352",
+      "lng": "35.014454",
+      "map_access_car": "",
+      "map_access_other": "",
+      "map_access_train": "JR嵯峨嵐山駅から徒歩５分\r\n嵐電嵐山駅から徒歩２分",
+      "necessary_time": [
+        {
+          "plan_search_necessary_time_id": 651907,
+          "search_necessary_time_id": 1
+        },
+        {
+          "plan_search_necessary_time_id": 651908,
+          "search_necessary_time_id": 2
+        }
+      ],
+      "necessary_time_comment": "60分",
+      "no_wovn_flag": false,
+      "not_include_charge": "その他の材料の木",
+      "other_attention": "",
+      "other_comment": "木くずが衣服に付く場合がございますので、多少汚れても差し支えない服装でのご参加をおすすめいたします。",
+      "partner_id": 9326,
+      "payment_cancel": "お客様都合によるキャンセルの際は以下のキャンセル料を申し受けますのでご了承ください。\r\n前日キャンセル：100％\r\n当日キャンセル：100％\r\n無断キャンセル：100％",
+      "payment_method": "",
+      "payment_stop": "",
+      "people_max": 50,
+      "people_min": 1,
+      "period": "",
+      "period_end": "0000-00-00 00:00:00",
+      "period_end_comment": "",
+      "period_start": "0000-00-00 00:00:00",
+      "plan_activity": [
+        104
+      ],
+      "plan_activity_data": [
+        {
+          "activity_id": 104,
+          "activity_name": "箸作り体験",
+          "code": "chopsticks-making",
+          "decription": null,
+          "sort": 111,
+          "top_flag": 1
+        }
+      ],
+      "plan_course": [
+        {
+          "course_name": "09:00:00",
+          "plan_course_id": 189637,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "10:00:00",
+          "plan_course_id": 189638,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "11:00:00",
+          "plan_course_id": 189639,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "12:00:00",
+          "plan_course_id": 189640,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "13:00:00",
+          "plan_course_id": 189641,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "14:00:00",
+          "plan_course_id": 189642,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "15:00:00",
+          "plan_course_id": 189643,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "16:00:00",
+          "plan_course_id": 189644,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "17:00:00",
+          "plan_course_id": 189645,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "18:00:00",
+          "plan_course_id": 189646,
+          "plan_id": 62375
+        },
+        {
+          "course_name": "18:30:00",
+          "plan_course_id": 205944,
+          "plan_id": 62375
+        }
+      ],
+      "plan_course_names": [
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "18:30"
+      ],
+      "plan_id": 62375,
+      "plan_movie": [
+        "0aIOs0ocXQs"
+      ],
+      "plan_name": "【京都・嵐山】世界に一膳だけ！好きな木から作るオリジナル箸づくり｜デート・記念日・お一人様におすすめ",
+      "point_use_flag": 1,
+      "prefecture_id": 26,
+      "prepayment": 0,
+      "referer_check": true,
+      "reservation_accepting": 1,
+      "search_discount_id": [],
+      "search_other_id": [
+        1,
+        7,
+        12,
+        13,
+        19
+      ],
+      "search_target_level_id": [
+        1
+      ],
+      "service_period": 1,
+      "show_flag": 1,
+      "support_language": true,
+      "use_local_payment": 0,
+      "use_postpayment": 0
+    },
+    "plan_price": [
+      {
+        "plan_id": 62375,
+        "plan_price_id": 176511,
+        "plan_type": "1",
+        "price_prefix": "スタンダードプラン",
+        "price_suffix": "人"
+      },
+      {
+        "plan_id": 62375,
+        "plan_price_id": 186798,
+        "plan_type": "2",
+        "price_prefix": "プレミアムプラン",
+        "price_suffix": "人"
+      }
+    ],
+    "price_items": [
+      {
+        "base_price": 2000,
+        "description": "3種類の国産木材からお好きな木を選び、自分だけのオリジナル箸を作る体験です。<br />\r\n木の質感や色合いを楽しみながら、世界に一つだけの箸をお作りいただけます。<br />\r\n<br />\r\n体験自体は車いすやベビーカーをご利用のままご参加いただけますが、店舗は2階にありエレベーターがございません。ご利用を希望される場合は、事前にご相談いただきますようお願いいたします。",
+        "discount_price": 200,
+        "item_people_max": null,
+        "item_people_min": 1,
+        "plan_id": 62375,
+        "plan_price_id": 176511,
+        "plan_type": "1",
+        "price_prefix": "スタンダードプラン",
+        "price_suffix": "人",
+        "title": ""
+      },
+      {
+        "base_price": 5000,
+        "description": "高級木材も名入れも、すべて込み。こだわりの一本を、もっと自由に。<br />\r\n<br />\r\n通常は追加料金となる高級木材も、1,000円の名入れもすべてプラン料金に含まれています。<br />\r\n豊富な木材の中からお好きなものを選び、世界にひとつだけのオリジナル箸をお作りいただけます。<br />\r\n大切な方への贈り物や、旅の記念にもおすすめです。",
+        "discount_price": 0,
+        "item_people_max": 0,
+        "item_people_min": 0,
+        "plan_id": 62375,
+        "plan_price_id": 186798,
+        "plan_type": "2",
+        "price_prefix": "プレミアムプラン",
+        "price_suffix": "人",
+        "title": ""
+      }
+    ]
+  },
+  "response_body_known": true
+}

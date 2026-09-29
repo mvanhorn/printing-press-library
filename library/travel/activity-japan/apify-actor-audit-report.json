@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/activity-japan-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260928-195045-6c9729d4",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

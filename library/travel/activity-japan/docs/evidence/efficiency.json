@@ -1,0 +1,87 @@
+{
+  "observed_at_utc": "2026-09-28T16:15:58.452742+00:00",
+  "activity_date": "2026-10-08",
+  "measurements": [
+    {
+      "case": "inventory_refresh",
+      "command": "activity-japan-pp-cli inventory languages 62375 --refresh --agent",
+      "exit_code": 0,
+      "stdout_bytes": 1525,
+      "upstream_requests": 2,
+      "elapsed_ms": 2825,
+      "peak_rss_bytes": 43843584,
+      "cache": {
+        "en": {
+          "age_seconds": 0,
+          "fetched_at": "2026-09-29T01:15:49+09:00",
+          "status": "miss",
+          "ttl_seconds": 86400
+        },
+        "ja": {
+          "age_seconds": 0,
+          "fetched_at": "2026-09-29T01:15:50+09:00",
+          "status": "miss",
+          "ttl_seconds": 86400
+        }
+      },
+      "error": null
+    },
+    {
+      "case": "inventory_cached",
+      "command": "activity-japan-pp-cli inventory languages 62375 --agent",
+      "exit_code": 0,
+      "stdout_bytes": 1521,
+      "upstream_requests": 0,
+      "elapsed_ms": 126,
+      "peak_rss_bytes": 34127872,
+      "cache": {
+        "en": {
+          "age_seconds": 0,
+          "fetched_at": "2026-09-29T01:15:49+09:00",
+          "status": "hit",
+          "ttl_seconds": 86400
+        },
+        "ja": {
+          "age_seconds": 0,
+          "fetched_at": "2026-09-29T01:15:50+09:00",
+          "status": "hit",
+          "ttl_seconds": 86400
+        }
+      },
+      "error": null
+    },
+    {
+      "case": "detail_uncached",
+      "command": "activity-japan-pp-cli experience detail 62375 --agent",
+      "exit_code": 0,
+      "stdout_bytes": 4649,
+      "upstream_requests": 2,
+      "elapsed_ms": 1266,
+      "peak_rss_bytes": 27557888,
+      "cache": "disabled",
+      "error": null
+    },
+    {
+      "case": "sessions_uncached",
+      "command": "activity-japan-pp-cli experience sessions 62375 --date 2026-10-08 --agent",
+      "exit_code": 0,
+      "stdout_bytes": 3217,
+      "upstream_requests": 1,
+      "elapsed_ms": 206,
+      "peak_rss_bytes": 24510464,
+      "cache": "disabled",
+      "error": null
+    },
+    {
+      "case": "compare_uncached",
+      "command": "activity-japan-pp-cli experience compare 62375 2044 --date 2026-10-08 --adults 2 --max-jpy 7000 --agent",
+      "exit_code": 0,
+      "stdout_bytes": 3311,
+      "upstream_requests": 8,
+      "elapsed_ms": 6847,
+      "peak_rss_bytes": 44531712,
+      "cache": "plan/price/session disabled; sitemap 24-hour bounded cache",
+      "error": null
+    }
+  ]
+}

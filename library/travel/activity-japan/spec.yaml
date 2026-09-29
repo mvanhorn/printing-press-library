@@ -1,0 +1,171 @@
+name: activity-japan
+description: Read-only Activity Japan plan data and date observations
+version: 0.1.0
+category: travel
+base_url: https://gd.activityjapan.com
+health_check_path: /get_plan_price_info?plan_id=62375&lang_flag=en&url=https%3A%2F%2Fen.activityjapan.com%2Fpublish%2Fplan%2F62375
+auth:
+  type: none
+config:
+  format: toml
+  path: ~/.config/activity-japan-pp-cli/config.toml
+learn:
+  disabled: true
+resources:
+  source_plan:
+    description: Source plan facts and option prices; for itinerary workflows use experience commands
+    endpoints:
+      detail:
+        method: GET
+        path: /get_plan_price_info
+        description: Fetch source plan, operator, and price-option fields by exact plan ID and site language
+        params:
+          - name: plan_id
+            type: string
+            required: true
+            description: Activity Japan plan ID, preserved as a string
+          - name: lang_flag
+            type: string
+            required: true
+            enum: [en, ja]
+            description: Site language; it does not prove instructor language
+          - name: url
+            type: string
+            required: true
+            description: Canonical Activity Japan plan URL for the selected site language
+        response:
+          type: object
+          item: PlanInfoEnvelope
+      date_price:
+        method: GET
+        path: /plan/get_plan_price
+        description: Fetch selected-date source price amounts by price-option ID; no participant total implied
+        params:
+          - name: plan_id
+            type: string
+            required: true
+            description: Exact source plan ID
+          - name: date
+            type: string
+            required: true
+            format: date
+            description: Activity date in Asia/Tokyo, YYYY-MM-DD
+        response:
+          type: object
+          item: DatePriceEnvelope
+      sessions:
+        method: GET
+        path: /select_plan_course
+        description: Fetch source course IDs and statuses for one selected date; an observation, not a booking
+        params:
+          - name: plan_id
+            type: string
+            required: true
+            description: Exact source plan ID
+          - name: selected_date
+            type: string
+            required: true
+            format: date
+            description: Activity date in Asia/Tokyo, YYYY-MM-DD
+        response:
+          type: object
+          item: SessionsEnvelope
+      stock_check:
+        method: GET
+        path: /plan/check_calendar_data
+        description: Recheck selected course and participant count without submitting a reservation
+        params:
+          - name: plan_id
+            type: string
+            required: true
+            description: Exact source plan ID
+          - name: c_id
+            type: string
+            required: true
+            description: Exact source course/session ID
+          - name: date
+            type: string
+            required: true
+            format: date
+            description: Activity date in Asia/Tokyo, YYYY-MM-DD
+          - name: status
+            type: string
+            required: true
+            description: Source course status from the latest session observation
+          - name: count
+            type: int
+            required: true
+            description: Requested basic-fee participant quantity
+          - name: type
+            type: int
+            required: true
+            default: 2
+            description: Source check mode observed in the plan page script
+        response:
+          type: object
+          item: StockCheckEnvelope
+types:
+  PlanInfoEnvelope:
+    fields:
+      - name: plan_data
+        type: ref:PlanData
+      - name: plan_price
+        type: array
+      - name: price_items
+        type: array
+      - name: discount_flag
+        type: int
+      - name: option_price
+        type: int
+  PlanData:
+    fields:
+      - name: plan_id
+        type: string
+      - name: partner_id
+        type: string
+      - name: plan_name
+        type: string
+      - name: address
+        type: string
+      - name: basic_meeting_place
+        type: string
+      - name: basic_meeting_time
+        type: string
+      - name: necessary_time_comment
+        type: string
+      - name: people_min
+        type: int
+      - name: people_max
+        type: int
+      - name: age_start
+        type: int
+      - name: age_end
+        type: int
+      - name: include_charge
+        type: string
+      - name: not_include_charge
+        type: string
+      - name: payment_cancel
+        type: string
+      - name: payment_stop
+        type: string
+      - name: support_language
+        type: bool
+  DatePriceEnvelope:
+    fields:
+      - name: planPriceList
+        type: object
+      - name: taxIn
+        type: float
+  SessionsEnvelope:
+    fields:
+      - name: course_name
+        type: object
+      - name: course_status
+        type: object
+  StockCheckEnvelope:
+    fields:
+      - name: result
+        type: int
+      - name: stock
+        type: int

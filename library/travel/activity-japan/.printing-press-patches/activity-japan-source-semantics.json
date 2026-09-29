@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-28T15:26:22.434765+00:00",
+  "base_run_id": "20260928-195045-6c9729d4",
+  "base_printing_press_version": "4.32.5",
+  "id": "activity-japan-source-semantics",
+  "summary": "Interpret public plan JSON with exact identities, bounded bodies, dated states and age-aware option prices.",
+  "reason": "Generated endpoint mirrors cannot reconcile Japanese names, age bands, selected-date prices and stock states safely.",
+  "files": [
+    "internal/activityjapan/service.go",
+    "internal/activityjapan/service_test.go",
+    "internal/cli/activity_japan_client_bounds.go",
+    "internal/cli/root.go"
+  ]
+}

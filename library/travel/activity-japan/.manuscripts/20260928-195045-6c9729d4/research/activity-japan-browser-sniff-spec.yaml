@@ -1,0 +1,534 @@
+name: Activity Japan
+description: Discovered API spec for en-activityjapan
+version: 0.1.0
+base_url: https://gd.activityjapan.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/activity-japan-pp-cli/config.toml
+resources:
+    get_plan_price_info:
+        description: Operations on get_plan_price_info
+        endpoints:
+            list_get_plan_price_info:
+                method: GET
+                path: /get_plan_price_info
+                description: GET /get_plan_price_info
+                params:
+                    - name: lang_flag
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: plan_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: url
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: GetPlanPriceInfoPlanPrice
+                pagination: null
+                response_path: plan_price
+    plan:
+        description: Operations on get_plan_data
+        endpoints:
+            list_check_calendar_data:
+                method: GET
+                path: /plan/check_calendar_data
+                description: GET /plan/check_calendar_data
+                params:
+                    - name: c_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: count
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: plan_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: status
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: type
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: CheckCalendarData
+                pagination: null
+            list_get_calendar:
+                method: GET
+                path: /plan/get_calendar
+                description: GET /plan/get_calendar
+                params:
+                    - name: month
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: plan_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: year
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: get_calendar
+                pagination: null
+            list_get_plan_data:
+                method: GET
+                path: /plan/get_plan_data
+                description: GET /plan/get_plan_data
+                params:
+                    - name: plan_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GetPlanData
+                pagination: null
+            list_get_plan_price:
+                method: GET
+                path: /plan/get_plan_price
+                description: GET /plan/get_plan_price
+                params:
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: plan_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GetPlanPrice
+                pagination: null
+    select_plan_course:
+        description: Operations on select_plan_course
+        endpoints:
+            list_select_plan_course:
+                method: GET
+                path: /select_plan_course
+                description: GET /select_plan_course
+                params:
+                    - name: plan_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: selected_date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SelectPlanCourse
+                pagination: null
+types:
+    CheckCalendarData:
+        fields:
+            - name: result
+              type: integer
+            - name: stock
+              type: integer
+    CourseName:
+        fields:
+            - name: "09:00"
+              type: integer
+              omit_empty: true
+            - name: "10:00"
+              type: integer
+              omit_empty: true
+            - name: "11:00"
+              type: integer
+            - name: "12:00"
+              type: integer
+              omit_empty: true
+            - name: "13:00"
+              type: integer
+            - name: "14:00"
+              type: integer
+              omit_empty: true
+            - name: "14:30"
+              type: integer
+              omit_empty: true
+            - name: "15:00"
+              type: integer
+              omit_empty: true
+            - name: "16:00"
+              type: integer
+              omit_empty: true
+            - name: "17:00"
+              type: integer
+              omit_empty: true
+            - name: "18:00"
+              type: integer
+              omit_empty: true
+            - name: "18:30"
+              type: integer
+              omit_empty: true
+    CourseStatus:
+        fields:
+            - name: "189637"
+              type: integer
+              omit_empty: true
+            - name: "189638"
+              type: integer
+              omit_empty: true
+            - name: "189639"
+              type: integer
+              omit_empty: true
+            - name: "189640"
+              type: integer
+              omit_empty: true
+            - name: "189641"
+              type: integer
+              omit_empty: true
+            - name: "189642"
+              type: integer
+              omit_empty: true
+            - name: "189643"
+              type: integer
+              omit_empty: true
+            - name: "189644"
+              type: integer
+              omit_empty: true
+            - name: "189645"
+              type: integer
+              omit_empty: true
+            - name: "189646"
+              type: integer
+              omit_empty: true
+            - name: "203049"
+              type: integer
+              omit_empty: true
+            - name: "203050"
+              type: integer
+              omit_empty: true
+            - name: "203051"
+              type: integer
+              omit_empty: true
+            - name: "205944"
+              type: integer
+              omit_empty: true
+    FirstActivity:
+        fields:
+            - name: activity_id
+              type: integer
+            - name: activity_name
+              type: string
+            - name: code
+              type: string
+            - name: sort
+              type: integer
+            - name: top_flag
+              type: integer
+    GetPlanData:
+        fields:
+            - name: planData
+              type: ref:PlanData
+    GetPlanPrice:
+        fields:
+            - name: planPriceList
+              type: ref:PlanPriceList
+            - name: taxIn
+              type: number
+    GetPlanPriceInfoPlanPrice:
+        fields:
+            - name: plan_id
+              type: integer
+            - name: plan_price_id
+              type: integer
+            - name: plan_type
+              type: string
+            - name: price_prefix
+              type: string
+            - name: price_suffix
+              type: string
+    NecessaryTime:
+        fields:
+            - name: plan_search_necessary_time_id
+              type: integer
+            - name: search_necessary_time_id
+              type: integer
+    PlanActivityData:
+        fields:
+            - name: activity_id
+              type: integer
+            - name: activity_name
+              type: string
+            - name: code
+              type: string
+            - name: sort
+              type: integer
+            - name: top_flag
+              type: integer
+    PlanCourse:
+        fields:
+            - name: course_name
+              type: string
+            - name: plan_course_id
+              type: integer
+            - name: plan_id
+              type: integer
+    PlanData:
+        fields:
+            - name: address
+              type: string
+            - name: age_end
+              type: integer
+            - name: age_start
+              type: integer
+            - name: area_id
+              type: string
+            - name: base_price
+              type: integer
+            - name: basic_meeting_place
+              type: string
+            - name: basic_meeting_time
+              type: string
+            - name: basic_min_passenger_count
+              type: integer
+            - name: campaign_message
+              type: string
+            - name: can_reservation_cancel_day
+              type: integer
+            - name: can_reservation_day
+              type: integer
+            - name: can_reservation_time
+              type: integer
+            - name: city_id
+              type: string
+            - name: clothes_belongings
+              type: string
+            - name: clothes_rental
+              type: string
+            - name: coupon_use_flag
+              type: integer
+            - name: credit_prepayment
+              type: integer
+            - name: credit_prepayment_close_day
+              type: integer
+            - name: default_message_note
+              type: string
+            - name: delete_flag
+              type: integer
+            - name: discount_end_date
+              type: string
+            - name: discount_start_date
+              type: string
+            - name: display_end_date
+              type: string
+            - name: display_start_date
+              type: string
+            - name: equipment_list
+              type: array
+            - name: first_activity
+              type: ref:FirstActivity
+            - name: free_info_list
+              type: array
+            - name: include_charge
+              type: string
+            - name: introduction
+              type: string
+            - name: lat
+              type: string
+            - name: lng
+              type: string
+            - name: map_access_car
+              type: string
+            - name: map_access_other
+              type: string
+            - name: map_access_train
+              type: string
+            - name: necessary_time
+              type: '[]ref:NecessaryTime'
+            - name: necessary_time_comment
+              type: string
+            - name: no_wovn_flag
+              type: bool
+            - name: not_include_charge
+              type: string
+            - name: other_attention
+              type: string
+            - name: other_comment
+              type: string
+            - name: partner_id
+              type: integer
+            - name: payment_cancel
+              type: string
+            - name: payment_method
+              type: string
+            - name: payment_stop
+              type: string
+            - name: people_max
+              type: integer
+            - name: people_min
+              type: integer
+            - name: period
+              type: string
+            - name: period_end
+              type: string
+            - name: period_end_comment
+              type: string
+            - name: period_start
+              type: string
+            - name: plan_activity
+              type: array
+            - name: plan_activity_data
+              type: '[]ref:PlanActivityData'
+            - name: plan_course
+              type: '[]ref:PlanCourse'
+            - name: plan_id
+              type: integer
+            - name: plan_movie
+              type: array
+            - name: plan_name
+              type: string
+            - name: plan_price
+              type: array
+            - name: point_use_flag
+              type: integer
+            - name: prefecture_id
+              type: integer
+            - name: prepayment
+              type: integer
+            - name: search_discount_id
+              type: array
+            - name: search_other_id
+              type: array
+            - name: search_target_level_id
+              type: array
+            - name: show_flag
+              type: integer
+            - name: use_local_payment
+              type: integer
+            - name: use_postpayment
+              type: integer
+    PlanPriceList:
+        fields:
+            - name: "1"
+              type: '[]ref:T1'
+            - name: "2"
+              type: '[]ref:T2'
+    SelectPlanCourse:
+        fields:
+            - name: course_name
+              type: ref:CourseName
+            - name: course_status
+              type: ref:CourseStatus
+    T1:
+        fields:
+            - name: base_price
+              type: integer
+            - name: depend_id
+              type: integer
+            - name: price
+              type: integer
+            - name: price_id
+              type: integer
+            - name: price_item_min
+              type: integer
+            - name: price_prefix
+              type: string
+            - name: price_suffix
+              type: string
+            - name: text
+              type: string
+    T2:
+        fields:
+            - name: base_price
+              type: integer
+            - name: depend_id
+              type: integer
+            - name: price
+              type: integer
+            - name: price_id
+              type: integer
+            - name: price_item_max
+              type: integer
+            - name: price_item_min
+              type: integer
+            - name: price_prefix
+              type: string
+            - name: price_suffix
+              type: string
+            - name: text
+              type: string

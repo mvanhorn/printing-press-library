@@ -1,0 +1,107 @@
+{
+  "target_url": "https://en.activityjapan.com/publish/plan/62375",
+  "captured_at": "2026-09-28T12:50:04+00:00",
+  "interaction_rounds": 3,
+  "auth": {
+    "type": "none",
+    "site": "Activity Japan public pages"
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/get_plan_price_info?plan_id=62375&lang_flag=en&url=https%3A%2F%2Fen.activityjapan.com%2Fpublish%2Fplan%2F62375",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/get_plan_price_info?plan_id=62375&lang_flag=ja&url=https%3A%2F%2Factivityjapan.com%2Fpublish%2Fplan%2F62375",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/get_plan_data?plan_id=62375",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/get_calendar?plan_id=62375&year=2026&month=10",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/get_calendar?plan_id=64974&year=2026&month=10",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/get_plan_price?plan_id=62375&date=2026-10-07",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/get_plan_price?plan_id=62375&date=2026-10-08",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/select_plan_course?selected_date=2026-10-01&plan_id=64974",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/select_plan_course?selected_date=2026-10-03&plan_id=64974",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/select_plan_course?selected_date=2026-10-08&plan_id=62375",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/check_calendar_data?plan_id=62375&c_id=189637&date=2026-10-08&status=1&count=2&type=2",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://gd.activityjapan.com/plan/check_calendar_data?plan_id=62375&c_id=189637&date=2026-10-08&status=1&count=51&type=2",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "request_url": "https://en.activityjapan.com/search/kansai/kyoto/",
+  "status": 200,
+  "request_cookie_names": [
+    "summary_uid",
+    "laravel_session",
+    "aws-waf-token"
+  ],
+  "response_content_type": "text/html; charset=UTF-8",
+  "response_size_bytes": 56614,
+  "captured_scope": "one en.activityjapan.com search document request; values and body removed"
+}

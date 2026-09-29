@@ -1,0 +1,8 @@
+{
+  "observed_at": "2026-09-28T14:34:46+00:00",
+  "url": "https://gd.activityjapan.com/get_plan_price_info?plan_id=62375&lang_flag=en&url=https%3A%2F%2Fen.activityjapan.com%2Fpublish%2Fplan%2F62375",
+  "status": 200,
+  "content_type": "application/json",
+  "returned_plan_id": "62375",
+  "bytes": 7904
+}

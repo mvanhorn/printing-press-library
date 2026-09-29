@@ -1,0 +1,12 @@
+{
+  "endpoint": "GET /plan/check_calendar_data",
+  "method": "GET",
+  "raw_url": "https://gd.activityjapan.com/plan/check_calendar_data?plan_id=62375&c_id=189637&date=2026-10-08&status=1&count=51&type=2",
+  "status": 200,
+  "request_body": null,
+  "response_body": {
+    "result": 3,
+    "stock": 30
+  },
+  "response_body_known": true
+}

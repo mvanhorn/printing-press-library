@@ -1,0 +1,164 @@
+{
+  "api_name": "activity-japan",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Destination search listings require site clearance or the contracted information API."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-28T14:28:18Z",
+  "novel_features": [
+    {
+      "name": "Date-fit scan",
+      "command": "experience dates",
+      "description": "See observed session and option-price differences across up to seven itinerary dates.",
+      "rationale": "It correlates source calendar statuses with exact option amounts and observation times.",
+      "example": "activity-japan-pp-cli experience dates 62375 --dates 2026-10-07,2026-10-08 --agent",
+      "why_it_matters": "Use when a traveler can move an activity between nearby dates.",
+      "group": "Itinerary fit"
+    },
+    {
+      "name": "Constraint-aware shortlist",
+      "command": "experience compare",
+      "description": "Compare a few known plans against explicit age, party, time, price, and language constraints.",
+      "rationale": "It retains unknowns and item errors instead of treating missing facts as a match.",
+      "example": "activity-japan-pp-cli experience compare 62375 2044 --date 2026-10-08 --adults 2 --agent",
+      "why_it_matters": "Use after collecting Activity Japan plan IDs or links.",
+      "group": "Itinerary fit"
+    },
+    {
+      "name": "Price-basis report",
+      "command": "experience price",
+      "description": "See source option IDs, selected-date amounts, participant basis, and excluded extras.",
+      "rationale": "It joins headline, dated option and fee evidence without inventing checkout totals.",
+      "example": "activity-japan-pp-cli experience price 62375 --date 2026-10-08 --adults 2 --option 176511 --agent",
+      "why_it_matters": "Use before comparing activity costs for a specific party.",
+      "group": "Price clarity"
+    },
+    {
+      "name": "Language-surface check",
+      "command": "inventory languages",
+      "description": "Check whether a plan ID is indexed in English, Japanese, or both.",
+      "rationale": "It compares separate official sitemap inventories and returns locale-specific canonical links.",
+      "example": "activity-japan-pp-cli inventory languages 62375 --agent",
+      "why_it_matters": "Use before handing an English-language source link to a traveler.",
+      "group": "Source coverage"
+    },
+    {
+      "name": "Handoff readiness",
+      "command": "experience brief",
+      "description": "Get a compact booking-handoff packet with known conditions and unresolved questions.",
+      "rationale": "It unifies live session, eligibility, location, cancellation, price and freshness evidence.",
+      "example": "activity-japan-pp-cli experience brief 62375 --date 2026-10-08 --adults 2 --lang en --agent",
+      "why_it_matters": "Use when the traveler is ready to review the official booking page.",
+      "group": "Booking handoff"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Date-fit scan",
+      "command": "experience dates",
+      "description": "See observed session and option-price differences across up to seven itinerary dates.",
+      "rationale": "It correlates source calendar statuses with exact option amounts and observation times.",
+      "example": "activity-japan-pp-cli experience dates 62375 --dates 2026-10-07,2026-10-08 --agent",
+      "why_it_matters": "Use when a traveler can move an activity between nearby dates.",
+      "group": "Itinerary fit"
+    },
+    {
+      "name": "Constraint-aware shortlist",
+      "command": "experience compare",
+      "description": "Compare a few known plans against explicit age, party, time, price, and language constraints.",
+      "rationale": "It retains unknowns and item errors instead of treating missing facts as a match.",
+      "example": "activity-japan-pp-cli experience compare 62375 2044 --date 2026-10-08 --adults 2 --agent",
+      "why_it_matters": "Use after collecting Activity Japan plan IDs or links.",
+      "group": "Itinerary fit"
+    },
+    {
+      "name": "Price-basis report",
+      "command": "experience price",
+      "description": "See source option IDs, selected-date amounts, participant basis, and excluded extras.",
+      "rationale": "It joins headline, dated option and fee evidence without inventing checkout totals.",
+      "example": "activity-japan-pp-cli experience price 62375 --date 2026-10-08 --adults 2 --option 176511 --agent",
+      "why_it_matters": "Use before comparing activity costs for a specific party.",
+      "group": "Price clarity"
+    },
+    {
+      "name": "Language-surface check",
+      "command": "inventory languages",
+      "description": "Check whether a plan ID is indexed in English, Japanese, or both.",
+      "rationale": "It compares separate official sitemap inventories and returns locale-specific canonical links.",
+      "example": "activity-japan-pp-cli inventory languages 62375 --agent",
+      "why_it_matters": "Use before handing an English-language source link to a traveler.",
+      "group": "Source coverage"
+    },
+    {
+      "name": "Handoff readiness",
+      "command": "experience brief",
+      "description": "Get a compact booking-handoff packet with known conditions and unresolved questions.",
+      "rationale": "It unifies live session, eligibility, location, cancellation, price and freshness evidence.",
+      "example": "activity-japan-pp-cli experience brief 62375 --date 2026-10-08 --adults 2 --lang en --agent",
+      "why_it_matters": "Use when the traveler is ready to review the official booking page.",
+      "group": "Booking handoff"
+    }
+  ],
+  "narrative": {
+    "display_name": "Activity Japan",
+    "headline": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
+    "value_prop": "Inspect Activity Japan plans and future dates in compact JSON. Compare a bounded shortlist against traveler constraints and carry source uncertainty through booking handoff.",
+    "auth_narrative": "Known-plan JSON endpoints and plan sitemaps are anonymous. Independent CLI search listings are WAF challenged. Booking remains on Activity Japan.",
+    "quickstart": [
+      {
+        "command": "activity-japan-pp-cli experience detail 62375 --lang en --agent",
+        "comment": "Inspect a known plan, Japanese name and source conditions."
+      },
+      {
+        "command": "activity-japan-pp-cli experience sessions 62375 --date 2026-10-08 --limit 5 --agent",
+        "comment": "Observe future sessions without making a reservation."
+      },
+      {
+        "command": "activity-japan-pp-cli experience price 62375 --date 2026-10-08 --adults 2 --option 176511 --agent",
+        "comment": "Read one dated option quote and age-aware subtotal."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Activity Japan search is blocked or challenged",
+        "fix": "Use a known plan ID or provide approved site clearance; the CLI reports search coverage explicitly."
+      },
+      {
+        "symptom": "A plan ID returns HTML instead of JSON",
+        "fix": "Treat it as a source/schema error and verify the ID on the canonical Activity Japan plan page."
+      }
+    ],
+    "when_to_use": "Use for known Activity Japan plan IDs or URLs: source detail, dated price and session checks, a bounded comparison, and canonical booking handoff.",
+    "anti_triggers": [
+      "Do not use for confirmed reservations or payment.",
+      "Do not use website language as proof of instructor language.",
+      "Do not use for experiences sold only by other providers."
+    ],
+    "recipes": [
+      {
+        "title": "Inspect a cultural workshop",
+        "command": "activity-japan-pp-cli experience detail 62375 --lang en --agent",
+        "explanation": "Read the original Japanese name, operator ID, age range, meeting point and conditions."
+      },
+      {
+        "title": "Check a future session",
+        "command": "activity-japan-pp-cli experience sessions 62375 --date 2026-10-08 --agent",
+        "explanation": "Keep instant and request states distinct."
+      },
+      {
+        "title": "Compare two plans",
+        "command": "activity-japan-pp-cli experience compare 62375 2044 --date 2026-10-08 --adults 2 --agent",
+        "explanation": "Show known matches, mismatches and unknown constraints."
+      }
+    ],
+    "trigger_phrases": [
+      "inspect an Activity Japan plan",
+      "check Activity Japan workshop sessions",
+      "compare Activity Japan plan IDs for my itinerary",
+      "run activity-japan-pp-cli"
+    ]
+  }
+}

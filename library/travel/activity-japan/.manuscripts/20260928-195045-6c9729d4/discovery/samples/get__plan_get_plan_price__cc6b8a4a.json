@@ -1,0 +1,39 @@
+{
+  "endpoint": "GET /plan/get_plan_price",
+  "method": "GET",
+  "raw_url": "https://gd.activityjapan.com/plan/get_plan_price?plan_id=62375&date=2026-10-08",
+  "status": 200,
+  "request_body": null,
+  "response_body": {
+    "planPriceList": {
+      "1": [
+        {
+          "base_price": 2000,
+          "depend_id": 0,
+          "price": 1800,
+          "price_id": 176511,
+          "price_item_max": null,
+          "price_item_min": 1,
+          "price_prefix": "スタンダードプラン",
+          "price_suffix": "人",
+          "text": "3種類の国産木材からお好きな木を選び、自分だけのオリジナル箸を作る体験です。\r\n木の質感や色合いを楽しみながら、世界に一つだけの箸をお作りいただけます。\r\n\r\n体験自体は車いすやベビーカーをご利用のままご参加いただけますが、店舗は2階にありエレベーターがございません。ご利用を希望される場合は、事前にご相談いただきますようお願いいたします。"
+        }
+      ],
+      "2": [
+        {
+          "base_price": 5000,
+          "depend_id": 0,
+          "price": 5000,
+          "price_id": 186798,
+          "price_item_max": 0,
+          "price_item_min": 0,
+          "price_prefix": "プレミアムプラン",
+          "price_suffix": "人",
+          "text": "高級木材も名入れも、すべて込み。こだわりの一本を、もっと自由に。\r\n\r\n通常は追加料金となる高級木材も、1,000円の名入れもすべてプラン料金に含まれています。\r\n豊富な木材の中からお好きなものを選び、世界にひとつだけのオリジナル箸をお作りいただけます。\r\n大切な方への贈り物や、旅の記念にもおすすめです。"
+        }
+      ]
+    },
+    "taxIn": 1.1
+  },
+  "response_body_known": true
+}

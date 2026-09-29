@@ -1,0 +1,13 @@
+# Activity Japan Phase 12 shipcheck
+
+Run `20260928-195045-6c9729d4`. Final combined `shipcheck` verdict: **PASS**. Legs: verify, validate-narrative, dogfood, workflow-verify, apify-audit, verify-skill and scorecard all PASS. Mock verify: 23/23 commands, 100% pass rate, data pipeline intact. Scorecard: 80/100, grade A. The workflow verifier passed; source correctness is substantiated separately by live read-only checks.
+
+The first combined run failed on two documentation gates: the agent skill lacked the generator's canonical install section, and the narrative validator initially ran before the staged binary had caught up. The local skill now gives the local build first and preserves the canonical future-release section. Standalone narrative and skill checks passed, followed by two full green combined passes. Verify was 100% before and after; scorecard was 80/100 before and after.
+
+Live source cross-check: `docs/evidence/live-e2e.json` records 14 passed read-only checks against current Activity Japan JSON. It covers Kyoto culture, Osaka sushi, Okinawa kayaking, Fukuoka reservation requests, adult/child/infant option prices, a pair-priced option, source session IDs, Tokyo timestamps, dated prices, stock rechecks, language sitemap presence, canonical handoff, and an invalid-plan HTML failure. Browser-only search identity and filters are separately recorded in `docs/evidence/browser-search.md` and are not counted as CLI search verification.
+
+Efficiency: `docs/evidence/efficiency.json` records stdout bytes, upstream calls, elapsed time and peak RSS. A cached language check used 0 upstream requests, 1,444 output bytes, 75 ms and 34.5 MB peak RSS. A forced refresh used 2 requests, 1,448 bytes, 2.6 s and 39.9 MB. Uncached detail used 2 requests and 1.96 s; sessions used 1 request and 226 ms; a two-plan dated comparison used 8 requests and 11.2 s. Plan/price/session reads are intentionally uncached; sitemap inventory is the only bounded disk cache.
+
+Remaining source limits: independent search listing requests receive WAF 403/202 even after a user-authorized temporary cookie replay; the official partner API is contract-gated. Search is excluded from the approved shipping core and the CLI does not claim to provide it. Operator names, instructor speech, pickup, some fee/tax details and ambiguous stock units remain explicit unknowns. The generated scaffold still reports a few unused helpers and generic sync storage warnings; they do not affect the hand-authored read-only commands or the passing shipcheck.
+
+Recommendation: **ship the approved local known-plan core** to the workspace. Do not publish externally.

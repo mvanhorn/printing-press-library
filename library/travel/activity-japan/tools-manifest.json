@@ -1,0 +1,167 @@
+{
+  "api_name": "Activity Japan",
+  "base_url": "https://gd.activityjapan.com",
+  "description": "Source-backed Japan experiences with explicit plan, price, language and availability evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_plan_date_price",
+      "description": "Fetch selected-date source price amounts by price-option ID; no participant total implied. Required: plan_id, date. Returns the DatePriceEnvelope.",
+      "method": "GET",
+      "path": "/plan/get_plan_price",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "query",
+          "description": "Exact source plan ID",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Activity date in Asia/Tokyo, YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_plan_detail",
+      "description": "Fetch source plan, operator, and price-option fields by exact plan ID and site language. Required: plan_id, lang_flag, url. Returns the PlanInfoEnvelope.",
+      "method": "GET",
+      "path": "/get_plan_price_info",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "query",
+          "description": "Activity Japan plan ID, preserved as a string",
+          "required": true
+        },
+        {
+          "name": "lang_flag",
+          "type": "string",
+          "location": "query",
+          "description": "Site language; it does not prove instructor language",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Canonical Activity Japan plan URL for the selected site language",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_plan_sessions",
+      "description": "Fetch source course IDs and statuses for one selected date; an observation, not a booking. Required: plan_id, selected_date. Returns the SessionsEnvelope.",
+      "method": "GET",
+      "path": "/select_plan_course",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "query",
+          "description": "Exact source plan ID",
+          "required": true
+        },
+        {
+          "name": "selected_date",
+          "type": "string",
+          "location": "query",
+          "description": "Activity date in Asia/Tokyo, YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_plan_stock_check",
+      "description": "Recheck selected course and participant count without submitting a reservation. Required: plan_id, c_id, date, status, count, type (default: 2). Returns the StockCheckEnvelope.",
+      "method": "GET",
+      "path": "/plan/check_calendar_data",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "query",
+          "description": "Exact source plan ID",
+          "required": true
+        },
+        {
+          "name": "c_id",
+          "type": "string",
+          "location": "query",
+          "description": "Exact source course/session ID",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Activity date in Asia/Tokyo, YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Source course status from the latest session observation",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Requested basic-fee participant quantity",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "int",
+          "location": "query",
+          "description": "Source check mode observed in the plan page script",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Date-fit scan",
+      "command": "experience dates",
+      "description": "See observed session and option-price differences across up to seven itinerary dates."
+    },
+    {
+      "name": "Constraint-aware shortlist",
+      "command": "experience compare",
+      "description": "Compare a few known plans against explicit age, party, time, price, and language constraints."
+    },
+    {
+      "name": "Price-basis report",
+      "command": "experience price",
+      "description": "See source option IDs, selected-date amounts, participant basis, and excluded extras."
+    },
+    {
+      "name": "Language-surface check",
+      "command": "inventory languages",
+      "description": "Check whether a plan ID is indexed in English, Japanese, or both."
+    },
+    {
+      "name": "Handoff readiness",
+      "command": "experience brief",
+      "description": "Get a compact booking-handoff packet with known conditions and unresolved questions."
+    }
+  ]
+}

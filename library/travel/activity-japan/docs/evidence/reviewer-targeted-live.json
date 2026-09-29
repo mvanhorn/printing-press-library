@@ -1,0 +1,25 @@
+{
+  "checks": [
+    "EN/JA age and subtotal invariant",
+    "detail canonical URL unchecked",
+    "brief canonical URL sitemap verified",
+    "compare canonical URLs sitemap verified",
+    "brief rejects over-limit party"
+  ],
+  "en_ja_quotes": {
+    "176511": [
+      "unknown",
+      null
+    ],
+    "186798": [
+      "unknown",
+      null
+    ]
+  },
+  "brief_url": "https://en.activityjapan.com/publish/plan/62375",
+  "compare_ids": [
+    "2044",
+    "62375"
+  ],
+  "over_limit_error": "Error: plan allows at most 6 participants"
+}
