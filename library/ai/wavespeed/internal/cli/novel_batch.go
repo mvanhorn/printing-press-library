@@ -223,6 +223,9 @@ func batchExecute(cmd *cobra.Command, c *client.Client, project wavespeedProject
 				for _, d := range res.Downloads {
 					oc.Files = append(oc.Files, d.Path)
 				}
+				if msg := downloadFailureMessage(res); msg != "" {
+					oc.Err = msg
+				}
 				if res.Failed {
 					oc.Err = fmt.Sprintf("prediction failed with status %q", res.Status)
 				}

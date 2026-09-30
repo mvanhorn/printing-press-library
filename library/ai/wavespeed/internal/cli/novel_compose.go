@@ -87,6 +87,9 @@ func newComposeCmd(flags *rootFlags) *cobra.Command {
 					for _, d := range res.Downloads {
 						oc.Files = append(oc.Files, d.Path)
 					}
+					if msg := downloadFailureMessage(res); msg != "" {
+						oc.Err = msg
+					}
 					if urls := collectURLStrings(unwrapWaveSpeedData(res.Result)); len(urls) > 0 {
 						prevURL = urls[0]
 					}

@@ -14,7 +14,7 @@ import (
 func newBillingsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyCreatedAfter string
 	var bodyCreatedBefore string
-	var bodyPage string
+	var bodyPage int
 	var bodyPageSize int
 
 	cmd := &cobra.Command{
@@ -42,7 +42,7 @@ func newBillingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if bodyCreatedBefore != "" {
 				body["created_before"] = bodyCreatedBefore
 			}
-			if bodyPage != "" {
+			if bodyPage != 0 {
 				body["page"] = bodyPage
 			}
 			if bodyPageSize != 0 {
@@ -102,7 +102,7 @@ func newBillingsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyCreatedAfter, "created-after", "", "Created after")
 	cmd.Flags().StringVar(&bodyCreatedBefore, "created-before", "", "Created before")
-	cmd.Flags().StringVar(&bodyPage, "page", "1", "Page")
+	cmd.Flags().IntVar(&bodyPage, "page", 1, "Page")
 	cmd.Flags().IntVar(&bodyPageSize, "page-size", 20, "Page size")
 
 	// Wire sibling endpoints and sub-resources as subcommands

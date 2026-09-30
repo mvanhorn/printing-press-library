@@ -47,6 +47,8 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 - `wavespeed-pp-cli billings` — Search billing records for the authenticated account.
 
+Each billing item carries `order.price` (what was charged) next to `order.origin_price` (list price) and the `prediction.uuid`, so actual per-run cost is `billings --agent --page-size 10 --select data.items.order.price,data.items.prediction.uuid`. `price` and `run --price` quote list price, which can exceed the charged amount when a discount applies.
+
 **media_uploads** — Manage media uploads
 
 - `wavespeed-pp-cli media-uploads` — Upload a binary file to WaveSpeed media storage.

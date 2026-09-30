@@ -114,8 +114,14 @@ func (c *Client) AuthHeader(ctx context.Context) (string, error) {
 // while preserving cross-cutting client policy such as proactive rate limiting
 // and adaptive limiter feedback.
 func (c *Client) DoRaw(req *http.Request) (*http.Response, error) {
+	return c.DoRawWith(c.HTTPClient, req)
+}
+
+// DoRawWith is DoRaw with a caller-supplied HTTP client, for requests whose
+// deadline must differ from the configured default (large media uploads).
+func (c *Client) DoRawWith(httpClient *http.Client, req *http.Request) (*http.Response, error) {
 	c.limiter.Wait()
-	resp, err := c.HTTPClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -556,8 +562,13 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
-			if !canRetryAmbiguousFailure {
+			if !canRetryAmbiguousFailure || attempt >= maxRetries {
 				return nil, 0, lastErr
+			}
+			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+			fmt.Fprintf(os.Stderr, "network error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+			if err := sleepContext(ctx, wait); err != nil {
+				return nil, 0, err
 			}
 			continue
 		}

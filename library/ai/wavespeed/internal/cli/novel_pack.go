@@ -400,6 +400,9 @@ func produceShot(ctx context.Context, c *client.Client, pf packFlags, slug strin
 	for _, d := range res.Downloads {
 		oc.Files = append(oc.Files, d.Path)
 	}
+	if msg := downloadFailureMessage(res); msg != "" {
+		oc.Err = msg
+	}
 	// Inspection-light image-dimension validation.
 	if dims, warn := validateImageDims(oc.Files, s); dims != "" {
 		oc.Dimensions = dims

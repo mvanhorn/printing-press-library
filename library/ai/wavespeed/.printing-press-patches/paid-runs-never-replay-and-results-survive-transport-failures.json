@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "paid-runs-never-replay-and-results-survive-transport-failures",
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Never replay a mutating request after an ambiguous failure, retry free media uploads with a size-scaled deadline, tolerate transient poll errors, keep the prediction ID and output URLs on every post-submission failure, send JSON body pagination as numbers, and verify credentials in doctor with a /balance read.",
+  "reason": "WaveSpeed bills per accepted prediction. The 4.18.1 client retried POST submissions up to three times on 5xx or dropped connections, a 2.5 MB PNG upload failed on a stalled socket with no retry, poll or CDN download failures after completion discarded the paid result in novel commands, and billings sent page as a JSON string so the API returned HTTP 400.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/run.go",
+    "internal/cli/doctor.go",
+    "internal/cli/promoted_billings.go",
+    "internal/cli/novel_aspects.go",
+    "internal/cli/novel_batch.go",
+    "internal/cli/novel_compose.go",
+    "internal/cli/novel_pack.go",
+    "internal/cli/novel_restyle.go",
+    "internal/cli/novel_variants.go",
+    "internal/cli/reliability_test.go"
+  ],
+  "validated_outcome": "Against the unpatched client, a prediction POST that hit a 504 or dropped connection was sent 4 times; the patched client sends it once. Live billings --agent returns HTTP 200 with numeric page. doctor reports verified credentials with the account balance.",
+  "upstream_issue": "Generator already fixed body-param typing in v4.30.0 (#3867) and unsafe retries in v4.29.0 (#3615); upload retry and deadline scaling are not yet in the generator."
+}

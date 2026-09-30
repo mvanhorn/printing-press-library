@@ -175,6 +175,8 @@ Billing and usage records
 
 - **`wavespeed-pp-cli billings`** - Search billing records for the authenticated account.
 
+Each item includes `order.price` (charged), `order.origin_price` (list price), and `prediction.uuid`. `price` quotes list price, so it can be higher than the charge when a discount applies.
+
 ### media_uploads
 
 Manage media uploads
@@ -332,11 +334,16 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 
 **Authentication errors (exit code 4)**
 
-- Run `wavespeed-pp-cli doctor` to check credentials
+- Run `wavespeed-pp-cli doctor` to check credentials; it verifies the key with a free `/balance` read and prints the balance
 - Verify the environment variable is set: `echo $WAVESPEED_API_KEY`
   **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
+
+**Uploads and paid runs**
+
+- Local `@file` inputs and `upload` retry network failures, 429, and 5xx up to three times, with a per-attempt deadline that grows with file size. Uploads are free, so retries cannot add cost.
+- Prediction submissions are never retried automatically after a network error or 5xx, because the first attempt may already be running and billed. If polling or downloading fails after submission, the command prints the prediction ID and the recovery command `wavespeed-pp-cli prediction-results <id>`.
 
 ---
 

@@ -6,9 +6,11 @@ package cli
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -229,7 +231,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					reachBody, reachErr := c.Get(cmd.Context(), "/", nil)
+					reachBody, reachErr := c.GetNoCache(cmd.Context(), "/balance", nil)
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:
@@ -250,7 +252,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						if vendor := looksLikeDoctorInterstitial([]byte(reachAPIErr.Body)); vendor != "" {
 							report["api"] = fmt.Sprintf("blocked by %s interstitial (HTTP %d) — the configured transport reached the wall.", vendor, status)
 						} else {
-							report["api"] = fmt.Sprintf("reachable (HTTP %d at /)", status)
+							report["api"] = fmt.Sprintf("reachable (HTTP %d at /balance)", status)
 						}
 					default:
 						// Network-level failure: DNS, connection refused, TLS,
@@ -265,6 +267,10 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						// No auth configured — skip credential validation
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
+					} else if flags.dryRun {
+						report["credentials"] = "present, not verified (--dry-run skips the balance probe)"
+					} else if verdict, ok := verifyCredentialsWithBalance(cmd.Context(), c); ok {
+						report["credentials"] = verdict
 					} else {
 						suggestion := suggestReadCommand(cmd.Root())
 						if suggestion != "" {
@@ -558,4 +564,35 @@ func renderCacheReport(w io.Writer, rep map[string]any) {
 	if hint, ok := rep["hint"]; ok {
 		fmt.Fprintf(w, "    hint: %v\n", hint)
 	}
+}
+
+// verifyCredentialsWithBalance confirms the API key end-to-end with the
+// cheapest authenticated read WaveSpeed offers. It returns ok=false when the
+// probe was inconclusive (network or 5xx) so the caller falls back to the
+// generic "not verified" hint instead of claiming a bad key.
+func verifyCredentialsWithBalance(ctx context.Context, c *client.Client) (string, bool) {
+	data, err := c.GetNoCache(ctx, "/balance", nil)
+	if err != nil {
+		var apiErr *client.APIError
+		if errors.As(err, &apiErr) && (apiErr.StatusCode == http.StatusUnauthorized || apiErr.StatusCode == http.StatusForbidden) {
+			return fmt.Sprintf("invalid (HTTP %d from /balance). Check WAVESPEED_API_KEY or run 'wavespeed-pp-cli auth set-token'.", apiErr.StatusCode), true
+		}
+		return "", false
+	}
+	var env struct {
+		Data struct {
+			Balance *float64 `json:"balance"`
+		} `json:"data"`
+		Balance *float64 `json:"balance"`
+	}
+	if json.Unmarshal(data, &env) == nil {
+		bal := env.Data.Balance
+		if bal == nil {
+			bal = env.Balance
+		}
+		if bal != nil {
+			return fmt.Sprintf("verified (balance $%.4f)", *bal), true
+		}
+	}
+	return "verified (authenticated /balance returned 200)", true
 }

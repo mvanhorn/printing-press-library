@@ -6,6 +6,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -149,6 +150,12 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 				pollInitial:   opts.pollInitial,
 			})
 			if err != nil {
+				var submitted *submittedPredictionError
+				if errors.As(err, &submitted) && len(res.Result) > 0 {
+					// The prediction was accepted and may be billed; print the
+					// last known payload so the ID and any output URLs survive.
+					_ = printOutputWithFlags(cmd.OutOrStdout(), runOutputEnvelope(res.Pricing, res.Result, nil), flags)
+				}
 				return classifyAPIError(err, flags)
 			}
 
@@ -654,37 +661,86 @@ func uploadMediaBinary(ctx context.Context, c *client.Client, filePath string, s
 		return raw, nil
 	}
 
-	file, err := os.Open(filePath)
+	payload, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("opening upload file: %w", err)
+		return nil, fmt.Errorf("reading upload file: %w", err)
 	}
-	defer file.Close()
-
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
 	if err != nil {
 		return nil, fmt.Errorf("creating multipart upload: %w", err)
 	}
-	if _, err := io.Copy(part, file); err != nil {
+	if _, err := part.Write(payload); err != nil {
 		return nil, fmt.Errorf("reading upload file: %w", err)
 	}
 	if err := writer.Close(); err != nil {
 		return nil, fmt.Errorf("finalizing multipart upload: %w", err)
 	}
+	encoded := body.Bytes()
+	contentType := writer.FormDataContentType()
 
 	target := strings.TrimRight(c.BaseURL, "/") + "/media/upload/binary"
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, &body)
-	if err != nil {
-		return nil, fmt.Errorf("creating upload request: %w", err)
+	httpClient := uploadHTTPClient(c, int64(len(encoded)))
+	var lastErr error
+	for attempt := 0; attempt <= uploadMaxRetries; attempt++ {
+		if attempt > 0 {
+			wait := uploadRetryBackoff(attempt)
+			fmt.Fprintf(stderr, "upload of %s failed (%v); retrying in %s (attempt %d/%d)\n", filepath.Base(filePath), lastErr, wait, attempt, uploadMaxRetries)
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			case <-time.After(wait):
+			}
+		}
+		data, retryable, err := postUploadOnce(ctx, c, httpClient, target, contentType, encoded)
+		if err == nil {
+			return data, nil
+		}
+		lastErr = err
+		if !retryable || ctx.Err() != nil {
+			return nil, err
+		}
 	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	return nil, fmt.Errorf("uploading %s failed after %d attempts: %w", filepath.Base(filePath), uploadMaxRetries+1, lastErr)
+}
+
+// Media uploads are free and each attempt yields an independent storage URL,
+// so replaying after a transport failure cannot double-charge. That makes
+// them safe to retry, unlike prediction submissions.
+const uploadMaxRetries = 3
+
+var uploadRetryBackoff = func(attempt int) time.Duration {
+	return time.Duration(attempt*attempt) * time.Second
+}
+
+// uploadMinThroughput is the slowest sustained uplink an upload is allowed to
+// run at before the per-attempt deadline trips. The generic --timeout (60s by
+// default) is sized for JSON calls; a multi-megabyte image or a video on a
+// slow connection needs a size-proportional budget.
+const uploadMinThroughput = 128 * 1024 // bytes per second
+
+func uploadHTTPClient(c *client.Client, size int64) *http.Client {
+	base := c.ConfiguredTimeout()
+	budget := base + time.Duration(size/uploadMinThroughput)*time.Second
+	hc := *c.HTTPClient
+	hc.Timeout = budget
+	return &hc
+}
+
+func postUploadOnce(ctx context.Context, c *client.Client, httpClient *http.Client, target, contentType string, encoded []byte) (json.RawMessage, bool, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(encoded))
+	if err != nil {
+		return nil, false, fmt.Errorf("creating upload request: %w", err)
+	}
+	req.ContentLength = int64(len(encoded))
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "wavespeed-pp-cli/1.0.0")
 	if c.Config != nil {
 		auth, err := c.AuthHeader(ctx)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		if auth != "" {
 			req.Header.Set("Authorization", auth)
@@ -693,20 +749,20 @@ func uploadMediaBinary(ctx context.Context, c *client.Client, filePath string, s
 			req.Header.Set(k, v)
 		}
 	}
-
-	resp, err := c.DoRaw(req)
+	resp, err := c.DoRawWith(httpClient, req)
 	if err != nil {
-		return nil, err
+		return nil, true, err
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, true, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, &client.APIError{Method: http.MethodPost, Path: "/media/upload/binary", StatusCode: resp.StatusCode, Body: string(data)}
+		retryable := resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500
+		return nil, retryable, &client.APIError{Method: http.MethodPost, Path: "/media/upload/binary", StatusCode: resp.StatusCode, Body: string(data)}
 	}
-	return json.RawMessage(data), nil
+	return json.RawMessage(data), false, nil
 }
 
 func resolveRunInputRefs(ctx context.Context, c *client.Client, inputs map[string]any, stderr io.Writer) error {
@@ -1841,6 +1897,38 @@ type submitResult struct {
 	// NOT a transport error: the request succeeded, the model reported failure.
 	// Callers can record the attempt to the library before surfacing it.
 	Failed bool
+	// PredictionID is set as soon as the submission is accepted, so callers
+	// can surface it even when polling or downloading fails afterwards.
+	PredictionID string
+	// DownloadErr reports a post-completion download failure. The prediction
+	// itself succeeded (and was billed), so this is never returned as the
+	// call's error; callers surface it as a warning next to the output URLs.
+	DownloadErr error
+}
+
+// submittedPredictionError wraps a failure that happened after WaveSpeed
+// accepted (and may bill) a prediction. The ID lets the operator recover the
+// result with prediction-results instead of paying to re-run it.
+type submittedPredictionError struct {
+	ID  string
+	Err error
+}
+
+func (e *submittedPredictionError) Error() string {
+	return fmt.Sprintf("prediction %s was submitted but its result could not be retrieved: %v (recover it with: wavespeed-pp-cli prediction-results %s)", e.ID, e.Err, e.ID)
+}
+
+func (e *submittedPredictionError) Unwrap() error { return e.Err }
+
+// downloadFailureMessage names the completed prediction and its output URLs
+// when the post-completion download failed, so the paid result stays
+// recoverable from the command's own output.
+func downloadFailureMessage(res submitResult) string {
+	if res.DownloadErr == nil {
+		return ""
+	}
+	urls := collectURLStrings(unwrapWaveSpeedData(res.Result))
+	return fmt.Sprintf("prediction %s completed but download failed: %v; output URLs: %s", res.PredictionID, res.DownloadErr, strings.Join(urls, ", "))
 }
 
 // submitAndAwait runs the generation chain end-to-end and returns structured
@@ -1873,29 +1961,34 @@ func submitAndAwait(ctx context.Context, c *client.Client, req submitRequest) (s
 		return res, err
 	}
 	res.Result = result
+	res.PredictionID = extractPredictionID(result)
 
 	if req.wait {
-		taskID := extractPredictionID(result)
+		taskID := res.PredictionID
 		if taskID == "" {
 			return res, fmt.Errorf("run response did not include a prediction id")
 		}
-		result, err = waitForPrediction(ctx, c, taskID, req.waitTimeout, req.pollInitial)
-		if err != nil {
-			return res, err
+		polled, err := waitForPrediction(ctx, c, taskID, req.waitTimeout, req.pollInitial)
+		if len(polled) > 0 {
+			res.Result = polled
 		}
-		res.Result = result
-	}
-
-	if req.download {
-		downloads, err := downloadRunOutputs(ctx, c, unwrapWaveSpeedData(result), req.downloadSpec)
 		if err != nil {
-			return res, err
+			return res, &submittedPredictionError{ID: taskID, Err: err}
 		}
-		res.Downloads = downloads
+		result = polled
 	}
 
 	res.Status = extractPredictionStatus(res.Result)
 	res.Failed = isFailedPredictionStatus(res.Status)
+
+	if req.download && !res.Failed {
+		downloads, err := downloadRunOutputs(ctx, c, unwrapWaveSpeedData(result), req.downloadSpec)
+		res.Downloads = downloads
+		if err != nil {
+			res.DownloadErr = err
+		}
+	}
+
 	return res, nil
 }
 
@@ -1910,11 +2003,30 @@ func waitForPrediction(ctx context.Context, c *client.Client, taskID string, tim
 	interval := initialInterval
 	pollPath := "/predictions/" + url.PathEscape(taskID) + "/result"
 
+	var last json.RawMessage
+	consecutiveErrors := 0
 	for {
 		data, err := c.GetNoCache(ctx, pollPath, nil)
 		if err != nil {
-			return nil, err
+			// A poll is a free, idempotent read. Transient failures (network
+			// drops, 5xx, 429) must not abandon a prediction that is already
+			// running and billed; keep polling until the wait deadline.
+			if ctx.Err() != nil || !isTransientPollError(err) || consecutiveErrors >= maxConsecutivePollErrors {
+				return last, err
+			}
+			consecutiveErrors++
+			if time.Now().Add(interval).After(deadline) {
+				return last, fmt.Errorf("timed out waiting for prediction %s: %w", taskID, err)
+			}
+			select {
+			case <-ctx.Done():
+				return last, ctx.Err()
+			case <-time.After(interval):
+			}
+			continue
 		}
+		consecutiveErrors = 0
+		last = data
 		status := extractPredictionStatus(data)
 		if isTerminalPredictionStatus(status) {
 			return data, nil
@@ -1929,6 +2041,16 @@ func waitForPrediction(ctx context.Context, c *client.Client, taskID string, tim
 		}
 		interval = minDuration(10*time.Second, interval+interval/2)
 	}
+}
+
+const maxConsecutivePollErrors = 10
+
+func isTransientPollError(err error) bool {
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) {
+		return apiErr.StatusCode == http.StatusTooManyRequests || apiErr.StatusCode >= 500
+	}
+	return true
 }
 
 func extractPredictionID(data json.RawMessage) string {
