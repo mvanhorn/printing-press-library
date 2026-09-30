@@ -270,6 +270,9 @@ populated by 'sync'. Days are Eastern Time, the zone Postmark stats use.`, "\n")
 				if flags.dataSource == "live" {
 					return usageErr(errors.New("--by tag reads the local archive populated by sync; drop --data-source live"))
 				}
+				if _, explicit := postmarkSelectedServer(); explicit {
+					return usageErr(errors.New("--by tag reads the whole local archive, and archived messages carry no server ID, so it cannot be limited to one server; drop --server (and POSTMARK_SERVER) or use --by server"))
+				}
 			default:
 				return usageErr(fmt.Errorf("--by must be server, stream, or tag (got %q)", flagBy))
 			}

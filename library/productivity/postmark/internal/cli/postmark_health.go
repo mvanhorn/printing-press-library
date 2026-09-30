@@ -223,7 +223,7 @@ func webhooksHealthServer(ctx context.Context, t postmarkTarget) (webhookServerR
 			}
 		}
 		row := webhookHealthRow{
-			Server: t.Name, ServerID: t.ID, WebhookID: w.ID, URL: w.URL, Stream: w.MessageStream, Status: status,
+			Server: t.Name, ServerID: t.ID, WebhookID: w.ID, URL: redactURLSecrets(w.URL), Stream: w.MessageStream, Status: status,
 			Triggers:      webhookEnabledTriggers(w.Triggers),
 			TotalRequests: stats.Metrics.TotalRequests, SuccessCount: stats.Metrics.SuccessCount,
 			FailureCount: stats.Metrics.FailureCount, RetryCount: stats.Metrics.RetryCount,
@@ -416,8 +416,16 @@ fixes it.`, "\n"),
 			for _, s := range res.Senders {
 				res.Failures, res.Warnings = healthCount(s.Issues, res.Failures, res.Warnings)
 			}
+			// Health is unknown, not good, when no domain could be read.
+			var readErr error
+			if len(domains) > 0 && len(failures) == len(domains) {
+				readErr = apiErr(fmt.Errorf("every domain check failed (%d of %d): %s", len(failures), len(domains), failures[0].Error))
+			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), res, flags)
+				if err := printJSONFiltered(cmd.OutOrStdout(), res, flags); err != nil {
+					return err
+				}
+				return readErr
 			}
 			out := cmd.OutOrStdout()
 			tw := newTabWriter(out)
@@ -442,7 +450,7 @@ fixes it.`, "\n"),
 					fmt.Fprintf(out, "\n[%s] %s: %s\n  fix: %s\n", i.Severity, s.Email, i.Problem, i.Fix)
 				}
 			}
-			return nil
+			return readErr
 		},
 	}
 	return cmd

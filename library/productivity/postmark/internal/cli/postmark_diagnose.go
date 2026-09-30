@@ -21,6 +21,7 @@ import (
 
 const (
 	verdictDelivered     = "delivered"
+	verdictSent          = "sent"
 	verdictBounced       = "bounced"
 	verdictSuppressed    = "suppressed"
 	verdictSpamComplaint = "spam_complaint"
@@ -216,8 +217,11 @@ func diagnoseDecide(email string, d *diagnoseServer) {
 		return
 	}
 	if latest.Source == postmarkSourceLocal && !strings.EqualFold(latest.Status, messageStatusQueued) {
-		d.Verdict = verdictDelivered
-		d.Reason = fmt.Sprintf("the latest archived message %q was accepted (status %s) with no bounce recorded; the local archive does not hold delivery events", latest.Subject, latest.Status)
+		// Status Sent means Postmark accepted and handed off the message; with
+		// no delivery event in the archive, delivery itself is unconfirmed.
+		d.Verdict = verdictSent
+		d.Reason = fmt.Sprintf("the latest archived message %q was accepted by Postmark (status %s) with no bounce recorded; the local archive holds no delivery events, so delivery is unconfirmed", latest.Subject, latest.Status)
+		d.Next = "postmark-pp-cli messages get " + latest.MessageID + server + " --json"
 		return
 	}
 	d.Verdict = verdictQueued
@@ -245,10 +249,12 @@ func diagnoseVerdictRank(v string) int {
 		return 2
 	case verdictQueued:
 		return 3
-	case verdictDelivered:
+	case verdictSent:
 		return 4
-	default:
+	case verdictDelivered:
 		return 5
+	default:
+		return 6
 	}
 }
 
@@ -289,8 +295,10 @@ Use this command for one recipient's delivery history and what to do next. Do NO
 Checks recent outbound messages (with the newest message's delivery events),
 bounces, and suppressions on every outbound stream of the server, plus the
 local archive for messages older than Postmark's retention. The verdict is one
-of delivered, bounced, suppressed, spam_complaint, queued, or not_found, with
-a next command where one helps. --all-servers repeats the check on every
+of delivered, sent (accepted by Postmark, delivery unconfirmed), bounced,
+suppressed, spam_complaint, queued, or not_found, with a next command where
+one helps. --data-source local reads only the archive, which mixes every
+synced server and may hold suppressions lifted since the last sync. --all-servers repeats the check on every
 server the account token lists.
 
 Argument: the recipient address, as the first positional (diagnose <email>).`, "\n"),
@@ -345,8 +353,16 @@ Argument: the recipient address, as the first positional (diagnose <email>).`, "
 				}
 				diagnoseDecide(email, local)
 				local.Server = "local archive"
+				if local.Suppression != nil {
+					// The archive keeps suppressions Postmark may have lifted since.
+					local.Reason += " (from the local archive as of the last sync; it may have been lifted since)"
+					local.Next = "postmark-pp-cli suppressions check " + shellQuoteWord(email) + " --json"
+				}
 				res.Servers = append(res.Servers, *local)
 				diagnoseFinish(&res)
+				if _, explicit := postmarkSelectedServer(); explicit {
+					res.Note = strings.TrimSpace(res.Note + " the local archive mixes every synced server and archived messages carry no server ID, so --server does not narrow this answer")
+				}
 				return diagnoseOutput(cmd, flags, res)
 			}
 			targets, err := resolvePostmarkTargets(ctx, flags, targetScope{allServers: allServers, dogfoodCap: true})

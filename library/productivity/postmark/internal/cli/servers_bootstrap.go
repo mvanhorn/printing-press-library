@@ -332,7 +332,7 @@ func bootstrapValidate(o *bootstrapOptions) error {
 	if o.webhookURL != "" {
 		u, err := url.Parse(o.webhookURL)
 		if err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "" {
-			return fmt.Errorf("--webhook-url must be an http(s) URL (got %q)", o.webhookURL)
+			return fmt.Errorf("--webhook-url must be an http(s) URL (got %q)", redactURLSecrets(o.webhookURL))
 		}
 	}
 	if o.noVerifyWebhook && o.webhookURL == "" {
@@ -516,7 +516,7 @@ func bootstrapPlanRest(ctx context.Context, sc *client.Client, o bootstrapOption
 	}
 	if o.webhookURL != "" {
 		if sc == nil {
-			res.Steps = append(res.Steps, bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreate, Detail: "create a bounce, spam complaint, and delivery webhook to " + o.webhookURL})
+			res.Steps = append(res.Steps, bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreate, Detail: "create a bounce, spam complaint, and delivery webhook to " + redactURLSecrets(o.webhookURL)})
 		} else {
 			step, err := bootstrapEnsureWebhook(ctx, sc, o, false)
 			res.Steps = append(res.Steps, step)
@@ -651,9 +651,9 @@ func bootstrapEnsureWebhook(ctx context.Context, sc *client.Client, o bootstrapO
 		}
 		missing := w.missingTriggers()
 		if len(missing) == 0 {
-			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionExists, Detail: fmt.Sprintf("webhook %d already posts bounce, spam complaint, and delivery events to %s", w.ID, w.URL)}, nil
+			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionExists, Detail: fmt.Sprintf("webhook %d already posts bounce, spam complaint, and delivery events to %s", w.ID, redactURLSecrets(w.URL))}, nil
 		}
-		detail := fmt.Sprintf("enable %s on webhook %d (%s)", strings.Join(missing, ", "), w.ID, w.URL)
+		detail := fmt.Sprintf("enable %s on webhook %d (%s)", strings.Join(missing, ", "), w.ID, redactURLSecrets(w.URL))
 		if !create {
 			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionUpdate, Detail: detail}, nil
 		}
@@ -670,7 +670,7 @@ func bootstrapEnsureWebhook(ctx context.Context, sc *client.Client, o bootstrapO
 		return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionUpdated, Detail: "enabled " + strings.TrimPrefix(detail, "enable ")}, nil
 	}
 	if !create {
-		return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreate, Detail: "create a bounce, spam complaint, and delivery webhook to " + o.webhookURL}, nil
+		return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreate, Detail: "create a bounce, spam complaint, and delivery webhook to " + redactURLSecrets(o.webhookURL)}, nil
 	}
 	body := map[string]any{
 		"Url":           o.webhookURL,
@@ -693,7 +693,7 @@ func bootstrapEnsureWebhook(ctx context.Context, sc *client.Client, o bootstrapO
 	}
 	var created bootstrapWebhook
 	_ = json.Unmarshal(data, &created)
-	return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreated, Detail: fmt.Sprintf("created webhook %d to %s (bounce, spam complaint, delivery)", created.ID, o.webhookURL)}, nil
+	return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreated, Detail: fmt.Sprintf("created webhook %d to %s (bounce, spam complaint, delivery)", created.ID, redactURLSecrets(o.webhookURL))}, nil
 }
 
 func bootstrapOutput(cmd *cobra.Command, flags *rootFlags, res bootstrapResult) error {

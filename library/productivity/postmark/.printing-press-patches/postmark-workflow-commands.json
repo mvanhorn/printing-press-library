@@ -28,7 +28,8 @@
     "internal/cli/postmark_errors.go",
     "internal/cli/postmark_time.go",
     "internal/cli/postmark_stats.go",
-    "internal/cli/postmark_targets.go"
+    "internal/cli/postmark_targets.go",
+    "internal/cli/postmark_review_fixes_test.go"
   ],
-  "validated_outcome": "go test ./... passes; mutating flows (templates push, bounces reactivate/resend-blocked) print a plan unless --yes or --send and are covered by httptest request assertions."
+  "validated_outcome": "go test ./... passes, including symlink refusal for template check and pull, prune deletes held after a failed upload, harness refusal for email sends, webhook URL redaction, and the P2 regressions in postmark_review_fixes_test.go."
 }

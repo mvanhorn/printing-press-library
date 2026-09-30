@@ -447,6 +447,17 @@ func runTemplatesCheckDir(ctx context.Context, c *client.Client, dir string, loc
 			model = nil
 			row.Warnings = append(row.Warnings, "meta.json has no TestRenderModel; rendered with Postmark's suggested model")
 		}
+		merged, ok, layoutErr := inlineLocalLayout(content, local)
+		if layoutErr != nil {
+			row.fail(checkKindValidateFailure, layoutErr.Error())
+			view.Templates = append(view.Templates, row)
+			continue
+		}
+		if ok {
+			// Validate against the layout in this folder, not the server's
+			// copy, so the check matches what a push would deploy.
+			content = merged
+		}
 		if err := checkTemplateContent(ctx, c, &row, content, model, layoutExists, serverHasLayout); err != nil {
 			if isRateLimited(err) {
 				return view, err

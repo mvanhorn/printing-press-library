@@ -105,6 +105,7 @@ func TestSendOnceParseMetadata(t *testing.T) {
 func sendOnceFake(t *testing.T) *postmarkFake {
 	f := newPostmarkFake(t)
 	f.reply("GET /servers", 200, postmarkServersPayload([3]any{1, "Main App", "tok-main"}))
+	f.reply("GET /server", 200, map[string]any{"ID": 1, "Name": "Main App"})
 	f.reply("GET /messages/outbound", 200, map[string]any{"TotalCount": 0, "Messages": []any{}})
 	f.reply("POST /email", 200, map[string]any{"To": "jane@example.com", "SubmittedAt": "2026-09-30T12:00:00Z", "MessageID": "msg-1", "ErrorCode": 0, "Message": "OK"})
 	return f
@@ -329,4 +330,29 @@ func TestSendOnceFailureDisposition(t *testing.T) {
 			t.Fatalf("corrected retry after a rejection = %+v", res)
 		}
 	})
+}
+
+func TestSendOnceTwoTokensForOneServerShareTheLedger(t *testing.T) {
+	f := sendOnceFake(t)
+	home := postmarkTestEnv(t, f)
+	db := filepath.Join(home, "ledger.db")
+	args := []string{"email", "send-once", "--key", "otp-77", "--from", "app@example.com", "--to", "jane@example.com", "--subject", "Your code", "--text", "Code: 77", "--json", "--db", db, "--send"}
+
+	t.Setenv("POSTMARK_SERVER_TOKEN", "tok-first")
+	if _, stderr, err := postmarkRun(t, args...); err != nil {
+		t.Fatalf("first send: %v\n%s", err, stderr)
+	}
+	t.Setenv("POSTMARK_SERVER_TOKEN", "tok-second")
+	stdout, stderr, err := postmarkRun(t, args...)
+	if err != nil {
+		t.Fatalf("second send: %v\n%s", err, stderr)
+	}
+	var res sendOnceResult
+	postmarkResults(t, stdout, &res)
+	if !res.Duplicate || res.Source != sendOnceSourceLedger {
+		t.Fatalf("a second token for the same server should hit the ledger: %+v", res)
+	}
+	if n := countRequests(f.log(), "POST", "/email"); n != 1 {
+		t.Fatalf("POST /email count = %d, want 1", n)
+	}
 }

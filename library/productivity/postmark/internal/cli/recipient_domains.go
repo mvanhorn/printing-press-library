@@ -95,6 +95,10 @@ func recipientDomainsCompute(msgs []recipientDomainMessage, bounces []recipientD
 		}
 		return r
 	}
+	// trackedSends are the (message, recipient) pairs in the window with open
+	// tracking on; only their opens count, so the open rate's numerator and
+	// denominator cover the same messages.
+	trackedSends := map[string]bool{}
 	for _, m := range msgs {
 		if m.ReceivedAt.Before(since) {
 			continue
@@ -110,6 +114,7 @@ func recipientDomainsCompute(msgs []recipientDomainMessage, bounces []recipientD
 			r.Sent++
 			if m.TrackOpens {
 				r.TrackedSent++
+				trackedSends[m.MessageID+"\x00"+strings.ToLower(bareAddr(rcpt))] = true
 			}
 		}
 	}
@@ -130,11 +135,8 @@ func recipientDomainsCompute(msgs []recipientDomainMessage, bounces []recipientD
 	}
 	openSeen := map[string]bool{}
 	for _, o := range opens {
-		if o.ReceivedAt.Before(since) {
-			continue
-		}
-		key := o.MessageID + "\x00" + strings.ToLower(strings.TrimSpace(o.Recipient))
-		if openSeen[key] {
+		key := o.MessageID + "\x00" + strings.ToLower(bareAddr(o.Recipient))
+		if !trackedSends[key] || openSeen[key] {
 			continue
 		}
 		openSeen[key] = true
@@ -223,8 +225,10 @@ Use this command to see delivery outcomes grouped by recipient mailbox domain (g
 Reads the local archive populated by 'sync' (messages, bounces, opens,
 suppressions from every synced server). Sent counts each recipient of each
 message once. Bounced excludes spam complaints, which are counted separately.
-Suppressed counts addresses currently suppressed on any stream. Open rate uses
-only messages sent with open tracking. A domain with at least --min-sent sends
+Suppressed counts addresses the archive recorded as suppressed on any stream
+as of the last sync; one lifted since then still counts until it is gone from
+a fresh archive, so confirm a single address with 'suppressions check'. Open
+rate counts unique opens of the window's messages sent with open tracking. A domain with at least --min-sent sends
 is flagged high-bounce-rate when its bounce rate is at least 2x the rest of the
 account's or its hard-bounce rate is at least 5%, and low-open-rate when its
 open rate is at most half the rest of the account's.`, "\n"),
@@ -352,6 +356,12 @@ func recipientDomainsLoad(ctx context.Context, db *store.Store) ([]recipientDoma
 }
 
 func recipientDomainsOutput(cmd *cobra.Command, flags *rootFlags, rows []recipientDomainRow) error {
+	for _, r := range rows {
+		if r.Suppressed > 0 {
+			fmt.Fprintln(cmd.ErrOrStderr(), "note: suppression counts come from the local archive as of the last sync; run 'postmark-pp-cli suppressions check <email>' for an address's current status.")
+			break
+		}
+	}
 	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 		return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 	}

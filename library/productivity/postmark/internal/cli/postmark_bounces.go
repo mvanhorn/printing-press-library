@@ -185,6 +185,7 @@ type bounceReactivateFilters struct {
 	Since    string `json:"since"`
 	FromDate string `json:"fromdate"`
 	Limit    int    `json:"limit"`
+	Stream   string `json:"stream"`
 }
 
 type bounceReactivateView struct {
@@ -245,7 +246,7 @@ func activatePostmarkBounce(ctx context.Context, c *client.Client, id int64) err
 }
 
 func newBouncesReactivateCmd(flags *rootFlags) *cobra.Command {
-	var typeFlag, domain, email, since string
+	var typeFlag, domain, email, since, stream string
 	var limit, maxScanPages int
 	cmd := &cobra.Command{
 		Use:   "reactivate",
@@ -305,10 +306,11 @@ bounce. --csv prints one row per bounce. --max-scan-pages bounds how many
 				return err
 			}
 			scan, err := scanPostmarkBounces(ctx, c, map[string]string{
-				"inactive":    "true",
-				"type":        bounceType,
-				"emailFilter": strings.TrimSpace(email),
-				"fromdate":    fromDate,
+				"inactive":      "true",
+				"type":          bounceType,
+				"emailFilter":   strings.TrimSpace(email),
+				"fromdate":      fromDate,
+				"messagestream": strings.TrimSpace(stream),
 			}, maxScanPages)
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
@@ -321,7 +323,7 @@ bounce. --csv prints one row per bounce. --max-scan-pages bounds how many
 			view := bounceReactivateView{
 				Mode: modePlan,
 				Filters: bounceReactivateFilters{Type: typeLabel, Domain: domain, Email: email, Since: since,
-					FromDate: fromDate, Limit: limit},
+					FromDate: fromDate, Limit: limit, Stream: postmarkBounceStreamLabel(stream)},
 				ScannedBounces: scan.Scanned,
 				MaxScanPages:   maxScanPages,
 				Planned:        len(items),
@@ -376,6 +378,7 @@ bounce. --csv prints one row per bounce. --max-scan-pages bounds how many
 	cmd.Flags().StringVar(&since, "since", "30d", "Look back this far for bounces (e.g. 7d, 4w, 72h)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum number of bounces to reactivate")
 	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 5, "Maximum 500-bounce pages to scan before planning")
+	cmd.Flags().StringVar(&stream, "stream", "", "Message stream to search; Postmark searches only the outbound stream when omitted")
 	return cmd
 }
 
@@ -471,7 +474,10 @@ type resendBlockedView struct {
 	Since          string                 `json:"since"`
 	FromDate       string                 `json:"fromdate"`
 	Email          string                 `json:"email,omitempty"`
+	Stream         string                 `json:"stream"`
 	ScannedBounces int                    `json:"scanned_bounces"`
+	TotalBounces   int                    `json:"total_bounces"`
+	Truncated      bool                   `json:"truncated"`
 	Resendable     int                    `json:"resendable"`
 	NotResendable  int                    `json:"not_resendable"`
 	Sent           int                    `json:"sent"`
@@ -551,7 +557,7 @@ type postmarkSendResponse struct {
 }
 
 func newBouncesResendBlockedCmd(flags *rootFlags) *cobra.Command {
-	var since, email string
+	var since, email, stream string
 	var send bool
 	var limit, maxScanPages int
 	cmd := &cobra.Command{
@@ -609,26 +615,31 @@ sends are never retried automatically.`, "\n"),
 				return err
 			}
 			scan, err := scanPostmarkBounces(ctx, c, map[string]string{
-				"type":        postmarkHardBounce,
-				"inactive":    "true",
-				"emailFilter": strings.TrimSpace(email),
-				"fromdate":    fromDate,
+				"type":          postmarkHardBounce,
+				"inactive":      "true",
+				"emailFilter":   strings.TrimSpace(email),
+				"fromdate":      fromDate,
+				"messagestream": strings.TrimSpace(stream),
 			}, maxScanPages)
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			view := resendBlockedView{
-				Mode: modePlan, Since: since, FromDate: fromDate, Email: email,
-				ScannedBounces: scan.Scanned, Items: make([]resendBlockedItem, 0),
+				Mode: modePlan, Since: since, FromDate: fromDate, Email: email, Stream: postmarkBounceStreamLabel(stream),
+				ScannedBounces: scan.Scanned, TotalBounces: scan.Total, Truncated: scan.CapHit, Items: make([]resendBlockedItem, 0),
+			}
+			if scan.CapHit {
+				view.Note = fmt.Sprintf("incomplete plan: scanned %d of %d hard bounces; raise --max-scan-pages or narrow --since to see the rest", scan.Scanned, scan.Total)
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: "+view.Note)
 			}
 			activatedBy := map[string]int64{}
-			considered := 0
+			considered, lookups := 0, 0
 			for _, b := range scan.Bounces {
 				if !matchesBounceFilters(b, "", email) {
 					continue
 				}
 				if considered >= limit {
-					view.Note = fmt.Sprintf("stopped at --limit %d hard bounces", limit)
+					view.Note = strings.TrimSpace(view.Note + fmt.Sprintf(" stopped at --limit %d hard bounces", limit))
 					break
 				}
 				considered++
@@ -643,6 +654,7 @@ sends are never retried automatically.`, "\n"),
 				case b.Inactive && !b.CanActivate:
 					item.Reason = "address cannot be reactivated (CanActivate=false)"
 				default:
+					lookups++
 					d, err := getOutboundMessageDetails(ctx, c, b.MessageID)
 					if err != nil {
 						if isRateLimited(err) {
@@ -694,10 +706,14 @@ sends are never retried automatically.`, "\n"),
 			if view.Failed > 0 {
 				return apiErr(fmt.Errorf("%d of %d resends failed", view.Failed, view.Resendable))
 			}
+			if n := len(view.FetchFailures); n > 0 && n == lookups {
+				return apiErr(fmt.Errorf("every original message lookup failed (%d of %d), so nothing could be resent: %s", n, lookups, view.FetchFailures[0].Error))
+			}
 			return nil
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "7d", "Look back this far for hard bounces (e.g. 7d, 2w, 48h)")
+	cmd.Flags().StringVar(&stream, "stream", "", "Message stream to search; Postmark searches only the outbound stream when omitted")
 	cmd.Flags().StringVar(&email, "email", "", "Only hard bounces for this recipient address")
 	cmd.Flags().BoolVar(&send, "send", false, "Reactivate each address and resend the original message (default: print the plan)")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Maximum number of hard bounces to plan")
@@ -786,4 +802,13 @@ func init() {
 			addNovelCommandIfAbsent(parent, newBouncesResendBlockedCmd(flags))
 		}
 	})
+}
+
+// postmarkBounceStreamLabel names the stream a bounce search covered; Postmark
+// searches only the default transactional stream when none is given.
+func postmarkBounceStreamLabel(stream string) string {
+	if s := strings.TrimSpace(stream); s != "" {
+		return s
+	}
+	return postmarkDefaultStream
 }

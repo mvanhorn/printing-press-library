@@ -19,6 +19,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -174,6 +175,12 @@ func readLocalTemplates(root string) ([]localTemplate, []localTemplateProblem, e
 			}
 			return nil
 		}
+		if d.Type()&fs.ModeSymlink != 0 {
+			// WalkDir does not follow links. Reporting them keeps a linked
+			// template folder from being read as "missing" and pruned.
+			problems = append(problems, localTemplateProblem{Path: path, Reason: "symbolic links are not followed inside the template folder; replace it with a real folder or file"})
+			return nil
+		}
 		if d.IsDir() {
 			if path != root && strings.HasPrefix(d.Name(), ".") {
 				return fs.SkipDir
@@ -183,7 +190,7 @@ func readLocalTemplates(root string) ([]localTemplate, []localTemplateProblem, e
 		if d.Name() != templateMetaFileName {
 			return nil
 		}
-		tpl, problem := loadLocalTemplate(path)
+		tpl, problem := loadLocalTemplate(root, path)
 		if problem != nil {
 			problems = append(problems, *problem)
 			return nil
@@ -198,9 +205,12 @@ func readLocalTemplates(root string) ([]localTemplate, []localTemplateProblem, e
 	return templates, problems, nil
 }
 
-func loadLocalTemplate(metaPath string) (localTemplate, *localTemplateProblem) {
+func loadLocalTemplate(root, metaPath string) (localTemplate, *localTemplateProblem) {
 	dir := filepath.Dir(metaPath)
-	raw, err := os.ReadFile(metaPath) // #nosec G304 -- meta.json inside the template folder the user selected.
+	if err := refuseTemplateSymlink(root, metaPath); err != nil {
+		return localTemplate{}, &localTemplateProblem{Path: metaPath, Reason: err.Error()}
+	}
+	raw, err := os.ReadFile(metaPath) // #nosec G304 -- meta.json inside the template folder the user selected; symlinks refused above.
 	if err != nil {
 		return localTemplate{}, &localTemplateProblem{Path: metaPath, Reason: err.Error()}
 	}
@@ -218,19 +228,22 @@ func loadLocalTemplate(metaPath string) (localTemplate, *localTemplateProblem) {
 	if !hasTemplateModel(meta.TestRenderModel) {
 		meta.TestRenderModel = nil
 	}
-	html, err := readOptionalFile(filepath.Join(dir, templateHTMLFileName))
+	html, err := readOptionalFile(root, filepath.Join(dir, templateHTMLFileName))
 	if err != nil {
 		return localTemplate{}, &localTemplateProblem{Path: metaPath, Alias: meta.Alias, Reason: err.Error()}
 	}
-	text, err := readOptionalFile(filepath.Join(dir, templateTextFileName))
+	text, err := readOptionalFile(root, filepath.Join(dir, templateTextFileName))
 	if err != nil {
 		return localTemplate{}, &localTemplateProblem{Path: metaPath, Alias: meta.Alias, Reason: err.Error()}
 	}
 	return localTemplate{Meta: meta, HtmlBody: html, TextBody: text, Dir: dir}, nil
 }
 
-func readOptionalFile(path string) (string, error) {
-	data, err := os.ReadFile(path) // #nosec G304 -- fixed file name inside the user-selected template folder.
+func readOptionalFile(root, path string) (string, error) {
+	if err := refuseTemplateSymlink(root, path); err != nil {
+		return "", err
+	}
+	data, err := os.ReadFile(path) // #nosec G304 -- fixed file name inside the user-selected template folder; symlinks refused above.
 	if errors.Is(err, os.ErrNotExist) {
 		return "", nil
 	}
@@ -298,6 +311,9 @@ type templateWriteResult struct {
 func writeTemplateFiles(root string, c templateContent, testModel json.RawMessage) (templateWriteResult, error) {
 	dir := templateLocalDir(root, c.Alias, c.TemplateType)
 	res := templateWriteResult{Dir: dir}
+	if err := refuseTemplateSymlink(root, dir); err != nil {
+		return res, err
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil { // #nosec G301 -- template folders are project files meant for version control.
 		return res, err
 	}
@@ -316,7 +332,10 @@ func writeTemplateFiles(root string, c templateContent, testModel json.RawMessag
 	}
 	for _, f := range files {
 		path := filepath.Join(dir, f.name)
-		existing, readErr := os.ReadFile(path) // #nosec G304 -- file inside a template folder whose alias passed safeTemplateAlias.
+		if err := refuseTemplateSymlink(root, path); err != nil {
+			return res, err
+		}
+		existing, readErr := os.ReadFile(path) // #nosec G304 -- file inside a template folder whose alias passed safeTemplateAlias; symlinks refused above.
 		exists := readErr == nil
 		if readErr != nil && !errors.Is(readErr, os.ErrNotExist) {
 			return res, readErr
@@ -341,6 +360,35 @@ func writeTemplateFiles(root string, c templateContent, testModel json.RawMessag
 	return res, nil
 }
 
+// refuseTemplateSymlink rejects path when it lies outside root or when it, or
+// any directory between root and it, is a symbolic link. Template reads and
+// writes stay inside the folder the user chose: a link could otherwise make
+// pull overwrite a file elsewhere, or make check upload one to Postmark.
+func refuseTemplateSymlink(root, path string) error {
+	rel, err := filepath.Rel(root, path)
+	if err != nil || filepath.IsAbs(rel) || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return fmt.Errorf("%s is outside the template folder %s", path, root)
+	}
+	cur := root
+	for _, part := range strings.Split(rel, string(filepath.Separator)) {
+		if part == "" || part == "." {
+			continue
+		}
+		cur = filepath.Join(cur, part)
+		info, err := os.Lstat(cur)
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return fmt.Errorf("refusing to follow the symbolic link %s inside the template folder", cur)
+		}
+	}
+	return nil
+}
+
 // findLocalTemplate returns the template with the given alias from a pulled
 // directory, searching layouts too.
 func findLocalTemplate(templates []localTemplate, alias string) (localTemplate, bool) {
@@ -355,4 +403,43 @@ func findLocalTemplate(templates []localTemplate, alias string) (localTemplate, 
 		}
 	}
 	return localTemplate{}, false
+}
+
+// layoutContentPlaceholder is where Postmark inserts a template's body into
+// its layout.
+var layoutContentPlaceholder = regexp.MustCompile(`\{\{\{\s*@content\s*\}\}\}`)
+
+// inlineLocalLayout returns c with its layout from local merged into the
+// bodies and LayoutTemplate cleared, so Postmark validates or renders the
+// layout as it is in the folder rather than the older copy on the server.
+// It reports false when c uses no layout or the layout is not in local, and
+// an error when a layout body lacks exactly one {{{ @content }}} placeholder,
+// which Postmark requires and without which the template body would vanish.
+func inlineLocalLayout(c templateContent, local []localTemplate) (templateContent, bool, error) {
+	if c.TemplateType != templateTypeStandard || c.LayoutTemplate == "" {
+		return c, false, nil
+	}
+	for _, t := range local {
+		if t.Meta.TemplateType != templateTypeLayout || t.Meta.Alias != c.LayoutTemplate {
+			continue
+		}
+		for name, body := range map[string]string{"content.html": t.HtmlBody, "content.txt": t.TextBody} {
+			if body != "" && len(layoutContentPlaceholder.FindAllStringIndex(body, -1)) != 1 {
+				return c, false, fmt.Errorf("layout %q %s must contain exactly one {{{ @content }}} placeholder", t.Meta.Alias, name)
+			}
+		}
+		merge := func(layout, body string) string {
+			if layout == "" {
+				return body
+			}
+			return layoutContentPlaceholder.ReplaceAllLiteralString(layout, body)
+		}
+		c.HtmlBody = merge(t.HtmlBody, c.HtmlBody)
+		if c.TextBody != "" || t.TextBody != "" {
+			c.TextBody = merge(t.TextBody, c.TextBody)
+		}
+		c.LayoutTemplate = ""
+		return c, true, nil
+	}
+	return c, false, nil
 }

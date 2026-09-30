@@ -392,6 +392,44 @@ func postmarkEffectiveServerToken(cfg *config.Config) string {
 	return strings.TrimSpace(cfg.AuthHeader())
 }
 
+// postmarkCredentialHeaderConflict reports a config that sets one Postmark
+// token header more than once under different casing with different values.
+// The client applies every entry, so which token is sent would depend on map
+// order; such a config is refused instead of guessed at.
+func postmarkCredentialHeaderConflict(cfg *config.Config) error {
+	if cfg == nil {
+		return nil
+	}
+	for _, header := range []string{postmarkServerTokenHeader, postmarkAccountTokenHeader} {
+		seen := ""
+		for k, v := range cfg.Headers {
+			if !strings.EqualFold(k, header) {
+				continue
+			}
+			v = strings.TrimSpace(v)
+			if seen != "" && v != seen {
+				return configErr(fmt.Errorf("config headers set %s more than once with different values; keep one", header))
+			}
+			seen = v
+		}
+	}
+	return nil
+}
+
+// postmarkEffectiveAccountToken is the account token the client will send: a
+// static X-Postmark-Account-Token header overrides PostmarkAccountToken.
+func postmarkEffectiveAccountToken(cfg *config.Config) string {
+	if cfg == nil {
+		return ""
+	}
+	for k, v := range cfg.Headers {
+		if strings.EqualFold(k, postmarkAccountTokenHeader) && strings.TrimSpace(v) != "" {
+			return strings.TrimSpace(v)
+		}
+	}
+	return strings.TrimSpace(cfg.PostmarkAccountToken)
+}
+
 // postmarkServerScope identifies the server a client acts on by a short hash
 // of the server token it will send, so local state can be kept per server
 // without storing the token or calling the API. Empty when no server token is
@@ -406,4 +444,43 @@ func postmarkServerScope(c *client.Client) string {
 	}
 	sum := sha256.Sum256([]byte(token))
 	return "token-sha256:" + hex.EncodeToString(sum[:8])
+}
+
+// postmarkSecretQueryKey matches query parameter names that usually carry a
+// credential in a webhook URL.
+var postmarkSecretQueryKey = regexp.MustCompile(`(?i)(token|secret|key|sig|signature|password|passwd|pass|auth|credential)`)
+
+// redactURLSecrets masks the password in a URL's userinfo and the values of
+// credential-looking query parameters before the URL is printed. Postmark
+// supports basic-auth webhook URLs, so these can hold real credentials.
+func redactURLSecrets(raw string) string {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil {
+		return "<unparseable URL>"
+	}
+	if u.User != nil {
+		if _, hasPassword := u.User.Password(); hasPassword {
+			u.User = url.UserPassword(u.User.Username(), "REDACTED")
+		}
+	}
+	if u.RawQuery != "" {
+		q, err := url.ParseQuery(u.RawQuery)
+		if err != nil {
+			// A query that does not parse cleanly may still hold a credential,
+			// so none of it is printed.
+			u.RawQuery = "REDACTED"
+			return u.String()
+		}
+		changed := false
+		for k := range q {
+			if postmarkSecretQueryKey.MatchString(k) {
+				q[k] = []string{"REDACTED"}
+				changed = true
+			}
+		}
+		if changed {
+			u.RawQuery = q.Encode()
+		}
+	}
+	return u.String()
 }

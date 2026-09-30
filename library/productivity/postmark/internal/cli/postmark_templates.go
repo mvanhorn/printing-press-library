@@ -518,7 +518,7 @@ func pullOneTemplate(ctx context.Context, c *client.Client, root string, detail 
 	localExists := false
 	if _, statErr := os.Stat(metaPath); statErr == nil {
 		localExists = true
-		tpl, problem := loadLocalTemplate(metaPath)
+		tpl, problem := loadLocalTemplate(root, metaPath)
 		if problem != nil {
 			localErr = problem.Reason
 		} else {
@@ -860,17 +860,16 @@ func templateUpdateBody(t *localTemplate) map[string]any {
 	return body
 }
 
-// executeTemplatePushPlan issues the writes in plan order. It stops at the
-// first rate-limit error, marking the rest not attempted, and returns it.
+// executeTemplatePushPlan issues creates and updates in plan order, then
+// deletes. It stops at the first rate-limit error, marking the rest not
+// attempted, and returns it. Deletes run only when every local template was
+// pushed: after a failed, conflicted, or blocked upsert, deleting the server
+// copy of a renamed template would leave neither version.
 func executeTemplatePushPlan(ctx context.Context, c *client.Client, items []templatePushItem) (writes, failed int, rateErr error) {
-	for i := range items {
-		it := &items[i]
-		if !isPushWrite(it.Action) {
-			continue
-		}
+	run := func(it *templatePushItem) {
 		if rateErr != nil {
 			it.Status = pushStatusNotAttempted
-			continue
+			return
 		}
 		path := "/templates/" + url.PathEscape(it.Alias)
 		var err error
@@ -889,12 +888,43 @@ func executeTemplatePushPlan(ctx context.Context, c *client.Client, items []temp
 			if isRateLimited(err) {
 				rateErr = err
 			}
-			continue
+			return
 		}
 		it.Status = pushStatusDone
 		writes++
 	}
+	for i := range items {
+		if it := &items[i]; it.Action == pushActionCreate || it.Action == pushActionUpdate {
+			run(it)
+		}
+	}
+	held := failed + unpushableLocalTemplates(items)
+	for i := range items {
+		it := &items[i]
+		if it.Action != pushActionDelete {
+			continue
+		}
+		if held > 0 {
+			it.Status = pushStatusNotAttempted
+			it.Error = fmt.Sprintf("not deleted: %d local template(s) failed or could not be pushed", held)
+			continue
+		}
+		run(it)
+	}
 	return writes, failed, rateErr
+}
+
+// unpushableLocalTemplates counts local templates the plan could not push
+// (conflicts and missing layouts). A server layout kept during --prune is
+// blocked too, but it has no local template and is not counted.
+func unpushableLocalTemplates(items []templatePushItem) int {
+	n := 0
+	for _, it := range items {
+		if it.local != nil && (it.Action == pushActionConflict || it.Action == pushActionBlocked) {
+			n++
+		}
+	}
+	return n
 }
 
 func newTemplatesPushDirCmd(flags *rootFlags) *cobra.Command {
@@ -912,14 +942,19 @@ With --yes, layouts are pushed first (POST /templates for new ones, PUT
 /templates/{alias} for changed ones), then standard templates. --prune adds
 deletes for templates on the server that are missing locally; a layout that
 templates still use is never deleted, and templates without an alias are never
-touched. Global --dry-run prints the request without contacting Postmark.`, "\n"),
+touched. Deletes run only after every local template was pushed. Global
+--dry-run prints the request without contacting Postmark.
+
+Exit codes: 0 success, 5 a write failed, 6 --yes skipped a local template
+because of a conflict or missing layout.`, "\n"),
 		Example: strings.Trim(`
   postmark-pp-cli templates push ./templates --server "Main App"
   postmark-pp-cli templates push ./templates --server "Main App" --yes
   postmark-pp-cli templates push ./templates --prune --server "Main App" --json`, "\n"),
 		Annotations: map[string]string{
-			"pp:data-source": "live",
-			"pp:happy-args":  "dir=.",
+			"pp:data-source":      "live",
+			"pp:happy-args":       "dir=.",
+			"pp:typed-exit-codes": "0,6",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -1020,6 +1055,9 @@ touched. Global --dry-run prints the request without contacting Postmark.`, "\n"
 			}
 			if view.Failed > 0 {
 				return apiErr(fmt.Errorf("%d of %d template writes failed", view.Failed, view.Failed+view.Writes))
+			}
+			if n := unpushableLocalTemplates(view.Items); apply && n > 0 {
+				return partialFailureErr(fmt.Errorf("%d local template(s) were not pushed because of a conflict or missing layout; see the plan", n))
 			}
 			return nil
 		},
@@ -1203,6 +1241,14 @@ errors and any template variables the model does not supply.`, "\n"),
 					return notFoundErr(fmt.Errorf("no template with alias %q under %s", alias, dir))
 				}
 				content = t.content()
+				merged, ok, layoutErr := inlineLocalLayout(content, local)
+				if layoutErr != nil {
+					return usageErr(layoutErr)
+				}
+				if ok {
+					content = merged
+					view.Warnings = append(view.Warnings, fmt.Sprintf("rendered with the local layout %q from %s, not the server's copy", t.Meta.LayoutTemplate, dir))
+				}
 				metaModel = t.Meta.TestRenderModel
 				view.Source = t.Dir
 			}

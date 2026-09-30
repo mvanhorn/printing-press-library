@@ -254,16 +254,16 @@ postmark-pp-cli which "<capability in your own words>"
 
 These commands are hand-written on top of the generated endpoint commands. They follow the same output flags (`--json`, `--agent`, `--select`, `--csv`) and the global `--server <name>` and `--sandbox` flags. Server tokens are masked in every response.
 
-- `postmark-pp-cli diagnose [email]`: one recipient's recent messages, bounces, and suppressions with a verdict (delivered, bounced, suppressed, spam_complaint, queued, not_found) and the next command to run. `--all-servers` checks every server.
+- `postmark-pp-cli diagnose [email]`: one recipient's recent messages, bounces, and suppressions with a verdict (delivered, sent, bounced, suppressed, spam_complaint, queued, not_found) and the next command to run. `--all-servers` checks every server.
 - `postmark-pp-cli overview`: every server in the account with this window's sends, bounces, spam complaints, and stream count.
 - `postmark-pp-cli servers tokens [name]`: print the full API token for one server or all servers; the only command that reveals tokens, never cached or stored, and not exposed over MCP.
 - `postmark-pp-cli servers use [name]`: save the default server and optional default sender and stream for send commands.
 - `postmark-pp-cli templates pull <dir>`: write every template and layout to disk in the official postmark-cli folder layout, with no template cap.
-- `postmark-pp-cli templates push <dir>`: diff a template folder against the server; prints the plan unless `--yes` is given, and `--prune --yes` removes templates missing locally.
+- `postmark-pp-cli templates push <dir>`: diff a template folder against the server; prints the plan unless `--yes` is given, and `--prune --yes` removes templates missing locally only after every local template was pushed.
 - `postmark-pp-cli templates render [alias]`: render one template (remote or from a pulled folder) with its layout and test model.
 - `postmark-pp-cli suppressions check <email>`: whether an address is suppressed on each message stream, with the command that removes it (SpamComplaint suppressions cannot be removed).
-- `postmark-pp-cli bounces reactivate`: plan reactivation of inactive, reactivatable bounces filtered by type, domain, email, and window; `--yes` reactivates them.
-- `postmark-pp-cli bounces resend-blocked`: plan resending messages that hard-bounced, to the bounced recipient only; `--send` reactivates and resends.
+- `postmark-pp-cli bounces reactivate`: plan reactivation of inactive, reactivatable bounces filtered by type, domain, email, window, and `--stream` (default outbound); `--yes` reactivates them.
+- `postmark-pp-cli bounces resend-blocked`: plan resending messages that hard-bounced, to the bounced recipient only, on `--stream` (default outbound); `--send` reactivates and resends.
 - `postmark-pp-cli webhooks health`: 24-hour delivery statistics and verification status for each webhook, flagging failures.
 - `postmark-pp-cli domains health`: DKIM, Return-Path, and sender confirmation status with the fix command for each failure.
 - `postmark-pp-cli streams health`: bounce and spam rates per message stream against the 10% and 0.1% thresholds.

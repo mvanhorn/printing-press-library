@@ -5,6 +5,8 @@ package cli
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -403,8 +405,25 @@ func matchPostmarkServer(refs []postmarkServerRef, want string) (postmarkServerR
 	return postmarkServerRef{}, usageErr(fmt.Errorf("no server named %q; servers on this account: %s", want, strings.Join(names, ", ")))
 }
 
+// postmarkTokenCacheKey ties a cached server token to the API base URL and the
+// account token that resolved it, so a long-running process (the MCP server)
+// never hands out one account's server token after the account credentials
+// change.
+func postmarkTokenCacheKey(c *client.Client, want string) string {
+	account := ""
+	if c != nil {
+		account = postmarkEffectiveAccountToken(c.Config)
+	}
+	sum := sha256.Sum256([]byte(account))
+	base := ""
+	if c != nil {
+		base = c.BaseURL
+	}
+	return base + "|" + hex.EncodeToString(sum[:8]) + "|" + strings.ToLower(strings.TrimSpace(want))
+}
+
 func resolvePostmarkServer(c *client.Client, want string) (postmarkServerRef, error) {
-	key := strings.ToLower(want)
+	key := postmarkTokenCacheKey(c, want)
 	postmarkTokenCacheMu.Lock()
 	if ref, ok := postmarkTokenCache[key]; ok {
 		postmarkTokenCacheMu.Unlock()
@@ -437,6 +456,9 @@ func init() {
 		}
 		if c.Config == nil {
 			return nil
+		}
+		if err := postmarkCredentialHeaderConflict(c.Config); err != nil {
+			return err
 		}
 		if postmarkSelection.sandbox {
 			setPostmarkServerToken(c.Config, postmarkSandboxToken)

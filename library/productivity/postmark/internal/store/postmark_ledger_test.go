@@ -24,7 +24,7 @@ func openLedgerTestStore(t *testing.T, path string) *Store {
 func reserveAndComplete(t *testing.T, db *Store, e PostmarkLedgerEntry, window time.Duration, messageID string) {
 	t.Helper()
 	ctx := context.Background()
-	reservation, prior, err := db.PostmarkLedgerReserve(ctx, e, window)
+	reservation, prior, err := db.PostmarkLedgerReserve(ctx, e, nil, window)
 	if err != nil || prior != nil || reservation == "" {
 		t.Fatalf("reserve %s = %q, %+v, %v", e.Key, reservation, prior, err)
 	}
@@ -38,7 +38,7 @@ func TestPostmarkLedgerRoundTrip(t *testing.T) {
 	db := openLedgerTestStore(t, filepath.Join(t.TempDir(), "ledger.db"))
 
 	window := 15 * time.Minute
-	miss, err := db.PostmarkLedgerLookup(ctx, "otp-4821", "scope-a", false, time.Now().Add(-window))
+	miss, err := db.PostmarkLedgerLookup(ctx, "otp-4821", []string{"scope-a"}, false, time.Now().Add(-window))
 	if err != nil || miss != nil {
 		t.Fatalf("empty ledger lookup = %+v, %v", miss, err)
 	}
@@ -61,7 +61,7 @@ func TestPostmarkLedgerRoundTrip(t *testing.T) {
 		{"sandbox does not match live", "otp-4821", "scope-a", true, since, ""},
 	}
 	for _, tc := range cases {
-		got, err := db.PostmarkLedgerLookup(ctx, tc.key, tc.server, tc.sandbox, tc.since)
+		got, err := db.PostmarkLedgerLookup(ctx, tc.key, []string{tc.server}, tc.sandbox, tc.since)
 		if err != nil {
 			t.Fatalf("%s: %v", tc.name, err)
 		}
@@ -75,14 +75,14 @@ func TestPostmarkLedgerRoundTrip(t *testing.T) {
 	}
 
 	// A second reservation inside the window returns the confirmed send.
-	_, prior, err := db.PostmarkLedgerReserve(ctx, entry, window)
+	_, prior, err := db.PostmarkLedgerReserve(ctx, entry, nil, window)
 	if err != nil || prior == nil || prior.MessageID != "m-1" || prior.Pending() {
 		t.Fatalf("reserve over a confirmed send = %+v, %v", prior, err)
 	}
 	// Once the earlier send is outside the window the key can be reserved again.
 	time.Sleep(2 * time.Millisecond)
 	reserveAndComplete(t, db, entry, time.Millisecond, "m-2")
-	got, err := db.PostmarkLedgerLookup(ctx, "otp-4821", "scope-a", false, since)
+	got, err := db.PostmarkLedgerLookup(ctx, "otp-4821", []string{"scope-a"}, false, since)
 	if err != nil || got == nil || got.MessageID != "m-2" {
 		t.Fatalf("newest entry = %+v, %v", got, err)
 	}
@@ -94,21 +94,21 @@ func TestPostmarkLedgerReservationOwnership(t *testing.T) {
 	now := time.Now()
 	since := now.Add(-15 * time.Minute)
 
-	a, _, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-a"}, 15*time.Minute)
+	a, _, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-a"}, nil, 15*time.Minute)
 	if err != nil || a == "" {
 		t.Fatalf("reserve scope-a: %q %v", a, err)
 	}
 	// Same key on another server and in sandbox mode are separate scopes.
-	b, prior, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-b"}, 15*time.Minute)
+	b, prior, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-b"}, nil, 15*time.Minute)
 	if err != nil || prior != nil || b == "" || b == a {
 		t.Fatalf("reserve scope-b = %q, %+v, %v", b, prior, err)
 	}
-	sb, prior, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-a", Sandbox: true}, 15*time.Minute)
+	sb, prior, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-a", Sandbox: true}, nil, 15*time.Minute)
 	if err != nil || prior != nil || sb == "" {
 		t.Fatalf("reserve sandbox = %q, %+v, %v", sb, prior, err)
 	}
 	// A pending reservation blocks the key and reads as delivery unknown.
-	_, prior, err = db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-a"}, 15*time.Minute)
+	_, prior, err = db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "k", Server: "scope-a"}, nil, 15*time.Minute)
 	if err != nil || prior == nil || !prior.Pending() {
 		t.Fatalf("second reserve on scope-a = %+v, %v; want the pending reservation", prior, err)
 	}
@@ -122,7 +122,7 @@ func TestPostmarkLedgerReservationOwnership(t *testing.T) {
 	if err := db.PostmarkLedgerComplete(ctx, a, "m-a"); err != nil {
 		t.Fatalf("complete scope-a: %v", err)
 	}
-	got, err := db.PostmarkLedgerLookup(ctx, "k", "scope-a", true, since)
+	got, err := db.PostmarkLedgerLookup(ctx, "k", []string{"scope-a"}, true, since)
 	if err != nil || got == nil || !got.Pending() {
 		t.Fatalf("sandbox reservation should still be pending: %+v, %v", got, err)
 	}
@@ -151,7 +151,7 @@ func TestPostmarkLedgerConcurrentReserveAcrossHandles(t *testing.T) {
 		go func(h *Store) {
 			defer wg.Done()
 			<-start
-			reservation, prior, err := h.PostmarkLedgerReserve(context.Background(), PostmarkLedgerEntry{Key: "race", Server: "scope-a"}, time.Minute)
+			reservation, prior, err := h.PostmarkLedgerReserve(context.Background(), PostmarkLedgerEntry{Key: "race", Server: "scope-a"}, nil, time.Minute)
 			mu.Lock()
 			defer mu.Unlock()
 			switch {
@@ -167,5 +167,29 @@ func TestPostmarkLedgerConcurrentReserveAcrossHandles(t *testing.T) {
 	wg.Wait()
 	if won != 1 || errs != 0 {
 		t.Fatalf("reservations won = %d (errors %d), want exactly 1", won, errs)
+	}
+}
+
+func TestPostmarkLedgerReserveHonorsAliasScopes(t *testing.T) {
+	ctx := context.Background()
+	db := openLedgerTestStore(t, filepath.Join(t.TempDir(), "ledger.db"))
+	// A pending reservation and a confirmed send written under earlier scopes.
+	if _, _, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "pending-key", Server: "Main App"}, nil, time.Hour); err != nil {
+		t.Fatal(err)
+	}
+	reserveAndComplete(t, db, PostmarkLedgerEntry{Key: "sent-key", Server: "token-sha256:abcd"}, time.Hour, "m-legacy")
+
+	aliases := []string{"token-sha256:abcd", "Main App"}
+	_, prior, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "pending-key", Server: "server-id:1"}, aliases, time.Hour)
+	if err != nil || prior == nil || !prior.Pending() {
+		t.Fatalf("legacy pending row should block the reservation: %+v, %v", prior, err)
+	}
+	_, prior, err = db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "sent-key", Server: "server-id:1"}, aliases, time.Hour)
+	if err != nil || prior == nil || prior.MessageID != "m-legacy" {
+		t.Fatalf("legacy confirmed row should block the reservation: %+v, %v", prior, err)
+	}
+	// Without the aliases the same keys are free, which is what the aliases prevent.
+	if res, prior, err := db.PostmarkLedgerReserve(ctx, PostmarkLedgerEntry{Key: "sent-key", Server: "server-id:2"}, nil, time.Hour); err != nil || prior != nil || res == "" {
+		t.Fatalf("an unrelated scope should reserve freely: %q %+v %v", res, prior, err)
 	}
 }

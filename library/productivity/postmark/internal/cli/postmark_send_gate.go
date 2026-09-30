@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/postmark/internal/cliutil"
 )
 
 // Commands that deliver email print a request preview unless --send is given,
@@ -46,6 +48,9 @@ func gatePostmarkSend(cmd *cobra.Command, flags *rootFlags) {
 	cmd.RunE = func(c *cobra.Command, args []string) error {
 		if len(args) == 0 && c.Flags().NFlag() == 0 {
 			return c.Help()
+		}
+		if send && !postmarkSelection.sandbox && !flags.dryRun && cliutil.IsAnyHarness() {
+			return writeHarnessRefusal(c.OutOrStdout(), flags, "send email")
 		}
 		if !send && !postmarkSelection.sandbox && !flags.dryRun {
 			flags.dryRun = true

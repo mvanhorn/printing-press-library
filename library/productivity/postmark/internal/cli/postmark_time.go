@@ -7,6 +7,7 @@ import (
 	"math"
 	"strings"
 	"time"
+	_ "time/tzdata" // Eastern day boundaries must not depend on the host having zoneinfo installed.
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/postmark/internal/cliutil"
 )
@@ -23,6 +24,7 @@ const (
 func postmarkEastern() *time.Location {
 	loc, err := time.LoadLocation(postmarkEasternZone)
 	if err != nil {
+		// Not reached: time/tzdata is embedded, so the zone always loads.
 		return time.FixedZone("EST", -5*60*60)
 	}
 	return loc
