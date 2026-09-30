@@ -1,0 +1,298 @@
+{
+  "api_name": "postmark",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "postmark-mcp",
+      "url": "https://github.com/ActiveCampaign/postmark-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 57,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "postmark.js",
+      "url": "https://github.com/ActiveCampaign/postmark.js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 361,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "postmark-cli",
+      "url": "https://github.com/ActiveCampaign/postmark-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 88,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pmx",
+      "url": "https://github.com/nicolasacchi/pmx",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agent-postmark",
+      "url": "https://github.com/shhac/agent-postmark",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "postmarker",
+      "url": "https://github.com/Stranger6667/postmarker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 149,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "retry-hard-bounces-postmark",
+      "url": "https://github.com/dszp/retry-hard-bounces-postmark",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Postmark-Bounce-Removal",
+      "url": "https://github.com/arnaud-coral/Postmark-Bounce-Removal",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-30T17:47:07Z",
+  "novel_features": [
+    {
+      "name": "Send-volume pulse",
+      "command": "pulse",
+      "description": "Compares each server, stream, or tag with its own recent weeks and flags any that stopped sending, dropped off, or spiked in bounces or spam, across every server on the account token.",
+      "rationale": "Fans out Postmark's daily stats across every server from one account token and compares each against its own baseline, which no single API call returns.",
+      "example": "postmark-pp-cli pulse --window 7d --baseline 28d --agent",
+      "why_it_matters": "A mailer that breaks quietly stops sending instead of throwing errors, so run this weekly to catch the drop.",
+      "group": "Account-wide oversight"
+    },
+    {
+      "name": "Idempotent send",
+      "command": "email send-once",
+      "description": "Sends an email at most once per key within a window (15 minutes by default), so an agent or script that retries after an error cannot deliver a second copy. Previews until you add --send.",
+      "rationale": "Combines a local send ledger with a Metadata-stamped key and Postmark's metadata search, since the API has no idempotency key.",
+      "example": "postmark-pp-cli email send-once --key otp-4821 --from \"$SENDER\" --to \"$RECIPIENT\" --subject \"Your code\" --text \"Code: 4821\" --agent",
+      "why_it_matters": "Built for one-time codes, receipts, and follow-ups that an agent might retry.",
+      "group": "Safe sending"
+    },
+    {
+      "name": "Recipient-domain report",
+      "command": "recipient-domains",
+      "description": "Groups sends, bounces by type, complaints, suppressions, and opens by the recipient's mailbox domain across every synced server, so one provider's problem stands out. Run sync first.",
+      "rationale": "Joins synced messages, bounces, opens, and suppressions locally; Postmark's stats filter only by tag and stream.",
+      "example": "postmark-pp-cli recipient-domains --window 7d --min-sent 20 --agent",
+      "why_it_matters": "Start here when several missing-email reports come from the same provider or company.",
+      "group": "Account-wide oversight"
+    },
+    {
+      "name": "Template CI gate",
+      "command": "templates check",
+      "description": "Validates every template and layout on a server or in a pulled folder, and exits non-zero on render errors, missing test-model keys, or broken layout links.",
+      "rationale": "Runs Postmark's template validation across the whole set with layouts and stored test models and turns the results into a typed exit code.",
+      "example": "postmark-pp-cli templates check --agent",
+      "why_it_matters": "Run it in CI before pushing template changes to a server.",
+      "group": "Templates as code"
+    },
+    {
+      "name": "New-project server bootstrap",
+      "command": "servers bootstrap",
+      "description": "Creates a new project's Postmark server with its message streams, webhooks, sending-domain DNS records, and templates copied from another server. Prints the plan until you add --apply.",
+      "rationale": "Chains server creation with the new server's own token for streams, webhooks, and templates, plus domain setup, which takes several API calls with two different tokens.",
+      "example": "postmark-pp-cli servers bootstrap \"Lumen\" --broadcast-stream --agent",
+      "why_it_matters": "Hand this to an agent setting up email for a new project. Reruns never create a duplicate server.",
+      "group": "Account-wide oversight"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Send-volume pulse",
+      "command": "pulse",
+      "description": "Compares each server, stream, or tag with its own recent weeks and flags any that stopped sending, dropped off, or spiked in bounces or spam, across every server on the account token.",
+      "rationale": "Fans out Postmark's daily stats across every server from one account token and compares each against its own baseline, which no single API call returns.",
+      "example": "postmark-pp-cli pulse --window 7d --baseline 28d --agent",
+      "why_it_matters": "A mailer that breaks quietly stops sending instead of throwing errors, so run this weekly to catch the drop.",
+      "group": "Account-wide oversight"
+    },
+    {
+      "name": "Idempotent send",
+      "command": "email send-once",
+      "description": "Sends an email at most once per key within a window (15 minutes by default), so an agent or script that retries after an error cannot deliver a second copy. Previews until you add --send.",
+      "rationale": "Combines a local send ledger with a Metadata-stamped key and Postmark's metadata search, since the API has no idempotency key.",
+      "example": "postmark-pp-cli email send-once --key otp-4821 --from \"$SENDER\" --to \"$RECIPIENT\" --subject \"Your code\" --text \"Code: 4821\" --agent",
+      "why_it_matters": "Built for one-time codes, receipts, and follow-ups that an agent might retry.",
+      "group": "Safe sending"
+    },
+    {
+      "name": "Recipient-domain report",
+      "command": "recipient-domains",
+      "description": "Groups sends, bounces by type, complaints, suppressions, and opens by the recipient's mailbox domain across every synced server, so one provider's problem stands out. Run sync first.",
+      "rationale": "Joins synced messages, bounces, opens, and suppressions locally; Postmark's stats filter only by tag and stream.",
+      "example": "postmark-pp-cli recipient-domains --window 7d --min-sent 20 --agent",
+      "why_it_matters": "Start here when several missing-email reports come from the same provider or company.",
+      "group": "Account-wide oversight"
+    },
+    {
+      "name": "Template CI gate",
+      "command": "templates check",
+      "description": "Validates every template and layout on a server or in a pulled folder, and exits non-zero on render errors, missing test-model keys, or broken layout links.",
+      "rationale": "Runs Postmark's template validation across the whole set with layouts and stored test models and turns the results into a typed exit code.",
+      "example": "postmark-pp-cli templates check --agent",
+      "why_it_matters": "Run it in CI before pushing template changes to a server.",
+      "group": "Templates as code"
+    },
+    {
+      "name": "New-project server bootstrap",
+      "command": "servers bootstrap",
+      "description": "Creates a new project's Postmark server with its message streams, webhooks, sending-domain DNS records, and templates copied from another server. Prints the plan until you add --apply.",
+      "rationale": "Chains server creation with the new server's own token for streams, webhooks, and templates, plus domain setup, which takes several API calls with two different tokens.",
+      "example": "postmark-pp-cli servers bootstrap \"Lumen\" --broadcast-stream --agent",
+      "why_it_matters": "Hand this to an agent setting up email for a new project. Reruns never create a duplicate server.",
+      "group": "Account-wide oversight"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "POSTMARK_SERVER_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Postmark",
+    "headline": "One account token for every Postmark server, and a local archive that outlasts Postmark's 45-day retention.",
+    "value_prop": "Postmark gives every server its own token and keeps message history for 45 days by default. This CLI takes one account token and works across all your servers. Pick a server by name with `--server`, sync messages and bounces into a local SQLite archive that keeps what Postmark expires, and ask questions that span the account, like which server stopped sending or why one customer never got a password reset. It covers all 87 documented API operations, including message streams, webhooks, suppressions, and bulk email, which Postmark's official specs leave out.\n\nSending is safe to hand to an agent. Send commands print a preview until you add `--send`, `--sandbox` validates a message with Postmark's test token without delivering it, and `email send-once` won't send the same message twice when a script retries.",
+    "auth_narrative": "Postmark has two kinds of token. A server token (`X-Postmark-Server-Token`) covers one server: sending, messages, bounces, templates, stats, streams, suppressions, and webhooks. The account token (`X-Postmark-Account-Token`) covers servers, domains, sender signatures, template pushes between servers, and data removals. The CLI sends only the header each endpoint accepts.\n\nThe simplest setup is the account token alone. Set `POSTMARK_ACCOUNT_TOKEN`, choose a server with `--server <name>` or `POSTMARK_SERVER`, and the CLI looks up that server's token through the account API. `servers use <name>` saves a default server.\n\nIf you only use one server, export `POSTMARK_SERVER_TOKEN` instead, or store it with `auth set-token`, which reads the token from stdin. `--server` and `POSTMARK_SERVER` take precedence over `POSTMARK_SERVER_TOKEN`, which takes precedence over the saved default.\n\n`--sandbox` swaps in Postmark's `POSTMARK_API_TEST` token, so sends are validated but never delivered.",
+    "quickstart": [
+      {
+        "command": "postmark-pp-cli doctor",
+        "comment": "Check that your tokens work and the API is reachable."
+      },
+      {
+        "command": "postmark-pp-cli overview --agent",
+        "comment": "List every server on the account with this week's sends and bounce rate."
+      },
+      {
+        "command": "postmark-pp-cli sync --resources messages,bounces --max-pages 5",
+        "comment": "Copy recent messages and bounces into the local archive. --max-pages 5 keeps the first run short."
+      },
+      {
+        "command": "postmark-pp-cli pulse --window 7d --agent",
+        "comment": "Flag any server whose sending stopped, dropped, or spiked against its own baseline."
+      },
+      {
+        "command": "postmark-pp-cli diagnose jane@example.com --server \"Production\" --agent",
+        "comment": "Find out whether one person got their email, and what to run if they didn't."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 with ErrorCode 10",
+        "fix": "The wrong token type reached the endpoint: set POSTMARK_ACCOUNT_TOKEN for servers, domains, and senders commands, and POSTMARK_SERVER_TOKEN or --server <name> for everything else."
+      },
+      {
+        "symptom": "Send fails with ErrorCode 406 (inactive recipient)",
+        "fix": "Run postmark-pp-cli diagnose <email> to see the bounce or suppression, then reactivate it with the command diagnose prints."
+      },
+      {
+        "symptom": "HTTP 429 during sync",
+        "fix": "Reads back off automatically; rerun sync with a smaller --max-pages or fewer --resources."
+      },
+      {
+        "symptom": "Bulk send returns ErrorCode 14",
+        "fix": "Bulk sending needs approval on your Postmark account; ask Postmark support to enable it."
+      },
+      {
+        "symptom": "Message search stops at 10,000 results",
+        "fix": "Postmark caps count plus offset at 10,000; window the pull by date, e.g. postmark-pp-cli sync --resources messages --param fromdate=2026-09-01 --param todate=2026-09-15, then query the archive with search or sql."
+      },
+      {
+        "symptom": "Archived messages disappeared after sync --full",
+        "fix": "This CLI defaults sync --full to --no-prune so expired messages and other servers' rows stay; only --no-prune=false prunes."
+      }
+    ],
+    "when_to_use": "Use this CLI to operate Postmark from a terminal or an agent: check whether a specific recipient got an email, triage bounces and suppressions, move templates between servers and gate them in CI, send transactional mail safely, and watch sending health across every server in one account. The local archive answers questions about messages older than Postmark's retention window.",
+    "anti_triggers": [
+      "Do not use it for Postmark billing, team members, or account settings that only exist in the web dashboard.",
+      "Do not use it for DMARC digest reports; those come from Postmark's separate DMARC API with its own token.",
+      "Do not use it to receive inbound email in real time; configure an inbound webhook instead.",
+      "Do not use it for newsletter list management; Postmark sends broadcasts but does not manage subscriber lists."
+    ],
+    "recipes": [
+      {
+        "title": "Monday health pass",
+        "command": "postmark-pp-cli pulse --window 7d --baseline 28d --agent",
+        "explanation": "Compares each server's last week against its prior four and lists anything that stopped, dropped, or spiked."
+      },
+      {
+        "title": "Why didn't they get the reset email",
+        "command": "postmark-pp-cli diagnose jane@example.com --server \"Staging\" --agent",
+        "explanation": "Checks outbound messages, bounces, and suppressions for one address and returns a verdict with the fix command."
+      },
+      {
+        "title": "Narrow a big message search",
+        "command": "postmark-pp-cli messages list --recipient jane@example.com --count 50 --offset 0 --agent --select MessageID,Subject,Status,ReceivedAt",
+        "explanation": "Keeps only the fields an agent needs from a large outbound search response."
+      },
+      {
+        "title": "One-time code without double sends",
+        "command": "postmark-pp-cli email send-once --key otp-4821 --server \"Production\" --from app@example.com --to jane@example.com --subject \"Your code\" --text \"Code: 4821\"",
+        "explanation": "Prints the payload and dedupe decision; add --send to deliver, and a retry with the same key returns the original MessageID."
+      },
+      {
+        "title": "Gate template changes in CI",
+        "command": "postmark-pp-cli templates check --dir ./templates --server \"Production\"",
+        "explanation": "Validates every template and layout in a pulled folder and exits non-zero on any failure."
+      },
+      {
+        "title": "Spin up email for a new project",
+        "command": "postmark-pp-cli servers bootstrap \"Lumen\" --domain lumen.example.com --broadcast-stream --agent",
+        "explanation": "Prints the server, stream, and domain plan with the Return-Path DNS record; the DKIM record appears after --apply creates the domain, and a rerun never duplicates the server."
+      }
+    ],
+    "trigger_phrases": [
+      "did my email get delivered",
+      "check postmark bounces",
+      "why didn't they get the reset email",
+      "push postmark templates",
+      "postmark sending stats this week",
+      "set up postmark for a new project",
+      "use postmark",
+      "run postmark"
+    ]
+  }
+}

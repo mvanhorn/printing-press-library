@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/postmark-pp-cli
+/postmark-pp-cli.exe
+/postmark-pp-mcp
+/postmark-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "postmark-pp-mcp",
+  "display_name": "Postmark",
+  "version": "4.32.6",
+  "description": "One account token for every Postmark server, and a local archive that outlasts Postmark's 45-day retention.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/postmark-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/postmark-pp-mcp",
+      "args": [],
+      "env": {
+        "POSTMARK_ACCOUNT_TOKEN": "${user_config.postmark_account_token}",
+        "POSTMARK_SERVER_TOKEN": "${user_config.postmark_server_token}"
+      }
+    }
+  },
+  "user_config": {
+    "postmark_account_token": {
+      "type": "string",
+      "title": "POSTMARK_ACCOUNT_TOKEN",
+      "description": "Optional. Account API token. Required for servers, domains, senders, template push, and data removals; also lets --server <name> look up server tokens.",
+      "sensitive": true
+    },
+    "postmark_server_token": {
+      "type": "string",
+      "title": "POSTMARK_SERVER_TOKEN",
+      "description": "Optional. Server API token for one Postmark server. Set this OR POSTMARK_ACCOUNT_TOKEN with --server <name>.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

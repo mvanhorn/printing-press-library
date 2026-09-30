@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-123010-65f85318",
+  "base_printing_press_version": "4.32.6",
+  "id": "postmark-send-preview-gate",
+  "summary": "Generated email send commands print the request instead of delivering unless --send is given; --sandbox runs with Postmark's test token.",
+  "reason": "An agent or a copied example could deliver real email by accident. The gate wraps send, send-with-template, send-batch, send-batch-with-templates, and send-bulk, and the transport refuses delivering POSTs unless the gate allowed them.",
+  "files": [
+    "internal/cli/postmark_send_gate.go",
+    "internal/cli/postmark_send_gate_test.go",
+    "internal/cli/postmark_servers.go"
+  ],
+  "markers": [
+    "postmarkGatedSendCommands",
+    "postmarkSendAllowed"
+  ],
+  "validated_outcome": "TestEmailSendPreviewsWithoutSendFlag and TestSendGateCoversEveryDeliveringCommand pass; no POST /email reaches the server without --send."
+}

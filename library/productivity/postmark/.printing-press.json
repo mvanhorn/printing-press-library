@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-30T19:29:34.618004Z",
+  "printing_press_version": "4.32.6",
+  "api_name": "postmark",
+  "display_name": "Postmark",
+  "cli_name": "postmark-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:86e876174e9afdf447f533493ac27c5e0101df5c575c121b0e2cca9d46a7c241",
+  "run_id": "20260930-123010-65f85318",
+  "category": "productivity",
+  "description": "One account token for every Postmark server, and a local archive that outlasts Postmark's 45-day retention.",
+  "mcp_binary": "postmark-pp-mcp",
+  "mcp_tool_count": 88,
+  "mcp_ready": "full",
+  "api_version": "2026-09-30",
+  "auth_type": "api_key",
+  "auth_preference": "serverToken",
+  "auth_env_vars": [
+    "POSTMARK_SERVER_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "POSTMARK_SERVER_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Server API token for one Postmark server. Set this OR POSTMARK_ACCOUNT_TOKEN with --server <name>."
+    }
+  ],
+  "auth_additional_headers": [
+    {
+      "header": "X-Postmark-Account-Token",
+      "in": "header",
+      "scheme": "accountToken",
+      "env_var": {
+        "name": "POSTMARK_ACCOUNT_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Account API token. Required for servers, domains, senders, template push, and data removals; also lets --server <name> look up server tokens."
+      }
+    }
+  ],
+  "auth_key_url": "https://account.postmarkapp.com/servers",
+  "novel_features": [
+    {
+      "name": "Send-volume pulse",
+      "command": "pulse",
+      "description": "Compares each server, stream, or tag with its own recent weeks and flags any that stopped sending, dropped off, or spiked in bounces or spam, across every server on the account token."
+    },
+    {
+      "name": "Idempotent send",
+      "command": "email send-once",
+      "description": "Sends an email at most once per key within a window (15 minutes by default), so an agent or script that retries after an error cannot deliver a second copy. Previews until you add --send."
+    },
+    {
+      "name": "Recipient-domain report",
+      "command": "recipient-domains",
+      "description": "Groups sends, bounces by type, complaints, suppressions, and opens by the recipient's mailbox domain across every synced server, so one provider's problem stands out. Run sync first."
+    },
+    {
+      "name": "Template CI gate",
+      "command": "templates check",
+      "description": "Validates every template and layout on a server or in a pulled folder, and exits non-zero on render errors, missing test-model keys, or broken layout links."
+    },
+    {
+      "name": "New-project server bootstrap",
+      "command": "servers bootstrap",
+      "description": "Creates a new project's Postmark server with its message streams, webhooks, sending-domain DNS records, and templates copied from another server. Prints the plan until you add --apply."
+    }
+  ]
+}

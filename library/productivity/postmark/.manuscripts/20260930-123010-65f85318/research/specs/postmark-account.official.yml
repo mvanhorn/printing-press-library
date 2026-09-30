@@ -1,0 +1,1027 @@
+swagger: '2.0'
+info:
+  title: Postmark Account-level API
+  description: |
+    Postmark makes sending and receiving email
+    incredibly easy. The Account-level API allows users to
+    configure all Servers, Domains, and Sender Signatures associated
+    with an Account.
+  version: 0.9.0
+host: api.postmarkapp.com
+basePath: /
+produces:
+  - application/json
+consumes:
+  - application/json
+
+definitions:
+  StandardPostmarkResponse:
+    description: 'A Postmark API error.'
+    properties:
+      ErrorCode:
+        type: integer
+      Message:
+        type: string
+  ExtendedServerInfo:
+    description: ''
+    properties:
+      ID:
+        type: integer
+      Name:
+        type: string
+      ApiTokens:
+        type: array
+        items:
+          type: string
+      ServerLink:
+        type: string
+      Color:
+        type: string
+      SmtpApiActivated:
+        type: boolean
+      RawEmailEnabled:
+        type: boolean
+      DeliveryHookUrl:
+        type: string
+      InboundAddress:
+        type: string
+      InboundHookUrl:
+        type: string
+      BounceHookUrl:
+        type: string
+      OpenHookUrl:
+        type: string
+      PostFirstOpenOnly:
+        type: boolean
+      TrackOpens:
+        type: boolean
+      TrackLinks:
+        type: string
+        enum: ['None', 'HtmlAndTextTracking', 'HtmlOnlyTracking', 'TextOnlyTracking']
+      ClickHookUrl:
+        type: string
+      InboundDomain:
+        type: string
+      InboundHash:
+        type: string
+      InboundSpamThreshold:
+        type: integer
+  CreateServerPayload:
+    description: ''
+    properties:
+      Name:
+        type: string
+      Color:
+        type: string
+      RawEmailEnabled:
+        type: boolean
+      DeliveryHookUrl:
+        type: string
+      SmtpApiActivated:
+        type: boolean
+      InboundHookUrl:
+        type: string
+      BounceHookUrl:
+        type: string
+      OpenHookUrl:
+        type: string
+      PostFirstOpenOnly:
+        type: boolean
+      TrackOpens:
+        type: boolean
+      TrackLinks:
+        type: string
+        enum: ['None', 'HtmlAndTextTracking', 'HtmlOnlyTracking', 'TextOnlyTracking']
+      ClickHookUrl:
+        type: string
+      InboundDomain:
+        type: string
+      InboundSpamThreshold:
+        type: integer
+  EditServerPayload:
+    description: ''
+    properties:
+      Name:
+        type: string
+      Color:
+        type: string
+      RawEmailEnabled:
+        type: boolean
+      DeliveryHookUrl:
+        type: string
+      SmtpApiActivated:
+        type: boolean
+      InboundHookUrl:
+        type: string
+      BounceHookUrl:
+        type: string
+      OpenHookUrl:
+        type: string
+      PostFirstOpenOnly:
+        type: boolean
+      TrackOpens:
+        type: boolean
+      TrackLinks:
+        type: string
+        enum: ['None', 'HtmlAndTextTracking', 'HtmlOnlyTracking', 'TextOnlyTracking']
+      ClickHookUrl:
+        type: string
+      InboundDomain:
+        type: string
+      InboundSpamThreshold:
+        type: integer
+  ServerListingResponse:
+    description: The results of listing servers.
+    properties:
+      TotalCount:
+        type: integer
+      Servers:
+        type: array
+        items:
+          $ref: '#/definitions/ExtendedServerInfo'
+  SenderSignatureInformation:
+    description: ''
+    properties:
+      Domain:
+        type: string
+      EmailAddress:
+        type: string
+        format: email
+      ReplyToEmailAddress:
+        type: string
+        format: email
+      Name:
+        type: string
+      Confirmed:
+        type: boolean
+      ID:
+        type: integer
+        format: int64
+  SenderSignatureExtendedInformation:
+    description: ''
+    properties:
+      Domain:
+        type: string
+      EmailAddress:
+        type: string
+        format: email
+      ReplyToEmailAddress:
+        type: string
+        format: email
+      Name:
+        type: string
+      Confirmed:
+        type: boolean
+      SPFVerified:
+        type: boolean
+      SPFHost:
+        type: string
+      SPFTextValue:
+        type: string
+      DKIMVerified:
+        type: boolean
+      WeakDKIM:
+        type: boolean
+      DKIMHost:
+        type: string
+      DKIMTestValue:
+        type: string
+      DKIMPendingHost:
+        type: string
+      DKIMPendingTextValue:
+        type: string
+      DKIMRevokedHost:
+        type: string
+      DKIMRevokedTextValue:
+        type: string
+      SafeToRemoveRevokedKeyFromDNS:
+        type: boolean
+      DKIMUpdateStatus:
+        type: string
+      ReturnPathDomain:
+        type: string
+      ReturnPathDomainVerified:
+        type: boolean
+      ReturnPathDomainCNAMEValue:
+        type: string
+      ID:
+        type: integer
+        format: int64
+  SenderListingResults:
+    description: ''
+    properties:
+      TotalCount:
+        type: integer
+      SenderSignatures:
+        type: array
+        items:
+          $ref: '#/definitions/SenderSignatureInformation'
+  SenderSignatureCreationModel:
+    description: ''
+    properties:
+      FromEmail:
+        type: string
+        format: email
+      Name:
+        type: string
+      ReplyToEmail:
+        type: string
+        format: email
+      ReturnPathDomain:
+        type: string
+  SenderSignatureEditingModel:
+    description: ''
+    properties:
+      Name:
+        type: string
+      ReplyToEmail:
+        type: string
+        format: email
+      ReturnPathDomain:
+        type: string
+  DomainInformation:
+    description: ''
+    properties:
+      Name:
+        type: string
+      SPFVerified:
+        type: boolean
+      DKIMVerified:
+        type: boolean
+      WeakDKIM:
+        type: boolean
+      ReturnPathDomainVerified:
+        type: boolean
+      ID:
+        type: integer
+        format: int64
+  DomainExtendedInformation:
+    description: ''
+    properties:
+      Name:
+        type: string
+      SPFVerified:
+        type: boolean
+      SPFHost:
+        type: string
+      SPFTextValue:
+        type: string
+      DKIMVerified:
+        type: boolean
+      WeakDKIM:
+        type: boolean
+      DKIMHost:
+        type: string
+      DKIMTestValue:
+        type: string
+      DKIMPendingHost:
+        type: string
+      DKIMPendingTextValue:
+        type: string
+      DKIMRevokedHost:
+        type: string
+      DKIMRevokedTextValue:
+        type: string
+      SafeToRemoveRevokedKeyFromDNS:
+        type: boolean
+      DKIMUpdateStatus:
+        type: string
+      ReturnPathDomain:
+        type: string
+      ReturnPathDomainVerified:
+        type: boolean
+      ReturnPathDomainCNAMEValue:
+        type: string
+      ID:
+        type: integer
+        format: int64
+  DomainListingResults:
+    description: ''
+    properties:
+      TotalCount:
+        type: integer
+      Domains:
+        type: array
+        items:
+          $ref: '#/definitions/DomainInformation'
+  DomainSPFResult:
+    description: ''
+    properties:
+      SPFHost:
+        type: string
+      SPFVerified:
+        type: boolean
+      SPFTextValue:
+        type: string
+  DKIMRotationResponse:
+    description: ''
+    properties:
+      Name:
+        type: string
+      DKIMVerified:
+        type: boolean
+      WeakDKIM:
+        type: boolean
+      DKIMHost:
+        type: string
+      DKIMTestValue:
+        type: string
+      DKIMPendingHost:
+        type: string
+      DKIMPendingTextValue:
+        type: string
+      DKIMRevokedHost:
+        type: string
+      DKIMRevokedTextValue:
+        type: string
+      SafeToRemoveRevokedKeyFromDNS:
+        type: boolean
+      DKIMUpdateStatus:
+        type: string
+      ID:
+        type: integer
+        format: int64
+  DomainCreationModel:
+    description: ''
+    properties:
+      Name:
+        type: string
+      ReturnPathDomain:
+        type: string
+  DomainEditingModel:
+    description: ''
+    properties:
+      ReturnPathDomain:
+        type: string
+  TemplatesPushModel:
+    description: ''
+    properties:
+      SourceServerId:
+        type: integer
+      DestinationServerId:
+        type: integer
+      PerformChanges:
+        type: boolean
+  TemplatesPushResponse:
+    description: ''
+    properties:
+      TotalCount:
+        type: integer
+      Templates:
+        type: array
+        items:
+          properties:
+            Action:
+              type: string
+            TemplateId:
+              type: integer
+            Alias:
+              type: string
+            Name:
+              type: string
+responses:
+  422:
+    description: 'An error was generated due to incorrect use of the API. See the Message associated with this response for more information.'
+    schema:
+      $ref: '#/definitions/StandardPostmarkResponse'
+  500:
+    description: 'Indicates an internal server error occurred.'
+
+paths:
+#servers
+  /servers/{serverid}:
+    get:
+      operationId: getServerInformation
+      tags:
+        - Server Management API
+      summary: Get a Server
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: serverid
+          description: The ID of the Server to get.
+          in: path
+          type: integer
+          required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/ExtendedServerInfo'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    put:
+      operationId: editServerInformation
+      tags:
+        - Server Management API
+      summary: Edit a Server
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: serverid
+          description: The ID of the Server to update.
+          in: path
+          type: integer
+          required: true
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/EditServerPayload'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/ExtendedServerInfo'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      operationId: deleteServer
+      tags:
+        - Server Management API
+      summary: Delete a Server
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: serverid
+          description: The ID of the Server that should be deleted.
+          in: path
+          type: integer
+          required: true
+      responses:
+        200:
+          description: OK
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /servers:
+    get:
+      operationId: listServers
+      tags:
+        - Server Management API
+      summary: List servers
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: count
+          in: query
+          required: true
+          type: integer
+          description: Number of servers to return per request.
+        - name: offset
+          in: query
+          required: true
+          type: integer
+          description: Number of servers to skip.
+        - name: name
+          in: query
+          type: string
+          description: Filter by a specific server name
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/ServerListingResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    post:
+      operationId: createServer
+      tags:
+        - Server Management API
+      summary: Create a Server
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/CreateServerPayload'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/ExtendedServerInfo'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+#Sender Signatures API:
+  /senders:
+    get:
+      operationId: listSenderSignatures
+      summary: List Sender Signatures
+      tags:
+        - Sender Signatures API
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: count
+          required: true
+          in: query
+          type: integer
+          description: Number of records to return per request. Max 500.
+          maximum: 500
+          minimum: 1
+        - name: offset
+          required: true
+          description: Number of records to skip
+          in: query
+          type: integer
+          minimum: 0
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SenderListingResults'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    post:
+      operationId: createSenderSignature
+      summary: Create a Sender Signature
+      tags:
+        - Sender Signatures API
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/SenderSignatureCreationModel'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SenderSignatureExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /senders/{signatureid}:
+    get:
+      operationId: getSenderSignature
+      tags:
+        - Sender Signatures API
+      summary: Get a Sender Signature
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: signatureid
+          in: path
+          description: The ID for the Sender Signature that should be retrieved.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SenderSignatureExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    put:
+      operationId: editSenderSignature
+      tags:
+        - Sender Signatures API
+      summary: Update a Sender Signature
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: signatureid
+          in: path
+          description: The ID for the Sender Signature that should be modified by the request.
+          required: true
+          type: integer
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/SenderSignatureEditingModel'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SenderSignatureExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      operationId: deleteSenderSignature
+      tags:
+        - Sender Signatures API
+      summary: Delete a Sender Signature
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: signatureid
+          in: path
+          required: true
+          type: integer
+          description: The ID for the Sender Signature that should be deleted by the request.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/StandardPostmarkResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /senders/{signatureid}/resend:
+    post:
+      operationId: resendSenderSignatureConfirmationEmail
+      tags:
+        - Sender Signatures API
+      summary: Resend Signature Confirmation Email
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: signatureid
+          in: path
+          description: The ID for the Sender Signature that should have its confirmation email resent.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/StandardPostmarkResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /senders/{signatureid}/verifyspf:
+    post:
+      operationId: requestSPFVerificationForSenderSignature
+      tags:
+        - Sender Signatures API
+      summary: Request DNS Verification for SPF
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: signatureid
+          in: path
+          required: true
+          description: The ID for the Sender Signature for which SPF DNS records should be verified.
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/SenderSignatureExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /senders/{signatureid}/requestnewdkim:
+    post:
+      operationId: requestNewDKIMKeyForSenderSignature
+      tags:
+        - Sender Signatures API
+      summary: Request a new DKIM Key
+      description: |
+        Requests a new DKIM key to be created. Until the DNS entries are confirmed,
+        the new values will be in the `DKIMPendingHost` and `DKIMPendingTextValue` fields.
+        After the new DKIM value is verified in DNS, the pending values will migrate to
+        `DKIMTextValue` and `DKIMPendingTextValue` and Postmark will begin to sign emails
+        with the new DKIM key.
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: signatureid
+          in: path
+          description: The ID for the Sender Signature for which a new DKIM Key should be generated.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/StandardPostmarkResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+#Domains API:
+  /domains:
+    get:
+      operationId: listDomains
+      summary: List Domains
+      tags:
+        - Domains API
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: count
+          required: true
+          in: query
+          type: integer
+          description: Number of records to return per request. Max 500.
+          maximum: 500
+          minimum: 1
+        - name: offset
+          required: true
+          description: Number of records to skip
+          in: query
+          type: integer
+          minimum: 0
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainListingResults'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    post:
+      operationId: createDomain
+      summary: Create a Domain
+      tags:
+        - Domains API
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/DomainCreationModel'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /domains/{domainid}:
+    get:
+      operationId: getDomain
+      tags:
+        - Domains API
+      summary: Get a Domain
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          description: The ID for the Domain that should be retrieved.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    put:
+      operationId: editDomain
+      tags:
+        - Domains API
+      summary: Update a Domain
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          description: The ID for the Domain that should be modified by the request.
+          required: true
+          type: integer
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/DomainEditingModel'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+    delete:
+      operationId: deleteDomain
+      tags:
+        - Domains API
+      summary: Delete a Domain
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          required: true
+          type: integer
+          description: The ID for the Domain that should be deleted by the request.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/StandardPostmarkResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /domains/{domainid}/verifydkim:
+    put:
+      operationId: requestDkimVerificationForDomain
+      tags:
+        - Domains API
+      summary: Request DNS Verification for DKIM
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          required: true
+          description: The ID for the Domain for which DKIM DNS records should be verified.
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /domains/{domainid}/verifyreturnpath:
+    put:
+      operationId: requestReturnPathVerificationForDomain
+      tags:
+        - Domains API
+      summary: Request DNS Verification for Return-Path
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          required: true
+          description: The ID for the Domain for which Return-Path DNS records should be verified.
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainExtendedInformation'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /domains/{domainid}/verifyspf:
+    post:
+      operationId: requestSPFVerificationForDomain
+      tags:
+        - Domains API
+      summary: Request DNS Verification for SPF
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          required: true
+          description: The ID for the Domain for which SPF DNS records should be verified.
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DomainSPFResult'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+  /domains/{domainid}/rotatedkim:
+    post:
+      operationId: rotateDKIMKeyForDomain
+      tags:
+        - Domains API
+      summary: Rotate DKIM Key
+      description: |
+        Creates a new DKIM key to replace your current key. Until the DNS entries are confirmed,
+        the new values will be in the `DKIMPendingHost` and `DKIMPendingTextValue` fields.
+        After the new DKIM value is verified in DNS, the pending values will migrate to
+        `DKIMTextValue` and `DKIMPendingTextValue` and Postmark will begin to sign emails
+        with the new DKIM key.
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: domainid
+          in: path
+          description: The ID for the Sender Signature for which a new DKIM Key should be generated.
+          required: true
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/DKIMRotationResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'
+# Templates Push API
+  /templates/push:
+    put:
+      operationId: pushTemplates
+      tags:
+        - Templates API
+      summary: Push templates from one server to another
+      parameters:
+        - name: X-Postmark-Account-Token
+          required: true
+          description: The token associated with the Account on which this request will operate.
+          type: string
+          in: header
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TemplatesPushModel'
+      responses:
+        200:
+          description: ok
+          schema:
+            $ref: '#/definitions/TemplatesPushResponse'
+        422:
+          $ref: '#/responses/422'
+        500:
+          $ref: '#/responses/500'

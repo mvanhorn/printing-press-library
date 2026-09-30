@@ -1,0 +1,5776 @@
+openapi: 3.0.3
+info:
+  title: Postmark
+  version: '2026-09-30'
+  description: Postmark transactional and broadcast email API. Server-scoped endpoints authenticate with the X-Postmark-Server-Token
+    header; account-scoped endpoints (servers, domains, sender signatures, template push, data removals) use X-Postmark-Account-Token.
+  x-display-name: Postmark
+  x-website: https://postmarkapp.com
+servers:
+- url: https://api.postmarkapp.com
+security:
+- serverToken: []
+  accountToken: []
+x-learn:
+  ticker_patterns:
+  - ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+  entity_lookup_seeds:
+    bounce_type:
+    - canonical: HardBounce
+      aliases:
+      - hard bounce
+      - hard bounces
+      - permanent bounce
+    - canonical: SoftBounce
+      aliases:
+      - soft bounce
+      - soft bounces
+    - canonical: Transient
+      aliases:
+      - deferred
+      - temporary failure
+    - canonical: SpamComplaint
+      aliases:
+      - spam complaint
+      - complaint
+      - marked as spam
+    - canonical: Blocked
+      aliases:
+      - blocked bounce
+    - canonical: DnsError
+      aliases:
+      - dns error
+    - canonical: AutoResponder
+      aliases:
+      - auto responder
+      - out of office
+    suppression_reason:
+    - canonical: HardBounce
+      aliases:
+      - hard bounce suppression
+    - canonical: SpamComplaint
+      aliases:
+      - spam complaint suppression
+    - canonical: ManualSuppression
+      aliases:
+      - manual suppression
+      - manually suppressed
+    message_stream_type:
+    - canonical: Transactional
+      aliases:
+      - transactional stream
+      - outbound stream
+    - canonical: Broadcasts
+      aliases:
+      - broadcast stream
+      - broadcast
+      - broadcasts stream
+    - canonical: Inbound
+      aliases:
+      - inbound stream
+    message_event:
+    - canonical: Delivered
+      aliases:
+      - delivery
+      - delivered event
+    - canonical: Opened
+      aliases:
+      - open
+      - opens
+    - canonical: LinkClicked
+      aliases:
+      - click
+      - clicks
+      - link click
+    - canonical: Bounced
+      aliases:
+      - bounce event
+    - canonical: SubscriptionChanged
+      aliases:
+      - unsubscribe
+      - subscription change
+    template_type:
+    - canonical: Standard
+      aliases:
+      - standard template
+    - canonical: Layout
+      aliases:
+      - layout
+      - layouts
+      - layout template
+paths:
+  /bounces:
+    get:
+      operationId: list
+      tags:
+      - Bounces API
+      summary: Get bounces
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of bounces to return per request. Max 500.
+        schema:
+          type: integer
+          maximum: 500
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of bounces to skip.
+        schema:
+          type: integer
+          default: 0
+      - name: type
+        in: query
+        required: false
+        description: Filter by type of bounce
+        schema:
+          type: string
+          enum:
+          - HardBounce
+          - Transient
+          - Unsubscribe
+          - Subscribe
+          - AutoResponder
+          - AddressChange
+          - DnsError
+          - SpamNotification
+          - OpenRelayTest
+          - Unknown
+          - SoftBounce
+          - VirusNotification
+          - ChallengeVerification
+          - BadEmailAddress
+          - SpamComplaint
+          - ManuallyDeactivated
+          - Unconfirmed
+          - Blocked
+          - SMTPApiError
+          - InboundError
+          - DMARCPolicy
+          - TemplateRenderingFailed
+      - name: inactive
+        in: query
+        required: false
+        description: Filter by emails that were deactivated by Postmark due to the bounce. Set to true or false. If this isn't
+          specified it will return both active and inactive.
+        schema:
+          type: boolean
+      - name: emailFilter
+        in: query
+        required: false
+        description: Filter by email address
+        schema:
+          type: string
+          format: email
+      - name: messageID
+        in: query
+        required: false
+        description: Filter by messageID
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: todate
+        in: query
+        required: false
+        description: Filter messages up to the date specified. e.g. `2014-02-01` or `2014-02-01T10:00:00` (Eastern Time)
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter messages starting from the date specified. e.g. `2014-02-01` or `2014-02-01T10:00:00` (Eastern
+          Time)
+        schema:
+          type: string
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Defaults to the transactional stream (outbound).
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BounceSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: bounces
+    x-resource-id: ID
+  /bounces/{bounceid}:
+    get:
+      operationId: get
+      tags:
+      - Bounces API
+      summary: Get a single bounce
+      parameters:
+      - name: bounceid
+        in: path
+        required: true
+        description: The ID of the bounce to retrieve.
+        schema:
+          type: string
+          example: '692560173'
+        example: '692560173'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BounceInfoResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: bounces
+      x-happy-args: --json
+  /bounces/{bounceid}/activate:
+    put:
+      operationId: activate
+      tags:
+      - Bounces API
+      summary: Activate a bounce
+      parameters:
+      - name: bounceid
+        in: path
+        required: true
+        description: The ID of the Bounce to activate.
+        schema:
+          type: string
+          example: '692560173'
+        example: '692560173'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BounceActivationResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: bounces
+  /bounces/{bounceid}/dump:
+    get:
+      tags:
+      - Bounces API
+      summary: Get bounce dump
+      parameters:
+      - name: bounceid
+        in: path
+        required: true
+        description: The ID for the bounce dump to retrieve.
+        schema:
+          type: string
+          example: '692560173'
+        example: '692560173'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BounceDumpResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      operationId: dump
+      x-postmark-token: server
+      x-pp-resource: bounces
+      x-happy-args: --json
+  /data-removals:
+    post:
+      operationId: create
+      tags:
+      - Data Removals API
+      summary: Request irreversible removal of a recipient's data (enabled on request by Postmark)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - RequestedFor
+              properties:
+                RequestedBy:
+                  type: string
+                  example: privacy@example.com
+                RequestedFor:
+                  type: string
+                  example: jane@example.com
+                NotifyWhenCompleted:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRemovalStatus'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: account
+      x-pp-resource: data-removals
+      x-live-dogfood-requires-tier: data-removals-enabled
+  /data-removals/{dataRemovalId}:
+    get:
+      operationId: get
+      tags:
+      - Data Removals API
+      summary: Check a data removal request
+      parameters:
+      - name: dataRemovalId
+        in: path
+        required: true
+        description: Data removal request ID
+        schema:
+          type: string
+          example: '91011'
+        example: '91011'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRemovalStatus'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: account
+      x-pp-resource: data-removals
+      x-happy-args: --json
+      x-live-dogfood-requires-tier: data-removals-enabled
+  /deliverystats:
+    get:
+      operationId: deliveryStats
+      summary: Get delivery stats
+      tags:
+      - Bounces API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryStatsResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: bounces
+  /domains:
+    get:
+      operationId: list
+      summary: List Domains
+      tags:
+      - Domains API
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of records to return per request. Max 500.
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of records to skip
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainListingResults'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+    post:
+      operationId: create
+      summary: Create a Domain
+      tags:
+      - Domains API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainCreationModel'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+    x-resource-id: ID
+  /domains/{domainid}:
+    get:
+      operationId: get
+      tags:
+      - Domains API
+      summary: Get a Domain
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Domain that should be retrieved.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+      x-happy-args: --json
+    put:
+      operationId: update
+      tags:
+      - Domains API
+      summary: Update a Domain
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Domain that should be modified by the request.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainEditingModel'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+    delete:
+      operationId: delete
+      tags:
+      - Domains API
+      summary: Delete a Domain
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Domain that should be deleted by the request.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+  /domains/{domainid}/rotatedkim:
+    post:
+      operationId: rotateDkim
+      tags:
+      - Domains API
+      summary: Rotate DKIM Key
+      description: 'Creates a new DKIM key to replace your current key. Until the DNS entries are confirmed,
+
+        the new values will be in the `DKIMPendingHost` and `DKIMPendingTextValue` fields.
+
+        After the new DKIM value is verified in DNS, the pending values will migrate to
+
+        `DKIMTextValue` and `DKIMPendingTextValue` and Postmark will begin to sign emails
+
+        with the new DKIM key.
+
+        '
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Sender Signature for which a new DKIM Key should be generated.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DKIMRotationResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+  /domains/{domainid}/verifydkim:
+    put:
+      operationId: verifyDkim
+      tags:
+      - Domains API
+      summary: Request DNS Verification for DKIM
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Domain for which DKIM DNS records should be verified.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+  /domains/{domainid}/verifyreturnpath:
+    put:
+      operationId: verifyReturnPath
+      tags:
+      - Domains API
+      summary: Request DNS Verification for Return-Path
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Domain for which Return-Path DNS records should be verified.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: domains
+  /domains/{domainid}/verifyspf:
+    post:
+      operationId: verifySpf
+      tags:
+      - Domains API
+      summary: Request DNS Verification for SPF (deprecated by Postmark)
+      parameters:
+      - name: domainid
+        in: path
+        required: true
+        description: The ID for the Domain for which SPF DNS records should be verified.
+        schema:
+          type: string
+          example: '2345678'
+        example: '2345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainSPFResult'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      deprecated: true
+      x-postmark-token: account
+      x-pp-resource: domains
+  /email:
+    post:
+      operationId: send
+      tags:
+      - Sending API
+      summary: Send a single email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendEmailRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendEmailResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: email
+  /email/batch:
+    post:
+      operationId: sendBatch
+      tags:
+      - Sending API
+      summary: Send a batch of emails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendEmailBatchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendEmailBatchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: email
+  /email/batchWithTemplates:
+    post:
+      operationId: sendBatchWithTemplates
+      tags:
+      - Sending API
+      - Templates API
+      summary: Send a batch of email using templates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendEmailTemplatedBatchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendEmailBatchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: email
+  /email/bulk:
+    post:
+      operationId: sendBulk
+      tags:
+      - Bulk Email API
+      summary: Send one message to many recipients (bulk). Requires account approval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkEmailRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkRequestStatus'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: email
+      x-live-dogfood-requires-tier: bulk-approved
+    get:
+      operationId: bulkList
+      tags:
+      - Bulk Email API
+      summary: List bulk requests on this server, newest first
+      parameters:
+      - name: count
+        in: query
+        required: false
+        description: Number of requests to return
+        schema:
+          type: integer
+      - name: paginationKey
+        in: query
+        required: false
+        description: Opaque cursor from the previous page's PaginationKey
+        schema:
+          type: string
+      x-pp-pagination: none
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Requests:
+                    type: array
+                    description: Bulk request status objects, newest first.
+                  PaginationKey:
+                    type: string
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: email
+      x-live-dogfood-requires-tier: bulk-approved
+  /email/bulk/{bulkRequestId}:
+    get:
+      operationId: bulkStatus
+      tags:
+      - Bulk Email API
+      summary: Get the status of one bulk request
+      parameters:
+      - name: bulkRequestId
+        in: path
+        required: true
+        description: Bulk request ID (UUID)
+        schema:
+          type: string
+          example: f24af63c-533d-4b7a-ad65-4a7b3202d3a7
+        example: f24af63c-533d-4b7a-ad65-4a7b3202d3a7
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkRequestStatus'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: email
+      x-happy-args: --json
+      x-live-dogfood-requires-tier: bulk-approved
+  /email/withTemplate:
+    post:
+      operationId: sendWithTemplate
+      tags:
+      - Sending API
+      - Templates API
+      summary: Send an email using a Template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailWithTemplateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendEmailResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: email
+  /message-streams:
+    get:
+      operationId: list
+      tags:
+      - Message Streams API
+      summary: List message streams on this server
+      parameters:
+      - name: MessageStreamType
+        in: query
+        required: false
+        description: Filter by stream type
+        schema:
+          type: string
+          enum:
+          - All
+          - Inbound
+          - Transactional
+          - Broadcasts
+          default: All
+      - name: IncludeArchivedStreams
+        in: query
+        required: false
+        description: Include archived streams
+        schema:
+          type: boolean
+          default: false
+      x-pp-pagination: none
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  MessageStreams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MessageStream'
+                  TotalCount:
+                    type: integer
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: streams
+    post:
+      operationId: create
+      tags:
+      - Message Streams API
+      summary: Create a message stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - ID
+              - Name
+              - MessageStreamType
+              properties:
+                ID:
+                  type: string
+                  description: Starts with a letter, max 30 chars, not starting with pm-.
+                  example: broadcast
+                Name:
+                  type: string
+                  example: Broadcasts
+                Description:
+                  type: string
+                MessageStreamType:
+                  type: string
+                  enum:
+                  - Transactional
+                  - Broadcasts
+                  example: Broadcasts
+                SubscriptionManagementConfiguration:
+                  type: object
+                  properties:
+                    UnsubscribeHandlingType:
+                      type: string
+                      description: None, Postmark, or Custom (Custom needs approval).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageStream'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: streams
+    x-resource-id: ID
+  /message-streams/{streamId}:
+    get:
+      operationId: get
+      tags:
+      - Message Streams API
+      summary: Get one message stream
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageStream'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: streams
+      x-happy-args: --json
+    patch:
+      operationId: update
+      tags:
+      - Message Streams API
+      summary: Edit a message stream
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Name:
+                  type: string
+                Description:
+                  type: string
+                SubscriptionManagementConfiguration:
+                  type: object
+                  properties:
+                    UnsubscribeHandlingType:
+                      type: string
+                      description: None, Postmark, or Custom (Custom needs approval).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageStream'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: streams
+  /message-streams/{streamId}/archive:
+    post:
+      operationId: archive
+      tags:
+      - Message Streams API
+      summary: Archive a message stream (purged 45 days later unless unarchived)
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ID:
+                    type: string
+                  ServerID:
+                    type: integer
+                  ExpectedPurgeDate:
+                    type: string
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: streams
+  /message-streams/{streamId}/suppressions:
+    post:
+      operationId: create
+      tags:
+      - Suppressions API
+      summary: Suppress up to 50 addresses on a message stream
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuppressionChangeRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuppressionChangeResult'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: suppressions
+      x-pp-example: postmark-pp-cli suppressions create outbound --suppressions '[{"EmailAddress":"jane@example.com"}]'
+  /message-streams/{streamId}/suppressions/delete:
+    post:
+      operationId: delete
+      tags:
+      - Suppressions API
+      summary: Remove up to 50 suppressions from a message stream (SpamComplaint suppressions cannot be removed)
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuppressionChangeRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuppressionChangeResult'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: suppressions
+      x-pp-example: postmark-pp-cli suppressions delete outbound --suppressions '[{"EmailAddress":"jane@example.com"}]'
+  /message-streams/{streamId}/suppressions/dump:
+    get:
+      operationId: list
+      tags:
+      - Suppressions API
+      summary: List suppressed addresses on a message stream
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      - name: SuppressionReason
+        in: query
+        required: false
+        description: Filter by reason
+        schema:
+          type: string
+          enum:
+          - HardBounce
+          - SpamComplaint
+          - ManualSuppression
+      - name: Origin
+        in: query
+        required: false
+        description: Filter by origin
+        schema:
+          type: string
+          enum:
+          - Recipient
+          - Customer
+          - Admin
+      - name: fromdate
+        in: query
+        required: false
+        description: Suppressions created on or after this date (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: todate
+        in: query
+        required: false
+        description: Suppressions created on or before this date (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: EmailAddress
+        in: query
+        required: false
+        description: Filter by email address
+        schema:
+          type: string
+      x-pp-pagination: none
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Suppressions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Suppression'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: suppressions
+      x-happy-args: --json
+  /message-streams/{streamId}/unarchive:
+    post:
+      operationId: unarchive
+      tags:
+      - Message Streams API
+      summary: Restore an archived message stream before its purge date
+      parameters:
+      - name: streamId
+        in: path
+        required: true
+        description: Message stream ID
+        schema:
+          type: string
+          example: broadcast
+        example: broadcast
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageStream'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: streams
+  /messages/inbound:
+    get:
+      operationId: list
+      tags:
+      - Messages API
+      summary: Inbound message search
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of messages to return per request. Max 500.
+        schema:
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of messages to skip
+        schema:
+          type: integer
+          default: 0
+      - name: recipient
+        in: query
+        required: false
+        description: Filter by the user who was receiving the email
+        schema:
+          type: string
+          format: email
+      - name: fromemail
+        in: query
+        required: false
+        description: Filter by the sender email address
+        schema:
+          type: string
+          format: email
+      - name: subject
+        in: query
+        required: false
+        description: Filter by email subject
+        schema:
+          type: string
+      - name: mailboxhash
+        in: query
+        required: false
+        description: Filter by mailboxhash
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (`blocked`, `processed`, `queued`, `failed`, `scheduled`)
+        schema:
+          type: string
+          enum:
+          - blocked
+          - processed
+          - queued
+          - failed
+          - scheduled
+      - name: todate
+        in: query
+        required: false
+        description: Filter messages up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter messages starting from the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound
+    x-resource-id: MessageID
+  /messages/inbound/{messageid}/bypass:
+    put:
+      operationId: bypass
+      tags:
+      - Messages API
+      summary: Bypass rules for a blocked inbound message
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the message which should bypass inbound rules.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound
+  /messages/inbound/{messageid}/details:
+    get:
+      operationId: get
+      tags:
+      - Messages API
+      summary: Inbound message details
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the message for which to details will be retrieved.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboundMessageFullDetailsResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound
+      x-happy-args: --json
+  /messages/inbound/{messageid}/retry:
+    put:
+      operationId: retry
+      tags:
+      - Messages API
+      summary: Retry a failed inbound message for processing
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the inbound message on which we should retry processing.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound
+  /messages/outbound:
+    get:
+      operationId: list
+      tags:
+      - Messages API
+      summary: Outbound message search
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of messages to return per request. Max 500.
+        schema:
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of messages to skip
+        schema:
+          type: integer
+          default: 0
+      - name: recipient
+        in: query
+        required: false
+        description: Filter by the user who was receiving the email
+        schema:
+          type: string
+          format: email
+      - name: fromemail
+        in: query
+        required: false
+        description: Filter by the sender email address
+        schema:
+          type: string
+          format: email
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (`queued` or `sent`)
+        schema:
+          type: string
+          enum:
+          - queued
+          - sent
+          - processed
+      - name: todate
+        in: query
+        required: false
+        description: Filter messages up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter messages starting from the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Defaults to the transactional stream (outbound).
+        schema:
+          type: string
+      - name: subject
+        in: query
+        required: false
+        description: Filter by email subject
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: messages
+    x-resource-id: MessageID
+  /messages/outbound/clicks:
+    get:
+      operationId: list
+      tags:
+      - Messages API
+      summary: Clicks for a all messages
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of message clicks to return per request. Max 500.
+        schema:
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of messages to skip
+        schema:
+          type: integer
+          default: 0
+      - name: recipient
+        in: query
+        required: false
+        description: Filter by To, Cc, Bcc
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: client_name
+        in: query
+        required: false
+        description: Filter by client name, i.e. Outlook, Gmail
+        schema:
+          type: string
+      - name: client_company
+        in: query
+        required: false
+        description: Filter by company, i.e. Microsoft, Apple, Google
+        schema:
+          type: string
+      - name: client_family
+        in: query
+        required: false
+        description: Filter by client family, i.e. OS X, Chrome
+        schema:
+          type: string
+      - name: os_name
+        in: query
+        required: false
+        description: Filter by full OS name and specific version, i.e. OS X 10.9 Mavericks, Windows 7
+        schema:
+          type: string
+      - name: os_family
+        in: query
+        required: false
+        description: Filter by kind of OS used without specific version, i.e. OS X, Windows
+        schema:
+          type: string
+      - name: os_company
+        in: query
+        required: false
+        description: Filter by company which produced the OS, i.e. Apple Computer, Inc., Microsoft Corporation
+        schema:
+          type: string
+      - name: platform
+        in: query
+        required: false
+        description: Filter by platform, i.e. webmail, desktop, mobile
+        schema:
+          type: string
+      - name: country
+        in: query
+        required: false
+        description: Filter by country messages were opened in, i.e. Denmark, Russia
+        schema:
+          type: string
+      - name: region
+        in: query
+        required: false
+        description: Filter by full name of region messages were opened in, i.e. Moscow, New York
+        schema:
+          type: string
+      - name: city
+        in: query
+        required: false
+        description: Filter by full name of region messages were opened in, i.e. Moscow, New York
+        schema:
+          type: string
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Defaults to the transactional stream (outbound).
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageClickSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: clicks
+    x-resource-id: MessageID+ReceivedAt+Recipient
+  /messages/outbound/clicks/{messageid}:
+    get:
+      operationId: get
+      tags:
+      - Messages API
+      summary: Retrieve Message Clicks
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the Outbound Message for which click statistics should be retrieved.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      - name: count
+        in: query
+        required: true
+        description: Number of message clicks to return per request. Max 500.
+        schema:
+          type: integer
+          default: 1
+          maximum: 500
+          minimum: 1
+      - name: offset
+        in: query
+        required: true
+        description: Number of messages to skip.
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageClickSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: clicks
+      x-happy-args: --json
+  /messages/outbound/opens:
+    get:
+      operationId: list
+      tags:
+      - Messages API
+      summary: Opens for all messages
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of message opens to return per request. Max 500.
+        schema:
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of messages to skip
+        schema:
+          type: integer
+          default: 0
+      - name: recipient
+        in: query
+        required: false
+        description: Filter by To, Cc, Bcc
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: client_name
+        in: query
+        required: false
+        description: Filter by client name, i.e. Outlook, Gmail
+        schema:
+          type: string
+      - name: client_company
+        in: query
+        required: false
+        description: Filter by company, i.e. Microsoft, Apple, Google
+        schema:
+          type: string
+      - name: client_family
+        in: query
+        required: false
+        description: Filter by client family, i.e. OS X, Chrome
+        schema:
+          type: string
+      - name: os_name
+        in: query
+        required: false
+        description: Filter by full OS name and specific version, i.e. OS X 10.9 Mavericks, Windows 7
+        schema:
+          type: string
+      - name: os_family
+        in: query
+        required: false
+        description: Filter by kind of OS used without specific version, i.e. OS X, Windows
+        schema:
+          type: string
+      - name: os_company
+        in: query
+        required: false
+        description: Filter by company which produced the OS, i.e. Apple Computer, Inc., Microsoft Corporation
+        schema:
+          type: string
+      - name: platform
+        in: query
+        required: false
+        description: Filter by platform, i.e. webmail, desktop, mobile
+        schema:
+          type: string
+      - name: country
+        in: query
+        required: false
+        description: Filter by country messages were opened in, i.e. Denmark, Russia
+        schema:
+          type: string
+      - name: region
+        in: query
+        required: false
+        description: Filter by full name of region messages were opened in, i.e. Moscow, New York
+        schema:
+          type: string
+      - name: city
+        in: query
+        required: false
+        description: Filter by full name of region messages were opened in, i.e. Moscow, New York
+        schema:
+          type: string
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Defaults to the transactional stream (outbound).
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOpenSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: opens
+    x-resource-id: MessageID+ReceivedAt+Recipient
+  /messages/outbound/opens/{messageid}:
+    get:
+      operationId: get
+      tags:
+      - Messages API
+      summary: Retrieve Message Opens
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the Outbound Message for which open statistics should be retrieved.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      - name: count
+        in: query
+        required: true
+        description: Number of message opens to return per request. Max 500.
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of messages to skip.
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOpenSearchResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: opens
+      x-happy-args: --json
+  /messages/outbound/{messageid}/details:
+    get:
+      operationId: get
+      tags:
+      - Messages API
+      summary: Outbound message details
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the message for which to retrieve details.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundMessageDetailsResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: messages
+      x-happy-args: --json
+  /messages/outbound/{messageid}/dump:
+    get:
+      operationId: dump
+      tags:
+      - Messages API
+      summary: Outbound message dump
+      parameters:
+      - name: messageid
+        in: path
+        required: true
+        description: The ID of the message for which to retrieve a dump.
+        schema:
+          type: string
+          example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+        example: 0ac29aee-e1cd-480d-b08d-4f48548ff48d
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundMessageDumpResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: messages
+      x-happy-args: --json
+  /senders:
+    get:
+      operationId: list
+      summary: List Sender Signatures
+      tags:
+      - Sender Signatures API
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of records to return per request. Max 500.
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of records to skip
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SenderListingResults'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: senders
+    post:
+      operationId: create
+      summary: Create a Sender Signature
+      tags:
+      - Sender Signatures API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SenderSignatureCreationModel'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SenderSignatureExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: senders
+    x-resource-id: ID
+  /senders/{signatureid}:
+    get:
+      operationId: get
+      tags:
+      - Sender Signatures API
+      summary: Get a Sender Signature
+      parameters:
+      - name: signatureid
+        in: path
+        required: true
+        description: The ID for the Sender Signature that should be retrieved.
+        schema:
+          type: string
+          example: '3456789'
+        example: '3456789'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SenderSignatureExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: senders
+      x-happy-args: --json
+    put:
+      operationId: update
+      tags:
+      - Sender Signatures API
+      summary: Update a Sender Signature
+      parameters:
+      - name: signatureid
+        in: path
+        required: true
+        description: The ID for the Sender Signature that should be modified by the request.
+        schema:
+          type: string
+          example: '3456789'
+        example: '3456789'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SenderSignatureEditingModel'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SenderSignatureExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: senders
+    delete:
+      operationId: delete
+      tags:
+      - Sender Signatures API
+      summary: Delete a Sender Signature
+      parameters:
+      - name: signatureid
+        in: path
+        required: true
+        description: The ID for the Sender Signature that should be deleted by the request.
+        schema:
+          type: string
+          example: '3456789'
+        example: '3456789'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: senders
+  /senders/{signatureid}/requestnewdkim:
+    post:
+      operationId: requestNewDkim
+      tags:
+      - Sender Signatures API
+      summary: Request a new DKIM Key (deprecated by Postmark)
+      description: 'Requests a new DKIM key to be created. Until the DNS entries are confirmed,
+
+        the new values will be in the `DKIMPendingHost` and `DKIMPendingTextValue` fields.
+
+        After the new DKIM value is verified in DNS, the pending values will migrate to
+
+        `DKIMTextValue` and `DKIMPendingTextValue` and Postmark will begin to sign emails
+
+        with the new DKIM key.
+
+        '
+      parameters:
+      - name: signatureid
+        in: path
+        required: true
+        description: The ID for the Sender Signature for which a new DKIM Key should be generated.
+        schema:
+          type: string
+          example: '3456789'
+        example: '3456789'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      deprecated: true
+      x-postmark-token: account
+      x-pp-resource: senders
+  /senders/{signatureid}/resend:
+    post:
+      operationId: resendConfirmation
+      tags:
+      - Sender Signatures API
+      summary: Resend Signature Confirmation Email
+      parameters:
+      - name: signatureid
+        in: path
+        required: true
+        description: The ID for the Sender Signature that should have its confirmation email resent.
+        schema:
+          type: string
+          example: '3456789'
+        example: '3456789'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: senders
+  /senders/{signatureid}/verifyspf:
+    post:
+      operationId: verifySpf
+      tags:
+      - Sender Signatures API
+      summary: Request DNS Verification for SPF (deprecated by Postmark)
+      parameters:
+      - name: signatureid
+        in: path
+        required: true
+        description: The ID for the Sender Signature for which SPF DNS records should be verified.
+        schema:
+          type: string
+          example: '3456789'
+        example: '3456789'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SenderSignatureExtendedInformation'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      deprecated: true
+      x-postmark-token: account
+      x-pp-resource: senders
+  /server:
+    get:
+      summary: Get Server Configuration
+      operationId: get
+      tags:
+      - Server Configuration API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerConfigurationResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: server
+    put:
+      summary: Edit Server Configuration
+      operationId: update
+      tags:
+      - Server Configuration API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditServerConfigurationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerConfigurationResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: server
+  /servers:
+    get:
+      operationId: list
+      tags:
+      - Server Management API
+      summary: List servers
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of servers to return per request.
+        schema:
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of servers to skip.
+        schema:
+          type: integer
+          default: 0
+      - name: name
+        in: query
+        required: false
+        description: Filter servers whose name contains this text.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerListingResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: servers
+    post:
+      operationId: create
+      tags:
+      - Server Management API
+      summary: Create a Server
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServerPayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedServerInfo'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: servers
+    x-resource-id: ID
+  /servers/{serverid}:
+    get:
+      operationId: get
+      tags:
+      - Server Management API
+      summary: Get a Server
+      parameters:
+      - name: serverid
+        in: path
+        required: true
+        description: The ID of the Server to get.
+        schema:
+          type: string
+          example: '1234567'
+        example: '1234567'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedServerInfo'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: servers
+      x-happy-args: --json
+    put:
+      operationId: update
+      tags:
+      - Server Management API
+      summary: Edit a Server
+      parameters:
+      - name: serverid
+        in: path
+        required: true
+        description: The ID of the Server to update.
+        schema:
+          type: string
+          example: '1234567'
+        example: '1234567'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditServerPayload'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedServerInfo'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: servers
+    delete:
+      operationId: delete
+      tags:
+      - Server Management API
+      summary: Delete a Server
+      parameters:
+      - name: serverid
+        in: path
+        required: true
+        description: The ID of the Server that should be deleted.
+        schema:
+          type: string
+          example: '1234567'
+        example: '1234567'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: account
+      x-pp-resource: servers
+  /stats/outbound:
+    get:
+      operationId: overview
+      tags:
+      - Stats API
+      summary: Get outbound overview
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundOverviewStatsResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/bounces:
+    get:
+      operationId: bounces
+      tags:
+      - Stats API
+      summary: Get bounce counts
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  HardBounce:
+                    type: integer
+                  SMTPApiError:
+                    type: integer
+                  SoftBounce:
+                    type: integer
+                  Transient:
+                    type: integer
+                  Days:
+                    type: array
+                    description: List of values (items untyped in this spec).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/clicks:
+    get:
+      operationId: clicks
+      tags:
+      - Stats API
+      summary: Get click counts
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  Clicks:
+                    type: integer
+                  Unique:
+                    type: integer
+                  Days:
+                    type: array
+                    description: Per-day rows (Days without statistics are omitted).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/clicks/browserfamilies:
+    get:
+      operationId: clickBrowsers
+      tags:
+      - Stats API
+      summary: Get browser usage by family
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  Days:
+                    type: array
+                    description: Per-day rows (Days without statistics are omitted).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/clicks/location:
+    get:
+      operationId: clickLocations
+      tags:
+      - Stats API
+      summary: Get clicks by body location
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  HTML:
+                    type: integer
+                  Text:
+                    type: integer
+                  Days:
+                    type: array
+                    description: Per-day rows (Days without statistics are omitted).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/clicks/platforms:
+    get:
+      operationId: clickPlatforms
+      tags:
+      - Stats API
+      summary: Get browser plaform usage
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  Desktop:
+                    type: integer
+                  Mobile:
+                    type: integer
+                  Unknown:
+                    type: integer
+                  Days:
+                    type: array
+                    description: Per-day rows (Days without statistics are omitted).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/opens:
+    get:
+      operationId: opens
+      tags:
+      - Stats API
+      summary: Get email open counts
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  Opens:
+                    type: integer
+                  Unique:
+                    type: integer
+                  Days:
+                    type: array
+                    description: List of values (items untyped in this spec).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/opens/emailclients:
+    get:
+      operationId: openClients
+      tags:
+      - Stats API
+      summary: Get email client usage
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  Desktop:
+                    type: integer
+                  WebMail:
+                    type: integer
+                  Mobile:
+                    type: integer
+                  Unknown:
+                    type: integer
+                  Days:
+                    type: array
+                    description: List of values (items untyped in this spec).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/opens/platforms:
+    get:
+      operationId: openPlatforms
+      tags:
+      - Stats API
+      summary: Get email platform usage
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  Desktop:
+                    type: integer
+                  WebMail:
+                    type: integer
+                  Mobile:
+                    type: integer
+                  Unknown:
+                    type: integer
+                  Days:
+                    type: array
+                    description: List of values (items untyped in this spec).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/opens/readtimes:
+    get:
+      operationId: openReadTimes
+      tags:
+      - Stats API
+      summary: Open counts by read time (seconds spent reading)
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Start date (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: todate
+        in: query
+        required: false
+        description: End date (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  Days:
+                    type: array
+                    description: Per-day rows (Days without statistics are omitted).
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/sends:
+    get:
+      operationId: sends
+      tags:
+      - Stats API
+      summary: Get sent counts
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentCountsResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/spam:
+    get:
+      operationId: spam
+      tags:
+      - Stats API
+      summary: Get spam complaints
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats up to the date specified. e.g. `2014-02-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  SpamComplaint:
+                    type: integer
+                  Days:
+                    type: array
+                    description: List of values (items untyped in this spec).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /stats/outbound/tracked:
+    get:
+      operationId: tracked
+      tags:
+      - Stats API
+      summary: Get tracked email counts
+      parameters:
+      - name: tag
+        in: query
+        required: false
+        description: Filter by tag
+        schema:
+          type: string
+      - name: fromdate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: todate
+        in: query
+        required: false
+        description: Filter stats starting from the date specified. e.g. `2014-01-01`
+        schema:
+          type: string
+          format: date
+      - name: messagestream
+        in: query
+        required: false
+        description: Filter by message stream ID. Omit for all streams.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  Tracked:
+                    type: integer
+                  Days:
+                    type: array
+                    description: List of values (items untyped in this spec).
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: stats
+  /templates:
+    get:
+      operationId: list
+      summary: Get the Templates associated with this Server
+      tags:
+      - Templates API
+      parameters:
+      - name: Count
+        in: query
+        required: true
+        description: The number of Templates to return
+        schema:
+          type: number
+          format: int
+          default: 100
+      - name: Offset
+        in: query
+        required: true
+        description: The number of Templates to "skip" before returning results.
+        schema:
+          type: number
+          format: int
+          default: 0
+      - name: TemplateType
+        in: query
+        required: false
+        description: Filter by template type
+        schema:
+          type: string
+          enum:
+          - All
+          - Standard
+          - Layout
+          default: All
+      - name: LayoutTemplate
+        in: query
+        required: false
+        description: Filter templates that use this layout alias
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateListingResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: templates
+    post:
+      summary: Create a Template
+      tags:
+      - Templates API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateRecordResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      operationId: create
+      x-postmark-token: server
+      x-pp-resource: templates
+    x-resource-id: TemplateId
+  /templates/push:
+    put:
+      operationId: pushBetweenServers
+      tags:
+      - Templates API
+      summary: Push templates from one server to another
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplatesPushModel'
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesPushResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: account
+      x-pp-resource: templates
+  /templates/validate:
+    post:
+      operationId: validate
+      summary: Test Template Content
+      tags:
+      - Templates API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateValidationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateValidationResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-pp-mutation: false
+      x-postmark-token: server
+      x-pp-resource: templates
+      x-pp-example: postmark-pp-cli templates validate --subject 'Hi {{name}}' --html-body '<p>Hello {{name}}</p>' --test-render-model
+        '{"name":"Jane"}'
+  /templates/{templateIdOrAlias}:
+    get:
+      operationId: get
+      summary: Get a Template
+      tags:
+      - Templates API
+      parameters:
+      - name: templateIdOrAlias
+        in: path
+        required: true
+        description: The 'TemplateID' or 'Alias' value for the Template you wish to retrieve.
+        schema:
+          type: string
+          example: password-reset
+        example: password-reset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateDetailResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: templates
+      x-happy-args: --json
+    put:
+      operationId: update
+      summary: Update a Template
+      tags:
+      - Templates API
+      parameters:
+      - name: templateIdOrAlias
+        in: path
+        required: true
+        description: The 'TemplateID' or 'Alias' value for the Template you wish to update.
+        schema:
+          type: string
+          example: password-reset
+        example: password-reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTemplateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateRecordResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: templates
+    delete:
+      operationId: delete
+      summary: Delete a Template
+      tags:
+      - Templates API
+      parameters:
+      - name: templateIdOrAlias
+        in: path
+        required: true
+        description: The 'TemplateID' or 'Alias' value for the Template you wish to delete.
+        schema:
+          type: string
+          example: password-reset
+        example: password-reset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: templates
+  /triggers/inboundrules:
+    post:
+      operationId: create
+      tags:
+      - Inbound Rules API
+      summary: Create an inbound rule trigger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInboundRuleRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  ID:
+                    type: integer
+                  Rule:
+                    type: string
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound-rules
+    get:
+      operationId: list
+      tags:
+      - Inbound Rules API
+      summary: List inbound rule triggers
+      parameters:
+      - name: count
+        in: query
+        required: true
+        description: Number of records to return per request.
+        schema:
+          type: integer
+          default: 100
+      - name: offset
+        in: query
+        required: true
+        description: Number of records to skip.
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  TotalCount:
+                    type: integer
+                  InboundRules:
+                    type: array
+                    items:
+                      properties:
+                        ID:
+                          type: integer
+                        Rule:
+                          type: string
+                          format: email
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound-rules
+    x-resource-id: ID
+  /triggers/inboundrules/{triggerid}:
+    delete:
+      operationId: delete
+      tags:
+      - Inbound Rules API
+      summary: Delete a single trigger
+      parameters:
+      - name: triggerid
+        in: path
+        required: true
+        description: The ID of the Inbound Rule that should be deleted.
+        schema:
+          type: string
+          example: '5678'
+        example: '5678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: An error was generated due to incorrect use of the API. See the Message associated with this response
+            for more information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '500':
+          description: Indicates an internal server error occurred.
+      x-postmark-token: server
+      x-pp-resource: inbound-rules
+  /webhooks:
+    get:
+      operationId: list
+      tags:
+      - Webhooks API
+      summary: List webhooks on this server
+      parameters:
+      - name: MessageStream
+        in: query
+        required: false
+        description: Only webhooks for this message stream
+        schema:
+          type: string
+      x-pp-pagination: none
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Webhooks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Webhook'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+    post:
+      operationId: create
+      tags:
+      - Webhooks API
+      summary: Create a webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - Url
+              properties:
+                Url:
+                  type: string
+                  example: https://example.com/postmark/webhook
+                HttpAuth:
+                  type: object
+                  properties:
+                    Username:
+                      type: string
+                    Password:
+                      type: string
+                HttpHeaders:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MessageHeader'
+                Triggers:
+                  $ref: '#/components/schemas/WebhookTriggers'
+                Verify:
+                  type: boolean
+                  default: true
+                  description: Postmark calls the URL for each enabled trigger before saving.
+                MessageStream:
+                  type: string
+                  default: outbound
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+    x-resource-id: ID
+  /webhooks/{webhookId}:
+    get:
+      operationId: get
+      tags:
+      - Webhooks API
+      summary: Get one webhook
+      parameters:
+      - name: webhookId
+        in: path
+        required: true
+        description: Webhook ID
+        schema:
+          type: string
+          example: '1234'
+        example: '1234'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+      x-happy-args: --json
+    put:
+      operationId: update
+      tags:
+      - Webhooks API
+      summary: Edit a webhook (omitted triggers stay unchanged)
+      parameters:
+      - name: webhookId
+        in: path
+        required: true
+        description: Webhook ID
+        schema:
+          type: string
+          example: '1234'
+        example: '1234'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Url:
+                  type: string
+                HttpAuth:
+                  type: object
+                  properties:
+                    Username:
+                      type: string
+                    Password:
+                      type: string
+                HttpHeaders:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MessageHeader'
+                Triggers:
+                  $ref: '#/components/schemas/WebhookTriggers'
+                Verify:
+                  type: boolean
+                  default: true
+                  description: Postmark calls the URL for each enabled trigger before saving.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+    delete:
+      operationId: delete
+      tags:
+      - Webhooks API
+      summary: Delete a webhook
+      parameters:
+      - name: webhookId
+        in: path
+        required: true
+        description: Webhook ID
+        schema:
+          type: string
+          example: '1234'
+        example: '1234'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+  /webhooks/{webhookId}/statistics:
+    get:
+      operationId: statistics
+      tags:
+      - Webhooks API
+      summary: Delivery statistics for one webhook over the last 24 hours
+      parameters:
+      - name: webhookId
+        in: path
+        required: true
+        description: Webhook ID
+        schema:
+          type: string
+          example: '1234'
+        example: '1234'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  WebhookId:
+                    type: integer
+                  ServerId:
+                    type: integer
+                  MessageStreamId:
+                    type: string
+                  Url:
+                    type: string
+                  Statuses:
+                    type: object
+                  TimeRange:
+                    type: object
+                  Metrics:
+                    type: object
+                  MetricsByTrigger:
+                    type: object
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+      x-happy-args: --json
+  /webhooks/{webhookId}/verify:
+    post:
+      operationId: verify
+      tags:
+      - Webhooks API
+      summary: Send a test request for each enabled trigger and record verified or unverified
+      parameters:
+      - name: webhookId
+        in: path
+        required: true
+        description: Webhook ID
+        schema:
+          type: string
+          example: '1234'
+        example: '1234'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookVerification'
+        '422':
+          description: Postmark API error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardPostmarkResponse'
+      x-postmark-token: server
+      x-pp-resource: webhooks
+components:
+  schemas:
+    Attachment:
+      description: An attachment for an email message.
+      properties:
+        Name:
+          type: string
+        Content:
+          type: string
+        ContentType:
+          type: string
+        ContentID:
+          type: string
+    AttachmentCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/Attachment'
+    BounceActivationResponse:
+      properties:
+        Message:
+          type: string
+        Bounce:
+          $ref: '#/components/schemas/BounceInfoResponse'
+    BounceCountElement:
+      properties:
+        Name:
+          type: string
+        Count:
+          type: integer
+        Type:
+          type: string
+    BounceDumpResponse:
+      properties:
+        Body:
+          description: Raw source of bounce. If no dump is available this will return an empty string.
+          type: string
+    BounceInfoResponse:
+      properties:
+        ID:
+          type: integer
+        Type:
+          type: string
+        TypeCode:
+          type: integer
+        Name:
+          type: string
+        Tag:
+          type: string
+        MessageID:
+          type: string
+        Description:
+          type: string
+        Details:
+          type: string
+        Email:
+          type: string
+          format: email
+        BouncedAt:
+          type: string
+          format: date-time
+        DumpAvailable:
+          type: boolean
+        Inactive:
+          type: boolean
+        CanActivate:
+          type: boolean
+        Subject:
+          type: string
+        Content:
+          type: string
+        RecordType:
+          type: string
+        ServerID:
+          type: integer
+        MessageStream:
+          type: string
+        From:
+          type: string
+    BounceSearchResponse:
+      description: ''
+      properties:
+        TotalCount:
+          type: integer
+        Bounces:
+          type: array
+          items:
+            $ref: '#/components/schemas/BounceInfoResponse'
+    BulkEmailMessage:
+      type: object
+      properties:
+        To:
+          type: string
+        Cc:
+          type: string
+        Bcc:
+          type: string
+        TemplateModel:
+          type: object
+          description: JSON object of template variables, e.g. {"name":"Jane","action_url":"https://..."}
+        Metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom key/value metadata stored with the message (searchable via metadata_<key>).
+        Headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageHeader'
+          description: 'JSON array of custom headers: [{"Name":"X-Order-ID","Value":"1234"}]'
+    BulkEmailRequest:
+      type: object
+      required:
+      - From
+      - Messages
+      properties:
+        From:
+          type: string
+          example: news@example.com
+        ReplyTo:
+          type: string
+        Subject:
+          type: string
+          example: Product update
+        HtmlBody:
+          type: string
+        TextBody:
+          type: string
+          example: What's new this month.
+        TemplateId:
+          type: integer
+        TemplateAlias:
+          type: string
+        InlineCss:
+          type: boolean
+          description: Inline the template's CSS into HTML elements before sending
+        Tag:
+          type: string
+        Metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom key/value metadata stored with the message (searchable via metadata_<key>).
+        MessageStream:
+          type: string
+          description: Defaults to the broadcast stream.
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        Headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageHeader'
+          description: 'JSON array of custom headers: [{"Name":"X-Order-ID","Value":"1234"}]'
+        Messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkEmailMessage'
+          description: JSON array of message objects (up to 500)
+    BulkRequestStatus:
+      type: object
+      properties:
+        Id:
+          type: string
+        Status:
+          type: string
+          enum:
+          - Accepted
+          - Processing
+          - Completed
+          - Cancelled
+        SubmittedAt:
+          type: string
+        TotalMessages:
+          type: integer
+        PercentageCompleted:
+          type: number
+        Subject:
+          type: string
+        ReleasedCount:
+          type: integer
+        FailedCount:
+          type: integer
+    CreateInboundRuleRequest:
+      description: ''
+      properties:
+        Rule:
+          format: email
+          type: string
+          description: Email address or domain to block for inbound mail
+    CreateServerPayload:
+      description: ''
+      properties:
+        Name:
+          type: string
+          example: Staging
+        Color:
+          type: string
+          description: 'Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange.'
+        RawEmailEnabled:
+          type: boolean
+        DeliveryHookUrl:
+          type: string
+        SmtpApiActivated:
+          type: boolean
+        InboundHookUrl:
+          type: string
+        BounceHookUrl:
+          type: string
+        OpenHookUrl:
+          type: string
+        PostFirstOpenOnly:
+          type: boolean
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        ClickHookUrl:
+          type: string
+        InboundDomain:
+          type: string
+        InboundSpamThreshold:
+          type: integer
+        DeliveryType:
+          type: string
+          enum:
+          - Live
+          - Sandbox
+          description: Set at create time only.
+        IncludeBounceContentInHook:
+          type: boolean
+        EnableSmtpApiErrorHooks:
+          type: boolean
+      required:
+      - Name
+    CreateTemplateRequest:
+      description: The contents required for creating a new template.
+      properties:
+        Alias:
+          type: string
+          description: The optional string identifier for referring to this Template (numbers, letters, and '.', '-', '_'
+            characters, starts with a letter).
+          example: password-reset
+        Name:
+          type: string
+          description: The friendly display name for the template.
+          example: Password reset
+        Subject:
+          type: string
+          description: The Subject template definition for this Template.
+          example: Reset your password
+        HtmlBody:
+          type: string
+          description: The HTML template definition for this Template.
+          example: <p>Hi {{name}}</p>
+        TextBody:
+          type: string
+          description: The Text template definition for this Template.
+        TemplateType:
+          type: string
+          enum:
+          - Standard
+          - Layout
+          default: Standard
+          description: Immutable after create.
+        LayoutTemplate:
+          type: string
+          description: Alias of the layout to use. Empty string clears it.
+      required:
+      - Name
+    DKIMRotationResponse:
+      description: ''
+      properties:
+        Name:
+          type: string
+        DKIMVerified:
+          type: boolean
+        WeakDKIM:
+          type: boolean
+        DKIMHost:
+          type: string
+        DKIMPendingHost:
+          type: string
+        DKIMPendingTextValue:
+          type: string
+        DKIMRevokedHost:
+          type: string
+        DKIMRevokedTextValue:
+          type: string
+        SafeToRemoveRevokedKeyFromDNS:
+          type: boolean
+        DKIMUpdateStatus:
+          type: string
+        ID:
+          type: integer
+          format: int64
+        DKIMTextValue:
+          type: string
+    DataRemovalStatus:
+      type: object
+      properties:
+        ID:
+          type: integer
+        Status:
+          type: string
+          enum:
+          - Pending
+          - Done
+    DeliveryStatsResponse:
+      description: ''
+      properties:
+        InactiveMails:
+          type: integer
+        Bounces:
+          type: array
+          description: List of values (items untyped in this spec).
+    DomainCreationModel:
+      description: ''
+      properties:
+        Name:
+          type: string
+          example: mail.example.com
+        ReturnPathDomain:
+          type: string
+      required:
+      - Name
+    DomainEditingModel:
+      description: ''
+      properties:
+        ReturnPathDomain:
+          type: string
+    DomainExtendedInformation:
+      description: ''
+      properties:
+        Name:
+          type: string
+        SPFVerified:
+          type: boolean
+        SPFHost:
+          type: string
+        SPFTextValue:
+          type: string
+        DKIMVerified:
+          type: boolean
+        WeakDKIM:
+          type: boolean
+        DKIMHost:
+          type: string
+        DKIMPendingHost:
+          type: string
+        DKIMPendingTextValue:
+          type: string
+        DKIMRevokedHost:
+          type: string
+        DKIMRevokedTextValue:
+          type: string
+        SafeToRemoveRevokedKeyFromDNS:
+          type: boolean
+        DKIMUpdateStatus:
+          type: string
+        ReturnPathDomain:
+          type: string
+        ReturnPathDomainVerified:
+          type: boolean
+        ReturnPathDomainCNAMEValue:
+          type: string
+        ID:
+          type: integer
+          format: int64
+        DKIMTextValue:
+          type: string
+    DomainInformation:
+      description: ''
+      properties:
+        Name:
+          type: string
+        SPFVerified:
+          type: boolean
+        DKIMVerified:
+          type: boolean
+        WeakDKIM:
+          type: boolean
+        ReturnPathDomainVerified:
+          type: boolean
+        ID:
+          type: integer
+          format: int64
+    DomainListingResults:
+      description: ''
+      properties:
+        TotalCount:
+          type: integer
+        Domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/DomainInformation'
+    DomainSPFResult:
+      description: ''
+      properties:
+        SPFHost:
+          type: string
+        SPFVerified:
+          type: boolean
+        SPFTextValue:
+          type: string
+    DynamicResponse:
+      description: The properties of this object will vary based request parameters.
+    EditServerConfigurationRequest:
+      properties:
+        Name:
+          type: string
+        Color:
+          type: string
+          description: 'Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange.'
+        RawEmailEnabled:
+          type: boolean
+        DeliveryHookUrl:
+          type: string
+        SmtpApiActivated:
+          type: boolean
+        InboundHookUrl:
+          type: string
+        BounceHookUrl:
+          type: string
+        OpenHookUrl:
+          type: string
+        PostFirstOpenOnly:
+          type: boolean
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        ClickHookUrl:
+          description: Webhook url allowing real-time notification when tracked links are clicked.
+          type: string
+        InboundDomain:
+          type: string
+        InboundSpamThreshold:
+          type: integer
+        IncludeBounceContentInHook:
+          type: boolean
+        EnableSmtpApiErrorHooks:
+          type: boolean
+    EditServerPayload:
+      description: ''
+      properties:
+        Name:
+          type: string
+        Color:
+          type: string
+          description: 'Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange.'
+        RawEmailEnabled:
+          type: boolean
+        DeliveryHookUrl:
+          type: string
+        SmtpApiActivated:
+          type: boolean
+        InboundHookUrl:
+          type: string
+        BounceHookUrl:
+          type: string
+        OpenHookUrl:
+          type: string
+        PostFirstOpenOnly:
+          type: boolean
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        ClickHookUrl:
+          type: string
+        InboundDomain:
+          type: string
+        InboundSpamThreshold:
+          type: integer
+        IncludeBounceContentInHook:
+          type: boolean
+        EnableSmtpApiErrorHooks:
+          type: boolean
+    EditTemplateRequest:
+      description: The contents required for creating a new template.
+      properties:
+        Alias:
+          type: string
+          description: The optional string identifier for referring to this Template (numbers, letters, and '.', '-', '_'
+            characters, starts with a letter).
+        Name:
+          type: string
+          description: The friendly display name for the template.
+        Subject:
+          type: string
+          description: The Subject template definition for this Template.
+        HtmlBody:
+          type: string
+          description: The HTML template definition for this Template.
+        TextBody:
+          type: string
+          description: The Text template definition for this Template.
+        LayoutTemplate:
+          type: string
+          description: Alias of the layout to use. Empty string clears it.
+    EmailNameAddressPair:
+      description: ''
+      properties:
+        Name:
+          type: string
+        Email:
+          type: string
+    EmailWithTemplateRequest:
+      properties:
+        TemplateId:
+          description: Required if 'TemplateAlias' is not specified.
+          type: integer
+        TemplateAlias:
+          description: Required if 'TemplateId' is not specified.
+          type: string
+          example: welcome
+        TemplateModel:
+          type: object
+          description: JSON object of template variables, e.g. {"name":"Jane","action_url":"https://..."}
+          example:
+            name: Jane
+        InlineCss:
+          type: boolean
+          default: true
+          description: Inline the template's CSS into HTML elements before sending
+        From:
+          type: string
+          format: email
+          example: sender@example.com
+        To:
+          type: string
+          format: email
+          example: jane@example.com
+        Cc:
+          type: string
+          format: email
+        Bcc:
+          type: string
+          format: email
+        Tag:
+          type: string
+        ReplyTo:
+          type: string
+        Headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageHeader'
+          description: 'JSON array of custom headers: [{"Name":"X-Order-ID","Value":"1234"}]'
+        TrackOpens:
+          description: Activate open tracking for this email.
+          type: boolean
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        MessageStream:
+          type: string
+          description: Message stream ID to send through. Defaults to the server's transactional stream (outbound).
+        Metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom key/value metadata stored with the message (searchable via metadata_<key>).
+      required:
+      - From
+      - To
+      - TemplateModel
+      description: Provide TemplateId or TemplateAlias.
+    ExtendedMessageClickEventInformation:
+      description: ''
+      properties:
+        ClickLocation:
+          type: string
+        Client:
+          description: ''
+          properties:
+            Name:
+              type: string
+            Company:
+              type: string
+            Family:
+              type: string
+        OS:
+          properties:
+            Name:
+              type: string
+            Company:
+              type: string
+            Family:
+              type: string
+        Platform:
+          type: string
+        UserAgent:
+          type: string
+        OriginalLink:
+          type: string
+        Geo:
+          properties:
+            CountryISOCode:
+              type: string
+            Country:
+              type: string
+            RegionISOCode:
+              type: string
+            Region:
+              type: string
+            City:
+              type: string
+            Zip:
+              type: string
+            Coords:
+              type: string
+            IP:
+              type: string
+        MessageID:
+          type: string
+        ReceivedAt:
+          type: string
+          format: date-time
+        Tag:
+          type: string
+        Recipient:
+          type: string
+          format: email
+        RecordType:
+          type: string
+        MessageStream:
+          type: string
+    ExtendedMessageOpenEventInformation:
+      description: ''
+      properties:
+        FirstOpen:
+          type: boolean
+        Client:
+          description: ''
+          properties:
+            Name:
+              type: string
+            Company:
+              type: string
+            Family:
+              type: string
+        OS:
+          properties:
+            Name:
+              type: string
+            Company:
+              type: string
+            Family:
+              type: string
+        Platform:
+          type: string
+        UserAgent:
+          type: string
+        Geo:
+          properties:
+            CountryISOCode:
+              type: string
+            Country:
+              type: string
+            RegionISOCode:
+              type: string
+            Region:
+              type: string
+            City:
+              type: string
+            Zip:
+              type: string
+            Coords:
+              type: string
+            IP:
+              type: string
+        MessageID:
+          type: string
+        ReceivedAt:
+          type: string
+          format: date-time
+        Tag:
+          type: string
+        Recipient:
+          type: string
+          format: email
+        RecordType:
+          type: string
+        MessageStream:
+          type: string
+    ExtendedServerInfo:
+      description: ''
+      properties:
+        ID:
+          type: integer
+        Name:
+          type: string
+        ApiTokens:
+          type: array
+          description: List of values (items untyped in this spec).
+        ServerLink:
+          type: string
+        Color:
+          type: string
+          description: 'Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange.'
+        SmtpApiActivated:
+          type: boolean
+        RawEmailEnabled:
+          type: boolean
+        DeliveryHookUrl:
+          type: string
+        InboundAddress:
+          type: string
+        InboundHookUrl:
+          type: string
+        BounceHookUrl:
+          type: string
+        OpenHookUrl:
+          type: string
+        PostFirstOpenOnly:
+          type: boolean
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        ClickHookUrl:
+          type: string
+        InboundDomain:
+          type: string
+        InboundHash:
+          type: string
+        InboundSpamThreshold:
+          type: integer
+        DeliveryType:
+          type: string
+          enum:
+          - Live
+          - Sandbox
+          description: Set at create time only.
+        IncludeBounceContentInHook:
+          type: boolean
+        EnableSmtpApiErrorHooks:
+          type: boolean
+    HeaderCollection:
+      type: array
+      items:
+        $ref: '#/components/schemas/MessageHeader'
+    InboundMessageDetail:
+      description: ''
+      properties:
+        From:
+          type: string
+        FromName:
+          type: string
+        FromFull:
+          description: ''
+          properties:
+            Email:
+              type: string
+            Name:
+              type: string
+        To:
+          type: string
+        ToFull:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Cc:
+          type: string
+        CcFull:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        ReplyTo:
+          type: string
+        OriginalRecipient:
+          type: string
+        Subject:
+          type: string
+        Date:
+          type: string
+        MailboxHash:
+          type: string
+        Tag:
+          type: string
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        MessageID:
+          type: string
+        Status:
+          type: string
+    InboundMessageFullDetailsResponse:
+      properties:
+        From:
+          type: string
+        FromName:
+          type: string
+        FromFull:
+          description: ''
+          properties:
+            Email:
+              type: string
+            Name:
+              type: string
+        To:
+          type: string
+        ToFull:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Cc:
+          type: string
+        CcFull:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        ReplyTo:
+          type: string
+        OriginalRecipient:
+          type: string
+        Subject:
+          type: string
+        Date:
+          type: string
+        MailboxHash:
+          type: string
+        TextBody:
+          type: string
+        HtmlBody:
+          type: string
+        Tag:
+          type: string
+        Headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageHeader'
+          description: 'JSON array of custom headers: [{"Name":"X-Order-ID","Value":"1234"}]'
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        MessageID:
+          type: string
+        BlockedReason:
+          type: string
+        Status:
+          type: string
+    InboundSearchResponse:
+      description: ''
+      properties:
+        TotalCount:
+          type: integer
+        InboundMessages:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboundMessageDetail'
+    MessageClickSearchResponse:
+      properties:
+        TotalCount:
+          type: integer
+        Clicks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtendedMessageClickEventInformation'
+    MessageEventDetails:
+      description: ''
+      properties:
+        Recipient:
+          type: string
+        Type:
+          type: string
+        ReceivedAt:
+          type: string
+          format: date-time
+        Details:
+          properties:
+            Summary:
+              type: string
+            BounceID:
+              type: string
+            DeliveryMessage:
+              type: string
+            DestinationServer:
+              type: string
+            DestinationIP:
+              type: string
+    MessageHeader:
+      description: A single header for an email message.
+      properties:
+        Name:
+          description: The header's name.
+          type: string
+        Value:
+          description: The header's value.
+          type: string
+    MessageOpenSearchResponse:
+      properties:
+        TotalCount:
+          type: integer
+        Opens:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtendedMessageOpenEventInformation'
+    MessageStream:
+      type: object
+      properties:
+        ID:
+          type: string
+        ServerID:
+          type: integer
+        Name:
+          type: string
+        Description:
+          type: string
+          nullable: true
+        MessageStreamType:
+          type: string
+          enum:
+          - Inbound
+          - Broadcasts
+          - Transactional
+        CreatedAt:
+          type: string
+        UpdatedAt:
+          type: string
+          nullable: true
+        ArchivedAt:
+          type: string
+          nullable: true
+        ExpectedPurgeDate:
+          type: string
+          nullable: true
+        SubscriptionManagementConfiguration:
+          type: object
+          properties:
+            UnsubscribeHandlingType:
+              type: string
+          description: JSON object, e.g. {"UnsubscribeHandlingType":"Postmark"}
+    OutboundMessageDetail:
+      description: ''
+      properties:
+        Tag:
+          type: string
+        MessageID:
+          type: string
+        To:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Cc:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Bcc:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Recipients:
+          type: array
+          items:
+            type: string
+        ReceivedAt:
+          type: string
+          format: date-time
+        From:
+          type: string
+        Subject:
+          type: string
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        Status:
+          type: string
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        MessageStream:
+          type: string
+        Metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom key/value metadata stored with the message (searchable via metadata_<key>).
+        Sandboxed:
+          type: boolean
+    OutboundMessageDetailsResponse:
+      properties:
+        TextBody:
+          type: string
+        HtmlBody:
+          type: string
+        Body:
+          type: string
+        Tag:
+          type: string
+        MessageID:
+          type: string
+        To:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Cc:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Bcc:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailNameAddressPair'
+        Recipients:
+          type: array
+          items:
+            type: string
+        ReceivedAt:
+          type: string
+          format: date-time
+        From:
+          type: string
+        Subject:
+          type: string
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        Status:
+          type: string
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        MessageEvents:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageEventDetails'
+        MessageStream:
+          type: string
+        Metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom key/value metadata stored with the message (searchable via metadata_<key>).
+        Sandboxed:
+          type: boolean
+    OutboundMessageDumpResponse:
+      properties:
+        Body:
+          description: Raw source of message. If no dump is available this will return an empty string.
+          type: string
+    OutboundOverviewStatsResponse:
+      description: ''
+      properties:
+        Sent:
+          type: integer
+        Bounced:
+          type: integer
+        BounceRate:
+          type: number
+        SpamComplaints:
+          type: integer
+        SpamComplaintsRate:
+          type: number
+        Opens:
+          type: integer
+        UniqueOpens:
+          type: integer
+        Tracked:
+          type: integer
+        WithOpenTracking:
+          type: integer
+        WithLinkTracking:
+          type: integer
+        TotalClicks:
+          type: integer
+        UniqueLinksClicked:
+          type: integer
+        TotalTrackedLinksSent:
+          type: integer
+        WithClientRecorded:
+          type: integer
+        WithPlatformRecorded:
+          type: integer
+        SMTPApiErrors:
+          type: integer
+    OutboundSearchResponse:
+      description: ''
+      properties:
+        TotalCount:
+          type: integer
+        Messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutboundMessageDetail'
+          description: JSON array of message objects (up to 500)
+    SendEmailBatchRequest:
+      type: array
+      items:
+        $ref: '#/components/schemas/SendEmailRequest'
+    SendEmailBatchResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/SendEmailResponse'
+    SendEmailRequest:
+      properties:
+        From:
+          description: The sender email address. Must have a registered and confirmed Sender Signature.
+          type: string
+          example: sender@example.com
+        To:
+          description: Recipient email address. Multiple addresses are comma seperated. Max 50.
+          type: string
+          example: jane@example.com
+        Cc:
+          description: Recipient email address. Multiple addresses are comma seperated. Max 50.
+          type: string
+        Bcc:
+          description: Bcc recipient email address. Multiple addresses are comma seperated. Max 50.
+          type: string
+        Subject:
+          description: Email Subject
+          type: string
+          example: Your receipt
+        Tag:
+          description: Email tag that allows you to categorize outgoing emails and get detailed statistics.
+          type: string
+        HtmlBody:
+          description: If no TextBody specified HTML email message
+          type: string
+        TextBody:
+          description: If no HtmlBody specified Plain text email message
+          type: string
+          example: Thanks for your order.
+        ReplyTo:
+          description: Reply To override email address. Defaults to the Reply To set in the sender signature.
+          type: string
+        TrackOpens:
+          description: Activate open tracking for this email.
+          type: boolean
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        Headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageHeader'
+          description: 'JSON array of custom headers: [{"Name":"X-Order-ID","Value":"1234"}]'
+        Attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: 'JSON array of attachments: [{"Name":"invoice.pdf","Content":"<base64>","ContentType":"application/pdf"}]'
+        MessageStream:
+          type: string
+          description: Message stream ID to send through. Defaults to the server's transactional stream (outbound).
+        Metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Custom key/value metadata stored with the message (searchable via metadata_<key>).
+      required:
+      - From
+      - To
+    SendEmailResponse:
+      description: The standard response when a postmark message is sent
+      properties:
+        To:
+          type: string
+        SubmittedAt:
+          type: string
+          format: date-time
+        MessageID:
+          type: string
+        ErrorCode:
+          type: integer
+        Message:
+          type: string
+    SendEmailTemplatedBatchRequest:
+      properties:
+        Messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailWithTemplateRequest'
+          description: JSON array of message objects (up to 500)
+    SenderListingResults:
+      description: ''
+      properties:
+        TotalCount:
+          type: integer
+        SenderSignatures:
+          type: array
+          items:
+            $ref: '#/components/schemas/SenderSignatureInformation'
+    SenderSignatureCreationModel:
+      description: ''
+      properties:
+        FromEmail:
+          type: string
+          format: email
+          example: support@example.com
+        Name:
+          type: string
+          example: Support
+        ReplyToEmail:
+          type: string
+          format: email
+        ReturnPathDomain:
+          type: string
+        ConfirmationPersonalNote:
+          type: string
+          maxLength: 400
+      required:
+      - FromEmail
+      - Name
+    SenderSignatureEditingModel:
+      description: ''
+      properties:
+        Name:
+          type: string
+        ReplyToEmail:
+          type: string
+          format: email
+        ReturnPathDomain:
+          type: string
+        ConfirmationPersonalNote:
+          type: string
+          maxLength: 400
+    SenderSignatureExtendedInformation:
+      description: ''
+      properties:
+        Domain:
+          type: string
+        EmailAddress:
+          type: string
+          format: email
+        ReplyToEmailAddress:
+          type: string
+          format: email
+        Name:
+          type: string
+        Confirmed:
+          type: boolean
+        SPFVerified:
+          type: boolean
+        SPFHost:
+          type: string
+        SPFTextValue:
+          type: string
+        DKIMVerified:
+          type: boolean
+        WeakDKIM:
+          type: boolean
+        DKIMHost:
+          type: string
+        DKIMPendingHost:
+          type: string
+        DKIMPendingTextValue:
+          type: string
+        DKIMRevokedHost:
+          type: string
+        DKIMRevokedTextValue:
+          type: string
+        SafeToRemoveRevokedKeyFromDNS:
+          type: boolean
+        DKIMUpdateStatus:
+          type: string
+        ReturnPathDomain:
+          type: string
+        ReturnPathDomainVerified:
+          type: boolean
+        ReturnPathDomainCNAMEValue:
+          type: string
+        ID:
+          type: integer
+          format: int64
+        DKIMTextValue:
+          type: string
+        ConfirmationPersonalNote:
+          type: string
+          maxLength: 400
+    SenderSignatureInformation:
+      description: ''
+      properties:
+        Domain:
+          type: string
+        EmailAddress:
+          type: string
+          format: email
+        ReplyToEmailAddress:
+          type: string
+          format: email
+        Name:
+          type: string
+        Confirmed:
+          type: boolean
+        ID:
+          type: integer
+          format: int64
+    SentCountsResponse:
+      description: The result of a get sent counts operation.
+      properties:
+        Sent:
+          type: integer
+        Days:
+          type: array
+          description: List of values (items untyped in this spec).
+    ServerConfigurationResponse:
+      properties:
+        ID:
+          type: integer
+        Name:
+          type: string
+        ApiTokens:
+          type: array
+          description: List of values (items untyped in this spec).
+        ServerLink:
+          type: string
+        Color:
+          type: string
+          description: 'Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange.'
+        InboundAddress:
+          type: string
+          format: email
+        RawEmailEnabled:
+          type: boolean
+        DeliveryHookUrl:
+          type: string
+        SmtpApiActivated:
+          type: boolean
+        InboundHookUrl:
+          type: string
+        BounceHookUrl:
+          type: string
+        OpenHookUrl:
+          type: string
+        PostFirstOpenOnly:
+          type: boolean
+        TrackOpens:
+          type: boolean
+          description: Record opens for this message
+        TrackLinks:
+          type: string
+          enum:
+          - None
+          - HtmlAndText
+          - HtmlOnly
+          - TextOnly
+          description: 'Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly'
+        ClickHookUrl:
+          type: string
+        InboundDomain:
+          type: string
+        InboundHash:
+          type: string
+        InboundSpamThreshold:
+          type: integer
+        DeliveryType:
+          type: string
+          enum:
+          - Live
+          - Sandbox
+          description: Set at create time only.
+        IncludeBounceContentInHook:
+          type: boolean
+        EnableSmtpApiErrorHooks:
+          type: boolean
+    ServerListingResponse:
+      description: The results of listing servers.
+      properties:
+        TotalCount:
+          type: integer
+        Servers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtendedServerInfo'
+    StandardPostmarkResponse:
+      description: A Postmark API error.
+      properties:
+        ErrorCode:
+          type: integer
+        Message:
+          type: string
+    Suppression:
+      type: object
+      properties:
+        EmailAddress:
+          type: string
+        SuppressionReason:
+          type: string
+        Origin:
+          type: string
+        CreatedAt:
+          type: string
+    SuppressionChangeRequest:
+      type: object
+      required:
+      - Suppressions
+      properties:
+        Suppressions:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            properties:
+              EmailAddress:
+                type: string
+          description: JSON array of {"EmailAddress":"..."} objects (max 50)
+          example:
+          - EmailAddress: jane@example.com
+    SuppressionChangeResult:
+      type: object
+      properties:
+        Suppressions:
+          type: array
+          items:
+            type: object
+            properties:
+              EmailAddress:
+                type: string
+              Status:
+                type: string
+              Message:
+                type: string
+                nullable: true
+          description: JSON array of {"EmailAddress":"..."} objects (max 50)
+    TemplateDetailResponse:
+      properties:
+        Name:
+          type: string
+          description: The display name for the template.
+        Alias:
+          type: string
+          description: The user-supplied alias for this template.
+        HtmlBody:
+          type: string
+          description: The content to use for the HtmlBody when this template is used to send email.
+        TextBody:
+          type: string
+          description: The content to use for the TextBody when this template is used to send email.
+        AssociatedServerId:
+          type: integer
+          description: The ID of the Server with which this template is associated.
+        Subject:
+          type: string
+          description: The content to use for the Subject when this template is used to send email.
+        Active:
+          type: boolean
+          description: Indicates that this template may be used for sending email.
+        TemplateType:
+          type: string
+          enum:
+          - Standard
+          - Layout
+        LayoutTemplate:
+          type: string
+          nullable: true
+        TemplateId:
+          type: integer
+          description: The ID associated with the template.
+    TemplateListingResponse:
+      properties:
+        TotalCount:
+          type: number
+          description: The total number of Templates API associated with this server.
+        Templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateRecordResponse'
+          description: Basic information for each Template returned from the query.
+    TemplateRecordResponse:
+      properties:
+        Name:
+          type: string
+          description: The display name for this template.
+        Alias:
+          type: string
+          description: The user-supplied alias for this template.
+        TemplateId:
+          type: number
+          format: int
+          description: The associated ID for this template.
+        Active:
+          type: boolean
+          description: True if this template is currently available for use.
+        TemplateType:
+          type: string
+          enum:
+          - Standard
+          - Layout
+        LayoutTemplate:
+          type: string
+          nullable: true
+    TemplateValidationError:
+      properties:
+        Message:
+          type: string
+        Line:
+          type: integer
+        CharacterPosition:
+          type: integer
+    TemplateValidationRequest:
+      properties:
+        Subject:
+          type: string
+          description: 'The subject content to validate. Must be specified if HtmlBody or
+
+            TextBody are not. See our template language documentation for more
+
+            information on the syntax for this field.
+
+            '
+          example: Hi {{name}}
+        HtmlBody:
+          type: string
+          description: 'The html body content to validate. Must be specified if Subject or
+
+            TextBody are not. See our template language documentation for more
+
+            information on the syntax for this field.
+
+            '
+          example: <p>Hello {{name}}</p>
+        TextBody:
+          type: string
+          description: 'The text body content to validate. Must be specified if HtmlBody or
+
+            Subject are not. See our template language documentation for more
+
+            information on the syntax for this field.
+
+            '
+          example: Hello {{name}}
+        TestRenderModel:
+          type: object
+          description: The model to be used when rendering test content.
+        InlineCssForHtmlTestRender:
+          type: boolean
+          default: true
+          description: 'When HtmlBody is specified, the test render will have style blocks
+
+            inlined as style attributes on matching html elements. You may disable
+
+            the css inlining behavior by passing false for this parameter.
+
+            '
+        TemplateType:
+          type: string
+          enum:
+          - Standard
+          - Layout
+        LayoutTemplate:
+          type: string
+    TemplateValidationResponse:
+      properties:
+        AllContentIsValid:
+          type: boolean
+        TextBody:
+          $ref: '#/components/schemas/TemplateValidationResult'
+        HtmlBody:
+          $ref: '#/components/schemas/TemplateValidationResult'
+        Subject:
+          $ref: '#/components/schemas/TemplateValidationResult'
+        SuggestedTemplateModel:
+          type: object
+    TemplateValidationResult:
+      properties:
+        ContentIsValid:
+          type: boolean
+        ValidationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateValidationError'
+        RenderedContent:
+          type: string
+    TemplatesPushModel:
+      description: ''
+      properties:
+        PerformChanges:
+          type: boolean
+          example: false
+        SourceServerID:
+          type: integer
+          example: 1234567
+        DestinationServerID:
+          type: integer
+          example: 7654321
+      required:
+      - SourceServerID
+      - DestinationServerID
+      - PerformChanges
+    TemplatesPushResponse:
+      description: ''
+      properties:
+        TotalCount:
+          type: integer
+        Templates:
+          type: array
+          items:
+            properties:
+              Action:
+                type: string
+              TemplateId:
+                type: integer
+              Alias:
+                type: string
+              Name:
+                type: string
+    Webhook:
+      type: object
+      properties:
+        ID:
+          type: integer
+        Url:
+          type: string
+        MessageStream:
+          type: string
+        Status:
+          type: string
+        HttpAuth:
+          type: object
+          properties:
+            Username:
+              type: string
+            Password:
+              type: string
+          description: JSON object with Username and Password for webhook basic auth
+        HttpHeaders:
+          type: array
+          description: List of values (items untyped in this spec).
+        Triggers:
+          type: object
+          properties:
+            Open:
+              type: object
+              properties:
+                Enabled:
+                  type: boolean
+                PostFirstOpenOnly:
+                  type: boolean
+            Click:
+              type: object
+              properties:
+                Enabled:
+                  type: boolean
+            Delivery:
+              type: object
+              properties:
+                Enabled:
+                  type: boolean
+            Bounce:
+              type: object
+              properties:
+                Enabled:
+                  type: boolean
+                IncludeContent:
+                  type: boolean
+            SpamComplaint:
+              type: object
+              properties:
+                Enabled:
+                  type: boolean
+                IncludeContent:
+                  type: boolean
+            SubscriptionChange:
+              type: object
+              properties:
+                Enabled:
+                  type: boolean
+          description: JSON object of webhook triggers, e.g. {"Bounce":{"Enabled":true},"Delivery":{"Enabled":true}}
+    WebhookTriggers:
+      type: object
+      properties:
+        Open:
+          type: object
+          properties:
+            Enabled:
+              type: boolean
+            PostFirstOpenOnly:
+              type: boolean
+        Click:
+          type: object
+          properties:
+            Enabled:
+              type: boolean
+        Delivery:
+          type: object
+          properties:
+            Enabled:
+              type: boolean
+        Bounce:
+          type: object
+          properties:
+            Enabled:
+              type: boolean
+            IncludeContent:
+              type: boolean
+        SpamComplaint:
+          type: object
+          properties:
+            Enabled:
+              type: boolean
+            IncludeContent:
+              type: boolean
+        SubscriptionChange:
+          type: object
+          properties:
+            Enabled:
+              type: boolean
+    WebhookVerification:
+      type: object
+      properties:
+        Id:
+          type: integer
+        Url:
+          type: string
+        Success:
+          type: boolean
+        Message:
+          type: string
+        Results:
+          type: array
+          description: List of values (items untyped in this spec).
+  securitySchemes:
+    serverToken:
+      type: apiKey
+      in: header
+      name: X-Postmark-Server-Token
+      x-auth-vars:
+      - name: POSTMARK_SERVER_TOKEN
+        kind: per_call
+        required: false
+        sensitive: true
+        description: Server API token for one Postmark server. Set this OR POSTMARK_ACCOUNT_TOKEN with --server <name>.
+      x-auth-key-url: https://account.postmarkapp.com/servers
+    accountToken:
+      type: apiKey
+      in: header
+      name: X-Postmark-Account-Token
+      x-auth-vars:
+      - name: POSTMARK_ACCOUNT_TOKEN
+        kind: per_call
+        required: false
+        sensitive: true
+        description: Account API token. Required for servers, domains, senders, template push, and data removals; also lets
+          --server <name> look up server tokens.
+      x-auth-key-url: https://account.postmarkapp.com/api_tokens

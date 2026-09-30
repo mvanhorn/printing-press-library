@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "postmark-pp-cli"
+display_name = "Postmark"
+description = "One account token for every Postmark server, and a local archive that outlasts Postmark's 45-day retention."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/postmark-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+POSTMARK_SERVER_TOKEN = true

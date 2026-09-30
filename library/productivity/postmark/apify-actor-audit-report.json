@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/postmark-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260930-123010-65f85318",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

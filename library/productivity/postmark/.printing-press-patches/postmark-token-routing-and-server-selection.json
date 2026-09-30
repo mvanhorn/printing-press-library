@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-123010-65f85318",
+  "base_printing_press_version": "4.32.6",
+  "id": "postmark-token-routing-and-server-selection",
+  "summary": "Route each request to the server or account token header by path, pick servers by name through the account token, and mask server API tokens in responses.",
+  "reason": "Postmark endpoints accept exactly one of two token headers, and sending both to GET /server returns 401 ErrorCode 10. The generator cannot attach one credential per operation, so a client hook deletes the header the path does not accept. The same file adds --server/--sandbox, servers use/tokens, offset=0 on paged GETs (Postmark rejects count without offset), and no-prune sync --full.",
+  "files": [
+    "internal/cli/postmark_servers.go",
+    "internal/cli/postmark_servers_test.go"
+  ],
+  "markers": [
+    "postmarkTokenRoutingTransport",
+    "withInternalTokens"
+  ],
+  "validated_outcome": "go test ./... passes; live dogfood 372/372 with both tokens set; GET /server and GET /servers return masked ApiTokens.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4842"
+}

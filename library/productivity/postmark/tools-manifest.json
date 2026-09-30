@@ -1,0 +1,3022 @@
+{
+  "api_name": "postmark",
+  "base_url": "https://api.postmarkapp.com",
+  "description": "One account token for every Postmark server, and a local archive that outlasts Postmark's 45-day retention.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-Postmark-Account-Token",
+    "in": "header",
+    "env_vars": [
+      "POSTMARK_ACCOUNT_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "POSTMARK_ACCOUNT_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Account API token. Required for servers, domains, senders, template push, and data removals; also lets --server \u003cname\u003e look up server tokens."
+      }
+    ],
+    "key_url": "https://account.postmarkapp.com/api_tokens"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bounces_activate",
+      "description": "Activate a bounce. Required: bounceid. Returns the updated BounceActivationResponse.",
+      "method": "PUT",
+      "path": "/bounces/{bounceid}/activate",
+      "params": [
+        {
+          "name": "bounceid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Bounce to activate.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bounces_delivery-stats",
+      "description": "Get delivery stats. Returns the DeliveryStatsResponse.",
+      "method": "GET",
+      "path": "/deliverystats",
+      "params": []
+    },
+    {
+      "name": "bounces_dump",
+      "description": "Get bounce dump. Required: bounceid. Returns the BounceDumpResponse.",
+      "method": "GET",
+      "path": "/bounces/{bounceid}/dump",
+      "params": [
+        {
+          "name": "bounceid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the bounce dump to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bounces_get",
+      "description": "Get a single bounce. Required: bounceid. Returns the BounceInfoResponse.",
+      "method": "GET",
+      "path": "/bounces/{bounceid}",
+      "params": [
+        {
+          "name": "bounceid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the bounce to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bounces_list",
+      "description": "Get bounces. Required: count (default: 100), offset (default: 0). Optional: type, inactive, emailFilter (plus 5 more). Returns array of BounceInfoResponse.",
+      "method": "GET",
+      "path": "/bounces",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of bounces to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of bounces to skip.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by type of bounce"
+        },
+        {
+          "name": "inactive",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by emails that were deactivated by Postmark due to the bounce. Set to true or false. If this isn't specified it will return both active and inactive."
+        },
+        {
+          "name": "emailFilter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by email address"
+        },
+        {
+          "name": "messageID",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by messageID"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter messages up to the date specified. e.g. `2014-02-01` or `2014-02-01T10:00:00` (Eastern Time)"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter messages starting from the date specified. e.g. `2014-02-01` or `2014-02-01T10:00:00` (Eastern Time)"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Defaults to the transactional stream (outbound)."
+        }
+      ]
+    },
+    {
+      "name": "clicks_get",
+      "description": "Retrieve Message Clicks. Required: messageid, count (default: 1), offset (default: 0). Returns array of ExtendedMessageClickEventInformation.",
+      "method": "GET",
+      "path": "/messages/outbound/clicks/{messageid}",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Outbound Message for which click statistics should be retrieved.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of message clicks to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clicks_list",
+      "description": "Clicks for a all messages. Required: count (default: 100), offset (default: 0). Optional: recipient, tag, client_name (plus 10 more). Returns array of ExtendedMessageClickEventInformation.",
+      "method": "GET",
+      "path": "/messages/outbound/clicks",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of message clicks to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip",
+          "required": true
+        },
+        {
+          "name": "recipient",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by To, Cc, Bcc"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "client_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by client name, i.e. Outlook, Gmail"
+        },
+        {
+          "name": "client_company",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by company, i.e. Microsoft, Apple, Google"
+        },
+        {
+          "name": "client_family",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by client family, i.e. OS X, Chrome"
+        },
+        {
+          "name": "os_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full OS name and specific version, i.e. OS X 10.9 Mavericks, Windows 7"
+        },
+        {
+          "name": "os_family",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by kind of OS used without specific version, i.e. OS X, Windows"
+        },
+        {
+          "name": "os_company",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by company which produced the OS, i.e. Apple Computer, Inc., Microsoft Corporation"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by platform, i.e. webmail, desktop, mobile"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by country messages were opened in, i.e. Denmark, Russia"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full name of region messages were opened in, i.e. Moscow, New York"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full name of region messages were opened in, i.e. Moscow, New York"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Defaults to the transactional stream (outbound)."
+        }
+      ]
+    },
+    {
+      "name": "data_removals_create",
+      "description": "Request irreversible removal of a recipient's data (enabled on request by Postmark). Required: RequestedFor. Optional: NotifyWhenCompleted, RequestedBy. Returns the new DataRemovalStatus.",
+      "method": "POST",
+      "path": "/data-removals",
+      "params": [
+        {
+          "name": "NotifyWhenCompleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Notify when completed"
+        },
+        {
+          "name": "RequestedBy",
+          "type": "string",
+          "location": "body",
+          "description": "Requested by"
+        },
+        {
+          "name": "RequestedFor",
+          "type": "string",
+          "location": "body",
+          "description": "Requested for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_removals_get",
+      "description": "Check a data removal request. Required: dataRemovalId. Returns the DataRemovalStatus.",
+      "method": "GET",
+      "path": "/data-removals/{dataRemovalId}",
+      "params": [
+        {
+          "name": "dataRemovalId",
+          "type": "string",
+          "location": "path",
+          "description": "Data removal request ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_create",
+      "description": "Create a Domain. Required: Name. Optional: ReturnPathDomain. Returns the new DomainExtendedInformation.",
+      "method": "POST",
+      "path": "/domains",
+      "params": [
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "ReturnPathDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Return path domain"
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "Delete a Domain. Required: domainid. Returns the StandardPostmarkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/domains/{domainid}",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Domain that should be deleted by the request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Get a Domain. Required: domainid. Returns the DomainExtendedInformation.",
+      "method": "GET",
+      "path": "/domains/{domainid}",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Domain that should be retrieved.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "List Domains. Required: count (default: 100), offset (default: 0). Returns array of DomainInformation.",
+      "method": "GET",
+      "path": "/domains",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to skip",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_rotate-dkim",
+      "description": "Creates a new DKIM key to replace your current key. Until the DNS entries are confirmed, the new values will be in the `DKIMPendingHost` and `DKIMPendingTextValue` fields. After the new DKIM value is verified in DNS, the pending values will migrate to `DKIMTextValue` and `DKIMPendingTextValue` and Postmark will begin to sign emails with the new DKIM key. Required: domainid. Returns the new DkimrotationResponse.",
+      "method": "POST",
+      "path": "/domains/{domainid}/rotatedkim",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature for which a new DKIM Key should be generated.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_update",
+      "description": "Update a Domain. Required: domainid. Optional: ReturnPathDomain. Returns the updated DomainExtendedInformation.",
+      "method": "PUT",
+      "path": "/domains/{domainid}",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Domain that should be modified by the request.",
+          "required": true
+        },
+        {
+          "name": "ReturnPathDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Return path domain"
+        }
+      ]
+    },
+    {
+      "name": "domains_verify-dkim",
+      "description": "Request DNS Verification for DKIM. Required: domainid. Returns the updated DomainExtendedInformation.",
+      "method": "PUT",
+      "path": "/domains/{domainid}/verifydkim",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Domain for which DKIM DNS records should be verified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_verify-return-path",
+      "description": "Request DNS Verification for Return-Path. Required: domainid. Returns the updated DomainExtendedInformation.",
+      "method": "PUT",
+      "path": "/domains/{domainid}/verifyreturnpath",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Domain for which Return-Path DNS records should be verified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_verify-spf",
+      "description": "Request DNS Verification for SPF (deprecated by Postmark). Required: domainid. Returns the new DomainSpfresult.",
+      "method": "POST",
+      "path": "/domains/{domainid}/verifyspf",
+      "params": [
+        {
+          "name": "domainid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Domain for which SPF DNS records should be verified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email_bulk-list",
+      "description": "List bulk requests on this server, newest first. Optional: count, paginationKey. Returns the EmailBulkListResponse.",
+      "method": "GET",
+      "path": "/email/bulk",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of requests to return"
+        },
+        {
+          "name": "paginationKey",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor from the previous page's PaginationKey"
+        }
+      ]
+    },
+    {
+      "name": "email_bulk-status",
+      "description": "Get the status of one bulk request. Required: bulkRequestId. Returns the BulkRequestStatus.",
+      "method": "GET",
+      "path": "/email/bulk/{bulkRequestId}",
+      "params": [
+        {
+          "name": "bulkRequestId",
+          "type": "string",
+          "location": "path",
+          "description": "Bulk request ID (UUID)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email_send",
+      "description": "Send a single email. Required: From, To. Optional: Attachments, Bcc, Cc (plus 10 more). Returns the new SendEmailResponse.",
+      "method": "POST",
+      "path": "/email",
+      "params": [
+        {
+          "name": "Attachments",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of attachments: [{'Name':'invoice."
+        },
+        {
+          "name": "Bcc",
+          "type": "string",
+          "location": "body",
+          "description": "Bcc recipient email address. Multiple addresses are comma seperated. Max 50."
+        },
+        {
+          "name": "Cc",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient email address. Multiple addresses are comma seperated. Max 50."
+        },
+        {
+          "name": "From",
+          "type": "string",
+          "location": "body",
+          "description": "The sender email address. Must have a registered and confirmed Sender Signature.",
+          "required": true
+        },
+        {
+          "name": "Headers",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of custom headers: [{'Name':'X-Order-ID','Value':'1234'}]"
+        },
+        {
+          "name": "HtmlBody",
+          "type": "string",
+          "location": "body",
+          "description": "If no TextBody specified HTML email message"
+        },
+        {
+          "name": "MessageStream",
+          "type": "string",
+          "location": "body",
+          "description": "Message stream ID to send through. Defaults to the server's transactional stream (outbound)."
+        },
+        {
+          "name": "Metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom key/value metadata stored with the message (searchable via metadata_\u003ckey\u003e)."
+        },
+        {
+          "name": "ReplyTo",
+          "type": "string",
+          "location": "body",
+          "description": "Reply To override email address. Defaults to the Reply To set in the sender signature."
+        },
+        {
+          "name": "Subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email Subject"
+        },
+        {
+          "name": "Tag",
+          "type": "string",
+          "location": "body",
+          "description": "Email tag that allows you to categorize outgoing emails and get detailed statistics."
+        },
+        {
+          "name": "TextBody",
+          "type": "string",
+          "location": "body",
+          "description": "If no HtmlBody specified Plain text email message"
+        },
+        {
+          "name": "To",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient email address. Multiple addresses are comma seperated. Max 50.",
+          "required": true
+        },
+        {
+          "name": "TrackLinks",
+          "type": "string",
+          "location": "body",
+          "description": "Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly"
+        },
+        {
+          "name": "TrackOpens",
+          "type": "bool",
+          "location": "body",
+          "description": "Activate open tracking for this email."
+        }
+      ]
+    },
+    {
+      "name": "email_send-batch",
+      "description": "Send a batch of emails. Returns array of SendEmailResponse.",
+      "method": "POST",
+      "path": "/email/batch",
+      "params": []
+    },
+    {
+      "name": "email_send-batch-with-templates",
+      "description": "Send a batch of email using templates. Optional: Messages. Returns array of SendEmailResponse.",
+      "method": "POST",
+      "path": "/email/batchWithTemplates",
+      "params": [
+        {
+          "name": "Messages",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of message objects (up to 500)"
+        }
+      ]
+    },
+    {
+      "name": "email_send-bulk",
+      "description": "Send one message to many recipients (bulk). Requires account approval. Required: From, Messages. Optional: Attachments, Headers, HtmlBody (plus 11 more). Returns the new BulkRequestStatus.",
+      "method": "POST",
+      "path": "/email/bulk",
+      "params": [
+        {
+          "name": "Attachments",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of attachments: [{'Name':'invoice."
+        },
+        {
+          "name": "From",
+          "type": "string",
+          "location": "body",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "Headers",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of custom headers: [{'Name':'X-Order-ID','Value':'1234'}]"
+        },
+        {
+          "name": "HtmlBody",
+          "type": "string",
+          "location": "body",
+          "description": "Html body"
+        },
+        {
+          "name": "InlineCss",
+          "type": "bool",
+          "location": "body",
+          "description": "Inline the template's CSS into HTML elements before sending"
+        },
+        {
+          "name": "MessageStream",
+          "type": "string",
+          "location": "body",
+          "description": "Defaults to the broadcast stream."
+        },
+        {
+          "name": "Messages",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of message objects (up to 500)",
+          "required": true
+        },
+        {
+          "name": "Metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom key/value metadata stored with the message (searchable via metadata_\u003ckey\u003e)."
+        },
+        {
+          "name": "ReplyTo",
+          "type": "string",
+          "location": "body",
+          "description": "Reply to"
+        },
+        {
+          "name": "Subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        },
+        {
+          "name": "Tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag"
+        },
+        {
+          "name": "TemplateAlias",
+          "type": "string",
+          "location": "body",
+          "description": "Template alias"
+        },
+        {
+          "name": "TemplateId",
+          "type": "int",
+          "location": "body",
+          "description": "Template id"
+        },
+        {
+          "name": "TextBody",
+          "type": "string",
+          "location": "body",
+          "description": "Text body"
+        },
+        {
+          "name": "TrackLinks",
+          "type": "string",
+          "location": "body",
+          "description": "Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly"
+        },
+        {
+          "name": "TrackOpens",
+          "type": "bool",
+          "location": "body",
+          "description": "Record opens for this message"
+        }
+      ]
+    },
+    {
+      "name": "email_send-with-template",
+      "description": "Send an email using a Template. Required: From, TemplateModel, To. Optional: Attachments, Bcc, Cc (plus 10 more). Returns the new SendEmailResponse.",
+      "method": "POST",
+      "path": "/email/withTemplate",
+      "params": [
+        {
+          "name": "Attachments",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of attachments: [{'Name':'invoice."
+        },
+        {
+          "name": "Bcc",
+          "type": "string",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "Cc",
+          "type": "string",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "From",
+          "type": "string",
+          "location": "body",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "Headers",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of custom headers: [{'Name':'X-Order-ID','Value':'1234'}]"
+        },
+        {
+          "name": "InlineCss",
+          "type": "bool",
+          "location": "body",
+          "description": "Inline the template's CSS into HTML elements before sending"
+        },
+        {
+          "name": "MessageStream",
+          "type": "string",
+          "location": "body",
+          "description": "Message stream ID to send through. Defaults to the server's transactional stream (outbound)."
+        },
+        {
+          "name": "Metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom key/value metadata stored with the message (searchable via metadata_\u003ckey\u003e)."
+        },
+        {
+          "name": "ReplyTo",
+          "type": "string",
+          "location": "body",
+          "description": "Reply to"
+        },
+        {
+          "name": "Tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag"
+        },
+        {
+          "name": "TemplateAlias",
+          "type": "string",
+          "location": "body",
+          "description": "Required if 'TemplateId' is not specified."
+        },
+        {
+          "name": "TemplateId",
+          "type": "int",
+          "location": "body",
+          "description": "Required if 'TemplateAlias' is not specified."
+        },
+        {
+          "name": "TemplateModel",
+          "type": "object",
+          "location": "body",
+          "description": "JSON object of template variables, e.g. {'name':'Jane','action_url':'https://...'}",
+          "required": true
+        },
+        {
+          "name": "To",
+          "type": "string",
+          "location": "body",
+          "description": "To",
+          "required": true
+        },
+        {
+          "name": "TrackLinks",
+          "type": "string",
+          "location": "body",
+          "description": "Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly"
+        },
+        {
+          "name": "TrackOpens",
+          "type": "bool",
+          "location": "body",
+          "description": "Activate open tracking for this email."
+        }
+      ]
+    },
+    {
+      "name": "inbound_bypass",
+      "description": "Bypass rules for a blocked inbound message. Required: messageid. Returns the updated StandardPostmarkResponse.",
+      "method": "PUT",
+      "path": "/messages/inbound/{messageid}/bypass",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the message which should bypass inbound rules.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbound_get",
+      "description": "Inbound message details. Required: messageid. Returns the InboundMessageFullDetailsResponse.",
+      "method": "GET",
+      "path": "/messages/inbound/{messageid}/details",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the message for which to details will be retrieved.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbound_list",
+      "description": "Inbound message search. Required: count (default: 100), offset (default: 0). Optional: recipient, fromemail, subject (plus 5 more). Returns array of InboundMessageDetail.",
+      "method": "GET",
+      "path": "/messages/inbound",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip",
+          "required": true
+        },
+        {
+          "name": "recipient",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the user who was receiving the email"
+        },
+        {
+          "name": "fromemail",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the sender email address"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by email subject"
+        },
+        {
+          "name": "mailboxhash",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by mailboxhash"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status (`blocked`, `processed`, `queued`, `failed`, `scheduled`)"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter messages up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter messages starting from the date specified. e.g. `2014-02-01`"
+        }
+      ]
+    },
+    {
+      "name": "inbound_retry",
+      "description": "Retry a failed inbound message for processing. Required: messageid. Returns the updated StandardPostmarkResponse.",
+      "method": "PUT",
+      "path": "/messages/inbound/{messageid}/retry",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the inbound message on which we should retry processing.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbound_rules_create",
+      "description": "Create an inbound rule trigger. Optional: Rule. Returns the new InboundRulesCreateResponse.",
+      "method": "POST",
+      "path": "/triggers/inboundrules",
+      "params": [
+        {
+          "name": "Rule",
+          "type": "string",
+          "location": "body",
+          "description": "Email address or domain to block for inbound mail"
+        }
+      ]
+    },
+    {
+      "name": "inbound_rules_delete",
+      "description": "Delete a single trigger. Required: triggerid. Returns the StandardPostmarkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/triggers/inboundrules/{triggerid}",
+      "params": [
+        {
+          "name": "triggerid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Inbound Rule that should be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbound_rules_list",
+      "description": "List inbound rule triggers. Required: count (default: 100), offset (default: 0). Returns array of InboundRulesListItem.",
+      "method": "GET",
+      "path": "/triggers/inboundrules",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to return per request.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to skip.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_dump",
+      "description": "Outbound message dump. Required: messageid. Returns the OutboundMessageDumpResponse.",
+      "method": "GET",
+      "path": "/messages/outbound/{messageid}/dump",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the message for which to retrieve a dump.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Outbound message details. Required: messageid. Returns the OutboundMessageDetailsResponse.",
+      "method": "GET",
+      "path": "/messages/outbound/{messageid}/details",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the message for which to retrieve details.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "Outbound message search. Required: count (default: 100), offset (default: 0). Optional: recipient, fromemail, tag (plus 5 more). Returns array of OutboundMessageDetail.",
+      "method": "GET",
+      "path": "/messages/outbound",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip",
+          "required": true
+        },
+        {
+          "name": "recipient",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the user who was receiving the email"
+        },
+        {
+          "name": "fromemail",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by the sender email address"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status (`queued` or `sent`)"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter messages up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter messages starting from the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Defaults to the transactional stream (outbound)."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by email subject"
+        }
+      ]
+    },
+    {
+      "name": "opens_get",
+      "description": "Retrieve Message Opens. Required: messageid, count (default: 100), offset (default: 0). Returns array of ExtendedMessageOpenEventInformation.",
+      "method": "GET",
+      "path": "/messages/outbound/opens/{messageid}",
+      "params": [
+        {
+          "name": "messageid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Outbound Message for which open statistics should be retrieved.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of message opens to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opens_list",
+      "description": "Opens for all messages. Required: count (default: 100), offset (default: 0). Optional: recipient, tag, client_name (plus 10 more). Returns array of ExtendedMessageOpenEventInformation.",
+      "method": "GET",
+      "path": "/messages/outbound/opens",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of message opens to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip",
+          "required": true
+        },
+        {
+          "name": "recipient",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by To, Cc, Bcc"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "client_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by client name, i.e. Outlook, Gmail"
+        },
+        {
+          "name": "client_company",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by company, i.e. Microsoft, Apple, Google"
+        },
+        {
+          "name": "client_family",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by client family, i.e. OS X, Chrome"
+        },
+        {
+          "name": "os_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full OS name and specific version, i.e. OS X 10.9 Mavericks, Windows 7"
+        },
+        {
+          "name": "os_family",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by kind of OS used without specific version, i.e. OS X, Windows"
+        },
+        {
+          "name": "os_company",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by company which produced the OS, i.e. Apple Computer, Inc., Microsoft Corporation"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by platform, i.e. webmail, desktop, mobile"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by country messages were opened in, i.e. Denmark, Russia"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full name of region messages were opened in, i.e. Moscow, New York"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full name of region messages were opened in, i.e. Moscow, New York"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Defaults to the transactional stream (outbound)."
+        }
+      ]
+    },
+    {
+      "name": "senders_create",
+      "description": "Create a Sender Signature. Required: FromEmail, Name. Optional: ConfirmationPersonalNote, ReplyToEmail, ReturnPathDomain. Returns the new SenderSignatureExtendedInformation.",
+      "method": "POST",
+      "path": "/senders",
+      "params": [
+        {
+          "name": "ConfirmationPersonalNote",
+          "type": "string",
+          "location": "body",
+          "description": "Confirmation personal note"
+        },
+        {
+          "name": "FromEmail",
+          "type": "string",
+          "location": "body",
+          "description": "From email",
+          "required": true
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "ReplyToEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Reply to email"
+        },
+        {
+          "name": "ReturnPathDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Return path domain"
+        }
+      ]
+    },
+    {
+      "name": "senders_delete",
+      "description": "Delete a Sender Signature. Required: signatureid. Returns the StandardPostmarkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/senders/{signatureid}",
+      "params": [
+        {
+          "name": "signatureid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature that should be deleted by the request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "senders_get",
+      "description": "Get a Sender Signature. Required: signatureid. Returns the SenderSignatureExtendedInformation.",
+      "method": "GET",
+      "path": "/senders/{signatureid}",
+      "params": [
+        {
+          "name": "signatureid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature that should be retrieved.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "senders_list",
+      "description": "List Sender Signatures. Required: count (default: 100), offset (default: 0). Returns array of SenderSignatureInformation.",
+      "method": "GET",
+      "path": "/senders",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to return per request. Max 500.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to skip",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "senders_request-new-dkim",
+      "description": "Requests a new DKIM key to be created. Until the DNS entries are confirmed, the new values will be in the `DKIMPendingHost` and `DKIMPendingTextValue` fields. After the new DKIM value is verified in DNS, the pending values will migrate to `DKIMTextValue` and `DKIMPendingTextValue` and Postmark will begin to sign emails with the new DKIM key. Required: signatureid. Returns the new StandardPostmarkResponse. Deprecated.",
+      "method": "POST",
+      "path": "/senders/{signatureid}/requestnewdkim",
+      "params": [
+        {
+          "name": "signatureid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature for which a new DKIM Key should be generated.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "senders_resend-confirmation",
+      "description": "Resend Signature Confirmation Email. Required: signatureid. Returns the new StandardPostmarkResponse.",
+      "method": "POST",
+      "path": "/senders/{signatureid}/resend",
+      "params": [
+        {
+          "name": "signatureid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature that should have its confirmation email resent.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "senders_update",
+      "description": "Update a Sender Signature. Required: signatureid. Optional: ConfirmationPersonalNote, Name, ReplyToEmail (plus 1 more). Returns the updated SenderSignatureExtendedInformation.",
+      "method": "PUT",
+      "path": "/senders/{signatureid}",
+      "params": [
+        {
+          "name": "signatureid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature that should be modified by the request.",
+          "required": true
+        },
+        {
+          "name": "ConfirmationPersonalNote",
+          "type": "string",
+          "location": "body",
+          "description": "Confirmation personal note"
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "ReplyToEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Reply to email"
+        },
+        {
+          "name": "ReturnPathDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Return path domain"
+        }
+      ]
+    },
+    {
+      "name": "senders_verify-spf",
+      "description": "Request DNS Verification for SPF (deprecated by Postmark). Required: signatureid. Returns the new SenderSignatureExtendedInformation.",
+      "method": "POST",
+      "path": "/senders/{signatureid}/verifyspf",
+      "params": [
+        {
+          "name": "signatureid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID for the Sender Signature for which SPF DNS records should be verified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "server_get",
+      "description": "Get Server Configuration. Returns the ServerConfigurationResponse.",
+      "method": "GET",
+      "path": "/server",
+      "params": []
+    },
+    {
+      "name": "server_update",
+      "description": "Edit Server Configuration. Optional: BounceHookUrl, ClickHookUrl, Color (plus 13 more). Returns the updated ServerConfigurationResponse.",
+      "method": "PUT",
+      "path": "/server",
+      "params": [
+        {
+          "name": "BounceHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Bounce hook url"
+        },
+        {
+          "name": "ClickHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook url allowing real-time notification when tracked links are clicked."
+        },
+        {
+          "name": "Color",
+          "type": "string",
+          "location": "body",
+          "description": "Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange."
+        },
+        {
+          "name": "DeliveryHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Delivery hook url"
+        },
+        {
+          "name": "EnableSmtpApiErrorHooks",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable smtp api error hooks"
+        },
+        {
+          "name": "InboundDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Inbound domain"
+        },
+        {
+          "name": "InboundHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Inbound hook url"
+        },
+        {
+          "name": "InboundSpamThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Inbound spam threshold"
+        },
+        {
+          "name": "IncludeBounceContentInHook",
+          "type": "bool",
+          "location": "body",
+          "description": "Include bounce content in hook"
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "OpenHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Open hook url"
+        },
+        {
+          "name": "PostFirstOpenOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Post first open only"
+        },
+        {
+          "name": "RawEmailEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Raw email enabled"
+        },
+        {
+          "name": "SmtpApiActivated",
+          "type": "bool",
+          "location": "body",
+          "description": "Smtp api activated"
+        },
+        {
+          "name": "TrackLinks",
+          "type": "string",
+          "location": "body",
+          "description": "Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly"
+        },
+        {
+          "name": "TrackOpens",
+          "type": "bool",
+          "location": "body",
+          "description": "Record opens for this message"
+        }
+      ]
+    },
+    {
+      "name": "servers_create",
+      "description": "Create a Server. Required: Name. Optional: BounceHookUrl, ClickHookUrl, Color (plus 13 more). Returns the new ExtendedServerInfo.",
+      "method": "POST",
+      "path": "/servers",
+      "params": [
+        {
+          "name": "BounceHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Bounce hook url"
+        },
+        {
+          "name": "ClickHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Click hook url"
+        },
+        {
+          "name": "Color",
+          "type": "string",
+          "location": "body",
+          "description": "Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange."
+        },
+        {
+          "name": "DeliveryHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Delivery hook url"
+        },
+        {
+          "name": "DeliveryType",
+          "type": "string",
+          "location": "body",
+          "description": "Set at create time only."
+        },
+        {
+          "name": "EnableSmtpApiErrorHooks",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable smtp api error hooks"
+        },
+        {
+          "name": "InboundDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Inbound domain"
+        },
+        {
+          "name": "InboundHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Inbound hook url"
+        },
+        {
+          "name": "InboundSpamThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Inbound spam threshold"
+        },
+        {
+          "name": "IncludeBounceContentInHook",
+          "type": "bool",
+          "location": "body",
+          "description": "Include bounce content in hook"
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "OpenHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Open hook url"
+        },
+        {
+          "name": "PostFirstOpenOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Post first open only"
+        },
+        {
+          "name": "RawEmailEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Raw email enabled"
+        },
+        {
+          "name": "SmtpApiActivated",
+          "type": "bool",
+          "location": "body",
+          "description": "Smtp api activated"
+        },
+        {
+          "name": "TrackLinks",
+          "type": "string",
+          "location": "body",
+          "description": "Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly"
+        },
+        {
+          "name": "TrackOpens",
+          "type": "bool",
+          "location": "body",
+          "description": "Record opens for this message"
+        }
+      ]
+    },
+    {
+      "name": "servers_delete",
+      "description": "Delete a Server. Required: serverid. Returns the StandardPostmarkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverid}",
+      "params": [
+        {
+          "name": "serverid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Server that should be deleted.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_get",
+      "description": "Get a Server. Required: serverid. Returns the ExtendedServerInfo.",
+      "method": "GET",
+      "path": "/servers/{serverid}",
+      "params": [
+        {
+          "name": "serverid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Server to get.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_list",
+      "description": "List servers. Required: count (default: 100), offset (default: 0). Optional: name. Returns array of ExtendedServerInfo.",
+      "method": "GET",
+      "path": "/servers",
+      "params": [
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Number of servers to return per request.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of servers to skip.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter servers whose name contains this text."
+        }
+      ]
+    },
+    {
+      "name": "servers_update",
+      "description": "Edit a Server. Required: serverid. Optional: BounceHookUrl, ClickHookUrl, Color (plus 13 more). Returns the updated ExtendedServerInfo.",
+      "method": "PUT",
+      "path": "/servers/{serverid}",
+      "params": [
+        {
+          "name": "serverid",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Server to update.",
+          "required": true
+        },
+        {
+          "name": "BounceHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Bounce hook url"
+        },
+        {
+          "name": "ClickHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Click hook url"
+        },
+        {
+          "name": "Color",
+          "type": "string",
+          "location": "body",
+          "description": "Server color: Purple, Blue, Turquoise, Green, Red, Yellow, Grey, or Orange."
+        },
+        {
+          "name": "DeliveryHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Delivery hook url"
+        },
+        {
+          "name": "EnableSmtpApiErrorHooks",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable smtp api error hooks"
+        },
+        {
+          "name": "InboundDomain",
+          "type": "string",
+          "location": "body",
+          "description": "Inbound domain"
+        },
+        {
+          "name": "InboundHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Inbound hook url"
+        },
+        {
+          "name": "InboundSpamThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Inbound spam threshold"
+        },
+        {
+          "name": "IncludeBounceContentInHook",
+          "type": "bool",
+          "location": "body",
+          "description": "Include bounce content in hook"
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "OpenHookUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Open hook url"
+        },
+        {
+          "name": "PostFirstOpenOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Post first open only"
+        },
+        {
+          "name": "RawEmailEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Raw email enabled"
+        },
+        {
+          "name": "SmtpApiActivated",
+          "type": "bool",
+          "location": "body",
+          "description": "Smtp api activated"
+        },
+        {
+          "name": "TrackLinks",
+          "type": "string",
+          "location": "body",
+          "description": "Link tracking: None, HtmlAndText, HtmlOnly, or TextOnly"
+        },
+        {
+          "name": "TrackOpens",
+          "type": "bool",
+          "location": "body",
+          "description": "Record opens for this message"
+        }
+      ]
+    },
+    {
+      "name": "stats_bounces",
+      "description": "Get bounce counts. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsBouncesResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/bounces",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_click-browsers",
+      "description": "Get browser usage by family. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsClickBrowsersResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/clicks/browserfamilies",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_click-locations",
+      "description": "Get clicks by body location. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsClickLocationsResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/clicks/location",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_click-platforms",
+      "description": "Get browser plaform usage. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsClickPlatformsResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/clicks/platforms",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_clicks",
+      "description": "Get click counts. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsClicksResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/clicks",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_open-clients",
+      "description": "Get email client usage. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsOpenClientsResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/opens/emailclients",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_open-platforms",
+      "description": "Get email platform usage. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsOpenPlatformsResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/opens/platforms",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_open-read-times",
+      "description": "Open counts by read time (seconds spent reading). Optional: tag, fromdate, todate (plus 1 more). Returns the StatsOpenReadTimesResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/opens/readtimes",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_opens",
+      "description": "Get email open counts. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsOpensResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/opens",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_overview",
+      "description": "Get outbound overview. Optional: tag, fromdate, todate (plus 1 more). Returns the OutboundOverviewStatsResponse.",
+      "method": "GET",
+      "path": "/stats/outbound",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_sends",
+      "description": "Get sent counts. Optional: tag, fromdate, todate (plus 1 more). Returns the SentCountsResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/sends",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_spam",
+      "description": "Get spam complaints. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsSpamResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/spam",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats up to the date specified. e.g. `2014-02-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "stats_tracked",
+      "description": "Get tracked email counts. Optional: tag, fromdate, todate (plus 1 more). Returns the StatsTrackedResponse.",
+      "method": "GET",
+      "path": "/stats/outbound/tracked",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stats starting from the date specified. e.g. `2014-01-01`"
+        },
+        {
+          "name": "messagestream",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message stream ID. Omit for all streams."
+        }
+      ]
+    },
+    {
+      "name": "streams_archive",
+      "description": "Archive a message stream (purged 45 days later unless unarchived). Required: streamId. Returns the new StreamsArchiveResponse.",
+      "method": "POST",
+      "path": "/message-streams/{streamId}/archive",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "streams_create",
+      "description": "Create a message stream. Required: ID, MessageStreamType, Name. Optional: Description, SubscriptionManagementConfiguration. Returns the new MessageStream.",
+      "method": "POST",
+      "path": "/message-streams",
+      "params": [
+        {
+          "name": "Description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "ID",
+          "type": "string",
+          "location": "body",
+          "description": "Starts with a letter, max 30 chars, not starting with pm-.",
+          "required": true
+        },
+        {
+          "name": "MessageStreamType",
+          "type": "string",
+          "location": "body",
+          "description": "Message stream type",
+          "required": true
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "subscription-management-configuration-unsubscribe-handling-type",
+          "wire_name": "SubscriptionManagementConfiguration.UnsubscribeHandlingType",
+          "type": "string",
+          "location": "body",
+          "description": "None, Postmark, or Custom (Custom needs approval)."
+        }
+      ]
+    },
+    {
+      "name": "streams_get",
+      "description": "Get one message stream. Required: streamId. Returns the MessageStream.",
+      "method": "GET",
+      "path": "/message-streams/{streamId}",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "streams_list",
+      "description": "List message streams on this server. Optional: MessageStreamType (default: All), IncludeArchivedStreams (default: false). Returns array of MessageStream.",
+      "method": "GET",
+      "path": "/message-streams",
+      "params": [
+        {
+          "name": "MessageStreamType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by stream type"
+        },
+        {
+          "name": "IncludeArchivedStreams",
+          "type": "bool",
+          "location": "query",
+          "description": "Include archived streams"
+        }
+      ]
+    },
+    {
+      "name": "streams_unarchive",
+      "description": "Restore an archived message stream before its purge date. Required: streamId. Returns the new MessageStream.",
+      "method": "POST",
+      "path": "/message-streams/{streamId}/unarchive",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "streams_update",
+      "description": "Edit a message stream. Required: streamId. Optional: Description, Name, SubscriptionManagementConfiguration. Returns the updated MessageStream.",
+      "method": "PATCH",
+      "path": "/message-streams/{streamId}",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        },
+        {
+          "name": "Description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "subscription-management-configuration-unsubscribe-handling-type",
+          "wire_name": "SubscriptionManagementConfiguration.UnsubscribeHandlingType",
+          "type": "string",
+          "location": "body",
+          "description": "None, Postmark, or Custom (Custom needs approval)."
+        }
+      ]
+    },
+    {
+      "name": "suppressions_create",
+      "description": "Suppress up to 50 addresses on a message stream. Required: streamId, Suppressions. Returns array of SuppressionsCreateItem.",
+      "method": "POST",
+      "path": "/message-streams/{streamId}/suppressions",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        },
+        {
+          "name": "Suppressions",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of {'EmailAddress':'...'} objects (max 50)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppressions_delete",
+      "description": "Remove up to 50 suppressions from a message stream (SpamComplaint suppressions cannot be removed). Required: streamId, Suppressions. Returns array of SuppressionsDeleteItem.",
+      "method": "POST",
+      "path": "/message-streams/{streamId}/suppressions/delete",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        },
+        {
+          "name": "Suppressions",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of {'EmailAddress':'...'} objects (max 50)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppressions_list",
+      "description": "List suppressed addresses on a message stream. Required: streamId. Optional: SuppressionReason, Origin, fromdate (plus 2 more). Returns array of Suppression.",
+      "method": "GET",
+      "path": "/message-streams/{streamId}/suppressions/dump",
+      "params": [
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "path",
+          "description": "Message stream ID",
+          "required": true
+        },
+        {
+          "name": "SuppressionReason",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by reason"
+        },
+        {
+          "name": "Origin",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by origin"
+        },
+        {
+          "name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "Suppressions created on or after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "Suppressions created on or before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "EmailAddress",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by email address"
+        }
+      ]
+    },
+    {
+      "name": "templates_create",
+      "description": "Create a Template. Required: Name. Optional: Alias, HtmlBody, LayoutTemplate (plus 3 more). Returns the new TemplateRecordResponse.",
+      "method": "POST",
+      "path": "/templates",
+      "params": [
+        {
+          "name": "Alias",
+          "type": "string",
+          "location": "body",
+          "description": "The optional string identifier for referring to this Template (numbers, letters, and '.', '-', '_' characters, starts with a letter)."
+        },
+        {
+          "name": "HtmlBody",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML template definition for this Template."
+        },
+        {
+          "name": "LayoutTemplate",
+          "type": "string",
+          "location": "body",
+          "description": "Alias of the layout to use. Empty string clears it."
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "The friendly display name for the template.",
+          "required": true
+        },
+        {
+          "name": "Subject",
+          "type": "string",
+          "location": "body",
+          "description": "The Subject template definition for this Template."
+        },
+        {
+          "name": "TemplateType",
+          "type": "string",
+          "location": "body",
+          "description": "Immutable after create."
+        },
+        {
+          "name": "TextBody",
+          "type": "string",
+          "location": "body",
+          "description": "The Text template definition for this Template."
+        }
+      ]
+    },
+    {
+      "name": "templates_delete",
+      "description": "Delete a Template. Required: templateIdOrAlias. Returns the StandardPostmarkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/templates/{templateIdOrAlias}",
+      "params": [
+        {
+          "name": "templateIdOrAlias",
+          "type": "string",
+          "location": "path",
+          "description": "The 'TemplateID' or 'Alias' value for the Template you wish to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_get",
+      "description": "Get a Template. Required: templateIdOrAlias. Returns the TemplateDetailResponse.",
+      "method": "GET",
+      "path": "/templates/{templateIdOrAlias}",
+      "params": [
+        {
+          "name": "templateIdOrAlias",
+          "type": "string",
+          "location": "path",
+          "description": "The 'TemplateID' or 'Alias' value for the Template you wish to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_list",
+      "description": "Get the Templates associated with this Server. Required: Count (default: 100), Offset (default: 0). Optional: TemplateType (default: All), LayoutTemplate. Returns array of TemplateRecordResponse.",
+      "method": "GET",
+      "path": "/templates",
+      "params": [
+        {
+          "name": "Count",
+          "type": "float",
+          "location": "query",
+          "description": "The number of Templates to return",
+          "required": true
+        },
+        {
+          "name": "Offset",
+          "type": "float",
+          "location": "query",
+          "description": "The number of Templates to 'skip' before returning results.",
+          "required": true
+        },
+        {
+          "name": "TemplateType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by template type"
+        },
+        {
+          "name": "LayoutTemplate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter templates that use this layout alias"
+        }
+      ]
+    },
+    {
+      "name": "templates_push-between-servers",
+      "description": "Push templates from one server to another. Required: DestinationServerID, PerformChanges, SourceServerID. Returns array of TemplatesPushBetweenServersItem.",
+      "method": "PUT",
+      "path": "/templates/push",
+      "params": [
+        {
+          "name": "DestinationServerID",
+          "type": "int",
+          "location": "body",
+          "description": "Destination server id",
+          "required": true
+        },
+        {
+          "name": "PerformChanges",
+          "type": "bool",
+          "location": "body",
+          "description": "Perform changes",
+          "required": true
+        },
+        {
+          "name": "SourceServerID",
+          "type": "int",
+          "location": "body",
+          "description": "Source server id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_update",
+      "description": "Update a Template. Required: templateIdOrAlias. Optional: Alias, HtmlBody, LayoutTemplate (plus 3 more). Returns the updated TemplateRecordResponse.",
+      "method": "PUT",
+      "path": "/templates/{templateIdOrAlias}",
+      "params": [
+        {
+          "name": "templateIdOrAlias",
+          "type": "string",
+          "location": "path",
+          "description": "The 'TemplateID' or 'Alias' value for the Template you wish to update.",
+          "required": true
+        },
+        {
+          "name": "Alias",
+          "type": "string",
+          "location": "body",
+          "description": "The optional string identifier for referring to this Template (numbers, letters, and '.', '-', '_' characters, starts with a letter)."
+        },
+        {
+          "name": "HtmlBody",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML template definition for this Template."
+        },
+        {
+          "name": "LayoutTemplate",
+          "type": "string",
+          "location": "body",
+          "description": "Alias of the layout to use. Empty string clears it."
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "location": "body",
+          "description": "The friendly display name for the template."
+        },
+        {
+          "name": "Subject",
+          "type": "string",
+          "location": "body",
+          "description": "The Subject template definition for this Template."
+        },
+        {
+          "name": "TextBody",
+          "type": "string",
+          "location": "body",
+          "description": "The Text template definition for this Template."
+        }
+      ]
+    },
+    {
+      "name": "templates_validate",
+      "description": "Test Template Content. Optional: HtmlBody, InlineCssForHtmlTestRender (default: true), LayoutTemplate (plus 4 more). Returns the new TemplateValidationResponse.",
+      "method": "POST",
+      "path": "/templates/validate",
+      "params": [
+        {
+          "name": "HtmlBody",
+          "type": "string",
+          "location": "body",
+          "description": "The html body content to validate. Must be specified if Subject or TextBody are not. See our template language documentation for more information on the syntax for this field."
+        },
+        {
+          "name": "InlineCssForHtmlTestRender",
+          "type": "bool",
+          "location": "body",
+          "description": "When HtmlBody is specified, the test render will have style blocks inlined as style attributes on matching html elements. You may disable the css inlining behavior by passing false for this parameter."
+        },
+        {
+          "name": "LayoutTemplate",
+          "type": "string",
+          "location": "body",
+          "description": "Layout template"
+        },
+        {
+          "name": "Subject",
+          "type": "string",
+          "location": "body",
+          "description": "The subject content to validate. Must be specified if HtmlBody or TextBody are not. See our template language documentation for more information on the syntax for this field."
+        },
+        {
+          "name": "TemplateType",
+          "type": "string",
+          "location": "body",
+          "description": "Template type"
+        },
+        {
+          "name": "TestRenderModel",
+          "type": "object",
+          "location": "body",
+          "description": "The model to be used when rendering test content."
+        },
+        {
+          "name": "TextBody",
+          "type": "string",
+          "location": "body",
+          "description": "The text body content to validate. Must be specified if HtmlBody or Subject are not. See our template language documentation for more information on the syntax for this field."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook. Required: Url. Optional: HttpAuth, HttpHeaders, MessageStream (default: outbound) (plus 2 more). Returns the new Webhook.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "http-auth-password",
+          "wire_name": "HttpAuth.Password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        },
+        {
+          "name": "http-auth-username",
+          "wire_name": "HttpAuth.Username",
+          "type": "string",
+          "location": "body",
+          "description": "Username"
+        },
+        {
+          "name": "HttpHeaders",
+          "type": "array",
+          "location": "body",
+          "description": "Http headers"
+        },
+        {
+          "name": "MessageStream",
+          "type": "string",
+          "location": "body",
+          "description": "Message stream"
+        },
+        {
+          "name": "triggers-bounce-enabled",
+          "wire_name": "Triggers.Bounce.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-bounce-include-content",
+          "wire_name": "Triggers.Bounce.IncludeContent",
+          "type": "bool",
+          "location": "body",
+          "description": "Include content"
+        },
+        {
+          "name": "triggers-click-enabled",
+          "wire_name": "Triggers.Click.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-delivery-enabled",
+          "wire_name": "Triggers.Delivery.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-open-enabled",
+          "wire_name": "Triggers.Open.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-open-post-first-open-only",
+          "wire_name": "Triggers.Open.PostFirstOpenOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Post first open only"
+        },
+        {
+          "name": "triggers-spam-complaint-enabled",
+          "wire_name": "Triggers.SpamComplaint.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-spam-complaint-include-content",
+          "wire_name": "Triggers.SpamComplaint.IncludeContent",
+          "type": "bool",
+          "location": "body",
+          "description": "Include content"
+        },
+        {
+          "name": "triggers-subscription-change-enabled",
+          "wire_name": "Triggers.SubscriptionChange.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "Url",
+          "type": "string",
+          "location": "body",
+          "description": "Url",
+          "required": true
+        },
+        {
+          "name": "Verify",
+          "type": "bool",
+          "location": "body",
+          "description": "Postmark calls the URL for each enabled trigger before saving."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook. Required: webhookId. Returns the StandardPostmarkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{webhookId}",
+      "params": [
+        {
+          "name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get one webhook. Required: webhookId. Returns the Webhook.",
+      "method": "GET",
+      "path": "/webhooks/{webhookId}",
+      "params": [
+        {
+          "name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List webhooks on this server. Optional: MessageStream. Returns array of Webhook.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "MessageStream",
+          "type": "string",
+          "location": "query",
+          "description": "Only webhooks for this message stream"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_statistics",
+      "description": "Delivery statistics for one webhook over the last 24 hours. Required: webhookId. Returns the WebhooksStatisticsResponse.",
+      "method": "GET",
+      "path": "/webhooks/{webhookId}/statistics",
+      "params": [
+        {
+          "name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Edit a webhook (omitted triggers stay unchanged). Required: webhookId. Optional: HttpAuth, HttpHeaders, Triggers (plus 2 more). Returns the updated Webhook.",
+      "method": "PUT",
+      "path": "/webhooks/{webhookId}",
+      "params": [
+        {
+          "name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        },
+        {
+          "name": "http-auth-password",
+          "wire_name": "HttpAuth.Password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        },
+        {
+          "name": "http-auth-username",
+          "wire_name": "HttpAuth.Username",
+          "type": "string",
+          "location": "body",
+          "description": "Username"
+        },
+        {
+          "name": "HttpHeaders",
+          "type": "array",
+          "location": "body",
+          "description": "Http headers"
+        },
+        {
+          "name": "triggers-bounce-enabled",
+          "wire_name": "Triggers.Bounce.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-bounce-include-content",
+          "wire_name": "Triggers.Bounce.IncludeContent",
+          "type": "bool",
+          "location": "body",
+          "description": "Include content"
+        },
+        {
+          "name": "triggers-click-enabled",
+          "wire_name": "Triggers.Click.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-delivery-enabled",
+          "wire_name": "Triggers.Delivery.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-open-enabled",
+          "wire_name": "Triggers.Open.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-open-post-first-open-only",
+          "wire_name": "Triggers.Open.PostFirstOpenOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Post first open only"
+        },
+        {
+          "name": "triggers-spam-complaint-enabled",
+          "wire_name": "Triggers.SpamComplaint.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "triggers-spam-complaint-include-content",
+          "wire_name": "Triggers.SpamComplaint.IncludeContent",
+          "type": "bool",
+          "location": "body",
+          "description": "Include content"
+        },
+        {
+          "name": "triggers-subscription-change-enabled",
+          "wire_name": "Triggers.SubscriptionChange.Enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "Url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "Verify",
+          "type": "bool",
+          "location": "body",
+          "description": "Postmark calls the URL for each enabled trigger before saving."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_verify",
+      "description": "Send a test request for each enabled trigger and record verified or unverified. Required: webhookId. Returns the new WebhookVerification.",
+      "method": "POST",
+      "path": "/webhooks/{webhookId}/verify",
+      "params": [
+        {
+          "name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Send-volume pulse",
+      "command": "pulse",
+      "description": "Compares each server, stream, or tag with its own recent weeks and flags any that stopped sending, dropped off, or spiked in bounces or spam, across every server on the account token."
+    },
+    {
+      "name": "Idempotent send",
+      "command": "email send-once",
+      "description": "Sends an email at most once per key within a window (15 minutes by default), so an agent or script that retries after an error cannot deliver a second copy. Previews until you add --send."
+    },
+    {
+      "name": "Recipient-domain report",
+      "command": "recipient-domains",
+      "description": "Groups sends, bounces by type, complaints, suppressions, and opens by the recipient's mailbox domain across every synced server, so one provider's problem stands out. Run sync first."
+    },
+    {
+      "name": "Template CI gate",
+      "command": "templates check",
+      "description": "Validates every template and layout on a server or in a pulled folder, and exits non-zero on render errors, missing test-model keys, or broken layout links."
+    },
+    {
+      "name": "New-project server bootstrap",
+      "command": "servers bootstrap",
+      "description": "Creates a new project's Postmark server with its message streams, webhooks, sending-domain DNS records, and templates copied from another server. Prints the plan until you add --apply."
+    }
+  ]
+}

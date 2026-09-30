@@ -1,0 +1,5 @@
+https://api.postmarkapp.com
+https://postmarkapp.com/developer/api/overview
+https://postmarkapp.com/developer/api/domains-api
+https://pm.mtasv.net
+https://status.postmarkapp.com/api/v1/status
