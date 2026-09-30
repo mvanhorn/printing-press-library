@@ -24,7 +24,7 @@ const postmarkLedgerDDL = `CREATE TABLE IF NOT EXISTS postmark_send_ledger (
 	stream TEXT NOT NULL DEFAULT '',
 	sandbox INTEGER NOT NULL DEFAULT 0,
 	sent_at TEXT NOT NULL,
-	PRIMARY KEY (idempotency_key, message_id)
+	PRIMARY KEY (idempotency_key, server, sandbox, message_id)
 )`
 
 const postmarkLedgerIndexDDL = `CREATE INDEX IF NOT EXISTS idx_postmark_send_ledger_lookup
@@ -54,23 +54,20 @@ func (s *Store) ensurePostmarkLedger(ctx context.Context) error {
 	return nil
 }
 
-// PostmarkLedgerLookup returns the newest ledger entry for key under any of
-// scopes (sandbox sends only match sandbox sends) sent at or after since, or
-// nil.
-func (s *Store) PostmarkLedgerLookup(ctx context.Context, key string, scopes []string, sandbox bool, since time.Time) (*PostmarkLedgerEntry, error) {
+// PostmarkLedgerLookup returns the newest ledger entry for key on server
+// (sandbox sends only match sandbox sends) sent at or after since, or nil.
+func (s *Store) PostmarkLedgerLookup(ctx context.Context, key, server string, sandbox bool, since time.Time) (*PostmarkLedgerEntry, error) {
 	s.lockForWrite()
 	err := s.ensurePostmarkLedger(ctx)
 	s.unlockAfterWrite()
 	if err != nil {
 		return nil, err
 	}
-	scopeSQL, scopeArgs := postmarkLedgerScopeFilter(scopes)
-	args := append([]any{key}, scopeArgs...)
-	args = append(args, postmarkLedgerBool(sandbox), since.UTC().Format(postmarkLedgerTimeLayout))
 	row := s.db.QueryRowContext(ctx, `SELECT idempotency_key, message_id, recipient, server, stream, sandbox, sent_at
 		FROM postmark_send_ledger
-		WHERE idempotency_key = ? AND `+scopeSQL+` AND sandbox = ? AND sent_at >= ?
-		ORDER BY sent_at DESC LIMIT 1`, args...)
+		WHERE idempotency_key = ? AND server = ? AND sandbox = ? AND sent_at >= ?
+		ORDER BY sent_at DESC LIMIT 1`,
+		key, server, postmarkLedgerBool(sandbox), since.UTC().Format(postmarkLedgerTimeLayout))
 	var e PostmarkLedgerEntry
 	var sb int
 	var sentAt string
@@ -109,11 +106,7 @@ func (e PostmarkLedgerEntry) Pending() bool {
 // one reserves it. The reservation time and window cutoff are taken after the
 // write lock is held, so waiting for the lock cannot age the reservation out
 // of a short window.
-//
-// aliases are other scopes the same server's entries may have been written
-// under by earlier builds; entries there block the key too, but new
-// reservations are written only under e.Server.
-func (s *Store) PostmarkLedgerReserve(ctx context.Context, e PostmarkLedgerEntry, aliases []string, window time.Duration) (string, *PostmarkLedgerEntry, error) {
+func (s *Store) PostmarkLedgerReserve(ctx context.Context, e PostmarkLedgerEntry, window time.Duration) (string, *PostmarkLedgerEntry, error) {
 	if e.Key == "" || window <= 0 {
 		return "", nil, errors.New("send ledger reservation needs a key and a positive window")
 	}
@@ -134,13 +127,11 @@ func (s *Store) PostmarkLedgerReserve(ctx context.Context, e PostmarkLedgerEntry
 	defer func() { _ = tx.Rollback() }()
 	e.SentAt = time.Now()
 	since := e.SentAt.Add(-window)
-	scopeSQL, scopeArgs := postmarkLedgerScopeFilter(append([]string{e.Server}, aliases...))
-	args := append([]any{e.Key}, scopeArgs...)
-	args = append(args, postmarkLedgerBool(e.Sandbox), since.UTC().Format(postmarkLedgerTimeLayout))
 	row := tx.QueryRowContext(ctx, `SELECT idempotency_key, message_id, recipient, server, stream, sandbox, sent_at
 		FROM postmark_send_ledger
-		WHERE idempotency_key = ? AND `+scopeSQL+` AND sandbox = ? AND sent_at >= ?
-		ORDER BY sent_at DESC LIMIT 1`, args...)
+		WHERE idempotency_key = ? AND server = ? AND sandbox = ? AND sent_at >= ?
+		ORDER BY sent_at DESC LIMIT 1`,
+		e.Key, e.Server, postmarkLedgerBool(e.Sandbox), since.UTC().Format(postmarkLedgerTimeLayout))
 	var prior PostmarkLedgerEntry
 	var sb int
 	var sentAt string
@@ -197,24 +188,6 @@ func (s *Store) PostmarkLedgerRelease(ctx context.Context, reservation string) e
 		return fmt.Errorf("releasing send ledger key: %w", err)
 	}
 	return nil
-}
-
-// postmarkLedgerScopeFilter builds "server IN (...)" for the distinct,
-// non-empty scopes; with none it matches only the empty scope.
-func postmarkLedgerScopeFilter(scopes []string) (string, []any) {
-	seen := map[string]bool{}
-	args := make([]any, 0, len(scopes))
-	for _, sc := range scopes {
-		if sc == "" || seen[sc] {
-			continue
-		}
-		seen[sc] = true
-		args = append(args, sc)
-	}
-	if len(args) == 0 {
-		return "server = ?", []any{""}
-	}
-	return "server IN (?" + strings.Repeat(", ?", len(args)-1) + ")", args
 }
 
 func postmarkLedgerBool(b bool) int {

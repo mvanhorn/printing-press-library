@@ -330,13 +330,10 @@ other sandbox sends.`, "\n"),
 				return err
 			}
 			res.Server = sendOnceServerName(c, flags)
-			scope, serverName, err := sendOnceLedgerScope(ctx, c, res.Sandbox)
+			scope, err := sendOnceLedgerScope(ctx, c, res.Sandbox)
 			if err != nil {
 				return err
 			}
-			// Earlier builds scoped entries by server name or a hash of the
-			// token; those entries still block a repeat send.
-			legacyScopes := []string{postmarkServerScope(c), res.Server, serverName}
 			if dbPath == "" {
 				dbPath = defaultDBPath("postmark-pp-cli")
 			}
@@ -350,7 +347,7 @@ other sandbox sends.`, "\n"),
 					return fmt.Errorf("opening send ledger: %w", err)
 				}
 				defer db.Close()
-				prior, err := db.PostmarkLedgerLookup(ctx, res.Key, append([]string{scope}, legacyScopes...), res.Sandbox, windowStart)
+				prior, err := db.PostmarkLedgerLookup(ctx, res.Key, scope, res.Sandbox, windowStart)
 				if err != nil {
 					return err
 				}
@@ -391,7 +388,7 @@ other sandbox sends.`, "\n"),
 			// reservation already outside a short window.
 			reservation, prior, err := db.PostmarkLedgerReserve(ctx, store.PostmarkLedgerEntry{
 				Key: res.Key, Recipient: firstTo, Server: scope, Stream: in.stream, Sandbox: res.Sandbox,
-			}, legacyScopes, window)
+			}, window)
 			if err != nil {
 				return fmt.Errorf("reserving the send ledger key (nothing was sent): %w", err)
 			}
@@ -503,19 +500,18 @@ func sendOnceServerName(c *client.Client, flags *rootFlags) string {
 // sendOnceLedgerScope keys the send ledger by the server's stable ID, so every
 // token for one server shares the same reservations. Sandbox sends never
 // deliver and cannot look up a server, so they share one separate scope.
-// It also returns the server's name, one of the scopes earlier builds used.
-func sendOnceLedgerScope(ctx context.Context, c *client.Client, sandbox bool) (string, string, error) {
+func sendOnceLedgerScope(ctx context.Context, c *client.Client, sandbox bool) (string, error) {
 	if sandbox {
-		return "sandbox", "", nil
+		return "sandbox", nil
 	}
 	target, err := currentPostmarkServer(ctx, c)
 	if err != nil {
-		return "", "", fmt.Errorf("identifying the server for the send ledger (nothing was sent): %w", classifyAPIErrorOnly(err))
+		return "", fmt.Errorf("identifying the server for the send ledger (nothing was sent): %w", classifyAPIErrorOnly(err))
 	}
 	if target.ID == 0 {
-		return "", "", errors.New("identifying the server for the send ledger (nothing was sent): Postmark returned no server ID")
+		return "", errors.New("identifying the server for the send ledger (nothing was sent): Postmark returned no server ID")
 	}
-	return fmt.Sprintf("server-id:%d", target.ID), target.Name, nil
+	return fmt.Sprintf("server-id:%d", target.ID), nil
 }
 
 // sendOnceLedgerDuplicate fills res for a key already sent or reserved.

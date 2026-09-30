@@ -221,7 +221,7 @@ func diagnoseDecide(email string, d *diagnoseServer) {
 		// no delivery event in the archive, delivery itself is unconfirmed.
 		d.Verdict = verdictSent
 		d.Reason = fmt.Sprintf("the latest archived message %q was accepted by Postmark (status %s) with no bounce recorded; the local archive holds no delivery events, so delivery is unconfirmed", latest.Subject, latest.Status)
-		d.Next = "postmark-pp-cli messages get " + latest.MessageID + server + " --json"
+		diagnoseLiveDetailsNext(d, *latest, server)
 		return
 	}
 	d.Verdict = verdictQueued
@@ -236,7 +236,22 @@ func diagnoseDecide(email string, d *diagnoseServer) {
 	} else {
 		d.Reason = fmt.Sprintf("the latest message has status %s and no delivery event yet", latest.Status)
 	}
-	d.Next = "postmark-pp-cli messages get " + latest.MessageID + server + " --json"
+	diagnoseLiveDetailsNext(d, *latest, server)
+}
+
+// postmarkDefaultRetention is how long Postmark keeps message details unless
+// the server's retention was changed.
+const postmarkDefaultRetention = 45 * 24 * time.Hour
+
+// diagnoseLiveDetailsNext suggests the live message lookup only while
+// Postmark still retains m by default; for an older archived message it says
+// why no live lookup is offered instead of suggesting one that would fail.
+func diagnoseLiveDetailsNext(d *diagnoseServer, m diagnoseMessage, server string) {
+	if m.Source == postmarkSourceLocal && !m.at.IsZero() && time.Since(m.at) > postmarkDefaultRetention {
+		d.Reason += "; it is older than Postmark's default 45-day retention, so its delivery events can no longer be fetched"
+		return
+	}
+	d.Next = "postmark-pp-cli messages get " + m.MessageID + server + " --json"
 }
 
 func diagnoseVerdictRank(v string) int {

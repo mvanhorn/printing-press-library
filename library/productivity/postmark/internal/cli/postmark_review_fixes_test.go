@@ -3,9 +3,7 @@
 package cli
 
 import (
-	"context"
 	"encoding/json"
-	"github.com/mvanhorn/printing-press-library/library/productivity/postmark/internal/store"
 	"net/http"
 	"net/url"
 	"os"
@@ -330,34 +328,6 @@ func TestResendBlockedFailsWhenEveryLookupFails(t *testing.T) {
 	}
 }
 
-func TestSendOnceHonorsReservationsFromEarlierScopes(t *testing.T) {
-	f := sendOnceFake(t)
-	home := postmarkTestEnv(t, f)
-	db := filepath.Join(home, "ledger.db")
-	t.Setenv("POSTMARK_SERVER_TOKEN", "tok-legacy")
-	legacy := postmarkServerScope(&client.Client{Config: &config.Config{PostmarkServerToken: "tok-legacy"}})
-	st, err := store.OpenWithContext(context.Background(), db)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, _, err := st.PostmarkLedgerReserve(context.Background(), store.PostmarkLedgerEntry{Key: "otp-9", Server: legacy}, nil, time.Hour); err != nil {
-		t.Fatal(err)
-	}
-	_ = st.Close()
-	stdout, stderr, err := postmarkRun(t, "email", "send-once", "--key", "otp-9", "--from", "app@example.com", "--to", "jane@example.com", "--subject", "Code", "--text", "9", "--json", "--db", db, "--send")
-	if err != nil {
-		t.Fatalf("send-once: %v\n%s", err, stderr)
-	}
-	var res sendOnceResult
-	postmarkResults(t, stdout, &res)
-	if !res.Duplicate || !res.DeliveryUnknown {
-		t.Fatalf("a pending reservation under an earlier scope must block the send: %+v", res)
-	}
-	if n := countRequests(f.log(), "POST", "/email"); n != 0 {
-		t.Fatalf("sent %d message(s) despite the earlier reservation", n)
-	}
-}
-
 func TestRedactURLSecretsFailsClosedOnBadQuery(t *testing.T) {
 	got := redactURLSecrets("https://hooks.example.com/pm?token=SECRET;mode=1")
 	if strings.Contains(got, "SECRET") {
@@ -383,31 +353,6 @@ func TestPostmarkTokenCacheKeyHonorsAccountHeader(t *testing.T) {
 	}
 }
 
-func TestSendOnceHonorsNameScopedReservationWithOnlyAServerToken(t *testing.T) {
-	f := sendOnceFake(t)
-	home := postmarkTestEnv(t, f)
-	db := filepath.Join(home, "ledger.db")
-	t.Setenv("POSTMARK_SERVER_TOKEN", "tok-any")
-	st, err := store.OpenWithContext(context.Background(), db)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// GET /server in sendOnceFake names the server "Main App".
-	if _, _, err := st.PostmarkLedgerReserve(context.Background(), store.PostmarkLedgerEntry{Key: "otp-name", Server: "Main App"}, nil, time.Hour); err != nil {
-		t.Fatal(err)
-	}
-	_ = st.Close()
-	stdout, stderr, err := postmarkRun(t, "email", "send-once", "--key", "otp-name", "--from", "app@example.com", "--to", "jane@example.com", "--subject", "Code", "--text", "1", "--json", "--db", db, "--send")
-	if err != nil {
-		t.Fatalf("send-once: %v\n%s", err, stderr)
-	}
-	var res sendOnceResult
-	postmarkResults(t, stdout, &res)
-	if !res.Duplicate || countRequests(f.log(), "POST", "/email") != 0 {
-		t.Fatalf("a name-scoped reservation must block the send without --server: %+v", res)
-	}
-}
-
 func TestConflictingCredentialHeadersAreRefused(t *testing.T) {
 	cfg := &config.Config{Headers: map[string]string{"X-Postmark-Account-Token": "account-a", "x-postmark-account-token": "account-b"}}
 	if err := postmarkCredentialHeaderConflict(cfg); err == nil || ExitCode(err) != 10 {
@@ -416,5 +361,54 @@ func TestConflictingCredentialHeadersAreRefused(t *testing.T) {
 	same := &config.Config{Headers: map[string]string{"X-Postmark-Account-Token": "account-a", "x-postmark-account-token": "account-a"}}
 	if err := postmarkCredentialHeaderConflict(same); err != nil {
 		t.Fatalf("identical duplicates are unambiguous: %v", err)
+	}
+}
+
+func TestSendOnceSameNamedServersOnDifferentAccountsDoNotCollide(t *testing.T) {
+	f := sendOnceFake(t)
+	home := postmarkTestEnv(t, f)
+	db := filepath.Join(home, "ledger.db")
+	// Both tokens belong to servers named "Main App", but on different accounts.
+	f.handle("GET /server", func(r *http.Request, _ string) (int, any) {
+		id := 1
+		if r.Header.Get("X-Postmark-Server-Token") == "tok-other-account" {
+			id = 2
+		}
+		return 200, map[string]any{"ID": id, "Name": "Main App"}
+	})
+	args := []string{"email", "send-once", "--key", "otp-shared", "--from", "app@example.com", "--to", "jane@example.com", "--subject", "Code", "--text", "1", "--json", "--db", db, "--send"}
+	for _, token := range []string{"tok-first-account", "tok-other-account"} {
+		t.Setenv("POSTMARK_SERVER_TOKEN", token)
+		stdout, stderr, err := postmarkRun(t, args...)
+		if err != nil {
+			t.Fatalf("send with %s: %v\n%s", token, err, stderr)
+		}
+		var res sendOnceResult
+		postmarkResults(t, stdout, &res)
+		if res.Duplicate || !res.Sent {
+			t.Fatalf("send with %s should not be a duplicate of another account's server: %+v", token, res)
+		}
+	}
+	if n := countRequests(f.log(), "POST", "/email"); n != 2 {
+		t.Fatalf("POST /email count = %d, want 2", n)
+	}
+}
+
+func TestDiagnoseArchivedMessagePastRetentionOffersNoLiveLookup(t *testing.T) {
+	old := &diagnoseServer{
+		Messages: []diagnoseMessage{{MessageID: "m-old", Subject: "Reset", Status: "Sent", Source: postmarkSourceLocal, Events: []diagnoseEvent{}, at: time.Now().Add(-60 * 24 * time.Hour)}},
+		Bounces:  []diagnoseBounce{}, Suppressions: []diagnoseSuppression{},
+	}
+	diagnoseDecide("jane@example.com", old)
+	if old.Next != "" || !strings.Contains(old.Reason, "45-day retention") {
+		t.Fatalf("a message past retention should not suggest messages get: next=%q reason=%q", old.Next, old.Reason)
+	}
+	recent := &diagnoseServer{
+		Messages: []diagnoseMessage{{MessageID: "m-new", Subject: "Reset", Status: "Sent", Source: postmarkSourceLocal, Events: []diagnoseEvent{}, at: time.Now().Add(-2 * 24 * time.Hour)}},
+		Bounces:  []diagnoseBounce{}, Suppressions: []diagnoseSuppression{},
+	}
+	diagnoseDecide("jane@example.com", recent)
+	if !strings.Contains(recent.Next, "messages get m-new") {
+		t.Fatalf("a recent archived message should suggest the live lookup: %q", recent.Next)
 	}
 }

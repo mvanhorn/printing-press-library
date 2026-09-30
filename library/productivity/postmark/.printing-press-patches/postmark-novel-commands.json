@@ -5,7 +5,7 @@
   "base_printing_press_version": "4.32.6",
   "id": "postmark-novel-commands",
   "summary": "Implement the five approved novel commands in place of generated scaffolds: pulse, recipient-domains, email send-once (with an atomic send ledger reservation), servers bootstrap, templates check.",
-  "reason": "The generator emits TODO scaffolds for novel features. These files hold the real implementations, plus the send-once ledger in the local store, and a regen would put the scaffolds back. The send-once ledger is keyed by Postmark's server ID, and lookups also honor entries written under a server name or token hash by earlier builds, so a pending or confirmed send is never forgotten across the change.",
+  "reason": "The generator emits TODO scaffolds for novel features. These files hold the real implementations, plus the send-once ledger in the local store, and a regen would put the scaffolds back. The send-once ledger is keyed by Postmark's server ID, so every token for a server shares one ledger and same-named servers on different accounts stay separate.",
   "files": [
     "internal/cli/pulse.go",
     "internal/cli/pulse_test.go",
