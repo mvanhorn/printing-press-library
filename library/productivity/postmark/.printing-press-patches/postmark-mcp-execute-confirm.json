@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-123010-65f85318",
+  "base_printing_press_version": "4.32.6",
+  "id": "postmark-mcp-execute-confirm",
+  "summary": "postmark_execute returns a preview instead of calling the API for every DELETE and for data removals, stream archives, suppression deletes, and template pushes, including calls whose path parameter resolves onto one of those paths, unless the call carries a top-level confirm: true. The MCP-exposed import command refuses data removals.",
+  "reason": "The generated code-orchestration execute tool dispatched any endpoint with no confirmation step, so an agent could delete servers or erase recipient data without an explicit opt-in. The policy lives in a hand-written file; the generated tool only gains the confirm input and one gate call.",
+  "files": [
+    "internal/mcp/code_orch.go",
+    "internal/mcp/postmark_execute_confirm.go",
+    "internal/mcp/postmark_execute_confirm_test.go",
+    "internal/cli/postmark_import_guard.go"
+  ],
+  "markers": [
+    "postmarkExecuteConfirmGate(ep, args, params)",
+    "postmarkExecuteResolvedGate(ep, path, args, params)",
+    "mcplib.WithBoolean(\"confirm\"",
+    "postmarkIsDataRemovalResource"
+  ],
+  "validated_outcome": "TestExecuteDestructiveCallsNeedLiteralConfirm: missing, false, string, and nested confirm never reach the API; confirm: true dispatches once. TestExecuteConfirmPolicyCoversDeletesAndNamedEndpoints: every DELETE is gated and every policy ID exists in the registry. TestExecuteResolvedPathGate: templates.update with the alias push is gated. TestImportRefusesDataRemovals: import data_removals exits 2 with no POST."
+}

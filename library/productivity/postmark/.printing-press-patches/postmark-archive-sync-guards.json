@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-123010-65f85318",
+  "base_printing_press_version": "4.32.6",
+  "id": "postmark-archive-sync-guards",
+  "summary": "Keep the shared local archive intact across servers: refuse --no-prune=false on sync --full, and when a different server syncs or archives into a database whose checkpoints another server wrote, reset every checkpoint atomically under a run-level file lock.",
+  "reason": "sync_state checkpoints are keyed by resource only and pruning compares the whole table with one server's listing, while this CLI syncs several servers into one archive. Without the guards a second server resumes the first server's cursor and skips older messages, a partial-resource sync leaves the other server's checkpoints behind, and a prune deletes other servers' rows and expired messages.",
+  "files": [
+    "internal/cli/postmark_servers.go",
+    "internal/cli/postmark_sync_scope.go",
+    "internal/store/postmark_sync_scope.go",
+    "internal/store/postmark_sync_scope_test.go",
+    "internal/cli/postmark_servers_test.go",
+    "internal/cli/postmark_synclock.go",
+    "internal/cli/postmark_synclock_unix.go",
+    "internal/cli/postmark_synclock_windows.go"
+  ],
+  "markers": [
+    "scopePostmarkCheckpointWriter(cmd, flags)",
+    "ClaimPostmarkSyncScope",
+    "keepPostmarkArchiveOnFullSync(cmd)"
+  ],
+  "validated_outcome": "TestClaimPostmarkSyncScopeResetsOtherServersCheckpoints (all checkpoints reset on a switch, kept for the same server, row counts untouched), TestSyncFromAnotherServerWalksEverything (A, then B resets, then B resumes), and TestKeepPostmarkArchiveOnFullSync pass. TestPostmarkSyncLockWaitEndsWithContext: a held lock makes a second acquire fail once its deadline passes, and the lock is free again after release."
+}

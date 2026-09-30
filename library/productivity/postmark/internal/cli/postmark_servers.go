@@ -439,7 +439,7 @@ func init() {
 			return nil
 		}
 		if postmarkSelection.sandbox {
-			c.Config.PostmarkServerToken = postmarkSandboxToken
+			setPostmarkServerToken(c.Config, postmarkSandboxToken)
 			return nil
 		}
 		name, explicit := postmarkSelectedServer()
@@ -464,7 +464,7 @@ func init() {
 			}
 			return err
 		}
-		c.Config.PostmarkServerToken = ref.token
+		setPostmarkServerToken(c.Config, ref.token)
 		return nil
 	})
 
@@ -477,7 +477,9 @@ func init() {
 					return err
 				}
 				applyPostmarkSendDefaults(cmd, flags)
-				keepPostmarkArchiveOnFullSync(cmd)
+				if err := keepPostmarkArchiveOnFullSync(cmd); err != nil {
+					return err
+				}
 				if cmd.Name() == "doctor" && !flags.dryRun {
 					exportSelectedServerTokenForDoctor(flags)
 				}
@@ -518,20 +520,28 @@ func exportSelectedServerTokenForDoctor(flags *rootFlags) {
 	}
 }
 
-// keepPostmarkArchiveOnFullSync defaults `sync --full` to --no-prune. The local
-// store is an archive: pruning would delete messages Postmark has expired and,
-// with several servers synced into one database, rows from the other servers.
-func keepPostmarkArchiveOnFullSync(cmd *cobra.Command) {
+// keepPostmarkArchiveOnFullSync makes `sync --full` keep rows the API no longer
+// returns and refuses --no-prune=false. The local store is an archive shared by
+// every server synced into it: a prune compares the whole table with one
+// server's current listing, so it would delete other servers' rows and the
+// messages Postmark has already expired.
+func keepPostmarkArchiveOnFullSync(cmd *cobra.Command) error {
 	if cmd.Name() != "sync" {
-		return
+		return nil
 	}
 	full := cmd.Flags().Lookup("full")
 	noPrune := cmd.Flags().Lookup("no-prune")
-	if full == nil || noPrune == nil || noPrune.Changed || full.Value.String() != "true" {
-		return
+	if full == nil || noPrune == nil || full.Value.String() != "true" {
+		return nil
+	}
+	if noPrune.Changed {
+		if noPrune.Value.String() == "false" {
+			return usageErr(errors.New("--no-prune=false is not supported: the local archive holds every synced server's rows and messages Postmark has expired, and pruning against one server's listing would delete them. To start a fresh archive, sync into a new file with --db <path>; the current archive and send ledger stay as they are"))
+		}
+		return nil
 	}
 	_ = cmd.Flags().Set("no-prune", "true")
-	fmt.Fprintln(cmd.ErrOrStderr(), "note: keeping local rows the API no longer returns (archive mode); pass --no-prune=false to prune.")
+	return nil
 }
 
 // applyPostmarkSendDefaults fills --from and --message-stream from the

@@ -25,6 +25,8 @@ const (
 	bootstrapActionCreate  = "create"
 	bootstrapActionCreated = "created"
 	bootstrapActionExists  = "exists"
+	bootstrapActionUpdate  = "update"
+	bootstrapActionUpdated = "updated"
 	bootstrapActionPush    = "push"
 	bootstrapActionPushed  = "pushed"
 	bootstrapActionWrite   = "write"
@@ -95,8 +97,79 @@ type bootstrapDomain struct {
 }
 
 type bootstrapWebhook struct {
-	ID  int64  `json:"ID"`
-	URL string `json:"Url"`
+	ID            int64  `json:"ID"`
+	URL           string `json:"Url"`
+	MessageStream string `json:"MessageStream"`
+	Triggers      struct {
+		Bounce        bootstrapTrigger `json:"Bounce"`
+		SpamComplaint bootstrapTrigger `json:"SpamComplaint"`
+		Delivery      bootstrapTrigger `json:"Delivery"`
+	} `json:"Triggers"`
+}
+
+type bootstrapTrigger struct {
+	Enabled        bool  `json:"Enabled"`
+	IncludeContent *bool `json:"IncludeContent,omitempty"`
+}
+
+// bootstrapWebhookTriggers are the events a bootstrapped webhook must receive,
+// in the order they are reported.
+var bootstrapWebhookTriggers = []string{"Bounce", "SpamComplaint", "Delivery"}
+
+func (w bootstrapWebhook) trigger(name string) bootstrapTrigger {
+	switch name {
+	case "Bounce":
+		return w.Triggers.Bounce
+	case "SpamComplaint":
+		return w.Triggers.SpamComplaint
+	default:
+		return w.Triggers.Delivery
+	}
+}
+
+// missingTriggers lists the required triggers the webhook has disabled.
+func (w bootstrapWebhook) missingTriggers() []string {
+	var missing []string
+	for _, name := range bootstrapWebhookTriggers {
+		if !w.trigger(name).Enabled {
+			missing = append(missing, name)
+		}
+	}
+	return missing
+}
+
+// triggerUpdate enables only the named triggers and keeps each one's existing
+// IncludeContent setting; Postmark leaves triggers omitted from an edit
+// unchanged.
+func (w bootstrapWebhook) triggerUpdate(names []string) map[string]any {
+	body := make(map[string]any, len(names))
+	for _, name := range names {
+		t := map[string]any{"Enabled": true}
+		if ic := w.trigger(name).IncludeContent; ic != nil {
+			t["IncludeContent"] = *ic
+		}
+		body[name] = t
+	}
+	return body
+}
+
+// sameWebhookURL compares scheme and host case-insensitively and everything
+// else exactly (userinfo, path including any trailing slash, query including
+// an empty one, and fragment), since
+// servers may route those differently.
+func sameWebhookURL(a, b string) bool {
+	ua, errA := url.Parse(strings.TrimSpace(a))
+	ub, errB := url.Parse(strings.TrimSpace(b))
+	if errA != nil || errB != nil {
+		return strings.TrimSpace(a) == strings.TrimSpace(b)
+	}
+	return strings.EqualFold(ua.Scheme, ub.Scheme) &&
+		strings.EqualFold(ua.Host, ub.Host) &&
+		ua.User.String() == ub.User.String() &&
+		ua.EscapedPath() == ub.EscapedPath() &&
+		ua.RawQuery == ub.RawQuery &&
+		ua.ForceQuery == ub.ForceQuery &&
+		ua.EscapedFragment() == ub.EscapedFragment()
 }
 
 type bootstrapOptions struct {
@@ -485,7 +558,7 @@ func bootstrapServerClient(flags *rootFlags, token string) (*client.Client, erro
 	if err != nil {
 		return nil, err
 	}
-	c.Config.PostmarkServerToken = token
+	setPostmarkServerToken(c.Config, token)
 	return c, nil
 }
 
@@ -569,10 +642,32 @@ func bootstrapEnsureWebhook(ctx context.Context, sc *client.Client, o bootstrapO
 		err = fmt.Errorf("listing webhooks: %w", err)
 		return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionError, Detail: err.Error()}, err
 	}
+	// A webhook counts only when it posts to the URL from the outbound stream;
+	// Postmark cannot move a webhook between streams, so a same-URL webhook on
+	// another stream does not satisfy the step and a new one is created.
 	for _, w := range doc.Webhooks {
-		if strings.EqualFold(strings.TrimRight(w.URL, "/"), strings.TrimRight(o.webhookURL, "/")) {
-			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionExists, Detail: fmt.Sprintf("webhook %d already posts to %s", w.ID, w.URL)}, nil
+		if !sameWebhookURL(w.URL, o.webhookURL) || w.MessageStream != postmarkDefaultStream {
+			continue
 		}
+		missing := w.missingTriggers()
+		if len(missing) == 0 {
+			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionExists, Detail: fmt.Sprintf("webhook %d already posts bounce, spam complaint, and delivery events to %s", w.ID, w.URL)}, nil
+		}
+		detail := fmt.Sprintf("enable %s on webhook %d (%s)", strings.Join(missing, ", "), w.ID, w.URL)
+		if !create {
+			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionUpdate, Detail: detail}, nil
+		}
+		update := map[string]any{"Triggers": w.triggerUpdate(missing)}
+		var params map[string]string
+		if o.noVerifyWebhook {
+			update["Verify"] = false
+			params = map[string]string{"verify": "false"}
+		}
+		if _, _, err := sc.PutWithParams(ctx, fmt.Sprintf("/webhooks/%d", w.ID), params, update); err != nil {
+			err = fmt.Errorf("updating webhook %d: %w", w.ID, classifyAPIErrorOnly(err))
+			return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionError, Detail: err.Error()}, err
+		}
+		return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionUpdated, Detail: "enabled " + strings.TrimPrefix(detail, "enable ")}, nil
 	}
 	if !create {
 		return bootstrapStep{Step: bootstrapStepWebhook, Action: bootstrapActionCreate, Detail: "create a bounce, spam complaint, and delivery webhook to " + o.webhookURL}, nil

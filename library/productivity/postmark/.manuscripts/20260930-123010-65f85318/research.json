@@ -241,8 +241,8 @@
         "fix": "Postmark caps count plus offset at 10,000; window the pull by date, e.g. postmark-pp-cli sync --resources messages --param fromdate=2026-09-01 --param todate=2026-09-15, then query the archive with search or sql."
       },
       {
-        "symptom": "Archived messages disappeared after sync --full",
-        "fix": "This CLI defaults sync --full to --no-prune so expired messages and other servers' rows stay; only --no-prune=false prunes."
+        "symptom": "sync --full --no-prune=false exits with a usage error",
+        "fix": "Pruning is off because the archive keeps every synced server's rows and messages Postmark has expired. To start a fresh archive, sync into a new file with --db <path>; the current archive and send ledger stay as they are."
       }
     ],
     "when_to_use": "Use this CLI to operate Postmark from a terminal or an agent: check whether a specific recipient got an email, triage bounces and suppressions, move templates between servers and gate them in CI, send transactional mail safely, and watch sending health across every server in one account. The local archive answers questions about messages older than Postmark's retention window.",

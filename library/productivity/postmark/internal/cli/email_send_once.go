@@ -54,9 +54,12 @@ type sendOnceResult struct {
 	Window      string         `json:"window"`
 	WindowStart string         `json:"window_start"`
 	Dedupe      sendOnceDedupe `json:"dedupe"`
-	Endpoint    string         `json:"endpoint,omitempty"`
-	Payload     map[string]any `json:"payload,omitempty"`
-	Next        string         `json:"next,omitempty"`
+	// DeliveryUnknown is set when an earlier run reserved this key but never
+	// confirmed delivery; the command refuses to send rather than risk a copy.
+	DeliveryUnknown bool           `json:"delivery_unknown,omitempty"`
+	Endpoint        string         `json:"endpoint,omitempty"`
+	Payload         map[string]any `json:"payload,omitempty"`
+	Next            string         `json:"next,omitempty"`
 }
 
 type sendOnceError struct {
@@ -98,12 +101,7 @@ func sendOnceCanonicalJSON(raw string) string {
 
 // sendOnceDerivedKey hashes the fields that make two sends "the same
 // message": recipients, sender, subject or template, template model, stream.
-func sendOnceDerivedKey(to, from, subject, template, model, stream, body string) string {
-	addrs := sendOnceSplitAddrs(to)
-	for i := range addrs {
-		addrs[i] = bareAddr(addrs[i])
-	}
-	sort.Strings(addrs)
+func sendOnceDerivedKey(to, cc, bcc, from, subject, template, model, stream, body string) string {
 	content := "subject:" + strings.TrimSpace(subject)
 	if strings.TrimSpace(template) != "" {
 		content = "template:" + strings.TrimSpace(template)
@@ -112,7 +110,9 @@ func sendOnceDerivedKey(to, from, subject, template, model, stream, body string)
 		stream = postmarkDefaultStream
 	}
 	parts := []string{
-		"to:" + strings.Join(addrs, ","),
+		"to:" + sendOnceCanonicalAddrs(to),
+		"cc:" + sendOnceCanonicalAddrs(cc),
+		"bcc:" + sendOnceCanonicalAddrs(bcc),
 		"from:" + bareAddr(from),
 		content,
 		"model:" + sendOnceCanonicalJSON(model),
@@ -121,6 +121,17 @@ func sendOnceDerivedKey(to, from, subject, template, model, stream, body string)
 	}
 	sum := sha256.Sum256([]byte(strings.Join(parts, "\n")))
 	return "sha256-" + hex.EncodeToString(sum[:])[:32]
+}
+
+// sendOnceCanonicalAddrs lowercases bare addresses and sorts them so order and
+// display names do not change the derived key.
+func sendOnceCanonicalAddrs(list string) string {
+	addrs := sendOnceSplitAddrs(list)
+	for i := range addrs {
+		addrs[i] = bareAddr(addrs[i])
+	}
+	sort.Strings(addrs)
+	return strings.Join(addrs, ",")
 }
 
 // sendOnceParseMetadata parses repeatable k=v flags.
@@ -273,7 +284,7 @@ other sandbox sends.`, "\n"),
 			}
 			res := sendOnceResult{KeySource: "flag", Key: strings.TrimSpace(flagKey), Stream: in.stream, Window: flagWindow, To: in.to, Sandbox: postmarkSelection.sandbox}
 			if res.Key == "" {
-				res.Key = sendOnceDerivedKey(in.to, in.from, in.subject, in.template, in.model, in.stream, in.text+"\x00"+in.html)
+				res.Key = sendOnceDerivedKey(in.to, in.cc, in.bcc, in.from, in.subject, in.template, in.model, in.stream, in.text+"\x00"+in.html)
 				res.KeySource = "derived"
 			}
 			if len(res.Key) > sendOnceMaxKeyLen {
@@ -300,6 +311,7 @@ other sandbox sends.`, "\n"),
 				return err
 			}
 			res.Server = sendOnceServerName(c, flags)
+			scope := postmarkServerScope(c)
 			if dbPath == "" {
 				dbPath = defaultDBPath("postmark-pp-cli")
 			}
@@ -313,15 +325,12 @@ other sandbox sends.`, "\n"),
 					return fmt.Errorf("opening send ledger: %w", err)
 				}
 				defer db.Close()
-				prior, err := db.PostmarkLedgerLookup(ctx, res.Key, res.Server, res.Sandbox, windowStart)
+				prior, err := db.PostmarkLedgerLookup(ctx, res.Key, scope, res.Sandbox, windowStart)
 				if err != nil {
 					return err
 				}
 				if prior != nil {
-					res.Dedupe.Ledger = "hit"
-					res.Dedupe.Postmark = "skipped: ledger hit"
-					res.Duplicate, res.Source, res.MessageID = true, sendOnceSourceLedger, prior.MessageID
-					res.SubmittedAt = prior.SentAt.UTC().Format(time.RFC3339)
+					sendOnceLedgerDuplicate(&res, prior, firstTo)
 					return printJSONFiltered(cmd.OutOrStdout(), res, flags)
 				}
 			}
@@ -349,13 +358,40 @@ other sandbox sends.`, "\n"),
 				return printJSONFiltered(cmd.OutOrStdout(), res, flags)
 			}
 
-			// 3. Send, then record. --send is the explicit delivery opt-in the
-			// transport requires.
+			// 3. Reserve the key, send, then confirm. The reservation is taken
+			// in one SQLite write transaction, so a concurrent run with the same
+			// key sees it and stops instead of sending a second copy.
+			// The ledger stamps the reservation once it holds the write lock, so
+			// neither a slow Postmark search nor lock contention can leave a
+			// reservation already outside a short window.
+			reservation, prior, err := db.PostmarkLedgerReserve(ctx, store.PostmarkLedgerEntry{
+				Key: res.Key, Recipient: firstTo, Server: scope, Stream: in.stream, Sandbox: res.Sandbox,
+			}, window)
+			if err != nil {
+				return fmt.Errorf("reserving the send ledger key (nothing was sent): %w", err)
+			}
+			if prior != nil {
+				res.Endpoint, res.Payload = "", nil
+				sendOnceLedgerDuplicate(&res, prior, firstTo)
+				return printJSONFiltered(cmd.OutOrStdout(), res, flags)
+			}
+			// --send is the explicit delivery opt-in the transport requires.
 			data, err := withSendAllowed(func() (json.RawMessage, error) {
 				raw, _, err := c.Post(ctx, endpoint, payload)
 				return raw, err
 			})
+			// Ledger bookkeeping after the POST must not inherit a send
+			// deadline that may already have passed.
+			ledgerCtx, ledgerCancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+			defer ledgerCancel()
 			if err != nil {
+				if sendOnceDefinitelyRefused(err) {
+					if rerr := db.PostmarkLedgerRelease(ledgerCtx, reservation); rerr != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not release the send ledger reservation; retries with this key are blocked until the window passes: %v\n", rerr)
+					}
+				} else {
+					fmt.Fprintln(cmd.ErrOrStderr(), "warning: the send outcome is unknown, so the key stays reserved for the window; check Postmark activity before retrying with a new --key.")
+				}
 				if f, ok := postmarkAPIFailure(err); ok && f.ErrorCode == postmarkErrInactiveRecipient {
 					serr := sendOnceError{
 						Error:     "inactive_recipient",
@@ -382,18 +418,16 @@ other sandbox sends.`, "\n"),
 				return fmt.Errorf("parsing send response: %w", err)
 			}
 			if resp.ErrorCode != 0 || resp.MessageID == "" {
-				return apiErr(fmt.Errorf("Postmark did not accept the send: ErrorCode %d: %s", resp.ErrorCode, resp.Message))
+				return apiErr(fmt.Errorf("Postmark answered without confirming delivery (ErrorCode %d: %s); the key stays reserved for the window, so check Postmark activity before retrying with a new --key", resp.ErrorCode, resp.Message))
 			}
-			if err := db.PostmarkLedgerRecord(ctx, store.PostmarkLedgerEntry{
-				Key: res.Key, MessageID: resp.MessageID, Recipient: firstTo, Server: res.Server, Stream: in.stream, Sandbox: res.Sandbox, SentAt: now,
-			}); err != nil {
-				return fmt.Errorf("sent MessageID %s but could not record it in the send ledger at %s; a retry may send again: %w", resp.MessageID, dbPath, err)
+			if err := db.PostmarkLedgerComplete(ledgerCtx, reservation, resp.MessageID); err != nil {
+				return fmt.Errorf("sent MessageID %s but could not confirm it in the send ledger at %s; the key stays reserved for the window: %w", resp.MessageID, dbPath, err)
 			}
 			res.Sent, res.Source, res.MessageID, res.SubmittedAt = true, sendOnceSourceSent, resp.MessageID, resp.SubmittedAt
 			return printJSONFiltered(cmd.OutOrStdout(), res, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagKey, "key", "", "Idempotency key (max 80 chars); omitted = hash of recipients, sender, subject/template, model, stream")
+	cmd.Flags().StringVar(&flagKey, "key", "", "Idempotency key (max 80 chars); omitted = hash of To/Cc/Bcc, sender, subject or template, model, stream, and body")
 	cmd.Flags().StringVar(&in.from, "from", "", "Sender address (a confirmed sender signature)")
 	cmd.Flags().StringVar(&in.to, "to", "", "Recipient address(es), comma-separated")
 	cmd.Flags().StringVar(&in.cc, "cc", "", "Cc address(es), comma-separated")
@@ -439,6 +473,32 @@ func sendOnceServerName(c *client.Client, flags *rootFlags) string {
 		}
 	}
 	return name
+}
+
+// sendOnceLedgerDuplicate fills res for a key already sent or reserved.
+func sendOnceLedgerDuplicate(res *sendOnceResult, prior *store.PostmarkLedgerEntry, recipient string) {
+	res.Duplicate, res.Source = true, sendOnceSourceLedger
+	res.Dedupe.Postmark = "skipped: ledger hit"
+	res.SubmittedAt = prior.SentAt.UTC().Format(time.RFC3339)
+	if prior.Pending() {
+		res.Dedupe.Ledger = "pending"
+		res.DeliveryUnknown = true
+		res.Next = "an earlier run reserved this key and never confirmed delivery; check with 'postmark-pp-cli messages list --recipient " + shellQuoteWord(recipient) + " --count 20 --offset 0" + postmarkServerArg(res.Server) + "' before sending again with a new --key"
+		return
+	}
+	res.Dedupe.Ledger = "hit"
+	res.MessageID = prior.MessageID
+}
+
+// sendOnceDefinitelyRefused reports whether Postmark rejected the request, so
+// the message was not accepted and the reservation can be released. Timeouts,
+// connection errors, and 5xx responses leave delivery unknown.
+func sendOnceDefinitelyRefused(err error) bool {
+	if isRateLimited(err) {
+		return true
+	}
+	f, ok := postmarkAPIFailure(err)
+	return ok && f.Status >= 400 && f.Status < 500
 }
 
 type sendOncePrior struct {

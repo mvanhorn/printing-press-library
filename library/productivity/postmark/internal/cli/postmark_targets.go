@@ -70,7 +70,7 @@ func resolveAllPostmarkTargets(ctx context.Context, flags *rootFlags, all bool) 
 			if err != nil {
 				return nil, err
 			}
-			c.Config.PostmarkServerToken = ref.token
+			setPostmarkServerToken(c.Config, ref.token)
 			targets = append(targets, ref.target(c))
 		}
 		return targets, nil

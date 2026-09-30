@@ -4,6 +4,8 @@ package cli
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -358,4 +360,50 @@ func localMirrorMissing(w io.Writer, dbPath, resources string) bool {
 	}
 	printNoLocalMirror(w, dbPath, resources)
 	return true
+}
+
+// setPostmarkServerToken points cfg at one server. The client sends a saved
+// auth_header, or a static X-Postmark-Server-Token header, in place of
+// PostmarkServerToken, so both are cleared on this in-memory config;
+// otherwise --server, --sandbox, and per-server fan-outs would silently act
+// on the saved server instead.
+func setPostmarkServerToken(cfg *config.Config, token string) {
+	cfg.PostmarkServerToken = token
+	cfg.AuthHeaderVal = ""
+	for k := range cfg.Headers {
+		if strings.EqualFold(k, postmarkServerTokenHeader) {
+			delete(cfg.Headers, k)
+		}
+	}
+}
+
+// postmarkEffectiveServerToken is the server token the client will send,
+// following its precedence: a static header, then auth_header, then
+// PostmarkServerToken.
+func postmarkEffectiveServerToken(cfg *config.Config) string {
+	if cfg == nil {
+		return ""
+	}
+	for k, v := range cfg.Headers {
+		if strings.EqualFold(k, postmarkServerTokenHeader) && strings.TrimSpace(v) != "" {
+			return strings.TrimSpace(v)
+		}
+	}
+	return strings.TrimSpace(cfg.AuthHeader())
+}
+
+// postmarkServerScope identifies the server a client acts on by a short hash
+// of the server token it will send, so local state can be kept per server
+// without storing the token or calling the API. Empty when no server token is
+// set.
+func postmarkServerScope(c *client.Client) string {
+	if c == nil {
+		return ""
+	}
+	token := postmarkEffectiveServerToken(c.Config)
+	if token == "" {
+		return ""
+	}
+	sum := sha256.Sum256([]byte(token))
+	return "token-sha256:" + hex.EncodeToString(sum[:8])
 }

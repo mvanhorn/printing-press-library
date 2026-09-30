@@ -61,6 +61,7 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 			mcplib.WithDescription("Execute one postmark API endpoint by its endpoint_id (from postmark_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by postmark_search (e.g., \"users.list\").")),
 			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			mcplib.WithBoolean("confirm", mcplib.Description("Set to true only after the user approves. Required for every DELETE and for data removals, stream archives, suppression deletes, and template pushes between servers; without it those endpoints return a preview and nothing is sent.")),
 		),
 		handleCodeOrchExecute,
 	)
@@ -1329,6 +1330,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if params == nil {
 		params = map[string]any{}
 	}
+	if gate := postmarkExecuteConfirmGate(ep, args, params); gate != nil {
+		return gate, nil
+	}
 
 	c, platformSession, err := newMCPClient(ctx)
 	if err != nil {
@@ -1398,6 +1402,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 			return codeOrchArrayBody(params)
 		}
 		return codeOrchWriteBody(params)
+	}
+	if gate := postmarkExecuteResolvedGate(ep, path, args, params); gate != nil {
+		return gate, nil
 	}
 	var data json.RawMessage
 	switch ep.Method {

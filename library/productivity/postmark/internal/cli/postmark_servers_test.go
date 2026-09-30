@@ -4,13 +4,17 @@ package cli
 
 import (
 	"context"
+	"github.com/mvanhorn/printing-press-library/library/productivity/postmark/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/postmark/internal/config"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestPostmarkIsAccountPath(t *testing.T) {
@@ -179,7 +183,9 @@ func TestKeepPostmarkArchiveOnFullSync(t *testing.T) {
 	}
 	full := newSync()
 	_ = full.Flags().Set("full", "true")
-	keepPostmarkArchiveOnFullSync(full)
+	if err := keepPostmarkArchiveOnFullSync(full); err != nil {
+		t.Fatalf("sync --full: %v", err)
+	}
 	if got := full.Flags().Lookup("no-prune").Value.String(); got != "true" {
 		t.Errorf("sync --full no-prune = %s, want true", got)
 	}
@@ -187,13 +193,16 @@ func TestKeepPostmarkArchiveOnFullSync(t *testing.T) {
 	explicit := newSync()
 	_ = explicit.Flags().Set("full", "true")
 	_ = explicit.Flags().Set("no-prune", "false")
-	keepPostmarkArchiveOnFullSync(explicit)
-	if got := explicit.Flags().Lookup("no-prune").Value.String(); got != "false" {
-		t.Errorf("explicit --no-prune=false overridden to %s", got)
+	err := keepPostmarkArchiveOnFullSync(explicit)
+	if err == nil || ExitCode(err) != 2 {
+		t.Fatalf("sync --full --no-prune=false: err = %v (exit %d), want a usage error", err, ExitCode(err))
 	}
 
 	incremental := newSync()
-	keepPostmarkArchiveOnFullSync(incremental)
+	_ = incremental.Flags().Set("no-prune", "false")
+	if err := keepPostmarkArchiveOnFullSync(incremental); err != nil {
+		t.Fatalf("incremental sync: %v", err)
+	}
 	if got := incremental.Flags().Lookup("no-prune").Value.String(); got != "false" {
 		t.Errorf("non-full sync no-prune = %s, want false", got)
 	}
@@ -246,4 +255,89 @@ func TestServersTokensRevealsWithoutStoringAndListStaysMasked(t *testing.T) {
 	if data, err := os.ReadFile(defaultDBPath("postmark-pp-cli")); err == nil && strings.Contains(string(data), "00000000") {
 		t.Errorf("unmasked token reached the local store")
 	}
+}
+
+func TestSyncFromAnotherServerWalksEverything(t *testing.T) {
+	f := newPostmarkFake(t)
+	home := postmarkTestEnv(t, f)
+	f.reply("GET /servers", 200, postmarkServersPayload([3]any{1, "Main App", "tok-main"}, [3]any{2, "Staging", "tok-staging"}))
+	db := filepath.Join(home, "fresh-dir", "archive.db") // the directory does not exist yet
+	const note = "belonged to another server"
+	run := func(server string) string {
+		t.Helper()
+		_, stderr, err := postmarkRun(t, "sync", "--server", server, "--resources", "servers", "--db", db)
+		if err != nil {
+			t.Fatalf("sync --server %s: %v\n%s", server, err, stderr)
+		}
+		return stderr
+	}
+	if stderr := run("Main App"); strings.Contains(stderr, note) {
+		t.Fatalf("first sync into an empty archive should resume normally:\n%s", stderr)
+	}
+	if stderr := run("Staging"); !strings.Contains(stderr, note) {
+		t.Fatalf("switching servers should reset the checkpoints:\n%s", stderr)
+	}
+	if stderr := run("Staging"); strings.Contains(stderr, note) {
+		t.Fatalf("a second sync of the same server should resume:\n%s", stderr)
+	}
+}
+
+func TestSetPostmarkServerTokenClearsOverrides(t *testing.T) {
+	cfg := &config.Config{AuthHeaderVal: "saved-token", Headers: map[string]string{"x-postmark-server-token": "static-token", "X-Other": "keep"}}
+	if got := postmarkEffectiveServerToken(cfg); got != "static-token" {
+		t.Fatalf("effective token = %q, want the static header", got)
+	}
+	setPostmarkServerToken(cfg, "tok-staging")
+	if got := postmarkEffectiveServerToken(cfg); got != "tok-staging" {
+		t.Fatalf("after selecting a server the effective token = %q", got)
+	}
+	if cfg.AuthHeaderVal != "" || cfg.Headers["X-Other"] != "keep" || len(cfg.Headers) != 1 {
+		t.Fatalf("overrides not cleared correctly: auth_header=%q headers=%v", cfg.AuthHeaderVal, cfg.Headers)
+	}
+	a := postmarkServerScope(&client.Client{Config: &config.Config{PostmarkServerToken: "tok-a"}})
+	b := postmarkServerScope(&client.Client{Config: &config.Config{AuthHeaderVal: "tok-a"}})
+	if a == "" || a != b || strings.Contains(a, "tok-a") {
+		t.Fatalf("scope should hash the token actually sent: %q vs %q", a, b)
+	}
+}
+
+func TestImportRefusesDataRemovals(t *testing.T) {
+	f := newPostmarkFake(t)
+	home := postmarkTestEnv(t, f)
+	input := filepath.Join(home, "removals.jsonl")
+	if err := os.WriteFile(input, []byte(`{"RequestedBy":"privacy@example.com","RequestedFor":"jane@example.com"}`+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, resource := range []string{"data_removals", "data-removals"} {
+		_, _, err := postmarkRun(t, "import", resource, "--input", input)
+		if err == nil || ExitCode(err) != 2 {
+			t.Fatalf("import %s: err = %v (exit %d), want a usage error", resource, err, ExitCode(err))
+		}
+	}
+	for _, r := range f.log() {
+		if r.Method == "POST" {
+			t.Fatalf("import reached the API: %+v", r)
+		}
+	}
+}
+
+func TestPostmarkSyncLockWaitEndsWithContext(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "archive.db.sync.lock")
+	release, err := acquirePostmarkSyncLock(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer release()
+	// A second open file handle stands in for another process.
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	defer cancel()
+	if _, err := acquirePostmarkSyncLock(ctx, path); err == nil || !strings.Contains(err.Error(), "another sync is still using this archive") {
+		t.Fatalf("second acquire = %v, want a busy error once the context ends", err)
+	}
+	release()
+	again, err := acquirePostmarkSyncLock(context.Background(), path)
+	if err != nil {
+		t.Fatalf("acquire after release: %v", err)
+	}
+	again()
 }

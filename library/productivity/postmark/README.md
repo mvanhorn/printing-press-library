@@ -223,7 +223,13 @@ The generated `email send`, `send-with-template`, `send-batch`, `send-batch-with
 
 For these workflow commands, `--dry-run` only confirms the command resolves. To see what one would do, run it without `--send`, `--apply`, or `--yes`: `email send-once`, `bounces resend-blocked`, `servers bootstrap`, `templates push`, and `bounces reactivate` print their plan and change nothing until given that flag.
 
-`sync --full` defaults to `--no-prune` here, so messages Postmark has expired and rows synced from other servers stay in the local archive. Pass `--no-prune=false` to prune.
+`sync --full` never prunes here, so messages Postmark has expired and rows synced from other servers stay in the local archive. `--no-prune=false` is refused; to start a fresh archive, sync into a new file with `--db <path>`.
+
+Syncing a different server into the same database resets the sync checkpoints and reads that server from the beginning, without pruning. Syncs into one database take turns.
+
+If `email send-once` cannot tell whether Postmark accepted a message (a timeout or a 5xx), it keeps the key reserved for the window and later runs report `delivery_unknown` instead of sending again.
+
+Over MCP, `postmark_execute` returns a preview instead of calling the API for every DELETE and for data removals, stream archives, suppression deletes, and template pushes between servers, unless the call includes `confirm: true`.
 
 ## Recipes
 
@@ -603,7 +609,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - **HTTP 429 during sync** — Reads back off automatically; rerun sync with a smaller --max-pages or fewer --resources.
 - **Bulk send returns ErrorCode 14** — Bulk sending needs approval on your Postmark account; ask Postmark support to enable it.
 - **Message search stops at 10,000 results** — Postmark caps count plus offset at 10,000; window the pull by date, e.g. postmark-pp-cli sync --resources messages --param fromdate=2026-09-01 --param todate=2026-09-15, then query the archive with search or sql.
-- **Archived messages disappeared after sync --full** — This CLI defaults sync --full to --no-prune so expired messages and other servers' rows stay; only --no-prune=false prunes.
+- **sync --full --no-prune=false exits with a usage error** — Pruning is off because the archive keeps every synced server's rows and messages Postmark has expired. To start a fresh archive, sync into a new file with --db <path>; the current archive and send ledger stay as they are.
 
 ## Sources & Inspiration
 

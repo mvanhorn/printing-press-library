@@ -93,6 +93,7 @@ type bootstrapFake struct {
 	lumenExists   bool
 	broadcast     bool
 	webhookURL    string
+	webhook       map[string]any
 	domainCreated bool
 }
 
@@ -141,8 +142,8 @@ func newBootstrapFake(t *testing.T) *bootstrapFake {
 		b.mu.Lock()
 		defer b.mu.Unlock()
 		hooks := []map[string]any{}
-		if b.webhookURL != "" {
-			hooks = append(hooks, map[string]any{"ID": 5, "Url": b.webhookURL})
+		if b.webhook != nil {
+			hooks = append(hooks, b.webhook)
 		}
 		return 200, map[string]any{"Webhooks": hooks}
 	})
@@ -151,6 +152,7 @@ func newBootstrapFake(t *testing.T) *bootstrapFake {
 		_ = json.Unmarshal([]byte(body), &in)
 		b.mu.Lock()
 		b.webhookURL, _ = in["Url"].(string)
+		b.webhook = map[string]any{"ID": 5, "Url": in["Url"], "MessageStream": in["MessageStream"], "Triggers": in["Triggers"]}
 		b.mu.Unlock()
 		return 200, map[string]any{"ID": 5, "Url": in["Url"]}
 	})
@@ -339,5 +341,125 @@ func TestServersBootstrapRequiresName(t *testing.T) {
 	}
 	if len(f.log()) != 0 {
 		t.Fatal("usage error made requests")
+	}
+}
+
+func TestBootstrapWebhookEnablesMissingTriggers(t *testing.T) {
+	b := newBootstrapFake(t)
+	postmarkTestEnv(t, b.postmarkFake)
+	const hook = "https://lumen.example.com/hooks/postmark"
+	b.lumenExists = true
+	b.webhookURL = hook
+	b.webhook = map[string]any{"ID": 5, "Url": hook, "MessageStream": "outbound", "Triggers": map[string]any{
+		"Bounce": map[string]any{"Enabled": false, "IncludeContent": true}, "SpamComplaint": map[string]any{"Enabled": true}, "Delivery": map[string]any{"Enabled": false},
+	}}
+	var putBody string
+	b.handle("PUT /webhooks/5", func(_ *http.Request, body string) (int, any) {
+		putBody = body
+		return 200, map[string]any{"ID": 5, "Url": hook}
+	})
+
+	plan, _, err := postmarkRun(t, "servers", "bootstrap", "Lumen", "--webhook-url", hook, "--json")
+	if err != nil {
+		t.Fatalf("plan: %v", err)
+	}
+	if !strings.Contains(plan, `"update"`) || !strings.Contains(plan, "enable Bounce, Delivery on webhook 5") {
+		t.Fatalf("plan should update webhook 5 to enable Bounce and Delivery:\n%s", plan)
+	}
+	if putBody != "" {
+		t.Fatal("plan mode must not edit the webhook")
+	}
+
+	if _, _, err := postmarkRun(t, "servers", "bootstrap", "Lumen", "--webhook-url", hook, "--apply", "--json"); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	var sent struct {
+		Triggers map[string]map[string]bool `json:"Triggers"`
+	}
+	if err := json.Unmarshal([]byte(putBody), &sent); err != nil {
+		t.Fatalf("PUT body %q: %v", putBody, err)
+	}
+	if len(sent.Triggers) != 2 || !sent.Triggers["Delivery"]["Enabled"] || !sent.Triggers["Bounce"]["Enabled"] {
+		t.Fatalf("PUT should enable only Bounce and Delivery, got %s", putBody)
+	}
+	if ic, ok := sent.Triggers["Bounce"]["IncludeContent"]; !ok || !ic {
+		t.Fatalf("PUT must keep Bounce IncludeContent=true, got %s", putBody)
+	}
+	for _, r := range b.log() {
+		if r.Method == "POST" && r.Path == "/webhooks" {
+			t.Fatal("an existing outbound webhook must be updated, not duplicated")
+		}
+	}
+}
+
+func TestBootstrapWebhookOnOtherStreamIsNotReused(t *testing.T) {
+	b := newBootstrapFake(t)
+	postmarkTestEnv(t, b.postmarkFake)
+	const hook = "https://lumen.example.com/hooks/postmark"
+	b.lumenExists = true
+	b.webhookURL = hook
+	b.webhook = map[string]any{"ID": 5, "Url": hook, "MessageStream": "broadcast", "Triggers": map[string]any{
+		"Bounce": map[string]any{"Enabled": true}, "SpamComplaint": map[string]any{"Enabled": true}, "Delivery": map[string]any{"Enabled": true},
+	}}
+	plan, _, err := postmarkRun(t, "servers", "bootstrap", "Lumen", "--webhook-url", hook, "--json")
+	if err != nil {
+		t.Fatalf("plan: %v", err)
+	}
+	if !strings.Contains(plan, "create a bounce, spam complaint, and delivery webhook to "+hook) {
+		t.Fatalf("a same-URL webhook on another stream should not satisfy the step:\n%s", plan)
+	}
+}
+
+func TestSameWebhookURL(t *testing.T) {
+	cases := []struct {
+		a, b string
+		want bool
+	}{
+		{"https://lumen.example.com/hooks/postmark", "https://lumen.example.com/hooks/postmark", true},
+		{"https://lumen.example.com/hooks/postmark", "https://lumen.example.com/hooks/postmark/", false},
+		{"https://hooks@lumen.example.com/hooks", "https://lumen.example.com/hooks", false},
+		{"https://lumen.example.com/hooks", "https://lumen.example.com/hooks?", false},
+		{"https://lumen.example.com/hooks#A", "https://lumen.example.com/hooks#%41", false},
+		{"https://Lumen.Example.com/hooks/postmark", "HTTPS://lumen.example.com/hooks/postmark", true},
+		{"https://lumen.example.com/hooks/Postmark", "https://lumen.example.com/hooks/postmark", false},
+		{"https://lumen.example.com/hooks?token=A", "https://lumen.example.com/hooks?token=a", false},
+		{"https://lumen.example.com/hooks", "http://lumen.example.com/hooks", false},
+	}
+	for _, tc := range cases {
+		if got := sameWebhookURL(tc.a, tc.b); got != tc.want {
+			t.Errorf("sameWebhookURL(%q, %q) = %v, want %v", tc.a, tc.b, got, tc.want)
+		}
+	}
+}
+
+func TestBootstrapWebhookUpdateHonorsNoVerify(t *testing.T) {
+	b := newBootstrapFake(t)
+	postmarkTestEnv(t, b.postmarkFake)
+	const hook = "https://lumen.example.com/hooks/postmark"
+	b.lumenExists = true
+	b.webhookURL = hook
+	b.webhook = map[string]any{"ID": 5, "Url": hook, "MessageStream": "outbound", "Triggers": map[string]any{
+		"Bounce": map[string]any{"Enabled": true}, "SpamComplaint": map[string]any{"Enabled": false, "IncludeContent": false}, "Delivery": map[string]any{"Enabled": true},
+	}}
+	var putBody, putQuery string
+	b.handle("PUT /webhooks/5", func(r *http.Request, body string) (int, any) {
+		putBody, putQuery = body, r.URL.RawQuery
+		return 200, map[string]any{"ID": 5, "Url": hook}
+	})
+	if _, _, err := postmarkRun(t, "servers", "bootstrap", "Lumen", "--webhook-url", hook, "--no-verify-webhook", "--apply", "--json"); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	var sent struct {
+		Verify   *bool                     `json:"Verify"`
+		Triggers map[string]map[string]any `json:"Triggers"`
+	}
+	if err := json.Unmarshal([]byte(putBody), &sent); err != nil {
+		t.Fatalf("PUT body %q: %v", putBody, err)
+	}
+	if sent.Verify == nil || *sent.Verify || !strings.Contains(putQuery, "verify=false") {
+		t.Fatalf("--no-verify-webhook not honored on update: body=%s query=%s", putBody, putQuery)
+	}
+	if ic, ok := sent.Triggers["SpamComplaint"]["IncludeContent"]; !ok || ic != false {
+		t.Fatalf("IncludeContent=false must be kept: %s", putBody)
 	}
 }

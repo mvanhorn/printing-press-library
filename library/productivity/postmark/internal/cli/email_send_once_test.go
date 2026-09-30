@@ -30,10 +30,10 @@ func TestNovelEmailSendOnceHelpWires(t *testing.T) {
 }
 
 func TestSendOnceDerivedKey(t *testing.T) {
-	base := sendOnceDerivedKey("jane@example.com, bob@example.com", "App <app@example.com>", "Your code", "", "", "", "")
+	base := sendOnceDerivedKey("jane@example.com, bob@example.com", "", "", "App <app@example.com>", "Your code", "", "", "", "")
 	same := []string{
-		sendOnceDerivedKey("Bob@Example.com,jane@example.com", "app@example.com", " Your code ", "", "", "outbound", ""),
-		sendOnceDerivedKey("bob@example.com, jane@example.com", "APP@example.com", "Your code", "", "", "Outbound", ""),
+		sendOnceDerivedKey("Bob@Example.com,jane@example.com", "", "", "app@example.com", " Your code ", "", "", "outbound", ""),
+		sendOnceDerivedKey("bob@example.com, jane@example.com", "", "", "APP@example.com", "Your code", "", "", "Outbound", ""),
 	}
 	for i, k := range same {
 		if k != base {
@@ -41,19 +41,24 @@ func TestSendOnceDerivedKey(t *testing.T) {
 		}
 	}
 	different := []string{
-		sendOnceDerivedKey("jane@example.com", "app@example.com", "Your code", "", "", "", ""),
-		sendOnceDerivedKey("jane@example.com, bob@example.com", "app@example.com", "Your new code", "", "", "", ""),
-		sendOnceDerivedKey("jane@example.com, bob@example.com", "app@example.com", "Your code", "", "", "broadcast", ""),
+		sendOnceDerivedKey("jane@example.com", "", "", "app@example.com", "Your code", "", "", "", ""),
+		sendOnceDerivedKey("jane@example.com, bob@example.com", "", "", "app@example.com", "Your new code", "", "", "", ""),
+		sendOnceDerivedKey("jane@example.com, bob@example.com", "", "", "app@example.com", "Your code", "", "", "broadcast", ""),
 	}
 	for i, k := range different {
 		if k == base {
 			t.Errorf("different input %d produced the same key", i)
 		}
 	}
-	tmplA := sendOnceDerivedKey("jane@example.com", "app@example.com", "", "password-reset", `{"b":2,"a":1}`, "", "")
-	tmplB := sendOnceDerivedKey("jane@example.com", "app@example.com", "", "password-reset", `{ "a": 1, "b": 2 }`, "", "")
+	tmplA := sendOnceDerivedKey("jane@example.com", "", "", "app@example.com", "", "password-reset", `{"b":2,"a":1}`, "", "")
+	tmplB := sendOnceDerivedKey("jane@example.com", "", "", "app@example.com", "", "password-reset", `{ "a": 1, "b": 2 }`, "", "")
 	if tmplA != tmplB {
 		t.Error("model key order should not change the key")
+	}
+	withCc := sendOnceDerivedKey("jane@example.com, bob@example.com", "boss@example.com", "", "App <app@example.com>", "Your code", "", "", "", "")
+	withBcc := sendOnceDerivedKey("jane@example.com, bob@example.com", "", "boss@example.com", "App <app@example.com>", "Your code", "", "", "", "")
+	if withCc == base || withBcc == base || withCc == withBcc {
+		t.Error("adding a Cc or Bcc recipient must change the key, and Cc and Bcc must not collide")
 	}
 	if !strings.HasPrefix(base, "sha256-") || len(base) > sendOnceMaxKeyLen {
 		t.Errorf("key shape = %q", base)
@@ -266,9 +271,62 @@ func TestSendOnceRequiresRecipient(t *testing.T) {
 }
 
 func TestSendOnceDerivedKeyIncludesBody(t *testing.T) {
-	a := sendOnceDerivedKey("jane@example.com", "app@example.com", "Your code", "", "", "", "Code: 1111\x00")
-	b := sendOnceDerivedKey("jane@example.com", "app@example.com", "Your code", "", "", "", "Code: 2222\x00")
+	a := sendOnceDerivedKey("jane@example.com", "", "", "app@example.com", "Your code", "", "", "", "Code: 1111\x00")
+	b := sendOnceDerivedKey("jane@example.com", "", "", "app@example.com", "Your code", "", "", "", "Code: 2222\x00")
 	if a == b {
 		t.Fatalf("different bodies produced the same key %s", a)
 	}
+}
+
+func TestSendOnceFailureDisposition(t *testing.T) {
+	t.Run("server error keeps the key reserved", func(t *testing.T) {
+		f := sendOnceFake(t)
+		home := postmarkTestEnv(t, f)
+		db := filepath.Join(home, "ledger.db")
+		f.reply("POST /email", 503, map[string]any{"ErrorCode": 0, "Message": "unavailable"})
+
+		_, stderr, err := postmarkRun(t, append(sendOnceArgs, "--db", db, "--send")...)
+		if err == nil {
+			t.Fatal("a 503 send must fail")
+		}
+		if !strings.Contains(stderr, "outcome is unknown") {
+			t.Errorf("stderr should say the outcome is unknown: %q", stderr)
+		}
+		before := countRequests(f.log(), "POST", "/email")
+
+		f.reply("POST /email", 200, map[string]any{"To": "jane@example.com", "MessageID": "msg-2", "ErrorCode": 0})
+		stdout, stderr, err := postmarkRun(t, append(sendOnceArgs, "--db", db, "--send")...)
+		if err != nil {
+			t.Fatalf("retry: %v\n%s", err, stderr)
+		}
+		var res sendOnceResult
+		postmarkResults(t, stdout, &res)
+		if !res.Duplicate || !res.DeliveryUnknown || res.Dedupe.Ledger != "pending" || res.MessageID != "" || res.Sent {
+			t.Fatalf("retry after an unknown outcome = %+v", res)
+		}
+		if got := countRequests(f.log(), "POST", "/email"); got != before {
+			t.Fatalf("retry posted again after an unknown outcome (%d -> %d)", before, got)
+		}
+	})
+
+	t.Run("definite rejection releases the key", func(t *testing.T) {
+		f := sendOnceFake(t)
+		home := postmarkTestEnv(t, f)
+		db := filepath.Join(home, "ledger.db")
+		f.reply("POST /email", 422, map[string]any{"ErrorCode": 300, "Message": "Invalid 'From' address"})
+
+		if _, _, err := postmarkRun(t, append(sendOnceArgs, "--db", db, "--send")...); err == nil {
+			t.Fatal("a 422 send must fail")
+		}
+		f.reply("POST /email", 200, map[string]any{"To": "jane@example.com", "MessageID": "msg-3", "ErrorCode": 0})
+		stdout, stderr, err := postmarkRun(t, append(sendOnceArgs, "--db", db, "--send")...)
+		if err != nil {
+			t.Fatalf("corrected retry: %v\n%s", err, stderr)
+		}
+		var res sendOnceResult
+		postmarkResults(t, stdout, &res)
+		if !res.Sent || res.MessageID != "msg-3" {
+			t.Fatalf("corrected retry after a rejection = %+v", res)
+		}
+	})
 }

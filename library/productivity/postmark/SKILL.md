@@ -273,7 +273,13 @@ The generated `email send`, `send-with-template`, `send-batch`, `send-batch-with
 
 For the hand-written commands, `--dry-run` only confirms the command resolves. To see what one would do, run it without `--send`, `--apply`, or `--yes`: `email send-once`, `bounces resend-blocked`, `servers bootstrap`, `templates push`, and `bounces reactivate` print their plan and change nothing until given that flag.
 
-`sync --full` defaults to `--no-prune` here, so messages Postmark has expired and rows synced from other servers stay in the local archive. Pass `--no-prune=false` to prune.
+`sync --full` never prunes here, so messages Postmark has expired and rows synced from other servers stay in the local archive. `--no-prune=false` is refused; to start a fresh archive, sync into a new file with `--db <path>`.
+
+Syncing a different server into the same database resets the sync checkpoints and reads that server from the beginning, without pruning. Syncs into one database take turns.
+
+If `email send-once` cannot tell whether Postmark accepted a message (a timeout or a 5xx), it keeps the key reserved for the window and later runs report `delivery_unknown` instead of sending again.
+
+Over MCP, `postmark_execute` returns a preview instead of calling the API for every DELETE and for data removals, stream archives, suppression deletes, and template pushes between servers, unless the call includes `confirm: true`.
 
 ## Recipes
 

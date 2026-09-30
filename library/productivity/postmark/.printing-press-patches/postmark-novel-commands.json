@@ -4,7 +4,7 @@
   "base_run_id": "20260930-123010-65f85318",
   "base_printing_press_version": "4.32.6",
   "id": "postmark-novel-commands",
-  "summary": "Implement the five approved novel commands in place of generated scaffolds: pulse, recipient-domains, email send-once, servers bootstrap, templates check.",
+  "summary": "Implement the five approved novel commands in place of generated scaffolds: pulse, recipient-domains, email send-once (with an atomic send ledger reservation), servers bootstrap, templates check.",
   "reason": "The generator emits TODO scaffolds for novel features. These files hold the real implementations, plus the send-once ledger in the local store, and a regen would put the scaffolds back.",
   "files": [
     "internal/cli/pulse.go",
@@ -20,5 +20,5 @@
     "internal/store/postmark_ledger.go",
     "internal/store/postmark_ledger_test.go"
   ],
-  "validated_outcome": "go test ./... passes; each command returned correct live output against a six-server account during live dogfood."
+  "validated_outcome": "go test ./... passes, including TestPostmarkLedgerConcurrentReserveAcrossHandles (eight store handles race on one key; exactly one reserves it) and TestSendOnceFailureDisposition (a 5xx keeps the key reserved and later runs report delivery_unknown; a 4xx releases it). Each command returned correct live output during live dogfood."
 }
