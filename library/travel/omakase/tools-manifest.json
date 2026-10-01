@@ -1,0 +1,73 @@
+{
+  "api_name": "omakase",
+  "base_url": "https://omakase.in",
+  "description": "Discover premium Japanese restaurants with source courses, release rules and honest availability states.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "omakase-pp-cli/0.1.0 (read-only planning)"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/json;q=0.9,*/*;q=0.8"
+    }
+  ],
+  "tools": [
+    {
+      "name": "pages_detail",
+      "description": "Public restaurant source document metadata. Required: id.",
+      "method": "GET",
+      "path": "/en/r/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Source restaurant slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_list",
+      "description": "Public catalogue source links.",
+      "method": "GET",
+      "path": "/en/r",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Course price/fee inspection",
+      "command": "courses",
+      "description": "Inspect public course price floors, units, service charges, reservation fee and cancellation caveats."
+    },
+    {
+      "name": "Release schedule inspection",
+      "command": "release",
+      "description": "Read source release timing in JST; distinguish scheduled, irregular and undetermined releases from seats."
+    },
+    {
+      "name": "Date/party availability boundary",
+      "command": "availability",
+      "description": "Inspect a planning date and party with unknown exact seats and query_evaluated false when public access is gated."
+    },
+    {
+      "name": "Restaurant comparison",
+      "command": "compare",
+      "description": "Compare public terms for two to five restaurant IDs with explicit per-ID failures."
+    },
+    {
+      "name": "Local summary inventory",
+      "command": "inventory",
+      "description": "Explicitly refresh bounded summary pages and inspect or search local inventory coverage."
+    }
+  ]
+}

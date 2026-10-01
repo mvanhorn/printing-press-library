@@ -1,0 +1,134 @@
+{
+  "dir": "<project>",
+  "spec_path": "<project>/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 7,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "hasChangedLocalFlags",
+      "isDryRunResponseForClient",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "missing": [
+      "inventory refresh",
+      "membership"
+    ],
+    "detail": "8/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 58,
+      "registered": 58
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "courses",
+        "file": "courses.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "release",
+        "file": "release.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "availability",
+        "file": "availability.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Discover premium Japanese restaurants with source courses, release rules and honest availability states."
+  },
+  "source_client_check": {
+    "checked": 12
+  },
+  "print_json_filtered_check": {
+    "checked": 33
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 33
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "7 dead helper functions found",
+    "sync uses generic Upsert only",
+    "3/5 novel features look reimplemented: courses (courses.go) — hand-rolled response: no API client call, no store access; release (release.go) — hand-rolled response: no API client call, no store access; availability (availability.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

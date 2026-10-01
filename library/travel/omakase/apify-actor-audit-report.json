@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/omakase-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261001-020555-6d97b738",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

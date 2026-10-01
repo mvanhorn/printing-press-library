@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "omakase-public-planning",
+  "reason": "Focused first-party read-only semantics, normalized source cache, source HTTP guard and bounded planning commands; generated metadata raw caching must stay disabled.",
+  "files": [
+    "internal/omakase/model.go",
+    "internal/omakase/parse.go",
+    "internal/omakase/client.go",
+    "internal/cli/omakase_commands.go",
+    "internal/cli/omakase_metadata.go",
+    "internal/cli/restaurants_show.go",
+    "internal/cli/courses.go",
+    "internal/cli/release.go",
+    "internal/cli/availability.go",
+    "internal/cli/compare.go",
+    "internal/cli/inventory.go"
+  ],
+  "notes": [
+    "Hand-authored hooks integrate with generated root/client and are regenerated-mergeable.",
+    "Root narrative synchronized from run research.json; local install canonical skill uses bare omakase-pp-cli module."
+  ]
+}

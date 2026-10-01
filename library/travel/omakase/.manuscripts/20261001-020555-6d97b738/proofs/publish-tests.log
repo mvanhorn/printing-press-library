@@ -1,0 +1,20 @@
+?   	github.com/mvanhorn/printing-press-library/library/travel/omakase/cmd/omakase-pp-cli	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/cmd/omakase-pp-mcp	0.480s
+?   	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/cache	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/cli	2.336s
+?   	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/cli/playbooks	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/client	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/cliutil	(cached)
+?   	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/cliutil/testenv	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/learn	1.725s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/learn/entities	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/learn/lookups	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/learn/patterns	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/mcp	1.065s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/mcp/bound	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/mcp/cobratree	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/omakase	2.566s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/platform	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/store	(cached)
+?   	github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/types	[no test files]

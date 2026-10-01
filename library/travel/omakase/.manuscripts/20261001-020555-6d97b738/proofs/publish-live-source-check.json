@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-01T02:13:18.384219+00:00",
+  "source_url": "https://omakase.in/en/r/hc778124",
+  "source_price_text_matches": 1,
+  "first_price": {
+    "service_charge_included": null,
+    "maximum_amount": null,
+    "amount": 52800,
+    "currency": "JPY",
+    "basis": "per_guest",
+    "tax_included": true,
+    "minimum": true,
+    "variable": true,
+    "raw": "JPY52,800 (Tax included)\uff5e /guest(s)"
+  },
+  "zero_max_age": "PASS; actual live-source normalized cache aged 48h in isolated temporary state was reused with zero requests and stale=false",
+  "explicit_refresh": "PASS; zero max-age still permits an explicit live refresh",
+  "zero_rate_limit": "PASS; actual public reads executed with --rate-limit 0; focused session regression verifies pacing is disabled",
+  "range_floor": "PASS in consequential parser regression; the ASCII range test is synthetic, not represented as live inventory"
+}

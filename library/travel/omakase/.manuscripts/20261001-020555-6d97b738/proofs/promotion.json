@@ -1,0 +1,6 @@
+{
+  "cli": "omakase-pp-cli",
+  "library_dir": "<local-library>/omakase",
+  "preserved_patches": [],
+  "promoted": true
+}

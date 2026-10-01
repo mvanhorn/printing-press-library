@@ -1,0 +1,73 @@
+{
+  "passed": true,
+  "cli_name": "omakase-pp-cli",
+  "api_name": "omakase",
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ],
+  "verified_at": "2026-10-01T02:14:51.623346+00:00",
+  "live_gate": {
+    "status": "pass",
+    "level": "full",
+    "tests_passed": 122,
+    "tests_failed": 0,
+    "tests_skipped_unverified": 93,
+    "source": "phase5-acceptance.json"
+  },
+  "package": {
+    "module_path": "github.com/mvanhorn/printing-press-library/library/travel/omakase",
+    "manuscripts_included": true,
+    "raw_captures_excluded": true
+  }
+}

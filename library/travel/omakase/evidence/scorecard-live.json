@@ -1,0 +1,101 @@
+{
+  "live_check": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 1,
+    "features": [
+      {
+        "name": "Course price/fee inspection",
+        "command": "courses",
+        "example": "omakase-pp-cli courses hc778124 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"access\":\"anonymous_public\",\"cache_hits\":0,\"elapsed_ms\":1151,\"partial\":false,\"provider\":\"OMAKASE\",\"requests\":1,\"response_bytes\":23558,\"retrieved_at\":\"2026-09-30T19:19:49.042506Z\",\"seat_coverage\":\"exact seats not exposed publicly\",\"source\":\"live\",\"stale\":false,\"transport\":\"http\"},\"results\":{\"cancellation\":[{\"percent\":50,\"when\":\"3 days prior to the day\"},{\"percent\":100,\"when\":\"on the day\"}],\"cancellation_note\":\"Payment methods and cancellation policies may differ depending on the timing of reservation. In the case of advance payment, the cancellation policy is 100% after making reservation.\",\"course_notes\":\"*In addition, we take 10% service charge.\\n*Please note that the price may vary depending on market conditions.\",\"courses\":[{\"name\":\"\u003credacted\u003e\",\"price\":{\"amount\":52800,\"basis\":\"per_guest\",\"currency\":\"JPY\",\"maximum_amount\":null,\"minimum\":true,\"raw\":\"JPY52,800 (Tax included)～ /guest(s)\",\"service_charge_included\":null,\"tax_included\":true,\"variable\":true}}],\"evidence\":[{\"cached\":false,\"fetched_at\":\"2026-09-30T19:19:49.040854Z\",\"stale\":false,\"url\":\"https://omakase.in/en/r/hc778124\"}],\"id\":\"hc778124\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"reservation_fee\":{\"amount\":390,\"basis\":\"per_seat\",\"currency\":\"JPY\",\"raw\":\"Reservation fee (390JPY /seat) is charged upon completing a reservation.\"},\"service_charge\":{\"percent\":10,\"raw\":\"*In addition, we take 10% service charge.\"},\"url\":\"https://omakase.in/en/r/hc778124\"}}"
+      },
+      {
+        "name": "Release schedule inspection",
+        "command": "release",
+        "example": "omakase-pp-cli release jv742052 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"access\":\"anonymous_public\",\"cache_hits\":0,\"elapsed_ms\":1460,\"partial\":false,\"provider\":\"OMAKASE\",\"requests\":1,\"response_bytes\":33698,\"retrieved_at\":\"2026-09-30T19:19:49.351331Z\",\"seat_coverage\":\"exact seats not exposed publicly\",\"source\":\"live\",\"stale\":false,\"transport\":\"http\"},\"results\":{\"action_raw\":\"Make a reservation\",\"booking_method\":\"unknown\",\"evidence\":[{\"cached\":false,\"fetched_at\":\"2026-09-30T19:19:49.350488Z\",\"stale\":false,\"url\":\"https://omakase.in/en/r/jv742052\"}],\"id\":\"jv742052\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"release\":{\"current_period\":\"until Mon Nov 30 2026\",\"maximum_frequency\":\"unlimited\",\"next_round_at\":\"2026-10-01T12:00:00+09:00\",\"next_round_raw\":\"Oct 1, 2026, 12:00\\nJST(UTC+9)\",\"state\":\"scheduled\",\"timezone\":\"Asia/Tokyo\"},\"seat_state\":\"unknown\",\"url\":\"https://omakase.in/en/r/jv742052\",\"warnings\":[]}}"
+      },
+      {
+        "name": "Date/party availability boundary",
+        "command": "availability",
+        "example": "omakase-pp-cli availability hc778124 --date 2026-11-01 --party 2 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"access\":\"anonymous_public\",\"cache_hits\":0,\"elapsed_ms\":510,\"partial\":true,\"provider\":\"OMAKASE\",\"requests\":1,\"response_bytes\":23558,\"retrieved_at\":\"2026-09-30T19:19:48.402371Z\",\"seat_coverage\":\"exact seats not exposed publicly\",\"source\":\"live\",\"stale\":false,\"transport\":\"http\"},\"results\":{\"access\":\"login_required\",\"action_raw\":\"Log in to check availability Sign up or Log in to book\",\"booking_method\":\"unknown\",\"date\":\"2026-11-01\",\"evidence\":[{\"cached\":false,\"fetched_at\":\"2026-09-30T19:19:48.40081Z\",\"stale\":false,\"url\":\"https://omakase.in/en/r/hc778124\"}],\"id\":\"hc778124\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"party\":2,\"query_evaluated\":false,\"reason\":\"Exact date/party seats are not exposed on anonymous public pages; release, request and waitlist do not prove availability.\",\"release\":{\"current_period\":\"Irregular\",\"maximum_frequency\":\"1 time(s) per quarter\",\"next_round_at\":null,\"next_round_raw\":\"TBD\",\"state\":\"undetermined\",\"timezone\":\"Asia/Tokyo\"},\"seats\":null,\"state\":\"unknown\",\"url\":\"https://omakase.in/en/r/hc778124\"}}"
+      },
+      {
+        "name": "Restaurant comparison",
+        "command": "compare",
+        "example": "omakase-pp-cli compare hc778124 qt951856 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"access\":\"anonymous_public\",\"cache_hits\":0,\"comparison_count\":2,\"elapsed_ms\":1869,\"errors\":[],\"partial\":false,\"provider\":\"OMAKASE\",\"requested_count\":2,\"requests\":2,\"response_bytes\":54019,\"retrieved_at\":\"2026-09-30T19:19:49.762011Z\",\"seat_coverage\":\"exact seats not exposed publicly\",\"source\":\"live\",\"transport\":\"http\"},\"results\":[{\"cancellation\":[{\"percent\":50,\"when\":\"3 days prior to the day\"},{\"percent\":100,\"when\":\"on the day\"}],\"cancellation_note\":\"Payment methods and cancellation policies may differ depending on the timing of reservation. In the case of advance payment, the cancellation policy is 100% after making reservation.\",\"course_notes\":\"*In addition, we take 10% service charge.\\n*Please note that the price may vary depending on market conditions.\",\"courses\":[{\"name\":\"\u003credacted\u003e\",\"price\":{\"amount\":52800,\"basis\":\"per_guest\",\"currency\":\"JPY\",\"maximum_amount\":null,\"minimum\":true,\"raw\":\"JPY52,800 (Tax included)～ /guest(s)\",\"service_charge_included\":null,\"tax_included\":true,\"variable\":true}}],\"evidence\":[{\"cached\":false,\"fetched_at\":\"2026-09-30T19:19:49.176087Z\",\"stale\":false,\"url\":\"https://omakase.in/en/r/hc778124\"}],\"id\":\"hc778124\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"release\":{\"current_period\":\"Irregular\",\"maximum_frequency\":\"1 time(s) per quarter\",\"next_round_at\":null,\"next_round_raw\":\"TBD\",\"state\":\"undetermined\",\"timezone\":\"Asia/Tokyo\"},\"reservation_fee\":{\"amount\":390,\"basis\":\"per_seat\",\"currency\":\"JPY\",\"raw\":\"Reservation fee (390JPY /seat) is charged upon completing a reservation.\"},\"seat_state\":\"unknown\",\"service_charge\":{\"percent\":10,\"raw\":\"*In addition, we take 10% service charge.\"},\"url\":\"https://omakase.in/en/r/hc778124\"},{\"cancellation\":[{\"percent\":5,\"when\":\"After making reservation\"},{\"percent\":10,\"when\":\"21 days prior to the day\"},{\"percent\":15,\"when\":\"14 days prior to the day\"},{\"percent\":20,\"when\":\"7 days prior to the day\"},{\"percent\":25,\"when\":\"2 days prior to the day\"},{\"percent\":50,\"when\":\"on the previous day\"},{\"percent\":100,\"when\":\"on the day\"}],\"cancellation_note\":\"We are very sorry, but to prevent problems, we have set a cancellation fee from the time of reservation.\",\"course_notes\":\"*In addition, we take 10% service charge.\",\"courses\":[{\"name\":\"\u003credacted\u003e\",\"price\":{\"amount\":41250,\"basis\":\"per_guest\",\"currency\":\"JPY\",\"maximum_amount\":null,\"minimum\":false,\"raw\":\"JPY41,250 (Tax included) /guest(s)\",\"service_charge_included\":null,\"tax_included\":true,\"variable\":false}}],\"evidence\":[{\"cached\":false,\"fetched_at\":\"2026-09-30T19:19:49.760924Z\",\"stale\":false,\"url\":\"https://omakase.in/en/r/qt951856\"}],\"id\":\"qt951856\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"release\":{\"current_period\":\"until Wed Dec 30 2026\",\"maximum_frequency\":\"1 time(s) per quarter\",\"next_round_at\":\"2026-10-01T09:30:00+09:00\",\"next_round_raw\":\"Oct 1, 2026, 09:30\\nJST(UTC+9)\",\"state\":\"scheduled\",\"timezone\":\"Asia/Tokyo\"},\"reservation_fee\":{\"amount\":390,\"basis\":\"per_seat\",\"currency\":\"JPY\",\"raw\":\"Reservation fee (390JPY /seat) is charged upon completing a reservation.\"},\"seat_state\":\"unknown\",\"service_charge\":{\"percent\":10,\"raw\":\"*In addition, we take 10% service charge.\"},\"url\":\"https://omakase.in/en/r/qt951856\"}]}"
+      },
+      {
+        "name": "Local summary inventory",
+        "command": "inventory",
+        "example": "omakase-pp-cli inventory --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<project>/build/stage/bin/omakase-pp-cli",
+      "binary_path": "<project>/build/stage/bin/omakase-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-09-30T19:19:47.579733Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 4,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "omakase",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 10,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 8,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 7,
+      "workflows": 10,
+      "insight": 8,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 8,
+      "type_fidelity": 5,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 82,
+      "percentage": 82
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "dead_code scored 0/5 - needs improvement",
+      "MCP: 2 tools (2 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

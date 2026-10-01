@@ -1,0 +1,10 @@
+{
+  "reachability": {
+    "mode": "standard_http"
+  },
+  "discovery_method": "anonymous browser DOM plus public SSR replay",
+  "sources": [
+    "https://omakase.in"
+  ],
+  "auth_required": false
+}

@@ -1,0 +1,11 @@
+{
+  "api_name": "omakase",
+  "run_id": "20261001-020555-6d97b738",
+  "working_dir": "<run-state>/working/omakase-pp-cli",
+  "output_dir": "<run-state>/working/omakase-pp-cli",
+  "phase_receipt_log": "<run-state>/pipeline/phase-receipts.jsonl",
+  "printing_press_bin": "<run-state>/tools/cli-printing-press",
+  "browser_sniff_target_url": "https://omakase.in/en",
+  "user_briefing": "Focused public read-only discovery, details, release rules and accessible availability. No bookings, payments, paid accounts, publishing or shared config writes.",
+  "spec_path": "<run-state>/research/omakase.yaml"
+}

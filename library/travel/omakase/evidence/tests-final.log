@@ -1,0 +1,20 @@
+?   	omakase-pp-cli/cmd/omakase-pp-cli	[no test files]
+ok  	omakase-pp-cli/cmd/omakase-pp-mcp	0.525s
+?   	omakase-pp-cli/internal/cache	[no test files]
+ok  	omakase-pp-cli/internal/cli	2.872s
+?   	omakase-pp-cli/internal/cli/playbooks	[no test files]
+ok  	omakase-pp-cli/internal/client	1.758s
+ok  	omakase-pp-cli/internal/cliutil	12.362s
+?   	omakase-pp-cli/internal/cliutil/testenv	[no test files]
+?   	omakase-pp-cli/internal/config	[no test files]
+ok  	omakase-pp-cli/internal/learn	0.703s
+ok  	omakase-pp-cli/internal/learn/entities	0.395s
+ok  	omakase-pp-cli/internal/learn/lookups	0.589s
+ok  	omakase-pp-cli/internal/learn/patterns	0.476s
+ok  	omakase-pp-cli/internal/mcp	0.560s
+ok  	omakase-pp-cli/internal/mcp/bound	0.426s
+ok  	omakase-pp-cli/internal/mcp/cobratree	3.507s
+ok  	omakase-pp-cli/internal/omakase	2.447s
+ok  	omakase-pp-cli/internal/platform	0.609s
+ok  	omakase-pp-cli/internal/store	1.070s
+?   	omakase-pp-cli/internal/types	[no test files]

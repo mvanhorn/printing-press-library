@@ -1,0 +1,49 @@
+name: omakase
+description: Discover premium Japanese restaurants with source courses, release rules and honest availability states.
+cli_description: Read-only OMAKASE restaurant discovery and source planning.
+version: 0.1.0
+category: travel
+base_url: https://omakase.in
+http_transport: standard
+health_check_path: /en/r
+required_headers:
+  - name: User-Agent
+    value: omakase-pp-cli/0.1.0 (read-only planning)
+  - name: Accept
+    value: text/html,application/json;q=0.9,*/*;q=0.8
+auth:
+  type: none
+learn:
+  entity_lookup_seeds:
+    restaurant:
+      - canonical: Higashiazabu Amamoto
+        aliases: [Amamoto, 東麻布 天本]
+      - canonical: Nihonbashi Kakigaracho Sugita
+        aliases: [Sugita, 日本橋蛎殻町 すぎた]
+  ticker_patterns: ['^[a-z]{2}[0-9]{6}$']
+resources:
+  pages:
+    description: Public source document metadata (use restaurants commands for planning).
+    endpoints:
+      list:
+        method: GET
+        path: /en/r
+        description: Public catalogue source links.
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/r]
+      detail:
+        method: GET
+        path: /en/r/{id}
+        description: Public restaurant source document metadata.
+        happy_args: id=hc778124
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Source restaurant slug.
+        response_format: html
+        html_extract:
+          mode: page
