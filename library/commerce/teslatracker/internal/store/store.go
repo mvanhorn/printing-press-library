@@ -1300,7 +1300,7 @@ func extendedJSONIDMapString(object map[string]any) string {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{"inventory": "vin"}
 
 // Generic ID fields are split around the resource-specific suffix probe.
 // Stable vendor identifiers win first; then fields derived from the resource

@@ -8,6 +8,8 @@ Learn more at [TeslaTracker](https://teslatracker.com).
 
 Created by [@michegz](https://github.com/michegz) (michegz).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `teslatracker-pp-cli` binary and the `pp-teslatracker` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
