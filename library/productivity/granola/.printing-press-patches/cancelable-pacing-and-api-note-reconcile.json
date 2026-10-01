@@ -4,7 +4,7 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260511-211333",
   "base_printing_press_version": "4.4.0",
-  "summary": "Make API pacing cancelable and serialized, remove API-owned transcript and attendee rows after a complete sync confirms a note is missing, and honor date-only audit cutoffs for a full calendar day.",
+  "summary": "Make API pacing cancelable and serialized, remove API-owned transcript, attendee, and folder-membership rows after a complete sync confirms a note is missing, and honor date-only audit cutoffs for a full calendar day.",
   "reason": "Canceled calls could wait out a rate limiter and concurrent calls could race through it. A removed API note could leave dependent rows visible through direct queries. A date-only audit filter incorrectly used the current time of day at its one-year boundary.",
   "files": [
     "internal/cli/audit.go",
@@ -15,5 +15,5 @@
     "internal/granola/store_sync.go",
     "internal/granola/store_sync_reconcile_test.go"
   ],
-  "validated_outcome": "Synthetic tests cover cancellation, concurrent pacing, date-only audit boundaries, deletion of only API-owned dependent rows after complete reconciliation, and rollback when a dependent-row deletion fails. Candidate selection and deletion now share one transaction."
+  "validated_outcome": "Synthetic tests cover cancellation, concurrent pacing, date-only audit boundaries, deletion of only API-owned transcript, attendee, and folder-membership rows after complete reconciliation, and rollback when a dependent-row deletion fails. Candidate selection and deletion now share one transaction."
 }

@@ -11,6 +11,7 @@ func TestReconcileMissingAPINotesRemovesOnlyAPIDependents(t *testing.T) {
 		`INSERT INTO meetings(id, row_source) VALUES ('missing', 'api'), ('kept', 'api')`,
 		`INSERT INTO transcript_segments(meeting_id, idx, row_source) VALUES ('missing', 0, 'api'), ('missing', 1, 'cache'), ('kept', 0, 'api')`,
 		`INSERT INTO attendees(meeting_id, email, row_source) VALUES ('missing', 'api@invalid.test', 'api'), ('missing', 'cache@invalid.test', 'cache'), ('kept', 'kept@invalid.test', 'api')`,
+		`INSERT INTO folder_memberships(folder_id, meeting_id, row_source) VALUES ('api-folder', 'missing', 'api'), ('cache-folder', 'missing', 'cache'), ('kept-folder', 'kept', 'api')`,
 	}
 	for _, statement := range statements {
 		if _, err := db.Exec(statement); err != nil {
@@ -30,8 +31,11 @@ func TestReconcileMissingAPINotesRemovesOnlyAPIDependents(t *testing.T) {
 	assertCount(t, db, `SELECT COUNT(*) FROM attendees WHERE meeting_id='missing' AND row_source='api'`, 0, "missing API attendees remain")
 	assertCount(t, db, `SELECT COUNT(*) FROM transcript_segments WHERE meeting_id='missing' AND row_source='cache'`, 1, "cache transcript was deleted")
 	assertCount(t, db, `SELECT COUNT(*) FROM attendees WHERE meeting_id='missing' AND row_source='cache'`, 1, "cache attendee was deleted")
+	assertCount(t, db, `SELECT COUNT(*) FROM folder_memberships WHERE meeting_id='missing' AND row_source='api'`, 0, "missing API folder membership remains")
+	assertCount(t, db, `SELECT COUNT(*) FROM folder_memberships WHERE meeting_id='missing' AND row_source='cache'`, 1, "cache folder membership was deleted")
 	assertCount(t, db, `SELECT COUNT(*) FROM meetings WHERE id='kept' AND deleted_at IS NULL`, 1, "seen meeting was deleted")
 	assertCount(t, db, `SELECT COUNT(*) FROM transcript_segments WHERE meeting_id='kept'`, 1, "seen meeting transcript was deleted")
+	assertCount(t, db, `SELECT COUNT(*) FROM folder_memberships WHERE meeting_id='kept'`, 1, "seen meeting membership was deleted")
 }
 
 func TestReconcileMissingAPINotesRollsBackDependentFailure(t *testing.T) {
