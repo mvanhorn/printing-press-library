@@ -6,6 +6,7 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -91,6 +92,35 @@ func TestMCPConfigMatchesCLIWithXDGConfigHome(t *testing.T) {
 	want := filepath.Join(xdgHome, "dreaming-pp-cli", "config.toml")
 	if cliCfg.Path != want || mcpCfg.Path != want {
 		t.Fatalf("CLI path = %q, MCP path = %q; want %q", cliCfg.Path, mcpCfg.Path, want)
+	}
+}
+
+func TestMCPReadsLegacyTokenBeforeCLIConfigMigration(t *testing.T) {
+	home := resetMCPPathEnv(t)
+	t.Setenv("DREAMING_HOME", filepath.Join(t.TempDir(), "new-home"))
+	legacyPath := filepath.Join(home, ".config", "dreaming-pp-cli", "config.toml")
+	if err := os.MkdirAll(filepath.Dir(legacyPath), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(legacyPath, []byte("access_token = 'synthetic-old-token'\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	mcpCfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mcpCfg.AuthHeader() != "Bearer synthetic-old-token" {
+		t.Fatal("MCP skipped the existing CLI token")
+	}
+	if mcpCfg.Path == legacyPath {
+		t.Fatal("new saves must use the resolved config path")
+	}
+	if err := mcpCfg.SaveTokens("", "", "synthetic-new-token", "", time.Time{}); err != nil {
+		t.Fatal(err)
+	}
+	newCfg, err := config.Load("")
+	if err != nil || newCfg.AuthHeader() != "Bearer synthetic-new-token" {
+		t.Fatalf("new config was not used after migration: %v", err)
 	}
 }
 
