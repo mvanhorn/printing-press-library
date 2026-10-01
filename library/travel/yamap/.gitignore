@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/yamap-pp-cli
+/yamap-pp-cli.exe
+/yamap-pp-mcp
+/yamap-pp-mcp.exe
+/bin/
+/build/
+/dist/
