@@ -1,15 +1,15 @@
 ?   	jma-pp-cli/cmd/jma-pp-cli	[no test files]
-ok  	jma-pp-cli/cmd/jma-pp-mcp	0.475s
+ok  	jma-pp-cli/cmd/jma-pp-mcp	0.505s
 ?   	jma-pp-cli/internal/cache	[no test files]
-ok  	jma-pp-cli/internal/cli	0.954s
+ok  	jma-pp-cli/internal/cli	0.979s
 ok  	jma-pp-cli/internal/client	(cached)
 ok  	jma-pp-cli/internal/cliutil	(cached)
 ?   	jma-pp-cli/internal/cliutil/testenv	[no test files]
 ?   	jma-pp-cli/internal/config	[no test files]
-ok  	jma-pp-cli/internal/jma	1.572s
-ok  	jma-pp-cli/internal/mcp	1.480s
+ok  	jma-pp-cli/internal/jma	2.335s
+ok  	jma-pp-cli/internal/mcp	1.359s
 ok  	jma-pp-cli/internal/mcp/bound	(cached)
-ok  	jma-pp-cli/internal/mcp/cobratree	4.923s
+ok  	jma-pp-cli/internal/mcp/cobratree	(cached)
 ok  	jma-pp-cli/internal/platform	(cached)
 ok  	jma-pp-cli/internal/store	(cached)
 ?   	jma-pp-cli/internal/types	[no test files]

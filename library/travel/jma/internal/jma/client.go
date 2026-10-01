@@ -68,6 +68,7 @@ type Client struct {
 	requests                  int
 	sources                   []Source
 	cacheNotes                []string
+	skipCacheWrites           bool
 }
 
 func New(cache string, noCache, refresh, offline bool, timeout time.Duration) *Client {
@@ -193,7 +194,7 @@ func (c *Client) Get(ctx context.Context, path string, ttl time.Duration, out an
 		c.limiter.OnSuccess()
 		now := c.now()
 		c.sources = append(c.sources, Source{full, now.In(JST).Format(time.RFC3339), false, 0, len(body)})
-		if !c.NoCache {
+		if !c.NoCache && !c.skipCacheWrites {
 			b, _ := json.Marshal(cacheEntry{now, body})
 			if e = atomicWrite(key, b); e == nil {
 				e = trimHTTPCache(filepath.Dir(key), key)
@@ -205,7 +206,7 @@ func (c *Client) Get(ctx context.Context, path string, ttl time.Duration, out an
 				}
 			}
 			if e != nil {
-				c.NoCache = true
+				c.skipCacheWrites = true
 				c.cacheNotes = append(c.cacheNotes, "HTTP cache persistence unavailable; returning live source data without caching; use --no-cache or a writable --cache-dir")
 			}
 		}

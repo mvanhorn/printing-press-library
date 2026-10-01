@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-10-01T02:10:57.526842+00:00",
+  "verified_at": "2026-10-01T02:25:40.550929+00:00",
   "method": "Real live command outputs compared to captured JMA JSON; no fixture substitution",
   "checks": [
     {

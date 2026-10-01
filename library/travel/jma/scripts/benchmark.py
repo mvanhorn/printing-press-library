@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import subprocess,pathlib,json,re,datetime
+import os,subprocess,pathlib,json,re,datetime
 root=pathlib.Path(__file__).resolve().parents[1];p=root/'evidence/benchmark';p.mkdir(exist_ok=True)
 rows=[]
 cases={'forecast':['forecast','get','--area','130010'],'warnings':['warnings','get','--area','1340100'],'typhoon':['typhoons','get','--id','TC2633'],'typhoon-list':['typhoons','list']}
 base=['--cache-dir',str(root/'evidence/cache'),'--home',str(root/'evidence/home')]
 for name,args in cases.items():
  for mode in ['uncached-forced-refresh','cached']:
-  cmd=[str(root/'bin/jma-pp-cli'),*args,*base]+(['--refresh'] if mode.startswith('uncached') else [])
+  cmd=[str(root/'bin'/('jma-pp-cli.exe' if os.name == 'nt' else 'jma-pp-cli')),*args,*base]+(['--refresh'] if mode.startswith('uncached') else [])
   v=subprocess.run(['/usr/bin/time','-l',*cmd],capture_output=True,timeout=65)
   (p/(name+'-'+mode+'.json')).write_bytes(v.stdout);(p/(name+'-'+mode+'.time')).write_bytes(v.stderr)
   try:

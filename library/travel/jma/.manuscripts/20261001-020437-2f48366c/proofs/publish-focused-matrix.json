@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-01T02:10:57.489499+00:00",
+  "captured_at": "2026-10-01T02:25:40.516978+00:00",
   "cases": [
     {
       "args": [
@@ -10,7 +10,7 @@
       "bytes": 1859,
       "coverage": "inventory refreshed from JMA",
       "requests": 8,
-      "latency_ms": 2002
+      "latency_ms": 2010
     },
     {
       "args": [
@@ -22,10 +22,10 @@
         "3"
       ],
       "exit": 0,
-      "bytes": 5676,
+      "bytes": 5675,
       "coverage": "resolved district/station forecast",
       "requests": 1,
-      "latency_ms": 266
+      "latency_ms": 38
     },
     {
       "args": [
@@ -36,10 +36,10 @@
         "--detail"
       ],
       "exit": 0,
-      "bytes": 5199,
+      "bytes": 5200,
       "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
       "requests": 1,
-      "latency_ms": 266,
+      "latency_ms": 129,
       "state": "active",
       "products": 5
     },
@@ -51,10 +51,10 @@
         "1310100"
       ],
       "exit": 0,
-      "bytes": 3145,
+      "bytes": 3146,
       "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
       "requests": 1,
-      "latency_ms": 49,
+      "latency_ms": 72,
       "state": "none_reported",
       "products": 5
     },
@@ -64,10 +64,10 @@
         "list"
       ],
       "exit": 0,
-      "bytes": 1046,
+      "bytes": 1048,
       "coverage": "active index only; developing tropical depressions included",
       "requests": 1,
-      "latency_ms": 34
+      "latency_ms": 30
     },
     {
       "args": [
@@ -81,7 +81,7 @@
       "bytes": 5442,
       "coverage": "coherent current cyclone analysis/forecast documents",
       "requests": 3,
-      "latency_ms": 513
+      "latency_ms": 517
     },
     {
       "args": [
@@ -91,10 +91,10 @@
         "TC2633"
       ],
       "exit": 0,
-      "bytes": 5863,
+      "bytes": 5865,
       "coverage": "coherent current cyclone analysis/forecast documents",
       "requests": 3,
-      "latency_ms": 510
+      "latency_ms": 521
     },
     {
       "args": [
@@ -109,7 +109,7 @@
       "bytes": 2892,
       "coverage": "resolved district/station forecast",
       "requests": 1,
-      "latency_ms": 36
+      "latency_ms": 38
     },
     {
       "args": [
@@ -122,7 +122,7 @@
       "bytes": 5945,
       "coverage": "resolved district/station forecast",
       "requests": 1,
-      "latency_ms": 37
+      "latency_ms": 40
     },
     {
       "args": [
@@ -135,7 +135,7 @@
       "bytes": 6742,
       "coverage": "resolved district/station forecast",
       "requests": 1,
-      "latency_ms": 33
+      "latency_ms": 41
     },
     {
       "args": [
@@ -150,7 +150,7 @@
       "bytes": 5580,
       "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
       "requests": 1,
-      "latency_ms": 257,
+      "latency_ms": 264,
       "state": "none_reported",
       "products": 5
     },
@@ -167,7 +167,7 @@
       "bytes": 2920,
       "coverage": "resolved district/station forecast",
       "requests": 1,
-      "latency_ms": 47
+      "latency_ms": 38
     },
     {
       "args": [
@@ -177,10 +177,10 @@
         "1920100"
       ],
       "exit": 0,
-      "bytes": 3122,
+      "bytes": 3124,
       "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
       "requests": 1,
-      "latency_ms": 280,
+      "latency_ms": 260,
       "state": "none_reported",
       "products": 4
     },
@@ -197,7 +197,7 @@
       "bytes": 492,
       "coverage": "source area inventory",
       "requests": 0,
-      "latency_ms": 5
+      "latency_ms": 4
     }
   ]
 }
