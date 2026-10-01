@@ -6,6 +6,7 @@ package cli
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
@@ -60,6 +61,18 @@ func fetchBatchClientScope(c *client.Client, flags *rootFlags) string {
 }
 
 func fetchBatchCheckpointPath(dataPath, clientScope, format string, urls []string) string {
+	unique, _ := indexBatchURLs(urls)
+	sort.Strings(unique)
+	return fetchBatchCheckpointName(dataPath, clientScope, format, unique, ".done", 16)
+}
+
+// This is the earlier single-file format, used only to import progress from
+// private installs when their URL order still matches the current input.
+func fetchBatchLegacyCheckpointPath(dataPath, clientScope, format string, urls []string) string {
+	return fetchBatchCheckpointName(dataPath, clientScope, format, urls, ".json", 8)
+}
+
+func fetchBatchCheckpointName(dataPath, clientScope, format string, urls []string, suffix string, digestBytes int) string {
 	hash := sha256.New()
 	_, _ = fmt.Fprintf(hash, "client_scope=%s\n", clientScope)
 	_, _ = fmt.Fprintf(hash, "format=%s\n", format)
@@ -67,41 +80,57 @@ func fetchBatchCheckpointPath(dataPath, clientScope, format string, urls []strin
 		_, _ = fmt.Fprintf(hash, "url=%s\n", url)
 	}
 	digest := hash.Sum(nil)
-	return filepath.Join(filepath.Dir(dataPath), fmt.Sprintf("fetch-batch-checkpoint-%x.json", digest[:8]))
+	return filepath.Join(filepath.Dir(dataPath), fmt.Sprintf("fetch-batch-checkpoint-%x%s", digest[:digestBytes], suffix))
 }
 
-func loadFetchBatchCheckpoint(path string) (map[string]bool, error) {
+func fetchBatchMarkerPath(path, url string) string {
+	digest := sha256.Sum256([]byte(url))
+	return filepath.Join(path, fmt.Sprintf("%x.done", digest))
+}
+
+func loadFetchBatchCheckpoint(path, legacyPath string, urls []string) (map[string]bool, error) {
 	done := map[string]bool{}
-	data, err := os.ReadFile(filepath.Clean(path)) // #nosec G304 -- app-derived data path.
-	if os.IsNotExist(err) {
-		return done, nil
-	}
-	if err != nil {
-		return nil, fmt.Errorf("reading checkpoint: %w", err)
-	}
-	var completed []string
-	if err := json.Unmarshal(data, &completed); err != nil {
-		return nil, fmt.Errorf("checkpoint is malformed: %w", err)
-	}
-	for _, url := range completed {
-		if url != "" {
-			done[url] = true
+	if legacyPath != "" {
+		data, err := os.ReadFile(filepath.Clean(legacyPath)) // #nosec G304 -- app-derived data path.
+		if err != nil && !os.IsNotExist(err) {
+			return nil, fmt.Errorf("reading legacy checkpoint: %w", err)
 		}
+		if err == nil {
+			if trimmed := bytes.TrimSpace(data); len(trimmed) == 0 || trimmed[0] != '[' {
+				return nil, fmt.Errorf("legacy checkpoint is malformed: expected a JSON array")
+			}
+			var completed []string
+			if err := json.Unmarshal(data, &completed); err != nil {
+				return nil, fmt.Errorf("legacy checkpoint is malformed: %w", err)
+			}
+			for _, url := range completed {
+				if url != "" {
+					done[url] = true
+				}
+			}
+		}
+	}
+	for _, url := range urls {
+		marker := fetchBatchMarkerPath(path, url)
+		data, err := os.ReadFile(marker) // #nosec G304 -- app-derived hashed marker path.
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("reading checkpoint marker: %w", err)
+		}
+		if string(data) != "done\n" {
+			return nil, fmt.Errorf("checkpoint marker is malformed: %s", marker)
+		}
+		done[url] = true
 	}
 	return done, nil
 }
 
-func saveFetchBatchCheckpoint(path string, done map[string]bool) error {
-	completed := make([]string, 0, len(done))
-	for url := range done {
-		completed = append(completed, url)
-	}
-	sort.Strings(completed)
-	data, err := json.Marshal(completed)
-	if err != nil {
-		return fmt.Errorf("encoding checkpoint: %w", err)
-	}
-	if err := cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700); err != nil {
+// One atomic marker per URL means parallel CLI processes never overwrite one
+// another's completed work. URL bytes stay out of filenames and marker data.
+func saveFetchBatchCheckpoint(path, url string) error {
+	if err := cliutil.AtomicWritePrivateFile(fetchBatchMarkerPath(path, url), []byte("done\n"), 0o600, 0o700); err != nil {
 		return fmt.Errorf("writing checkpoint: %w", err)
 	}
 	return nil
@@ -238,18 +267,22 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 			// CLI data dir, scoped to the non-secret client identity so work for
 			// one endpoint or tenant cannot suppress requests for another.
 			checkpoint := ""
+			legacyCheckpoint := ""
 			if flagResume {
+				dataPath := defaultDBPath("browserbase-pp-cli")
+				scope := fetchBatchClientScope(c, flags)
 				checkpoint = fetchBatchCheckpointPath(
-					defaultDBPath("browserbase-pp-cli"),
-					fetchBatchClientScope(c, flags),
+					dataPath,
+					scope,
 					format,
 					urls,
 				)
+				legacyCheckpoint = fetchBatchLegacyCheckpointPath(dataPath, scope, format, urls)
 			}
 
 			done := map[string]bool{}
 			if flagResume {
-				done, err = loadFetchBatchCheckpoint(checkpoint)
+				done, err = loadFetchBatchCheckpoint(checkpoint, legacyCheckpoint, workURLs)
 				if err != nil {
 					return fmt.Errorf("loading resume checkpoint: %w", err)
 				}
@@ -318,7 +351,7 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 					if res.Fetched && res.Error == "" {
 						done[u] = true
 						if flagResume {
-							if err := saveFetchBatchCheckpoint(checkpoint, done); err != nil {
+							if err := saveFetchBatchCheckpoint(checkpoint, u); err != nil {
 								delete(done, u)
 								res.Error = err.Error()
 							}
@@ -345,10 +378,17 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 					view.FetchedCount++
 				}
 			}
+			var completionErr error
+			if view.FailedCount > 0 {
+				completionErr = ctx.Err()
+			}
 			// The checkpoint path is machine noise; only surface it in human output.
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				view.Checkpoint = ""
-				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+				if err := printJSONFiltered(cmd.OutOrStdout(), view, flags); err != nil {
+					return err
+				}
+				return completionErr
 			}
 			for _, r := range results {
 				if r.Error != "" {
@@ -358,7 +398,7 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 				}
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%d URLs: %d fetched, %d failed, %d resumed\n", view.Total, view.FetchedCount, view.FailedCount, view.SkippedCount)
-			return nil
+			return completionErr
 		},
 	}
 	cmd.Flags().StringVar(&flagFile, "file", "", "Path to a file with one URL per line")

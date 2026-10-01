@@ -7,9 +7,15 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -46,6 +52,9 @@ func TestFetchBatchCheckpointPathScopesRequestIdentity(t *testing.T) {
 	raw := fetchBatchCheckpointPath(dataPath, "client-a", "raw", urls)
 	if got := fetchBatchCheckpointPath(dataPath, "client-a", "raw", urls); got != raw {
 		t.Fatalf("same job produced different checkpoint paths: %q != %q", got, raw)
+	}
+	if reordered := fetchBatchCheckpointPath(dataPath, "client-a", "raw", []string{urls[1], urls[0], urls[0]}); reordered != raw {
+		t.Fatal("reordering or repeating the same URLs changed checkpoint identity")
 	}
 	if otherClient := fetchBatchCheckpointPath(dataPath, "client-b", "raw", urls); otherClient == raw {
 		t.Fatal("client context must scope the resume checkpoint")
@@ -92,13 +101,13 @@ func TestFetchBatchClientScopeSeparatesEndpointsProfilesAndCredentials(t *testin
 }
 
 func TestFetchBatchCheckpointPersistsEachCompletionAtomically(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "fetch-batch-checkpoint.json")
-	done := map[string]bool{"https://example.com/a": true}
-	if err := saveFetchBatchCheckpoint(path, done); err != nil {
+	path := filepath.Join(t.TempDir(), "fetch-batch-checkpoint.done")
+	url := "https://example.com/a"
+	if err := saveFetchBatchCheckpoint(path, url); err != nil {
 		t.Fatalf("saveFetchBatchCheckpoint: %v", err)
 	}
 
-	loaded, err := loadFetchBatchCheckpoint(path)
+	loaded, err := loadFetchBatchCheckpoint(path, "", []string{url})
 	if err != nil {
 		t.Fatalf("loadFetchBatchCheckpoint: %v", err)
 	}
@@ -106,7 +115,7 @@ func TestFetchBatchCheckpointPersistsEachCompletionAtomically(t *testing.T) {
 		t.Fatalf("loaded checkpoint = %v", loaded)
 	}
 
-	entries, err := filepath.Glob(filepath.Join(filepath.Dir(path), ".fetch-batch-checkpoint.json.*.tmp"))
+	entries, err := filepath.Glob(filepath.Join(path, ".*.tmp"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,12 +125,94 @@ func TestFetchBatchCheckpointPersistsEachCompletionAtomically(t *testing.T) {
 }
 
 func TestFetchBatchCheckpointRejectsMalformedJSON(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "fetch-batch-checkpoint.json")
-	if err := os.WriteFile(path, []byte(`["https://example.com"`), 0o600); err != nil {
+	root := t.TempDir()
+	path := filepath.Join(root, "fetch-batch-checkpoint.done")
+	legacyPath := filepath.Join(root, "fetch-batch-checkpoint.json")
+	for _, body := range []string{`["https://example.com"`, `null`, `{}`} {
+		if err := os.WriteFile(legacyPath, []byte(body), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := loadFetchBatchCheckpoint(path, legacyPath, []string{"https://example.com"}); err == nil || !strings.Contains(err.Error(), "malformed") {
+			t.Fatalf("load malformed checkpoint %q error = %v", body, err)
+		}
+	}
+}
+
+func TestFetchBatchImportsLegacyCheckpointAndAddsMarkers(t *testing.T) {
+	dataPath := filepath.Join(t.TempDir(), "browserbase.db")
+	urls := []string{"https://example.com/a", "https://example.com/b"}
+	path := fetchBatchCheckpointPath(dataPath, "client-a", "raw", urls)
+	legacyPath := fetchBatchLegacyCheckpointPath(dataPath, "client-a", "raw", urls)
+	if err := os.WriteFile(legacyPath, []byte(`["https://example.com/a"]`), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := loadFetchBatchCheckpoint(path); err == nil || !strings.Contains(err.Error(), "malformed") {
-		t.Fatalf("load malformed checkpoint error = %v", err)
+	loaded, err := loadFetchBatchCheckpoint(path, legacyPath, urls)
+	if err != nil || !loaded[urls[0]] || loaded[urls[1]] {
+		t.Fatalf("legacy progress was not imported: loaded=%v err=%v", loaded, err)
+	}
+	if err := saveFetchBatchCheckpoint(path, urls[1]); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err = loadFetchBatchCheckpoint(path, legacyPath, urls)
+	if err != nil || !loaded[urls[0]] || !loaded[urls[1]] {
+		t.Fatalf("legacy and marker progress did not combine: loaded=%v err=%v", loaded, err)
+	}
+}
+
+func TestFetchBatchConcurrentCompletionsDoNotOverwrite(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "fetch-batch-checkpoint.done")
+	urls := make([]string, 40)
+	var wg sync.WaitGroup
+	errs := make(chan error, len(urls))
+	for i := range urls {
+		urls[i] = fmt.Sprintf("https://example.com/%d", i)
+		wg.Add(1)
+		go func(url string) {
+			defer wg.Done()
+			errs <- saveFetchBatchCheckpoint(path, url)
+		}(urls[i])
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	loaded, err := loadFetchBatchCheckpoint(path, "", urls)
+	if err != nil || len(loaded) != len(urls) {
+		t.Fatalf("concurrent markers lost progress: loaded=%d want=%d err=%v", len(loaded), len(urls), err)
+	}
+}
+
+func TestFetchBatchCanceledRunReportsFailureAndNoRequests(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	defer server.Close()
+	t.Setenv("BROWSERBASE_BASE_URL", server.URL)
+	file := filepath.Join(t.TempDir(), "urls.txt")
+	if err := os.WriteFile(file, []byte("https://example.com/a\nhttps://example.com/b\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cmd := newNovelFetchBatchCmd(&rootFlags{asJSON: true})
+	cmd.SilenceUsage = true // RootCmd sets this for machine-readable errors.
+	cmd.SetArgs([]string{"--file", file, "--pace", "1s"})
+	var out, errOut bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errOut)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	err := cmd.ExecuteContext(ctx)
+	if err != context.Canceled || calls.Load() != 0 {
+		t.Fatalf("canceled batch returned %v with %d remote calls", err, calls.Load())
+	}
+	var view batchFetchView
+	if err := json.Unmarshal(out.Bytes(), &view); err != nil || view.FailedCount != 2 {
+		t.Fatalf("canceled batch did not report both unattempted URLs: output=%s err=%v", out.String(), err)
 	}
 }
 

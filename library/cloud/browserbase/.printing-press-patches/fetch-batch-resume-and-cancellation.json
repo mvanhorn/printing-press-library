@@ -4,8 +4,8 @@
   "applied_at": "2026-08-21",
   "base_run_id": "20260813-205859-c0b56b36",
   "base_printing_press_version": "4.30.2",
-  "summary": "Scope fetch-batch checkpoints per job and client, persist completions atomically, deduplicate repeated URLs, reject damaged state, and stop deterministically on cancellation.",
-  "reason": "A global URL-only checkpoint suppressed unrelated requests across jobs and tenants, duplicate requests made URL-keyed resume state ambiguous, delayed writes lost work, malformed state was ignored, and ready scheduler slots could win a race with cancellation.",
+  "summary": "Scope fetch-batch checkpoints per client, format, and unordered URL set; write one atomic completion marker per URL and return a failed exit on interrupted work.",
+  "reason": "A shared URL-only checkpoint crossed jobs and tenants; read-modify-write JSON lost progress across simultaneous processes; input reorder changed identity, JSON null hid damaged state, and cancellation could report success with URLs never attempted.",
   "files": ["internal/cli/fetch_batch.go", "internal/cli/fetch_batch_test.go"],
-  "validated_outcome": "Focused tests prove client- and job-scoped atomic checkpoints survive each unique completion without exposing credentials, duplicate inputs fan out one request result, malformed state is rejected, and cancellation wins against ready ticks and workers in 1,000 trials."
+  "validated_outcome": "Synthetic tests prove concurrent completions survive, old JSON progress imports, reordered and duplicate URL lists share a checkpoint, null state fails, and cancellation reports every unfinished URL with a nonzero command result."
 }
