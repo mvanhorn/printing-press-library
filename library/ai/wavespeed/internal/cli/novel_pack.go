@@ -519,8 +519,15 @@ func writePlatformManifests(pf packFlags, slug string, shots []Shot, outcomes []
 		if _, err := os.Stat(stale); err == nil {
 			// Keep the earlier pack recoverable, but not under the
 			// post-ready name a posting tool reads.
-			ts := time.Now().UTC().Format("20060102-150405")
-			_ = os.Rename(stale, filepath.Join(filepath.Dir(stale), "manifest.superseded-"+ts+".json"))
+			ts := time.Now().UTC().Format("20060102-150405.000000000")
+			archived := filepath.Join(filepath.Dir(stale), "manifest.superseded-"+ts+".json")
+			for n := 2; ; n++ {
+				if _, err := os.Stat(archived); os.IsNotExist(err) {
+					break
+				}
+				archived = filepath.Join(filepath.Dir(stale), fmt.Sprintf("manifest.superseded-%s-%d.json", ts, n))
+			}
+			_ = os.Rename(stale, archived)
 		}
 	}
 

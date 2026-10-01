@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "superseded-pack-manifests-and-paid-run-recovery-records",
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "A pack rerun that yields no post-ready shot for a platform archives the earlier manifest under a unique superseded name instead of leaving it post-ready or deleting it, and a completed prediction whose download failed is recorded in the library with its prediction ID, output URLs, and recovery command.",
+  "reason": "Posting tools read manifest.json as the current pack, so a stale one could publish old assets, while deleting it lost the earlier pack. Library records are the only durable trace of a paid result once command output is gone.",
+  "files": [
+    "internal/cli/novel_pack.go",
+    "internal/cli/novel_batch.go",
+    "internal/cli/novel_compose.go",
+    "internal/cli/novel_restyle.go",
+    "internal/cli/novel_aspects.go",
+    "internal/cli/novel_variants.go",
+    "internal/cli/reliability_test.go"
+  ],
+  "validated_outcome": "TestPackManifestSkipsShotsWithMissingDownloads keeps exactly one archived manifest; TestNoteDownloadFailureIsWarningNotError checks the stored prediction ID and URL."
+}
