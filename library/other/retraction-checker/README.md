@@ -175,6 +175,8 @@ These capabilities aren't available in any other tool for this API.
   retraction-checker-pp-cli watch "machine learning" --json
   ```
 
+  The first run starts a checkpoint without fetching historical notices. Later runs check newly indexed Crossref and Retraction Watch records. Watch state uses the CLI state directory and reads an older config-directory checkpoint when the default path is in use.
+
 ## Recipes
 
 
@@ -228,7 +230,7 @@ further improves your limits.
 retraction-checker-pp-cli watch "crispr" --json
 ```
 
-Baselines retraction notices for a topic and reports new ones on later runs.
+The first run starts monitoring from now; later runs report newly indexed notices. `--reset` starts a new checkpoint.
 
 ## Usage
 
