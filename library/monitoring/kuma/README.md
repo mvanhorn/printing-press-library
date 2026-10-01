@@ -2,7 +2,8 @@
 
 `kuma-pp-cli` is a small operator CLI for Uptime Kuma v2. It uses Kuma's Socket.IO protocol rather than pretending the dashboard is a REST API.
 
-Contributor: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Created by [@keithah](https://github.com/keithah) (Keith).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 This catalog package is intentionally separate from the native `kumactl` HTTP MCP service. The package currently contains the generated Go CLI and its Socket.IO client; it does not install or embed a Python `kumactl` dependency, and it does not provide an MCP transport.
 

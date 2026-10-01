@@ -344,6 +344,7 @@ func TestHTTPClientRejectsCredentialRedirectsOffOrigin(t *testing.T) {
 
 	for _, target := range []string{
 		"https://kuma.example.com/socket.io/",
+		"https://kuma.example.com:443/socket.io/",
 		"https://kuma.example.com/other",
 	} {
 		to, err := http.NewRequest(http.MethodPost, target, strings.NewReader(`credential-frame`))
@@ -392,6 +393,28 @@ func TestStashedEventsRemainBounded(t *testing.T) {
 	}
 	if strings.Contains(string(c.stash[0]), `,0]`) {
 		t.Fatal("bounded stash retained the oldest event instead of the newest tail")
+	}
+}
+
+func TestHeartbeatCollectionKeepsBurstLargerThanIdleStash(t *testing.T) {
+	f := newFakeKuma(t)
+	c := loginClient(t, context.Background(), f)
+	count := maxStashedEvents + 44
+	records := make([]string, count)
+	for i := range records {
+		records[i] = fmt.Sprintf(`42["heartbeatList",{"%d":[{"monitorID":%d,"status":1}]}]`, i+1, i+1)
+	}
+	f.enqueue(records...)
+	raw, err := c.CallWithPushFallback(context.Background(), "getHeartbeats", nil, "heartbeatList", 5*time.Second)
+	if err != nil {
+		t.Fatalf("collecting %d heartbeats: %v", count, err)
+	}
+	var payloads []json.RawMessage
+	if err := json.Unmarshal(raw, &payloads); err != nil {
+		t.Fatalf("decoding heartbeat burst: %v", err)
+	}
+	if len(payloads) != count {
+		t.Fatalf("collected %d heartbeats, want %d", len(payloads), count)
 	}
 }
 

@@ -61,6 +61,7 @@ type Client struct {
 	stashMu sync.Mutex
 	stash   [][]byte // event records ("42...") seen while waiting for other packets
 	acks    map[int][]byte
+	stream  *eventStream // active heartbeat collection; backpressure prevents dropped events
 
 	readerMu      sync.Mutex
 	readerRunning bool
@@ -71,6 +72,12 @@ type Client struct {
 }
 
 const maxStashedEvents = 256
+
+type eventStream struct {
+	name   string
+	events chan json.RawMessage
+	done   chan struct{}
+}
 
 // appendStashedEventLocked retains a bounded tail of server-pushed events.
 // Callers must hold stashMu.
@@ -125,6 +132,70 @@ func (c *Client) stashEvents(recs []string) {
 		if len(r) > 2 && r[0] == '4' && r[1] == '2' {
 			c.appendStashedEventLocked([]byte(r[2:]))
 		}
+	}
+}
+
+// beginEventStream registers before the request is emitted, so a whole poll
+// response can arrive without filling and truncating the ordinary stash.
+func (c *Client) beginEventStream(name string) (*eventStream, error) {
+	c.stashMu.Lock()
+	defer c.stashMu.Unlock()
+	if c.stream != nil {
+		return nil, &ProtocolError{Msg: "another heartbeat collection is active"}
+	}
+	stream := &eventStream{name: name, events: make(chan json.RawMessage, maxStashedEvents), done: make(chan struct{})}
+	c.stream = stream
+	return stream, nil
+}
+
+func (c *Client) endEventStream(stream *eventStream) {
+	c.stashMu.Lock()
+	defer c.stashMu.Unlock()
+	if c.stream == stream {
+		c.stream = nil
+		close(stream.done)
+	}
+}
+
+func payloadForEvent(p []byte, name string) json.RawMessage {
+	var pair []json.RawMessage
+	if json.Unmarshal(p, &pair) != nil || len(pair) < 2 {
+		return nil
+	}
+	var got string
+	if json.Unmarshal(pair[0], &got) != nil || got != name {
+		return nil
+	}
+	if len(pair) >= 3 {
+		return json.RawMessage(p)
+	}
+	return pair[1]
+}
+
+// routeEvent sends active stream events through a bounded channel. A full
+// channel pauses the reader until the collector drains it, preserving bursts.
+func (c *Client) routeEvent(ctx context.Context, p []byte) {
+	c.stashMu.Lock()
+	stream := c.stream
+	if stream == nil {
+		c.appendStashedEventLocked(p)
+		c.stashMu.Unlock()
+		return
+	}
+	payload := payloadForEvent(p, stream.name)
+	if payload == nil {
+		c.appendStashedEventLocked(p)
+		c.stashMu.Unlock()
+		return
+	}
+	c.stashMu.Unlock()
+	select {
+	case stream.events <- payload:
+	case <-stream.done:
+		c.stashMu.Lock()
+		c.appendStashedEventLocked(p)
+		c.stashMu.Unlock()
+	case <-ctx.Done():
 	}
 }
 
@@ -194,7 +265,7 @@ func withSafeRedirects(client *http.Client) *http.Client {
 	safe.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		if len(via) > 0 {
 			from := via[0].URL
-			if !strings.EqualFold(from.Hostname(), req.URL.Hostname()) || from.Port() != req.URL.Port() {
+			if !strings.EqualFold(from.Hostname(), req.URL.Hostname()) || effectivePort(from) != effectivePort(req.URL) {
 				return fmt.Errorf("refusing Socket.IO redirect to a different host or port")
 			}
 			if from.Scheme == "https" && req.URL.Scheme != "https" {
@@ -210,6 +281,20 @@ func withSafeRedirects(client *http.Client) *http.Client {
 		return nil
 	}
 	return &safe
+}
+
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	switch strings.ToLower(u.Scheme) {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		return ""
+	}
 }
 
 func isLoopbackHost(host string) bool {
@@ -485,9 +570,7 @@ func (c *Client) startReader(ctx context.Context) {
 					}
 				default:
 					if len(rec) > 1 && rec[0] == '4' && rec[1] == '2' {
-						c.stashMu.Lock()
-						c.appendStashedEventLocked([]byte(rec[2:]))
-						c.stashMu.Unlock()
+						c.routeEvent(readerCtx, []byte(rec[2:]))
 					}
 				}
 			}
@@ -720,10 +803,15 @@ func (c *Client) CallRaw(ctx context.Context, event string, data any) ([]byte, e
 // bare ack, then fails.
 func (c *Client) CallWithPushFallback(ctx context.Context, event string, data any, pushEvent string, pushWait time.Duration) (json.RawMessage, error) {
 	if event == "getHeartbeats" {
+		stream, err := c.beginEventStream(pushEvent)
+		if err != nil {
+			return nil, err
+		}
+		defer c.endEventStream(stream)
 		if err := c.emitNoAck(ctx, event, data); err != nil {
 			return nil, fmt.Errorf("emit %s failed: %w", event, err)
 		}
-		return c.collectStashedEvents(ctx, pushEvent, pushWait)
+		return c.collectStashedEvents(ctx, pushEvent, pushWait, stream)
 	}
 	ack, err := c.emitAck(ctx, event, data)
 	if err != nil {
@@ -788,7 +876,7 @@ func (c *Client) CallWithPushFallback(ctx context.Context, event string, data an
 // pay the worst case. Returning once the burst goes quiet does neither.
 const streamIdleGap = 500 * time.Millisecond
 
-func (c *Client) collectStashedEvents(ctx context.Context, name string, wait time.Duration) (json.RawMessage, error) {
+func (c *Client) collectStashedEvents(ctx context.Context, name string, wait time.Duration, stream *eventStream) (json.RawMessage, error) {
 	deadline := time.Now().Add(wait)
 	var payloads []json.RawMessage
 	var lastEvent time.Time
@@ -801,6 +889,17 @@ func (c *Client) collectStashedEvents(ctx context.Context, name string, wait tim
 			payloads = append(payloads, raw)
 			lastEvent = time.Now()
 		}
+		// Drain the bounded stream before considering the idle gap or deadline.
+		// The reader may be blocked on a full channel until this loop runs.
+		for draining := true; draining; {
+			select {
+			case raw := <-stream.events:
+				payloads = append(payloads, raw)
+				lastEvent = time.Now()
+			default:
+				draining = false
+			}
+		}
 		settled := len(payloads) > 0 && time.Since(lastEvent) >= streamIdleGap
 		if settled || time.Now().After(deadline) {
 			return joinStreamPayloads(name, payloads)
@@ -808,6 +907,9 @@ func (c *Client) collectStashedEvents(ctx context.Context, name string, wait tim
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
+		case raw := <-stream.events:
+			payloads = append(payloads, raw)
+			lastEvent = time.Now()
 		case <-time.After(10 * time.Millisecond):
 		}
 	}

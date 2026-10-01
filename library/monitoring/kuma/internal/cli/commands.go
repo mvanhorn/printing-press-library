@@ -399,10 +399,17 @@ func matchMonitor(monitors []*Monitor, arg string) (*Monitor, error) {
 		}
 		return nil, nil
 	}
+	var exact []*Monitor
 	for _, m := range monitors {
 		if strings.EqualFold(m.Name, arg) {
-			return m, nil
+			exact = append(exact, m)
 		}
+	}
+	if len(exact) > 1 {
+		return nil, fmt.Errorf("monitor name %q is ambiguous (%d exact matches); use a numeric id", arg, len(exact))
+	}
+	if len(exact) == 1 {
+		return exact[0], nil
 	}
 	lower := strings.ToLower(arg)
 	var matches []*Monitor

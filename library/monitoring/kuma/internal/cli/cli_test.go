@@ -494,6 +494,16 @@ func TestMatchMonitorRejectsAmbiguousSubstring(t *testing.T) {
 	}
 }
 
+func TestMatchMonitorRejectsDuplicateExactNames(t *testing.T) {
+	monitors := []*Monitor{{ID: 1, Name: "API"}, {ID: 2, Name: "api"}}
+	if got, err := matchMonitor(monitors, "API"); got != nil || err == nil || !strings.Contains(err.Error(), "ambiguous") {
+		t.Fatalf("duplicate exact match = (%v, %v), want ambiguity", got, err)
+	}
+	if got, err := matchMonitor(monitors, "2"); err != nil || got == nil || got.ID != 2 {
+		t.Fatalf("numeric match = (%v, %v), want monitor 2", got, err)
+	}
+}
+
 func TestMergeHeartbeatTuplePayloads(t *testing.T) {
 	dst := map[string][]beatRaw{}
 	if err := mergeHeartbeatPayload(dst, json.RawMessage(`["heartbeatList",25,[{"status":1}]]`)); err != nil {
