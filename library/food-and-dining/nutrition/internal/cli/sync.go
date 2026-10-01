@@ -461,6 +461,11 @@ func syncResource(ctx context.Context, c interface {
 	}
 
 	cursor := existingCursor
+	// FoodData Central's foods/list pageNumber is zero-based. Its offset is
+	// pageNumber * pageSize, so an empty first cursor must start at zero.
+	if resource == "foods" && cursor == "" {
+		cursor = "0"
+	}
 	pageSize := determinePaginationDefaults(resource)
 	var progressCount int64
 	pagesFetched := 0
@@ -546,7 +551,7 @@ func syncResource(ctx context.Context, c interface {
 		// spellings (page / page_number / pageNumber / page[number]) work.
 		if pageSize.cursorType == "page" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
 			currentPage, _ := strconv.Atoi(cursor)
-			if currentPage < 1 {
+			if resource != "foods" && currentPage < 1 {
 				currentPage = 1
 			}
 			nextCursor = strconv.Itoa(currentPage + 1)
@@ -1642,7 +1647,7 @@ func describeResourceFailure(count int, label string, resources []string) string
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"foods": "/v1/foods",
+		"foods": "/v1/foods/list",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil

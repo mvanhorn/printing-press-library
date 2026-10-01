@@ -4,8 +4,8 @@
   "applied_at": "2026-07-19",
   "base_run_id": "20260702-105700",
   "base_printing_press_version": "4.27.1",
-  "summary": "Nutrition sync paginates the foods collection and authentication diagnostics distinguish a configured personal API key from the public DEMO_KEY fallback.",
-  "reason": "The foods endpoint declared pageNumber and pageSize but was marked non-paginated, truncating sync after its first page; AuthHeader's intentional DEMO_KEY fallback also made status and doctor misreport a personal credential as configured.",
+  "summary": "Nutrition sync reads every zero-based page from USDA's foods/list endpoint and reports whether the effective key is personal or the public DEMO_KEY.",
+  "reason": "The foods sync used an unpaged, ID-required endpoint and its page counter skipped page one; a whitespace-only or public DEMO_KEY value could also be reported as a personal credential.",
   "files": [
     "internal/cli/auth.go",
     "internal/cli/doctor.go",

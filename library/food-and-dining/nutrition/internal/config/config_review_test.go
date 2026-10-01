@@ -12,6 +12,15 @@ func TestDemoKeyIsNotAConfiguredCredential(t *testing.T) {
 	if cfg.HasConfiguredAPIKey() {
 		t.Fatal("public DEMO_KEY fallback must not report a configured credential")
 	}
+	cfg.AuthHeaderVal = "  "
+	if cfg.HasConfiguredAPIKey() || cfg.AuthHeader() != "DEMO_KEY" {
+		t.Fatal("whitespace-only credential must use the public fallback consistently")
+	}
+	cfg.AuthHeaderVal = "DEMO_KEY"
+	if cfg.HasConfiguredAPIKey() {
+		t.Fatal("explicit public DEMO_KEY is not a personal credential")
+	}
+	cfg.AuthHeaderVal = ""
 
 	cfg.FdcApiKey = "personal-key"
 	if !cfg.HasConfiguredAPIKey() {

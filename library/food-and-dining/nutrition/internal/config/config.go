@@ -219,14 +219,14 @@ func FileHasCredentialFields(path string) (bool, error) {
 }
 
 func (c *Config) AuthHeader() string {
-	if c.AuthHeaderVal != "" {
-		return c.AuthHeaderVal
+	if value := strings.TrimSpace(c.AuthHeaderVal); value != "" {
+		return value
 	}
-	if c.FdcApiKey != "" {
-		return c.FdcApiKey
+	if value := strings.TrimSpace(c.FdcApiKey); value != "" {
+		return value
 	}
-	if c.UsdaApiKey != "" {
-		return c.UsdaApiKey
+	if value := strings.TrimSpace(c.UsdaApiKey); value != "" {
+		return value
 	}
 	// DEMO_KEY fallback: USDA FoodData Central accepts api.data.gov's public
 	// DEMO_KEY (rate-limited to ~30 req/hr, 50/day per IP) when no personal key
@@ -244,9 +244,7 @@ func (c *Config) HasConfiguredAPIKey() bool {
 	if c == nil {
 		return false
 	}
-	return strings.TrimSpace(c.AuthHeaderVal) != "" ||
-		strings.TrimSpace(c.FdcApiKey) != "" ||
-		strings.TrimSpace(c.UsdaApiKey) != ""
+	return c.AuthHeader() != "DEMO_KEY"
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {
