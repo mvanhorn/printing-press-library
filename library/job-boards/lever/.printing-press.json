@@ -11,6 +11,12 @@
   },
   "owner": "hunter-veltri",
   "printer_name": "Hunter Veltri",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "handle": "veltri-23",
   "printer": "veltri-23",
   "spec_path": "./spec.yaml",

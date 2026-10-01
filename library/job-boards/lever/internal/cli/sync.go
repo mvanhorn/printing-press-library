@@ -3,21 +3,57 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/job-boards/lever/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/job-boards/lever/internal/store"
 )
+
+// fetchOpenPostingsSnapshot rejects incomplete or malformed feeds before a
+// caller may replace the company's local snapshot.
+func fetchOpenPostingsSnapshot(ctx context.Context, c *client.Client, flags *rootFlags, path string) ([]json.RawMessage, error) {
+	if err := validateDataSourceStrategy(flags, "live"); err != nil {
+		return nil, err
+	}
+	const pageSize = 100
+	items := make([]json.RawMessage, 0)
+	for page := 0; page < paginatedGetMaxPages; page++ {
+		params := map[string]string{
+			"mode":   "json",
+			"limit":  strconv.Itoa(pageSize),
+			"offset": strconv.Itoa(page * pageSize),
+		}
+		data, err := c.GetWithHeadersNoCache(ctx, path, params, nil)
+		if err != nil {
+			return nil, err
+		}
+		var pageItems []json.RawMessage
+		if err := json.Unmarshal(data, &pageItems); err != nil || pageItems == nil {
+			return nil, fmt.Errorf("postings page %d is not a JSON array", page+1)
+		}
+		if len(pageItems) > pageSize {
+			return nil, fmt.Errorf("postings page %d exceeds the requested limit", page+1)
+		}
+		items = append(items, pageItems...)
+		if len(pageItems) < pageSize {
+			return items, nil
+		}
+	}
+	return nil, fmt.Errorf("postings exceed the %d-page safety limit; local snapshot was not changed", paginatedGetMaxPages)
+}
 
 // newSyncCmd fetches every open posting for a company and persists it to
 // the local store under a company-scoped key (postings:leverdemo), so
 // local reads stay per-company and work offline. The scaffold referenced
 // `sync` in missing-store guidance, MCP error text, and docs, but
 // generated no command; this wires the real one.
+// pp:data-source live
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "sync <company>",
@@ -36,25 +72,10 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			}
 			company := args[0]
 			path := replacePathParam("/postings/{company}", "company", company)
-			params := map[string]string{"mode": "json"}
-
-			// Fetch live first (strategy "live" skips the unscoped
-			// write-through), collecting what will be persisted.
-			data, _, err := resolveReadWithStrategyAndResponsePath(
-				cmd.Context(), c, flags, "live", "postings", true, path, params, nil, "", cmd.ErrOrStderr())
+			// Fetch every page before replacing the company snapshot.
+			items, err := fetchOpenPostingsSnapshot(cmd.Context(), c, flags, path)
 			if err != nil {
 				return classifyAPIError(err, flags)
-			}
-			var items []json.RawMessage
-			if json.Unmarshal(data, &items) == nil {
-				kept := items[:0]
-				for _, it := range items {
-					trimmed := strings.TrimSpace(string(it))
-					if trimmed != "" && trimmed != "null" && trimmed != "[]" && trimmed != "{}" {
-						kept = append(kept, it)
-					}
-				}
-				items = kept
 			}
 
 			// Persist under a company-scoped key and verify durability, so
@@ -66,13 +87,13 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			scoped := "postings:" + company
-			stored, skipped, err := db.UpsertBatch(scoped, items)
+			stored, err := db.UpsertAuthoritativeSnapshot(scoped, items)
 			if err != nil {
 				return fmt.Errorf("sync postings: persist: %w", err)
 			}
-			// The upsert count is the source of truth: pre-existing rows
-			// for this company must not mask a zero-persistence failure on
-			// a fresh fetch.
+			skipped := 0
+			// The replacement count describes the complete open-postings
+			// snapshot, including removals of jobs Lever no longer lists.
 			if len(items) > 0 && stored == 0 {
 				return fmt.Errorf("sync postings: fetched %d records but none persisted (%d skipped); the sync did not persist", len(items), skipped)
 			}

@@ -1618,6 +1618,81 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	return stored, extractFailures, nil
 }
 
+// UpsertAuthoritativeSnapshot replaces one company's open postings in a single
+// transaction. Invalid input leaves the previous snapshot untouched.
+func (s *Store) UpsertAuthoritativeSnapshot(resourceType string, items []json.RawMessage) (int, error) {
+	if !strings.HasPrefix(resourceType, "postings:") || strings.TrimSpace(strings.TrimPrefix(resourceType, "postings:")) == "" {
+		return 0, fmt.Errorf("authoritative replacement requires a company-scoped postings resource type")
+	}
+	type snapshotItem struct {
+		id   string
+		data json.RawMessage
+	}
+	validated := make([]snapshotItem, 0, len(items))
+	seen := make(map[string]struct{}, len(items))
+	for i, item := range items {
+		obj, err := DecodeJSONObject(item)
+		if err != nil {
+			return 0, fmt.Errorf("validate snapshot item %d: %w", i, err)
+		}
+		id, ok := obj["id"].(string)
+		if !ok || strings.TrimSpace(id) == "" {
+			return 0, fmt.Errorf("validate snapshot item %d: missing posting ID", i)
+		}
+		if _, duplicate := seen[id]; duplicate {
+			return 0, fmt.Errorf("validate snapshot item %d: duplicate posting ID", i)
+		}
+		seen[id] = struct{}{}
+		validated = append(validated, snapshotItem{id: id, data: item})
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("starting snapshot transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	rows, err := tx.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
+	if err != nil {
+		return 0, fmt.Errorf("read previous snapshot: %w", err)
+	}
+	var oldIDs []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return 0, fmt.Errorf("read previous posting ID: %w", err)
+		}
+		oldIDs = append(oldIDs, id)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return 0, fmt.Errorf("read previous snapshot: %w", err)
+	}
+	if err := rows.Close(); err != nil {
+		return 0, fmt.Errorf("close previous snapshot: %w", err)
+	}
+	for _, id := range oldIDs {
+		if _, err := tx.Exec("DELETE FROM resources_fts WHERE rowid = ?", ftsRowID(resourceType, id)); err != nil {
+			return 0, fmt.Errorf("clear previous posting search entry: %w", err)
+		}
+	}
+	if _, err := tx.Exec("DELETE FROM resources WHERE resource_type = ?", resourceType); err != nil {
+		return 0, fmt.Errorf("clear previous snapshot: %w", err)
+	}
+	for _, item := range validated {
+		if err := s.upsertGenericResourceTx(tx, resourceType, item.id, item.data); err != nil {
+			return 0, fmt.Errorf("replace posting: %w", err)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit snapshot: %w", err)
+	}
+	return len(validated), nil
+}
+
 func unwrapIDBearingEnvelopeItem(resourceType string, item json.RawMessage, obj map[string]any) (map[string]any, json.RawMessage, bool) {
 	var candidate map[string]any
 	candidateKey := ""

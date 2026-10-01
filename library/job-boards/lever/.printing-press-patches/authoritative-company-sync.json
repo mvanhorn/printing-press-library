@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "authoritative-company-sync",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fetch and validate every Lever postings page before atomically replacing a company's offline snapshot.",
+  "reason": "An upsert leaves closed jobs offline forever, while cached, partial, or malformed feeds must not erase still-open jobs.",
+  "files": ["internal/cli/sync.go", "internal/cli/sync_pagination_test.go", "internal/store/store.go", "internal/store/snapshot_test.go", "internal/mcp/tools.go", "README.md"]
+}
