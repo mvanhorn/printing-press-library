@@ -120,3 +120,67 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 		})
 	}
 }
+
+func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
+	const vin = "5YJ3E1EA7KF317000"
+	link := json.RawMessage(`{"name":"Model 3","url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000"}`)
+	for _, tc := range []struct {
+		name  string
+		setup func(*testing.T, *Store)
+	}{
+		{
+			name: "unscoped old ID",
+			setup: func(t *testing.T, s *Store) {
+				t.Helper()
+				if _, err := s.DB().Exec(`INSERT INTO search_learnings
+					(query_pattern, resource_id, action, source)
+					VALUES ('find Model 3', 'Model 3', 'boost', 'taught')`); err != nil {
+					t.Fatal(err)
+				}
+			},
+		},
+		{
+			name: "cross-resource VIN conflict",
+			setup: func(t *testing.T, s *Store) {
+				t.Helper()
+				if _, err := s.DB().Exec(`INSERT INTO search_learnings
+					(query_pattern, resource_type, resource_id, action, source)
+					VALUES ('find Model 3', 'inventory', 'Model 3', 'boost', 'taught'),
+					       ('find Model 3', 'vehicle', ?, 'boost', 'taught')`, vin); err != nil {
+					t.Fatal(err)
+				}
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dbPath := filepath.Join(t.TempDir(), "inventory.db")
+			s, err := Open(dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Upsert("inventory", "Model 3", link); err != nil {
+				t.Fatal(err)
+			}
+			tc.setup(t, s)
+			if _, err := s.DB().Exec(`PRAGMA user_version = 9`); err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Close(); err != nil {
+				t.Fatal(err)
+			}
+			s, err = Open(dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer s.Close()
+			got, err := s.Get("inventory", "Model 3")
+			if err != nil || string(got) != string(link) {
+				t.Fatalf("legacy link after conservative upgrade = %s, %v", got, err)
+			}
+			var refs int
+			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'Model 3'`).Scan(&refs); err != nil || refs != 1 {
+				t.Fatalf("old-ID learned references after upgrade = %d, %v", refs, err)
+			}
+		})
+	}
+}
