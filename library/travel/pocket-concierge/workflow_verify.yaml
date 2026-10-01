@@ -1,0 +1,19 @@
+workflows:
+  - name: Public discovery to canonical handoff
+    primary: true
+    steps:
+      - command: filters --lang ja --no-cache
+        mode: live
+        expect_fields: [areas, cuisines, meta]
+      - command: restaurants search --query Murase --limit 3 --no-cache
+        mode: live
+        expect_fields: [items, pagination, meta]
+      - command: courses list --id 245672 --no-cache
+        mode: live
+        expect_fields: [items, restaurant_fee_statements, meta]
+      - command: availability dates --id 245672 --limit 5 --no-cache
+        mode: live
+        expect_fields: [items, pagination, meta]
+      - command: booking handoff --id 245672 --course-id 182402 --no-cache
+        mode: live
+        expect_fields: [url, reservation_created, meta]

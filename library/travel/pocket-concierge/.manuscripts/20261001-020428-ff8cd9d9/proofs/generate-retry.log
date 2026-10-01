@@ -1,0 +1,16 @@
+Force regen merged 0 preserved files / 0 AddCommand calls
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS pocket-concierge-pp-cli --help
+PASS pocket-concierge-pp-cli version
+PASS pocket-concierge-pp-cli doctor
+agentcookie: skipping pocket-concierge (cookie-only or no env-var auth)
+Generated pocket-concierge at local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli
+Bundled local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli/build/pocket-concierge-pp-mcp-darwin-arm64.mcpb

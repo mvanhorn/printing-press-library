@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/pocket-concierge-pp-cli
+/pocket-concierge-pp-cli.exe
+/pocket-concierge-pp-mcp
+/pocket-concierge-pp-mcp.exe
+/bin/
+/build/
+/dist/

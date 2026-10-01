@@ -1,0 +1,68 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "pocket-concierge",
+    "version": "0.1.0",
+    "description": "Discover Pocket Concierge restaurants, courses and public availability with canonical booking handoff."
+  },
+  "servers": [
+    {
+      "url": "https://www.pocket-concierge.jp"
+    }
+  ],
+  "x-category": "travel",
+  "x-cli-description": "Discover fine dining, inspect sourced courses and sessions, and hand off safely to Pocket Concierge.",
+  "x-mcp": {
+    "transport": [
+      "stdio"
+    ]
+  },
+  "x-learn": {
+    "disabled": true
+  },
+  "paths": {
+    "/graphql": {
+      "post": {
+        "operationId": "queryCatalog",
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Read public Pocket Concierge catalog metadata",
+        "x-pp-mutation": false,
+        "x-pp-safe-probe": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "default": "query { areas { id name } cuisines { id name } }"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Public GraphQL response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

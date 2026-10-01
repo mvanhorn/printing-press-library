@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-30T19:50:22.928298Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "pocket-concierge",
+  "display_name": "Pocket Concierge",
+  "cli_name": "pocket-concierge-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "bootstrap-contract.json",
+  "spec_format": "openapi3",
+  "spec_source": "first-party-app-derived",
+  "spec_checksum": "sha256:9a08f9b6fe60b93d36cd61f3a158812215b0689fe8c0f6973b1025cb1b485550",
+  "run_id": "20261001-020428-ff8cd9d9",
+  "category": "travel",
+  "description": "Discover fine dining with sourced courses, session identity and safe booking handoff.",
+  "mcp_tool_count": 0,
+  "mcp_public_tool_count": 0,
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bilingual source identity",
+      "command": "restaurants search",
+      "description": "Match first-party English and Japanese restaurant identities by source ID with bounded native filters.",
+      "rationale": "Joins language variants by source ID rather than guessing translations.",
+      "example": "pocket-concierge-pp-cli restaurants search --query Murase --limit 3 --agent",
+      "why_it_matters": "Use when Japanese identity must remain traceable to a public restaurant.",
+      "group": "Source evidence"
+    },
+    {
+      "name": "Fee conflict preservation",
+      "command": "courses list",
+      "description": "Keep per-guest and per-group JPY prices and conflicting course and restaurant fee statements without inventing a payable total.",
+      "rationale": "Keeps both source contexts visible rather than flattening fees into a misleading sum.",
+      "example": "pocket-concierge-pp-cli courses list --id 245672 --agent",
+      "why_it_matters": "Use before comparing budgets when inclusions and policy charges disagree.",
+      "group": "Source evidence"
+    },
+    {
+      "name": "Validated canonical handoff",
+      "command": "booking handoff",
+      "description": "Validate course and session ownership and party bounds before returning the canonical restaurant link.",
+      "rationale": "Combines public course and session identity checks with a read-only first-party handoff.",
+      "example": "pocket-concierge-pp-cli booking handoff --id 245672 --course-id 182402 --agent",
+      "why_it_matters": "Use to hand a verified restaurant choice to a diner without creating a reservation.",
+      "group": "Safe handoff"
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 8,
+    "total": 8,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

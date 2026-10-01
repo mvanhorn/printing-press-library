@@ -1,0 +1,12 @@
+[
+  {
+    "__typename": "ReservableAvailability",
+    "id": "6871760",
+    "startTime": "2026-10-05T18:00:00+09:00",
+    "minPartySize": 2,
+    "maxPartySize": 6,
+    "course": {
+      "id": "182402"
+    }
+  }
+]

@@ -1,0 +1,5 @@
+?   	pocket-concierge-pp-cli/cmd/pocket-concierge-pp-cli	[no test files]
+ok  	pocket-concierge-pp-cli/internal/cli	2.446s
+ok  	pocket-concierge-pp-cli/internal/client	2.871s
+ok  	pocket-concierge-pp-cli/internal/cliutil	1.764s
+ok  	pocket-concierge-pp-cli/internal/pocket	0.513s

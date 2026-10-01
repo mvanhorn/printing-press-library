@@ -1,0 +1,14 @@
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+FAIL go mod tidy
+Error: validating generated project: gate "go mod tidy" failed: exit status 1
+go: finding module for package modernc.org/sqlite
+go: pocket-concierge-pp-cli/cmd: open local-path operation not permitted
+go: pocket-concierge-pp-cli/internal: open local-path operation not permitted
+go: pocket-concierge-pp-cli/internal/platform imports
+	modernc.org/sqlite: module modernc.org/sqlite: Get "https://proxy.golang.org/modernc.org/sqlite/@v/list": dial tcp: lookup proxy.golang.org: no such host
+validating generated project: gate "go mod tidy" failed: exit status 1
+go: finding module for package modernc.org/sqlite
+go: pocket-concierge-pp-cli/cmd: open local-path operation not permitted
+go: pocket-concierge-pp-cli/internal: open local-path operation not permitted
+go: pocket-concierge-pp-cli/internal/platform imports
+	modernc.org/sqlite: module modernc.org/sqlite: Get "https://proxy.golang.org/modernc.org/sqlite/@v/list": dial tcp: lookup proxy.golang.org: no such host
