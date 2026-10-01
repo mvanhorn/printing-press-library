@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "location-search-is-read-only",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020510-488a6a84",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Public location search is a read-only GET and must use the non-mutating client, including the MCP tool.",
+  "reason": "Classifying /onebox/api_search.cgi as a mutation makes verify mode return a synthetic body and skips the response cache for a lookup that does not change remote state.",
+  "files": [
+    "internal/cli/source_locations.go",
+    "internal/mcp/tools.go"
+  ]
+}

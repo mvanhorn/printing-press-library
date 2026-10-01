@@ -36,18 +36,13 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "archive",
-		Short: "Sync all resources to local store for offline access and search",
-		Long: `Archive fetches all syncable resources from the API and stores them in a
-local SQLite database. Supports incremental sync (only new data since last run)
-and full resync. After archiving, use 'search' for instant full-text search.`,
-		Example: `  # Archive all resources
-  weathernews-pp-cli workflow archive
-
-  # Full re-archive (ignore previous sync state)
-  weathernews-pp-cli workflow archive --full
-
-  # Archive without a wall-clock timeout
-  weathernews-pp-cli workflow archive --timeout 0`,
+		Short: "Fail closed: weathernews has no bulk resources to archive",
+		Long: `Weathernews public endpoints are query-scoped lookups (place search,
+coordinate forecast, seasonal pages), not bulk catalogs. This command has no
+archiveable resources, so it exits non-zero instead of reporting an empty
+archive as success. Use places, weather, and season for live public data.`,
+		Example: `  # Fails closed: there is nothing to bulk-archive
+  weathernews-pp-cli workflow archive`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// --full clears sync state before any client preview, so a marker
 			// on the summary would still archive. Stop before the store opens.
@@ -77,6 +72,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				defer cancel()
 			}
 
+			resources := workflowArchiveResources()
+			if cliutil.IsDogfoodEnv() && len(resources) > 3 {
+				resources = resources[:3]
+			}
+			if len(resources) == 0 {
+				return fmt.Errorf("workflow archive: weathernews has no archiveable resources; public lookups are query-scoped and are not bulk-synced")
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -92,12 +95,6 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{}
-			if cliutil.IsDogfoodEnv() {
-				if len(resources) > 3 {
-					resources = resources[:3]
-				}
-			}
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
@@ -149,7 +146,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				}); err != nil {
 					return err
 				}
-			} else if resourcesSynced > 0 || len(resources) == 0 {
+			} else if resourcesSynced > 0 {
 				fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, resourcesSynced, dbPath)
 			}
 			// Fail closed when every attempted resource errored or warned.
@@ -167,6 +164,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Minute, "Maximum time to spend archiving (0 = no timeout)")
 
 	return cmd
+}
+
+// workflowArchiveResources lists bulk-list resources this CLI can archive.
+// Weathernews public endpoints are query-scoped lookups, not catalogs, so
+// the list stays empty and archive fails closed instead of reporting success.
+func workflowArchiveResources() []string {
+	return nil
 }
 
 func workflowArchiveTimeoutError(timeout time.Duration, err error) error {
@@ -229,7 +233,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(status) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Run 'workflow archive' to sync.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. weathernews has no archiveable resources; use live lookups (places, weather, season).")
 				return nil
 			}
 

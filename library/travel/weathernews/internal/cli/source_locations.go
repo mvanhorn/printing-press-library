@@ -19,7 +19,7 @@ func newSourceLocationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "locations",
 		Short:       "Public location search used by the first-party homepage",
-		Annotations: map[string]string{"pp:endpoint": "source.locations", "pp:method": "GET", "pp:path": "/onebox/api_search.cgi", "pp:requires-input": "true", "pp:happy-args": "--query 京都 --lang ja"},
+		Annotations: map[string]string{"pp:endpoint": "source.locations", "pp:method": "GET", "pp:path": "/onebox/api_search.cgi", "mcp:read-only": "true", "pp:requires-input": "true", "pp:happy-args": "--query 京都 --lang ja"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
@@ -58,7 +58,7 @@ func newSourceLocationsCmd(flags *rootFlags) *cobra.Command {
 				params["callback"] = formatCLIParamValue(flagCallback)
 			}
 			var prov DataProvenance
-			data, err := c.GetMutating(cmd.Context(), path, params)
+			data, err := c.Get(cmd.Context(), path, params)
 			if err == nil {
 				prov = attachFreshness(DataProvenance{Source: "live"}, flags)
 			}

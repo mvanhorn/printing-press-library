@@ -4,6 +4,9 @@
 
 Resolve Japanese places, inspect bounded forecasts and seasonal evidence, and compare caller criteria. Public first-party access without a paid account.
 
+Created by [@zjsng](https://github.com/zjsng) (zjsng).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Authentication
 
 Selected public products need no credentials. Member-only products and commercial WxTech are outside scope.

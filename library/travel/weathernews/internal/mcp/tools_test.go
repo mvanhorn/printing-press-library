@@ -108,6 +108,13 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	if !strings.Contains(sqlTool.Tool.Description, "Run read-only SQL against local database") {
 		t.Fatalf("sql tool appears to have been overwritten by command mirror: %q", sqlTool.Tool.Description)
 	}
+	locations, ok := tools["source_locations"]
+	if !ok {
+		t.Fatal("typed source_locations tool missing")
+	}
+	if locations.Tool.Annotations.ReadOnlyHint == nil || !*locations.Tool.Annotations.ReadOnlyHint {
+		t.Fatalf("source_locations read-only hint = %#v", locations.Tool.Annotations.ReadOnlyHint)
+	}
 }
 
 func TestMCPContextMatchesRegisteredToolSurface(t *testing.T) {

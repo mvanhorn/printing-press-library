@@ -58,9 +58,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("")),
 			mcplib.WithString("lang", mcplib.Description("")),
 			mcplib.WithString("callback", mcplib.Description("")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/onebox/api_search.cgi", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "lang", WireName: "lang", Location: "query", Default: "ja"}, {PublicName: "callback", WireName: "callback", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/onebox/api_search.cgi", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "lang", WireName: "lang", Location: "query", Default: "ja"}, {PublicName: "callback", WireName: "callback", Location: "query"}}, []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
