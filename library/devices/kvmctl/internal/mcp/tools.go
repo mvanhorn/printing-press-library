@@ -52,7 +52,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("hid_reset",
 			mcplib.WithDescription("Reset."),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/hid/reset", false, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
@@ -63,7 +63,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("Key")),
 			mcplib.WithBoolean("state", mcplib.Description("State")),
 			mcplib.WithBoolean("finish", mcplib.Description("Finish")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/hid/events/send_key", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "key", WireName: "key", Location: "query"}, {PublicName: "state", WireName: "state", Location: "query"}, {PublicName: "finish", WireName: "finish", Location: "query"}}, []string{}),
@@ -73,7 +73,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Send mouse button. Required: button, state."),
 			mcplib.WithString("button", mcplib.Required(), mcplib.Description("Button")),
 			mcplib.WithBoolean("state", mcplib.Required(), mcplib.Description("State")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/hid/events/send_mouse_button", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "button", WireName: "button", Location: "query"}, {PublicName: "state", WireName: "state", Location: "query"}}, []string{}),
@@ -83,7 +83,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Send mouse move. Required: x, y."),
 			mcplib.WithNumber("x", mcplib.Required(), mcplib.Description("X")),
 			mcplib.WithNumber("y", mcplib.Required(), mcplib.Description("Y")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/hid/events/send_mouse_move", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "x", WireName: "x", Location: "query"}, {PublicName: "y", WireName: "y", Location: "query"}}, []string{}),
@@ -92,7 +92,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("hid_send-mouse-wheel",
 			mcplib.WithDescription("Send mouse wheel. Required: delta."),
 			mcplib.WithNumber("delta", mcplib.Required(), mcplib.Description("Delta")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/hid/events/send_mouse_wheel", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "delta", WireName: "delta", Location: "query"}}, []string{}),
@@ -101,7 +101,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("hid_send-shortcut",
 			mcplib.WithDescription("Send shortcut. Required: keys. Returns the new JsonResult."),
 			mcplib.WithString("keys", mcplib.Required(), mcplib.Description("Keys")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/hid/events/send_shortcut", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "keys", WireName: "keys", Location: "query"}}, []string{}),
@@ -160,7 +160,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Set params. Optional: desired_fps, quality."),
 			mcplib.WithNumber("desired_fps", mcplib.Description("Desired fps")),
 			mcplib.WithNumber("quality", mcplib.Description("Quality")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/streamer/set_params", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "desired_fps", WireName: "desired_fps", Location: "query"}, {PublicName: "quality", WireName: "quality", Location: "query"}}, []string{}),
@@ -170,7 +170,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Set otg functions. Required: start_cdrom, start_flash."),
 			mcplib.WithBoolean("start_cdrom", mcplib.Required(), mcplib.Description("Start cdrom")),
 			mcplib.WithBoolean("start_flash", mcplib.Required(), mcplib.Description("Start flash")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/system/otg_functions", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "start_cdrom", WireName: "start_cdrom", Location: "query"}, {PublicName: "start_flash", WireName: "start_flash", Location: "query"}}, []string{}),
@@ -268,6 +268,9 @@ func mcpFormFieldValue(v any) string {
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		if physicalWriteBlocked(method, pathTemplate) {
+			return mcpToolError(physicalWriteGuidance), nil
+		}
 		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
 			return mcpToolError(err.Error()), nil
