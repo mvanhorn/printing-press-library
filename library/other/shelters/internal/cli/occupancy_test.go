@@ -155,10 +155,10 @@ func TestOverlayOccupancyFillsPublicOnly(t *testing.T) {
 // not produce a second row (fill-only); the first fills it, the second is withheld.
 func TestOverlayOccupancyDoubleMatch(t *testing.T) {
 	p1, p2 := 10, 20
-	base := []Shelter{{ShelterID: 1, Name: "Shared Name", State: "TX", Source: "fema"}}
+	base := []Shelter{{ShelterID: 1, Name: "Shared Name", State: "TX", Address: "1 Main St", Source: "fema"}}
 	occ := []Shelter{
-		{Name: "Shared Name", State: "TX", Source: "occupancy", TotalPopulation: &p1},
-		{Name: "Shared Name", State: "TX", Source: "occupancy", TotalPopulation: &p2},
+		{Name: "Shared Name", State: "TX", Address: "1 Main St", Source: "occupancy", TotalPopulation: &p1},
+		{Name: "Shared Name", State: "TX", Address: "1 Main St", Source: "occupancy", TotalPopulation: &p2},
 	}
 	out, filled, withheld, ambiguous := overlayOccupancy(base, occ)
 	if len(out) != 1 {
@@ -169,6 +169,30 @@ func TestOverlayOccupancyDoubleMatch(t *testing.T) {
 	}
 	if ambiguous != 0 {
 		t.Errorf("ambiguous=%d, want 0", ambiguous)
+	}
+}
+
+// TestOverlayOccupancyMissingZIPRequiresAddressCorroboration guards the
+// privacy boundary between the public feed and the operational roster. A
+// normalized name/state match with a missing public ZIP cannot attach a hidden
+// site's population or incident data when the street addresses differ.
+func TestOverlayOccupancyMissingZIPRequiresAddressCorroboration(t *testing.T) {
+	pop := 25
+	base := []Shelter{{
+		ShelterID: 1, Name: "Community Center", State: "TX",
+		Address: "100 Public Way", Source: "fema",
+	}}
+	occ := []Shelter{{
+		Name: "Community Center", State: "TX", Zip: "75002",
+		Address: "900 Hidden Road", Source: "occupancy", TotalPopulation: &pop,
+	}}
+
+	out, filled, withheld, ambiguous := overlayOccupancy(base, occ)
+	if filled != 0 || withheld != 1 || ambiguous != 0 {
+		t.Fatalf("filled=%d withheld=%d ambiguous=%d, want 0 / 1 / 0", filled, withheld, ambiguous)
+	}
+	if out[0].TotalPopulation != nil || out[0].Source != "fema" {
+		t.Fatalf("uncorroborated occupancy data was attached to public shelter: %+v", out[0])
 	}
 }
 
@@ -290,11 +314,11 @@ func TestApplyOccupancyOverlay(t *testing.T) {
 	pop := 17
 	stubOccupancy(t, func(context.Context) ([]Shelter, error) {
 		return []Shelter{
-			{Name: "F", State: "IL", Source: "occupancy", TotalPopulation: &pop},
+			{Name: "F", State: "IL", Zip: "60601", Source: "occupancy", TotalPopulation: &pop},
 			{Name: "Hidden Op Site", State: "IL", Source: "occupancy", TotalPopulation: &pop},
 		}, nil
 	})
-	feed := &shelterFeed{Source: "https://feed", Shelters: []Shelter{{ShelterID: 1, Name: "F", State: "IL", Source: "fema"}}}
+	feed := &shelterFeed{Source: "https://feed", Shelters: []Shelter{{ShelterID: 1, Name: "F", State: "IL", Zip: "60601", Source: "fema"}}}
 	st := applyOccupancyOverlay(context.Background(), &rootFlags{dataSource: "auto"}, feed, "live")
 	if !st.OK {
 		t.Fatalf("success path: state = %+v, want OK", st)

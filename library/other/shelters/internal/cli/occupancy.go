@@ -135,8 +135,9 @@ func cleanCity(s string) string {
 // overlayOccupancy overlays the Open_Shelters occupancy feed onto the (already
 // FEMA-union-Red-Cross) PUBLIC feed as a FILL-ONLY pass. An occupancy row is the
 // same physical shelter as a unioned row when their alphanumeric-normalized names
-// and states match AND their 5-digit ZIPs are compatible (equal, or at least one
-// missing) -- the same identity test the Red Cross union uses, because
+// and states match AND their 5-digit ZIPs are equal. When either ZIP is absent,
+// both rows must also carry the same normalized street address; a missing ZIP is
+// never treated as a wildcard for this privacy-sensitive operational overlay.
 // Open_Shelters has no FEMA shelter_id to join on. On a match the live occupancy
 // (and any still-empty descriptive gaps) are filled in via fillOccupancy and
 // "+occupancy" is appended to the row's provenance.
@@ -163,15 +164,24 @@ func overlayOccupancy(base, occ []Shelter) (out []Shelter, filled, withheld, amb
 		}
 		k := normName(r.Name) + "|" + r.State
 		candidates := make([]int, 0, len(idx[k]))
+		unmergedKeyMatches := 0
 		for _, ci := range idx[k] {
-			if !merged[ci] && zipCompatible(out[ci], r) {
+			if merged[ci] {
+				continue
+			}
+			unmergedKeyMatches++
+			if occupancyIdentityCompatible(out[ci], r) {
 				candidates = append(candidates, ci)
 			}
 		}
 		matched := -1
 		switch len(candidates) {
 		case 0:
-			withheld++
+			if unmergedKeyMatches > 1 {
+				ambiguous++
+			} else {
+				withheld++
+			}
 			continue
 		case 1:
 			matched = candidates[0]
@@ -202,6 +212,20 @@ func overlayOccupancy(base, occ []Shelter) (out []Shelter, filled, withheld, amb
 		}
 	}
 	return out, filled, withheld, ambiguous
+}
+
+// occupancyIdentityCompatible fails closed when either record lacks a usable
+// ZIP. Name and state are already equal at the call site, but those fields are
+// not unique enough to attach population and incident data from the operational
+// roster. In that case, an exact normalized street-address match supplies the
+// independent corroboration required to merge the records safely.
+func occupancyIdentityCompatible(public, operational Shelter) bool {
+	publicZIP, operationalZIP := zip5(public.Zip), zip5(operational.Zip)
+	if publicZIP != "" && operationalZIP != "" {
+		return publicZIP == operationalZIP
+	}
+	publicStreet, operationalStreet := streetKey(public.Address), streetKey(operational.Address)
+	return publicStreet != "" && operationalStreet != "" && publicStreet == operationalStreet
 }
 
 // fillOccupancy folds an Open_Shelters record onto a unioned shelter. The

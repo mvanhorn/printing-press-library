@@ -4,9 +4,13 @@
 
 Gives agents and people the most comprehensive, credible open-shelter picture available: it unions FEMA's National Shelter System (NSS) OpenShelters feed with the American Red Cross Emergency-Action feed (the redcross.org map's source) and dedupes them, because FEMA is synchronized downstream of Red Cross and lags it by up to a day, so neither feed alone is complete. Coverage is the United States and its territories only (both FEMA NSS and the American Red Cross are US feeds), not other countries. FEMA rows are best-effort enriched with the richer FEMA_NSS layer (county/parish, the driving incident, the open date, generator and floodplain/surge attributes), and the CLI folds in live occupancy (current population, the general/medical/other/pet breakdown, capacity, and the driving incident) from the American Red Cross Open_Shelters layer, the one feed that reports a real headcount. Every shelter carries a source field recording which feeds it came from ('fema', 'redcross', or 'fema+redcross', with '+occupancy' appended once live population is merged in). It shows only publicly listed shelters: the Open_Shelters roster is used to fill population onto shelters already in the public feeds, never to add one, and any shelter the Red Cross keeps off its public map (hide_from_public) is dropped even when FEMA's feed lists it, so the tool stays conservative about never directing people to a site the Red Cross has not cleared for the public. It answers the questions people actually ask in a disaster, like 'the closest open shelter to me that allows pets' and 'which shelters are at capacity', filters by state, pets, accessibility, county, or generator, geocodes addresses (and bare ZIPs) when coordinates are missing, and never invents a number it does not have (a missed secondary fetch degrades to explicit null with a note, never a wrong value). Deep thanks to all first responders, emergency management practitioners, and relief nonprofit organizations for the work you do in communities when disaster strikes. This is an unofficial tool; in a life-threatening emergency call 911 and follow the official guidance and evacuation orders from FEMA, the American Red Cross, your local emergency management, and your local authorities.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Live occupancy is attached only when both ZIP codes match. If either ZIP is missing, the street addresses must match instead. A name and state alone are not enough to attach operational population or incident details.
+
 ## Install from source
 
-This repository builds with the Go toolchain (1.26.4 or newer):
+This repository builds with the Go toolchain (1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/shelters/cmd/shelters-pp-cli@latest

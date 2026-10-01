@@ -11,6 +11,12 @@
   },
   "owner": "abe-diaz-abe238",
   "printer_name": "Abe Diaz (@abe238)",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "shelters.spec.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:594d98df8733a0c816ed56395bb598ba96ea26981e6a01b06b8c82c8fd4ba71d",
