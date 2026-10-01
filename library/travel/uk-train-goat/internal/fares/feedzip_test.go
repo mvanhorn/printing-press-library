@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -114,5 +115,34 @@ func TestParseFeedZip(t *testing.T) {
 	// RST: rstSample has 2 restriction headers (non-RRH line skipped).
 	if len(data.Restrictions) != 2 {
 		t.Errorf("Restrictions: want 2, got %d", len(data.Restrictions))
+	}
+}
+
+func TestParseFeedZipRejectsArchiveWithoutCoreFareData(t *testing.T) {
+	dir := t.TempDir()
+	zipPath := filepath.Join(dir, "RJFAF999.ZIP")
+
+	var buf bytes.Buffer
+	w := zip.NewWriter(&buf)
+	f, err := w.Create("README.txt")
+	if err != nil {
+		t.Fatalf("zip.Create: %v", err)
+	}
+	if _, err := f.Write([]byte("not an RJFAF feed")); err != nil {
+		t.Fatalf("zip write: %v", err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatalf("zip.Close: %v", err)
+	}
+	if err := os.WriteFile(zipPath, buf.Bytes(), 0600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	_, err = ParseFeedZip(zipPath)
+	if err == nil {
+		t.Fatal("ParseFeedZip accepted an archive without core fare data")
+	}
+	if !strings.Contains(err.Error(), "no usable core fare data") {
+		t.Fatalf("ParseFeedZip error = %q, want core-data diagnostic", err)
 	}
 }

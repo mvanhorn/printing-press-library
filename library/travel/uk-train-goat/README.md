@@ -5,6 +5,9 @@
 uk-train-goat wraps the free National Rail OpenLDBWS API with a Cobra command tree, an MCP server, and an offline station database. Live departures, arrivals, journey planning A->B, and service status all run from one terminal command and ship with a programmatic eval grader that pins tool descriptions for LLM agents.
 
 Created by [@ahujasachin92](https://github.com/ahujasachin92) (Sachin Ahuja).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Fare sync rejects an archive without usable fare data and saves fares together with their freshness details, so a failed update leaves the previous data intact.
 
 ## Install
 

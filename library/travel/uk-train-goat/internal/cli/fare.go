@@ -208,10 +208,6 @@ Requires NR_OPENDATA_USERNAME and NR_OPENDATA_PASSWORD environment variables.`,
 			if err := fares.EnsureSchema(db); err != nil {
 				return apiErr(fmt.Errorf("ensure schema: %w", err))
 			}
-			if err := fares.Load(db, data); err != nil {
-				return apiErr(fmt.Errorf("load data: %w", err))
-			}
-
 			meta.SyncedAt = time.Now().UTC().Format(time.RFC3339)
 			// Use Last-Modified as the effective publish date when the feed does not
 			// carry an explicit PublishDate (RJFAF is a static versioned feed; the
@@ -219,8 +215,8 @@ Requires NR_OPENDATA_USERNAME and NR_OPENDATA_PASSWORD environment variables.`,
 			if meta.PublishDate == "" {
 				meta.PublishDate = meta.LastModified
 			}
-			if err := fares.WriteMeta(db, meta); err != nil {
-				return apiErr(fmt.Errorf("write meta: %w", err))
+			if err := fares.LoadWithMeta(db, data, meta); err != nil {
+				return apiErr(fmt.Errorf("load data and metadata: %w", err))
 			}
 
 			summary := fareSyncSummary{

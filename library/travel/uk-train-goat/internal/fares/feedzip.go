@@ -120,5 +120,11 @@ func ParseFeedZip(zipPath string) (*FeedData, error) {
 			// unknown extension: skip
 		}
 	}
+	if len(data.Locations) == 0 || len(data.Flows) == 0 || len(data.Fares) == 0 {
+		return nil, fmt.Errorf(
+			"fares: ParseFeedZip: archive has no usable core fare data (locations=%d, flows=%d, fares=%d)",
+			len(data.Locations), len(data.Flows), len(data.Fares),
+		)
+	}
 	return &data, nil
 }

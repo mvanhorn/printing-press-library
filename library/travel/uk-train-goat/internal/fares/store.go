@@ -120,6 +120,16 @@ func EnsureSchema(db *sql.DB) error {
 // on any error the transaction is rolled back and the tables are left
 // unchanged.
 func Load(db *sql.DB, data *FeedData) error {
+	return load(db, data, nil)
+}
+
+// LoadWithMeta atomically replaces fare data and updates its provenance row.
+// If either operation fails, the prior data and metadata remain unchanged.
+func LoadWithMeta(db *sql.DB, data *FeedData, meta FeedMeta) error {
+	return load(db, data, &meta)
+}
+
+func load(db *sql.DB, data *FeedData, meta *FeedMeta) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return fmt.Errorf("fares: Load: begin tx: %w", err)
@@ -169,6 +179,11 @@ func Load(db *sql.DB, data *FeedData) error {
 	}
 	if err := insertRestrictions(tx, data.Restrictions); err != nil {
 		return err
+	}
+	if meta != nil {
+		if err := writeMeta(tx, *meta); err != nil {
+			return err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -337,7 +352,15 @@ func insertRestrictions(tx *sql.Tx, rows []Restriction) error {
 // WriteMeta upserts the single metadata row (id=1) into rjf_meta.
 // The caller is responsible for setting FeedMeta.SyncedAt before calling.
 func WriteMeta(db *sql.DB, m FeedMeta) error {
-	_, err := db.Exec(
+	return writeMeta(db, m)
+}
+
+type sqlExecer interface {
+	Exec(query string, args ...any) (sql.Result, error)
+}
+
+func writeMeta(exec sqlExecer, m FeedMeta) error {
+	_, err := exec.Exec(
 		`INSERT INTO rjf_meta(id,sequence,last_modified,publish_date,synced_at) VALUES(1,?,?,?,?)
 		 ON CONFLICT(id) DO UPDATE SET
 		   sequence=excluded.sequence,

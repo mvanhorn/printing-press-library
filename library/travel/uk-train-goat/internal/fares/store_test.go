@@ -235,6 +235,43 @@ func TestReadMetaRoundTrip(t *testing.T) {
 	}
 }
 
+func TestLoadWithMetaRollsBackDataWhenMetadataWriteFails(t *testing.T) {
+	db := openTestDB(t)
+	if err := EnsureSchema(db); err != nil {
+		t.Fatalf("EnsureSchema: %v", err)
+	}
+
+	oldData := &FeedData{Locations: []Location{{NLC: "1111", CRS: "OLD", Name: "Old station"}}}
+	oldMeta := FeedMeta{Sequence: "1", LastModified: "old", PublishDate: "old", SyncedAt: "old"}
+	if err := LoadWithMeta(db, oldData, oldMeta); err != nil {
+		t.Fatalf("initial LoadWithMeta: %v", err)
+	}
+	if _, err := db.Exec(`CREATE TRIGGER reject_rjf_meta_update BEFORE UPDATE ON rjf_meta BEGIN SELECT RAISE(ABORT, 'meta rejected'); END`); err != nil {
+		t.Fatalf("create metadata rejection trigger: %v", err)
+	}
+
+	newData := &FeedData{Locations: []Location{{NLC: "2222", CRS: "NEW", Name: "New station"}}}
+	newMeta := FeedMeta{Sequence: "2", LastModified: "new", PublishDate: "new", SyncedAt: "new"}
+	if err := LoadWithMeta(db, newData, newMeta); err == nil {
+		t.Fatal("LoadWithMeta succeeded despite rejected metadata update")
+	}
+
+	var nlc, crs string
+	if err := db.QueryRow(`SELECT nlc, crs FROM rjf_locations`).Scan(&nlc, &crs); err != nil {
+		t.Fatalf("read location after rollback: %v", err)
+	}
+	if nlc != "1111" || crs != "OLD" {
+		t.Fatalf("location after rollback = (%q, %q), want old data", nlc, crs)
+	}
+	meta, found, err := ReadMeta(db)
+	if err != nil {
+		t.Fatalf("ReadMeta after rollback: %v", err)
+	}
+	if !found || meta != oldMeta {
+		t.Fatalf("metadata after rollback = (%+v, found=%v), want %+v", meta, found, oldMeta)
+	}
+}
+
 // TestLoadToleratesDatedDuplicateCodes pins the regression where the real
 // RJFAF feed carries multiple dated rows per code for the three lookup
 // tables. Each table declares code as PRIMARY KEY, so Load must upsert
