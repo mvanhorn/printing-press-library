@@ -169,11 +169,16 @@ func resolveDateWindow(now time.Time, flags dateFlags) (string, string, error) {
 		}
 		from = start.Format("2006-01-02")
 	}
-	if _, err := time.Parse("2006-01-02", from); err != nil {
+	fromDate, err := time.Parse("2006-01-02", from)
+	if err != nil {
 		return "", "", fmt.Errorf("--from must be YYYY-MM-DD: %w", err)
 	}
-	if _, err := time.Parse("2006-01-02", to); err != nil {
+	toDate, err := time.Parse("2006-01-02", to)
+	if err != nil {
 		return "", "", fmt.Errorf("--to must be YYYY-MM-DD: %w", err)
+	}
+	if fromDate.After(toDate) {
+		return "", "", fmt.Errorf("--from must not be later than --to")
 	}
 	return from, to, nil
 }
@@ -319,10 +324,17 @@ func nestedString(m map[string]any, key string, child string) string {
 
 func truncate(s string, limit int) string {
 	s = strings.TrimSpace(s)
-	if len(s) <= limit {
+	if limit <= 0 {
+		return ""
+	}
+	runes := []rune(s)
+	if len(runes) <= limit {
 		return s
 	}
-	return strings.TrimSpace(s[:limit-3]) + "..."
+	if limit <= 3 {
+		return strings.Repeat(".", limit)
+	}
+	return strings.TrimSpace(string(runes[:limit-3])) + "..."
 }
 
 func sortedBreakdowns(totals map[string]float64, limit int) []breakdown {

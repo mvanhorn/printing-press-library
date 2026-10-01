@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "jobs-exact-argument-count",
+  "applied_at": "2026-10-01",
+  "base_run_id": "greenhouse-job-board-2026-07-19",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Job list and get commands must reject extra positional arguments.",
+  "reason": "Ignoring extra arguments can return data for an unintended board or job while appearing to honor the caller's request.",
+  "files": ["internal/cli/jobs_list.go", "internal/cli/jobs_get.go"]
+}

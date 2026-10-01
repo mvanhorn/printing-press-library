@@ -18,6 +18,7 @@ func newJobsGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get <board_token> <job_id>",
 		Short:       "Retrieve a single job posting",
 		Example:     "  greenhouse-pp-cli jobs get your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Args:        cobra.ExactArgs(2),
 		Annotations: map[string]string{"pp:endpoint": "jobs.get", "pp:method": "GET", "pp:path": "/{board_token}/jobs/{job_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

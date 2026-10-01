@@ -2,6 +2,10 @@
 
 `govspend-pp-cli` is a read-only Printing Press CLI for public-sector spending and opportunity research. It helps engineers, analysts, consultants, and agents answer practical questions without memorizing three different government data APIs.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Date windows reject a start date later than the end date. Long text is shortened without breaking Unicode characters.
+
 Use it when you need to know:
 
 - Which federal agencies recently awarded money to a vendor.

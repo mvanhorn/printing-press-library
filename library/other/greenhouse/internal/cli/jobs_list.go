@@ -18,6 +18,7 @@ func newJobsListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list <board_token>",
 		Short:       "List all open jobs for a company",
 		Example:     "  greenhouse-pp-cli jobs list your-token-here",
+		Args:        cobra.ExactArgs(1),
 		Annotations: map[string]string{"pp:endpoint": "jobs.list", "pp:method": "GET", "pp:path": "/{board_token}/jobs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

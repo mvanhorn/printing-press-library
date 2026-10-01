@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 )
 
 func TestBuildAwardPayloadIncludesVendorAndDateWindow(t *testing.T) {
@@ -146,6 +147,41 @@ func TestBuildGrantsPayloadOmitsEmptyKeyword(t *testing.T) {
 	payload := buildGrantsPayload(grantsQuery{Status: "posted", Limit: 5})
 	if _, ok := payload["keyword"]; ok {
 		t.Fatalf("empty keyword should not be included: %#v", payload)
+	}
+}
+
+func TestResolveDateWindowRejectsReversedRange(t *testing.T) {
+	_, _, err := resolveDateWindow(time.Date(2026, 6, 25, 0, 0, 0, 0, time.UTC), dateFlags{From: "2026-06-30", To: "2026-06-01"})
+	if err == nil || !strings.Contains(err.Error(), "must not be later") {
+		t.Fatalf("resolveDateWindow error = %v, want reversed-range validation", err)
+	}
+}
+
+func TestOpportunitiesRejectInvalidAndReversedDates(t *testing.T) {
+	tests := [][]string{
+		{"opportunities", "--posted-from", "not-a-date", "--posted-to", "05/31/2026"},
+		{"opportunities", "--posted-from", "06/30/2026", "--posted-to", "05/01/2026"},
+		{"opportunities", "--posted-to", "04/30/2026"},
+	}
+	for _, args := range tests {
+		cmd := newRootCmd(newNoNetworkTestApp(t))
+		cmd.SetArgs(args)
+		if err := cmd.Execute(); err == nil {
+			t.Fatalf("Execute(%v) unexpectedly succeeded", args)
+		}
+	}
+}
+
+func TestTruncatePreservesUTF8(t *testing.T) {
+	got := truncate("éabc", 4)
+	if !utf8.ValidString(got) {
+		t.Fatalf("truncate returned invalid UTF-8: %q", got)
+	}
+	if got != "éabc" {
+		t.Fatalf("truncate = %q, want four-rune input unchanged", got)
+	}
+	if got := truncate("éabcdef", 4); got != "é..." {
+		t.Fatalf("truncated multibyte text = %q, want %q", got, "é...")
 	}
 }
 

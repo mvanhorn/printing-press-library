@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -60,6 +61,9 @@ func newOpportunitiesCmd(app *app) *cobra.Command {
 			if query.PostedFrom == "" {
 				query.PostedFrom = app.now().UTC().AddDate(0, -1, 0).Format("01/02/2006")
 			}
+			if err := validateOpportunityDateWindow(query.PostedFrom, query.PostedTo); err != nil {
+				return err
+			}
 			apiKey := strings.TrimSpace(app.env("GOVSPEND_SAM_API_KEY"))
 			if flags.DryRun {
 				return writeJSON(app.out, dryRunResult{
@@ -110,6 +114,21 @@ func newOpportunitiesCmd(app *app) *cobra.Command {
 	cmd.Flags().StringVar(&query.PostedTo, "posted-to", "", "Posted to date in MM/DD/YYYY")
 	cmd.Flags().IntVar(&query.Limit, "limit", 10, "Maximum opportunities to return")
 	return cmd
+}
+
+func validateOpportunityDateWindow(from, to string) error {
+	fromDate, err := time.Parse("01/02/2006", from)
+	if err != nil {
+		return fmt.Errorf("--posted-from must be MM/DD/YYYY: %w", err)
+	}
+	toDate, err := time.Parse("01/02/2006", to)
+	if err != nil {
+		return fmt.Errorf("--posted-to must be MM/DD/YYYY: %w", err)
+	}
+	if fromDate.After(toDate) {
+		return fmt.Errorf("--posted-from must not be later than --posted-to")
+	}
+	return nil
 }
 
 func buildSAMURL(query opportunitiesQuery, apiKey string) string {

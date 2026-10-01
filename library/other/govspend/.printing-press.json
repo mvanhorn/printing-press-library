@@ -12,6 +12,12 @@
   "owner": "sdhilip200",
   "printer": "sdhilip200",
   "printer_name": "Dhilip Subramanian",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_format": "plan",
   "spec_source": ".manuscripts/20260625-govspend/research/govspend-plan.md",
   "spec_checksum": "sha256:c192f1a5eff3ff77373362d351a483fa59526f90511616030155326d1ee86690",
