@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "forkable-config-format-consistency",
+  "applied_at": "2026-08-10",
+  "base_run_id": "20260717-100008-2c197495",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Keep Forkable settings in config.toml while safely migrating the briefly shipped config.json format.",
+  "reason": "The published runtime resolved config.json and parsed JSON while its documented settings and credential migration tests wrote TOML, causing legacy credentials and non-secret settings to be silently skipped or lost; JSON fallback preserves installs created by that runtime.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cliutil/credentials_test.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "The full Forkable test, vet, and build suites pass, including corrupt/empty credentials fallback and relocated legacy-config scrubbing."
+}

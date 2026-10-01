@@ -9,6 +9,12 @@
     "name": "Allen Lew",
     "handle": "enlewof"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "printer": "enlewof",
   "printer_name": "Allen Lew",
   "spec_format": "internal",

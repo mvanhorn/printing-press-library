@@ -40,7 +40,7 @@ func resetCredentialEnv(t *testing.T) (home, configPath string) {
 	} else {
 		t.Fatalf("reset home override: %v", err)
 	}
-	return home, filepath.Join(home, ".config", "forkable-pp-cli", "config.json")
+	return home, filepath.Join(home, ".config", "forkable-pp-cli", "config.toml")
 }
 
 func TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets(t *testing.T) {
@@ -192,7 +192,7 @@ func TestAuthWriteScrubsLegacyConfigWhenRelocated(t *testing.T) {
 	}
 
 	// Active config at relocated path should also be secret-free.
-	activeConfigPath := filepath.Join(newConfigDir, "forkable-pp-cli", "config.json")
+	activeConfigPath := filepath.Join(newConfigDir, "forkable-pp-cli", "config.toml")
 	activeData, err := os.ReadFile(activeConfigPath)
 	if err != nil {
 		t.Fatalf("read active config: %v", err)
@@ -209,6 +209,40 @@ func TestAuthWriteScrubsLegacyConfigWhenRelocated(t *testing.T) {
 	credsPath := filepath.Join(newDataDir, "forkable-pp-cli", "credentials.toml")
 	if _, err := os.Stat(credsPath); err != nil {
 		t.Fatalf("credentials file not found at relocated data dir: %v", err)
+	}
+}
+
+func TestLegacyJSONConfigMigratesToTOML(t *testing.T) {
+	_, configPath := resetCredentialEnv(t)
+	legacyJSONPath := filepath.Join(filepath.Dir(configPath), "config.json")
+	if err := os.MkdirAll(filepath.Dir(legacyJSONPath), 0o700); err != nil {
+		t.Fatalf("mkdir legacy JSON config: %v", err)
+	}
+	legacyJSON := `{"base_url":"https://legacy.example","access_token":"legacy-secret"}`
+	if err := os.WriteFile(legacyJSONPath, []byte(legacyJSON), 0o600); err != nil {
+		t.Fatalf("write legacy JSON config: %v", err)
+	}
+
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "legacy-secret")
+	writeConfigCredential(t, cfg, "new-secret")
+
+	activeData, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read migrated TOML config: %v", err)
+	}
+	if !strings.Contains(string(activeData), "https://legacy.example") {
+		t.Fatalf("migrated TOML config lost non-secret settings:\n%s", activeData)
+	}
+	legacyData, err := os.ReadFile(legacyJSONPath)
+	if err != nil {
+		t.Fatalf("read scrubbed legacy JSON config: %v", err)
+	}
+	if strings.Contains(string(legacyData), "legacy-secret") || strings.Contains(string(legacyData), legacyCredentialKey()) {
+		t.Fatalf("legacy JSON config still contains credential material:\n%s", legacyData)
 	}
 }
 

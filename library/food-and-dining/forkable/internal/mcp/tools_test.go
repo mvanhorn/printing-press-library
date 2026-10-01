@@ -30,7 +30,7 @@ func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	if err != nil {
 		t.Fatalf("cliutil.ConfigDir() error = %v", err)
 	}
-	if want := filepath.Join(cliConfigDir, "config.json"); cfg.Path != want {
+	if want := filepath.Join(cliConfigDir, "config.toml"); cfg.Path != want {
 		t.Fatalf("MCP config path = %q, want CLI resolver path %q", cfg.Path, want)
 	}
 
@@ -54,7 +54,7 @@ func TestMCPPathResolutionMatchesCLIResolverWithPlatformDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newMCPConfig() error = %v", err)
 	}
-	if want := filepath.Join(home, ".config", "forkable-pp-cli", "config.json"); cfg.Path != want {
+	if want := filepath.Join(home, ".config", "forkable-pp-cli", "config.toml"); cfg.Path != want {
 		t.Fatalf("MCP config path = %q, want %q", cfg.Path, want)
 	}
 
