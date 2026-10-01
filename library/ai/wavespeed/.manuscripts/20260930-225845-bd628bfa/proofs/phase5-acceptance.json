@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "api_key"
   },
-  "source_fingerprint": "e00740c28f6421d21899a7029ae6e22e359b02d6d93a6460655a94111b251621",
+  "source_fingerprint": "ef54b5496fee0cf3bb6bf1b680f654275a207c51e821f312e4af654a062f0c49",
   "source_files": {
     "cmd/wavespeed-pp-cli/main.go": "0a775e496bc6b3ee5560ce815672bcb706be01c12f4794007328b2b26b9d0efe",
     "cmd/wavespeed-pp-mcp/http_auth_test.go": "98ad89230f20878297990ef8fbbefda0e5eabbee44ca4257fdbfde056c078ac8",
@@ -94,7 +94,7 @@
     "internal/cli/reliability_test.go": "187ee79e782e44da56f0f676347cde0931810ff66042b0448e0871248d2408b1",
     "internal/cli/resource_paths.go": "141f550ee26465f84bc36353848a332e9c76b5338bb83bc5f9c4c09654129d04",
     "internal/cli/restyle_test.go": "12427dc190c0270b9bd445f254bf19e7a8f78dc506894aeb29ae90a0d66d1102",
-    "internal/cli/review_regressions_test.go": "d0840a7ffa3a3c90a9460fe587d1faffa90a4179f05e9061dff12fdf5c1e0753",
+    "internal/cli/review_regressions_test.go": "234a21016a39cb9fc37f77bed656982d6e98d35341aaa3f45a41f3665783c7b3",
     "internal/cli/root.go": "b382959296f23aa6cbe93072d8d96aa9a951d0e8c5771dfc9a1e43d291e47485",
     "internal/cli/root_test.go": "afb788cd2f2867552b0b79984802ce2accd18fb25876f21c8e853a915002df22",
     "internal/cli/run.go": "fcf281a0c7e1695eb1c159d8b56d05b0cd8af63ece8cc0547dfbf15df517115d",
@@ -113,7 +113,7 @@
     "internal/cli/upload_test.go": "d7e55f626d5d1cb8fd9df923e970bbfabfc9abfad67a24f94be8d15d6686c79c",
     "internal/cli/variants_test.go": "6c8baae330feadf01433b85f70d5ea15e9b23a366abac141fa01c4c58bd17258",
     "internal/cli/version.go": "75bdad82a5c83e674d333b5ace319f4c4627fa6712cf6a7950994d309abb380b",
-    "internal/cli/wavespeed_wiring.go": "8b3cb8ebe79817a19afb62ce009ede03351392966874fde6e443f6c57c381d09",
+    "internal/cli/wavespeed_wiring.go": "938e9eeeab895f34970c88bb6cd75c3784bb34cda61fef6e5d62afc432bd5a4c",
     "internal/cli/which.go": "5be385a62633e43c1d4fd72af414e9124a4b26bdcbcf243dcac1c5e392cce4be",
     "internal/cli/which_test.go": "b32c807681dc6527b3589193059136d35d02ea7549858944565972a2cad38c5d",
     "internal/client/client.go": "b1f24d21010c7313db830c19d3208c19a46c0962ca147e1a1ca2ba2652c35bc0",
