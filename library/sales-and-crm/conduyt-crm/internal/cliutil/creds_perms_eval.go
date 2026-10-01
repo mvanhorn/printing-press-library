@@ -62,7 +62,10 @@ func evalCredsSecurity(sddl, currentUserSID string) error {
 		return fmt.Errorf("token file has no DACL (potentially world-accessible)")
 	}
 	rest := sddl[i+2:]
-	if strings.HasPrefix(rest, "NO_ACCESS_CONTROL") {
+	// DACL control flags can be concatenated, for example PAI followed by
+	// NO_ACCESS_CONTROL. Check the entire flag prefix before the first ACE.
+	flags, _, _ := strings.Cut(rest, "(")
+	if strings.Contains(flags, "NO_ACCESS_CONTROL") {
 		return fmt.Errorf("token file has a NULL DACL (world-accessible)")
 	}
 	// Cut at the SACL section ")S:" if present.

@@ -142,5 +142,11 @@
       "grade": "A",
       "total": 97
     }
-  }
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ]
 }

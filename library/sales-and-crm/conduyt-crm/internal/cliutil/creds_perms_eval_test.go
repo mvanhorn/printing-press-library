@@ -21,6 +21,7 @@ func TestEvalCredsSecurity(t *testing.T) {
 		{"foreign named user ACE", "O:S-1-5-21-1-2-3-1000D:(A;;FA;;;S-1-5-21-1-2-3-2000)", true},
 		{"admins owner carve-out", "O:BAD:(A;;FA;;;S-1-5-21-1-2-3-1000)", false},
 		{"null DACL", "O:S-1-5-21-1-2-3-1000D:NO_ACCESS_CONTROL", true},
+		{"null DACL after protection flags", "O:S-1-5-21-1-2-3-1000D:PAINO_ACCESS_CONTROL", true},
 		{"unparseable conditional ACE", "O:S-1-5-21-1-2-3-1000D:(XA;;FA;;;S-1-5-21-1-2-3-1000;(Member_of{SID(BA)}))", true},
 		// Captured-real-SDDL pin: the shape GetNamedSecurityInfo emits for an
 		// owner-locked file — G: group field, D:PAI protected-auto-inherit flag,

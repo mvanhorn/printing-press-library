@@ -7,6 +7,7 @@ The terminal and MCP surface of an AI-native CRM. Mirror the whole API with agen
 Learn more at [Conduyt CRM](https://conduyt.app).
 
 Created by [@ptaramona](https://github.com/ptaramona) (Conduyt).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
