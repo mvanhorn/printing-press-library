@@ -6,5 +6,10 @@
   "base_printing_press_version": "4.27.1",
   "summary": "Unauthenticated MCP HTTP transport must bind only to a loopback IP address.",
   "reason": "A direct wildcard or LAN listener would expose Workspace administration tools without built-in authentication or TLS.",
-  "files": ["cmd/workspace-admin-pp-mcp/main.go", "cmd/workspace-admin-pp-mcp/http_addr.go"]
+  "files": [
+    "cmd/workspace-admin-pp-mcp/main.go",
+    "cmd/workspace-admin-pp-mcp/http_addr.go",
+    "cmd/workspace-admin-pp-mcp/http_addr_test.go",
+    "README.md"
+  ]
 }
