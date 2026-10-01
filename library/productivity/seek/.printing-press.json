@@ -12,6 +12,12 @@
   "owner": "polsiola-dot",
   "printer": "polsiola-dot",
   "printer_name": "Paul Siola",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "seek-browser-sniff-spec.yaml",
   "spec_format": "internal",
   "spec_source": "sniffed",

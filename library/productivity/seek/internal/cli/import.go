@@ -27,19 +27,22 @@ func newImportCmd(flags *rootFlags) *cobra.Command {
 Each line must be a valid JSON object. Failed records are logged to stderr
 but do not stop the import.`,
 		Example: `  # Import from a JSONL file
-  seek-pp-cli import <resource> --input data.jsonl
+  seek-pp-cli import <resource> --input data.jsonl --yes
 
   # Dry-run to preview without sending
   seek-pp-cli import <resource> --input data.jsonl --dry-run
 
   # Import from stdin
-  cat data.jsonl | seek-pp-cli import <resource> --input -`,
+  cat data.jsonl | seek-pp-cli import <resource> --input - --yes`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resource := args[0]
 			path, err := resourceWritePath(resource)
 			if err != nil {
 				return usageErr(err)
+			}
+			if !dryRun && !flags.yes {
+				return usageErr(fmt.Errorf("import %s mutates the signed-in account; pass --yes to confirm or --dry-run to preview", resource))
 			}
 			c, err := flags.newClient()
 			if err != nil {
