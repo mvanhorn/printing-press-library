@@ -89,6 +89,9 @@ Exit codes & warnings:
   # Latest-only: refresh head of each resource, no historical backfill
   skool-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if maxPages < 0 {
+				return usageErr(fmt.Errorf("--max-pages must be zero (unlimited) or a positive number"))
+			}
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags)
 			if err != nil {
 				return usageErr(err)
