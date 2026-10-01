@@ -213,10 +213,23 @@ func Load(configPath string) (*Config, error) {
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
-	if v := strings.TrimSpace(os.Getenv("ALGOLIA_APPLICATION_ID")); v != "" {
-		cfg.TemplateVars["appId"] = normalizeEndpointTemplateValue(v)
+	applicationID := strings.TrimSpace(cfg.AlgoliaApplicationId)
+	if applicationID == "" {
+		applicationID = strings.TrimSpace(cfg.TemplateVars["appId"])
+	}
+	// Older saves could persist this literal placeholder as if it were an ID.
+	if applicationID == "ALGOLIA_APPLICATION_ID" {
+		applicationID = ""
+	}
+	if applicationID != "" {
+		// The endpoint and authentication header must identify the same app.
+		cfg.AlgoliaApplicationId = normalizeEndpointTemplateValue(applicationID)
+		cfg.TemplateVars["appId"] = cfg.AlgoliaApplicationId
 	} else {
-		cfg.TemplateVars["appId"] = "ALGOLIA_APPLICATION_ID"
+		cfg.TemplateVars["appId"] = ""
+		if os.Getenv("PRINTING_PRESS_VERIFY") == "1" {
+			cfg.TemplateVars["appId"] = "appId_placeholder"
+		}
 	}
 	return cfg, nil
 }

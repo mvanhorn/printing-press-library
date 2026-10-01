@@ -24,7 +24,7 @@ var templateVarPattern = regexp.MustCompile(`\{([a-zA-Z_][a-zA-Z0-9_]*)\}`)
 // the spec. Placeholders that escape into a URL but aren't in this map fall
 // back to a generic "template variable {x} unresolved" message.
 var templateVarEnvNames = map[string]string{
-	"appId": "ALGOLIA_APP_ID",
+	"appId": "ALGOLIA_APPLICATION_ID",
 }
 
 // buildURL concatenates baseURL and path, then substitutes every {placeholder}

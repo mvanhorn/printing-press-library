@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "effective-application-id",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260813-224253-d4da62ef",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Resolve one effective Algolia application ID into the endpoint template and required request header.",
+  "reason": "Saved credentials or template settings must yield a valid endpoint and matching header, while missing settings must produce a useful bootstrap error instead of a literal host placeholder.",
+  "files": ["internal/config/config.go", "internal/client/url.go", "internal/cli/auth.go", "internal/config/application_id_test.go", "internal/client/application_id_test.go", ".printing-press.json"],
+  "validated_outcome": "Local fake-server tests verify matching application IDs from saved credentials, saved templates, and the environment, plus an actionable missing-ID error."
+}

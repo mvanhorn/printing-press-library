@@ -45,6 +45,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export ALGOLIA_API_KEY=\"your-token-here\"")
+			fmt.Fprintln(w, "  export ALGOLIA_APPLICATION_ID=\"your-application-id\"")
 			fmt.Fprintln(w, "  algolia-pp-cli auth set-token <token>")
 			if !launch {
 				return nil

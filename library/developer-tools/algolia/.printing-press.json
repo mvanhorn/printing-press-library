@@ -6,13 +6,30 @@
   "cli_name": "algolia-pp-cli",
   "printer": "SomSamantray",
   "printer_name": "Som Samantray",
-  "spec_path": "algolia-search-openapi.yml",
+  "spec_path": ".manuscripts/20260813-224253-d4da62ef/research/algolia-search-openapi.yml",
+  "spec_source": ".manuscripts/20260813-224253-d4da62ef/research/algolia-search-openapi.yml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:4f17d7d803ec4c9a9ea95e6058fe8043d53969b35a6f87eb8642d026bb04f1f0",
   "run_id": "20260813-224253-d4da62ef",
   "category": "developer-tools",
   "auth_env_vars": [
+    "ALGOLIA_API_KEY",
+    "ALGOLIA_APPLICATION_ID",
     "PRINTING_PRESS_CLIENT_PROFILE"
   ],
   "auth_env_var_specs": [
+    {
+      "name": "ALGOLIA_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "ALGOLIA_APPLICATION_ID",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    },
     {
       "name": "PRINTING_PRESS_CLIENT_PROFILE",
       "kind": "per_call",
@@ -60,6 +77,12 @@
       "name": "Logs error digest",
       "command": "logs errors",
       "description": "Aggregate synced log entries by error code and link failed tasks for a digest of what went wrong."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
     }
   ]
 }
