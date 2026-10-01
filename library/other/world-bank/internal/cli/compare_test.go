@@ -63,3 +63,18 @@ func TestBuildCompareViewMatchesAliasAcrossAllObservationYears(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildCompareViewDeduplicatesRepeatedCountryAndAlias(t *testing.T) {
+	obs := []wbObservation{
+		{CountryISO3Code: "USA", Country: wbCodeValue{ID: "US", Value: "United States"}, Date: "2024", Value: float64Ptr(120)},
+	}
+	for _, countries := range []string{"USA;USA", "USA;US", "US;USA"} {
+		view, err := buildCompareView("GDP", countries, obs)
+		if err != nil {
+			t.Fatalf("%s: %v", countries, err)
+		}
+		if len(view.Rows) != 1 || view.Rows[0].CountryCode != "USA" {
+			t.Fatalf("%s: got %+v, want one USA row", countries, view.Rows)
+		}
+	}
+}
