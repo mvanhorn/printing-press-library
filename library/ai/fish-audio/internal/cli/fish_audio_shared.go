@@ -143,16 +143,55 @@ func synthesize(ctx context.Context, c *client.Client, req fishaudio.RenderReque
 // returns its SHA-256. The digest is what makes a render log row verifiable
 // after the fact: a file that was replaced no longer matches its row.
 func writeAudioFile(path string, audio []byte) (string, error) {
-	if dir := filepath.Dir(path); dir != "" && dir != "." {
+	return writeAudioFileWith(path, audio, func(file *os.File, data []byte) (int, error) {
+		return file.Write(data)
+	})
+}
+
+func writeAudioFileWith(path string, audio []byte, write func(*os.File, []byte) (int, error)) (string, error) {
+	dir := filepath.Dir(path)
+	if dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return "", fmt.Errorf("creating output directory %s: %w", dir, err)
 		}
 	}
-	// #nosec G703 -- path is the operator's own --out value; writing the rendered
-	// audio where the caller asked is the purpose of the command.
-	if err := os.WriteFile(path, audio, 0o600); err != nil {
-		return "", fmt.Errorf("writing %s: %w", path, err)
+	if dir == "" {
+		dir = "."
 	}
+	// Stage beside the destination so a failed write never truncates an
+	// existing successful render.
+	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".tmp-*")
+	if err != nil {
+		return "", fmt.Errorf("creating temporary output for %s: %w", path, err)
+	}
+	tmpPath := tmp.Name()
+	committed := false
+	defer func() {
+		_ = tmp.Close()
+		if !committed {
+			_ = os.Remove(tmpPath)
+		}
+	}()
+	if err := tmp.Chmod(0o600); err != nil {
+		return "", fmt.Errorf("setting temporary output permissions for %s: %w", path, err)
+	}
+	if n, err := write(tmp, audio); err != nil {
+		return "", fmt.Errorf("writing temporary output for %s: %w", path, err)
+	} else if n != len(audio) {
+		return "", fmt.Errorf("writing temporary output for %s: wrote %d of %d bytes", path, n, len(audio))
+	}
+	if err := tmp.Sync(); err != nil {
+		return "", fmt.Errorf("syncing temporary output for %s: %w", path, err)
+	}
+	if err := tmp.Close(); err != nil {
+		return "", fmt.Errorf("closing temporary output for %s: %w", path, err)
+	}
+	// #nosec G703 -- path is the operator's own --out value; publishing the
+	// rendered audio where requested is the purpose of the command.
+	if err := os.Rename(tmpPath, path); err != nil {
+		return "", fmt.Errorf("publishing %s atomically: %w", path, err)
+	}
+	committed = true
 	sum := sha256.Sum256(audio)
 	return hex.EncodeToString(sum[:]), nil
 }
