@@ -49,7 +49,7 @@ Name queries and pagination cover the source window only. `--offset 5` retrieves
 
 ## Errors
 
-JSON stdout, diagnostics stderr. Input failures exit 2; missing facility 3; public access denied 4; transport/source-shape failure 5; exhausted throttling 7; cache/config failure 10. Source-rejected offers are successful reads; inspect `validation`, never infer availability from price alone.
+JSON stdout, diagnostics stderr. Focused commands reject `--csv`, `--plain`, `--quiet`, and explicit `--compact` with usage exit 2; use `--select` to narrow JSON. The defaults supplied by `--agent` are supported. Input failures exit 2; missing facility 3; public access denied 4; transport/source-shape failure 5; exhausted throttling 7; cache/config failure 10. Source-rejected offers are successful reads; inspect `validation`, never infer availability from price alone.
 
 ## Unique Capabilities
 

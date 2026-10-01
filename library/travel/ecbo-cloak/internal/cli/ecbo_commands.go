@@ -123,6 +123,9 @@ func ecboSetup(cmd *cobra.Command, flags *rootFlags, cache, locale string, refre
 	return ecbo.New(ecboCommandCache(cache, flags), locale, timeout, refresh, flags.noCache), ctx, cancel, nil
 }
 func ecboPrint(cmd *cobra.Command, flags *rootFlags, c *ecbo.Client, v map[string]any) error {
+	if e := ecboOutputMode(cmd, flags); e != nil {
+		return e
+	}
 	// Projection applies to each result for lists, and to the payload for detail/offer.
 	if flags.selectFields != "" {
 		if list, ok := v["results"].([]any); ok {
@@ -149,14 +152,27 @@ func ecboPrint(cmd *cobra.Command, flags *rootFlags, c *ecbo.Client, v map[strin
 	if c != nil {
 		v["meta"] = c.Finish()
 	}
-	if flags.quiet {
-		return nil
-	}
 	enc := json.NewEncoder(cmd.OutOrStdout())
 	enc.SetEscapeHTML(false)
 	return enc.Encode(v)
 }
-func ecboCommon(cmd *cobra.Command, cache, locale *string, refresh *bool) {
+
+// Focused commands preserve their JSON envelope and source evidence. Projection
+// is explicit via --select; framework-only output modes cannot silently replace it.
+func ecboOutputMode(cmd *cobra.Command, flags *rootFlags) error {
+	for _, mode := range []struct {
+		name string
+		set  bool
+	}{{"csv", flags.csv}, {"plain", flags.plain}, {"quiet", flags.quiet}, {"compact", flags.compact && (!flags.agent || cmd.Flags().Changed("compact"))}} {
+		if mode.set {
+			return usageErr(fmt.Errorf("--%s is unsupported for focused ecbo commands; use JSON with --select", mode.name))
+		}
+	}
+	return nil
+}
+
+func ecboCommon(cmd *cobra.Command, flags *rootFlags, cache, locale *string, refresh *bool) {
+	cmd.PreRunE = func(cmd *cobra.Command, _ []string) error { return ecboOutputMode(cmd, flags) }
 	cmd.Flags().StringVar(cache, "cache-dir", "", "Response cache directory (env ECBO_CLOAK_CACHE_DIR)")
 	cmd.Flags().StringVar(locale, "locale", "en", "First-party language: ja, en, zh-TW, zh-CN")
 	cmd.Flags().BoolVar(refresh, "refresh", false, "Fetch a new source observation instead of cached discovery/detail")
@@ -192,6 +208,9 @@ func newNovelFacilitiesNearCmd(flags *rootFlags) *cobra.Command {
 		if e := o.Validate(); e != nil {
 			return ecboError(e)
 		}
+		if e := ecbo.ValidateListProjection(flags.selectFields); e != nil {
+			return ecboError(e)
+		}
 		c, ctx, cancel, e := ecboSetup(cmd, flags, cache, locale, refresh || inventory)
 		if e != nil {
 			return e
@@ -219,7 +238,7 @@ func newNovelFacilitiesNearCmd(flags *rootFlags) *cobra.Command {
 		}
 		return ecboPrint(cmd, flags, c, v)
 	}}
-	ecboCommon(cmd, &cache, &locale, &refresh)
+	ecboCommon(cmd, flags, &cache, &locale, &refresh)
 	ecboNear(cmd, &o)
 	return cmd
 }
@@ -243,6 +262,9 @@ func newNovelInventoryRefreshCmd(flags *rootFlags) *cobra.Command {
 			return usageErr(fmt.Errorf("inventory refresh requires cache; omit --no-cache"))
 		}
 		if e := o.Validate(); e != nil {
+			return ecboError(e)
+		}
+		if e := ecbo.ValidateListProjection(flags.selectFields); e != nil {
 			return ecboError(e)
 		}
 		c, ctx, cancel, e := ecboSetup(cmd, flags, cache, locale, refresh || inventory)
@@ -275,7 +297,7 @@ func newNovelInventoryRefreshCmd(flags *rootFlags) *cobra.Command {
 	cmd.Annotations["mcp:read-only"] = "false"
 	cmd.Annotations["mcp:local-write"] = "true"
 	cmd.Annotations["pp:destructive-auth"] = "false"
-	ecboCommon(cmd, &cache, &locale, &refresh)
+	ecboCommon(cmd, flags, &cache, &locale, &refresh)
 	ecboNear(cmd, &o)
 	return cmd
 }
@@ -308,7 +330,7 @@ func newNovelFacilitiesGetCmd(flags *rootFlags) *cobra.Command {
 		return ecboPrint(cmd, flags, c, v)
 	}}
 	cmd.Flags().StringVar(&id, "id", "", "Facility UUID, legacy source ID or first-party canonical URL")
-	ecboCommon(cmd, &cache, &locale, &refresh)
+	ecboCommon(cmd, flags, &cache, &locale, &refresh)
 	return cmd
 }
 func newNovelOfferInspectCmd(flags *rootFlags) *cobra.Command {
@@ -351,7 +373,7 @@ func newNovelOfferInspectCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&to, "to", "", "Pickup YYYY-MM-DDTHH:MM, Asia/Tokyo (required)")
 	cmd.Flags().IntVar(&small, "small", 0, "Number of bag-size pieces, total 1..50")
 	cmd.Flags().IntVar(&large, "large", 0, "Number of suitcase-size pieces, total 1..50")
-	ecboCommon(cmd, &cache, &locale, &refresh)
+	ecboCommon(cmd, flags, &cache, &locale, &refresh)
 	return cmd
 }
 func newNovelInventoryListCmd(flags *rootFlags) *cobra.Command {
@@ -376,6 +398,7 @@ func newNovelInventoryListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&query, "query", "", "Japanese/English name substring in saved window")
 	cmd.Flags().IntVar(&limit, "limit", 10, "Maximum results, 1..50")
 	cmd.Flags().IntVar(&offset, "offset", 0, "Local offset, 0..50")
+	cmd.PreRunE = func(cmd *cobra.Command, _ []string) error { return ecboOutputMode(cmd, flags) }
 	return cmd
 }
 
@@ -446,16 +469,9 @@ func ecboSourcePreview(cmd *cobra.Command, flags *rootFlags) error {
 		body = map[string]any{"space_id": id, "from": from, "to": to, "reservation_items": map[string]int{"small": small, "large": large}}
 		stdin, _ := cmd.Flags().GetBool("stdin")
 		if stdin {
-			b, e := io.ReadAll(io.LimitReader(cmd.InOrStdin(), (2<<20)+1))
+			input, e := ecboReadSourceBody(cmd)
 			if e != nil {
-				return usageErr(e)
-			}
-			if len(b) > 2<<20 {
-				return usageErr(fmt.Errorf("stdin request body exceeds 2 MiB"))
-			}
-			var input map[string]any
-			if json.Unmarshal(b, &input) != nil || input == nil {
-				return usageErr(fmt.Errorf("stdin must be a JSON object"))
+				return e
 			}
 			body = input
 		}
@@ -471,4 +487,20 @@ func ecboSourcePreview(cmd *cobra.Command, flags *rootFlags) error {
 	}
 	request := map[string]any{"planned": true, "operation": cmd.Annotations["pp:endpoint"], "method": method, "url": target, "params": params, "body": body}
 	return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath(), "kind": "request_preview", "items": []any{request}})
+}
+
+// Share the same bound for live raw POST requests and dry-run previews.
+func ecboReadSourceBody(cmd *cobra.Command) (map[string]any, error) {
+	b, e := io.ReadAll(io.LimitReader(cmd.InOrStdin(), (2<<20)+1))
+	if e != nil {
+		return nil, usageErr(fmt.Errorf("reading stdin: %w", e))
+	}
+	if len(b) > 2<<20 {
+		return nil, usageErr(fmt.Errorf("stdin request body exceeds 2 MiB"))
+	}
+	var input map[string]any
+	if json.Unmarshal(b, &input) != nil || input == nil {
+		return nil, usageErr(fmt.Errorf("stdin must be a JSON object"))
+	}
+	return input, nil
 }

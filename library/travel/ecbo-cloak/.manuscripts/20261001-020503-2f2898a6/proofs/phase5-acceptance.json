@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "b107dbffc5e4b7b0aa32d9dd1bff656b72c08d41168c036bf30432dde74b727c",
+  "source_fingerprint": "9872b814608a0f61dbccac6f521e3132b52f32472f1b02f5ae7643f0773c8a81",
   "source_files": {
     "cmd/ecbo-cloak-pp-cli/main.go": "6680856b223ff27a39de7e9ee602c46886354f0d8fe4a82edf4810546f942ee1",
     "cmd/ecbo-cloak-pp-mcp/main.go": "2c9f60c91c7f0942f2b53aea183d7df31a206f7237e92fe7ec39f72a17c73bde",
@@ -23,8 +23,9 @@
     "internal/cli/deliver.go": "8a1db4b6faafaa2535a9047a3bdcd379863d646a76e4614833d5c1b191ccb4b9",
     "internal/cli/deliver_download_test.go": "c7c5532693499f6aabed1a101b0510a495192e39458386766e9b33fc237c7029",
     "internal/cli/doctor.go": "5ea1b0bc13971e35bd2b971b4019e541b7848241a8a8acc9bcccc332cb31b697",
-    "internal/cli/ecbo_commands.go": "41637ff2481d79541e1f452698f28839daf5ea761aedd58b99e9918410636350",
+    "internal/cli/ecbo_commands.go": "f35da766a2eabff1594236fe10d6c81772919105ae711c056cd1489287050435",
     "internal/cli/ecbo_commands_test.go": "3b4c513b15ce518e844b69bc37fccda99977bfa6be63874de8d1b10d685614c5",
+    "internal/cli/ecbo_publish_test.go": "2d9ac930390bf3809c16a44e9568b5ee1add84a6144314c842131e6a27b6a9e4",
     "internal/cli/facilities.go": "6d56806ca82e10abe438f13774b285dd8ff1cf84a24308c0ce0d865edcd35879",
     "internal/cli/facilities_get_test.go": "063203984a6021ed5c3944cdf65ff48b7e8528b6aadb0cc9e826d6eead356948",
     "internal/cli/facilities_near_test.go": "35309684e28c4a53675d93a48689943eac79868f541d31aebe6a77006ecc88a3",
@@ -47,8 +48,8 @@
     "internal/cli/source.go": "5217996bf110387d0a9ac58027ba94f652ea3909d6f23a389e6d55d053782344",
     "internal/cli/source_detail.go": "7a25cce17c41b5323eeb5012fd9af5bfe639eeb4a833f1c807f13308d137996d",
     "internal/cli/source_nearby.go": "f70e1969ce1ba4071dee7ee0c2d9af39c024d6956a4f16b44f131cef8670c57f",
-    "internal/cli/source_price.go": "501c69afe81d5e49473998116d9bc9a4aa2b4e110c68c6797f1c77fd5ff89e46",
-    "internal/cli/source_validate.go": "7c0a922137c5db53a0be3b6e8d6d45897484f4139b31e94e8cf8adacbfac4fd6",
+    "internal/cli/source_price.go": "37fd250d07458ab1eeca9dba7a8f6430c85e96cefe30a53a1a529a10d37081f8",
+    "internal/cli/source_validate.go": "200fffbe75db64f06b7d871d8116d486338ef3fdac2b8dc90c5c83169951c795",
     "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
     "internal/cli/which.go": "4c2c9e9e54d256e6d5bea1e0b674ca552b93ca4a2f7769daa2913d5bdf6a6740",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",

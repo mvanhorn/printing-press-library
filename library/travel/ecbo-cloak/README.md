@@ -30,7 +30,7 @@ ecbo-cloak-pp-cli offer inspect 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026
 
 ## Agent Usage
 
-Focused commands always emit compact JSON. Diagnostics/errors go to stderr. `--agent` also sets noninteractive framework defaults. `--select` narrows each list result or the detail/offer payload, using comma-separated dot paths; metadata/pagination remain. Missing source values are `null`; unknown projections fail.
+Focused commands always emit compact JSON. Focused commands reject `--csv`, `--plain`, `--quiet`, and explicit `--compact` with usage exit 2; use `--select` to narrow JSON. The defaults supplied by `--agent` are supported. Diagnostics/errors go to stderr. `--agent` also sets noninteractive framework defaults. `--select` narrows each list result or the detail/offer payload, using comma-separated dot paths; metadata/pagination remain. Missing source values are `null`; unknown projections fail.
 
 ```sh
 ./ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent --select id,name,name_ja,booking_url

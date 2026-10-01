@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -62,13 +61,9 @@ func newSourceValidateCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			var body any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				jsonBody, err := ecboReadSourceBody(cmd)
 				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
+					return err
 				}
 				body = jsonBody
 			} else {

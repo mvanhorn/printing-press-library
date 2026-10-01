@@ -1,9 +1,10 @@
 {
   "vendor_anchored_matches": [],
   "structural_credential_candidates": [],
-  "tier2_disposition": "Technical/help/license terms; generator attribution authors in NOTICE; synthetic musician query in generated MCP test. No private workspace or live customer PII.",
+  "private_operator_paths": 0,
+  "raw_files_removed": 53,
+  "private_path_files_scrubbed": 25,
+  "tier2_disposition": "Technical/help/license vocabulary, public generator attribution and synthetic test inputs only; no private workspace PII.",
   "pii_strict_findings": 0,
-  "extra_secret_scanner": "gitleaks and trufflehog unavailable; mandatory publish package vendor-token scan passed.",
-  "raw_response_and_fixture_files_removed": 50,
-  "operator_path_files_scrubbed": 25
+  "mandatory_publish_package_token_scan": "PASS"
 }
