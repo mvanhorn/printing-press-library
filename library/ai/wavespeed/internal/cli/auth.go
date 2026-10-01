@@ -265,17 +265,35 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				envStillSet = "WAVESPEED_API_KEY"
 			}
 
-			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
+			// PATCH(explicit-config-credentials): logging out of an explicit
+			// --config never deletes the separate default login, but Load
+			// still falls back to it, so say so instead of implying the CLI is
+			// now unauthenticated.
+			defaultStillActive := false
+			if envStillSet == "" && strings.TrimSpace(flags.configPath) != "" {
+				if after, err := config.Load(flags.configPath); err == nil && after.WavespeedApiKey != "" {
+					defaultStillActive = true
+				}
+			}
+			const defaultNote = "the default login (global credentials file) is still active for this config; run auth logout without --config to clear it"
+
+			// JSON envelope: {cleared: true, note?: "..."}.
 			if flags.asJSON {
 				out := map[string]any{"cleared": true}
 				if envStillSet != "" {
 					out["note"] = envStillSet + " env var is still set"
+				} else if defaultStillActive {
+					out["note"] = defaultNote
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
 			if envStillSet != "" {
 				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s env var is still set.\n", envStillSet)
+				return nil
+			}
+			if defaultStillActive {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config credentials cleared. Note: %s.\n", defaultNote)
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")

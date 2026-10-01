@@ -5,7 +5,10 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/store"
 )
 
 // The generated root reserves one newNovel<Name>Cmd slot per research novel
@@ -87,32 +91,141 @@ func init() {
 // novel commands (cached pricing) use. WAVESPEED_ARCHIVE_DB overrides it.
 // PATCH(legacy-archive-db): releases before the 4.32.6 reprint archived into
 // archive.db beside data.db while sync wrote data.db. Everything now shares
-// data.db, the store sync writes. An upgrade with only archive.db moves it
-// (and its WAL/SHM sidecars) to data.db so archived data stays visible. When
-// both exist, data.db wins: archive.db only ever held the re-syncable models
-// catalog, which `workflow archive` rebuilds.
+// data.db, the store sync writes. A leftover archive.db is merged into data.db
+// through SQLite (so rows still in its WAL are read too), then renamed aside.
 func archiveDBPath() string {
 	if env := strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")); env != "" {
 		return env
 	}
 	current := defaultDBPath("wavespeed-pp-cli")
-	migrateLegacyArchiveDB(current)
+	if err := migrateLegacyArchiveDB(context.Background(), current); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: archive.db from an earlier release was not merged into %s (it is kept, and the merge retries next run): %v\n", current, err)
+	}
 	return current
 }
 
-func migrateLegacyArchiveDB(current string) {
+// migrateLegacyArchiveDB copies every row of a legacy archive.db into data.db
+// with INSERT OR IGNORE, whether or not data.db already exists (learning
+// setup can create it first). Rows already in data.db win. The legacy file
+// is renamed to archive.db.migrated only after the copy commits, so a failure
+// leaves it in place for the next run, and a repeat merge is a no-op.
+func migrateLegacyArchiveDB(ctx context.Context, current string) error {
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
-	if _, err := os.Stat(current); !os.IsNotExist(err) {
-		return
+	if info, err := os.Stat(legacy); err != nil || !info.Mode().IsRegular() {
+		return nil
 	}
-	if info, err := os.Stat(legacy); err != nil || info.IsDir() {
-		return
+	s, err := store.OpenWithContext(ctx, current)
+	if err != nil {
+		return err
 	}
-	// Best effort: a failed rename leaves archive.db in place and the store
-	// opens a fresh data.db, so this never blocks a command.
-	for _, suffix := range []string{"", "-wal", "-shm"} {
-		_ = os.Rename(legacy+suffix, current+suffix)
+	if err := mergeLegacyArchive(ctx, s.DB(), legacy); err != nil {
+		_ = s.Close()
+		return err
 	}
+	if err := s.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(legacy, legacy+".migrated"); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("merged, but could not rename %s: %w", legacy, err)
+	}
+	for _, suffix := range []string{"-wal", "-shm"} {
+		_ = os.Remove(legacy + suffix)
+	}
+	return nil
+}
+
+func mergeLegacyArchive(ctx context.Context, db *sql.DB, legacy string) error {
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	if _, err := conn.ExecContext(ctx, `ATTACH DATABASE ? AS legacy`, legacy); err != nil {
+		return fmt.Errorf("attach %s: %w", legacy, err)
+	}
+	defer func() { _, _ = conn.ExecContext(context.Background(), `DETACH DATABASE legacy`) }()
+	tables, err := sqliteTables(ctx, conn, "legacy")
+	if err != nil {
+		return err
+	}
+	tx, err := conn.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+	for _, table := range tables {
+		cols, err := sharedColumns(ctx, tx, table)
+		if err != nil {
+			return err
+		}
+		if len(cols) == 0 {
+			continue
+		}
+		list := `"` + strings.Join(cols, `", "`) + `"`
+		q := fmt.Sprintf(`INSERT OR IGNORE INTO main."%s" (%s) SELECT %s FROM legacy."%s"`, table, list, list, table)
+		if _, err := tx.ExecContext(ctx, q); err != nil {
+			return fmt.Errorf("merge %s: %w", table, err)
+		}
+	}
+	return tx.Commit()
+}
+
+// sqliteTables lists ordinary tables, skipping SQLite internals and FTS
+// shadow tables (main's triggers rebuild those from the merged rows).
+func sqliteTables(ctx context.Context, conn *sql.Conn, schema string) ([]string, error) {
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf(`SELECT name FROM %s.sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%%' AND sql NOT LIKE 'CREATE VIRTUAL%%'`, schema))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var names []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		if strings.Contains(name, "_fts") || strings.ContainsRune(name, '"') {
+			continue
+		}
+		names = append(names, name)
+	}
+	return names, rows.Err()
+}
+
+func sharedColumns(ctx context.Context, tx *sql.Tx, table string) ([]string, error) {
+	cols := func(schema string) (map[string]bool, []string, error) {
+		rows, err := tx.QueryContext(ctx, fmt.Sprintf(`SELECT name FROM pragma_table_info('%s', '%s')`, table, schema))
+		if err != nil {
+			return nil, nil, err
+		}
+		defer rows.Close()
+		set := map[string]bool{}
+		var order []string
+		for rows.Next() {
+			var name string
+			if err := rows.Scan(&name); err != nil {
+				return nil, nil, err
+			}
+			set[name] = true
+			order = append(order, name)
+		}
+		return set, order, rows.Err()
+	}
+	mainCols, _, err := cols("main")
+	if err != nil {
+		return nil, err
+	}
+	_, legacyOrder, err := cols("legacy")
+	if err != nil {
+		return nil, err
+	}
+	var shared []string
+	for _, name := range legacyOrder {
+		if mainCols[name] && !strings.ContainsRune(name, '"') {
+			shared = append(shared, name)
+		}
+	}
+	return shared, nil
 }
 
 // libraryDBFile is the library database file name inside the data dir.

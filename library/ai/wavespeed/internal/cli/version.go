@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 // newVersionCmd prints the CLI name and version. Shared by the HTTP and device
 // generators so both printed-CLI shapes carry an identical version command.
 func newVersionCmd() *cobra.Command {
