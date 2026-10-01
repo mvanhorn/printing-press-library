@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Kyoto hourly/daily numeric values and location match actual HTTP source; issue/valid/observation separation preserved",
+    "koyo-show: Japanese source identity, report/date, normal and seasonal status agree with live source body",
+    "sakura-ended: Japanese source identity, report/date, normal and seasonal status agree with live source body",
+    "Kyoto query relevance: both results contain 嵐山; bounded summary reads no details",
+    "Nationwide sakura relevance independently verified against each matching source name/kana/city/address/prefecture",
+    "Out-of-horizon weather and ended-season comparisons remain explicit unknowns",
+    "Projection returns only requested fields with agent metadata"
+  ],
+  "passed": true,
+  "basis": "actual HTTP cache bodies captured by live matrix; independent Python decoder; no fixtures"
+}

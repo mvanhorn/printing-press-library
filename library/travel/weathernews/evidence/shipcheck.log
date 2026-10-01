@@ -1,0 +1,163 @@
+
+=== verify ===
+Runtime Verification: $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli/weathernews-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+places                         read         PASS   PASS     FAIL     2/3
+playbook                       write        PASS   PASS     FAIL     2/3
+profile                        write        PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+season                         read         PASS   PASS     FAIL     2/3
+source                         read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+weather                        read         PASS   PASS     FAIL     2/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       write        PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (29/29 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 4 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=$PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/research/source-spec.yaml overridden by bundled $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli/spec.yaml
+Dogfood Report: weathernews-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    5 dead (WARN)
+  - handleBinaryResponseDelivery (defined, never called)
+  - readSecretFromStdin (defined, never called)
+  - retainCLIQueryParams (defined, never called)
+  - retainExplicitQueryParams (defined, never called)
+  - successfulNoop (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    5/5 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 5 dead helper functions found
+  - defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path
+  - 2 source client file(s) without rate-limit handling: internal/evidence/season.go — outbound HTTP without rate limiter or typed 429 handling; internal/evidence/weather.go — outbound HTTP without rate limiter or typed 429 handling
+
+=== workflow-verify ===
+Workflow Verification: weathernews-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== weathernews-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: weathernews
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          9/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              7/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              8/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           5/10
+  Auth Protocol           N/A
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               1/5
+
+  Total: 80/100 - Grade A
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh (staged binary is newer than Go sources)
+  Passed: 5/5  (100% pass rate, 0 skipped)
+
+Gaps:
+  - dead_code scored 1/5 - needs improvement
+  - MCP: 2 tools (2 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         2.25s
+  validate-narrative  PASS    0         81ms
+  dogfood           PASS    0         2.061s
+  workflow-verify   PASS    0         13ms
+  apify-audit       PASS    0         986ms
+  verify-skill      PASS    0         1.223s
+  scorecard         PASS    0         1.199s
+
+Verdict: PASS (7/7 legs passed)

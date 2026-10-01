@@ -1,0 +1,19 @@
+{"requests":1,"cache_hits":0,"download_bytes":1782069,"latency_ms":129}
+        0.13 real         0.08 user         0.01 sys
+            44957696  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3029  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                 114  messages sent
+                  51  messages received
+                  53  signals received
+                  12  voluntary context switches
+                 982  involuntary context switches
+          1628998676  instructions retired
+           338798893  cycles elapsed
+            32260792  peak memory footprint

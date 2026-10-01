@@ -1,0 +1,230 @@
+{
+  "ran_at": "2026-10-01T01:53:27.194159+00:00",
+  "refresh": true,
+  "passed": true,
+  "tests": [
+    {
+      "case": "places-kyoto",
+      "args": [
+        "places",
+        "resolve",
+        "--query",
+        "\u4eac\u90fd",
+        "--limit",
+        "3",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 983,
+      "latency_ms": 545
+    },
+    {
+      "case": "places-mountain",
+      "args": [
+        "places",
+        "resolve",
+        "--query",
+        "\u9ad8\u5c3e\u5c71",
+        "--limit",
+        "3",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 1357,
+      "latency_ms": 446
+    },
+    {
+      "case": "forecast",
+      "args": [
+        "weather",
+        "forecast",
+        "--lat",
+        "35.01167",
+        "--lon",
+        "135.76806",
+        "--hours",
+        "6",
+        "--days",
+        "3",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 3642,
+      "latency_ms": 270
+    },
+    {
+      "case": "forecast-outside",
+      "args": [
+        "weather",
+        "forecast",
+        "--lat",
+        "35.01167",
+        "--lon",
+        "135.76806",
+        "--date",
+        "2030-01-01",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 1287,
+      "latency_ms": 129
+    },
+    {
+      "case": "koyo-search",
+      "args": [
+        "season",
+        "search",
+        "--product",
+        "koyo",
+        "--area",
+        "kyoto",
+        "--query",
+        "\u5d50\u5c71",
+        "--limit",
+        "5",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 1745,
+      "latency_ms": 187
+    },
+    {
+      "case": "sakura-search",
+      "args": [
+        "season",
+        "search",
+        "--product",
+        "sakura",
+        "--query",
+        "\u6e05\u6c34",
+        "--limit",
+        "5",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 3280,
+      "latency_ms": 1257
+    },
+    {
+      "case": "koyo-show",
+      "args": [
+        "season",
+        "show",
+        "--product",
+        "koyo",
+        "--id",
+        "26102",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 2070,
+      "latency_ms": 49
+    },
+    {
+      "case": "sakura-ended",
+      "args": [
+        "season",
+        "show",
+        "--product",
+        "sakura",
+        "--id",
+        "384",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 2643,
+      "latency_ms": 736
+    },
+    {
+      "case": "weather-compare",
+      "args": [
+        "weather",
+        "compare",
+        "--point",
+        "Kyoto=35.01167,135.76806",
+        "--point",
+        "Tokyo=35.681,139.767",
+        "--date",
+        "2026-10-01",
+        "--max-pop",
+        "40",
+        "--max-temp",
+        "30",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 2405,
+      "latency_ms": 610
+    },
+    {
+      "case": "season-compare",
+      "args": [
+        "season",
+        "compare",
+        "--product",
+        "koyo",
+        "--ids",
+        "26101,26111",
+        "--date",
+        "2026-11-26",
+        "--max-days-from-peak",
+        "3",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 2713,
+      "latency_ms": 624
+    },
+    {
+      "case": "ended-compare",
+      "args": [
+        "season",
+        "compare",
+        "--product",
+        "sakura",
+        "--ids",
+        "384,301",
+        "--date",
+        "2026-04-01",
+        "--max-days-from-peak",
+        "3",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 2558,
+      "latency_ms": 873
+    },
+    {
+      "case": "projection",
+      "args": [
+        "season",
+        "search",
+        "--product",
+        "koyo",
+        "--area",
+        "kyoto",
+        "--query",
+        "\u5d50\u5c71",
+        "--agent",
+        "--select",
+        "items.id,items.name_ja,season",
+        "--metrics"
+      ],
+      "exit": 0,
+      "json": true,
+      "bytes": 330,
+      "latency_ms": 83
+    }
+  ]
+}

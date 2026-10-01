@@ -1,0 +1,2 @@
+Manifest transcendence rows: 5 planned, 5 built. All shipping rows implemented.
+Public resolver; normalized weather and observations; bounded seasonal summaries and lazy detail; explicit date/threshold comparisons; refresh/cache/projection/pagination. Source correctness live matrix and consequential domain tests pass. Source forecast issue time/elevation unknowns remain null. Closure is source-derived.

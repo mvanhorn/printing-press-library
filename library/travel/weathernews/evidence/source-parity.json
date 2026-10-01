@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "files": {
+    "internal/evidence/domain_test.go": "99a35070b693f44a2434ad67e8f202189f792ef1513c870654ff07d1258ac9f7",
+    "internal/evidence/http.go": "cad06f1b4e6930b6cceecbf387d787bd13619cbbffa65cb8f6bbea605cb9d97a",
+    "internal/evidence/nuxt.go": "19b6c8817cf631b194e0bef784bd07d1d4add6516d25ebc7723ce668ce0d9728",
+    "internal/evidence/season.go": "34d614d878bb19a160ba561a3a89738f7e49d7aec43643393164fe1c10a938cd",
+    "internal/evidence/weather.go": "9c235cc15e290430d64eddf7e97201637e8a94efcc2aa960ba817a34f8a7100e",
+    "internal/cli/evidence_projection.go": "61081eff5b8b168f561faa1811eae6ed7b6318f5c074fe57d53d33d0a277c51a",
+    "internal/cli/evidence_projection_test.go": "948c498a47f6329fa464536df93b7feb8f990c193aa552cfcc9aaa2a64a7c1a9",
+    "internal/cli/travel_evidence.go": "fdfaf3c91d8aad591bcb1388f149ee495376741f867b484357d58413fd67e974"
+  }
+}

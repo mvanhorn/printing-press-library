@@ -1,0 +1,20 @@
+?   	github.com/mvanhorn/printing-press-library/library/travel/weathernews/cmd/weathernews-pp-cli	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/cmd/weathernews-pp-mcp	0.557s
+?   	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/cache	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/cli	1.380s
+?   	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/cli/playbooks	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/client	4.790s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/cliutil	13.532s
+?   	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/cliutil/testenv	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/evidence	5.090s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/learn	4.466s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/learn/entities	5.418s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/learn/lookups	3.472s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/learn/patterns	5.968s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/mcp	2.525s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/mcp/bound	2.017s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/mcp/cobratree	10.655s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/platform	1.323s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/store	5.325s
+?   	github.com/mvanhorn/printing-press-library/library/travel/weathernews/internal/types	[no test files]

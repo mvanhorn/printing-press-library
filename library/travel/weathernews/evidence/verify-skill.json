@@ -1,0 +1,14 @@
+{
+  "cli_dir": "$PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli",
+  "skill_path": "$PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 15,
+  "findings": []
+}

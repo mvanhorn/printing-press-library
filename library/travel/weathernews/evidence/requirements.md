@@ -1,0 +1,6 @@
+# Agreed scope and review baseline
+Baseline: empty project (no Git repository, no existing writer or Press lock). Entire project is new. Sole builder; exactly one fresh independent reviewer after implementation, reused for verification. User preapproves scope/gates and overrides optional brainstorm delegation.
+
+Shipping: resolve places through first-party Japanese search; source IDs and canonical URLs; location/elevation explicit; forecasts hourly/daily with observation separation, issue time null if absent, valid JST times and units; seasonal search bounded by area or term with lazy detail, season year and ended marker, date-only precision, current report vs prediction vs norm; compare up to five forecasts and seasonal details with explicit user thresholds/dates; unknown and out-of-horizon explicit; compact JSON, projections, pagination, stderr metrics/errors; bounded HTTP timeout/retries/cache, explicit inventory refresh; no paid credentials/browser runtime. No universal score, fixtures-as-live, booking/publishing/PR/global config writes or other provider.
+
+Outside scope: member radar and gated products, commercial WxTech/API key, raw report streams/news/photos, non-Japan/global weather, authenticated products, inferred elevation, assumed issue times, predictions beyond supplied horizon. Their unavailable/unknown coverage remains explicit.

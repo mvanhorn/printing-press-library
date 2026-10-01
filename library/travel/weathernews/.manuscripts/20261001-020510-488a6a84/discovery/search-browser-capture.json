@@ -1,0 +1,171 @@
+[
+  {
+    "url": "https://weathernews.jp/onebox/api_search.cgi?callback=&query=%E4%BA%AC%E9%83%BD&lang=ja",
+    "method": "GET",
+    "status": 200,
+    "response_body": [
+      {
+        "lat": 35.01167,
+        "lon": 135.76806,
+        "loc": "京都市",
+        "v": "",
+        "s": 500,
+        "url": "/onebox/tenki/kyoto/26100/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 35.04105,
+        "lon": 135.75414,
+        "loc": "京都市北区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26101/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 35.02962,
+        "lon": 135.75663,
+        "loc": "京都市上京区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26102/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 35.04841,
+        "lon": 135.77857,
+        "loc": "京都市左京区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26103/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 35.01163,
+        "lon": 135.76811,
+        "loc": "京都市中京区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26104/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 34.99712,
+        "lon": 135.77638,
+        "loc": "京都市東山区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26105/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 34.98765,
+        "lon": 135.75553,
+        "loc": "京都市下京区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26106/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 34.97666,
+        "lon": 135.74642,
+        "loc": "京都市南区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26107/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 35.01029,
+        "lon": 135.71597,
+        "loc": "京都市右京区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26108/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 34.93596,
+        "lon": 135.76144,
+        "loc": "京都市伏見区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26109/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 34.97238,
+        "lon": 135.81366,
+        "loc": "京都市山科区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26110/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 34.98495,
+        "lon": 135.69328,
+        "loc": "京都市西京区",
+        "v": "",
+        "s": 450,
+        "url": "/onebox/tenki/kyoto/26111/?fm=onebox",
+        "q": "京都市"
+      },
+      {
+        "lat": 35.005572,
+        "lon": 135.752749,
+        "loc": "京都府京都市",
+        "dist": 372.766,
+        "v": "de56cf7587e574f872db84f30f3b69ec2914d86c51b399c4cd73eb90ca44ae46",
+        "s": 230,
+        "url": "/onebox/35.005572/135.752749/q=%E4%BA%AC%E9%83%BD%E5%BA%9C%E4%BA%AC%E9%83%BD%E5%B8%82&v=de56cf7587e574f872db84f30f3b69ec2914d86c51b399c4cd73eb90ca44ae46"
+      },
+      {
+        "lat": 35.021761,
+        "lon": 135.7557,
+        "loc": "京都府",
+        "dist": 372.066,
+        "v": "7d98df50cdd9fb4b6c074f9aa90727e3e3e5785fc258e27b335c6e92f953b345",
+        "s": 175,
+        "url": "/onebox/35.021761/135.755700/q=%E4%BA%AC%E9%83%BD%E5%BA%9C&v=7d98df50cdd9fb4b6c074f9aa90727e3e3e5785fc258e27b335c6e92f953b345"
+      },
+      {
+        "lat": 35.026174,
+        "lon": 135.780928,
+        "loc": "京都大学（京都府）",
+        "dist": 369.695,
+        "v": "37166ab8caaa80c362260204d8f2da1c23df431d8451a24754d1eb0532bf166c",
+        "s": 175,
+        "url": "/onebox/35.026174/135.780928/q=%E4%BA%AC%E9%83%BD%E5%A4%A7%E5%AD%A6%EF%BC%88%E4%BA%AC%E9%83%BD%E5%BA%9C%EF%BC%89&v=37166ab8caaa80c362260204d8f2da1c23df431d8451a24754d1eb0532bf166c"
+      },
+      {
+        "lat": 35.011671,
+        "lon": 135.768137,
+        "loc": "京都市役所（京都府）",
+        "dist": 371.227,
+        "v": "81f6f2207bdc9d31c79bcb8aee9b1216f370223f54bd167a4c0e16af636c6477",
+        "s": 175,
+        "url": "/onebox/35.011671/135.768137/q=%E4%BA%AC%E9%83%BD%E5%B8%82%E5%BD%B9%E6%89%80%EF%BC%88%E4%BA%AC%E9%83%BD%E5%BA%9C%EF%BC%89&v=81f6f2207bdc9d31c79bcb8aee9b1216f370223f54bd167a4c0e16af636c6477"
+      },
+      {
+        "lat": 34.905185,
+        "lon": 135.727287,
+        "loc": "京都競馬場（京都府）",
+        "dist": 377.918,
+        "v": "442616491c933e48713f0f2df49f551183a7e5001863eb269ffb6e54e7bcb0e7",
+        "s": 175,
+        "url": "/onebox/34.905185/135.727287/q=%E4%BA%AC%E9%83%BD%E7%AB%B6%E9%A6%AC%E5%A0%B4%EF%BC%88%E4%BA%AC%E9%83%BD%E5%BA%9C%EF%BC%89&v=442616491c933e48713f0f2df49f551183a7e5001863eb269ffb6e54e7bcb0e7"
+      },
+      {
+        "lat": 34.949945,
+        "lon": 135.773341,
+        "loc": "京都教育大学（京都府）",
+        "dist": 372.498,
+        "v": "3f0891e01e58f62af88ed57e9c5c8d516f6f5e15f82a833a7dfe0e3af3ff4518",
+        "s": 175,
+        "url": "/onebox/34.949945/135.773341/q=%E4%BA%AC%E9%83%BD%E6%95%99%E8%82%B2%E5%A4%A7%E5%AD%A6%EF%BC%88%E4%BA%AC%E9%83%BD%E5%BA%9C%EF%BC%89&v=3f0891e01e58f62af88ed57e9c5c8d516f6f5e15f82a833a7dfe0e3af3ff4518"
+      }
+    ]
+  }
+]

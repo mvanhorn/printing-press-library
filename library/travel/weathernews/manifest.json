@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "weathernews-pp-mcp",
+  "display_name": "Weathernews",
+  "version": "0.1.0",
+  "description": "Japan weather and seasonal travel evidence with explicit dates, freshness and coverage.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/weathernews-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/weathernews-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

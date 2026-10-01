@@ -1,0 +1,1577 @@
+Baseline: empty project at task start. Generated Press framework is separate; the following hand-authored provider files are additions.
+
+--- /dev/null
++++ internal/evidence/domain_test.go
+@@ -0,0 +1,126 @@
++package evidence
++
++import (
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"os"
++	"strings"
++	"testing"
++	"time"
++)
++
++func TestNuxtReferencesAndMalformed(t *testing.T) {
++	b := []byte(`<script id="__NUXT_DATA__" type="application/json">[["ShallowReactive",1],{"data":2},["ShallowReactive",3],{"x":4},{"data":5}, {"name":6,"lat":7,"empty":-1},"京都",35.1]</script>`)
++	d, e := Nuxt(b)
++	if e != nil {
++		t.Fatal(e)
++	}
++	got := object(object(d["x"])["data"])
++	if got["name"] != "京都" || got["lat"] != 35.1 || got["empty"] != nil {
++		t.Fatalf("wrong decode: %#v", got)
++	}
++	for _, v := range []string{`[["Ref",1],{"data":2},{"x":99}]`, `[["Ref",1],{"data":2},{"x":2}]`, `[["Ref",1],{"data":2},{"x":-22}]`} {
++		if _, e := Nuxt([]byte(`<script id="__NUXT_DATA__">` + v + `</script>`)); e == nil {
++			t.Fatal("accepted malformed/cyclic reference")
++		}
++	}
++}
++func TestSeasonYearAndDates(t *testing.T) {
++	b := []byte(`<title>桜【2025】</title><div class="close_msg">2025年の更新は終了しました</div>`)
++	s, e := SeasonState(b, "sakura")
++	if e != nil || s["year"] != 2025 || s["updates_ended"] != true {
++		t.Fatal(s, e)
++	}
++	if dateEvidence("2/29", 2025) != nil || dateEvidence("2/29", 2024) != "2024-02-29" || dateEvidence("11月26日", 2026) != "2026-11-26" {
++		t.Fatal("invalid day or year rollover")
++	}
++	if _, e := SeasonState([]byte(`<title>2026 seasonal photos</title>`), "koyo"); e == nil {
++		t.Fatal("inferred year without title marker")
++	}
++}
++func TestCriteriaUnknownDoesNotPass(t *testing.T) {
++	pop := 40.0
++	c := Criteria{MaxPOP: &pop}
++	s, checks := CheckDaily(map[string]any{}, c)
++	if s != "unknown" || object(checks[0])["passes"] != nil {
++		t.Fatal(s, checks)
++	}
++	s, _ = CheckDaily(map[string]any{"precipitation_probability_percent": float64(41)}, c)
++	if s != "does_not_meet" {
++		t.Fatal(s)
++	}
++	s, _ = CheckDaily(map[string]any{"precipitation_probability_percent": float64(40)}, c)
++	if s != "meets" {
++		t.Fatal(s)
++	}
++}
++func TestPeakDoesNotUseNormOrEnded(t *testing.T) {
++	d := map[string]any{"season": map[string]any{"year": 2026, "updates_ended": true}, "normal": map[string]any{"period_ja": "11月下旬"}}
++	if s, _ := PeakCheck(d, "2026-11-26", 3); s != "unknown" {
++		t.Fatal(s)
++	}
++	d["season"] = map[string]any{"year": 2026, "updates_ended": false}
++	if s, _ := PeakCheck(d, "2026-11-26", 3); s != "unknown" {
++		t.Fatal(s)
++	}
++	d["predictions"] = []any{map[string]any{"event": "peak", "status": "available", "valid_date": "2026-11-26"}}
++	for _, v := range []struct{ date, want string }{{"2026-11-29", "meets"}, {"2026-11-30", "does_not_meet"}, {"2027-11-26", "unknown"}} {
++		if s, _ := PeakCheck(d, v.date, 3); s != v.want {
++			t.Fatal(v, s)
++		}
++	}
++}
++func TestStrictCoordinateAndMissingValue(t *testing.T) {
++	for _, s := range []string{"NaN", "Inf", "35foo", ""} {
++		if num(s) != nil {
++			t.Fatal("invalid number accepted", s)
++		}
++	}
++	if number(float64(-9999)) != nil || number(float64(0)) != float64(0) {
++		t.Fatal("missing sentinel vs zero")
++	}
++	if _, e := ParsePoint("Kyoto=35.01foo,135.7"); e == nil {
++		t.Fatal("invalid coordinate accepted")
++	}
++}
++func TestFreshOfflineCacheAndOriginBound(t *testing.T) {
++	c := NewClient(t.TempDir(), time.Second)
++	c.Offline = true
++	u := "https://weathernews.jp/koyo/"
++	f, e := c.Get(context.Background(), u, time.Hour)
++	if e == nil {
++		t.Fatal(f)
++	}
++	// Domain state tests use synthetic data and never count as live verification.
++	digest := sha256.Sum256([]byte(u))
++	p := c.CacheDir + "/" + hex.EncodeToString(digest[:]) + ".json"
++	for _, delta := range []time.Duration{-2 * time.Hour, time.Hour, -time.Minute} {
++		v := cacheEntry{u, time.Now().Add(delta), []byte("{}")}
++		b, _ := json.Marshal(v)
++		os.WriteFile(p, b, 0600)
++		f, e := c.Get(context.Background(), u, time.Hour)
++		if delta == -time.Minute {
++			if e != nil || !f.CacheHit {
++				t.Fatal("fresh cache not served", e)
++			}
++		} else if e == nil {
++			t.Fatal("expired or future cache served", delta)
++		}
++	}
++	for _, x := range []string{"https://evil.example/koyo/", "http://weathernews.jp/", "https://weathernews.jp.evil.example/", "https://weathernews.jp:443/"} {
++		if _, e := c.Get(context.Background(), x, time.Hour); e == nil {
++			t.Fatal("origin accepted", x)
++		}
++	}
++	if e := bounds(51, 0); e == nil {
++		t.Fatal("limit unbounded")
++	}
++	if x, _ := paginate([]any{1, 2}, 1, 9); len(x) != 0 {
++		t.Fatal(x)
++	}
++	if strings.Contains(c.CacheDir, "weathernews.jp") {
++		t.Fatal("test cache failed isolation")
++	}
++}
+--- /dev/null
++++ internal/evidence/http.go
+@@ -0,0 +1,336 @@
++// Package evidence normalizes public first-party Weathernews travel evidence.
++package evidence
++
++import (
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"fmt"
++	"io"
++	"math"
++	"net/http"
++	"net/url"
++	"os"
++	"path/filepath"
++	"sort"
++	"strconv"
++	"strings"
++	"time"
++	"weathernews-pp-cli/internal/cliutil"
++)
++
++const maxBody = 4 << 20
++
++var JST = time.FixedZone("JST", 9*3600)
++
++func stamp(t time.Time) string { return t.In(JST).Format(time.RFC3339) }
++
++type Error struct {
++	Code    int
++	Message string
++}
++
++func (e *Error) Error() string                { return e.Message }
++func fail(code int, f string, a ...any) error { return &Error{code, fmt.Sprintf(f, a...)} }
++
++type Fetch struct {
++	URL             string `json:"url"`
++	RetrievedAt     string `json:"retrieved_at"`
++	CacheHit        bool   `json:"cache_hit"`
++	CacheAgeSeconds int    `json:"cache_age_seconds"`
++	Bytes           int    `json:"bytes"`
++	Body            []byte `json:"-"`
++}
++type Metrics struct {
++	Requests      int   `json:"requests"`
++	CacheHits     int   `json:"cache_hits"`
++	DownloadBytes int   `json:"download_bytes"`
++	LatencyMS     int64 `json:"latency_ms"`
++}
++type Client struct {
++	CacheDir                  string
++	Refresh, NoCache, Offline bool
++	Timeout                   time.Duration
++	HTTP                      *http.Client
++	Metrics                   Metrics
++	Started                   time.Time
++	seen                      map[string]Fetch
++	Limiter                   *cliutil.AdaptiveLimiter
++}
++type cacheEntry struct {
++	URL  string    `json:"url"`
++	At   time.Time `json:"at"`
++	Body []byte    `json:"body"`
++}
++
++func NewClient(dir string, timeout time.Duration) *Client {
++	if timeout > 20*time.Second {
++		timeout = 20 * time.Second
++	}
++	return &Client{CacheDir: dir, Timeout: timeout, Started: time.Now(), seen: map[string]Fetch{}, HTTP: &http.Client{Timeout: timeout, CheckRedirect: func(r *http.Request, v []*http.Request) error {
++		if len(v) > 3 {
++			return fmt.Errorf("too many redirects")
++		}
++		return allowed(r.URL)
++	}}}
++}
++func allowed(u *url.URL) error {
++	if u.Scheme != "https" || (u.Host != "weathernews.jp" && u.Host != "site.weathernews.jp") || u.User != nil {
++		return fail(2, "only public first-party Weathernews HTTPS origins are supported")
++	}
++	return nil
++}
++func (c *Client) Get(ctx context.Context, raw string, ttl time.Duration) (Fetch, error) {
++	u, e := url.Parse(raw)
++	if e != nil {
++		return Fetch{}, fail(2, "invalid source URL")
++	}
++	if e = allowed(u); e != nil {
++		return Fetch{}, e
++	}
++	if c.Timeout <= 0 {
++		return Fetch{}, fail(2, "--timeout must be positive")
++	}
++	if v, ok := c.seen[raw]; ok {
++		return v, nil
++	}
++	digest := sha256.Sum256([]byte(raw))
++	p := filepath.Join(c.CacheDir, hex.EncodeToString(digest[:])+".json")
++	if !c.Refresh && !c.NoCache {
++		if b, e := readCache(p); e == nil {
++			var v cacheEntry
++			if json.Unmarshal(b, &v) == nil && v.URL == raw && len(v.Body) <= maxBody && time.Since(v.At) >= 0 && time.Since(v.At) < ttl {
++				f := Fetch{raw, stamp(v.At), true, int(time.Since(v.At).Seconds()), len(v.Body), v.Body}
++				c.Metrics.CacheHits++
++				c.seen[raw] = f
++				return f, nil
++			}
++		}
++	}
++	if c.Offline {
++		return Fetch{}, fail(3, "no fresh cached source for %s; refresh online first", u.Path)
++	}
++	for attempt := 0; attempt < 2; attempt++ {
++		if attempt > 0 {
++			select {
++			case <-time.After(350 * time.Millisecond):
++			case <-ctx.Done():
++				return Fetch{}, ctx.Err()
++			}
++		}
++		req, e := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
++		if e != nil {
++			return Fetch{}, e
++		}
++		req.Header.Set("User-Agent", "weathernews-pp-cli/0.1 (public read-only weather evidence)")
++		req.Header.Set("Accept", "application/json,text/html;q=0.9")
++		if e = c.Limiter.Wait(ctx); e != nil {
++			return Fetch{}, e
++		}
++		c.Metrics.Requests++
++		resp, e := c.HTTP.Do(req)
++		if e != nil {
++			if ctx.Err() != nil {
++				return Fetch{}, ctx.Err()
++			}
++			if attempt == 0 {
++				continue
++			}
++			return Fetch{}, fail(5, "Weathernews request failed: %v", e)
++		}
++		b, re := io.ReadAll(io.LimitReader(resp.Body, maxBody+1))
++		resp.Body.Close()
++		c.Metrics.DownloadBytes += len(b)
++		if resp.StatusCode == 429 {
++			c.Limiter.OnRateLimit()
++			wait := time.Duration(0)
++			if n, e := strconv.Atoi(resp.Header.Get("Retry-After")); e == nil && n > 0 {
++				wait = time.Duration(n) * time.Second
++			}
++			if wait > 2*time.Second || attempt == 1 {
++				return Fetch{}, &cliutil.RateLimitError{URL: raw, RetryAfter: wait}
++			}
++			if wait > 0 {
++				select {
++				case <-time.After(wait):
++				case <-ctx.Done():
++					return Fetch{}, ctx.Err()
++				}
++			}
++			continue
++		}
++		if resp.StatusCode >= 500 && attempt == 0 {
++			continue
++		}
++		if resp.StatusCode == 404 {
++			return Fetch{}, fail(3, "Weathernews source not found: %s", u.Path)
++		}
++		if resp.StatusCode == 401 || resp.StatusCode == 403 {
++			return Fetch{}, fail(4, "Weathernews access restricted (HTTP %d); this CLI uses public coverage only", resp.StatusCode)
++		}
++		if resp.StatusCode != 200 {
++			return Fetch{}, fail(5, "Weathernews HTTP %d for %s", resp.StatusCode, u.Path)
++		}
++		if re != nil || len(b) > maxBody {
++			return Fetch{}, fail(5, "Weathernews response exceeds bounded size or is incomplete")
++		}
++		c.Limiter.OnSuccess()
++		at := time.Now()
++		f := Fetch{raw, stamp(at), false, 0, len(b), b}
++		c.seen[raw] = f
++		if !c.NoCache && c.CacheDir != "" {
++			c.writeCache(p, cacheEntry{raw, at, b})
++		}
++		return f, nil
++	}
++	return Fetch{}, fail(5, "Weathernews retry budget exhausted")
++}
++func (c *Client) writeCache(p string, v cacheEntry) {
++	if os.MkdirAll(c.CacheDir, 0700) != nil {
++		return
++	}
++	b, e := json.Marshal(v)
++	if e != nil {
++		return
++	}
++	f, e := os.CreateTemp(c.CacheDir, ".cache-*")
++	if e != nil {
++		return
++	}
++	tmp := f.Name()
++	defer os.Remove(tmp)
++	if _, e = f.Write(b); e != nil {
++		f.Close()
++		return
++	}
++	if f.Close() != nil {
++		return
++	}
++	if os.Rename(tmp, p) != nil {
++		return
++	}
++	entries, e := os.ReadDir(c.CacheDir)
++	if e != nil {
++		return
++	}
++	type entry struct {
++		path string
++		at   time.Time
++	}
++	var list []entry
++	var total int64
++	for _, x := range entries {
++		if !strings.HasSuffix(x.Name(), ".json") {
++			continue
++		}
++		if i, e := x.Info(); e == nil {
++			list = append(list, entry{filepath.Join(c.CacheDir, x.Name()), i.ModTime()})
++			total += i.Size()
++		}
++	}
++	sort.Slice(list, func(i, j int) bool { return list[i].at.Before(list[j].at) })
++	for i, x := range list {
++		if len(list)-i <= 128 && total <= 64<<20 {
++			break
++		}
++		if v, e := os.Stat(x.path); e == nil {
++			if os.Remove(x.path) == nil {
++				total -= v.Size()
++			}
++		}
++	}
++}
++func (c *Client) Stats() Metrics {
++	m := c.Metrics
++	m.LatencyMS = time.Since(c.Started).Milliseconds()
++	return m
++}
++func provenance(f Fetch) map[string]any {
++	return map[string]any{"source_url": f.URL, "retrieved_at": f.RetrievedAt, "cache_hit": f.CacheHit, "cache_age_seconds": f.CacheAgeSeconds}
++}
++func object(v any) map[string]any { m, _ := v.(map[string]any); return m }
++func str(v any) string {
++	switch x := v.(type) {
++	case string:
++		return x
++	case float64:
++		return fmt.Sprintf("%g", x)
++	default:
++		return ""
++	}
++}
++func text(v any) any {
++	s := strings.TrimSpace(str(v))
++	if s == "" {
++		return nil
++	}
++	return s
++}
++func num(v any) *float64 {
++	var n float64
++	switch x := v.(type) {
++	case float64:
++		n = x
++	case int:
++		n = float64(x)
++	case int64:
++		n = float64(x)
++	case string:
++		if x == "" {
++			return nil
++		}
++		var e error
++		n, e = strconv.ParseFloat(x, 64)
++		if e != nil {
++			return nil
++		}
++	default:
++		return nil
++	}
++	if math.IsNaN(n) || math.IsInf(n, 0) || n < -9000 {
++		return nil
++	}
++	return &n
++}
++func number(v any) any {
++	if n := num(v); n != nil {
++		return *n
++	}
++	return nil
++}
++func first(m map[string]any, keys ...string) any {
++	for _, k := range keys {
++		if text(m[k]) != nil {
++			return m[k]
++		}
++	}
++	return nil
++}
++
++func readCache(p string) ([]byte, error) {
++	f, e := os.Open(p)
++	if e != nil {
++		return nil, e
++	}
++	defer f.Close()
++	b, e := io.ReadAll(io.LimitReader(f, 6<<20+1))
++	if e != nil {
++		return nil, e
++	}
++	if len(b) > 6<<20 {
++		return nil, fmt.Errorf("oversized cache entry")
++	}
++	return b, nil
++}
++
++func providerTime(v any) any {
++	if text(v) == nil {
++		return nil
++	}
++	t, e := time.Parse(time.RFC3339Nano, str(v))
++	if e != nil {
++		return nil
++	}
++	return stamp(t)
++}
+--- /dev/null
++++ internal/evidence/nuxt.go
+@@ -0,0 +1,155 @@
++package evidence
++
++import (
++	"encoding/json"
++	"html"
++	"regexp"
++	"strconv"
++	"strings"
++)
++
++var payloadRE = regexp.MustCompile(`(?s)<script\b[^>]*\bid="__NUXT_DATA__"[^>]*>(.*?)</script>`)
++var titleRE = regexp.MustCompile(`(?s)<title[^>]*>(.*?)</title>`)
++var yearRE = regexp.MustCompile(`(?:【|\[)(20[0-9]{2})(?:】|\])`)
++var closedRE = regexp.MustCompile(`(?s)class="close_msg"[^>]*>(.*?)</div>`)
++var tagsRE = regexp.MustCompile(`<[^>]+>`)
++
++func clean(s string) string {
++	return strings.TrimSpace(html.UnescapeString(tagsRE.ReplaceAllString(s, "")))
++}
++func Nuxt(body []byte) (map[string]any, error) {
++	m := payloadRE.FindSubmatch(body)
++	if len(m) != 2 {
++		return nil, fail(5, "Weathernews schema changed: missing Nuxt payload")
++	}
++	var a []any
++	if json.Unmarshal(m[1], &a) != nil || len(a) < 4 || len(a) > 100000 {
++		return nil, fail(5, "Weathernews schema changed: invalid Nuxt payload")
++	}
++	memo := map[int]any{}
++	active := map[int]bool{}
++	budget := 300000
++	var decode func(any, int) (any, error)
++	decode = func(ref any, depth int) (any, error) {
++		budget--
++		if budget < 0 || depth > 80 {
++			return nil, fail(5, "Weathernews Nuxt complexity limit exceeded")
++		}
++		f, ok := ref.(float64)
++		if !ok || f != float64(int(f)) {
++			return nil, fail(5, "Weathernews Nuxt reference invalid")
++		}
++		i := int(f)
++		if i < 0 {
++			if i >= -6 {
++				return nil, nil
++			}
++			return nil, fail(5, "Weathernews Nuxt sentinel unknown")
++		}
++		if i >= len(a) {
++			return nil, fail(5, "Weathernews Nuxt reference out of range")
++		}
++		if v, ok := memo[i]; ok {
++			return v, nil
++		}
++		if active[i] {
++			return nil, fail(5, "Weathernews Nuxt cyclic reference")
++		}
++		active[i] = true
++		defer delete(active, i)
++		var out any
++		switch v := a[i].(type) {
++		case map[string]any:
++			o := map[string]any{}
++			for k, x := range v {
++				d, e := decode(x, depth+1)
++				if e != nil {
++					return nil, e
++				}
++				o[k] = d
++			}
++			out = o
++		case []any:
++			if len(v) > 0 {
++				if tag, ok := v[0].(string); ok {
++					switch tag {
++					case "Reactive", "ShallowReactive", "Ref", "ShallowRef":
++						if len(v) != 2 {
++							return nil, fail(5, "invalid Nuxt wrapper")
++						}
++						d, e := decode(v[1], depth+1)
++						if e != nil {
++							return nil, e
++						}
++						out = d
++					case "Set":
++						out = []any{}
++					default:
++						return nil, fail(5, "unsupported Nuxt wrapper %s", tag)
++					}
++					break
++				}
++			}
++			o := make([]any, 0, len(v))
++			for _, x := range v {
++				d, e := decode(x, depth+1)
++				if e != nil {
++					return nil, e
++				}
++				o = append(o, d)
++			}
++			out = o
++		default:
++			out = v
++		}
++		memo[i] = out
++		return out, nil
++	}
++	var root any = a[0]
++	for n := 0; n < 5; n++ {
++		w, ok := root.([]any)
++		if !ok {
++			break
++		}
++		if len(w) != 2 {
++			return nil, fail(5, "invalid Nuxt root")
++		}
++		ix, ok := w[1].(float64)
++		if !ok || ix < 0 || int(ix) >= len(a) {
++			return nil, fail(5, "invalid Nuxt root reference")
++		}
++		root = a[int(ix)]
++	}
++	rawRoot := object(root)
++	if rawRoot == nil {
++		return nil, fail(5, "invalid Nuxt root data")
++	}
++	decoded, e := decode(rawRoot["data"], 0)
++	if e != nil {
++		return nil, e
++	}
++	data := object(decoded)
++	if len(data) == 0 {
++		return nil, fail(5, "Weathernews schema changed: missing data")
++	}
++	return data, nil
++}
++func SeasonState(body []byte, product string) (map[string]any, error) {
++	t := titleRE.FindSubmatch(body)
++	if len(t) < 2 {
++		return nil, fail(5, "season page lacks title")
++	}
++	y := yearRE.FindSubmatch(t[1])
++	if len(y) < 2 {
++		return nil, fail(5, "season year is unavailable; refusing inferred current year")
++	}
++	year, _ := strconv.Atoi(string(y[1]))
++	closed := closedRE.FindSubmatch(body)
++	ended := false
++	var msg any
++	if len(closed) == 2 {
++		msg = clean(string(closed[1]))
++		ended = strings.Contains(str(msg), "終了")
++	}
++	return map[string]any{"product": product, "year": year, "updates_ended": ended, "ended_message_ja": msg, "timezone": "Asia/Tokyo", "year_basis": "source_page_title"}, nil
++}
+--- /dev/null
++++ internal/evidence/season.go
+@@ -0,0 +1,322 @@
++package evidence
++
++import (
++	"context"
++	"fmt"
++	"math"
++	"regexp"
++	"strconv"
++	"strings"
++	"time"
++)
++
++var idRE = regexp.MustCompile(`^[0-9]{1,8}$`)
++var slugRE = regexp.MustCompile(`^[a-z]{2,16}$`)
++var mdRE = regexp.MustCompile(`^(?:[0-9]{4}[-/])?([0-9]{1,2})(?:月|/|-)([0-9]{1,2})(?:日|日時点)?$`)
++var sakuraStatusRE = regexp.MustCompile(`(?s)<h3\b[^>]*class="kaikaStatus__title"[^>]*>(.*?)</h3>`)
++
++func productOK(p string) error {
++	if p != "sakura" && p != "koyo" {
++		return fail(2, "--product must be sakura or koyo")
++	}
++	return nil
++}
++func dateEvidence(v any, year int) any {
++	s := strings.TrimSpace(str(v))
++	m := mdRE.FindStringSubmatch(s)
++	if len(m) < 3 {
++		return nil
++	}
++	month, _ := strconv.Atoi(m[1])
++	day, _ := strconv.Atoi(m[2])
++	d := time.Date(year, time.Month(month), day, 0, 0, 0, 0, JST)
++	if int(d.Month()) != month || d.Day() != day {
++		return nil
++	}
++	return d.Format("2006-01-02")
++}
++func reportAge(date any) any {
++	if date == nil {
++		return nil
++	}
++	d, e := ParseDate(str(date))
++	if e != nil {
++		return nil
++	}
++	now := time.Now().In(JST)
++	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, JST)
++	return int(today.Sub(d).Hours() / 24)
++}
++func (c *Client) SeasonSearch(ctx context.Context, product, area, query string, limit, offset int) (map[string]any, error) {
++	if e := productOK(product); e != nil {
++		return nil, e
++	}
++	if e := bounds(limit, offset); e != nil {
++		return nil, e
++	}
++	query = strings.TrimSpace(query)
++	if len([]rune(query)) > 100 {
++		return nil, fail(2, "--query is bounded to 100 characters")
++	}
++	if area == "" && query == "" {
++		return nil, fail(2, "supply --area kyoto or --query with Japanese place words")
++	}
++	if area != "" && !slugRE.MatchString(area) {
++		return nil, fail(2, "--area must be a Weathernews prefecture/region slug such as kyoto, hokkaido or kanto")
++	}
++	raw := "https://weathernews.jp/" + product + "/search_result.html"
++	if area != "" {
++		raw = "https://weathernews.jp/" + product + "/area/" + area + "/"
++	}
++	f, e := c.Get(ctx, raw, time.Hour)
++	if e != nil {
++		return nil, e
++	}
++	season, e := SeasonState(f.Body, product)
++	if e != nil {
++		return nil, e
++	}
++	data, e := Nuxt(f.Body)
++	if e != nil {
++		return nil, e
++	}
++	var rows []map[string]any
++	var providerFetched any
++	inventoryFound := false
++	for _, entry := range data {
++		v := object(entry)
++		d := object(v["data"])
++		var pl any
++		if k := object(d["spotKanaSortedList"]); k != nil {
++			pl = k["pointlist"]
++		} else {
++			pl = d["pointlist"]
++		}
++		if pl == nil {
++			continue
++		}
++		inventoryFound = true
++		providerFetched = providerTime(v["fetchedAt"])
++		switch x := pl.(type) {
++		case []any:
++			for _, z := range x {
++				rows = append(rows, object(z))
++			}
++		case map[string]any:
++			for _, z := range x {
++				if list, ok := z.([]any); ok {
++					for _, a := range list {
++						rows = append(rows, object(a))
++					}
++				}
++			}
++		default:
++			return nil, fail(5, "Weathernews inventory schema changed")
++		}
++	}
++	if !inventoryFound {
++		return nil, fail(5, "Weathernews seasonal inventory is missing; use a prefecture or keyword search")
++	}
++	seen := map[string]bool{}
++	items := []any{}
++	terms := strings.Fields(strings.ToLower(query))
++	for _, r := range rows {
++		id := str(first(r, "spotid", "lcid"))
++		name := str(first(r, "pointname", "name"))
++		if !idRE.MatchString(id) || name == "" {
++			return nil, fail(5, "season inventory identity changed")
++		}
++		if seen[id] {
++			continue
++		}
++		seen[id] = true
++		hay := strings.ToLower(name + " " + str(first(r, "pointname_kana", "name_kana")) + " " + str(r["cityname"]) + " " + str(first(r, "address", "addr")) + " " + str(first(r, "pref", "pref_en")))
++		match := true
++		for _, term := range terms {
++			if !strings.Contains(hay, term) {
++				match = false
++			}
++		}
++		if !match {
++			continue
++		}
++		var reportedDate any
++		if product == "koyo" && text(r["obsmon"]) != nil && text(r["obsday"]) != nil {
++			reportedDate = dateEvidence(str(r["obsmon"])+"/"+str(r["obsday"]), season["year"].(int))
++		}
++		items = append(items, map[string]any{"id": id, "name_ja": name, "name_kana": text(first(r, "pointname_kana", "name_kana")), "prefecture": text(first(r, "pref", "pref_en")), "city_ja": text(r["cityname"]), "latitude": number(first(r, "latd", "lat")), "longitude": number(first(r, "lond", "lon")), "elevation_m": nil, "elevation_status": "not_provided", "url": "https://weathernews.jp/" + product + "/spot/" + id + "/", "report": map[string]any{"kind": "observation", "status_ja": text(r["rank_txt"]), "status_code": number(first(r, "obsrank", "rank")), "valid_date": reportedDate, "date_precision": "day_or_unknown", "report_age_days": reportAge(reportedDate)}, "normal": map[string]any{"kind": "historical_norm", "period_ja": text(r["reinen"]), "reference_years": nil}})
++	}
++	sortItems(items)
++	page, next := paginate(items, limit, offset)
++	return map[string]any{"season": season, "query": query, "area": text(area), "items": page, "total": len(items), "inventory_total": len(seen), "next_offset": next, "coverage": "public inventory summaries; detail retrieved lazily; member radar excluded", "query_mode": "all terms must occur in source name/kana/city/address/prefecture; no fuzzy universal relevance score", "provider_fetched_at": providerFetched, "source": provenance(f)}, nil
++}
++func (c *Client) SeasonShow(ctx context.Context, product, id string) (map[string]any, error) {
++	if e := productOK(product); e != nil {
++		return nil, e
++	}
++	if !idRE.MatchString(id) {
++		return nil, fail(2, "--id must be the numeric source spot ID from season search")
++	}
++	f, e := c.Get(ctx, "https://weathernews.jp/"+product+"/spot/"+id+"/", time.Hour)
++	if e != nil {
++		return nil, e
++	}
++	season, e := SeasonState(f.Body, product)
++	if e != nil {
++		return nil, e
++	}
++	data, e := Nuxt(f.Body)
++	if e != nil {
++		return nil, e
++	}
++	var detail, report map[string]any
++	var providerFetched any
++	for _, v := range data {
++		r := object(v)
++		if str(r["spotid"]) == id {
++			detail = r
++		}
++		d := object(r["data"])
++		if d != nil {
++			if _, ok := d["obsrank"]; ok {
++				report = d
++				providerFetched = providerTime(r["fetchedAt"])
++			}
++			if _, ok := d["rankText"]; ok {
++				report = d
++				providerFetched = providerTime(r["fetchedAt"])
++			}
++		}
++	}
++	if detail == nil {
++		return nil, fail(3, "Weathernews seasonal spot %s not found", id)
++	}
++	if report == nil {
++		return nil, fail(5, "Weathernews seasonal report schema changed")
++	}
++	year := season["year"].(int)
++	visibility := "public"
++	if report["showContent"] == false {
++		visibility = "source_hidden"
++	}
++	var status, valid any
++	code := number(report["obsrank"])
++	if product == "koyo" {
++		status = text(report["rankText"])
++		valid = dateEvidence(report["obs"], year)
++		code = number(report["rank"])
++	} else {
++		m := sakuraStatusRE.FindSubmatch(f.Body)
++		if len(m) == 2 {
++			status = text(clean(string(m[1])))
++		}
++		valid = dateEvidence(report["obsday"], year)
++	}
++	if visibility == "source_hidden" {
++		status = nil
++		valid = nil
++		code = nil
++	}
++	predictions := []any{}
++	fields := []struct{ field, label, flag string }{{"migoro", "peak", "showMigoroPrediction"}, {"rakuyoStart", "leaf_fall_start", "showRakuyoStartPrediction"}}
++	if product == "sakura" {
++		fields = []struct{ field, label, flag string }{{"kaika", "bloom_start", "prediction"}, {"gobu", "half_bloom", "prediction"}, {"mankai", "full_bloom", "prediction"}, {"fubuki", "petal_fall", "prediction"}}
++	}
++	for _, x := range fields {
++		date := dateEvidence(report[x.field], year)
++		enabled, _ := report[x.flag].(bool)
++		state := "not_available"
++		if visibility == "source_hidden" {
++			state = "not_publicly_displayed"
++			date = nil
++			enabled = false
++		}
++		if season["updates_ended"] == true {
++			state = "season_ended"
++		} else if enabled && date != nil {
++			state = "available"
++		}
++		predictions = append(predictions, map[string]any{"event": x.label, "kind": predictionKind(enabled), "valid_date": date, "source_date_ja": text(report[x.field]), "issued_at": nil, "issue_time_status": "not_provided", "status": state, "date_precision": "day", "source_enabled": enabled})
++	}
++	name := str(first(detail, "name", "spotname"))
++	normal := text(first(detail, "reinennomigoro", "reinen"))
++	state := "available"
++	if season["updates_ended"] == true {
++		state = "season_ended"
++	}
++	return map[string]any{"season": season, "status": state, "location": map[string]any{"id": id, "name_ja": name, "name_kana": text(detail["name_kana"]), "prefecture": text(first(detail, "pref", "prefname")), "city_ja": text(detail["cityname"]), "address_ja": text(first(detail, "address", "addr")), "latitude": number(first(detail, "latd", "lat")), "longitude": number(first(detail, "lond", "lon")), "elevation_m": nil, "elevation_status": "not_provided", "url": f.URL}, "report": map[string]any{"kind": "observation", "status_ja": status, "status_code": code, "valid_date": valid, "source_date_ja": text(first(report, "obs", "obsday")), "issued_at": nil, "date_precision": "day_or_unknown", "timezone": "Asia/Tokyo", "report_age_days": reportAge(valid), "current_season": season["updates_ended"] != true, "comment_ja": text(report["comment"])}, "predictions": predictions, "normal": map[string]any{"kind": "historical_norm", "period_ja": normal, "reference_years": nil, "valid_date": nil}, "travel": map[string]any{"tree_species_ja": text(detail["kind"]), "access_train_ja": text(first(detail, "access_train", "train1")), "access_car_ja": text(first(detail, "access_car", "mycar1")), "opening_hours_ja": text(first(detail, "period", "term")), "fee_ja": text(first(detail, "price", "fee"))}, "coverage": map[string]any{"access": "public", "report_visibility": visibility, "member_only_products": []string{"season radar and other subscription-only coverage are excluded"}, "elevation": "not supplied by selected public source", "historical_norm_is_forecast": false}, "provider_fetched_at": providerFetched, "source": provenance(f)}, nil
++}
++func PeakCheck(detail map[string]any, date string, tolerance int) (string, map[string]any) {
++	season := object(detail["season"])
++	target, e := ParseDate(date)
++	if e != nil {
++		return "unknown", map[string]any{"reason": "invalid_date"}
++	}
++	if season["updates_ended"] == true {
++		return "unknown", map[string]any{"reason": "season_ended"}
++	}
++	year := int(*num(season["year"]))
++	if target.Year() != year {
++		return "unknown", map[string]any{"reason": "season_year_mismatch"}
++	}
++	preds, _ := detail["predictions"].([]any)
++	for _, p := range preds {
++		r := object(p)
++		event := str(r["event"])
++		if (event != "peak" && event != "full_bloom") || r["status"] != "available" {
++			continue
++		}
++		peak, e := ParseDate(str(r["valid_date"]))
++		if e != nil {
++			continue
++		}
++		delta := int(math.Abs(target.Sub(peak).Hours() / 24))
++		check := map[string]any{"criterion": "days_from_source_peak_prediction", "operator": "<=", "threshold_days": tolerance, "value_days": delta, "peak_prediction_date": r["valid_date"], "basis": "forecast date proximity, not an observation or guarantee of color"}
++		if delta <= tolerance {
++			return "meets", check
++		}
++		return "does_not_meet", check
++	}
++	return "unknown", map[string]any{"reason": "peak_prediction_not_available"}
++}
++func (c *Client) CompareSeason(ctx context.Context, product string, ids []string, date string, tolerance int) (map[string]any, error) {
++	if e := productOK(product); e != nil {
++		return nil, e
++	}
++	if len(ids) < 2 || len(ids) > 5 {
++		return nil, fail(2, "season compare requires 2–5 comma-separated --ids")
++	}
++	if _, e := ParseDate(date); e != nil {
++		return nil, e
++	}
++	if tolerance < 0 || tolerance > 45 {
++		return nil, fail(2, "--max-days-from-peak must be 0–45 days")
++	}
++	seen := map[string]bool{}
++	for _, id := range ids {
++		if !idRE.MatchString(id) || seen[id] {
++			return nil, fail(2, "--ids must contain distinct numeric source IDs")
++		}
++		seen[id] = true
++	}
++	items := []any{}
++	partial := false
++	for _, id := range ids {
++		d, e := c.SeasonShow(ctx, product, id)
++		if e != nil {
++			partial = true
++			items = append(items, map[string]any{"id": id, "status": "error", "error": e.Error()})
++			continue
++		}
++		status, check := PeakCheck(d, date, tolerance)
++		items = append(items, map[string]any{"location": d["location"], "season": d["season"], "status": status, "check": check, "report": d["report"], "normal": d["normal"], "source": d["source"]})
++	}
++	return map[string]any{"date": date, "timezone": "Asia/Tokyo", "items": items, "partial": partial, "comparison_basis": fmt.Sprintf("caller maximum %d days from published peak prediction; normals never substitute missing forecasts", tolerance)}, nil
++}
++
++func predictionKind(enabled bool) string {
++	if enabled {
++		return "forecast"
++	}
++	return "unclassified_source_date"
++}
+--- /dev/null
++++ internal/evidence/weather.go
+@@ -0,0 +1,304 @@
++package evidence
++
++import (
++	"context"
++	"encoding/json"
++	"fmt"
++	"math"
++	"net/url"
++	"regexp"
++	"sort"
++	"strings"
++	"time"
++)
++
++var cityIDRE = regexp.MustCompile(`/tenki/[^/]+/([0-9]+)/`)
++
++func (c *Client) Places(ctx context.Context, query string, limit, offset int) (map[string]any, error) {
++	query = strings.TrimSpace(query)
++	if query == "" || len([]rune(query)) > 100 {
++		return nil, fail(2, "--query requires 1–100 characters")
++	}
++	if e := bounds(limit, offset); e != nil {
++		return nil, e
++	}
++	u := "https://weathernews.jp/onebox/api_search.cgi?" + url.Values{"callback": {""}, "query": {query}, "lang": {"ja"}}.Encode()
++	f, e := c.Get(ctx, u, 24*time.Hour)
++	if e != nil {
++		return nil, e
++	}
++	var raw []map[string]any
++	if json.Unmarshal(f.Body, &raw) != nil || raw == nil {
++		return nil, fail(5, "Weathernews location schema changed")
++	}
++	items := make([]any, 0)
++	for _, r := range raw {
++		la, lo := num(r["lat"]), num(r["lon"])
++		if text(r["loc"]) == nil || la == nil || lo == nil {
++			return nil, fail(5, "Weathernews place identity missing")
++		}
++		uri, e := url.Parse(str(r["url"]))
++		if e != nil {
++			return nil, fail(5, "Weathernews place URL invalid")
++		}
++		u := (&url.URL{Scheme: "https", Host: "weathernews.jp"}).ResolveReference(uri)
++		u.RawQuery = ""
++		u.Fragment = ""
++		if allowed(u) != nil {
++			return nil, fail(5, "Weathernews place URL is not first-party")
++		}
++		id := "path:" + u.Path
++		kind := "place"
++		if m := cityIDRE.FindStringSubmatch(u.Path); len(m) == 2 {
++			id = "city:" + m[1]
++			kind = "city"
++		}
++		items = append(items, map[string]any{"id": id, "name_ja": str(r["loc"]), "kind": kind, "latitude": *la, "longitude": *lo, "elevation_m": nil, "elevation_status": "not_provided", "url": u.String()})
++	}
++	page, next := paginate(items, limit, offset)
++	return map[string]any{"query": query, "items": page, "total": len(items), "next_offset": next, "coverage": "public source search matches; choose exact identity and coordinates", "source": provenance(f)}, nil
++}
++func bounds(limit, offset int) error {
++	if limit < 1 || limit > 50 || offset < 0 || offset > 10000 {
++		return fail(2, "--limit must be 1–50 and --offset 0–10000")
++	}
++	return nil
++}
++func paginate(items []any, limit, offset int) ([]any, any) {
++	if offset >= len(items) {
++		return []any{}, nil
++	}
++	end := offset + limit
++	if end > len(items) {
++		end = len(items)
++	}
++	var next any
++	if end < len(items) {
++		next = end
++	}
++	return items[offset:end], next
++}
++func validCoords(lat, lon float64) error {
++	if math.IsNaN(lat) || math.IsNaN(lon) || math.IsInf(lat, 0) || math.IsInf(lon, 0) || lat < 20 || lat > 46 || lon < 122 || lon > 154 {
++		return fail(2, "coordinates must be finite within Japan bounding box (lat 20–46, lon 122–154); source verifies Japan coverage")
++	}
++	return nil
++}
++func ParseDate(s string) (time.Time, error) {
++	d, e := time.ParseInLocation("2006-01-02", s, JST)
++	if e != nil {
++		return time.Time{}, fail(2, "--date requires a real YYYY-MM-DD date in JST")
++	}
++	return d, nil
++}
++func unix(v any) any {
++	n := num(v)
++	if n == nil || *n <= 0 {
++		return nil
++	}
++	return stamp(time.Unix(int64(*n), 0))
++}
++func issue(s string) any {
++	t, e := time.Parse("2006-01-02T15:04 MST", s)
++	if e != nil {
++		return nil
++	}
++	return stamp(t)
++}
++
++type ForecastOptions struct {
++	Lat, Lon    float64
++	Name, Date  string
++	Hours, Days int
++}
++
++func (c *Client) Forecast(ctx context.Context, o ForecastOptions) (map[string]any, error) {
++	if e := validCoords(o.Lat, o.Lon); e != nil {
++		return nil, e
++	}
++	if o.Hours < 0 || o.Hours > 72 || o.Days < 0 || o.Days > 14 || o.Hours+o.Days == 0 {
++		return nil, fail(2, "--hours must be 0–72 and --days 0–14, with at least one row requested")
++	}
++	if o.Date != "" {
++		if _, e := ParseDate(o.Date); e != nil {
++			return nil, e
++		}
++	}
++	raw := "https://site.weathernews.jp/lba/wxdata/api_data_ss1?" + url.Values{"lat": {fmt.Sprintf("%.6f", o.Lat)}, "lon": {fmt.Sprintf("%.6f", o.Lon)}}.Encode()
++	f, e := c.Get(ctx, raw, 10*time.Minute)
++	if e != nil {
++		return nil, e
++	}
++	var data map[string]any
++	if json.Unmarshal(f.Body, &data) != nil {
++		return nil, fail(5, "Weathernews forecast schema changed")
++	}
++	if number(data["is_japan"]) != float64(1) {
++		return nil, fail(3, "Weathernews says coordinates are outside Japan forecast coverage")
++	}
++	srf, ok := data["srf"].([]any)
++	mrf, ok2 := data["mrf"].([]any)
++	if !ok || !ok2 || len(srf) == 0 || len(mrf) == 0 {
++		return nil, fail(5, "Weathernews forecast horizon is missing")
++	}
++	hourly := []any{}
++	daily := []any{}
++	for _, v := range srf {
++		r := object(v)
++		at := unix(r["tm"])
++		if at == nil {
++			return nil, fail(5, "hourly valid time missing")
++		}
++		if o.Date != "" && !strings.HasPrefix(str(at), o.Date) {
++			continue
++		}
++		if len(hourly) >= o.Hours {
++			continue
++		}
++		hourly = append(hourly, map[string]any{"kind": "forecast", "valid_at": at, "issued_at": nil, "temperature_c": number(r["AIRTMP"]), "precipitation_mm": number(r["PREC"]), "precipitation_interval_hours": number(object(data["srf_attr"])["stride"]), "wind_speed_m_s": number(r["WNDSPD"]), "wind_direction_code": number(r["WNDDIR"]), "humidity_percent": number(r["RHUM"]), "weather_code": number(r["WX"])})
++	}
++	for _, v := range mrf {
++		r := object(v)
++		at := unix(r["tm"])
++		if at == nil {
++			return nil, fail(5, "daily valid time missing")
++		}
++		date := str(at)[:10]
++		if o.Date != "" && date != o.Date {
++			continue
++		}
++		if len(daily) >= o.Days {
++			continue
++		}
++		daily = append(daily, map[string]any{"kind": "forecast", "valid_date": date, "timezone": "Asia/Tokyo", "issued_at": nil, "max_temperature_c": number(r["MAXT"]), "min_temperature_c": number(r["MINT"]), "precipitation_probability_percent": number(r["POP"]), "precipitation_mm": number(r["PREC"]), "weather_code": number(r["WX"])})
++	}
++	// Source stride is seconds; preserve amount units while exposing hours.
++	for _, v := range hourly {
++		m := object(v)
++		if n := num(m["precipitation_interval_hours"]); n != nil {
++			m["precipitation_interval_hours"] = *n / 3600
++		}
++		m["precipitation_interval_alignment"] = "source_hour_label"
++	}
++	obs := object(data["observation"])
++	var observed any
++	if len(obs) > 0 {
++		observed = map[string]any{"kind": "observation", "valid_at": issue(str(obs["ISSUE"])), "issued_at": nil, "name_ja": text(obs["LNAME"]), "temperature_c": number(obs["AIRTMP"]), "precipitation_mm": number(obs["PREC"]), "precipitation_interval_hours": nil, "wind_speed_m_s": number(obs["WNDSPD"]), "humidity_percent": number(obs["RHUM"]), "weather_code": number(obs["WX"]), "coverage": "public source observation; measurement interval and station elevation not supplied"}
++	}
++	geo := object(data["geo"])
++	location := map[string]any{"id": "jcode:" + str(geo["JCODE"]), "name_ja": text(obs["LNAME"]), "latitude": number(geo["lat"]), "longitude": number(geo["lon"]), "elevation_m": nil, "elevation_status": "not_provided", "grid_resolution_m": nil, "requested_name": text(o.Name), "requested_latitude": o.Lat, "requested_longitude": o.Lon, "url": fmt.Sprintf("https://weathernews.jp/onebox/%.6f/%.6f/", o.Lat, o.Lon)}
++	status := "available"
++	if o.Date != "" && len(hourly) == 0 && len(daily) == 0 {
++		status = "out_of_horizon"
++	}
++	return map[string]any{"location": location, "status": status, "requested_date": text(o.Date), "timezone": "Asia/Tokyo", "issued_at": nil, "issue_time_status": "not_provided_by_public_forecast", "hourly": hourly, "daily": daily, "observation": observed, "horizon": map[string]any{"hourly_first": unix(object(srf[0])["tm"]), "hourly_last": unix(object(srf[len(srf)-1])["tm"]), "daily_first": str(unix(object(mrf[0])["tm"]))[:10], "daily_last": str(unix(object(mrf[len(mrf)-1])["tm"]))[:10]}, "coverage": "public forecast only; member radar and extended products excluded", "source": provenance(f)}, nil
++}
++
++type Point struct {
++	Name     string
++	Lat, Lon float64
++}
++
++func ParsePoint(s string) (Point, error) {
++	name, coord, ok := strings.Cut(s, "=")
++	if !ok || strings.TrimSpace(name) == "" {
++		return Point{}, fail(2, "--point requires name=latitude,longitude (e.g. Kyoto=35.01167,135.76806)")
++	}
++	parts := strings.Split(coord, ",")
++	if len(parts) != 2 {
++		return Point{}, fail(2, "--point requires exactly two coordinates")
++	}
++	var p Point
++	p.Name = name
++	la, lo := num(parts[0]), num(parts[1])
++	if la == nil || lo == nil {
++		return p, fail(2, "--point has invalid coordinates")
++	}
++	p.Lat, p.Lon = *la, *lo
++	return p, validCoords(p.Lat, p.Lon)
++}
++
++type Criteria struct{ MaxPOP, MaxTemp, MinTemp *float64 }
++
++func CheckDaily(d map[string]any, c Criteria) (string, []any) {
++	checks := []any{}
++	unknown, failed := false, false
++	for _, x := range []struct {
++		name, field, op string
++		threshold       *float64
++	}{{"max_pop_percent", "precipitation_probability_percent", "<=", c.MaxPOP}, {"max_temperature_c", "max_temperature_c", "<=", c.MaxTemp}, {"min_temperature_c", "min_temperature_c", ">=", c.MinTemp}} {
++		if x.threshold == nil {
++			continue
++		}
++		v := num(d[x.field])
++		var pass any
++		if v == nil {
++			unknown = true
++		} else {
++			p := *v <= *x.threshold
++			if x.op == ">=" {
++				p = *v >= *x.threshold
++			}
++			pass = p
++			if !p {
++				failed = true
++			}
++		}
++		checks = append(checks, map[string]any{"criterion": x.name, "operator": x.op, "threshold": *x.threshold, "value": number(d[x.field]), "passes": pass})
++	}
++	if failed {
++		return "does_not_meet", checks
++	}
++	if unknown {
++		return "unknown", checks
++	}
++	return "meets", checks
++}
++func (c *Client) CompareWeather(ctx context.Context, points []Point, date string, criteria Criteria) (map[string]any, error) {
++	if len(points) < 2 || len(points) > 5 {
++		return nil, fail(2, "weather compare requires 2–5 --point candidates")
++	}
++	if _, e := ParseDate(date); e != nil {
++		return nil, e
++	}
++	if criteria.MaxPOP == nil && criteria.MaxTemp == nil && criteria.MinTemp == nil {
++		return nil, fail(2, "supply at least one criterion: --max-pop, --max-temp, --min-temp")
++	}
++	if criteria.MaxPOP != nil && (*criteria.MaxPOP < 0 || *criteria.MaxPOP > 100 || math.IsNaN(*criteria.MaxPOP)) {
++		return nil, fail(2, "--max-pop must be 0–100 percent")
++	}
++	for _, n := range []*float64{criteria.MaxTemp, criteria.MinTemp} {
++		if n != nil && (math.IsNaN(*n) || math.IsInf(*n, 0) || *n < -80 || *n > 60) {
++			return nil, fail(2, "temperature thresholds must be finite between -80 and 60 C")
++		}
++	}
++	if criteria.MinTemp != nil && criteria.MaxTemp != nil && *criteria.MinTemp > *criteria.MaxTemp {
++		return nil, fail(2, "--min-temp exceeds --max-temp")
++	}
++	rows := []any{}
++	partial := false
++	for _, p := range points {
++		f, e := c.Forecast(ctx, ForecastOptions{p.Lat, p.Lon, p.Name, date, 0, 1})
++		if e != nil {
++			partial = true
++			rows = append(rows, map[string]any{"name": p.Name, "status": "error", "error": e.Error()})
++			continue
++		}
++		ds := f["daily"].([]any)
++		status := "out_of_horizon"
++		checks := []any{}
++		var day any
++		if len(ds) > 0 {
++			day = ds[0]
++			status, checks = CheckDaily(object(day), criteria)
++		}
++		rows = append(rows, map[string]any{"name": p.Name, "location": f["location"], "status": status, "checks": checks, "daily": day, "horizon": f["horizon"], "source": f["source"]})
++	}
++	// Retain input order. Comparison criteria are independent, never a score.
++	return map[string]any{"date": date, "timezone": "Asia/Tokyo", "items": rows, "partial": partial, "comparison_basis": "daily source forecast against caller thresholds; no destination score"}, nil
++}
++
++// Stable source-ID order makes offset pagination reproducible within a snapshot.
++func sortItems(items []any) {
++	sort.Slice(items, func(i, j int) bool { return str(object(items[i])["id"]) < str(object(items[j])["id"]) })
++}
+--- /dev/null
++++ internal/cli/travel_evidence.go
+@@ -0,0 +1,314 @@
++package cli
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"github.com/spf13/cobra"
++	"path/filepath"
++	"strings"
++	"time"
++	"weathernews-pp-cli/internal/cliutil"
++	wn "weathernews-pp-cli/internal/evidence"
++)
++
++// pp:data-source live
++// Focused commands use public first-party read-through HTTP; local means fresh cache only.
++func init() {
++	registerNovelCommand(func(rootCmd *cobra.Command, flags *rootFlags) {
++		rootCmd.AddCommand(newPlacesCmd(flags))
++		rootCmd.AddCommand(newWeatherCmd(flags))
++		rootCmd.AddCommand(newSeasonCmd(flags))
++	})
++}
++
++type evidenceOptions struct {
++	refresh, metrics bool
++	cacheDir         string
++}
++
++func configureEvidenceGroup(c *cobra.Command, o *evidenceOptions) {
++	c.PersistentFlags().BoolVar(&o.refresh, "refresh", false, "Explicitly refresh source inventory or evidence, bypassing cached responses")
++	c.PersistentFlags().BoolVar(&o.metrics, "metrics", false, "Write request count, cache hits, download size and latency as JSON to stderr")
++	c.PersistentFlags().StringVar(&o.cacheDir, "cache-dir", "", "Override the bounded HTTP cache directory for this invocation")
++}
++func sourceErr(e error) error {
++	var limited *cliutil.RateLimitError
++	if errors.As(e, &limited) {
++		return rateLimitErr(e)
++	}
++	var x *wn.Error
++	if errors.As(e, &x) {
++		switch x.Code {
++		case 2:
++			return usageErr(e)
++		case 3:
++			return notFoundErr(e)
++		case 4:
++			return authErr(e)
++		case 7:
++			return rateLimitErr(e)
++		}
++	}
++	return apiErr(e)
++}
++func withEvidence(cmd *cobra.Command, flags *rootFlags, o *evidenceOptions, run func(context.Context, *wn.Client) (map[string]any, error)) error {
++	if dryRunOK(flags) {
++		return writeDryRun(cmd.OutOrStdout(), flags, cmd.CommandPath())
++	}
++	if flags.timeout <= 0 {
++		return usageErr(fmt.Errorf("--timeout must be positive"))
++	}
++	dir := o.cacheDir
++	if dir == "" {
++		p, e := cliutil.CacheDir()
++		if e != nil {
++			return configErr(e)
++		}
++		dir = filepath.Join(p, "public-http")
++	}
++	c := wn.NewClient(dir, flags.timeout)
++	rate := 2.0
++	if flags.rateLimit >= 0 {
++		rate = flags.rateLimit
++	}
++	if rate > 5 {
++		rate = 5
++	}
++	c.Limiter = cliutil.NewAdaptiveLimiter(rate)
++	c.NoCache = flags.noCache
++	c.Refresh = o.refresh
++	c.Offline = flags.dataSource == "local"
++	if c.Offline && (c.NoCache || c.Refresh) {
++		return usageErr(fmt.Errorf("--data-source local is incompatible with --refresh or --no-cache"))
++	}
++	parentCtx, boundCancel := boundCtx(cmd.Context(), flags)
++	defer boundCancel()
++	ctx, cancel := context.WithTimeout(parentCtx, 90*time.Second)
++	defer cancel()
++	result, e := run(ctx, c)
++	if o.metrics {
++		b, _ := json.Marshal(c.Stats())
++		fmt.Fprintln(cmd.ErrOrStderr(), string(b))
++	}
++	if e != nil {
++		return sourceErr(e)
++	}
++	flags.asJSON = true
++	b, e := json.Marshal(result)
++	if e != nil {
++		return e
++	}
++	fields := map[string]bool{}
++	for k := range result {
++		fields[k] = true
++	}
++	outputFlags := *flags
++	outputFlags.compact = false // Domain rows already contain only evidence fields; generic gravity pruning drops units and dates.
++	var rendered bytes.Buffer
++	transport := "live"
++	if c.Metrics.Requests == 0 && c.Metrics.CacheHits > 0 {
++		transport = "cache"
++	} else if c.Metrics.CacheHits > 0 {
++		transport = "mixed"
++	}
++	if e = printOutputWithFlagsMeta(&rendered, b, &outputFlags, map[string]any{"source": "live", "transport": transport, "timezone": "Asia/Tokyo"}, fields); e != nil {
++		return usageErr(e)
++	}
++	if !flags.csv && !flags.plain && !flags.quiet {
++		var compact bytes.Buffer
++		if e = json.Compact(&compact, rendered.Bytes()); e != nil {
++			return e
++		}
++		if _, e = fmt.Fprintln(cmd.OutOrStdout(), compact.String()); e != nil {
++			return e
++		}
++	} else {
++		if _, e = cmd.OutOrStdout().Write(rendered.Bytes()); e != nil {
++			return e
++		}
++	}
++	if result["partial"] == true {
++		return apiErr(fmt.Errorf("comparison is partial; inspect per-candidate errors in JSON"))
++	}
++	return nil
++}
++func newPlacesCmd(flags *rootFlags) *cobra.Command {
++	o := &evidenceOptions{}
++	g := &cobra.Command{Use: "places", Short: "Resolve Japanese place identity and source coordinates", Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true"}, RunE: parentNoSubcommandRunE(flags)}
++	configureEvidenceGroup(g, o)
++	g.AddCommand(newPlacesResolveCmd(flags, o))
++	return g
++}
++func newPlacesResolveCmd(flags *rootFlags, o *evidenceOptions) *cobra.Command {
++	var query string
++	limit, offset := 10, 0
++	c := &cobra.Command{Use: "resolve", Short: "Search public Weathernews places; preserve ambiguous matches", Example: strings.Trim(`
++  weathernews-pp-cli places resolve --query 京都 --limit 5 --agent
++  weathernews-pp-cli places resolve --query 高尾山 --select items.id,items.name_ja,items.latitude,items.longitude`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5,7", "pp:happy-args": "--query=京都;--limit=3"}, RunE: func(cmd *cobra.Command, args []string) error {
++		return withEvidence(cmd, flags, o, func(ctx context.Context, c *wn.Client) (map[string]any, error) {
++			if len(args) > 0 {
++				return nil, &wn.Error{Code: 2, Message: "use --query for place resolution"}
++			}
++			return c.Places(ctx, query, limit, offset)
++		})
++	}}
++	c.Flags().StringVar(&query, "query", "", "Place word in Japanese or provider-supported language")
++	c.Flags().IntVar(&limit, "limit", 10, "Maximum matches returned, bounded to 1–50")
++	c.Flags().IntVar(&offset, "offset", 0, "Source-result offset for bounded pagination")
++
++	return c
++}
++func newWeatherCmd(flags *rootFlags) *cobra.Command {
++	o := &evidenceOptions{}
++	g := &cobra.Command{Use: "weather", Short: "Forecast evidence and caller-defined weather comparisons", Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true"}, RunE: parentNoSubcommandRunE(flags)}
++	configureEvidenceGroup(g, o)
++	g.AddCommand(newWeatherForecastCmd(flags, o))
++	g.AddCommand(newWeatherCompareCmd(flags, o))
++	return g
++}
++func newWeatherForecastCmd(flags *rootFlags, o *evidenceOptions) *cobra.Command {
++	opts := wn.ForecastOptions{Hours: 12, Days: 3}
++	c := &cobra.Command{Use: "forecast", Short: "Read bounded hourly/daily forecasts with separate observation", Example: strings.Trim(`
++  weathernews-pp-cli weather forecast --lat 35.01167 --lon 135.76806 --hours 6 --days 3 --agent
++  weathernews-pp-cli weather forecast --lat 35.01167 --lon 135.76806 --date 2026-11-01 --agent`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5,7", "pp:happy-args": "--lat=35.01167;--lon=135.76806;--hours=3;--days=2"}, RunE: func(cmd *cobra.Command, args []string) error {
++		return withEvidence(cmd, flags, o, func(ctx context.Context, c *wn.Client) (map[string]any, error) {
++			if len(args) > 0 {
++				return nil, &wn.Error{Code: 2, Message: "forecast accepts flags only"}
++			}
++			return c.Forecast(ctx, opts)
++		})
++	}}
++	c.Flags().Float64Var(&opts.Lat, "lat", 0, "Latitude from places resolve; source verifies Japan coverage")
++	c.Flags().Float64Var(&opts.Lon, "lon", 0, "Longitude from places resolve; source verifies Japan coverage")
++	c.Flags().StringVar(&opts.Name, "name", "", "Optional caller label; source location name remains distinct")
++	c.Flags().StringVar(&opts.Date, "date", "", "Optional YYYY-MM-DD in JST; unavailable dates are out_of_horizon")
++	c.Flags().IntVar(&opts.Hours, "hours", 12, "Maximum hourly rows, 0–72; 0 omits hourly rows")
++	c.Flags().IntVar(&opts.Days, "days", 3, "Maximum daily rows, 0–14; 0 omits daily rows")
++
++	return c
++}
++func newWeatherCompareCmd(flags *rootFlags, o *evidenceOptions) *cobra.Command {
++	var points []string
++	var batchPoints string
++	var date string
++	var pop, maxTemp, minTemp float64
++	cmp := &cobra.Command{Use: "compare", Short: "Compare 2–5 coordinates against explicit daily thresholds", Example: strings.Trim(`
++  weathernews-pp-cli weather compare --points 'Kyoto=35.01167,135.76806|Tokyo=35.681,139.767' --date 2026-10-01 --max-pop 40 --max-temp 30 --agent`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5,7", "pp:happy-args": "--points=Kyoto=35.01167,135.76806|Tokyo=35.681,139.767;--date=2026-10-01;--max-pop=40"}, RunE: func(cmd *cobra.Command, args []string) error {
++		return withEvidence(cmd, flags, o, func(ctx context.Context, c *wn.Client) (map[string]any, error) {
++			if len(args) > 0 {
++				return nil, &wn.Error{Code: 2, Message: "compare accepts --point flags only"}
++			}
++			candidates := points
++			if batchPoints != "" {
++				if len(points) > 0 {
++					return nil, &wn.Error{Code: 2, Message: "use either --point or --points"}
++				}
++				candidates = strings.Split(batchPoints, "|")
++			}
++			if len(candidates) > 5 {
++				return nil, &wn.Error{Code: 2, Message: "at most five --point candidates"}
++			}
++			p := []wn.Point{}
++			seen := map[string]bool{}
++			for _, s := range candidates {
++				v, e := wn.ParsePoint(s)
++				if e != nil {
++					return nil, e
++				}
++				if seen[v.Name] {
++					return nil, &wn.Error{Code: 2, Message: "--point names must be distinct"}
++				}
++				seen[v.Name] = true
++				p = append(p, v)
++			}
++			criteria := wn.Criteria{}
++			if cmd.Flags().Changed("max-pop") {
++				criteria.MaxPOP = &pop
++			}
++			if cmd.Flags().Changed("max-temp") {
++				criteria.MaxTemp = &maxTemp
++			}
++			if cmd.Flags().Changed("min-temp") {
++				criteria.MinTemp = &minTemp
++			}
++			return c.CompareWeather(ctx, p, date, criteria)
++		})
++	}}
++	cmp.Flags().StringVar(&batchPoints, "points", "", "Alternative batch name=latitude,longitude entries separated by |; 2–5 candidates")
++	cmp.Flags().StringArrayVar(&points, "point", nil, "Repeat name=latitude,longitude for 2–5 candidates; preserves input order")
++	cmp.Flags().StringVar(&date, "date", "", "Required real YYYY-MM-DD date in JST")
++	cmp.Flags().Float64Var(&pop, "max-pop", 0, "Caller maximum daily precipitation probability in percent")
++	cmp.Flags().Float64Var(&maxTemp, "max-temp", 0, "Caller maximum daily high temperature in Celsius")
++	cmp.Flags().Float64Var(&minTemp, "min-temp", 0, "Caller minimum daily low temperature in Celsius")
++
++	return cmp
++}
++func newSeasonCmd(flags *rootFlags) *cobra.Command {
++	o := &evidenceOptions{}
++	g := &cobra.Command{Use: "season", Short: "Sakura/foliage reports, predictions and historical normals", Annotations: map[string]string{"mcp:read-only": "true", "pp:parent-group": "true"}, RunE: parentNoSubcommandRunE(flags)}
++	configureEvidenceGroup(g, o)
++	g.AddCommand(newSeasonSearchCmd(flags, o))
++	g.AddCommand(newSeasonShowCmd(flags, o))
++	g.AddCommand(newSeasonCompareCmd(flags, o))
++	return g
++}
++func newSeasonSearchCmd(flags *rootFlags, o *evidenceOptions) *cobra.Command {
++	var p, area, query string
++	limit, offset := 10, 0
++	search := &cobra.Command{Use: "search", Short: "Search bounded seasonal summaries before lazy detail retrieval", Example: strings.Trim(`
++  weathernews-pp-cli season search --product koyo --area kyoto --query 嵐山 --agent
++  weathernews-pp-cli season search --product sakura --query 清水 --limit 5 --agent --select items.id,items.name_ja,season`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5,7", "pp:happy-args": "--product=koyo;--area=kyoto;--query=嵐山;--limit=3"}, RunE: func(cmd *cobra.Command, args []string) error {
++		return withEvidence(cmd, flags, o, func(ctx context.Context, c *wn.Client) (map[string]any, error) {
++			if len(args) > 0 {
++				return nil, &wn.Error{Code: 2, Message: "season search accepts flags only"}
++			}
++			return c.SeasonSearch(ctx, p, area, query, limit, offset)
++		})
++	}}
++	search.Flags().StringVar(&p, "product", "", "Season product: sakura or koyo")
++	search.Flags().StringVar(&area, "area", "", "Weathernews prefecture/region slug, e.g. kyoto, hokkaido, kanto")
++	search.Flags().StringVar(&query, "query", "", "All literal terms must match source name, kana, city, address or prefecture")
++	search.Flags().IntVar(&limit, "limit", 10, "Maximum summaries returned, bounded to 1–50")
++	search.Flags().IntVar(&offset, "offset", 0, "Offset into stable source-ID order within current inventory snapshot")
++
++	return search
++}
++func newSeasonShowCmd(flags *rootFlags, o *evidenceOptions) *cobra.Command {
++	var product, id string
++	show := &cobra.Command{Use: "show", Short: "Fetch one source spot with observation/forecast/normal separation", Example: strings.Trim(`
++  weathernews-pp-cli season show --product koyo --id 26102 --agent
++  weathernews-pp-cli season show --product sakura --id 384 --agent`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5,7", "pp:happy-args": "--product=koyo;--id=26102"}, RunE: func(cmd *cobra.Command, args []string) error {
++		return withEvidence(cmd, flags, o, func(ctx context.Context, c *wn.Client) (map[string]any, error) {
++			if len(args) > 0 {
++				return nil, &wn.Error{Code: 2, Message: "season show accepts --id only"}
++			}
++			return c.SeasonShow(ctx, product, id)
++		})
++	}}
++	show.Flags().StringVar(&product, "product", "", "Season product: sakura or koyo")
++	show.Flags().StringVar(&id, "id", "", "Numeric source spot ID obtained from season search")
++
++	return show
++}
++func newSeasonCompareCmd(flags *rootFlags, o *evidenceOptions) *cobra.Command {
++	var cp, ids, date string
++	var tolerance int
++	cmp := &cobra.Command{Use: "compare", Short: "Compare 2–5 spots by caller tolerance from published peak date", Example: strings.Trim(`
++  weathernews-pp-cli season compare --product koyo --ids 26101,26111 --date 2026-11-26 --max-days-from-peak 3 --agent`, "\n"), Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:typed-exit-codes": "0,2,3,4,5,7", "pp:happy-args": "--product=koyo;--ids=26101,26111;--date=2026-11-26;--max-days-from-peak=3"}, RunE: func(cmd *cobra.Command, args []string) error {
++		return withEvidence(cmd, flags, o, func(ctx context.Context, c *wn.Client) (map[string]any, error) {
++			if len(args) > 0 || !cmd.Flags().Changed("max-days-from-peak") {
++				return nil, &wn.Error{Code: 2, Message: "supply --ids, --date and explicit --max-days-from-peak (0–45)"}
++			}
++			return c.CompareSeason(ctx, cp, strings.Split(ids, ","), date, tolerance)
++		})
++	}}
++	cmp.Flags().StringVar(&cp, "product", "", "Season product: sakura or koyo")
++	cmp.Flags().StringVar(&ids, "ids", "", "Comma-separated distinct numeric source spot IDs, 2–5 maximum")
++	cmp.Flags().StringVar(&date, "date", "", "Required real YYYY-MM-DD date in JST")
++	cmp.Flags().IntVar(&tolerance, "max-days-from-peak", 0, "Explicit caller maximum absolute days from predicted peak, 0–45")
++
++	return cmp
++}

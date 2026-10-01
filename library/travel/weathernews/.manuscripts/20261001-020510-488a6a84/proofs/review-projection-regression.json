@@ -1,0 +1,20 @@
+[
+  {
+    "case": "unknown-outside",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "Error: --select unknown field \"definitely_missing\" for weather forecast; inspect unprojected JSON or command help\n"
+  },
+  {
+    "case": "mixed",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "Error: --select unknown field \"definitely_missing\" for season show; inspect unprojected JSON or command help\n"
+  },
+  {
+    "case": "known-empty",
+    "exit": 0,
+    "stdout": "{\"daily\":[],\"status\":\"out_of_horizon\"}\n",
+    "stderr": ""
+  }
+]
