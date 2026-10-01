@@ -46,7 +46,7 @@ checksum:
 brews:
   - name: eplus-pp-cli
     repository:
-      owner: zjsng-trav
+      owner: zjsng
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
     description: "Discover Japanese performances and plan source-backed ticket sale windows."

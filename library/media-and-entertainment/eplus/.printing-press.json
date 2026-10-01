@@ -6,17 +6,11 @@
   "display_name": "eplus",
   "cli_name": "eplus-pp-cli",
   "creator": {
-    "handle": "zjsng-trav",
+    "handle": "zjsng",
     "name": "zjsng"
   },
-  "contributors": [
-    {
-      "handle": "zjsng",
-      "name": "zjsng"
-    }
-  ],
-  "owner": "zjsng-trav",
-  "printer": "zjsng-trav",
+  "owner": "zjsng",
+  "printer": "zjsng",
   "printer_name": "zjsng",
   "spec_path": "spec.yaml",
   "spec_format": "internal",

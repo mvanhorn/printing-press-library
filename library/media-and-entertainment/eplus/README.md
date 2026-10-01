@@ -2,8 +2,7 @@
 
 **Discover Japanese performances and plan source-backed ticket sale windows.**
 
-Created by [@zjsng-trav](https://github.com/zjsng-trav) (zjsng).
-Contributors: [@zjsng](https://github.com/zjsng) (zjsng).
+Created by [@zjsng](https://github.com/zjsng) (zjsng).
 
 
 ## Install and run
