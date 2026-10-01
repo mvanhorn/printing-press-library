@@ -754,7 +754,12 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			// expired session would be handed to the caller as a successful
 			// response and the invalidate-and-retry loop below would never
 			// fire, because that loop only ever sees status codes.
-			if dsmCode, failed := dsmErrorCode(respBody); failed {
+			// Synology's download mode marks a successful file transfer with
+			// Content-Disposition: attachment. The file can itself contain a
+			// JSON object shaped exactly like a DSM error, so attached bytes
+			// take precedence over RPC error parsing.
+			attachedDownload := binaryResponse && strings.HasPrefix(strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Disposition"))), "attachment")
+			if dsmCode, failed := dsmErrorCode(respBody); failed && !attachedDownload {
 				if dsmCode == dsmErrSessionExpired && c.Session != nil && attempt < maxRetries && authHeader != "" {
 					c.Session.Invalidate()
 					authHeader = ""

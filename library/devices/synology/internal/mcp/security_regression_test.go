@@ -107,6 +107,53 @@ func TestDSMDownloadDoesNotInterpretJSONFileAsTransportEnvelope(t *testing.T) {
 	}
 }
 
+func TestDSMDownloadPreservesAttachedJSONFileShapedLikeAnError(t *testing.T) {
+	resetMCPPathEnv(t)
+	payload := []byte(`{"success":false,"error":{"code":119}}`)
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.Query().Get("mode"); got != "download" {
+			t.Errorf("MCP download mode = %q, want download", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Disposition", `attachment; filename="file.json"`)
+		_, _ = w.Write(payload)
+	}))
+	defer fixture.Close()
+	t.Setenv("SYNOLOGY_BASE_URL", fixture.URL)
+	s := server.NewMCPServer("test", "test")
+	RegisterTools(s)
+	result, err := s.GetTool("files_download").Handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "files_download", Arguments: map[string]any{"path": `["/file.json"]`}}})
+	if err != nil || result.IsError {
+		t.Fatalf("attached JSON file was rejected: %#v %v", result, err)
+	}
+	var output struct {
+		Data string `json:"data_base64"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &output); err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := base64.StdEncoding.DecodeString(output.Data)
+	if err != nil || !bytes.Equal(decoded, payload) {
+		t.Fatalf("attached JSON file bytes changed: err=%v", err)
+	}
+}
+
+func TestDSMDownloadRPCErrorWithoutAttachmentStillFails(t *testing.T) {
+	resetMCPPathEnv(t)
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"success":false,"error":{"code":119}}`))
+	}))
+	defer fixture.Close()
+	t.Setenv("SYNOLOGY_BASE_URL", fixture.URL)
+	s := server.NewMCPServer("test", "test")
+	RegisterTools(s)
+	result, err := s.GetTool("files_download").Handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "files_download", Arguments: map[string]any{"path": `["/missing.json"]`}}})
+	if err != nil || !result.IsError {
+		t.Fatalf("DSM JSON error should not become file bytes: %#v %v", result, err)
+	}
+}
+
 func TestDSMDownloadOverLimitReturnsErrorWithoutTruncation(t *testing.T) {
 	resetMCPPathEnv(t)
 	payload := bytes.Repeat([]byte("x"), bound.MaxBytes)

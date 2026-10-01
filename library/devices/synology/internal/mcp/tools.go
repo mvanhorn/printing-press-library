@@ -103,7 +103,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("files_download",
 			mcplib.WithDescription("Download a file or folder. Required: path. Optional: mode."),
 			mcplib.WithString("path", mcplib.Required(), mcplib.Description("JSON array of absolute paths to download")),
-			mcplib.WithString("mode", mcplib.Description("Transfer mode, open to stream inline or download to attach")),
+			mcplib.WithString("mode", mcplib.Description("Transfer mode, download (default) to attach or open to stream inline")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -709,6 +709,11 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			default:
 				params[k] = formatMCPParamValue(v)
 			}
+		}
+		// Synology documents an attachment header for download mode. It lets
+		// the client distinguish a JSON file from DSM's JSON error envelope.
+		if strings.Contains(pathTemplate, "api=SYNO.FileStation.Download&method=download&") && params["mode"] == "" {
+			params["mode"] = "download"
 		}
 
 		var data json.RawMessage

@@ -4,7 +4,7 @@
   "applied_at": "2026-09-20",
   "base_run_id": "20260824-135140",
   "base_printing_press_version": "4.29.0",
-  "summary": "DSM GET-shaped writes must bypass cache and ambiguous retries; MCP must disclose their effects, redact login credentials, and return complete decoded downloads or explicit size errors.",
+  "summary": "DSM GET-shaped writes must bypass cache and ambiguous retries; MCP must disclose their effects, redact login credentials, and preserve attached downloads byte-for-byte or return explicit size errors.",
   "reason": "DSM uses GET for state-changing operations and embeds live credentials and binary transport envelopes in responses; generic GET retry/cache, read-only annotations and text handling are unsafe.",
   "files": [
     "internal/mcp/tools.go",
