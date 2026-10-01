@@ -260,6 +260,44 @@ func TestLegacyArchivePendingCoversTypedTables(t *testing.T) {
 	}
 }
 
+// Older archives keyed resources on id alone. A legacy resource missing from
+// data.db must still be reported pending even though the declared keys differ.
+func TestLegacyArchivePendingCoversOlderResourcesKey(t *testing.T) {
+	testenv.Isolate(t)
+	t.Setenv("WAVESPEED_ARCHIVE_DB", "")
+	current := defaultDBPath("wavespeed-pp-cli")
+	s, err := store.Open(current)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	legacy := filepath.Join(filepath.Dir(current), "archive.db")
+	db, err := sql.Open("sqlite", legacy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, q := range []string{
+		`CREATE TABLE resources (id TEXT PRIMARY KEY, resource_type TEXT NOT NULL, data JSON NOT NULL)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES ('old', 'models', '{"id":"old"}')`,
+	} {
+		if _, err := db.Exec(q); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if !legacyArchivePending(context.Background()) {
+		t.Fatalf("legacy resource under the older key not reported")
+	}
+	archiveDBPathForWrite(context.Background())
+	if legacyArchivePending(context.Background()) {
+		t.Fatalf("still pending after merge")
+	}
+}
+
 // An LLM-planner dry run must not try to parse a prediction it never made.
 func TestPlanBriefLLMDryRunPreviews(t *testing.T) {
 	testenv.Isolate(t)

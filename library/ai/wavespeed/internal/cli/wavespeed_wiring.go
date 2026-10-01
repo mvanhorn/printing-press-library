@@ -168,38 +168,42 @@ func legacyArchivePending(ctx context.Context) bool {
 	return false
 }
 
-// sharedPrimaryKey returns the primary-key columns of table when main and
-// legacy declare the same key, so a pending check can match rows by key the
-// way INSERT OR IGNORE does. Tables without a usable shared key are skipped.
+// sharedPrimaryKey returns data.db's primary-key columns for table when the
+// legacy table has every one of them, so a pending check matches rows by the
+// identity data.db uses, the way the merge does. Older archives declared a
+// different key on resources (id alone); matching on data.db's key keeps
+// those tables in the check. Tables lacking a column of that key are skipped.
 func sharedPrimaryKey(ctx context.Context, conn *sql.Conn, table string) ([]string, error) {
-	pk := func(schema string) ([]string, error) {
-		rows, err := conn.QueryContext(ctx, fmt.Sprintf(`SELECT name FROM pragma_table_info('%s', '%s') WHERE pk > 0 ORDER BY pk`, table, schema))
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
-		var cols []string
-		for rows.Next() {
-			var name string
-			if err := rows.Scan(&name); err != nil {
-				return nil, err
-			}
-			if strings.ContainsRune(name, '"') {
-				return nil, nil
-			}
-			cols = append(cols, name)
-		}
-		return cols, rows.Err()
-	}
-	legacyKey, err := pk("legacy")
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf(`SELECT name FROM pragma_table_info('%s', 'main') WHERE pk > 0 ORDER BY pk`, table))
 	if err != nil {
 		return nil, err
 	}
-	mainKey, err := pk("main")
-	if err != nil || strings.Join(legacyKey, "\x00") != strings.Join(mainKey, "\x00") {
+	var mainKey []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		mainKey = append(mainKey, name)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return legacyKey, nil
+	for _, col := range mainKey {
+		if strings.ContainsRune(col, '"') {
+			return nil, nil
+		}
+		var present bool
+		if err := conn.QueryRowContext(ctx, fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM pragma_table_info('%s', 'legacy') WHERE name = ?)`, table), col).Scan(&present); err != nil {
+			return nil, err
+		}
+		if !present {
+			return nil, nil
+		}
+	}
+	return mainKey, nil
 }
 
 // migrateLegacyArchiveDB copies rows of a legacy archive.db into data.db with
