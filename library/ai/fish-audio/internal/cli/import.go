@@ -25,7 +25,8 @@ func newImportCmd(flags *rootFlags) *cobra.Command {
 		Short: "Import data from JSONL file via API create/upsert calls",
 		Long: `Import data from a JSONL file by issuing POST requests for each record.
 Each line must be a valid JSON object. Failed records are logged to stderr
-but do not stop the import.`,
+but do not stop the import. Binary multipart resources are not accepted here;
+use the named command (for example, "asr transcribe --audio <file>") instead.`,
 		Example: `  # Import from a JSONL file
   fish-audio-pp-cli import <resource> --input data.jsonl
 
@@ -37,6 +38,9 @@ but do not stop the import.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resource := args[0]
+			if resource == "asr" {
+				return usageErr(fmt.Errorf("resource %q requires a multipart audio upload and is not supported by the JSONL importer; use 'fish-audio-pp-cli asr transcribe --audio <file>'", resource))
+			}
 			path, err := resourceWritePath(resource)
 			if err != nil {
 				return usageErr(err)
@@ -75,8 +79,8 @@ but do not stop the import.`,
 					continue
 				}
 
-				var body map[string]any
-				if err := json.Unmarshal([]byte(line), &body); err != nil {
+				body, err := decodeImportRecord(line)
+				if err != nil {
 					fmt.Fprintf(os.Stderr, "warning: skipping invalid JSON line: %v\n", err)
 					failed++
 					continue
@@ -127,4 +131,24 @@ but do not stop the import.`,
 	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
 
 	return cmd
+}
+
+func decodeImportRecord(line string) (map[string]any, error) {
+	decoder := json.NewDecoder(strings.NewReader(line))
+	decoder.UseNumber()
+	var body map[string]any
+	if err := decoder.Decode(&body); err != nil {
+		return nil, err
+	}
+	if body == nil {
+		return nil, fmt.Errorf("record must be a JSON object")
+	}
+	var trailing any
+	if err := decoder.Decode(&trailing); err != io.EOF {
+		if err == nil {
+			return nil, fmt.Errorf("record must contain only one JSON object")
+		}
+		return nil, err
+	}
+	return body, nil
 }
