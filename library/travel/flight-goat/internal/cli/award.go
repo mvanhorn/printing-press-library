@@ -87,11 +87,19 @@ By default results are ordered by departure date (premium cabins first); pass
 			if err != nil {
 				return usageErr(err)
 			}
-			// Profile overlays update the bound value without marking the Cobra
-			// flag changed. Validate every effective nonzero value, while still
-			// rejecting an explicitly supplied zero and allowing an omitted zero
-			// to mean the Seats.aero default.
-			if (take != 0 || cmd.Flags().Changed("take")) && (take < 10 || take > 1000) {
+			// Profile overlays do not mark the Cobra flag changed. A stored zero
+			// is still an explicit limit and must not become the API default.
+			takeConfigured := take != 0 || cmd.Flags().Changed("take")
+			if !takeConfigured && flags.profileName != "" {
+				profile, err := GetProfile(flags.profileName)
+				if err != nil {
+					return err
+				}
+				if profile != nil {
+					_, takeConfigured = profile.Values["take"]
+				}
+			}
+			if takeConfigured && (take < 10 || take > 1000) {
 				return usageErr(fmt.Errorf("invalid --take %d: use 10..1000, or omit it for the default", take))
 			}
 
@@ -153,8 +161,10 @@ By default results are ordered by departure date (premium cabins first); pass
 				if startDate != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), " %s..%s", startDate, endDate)
 				}
-				if cabin != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), " cabin=%s", cabin)
+				if params.Cabins != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), " cabins=%s", params.Cabins)
+				} else if params.Cabin != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), " cabin=%s", params.Cabin)
 				}
 				fmt.Fprintf(cmd.OutOrStdout(), "\nurl: %s\n(dry run - no request sent)\n", u)
 				return nil

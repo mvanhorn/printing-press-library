@@ -164,17 +164,22 @@ func TestAwardCmd_RejectsInvalidTakeFromProfile(t *testing.T) {
 			Name:   "bad-take",
 			Values: map[string]string{"take": "5"},
 		},
+		"zero-take": {
+			Name:   "zero-take",
+			Values: map[string]string{"take": "0"},
+		},
 	}}); err != nil {
 		t.Fatalf("save profile: %v", err)
 	}
-
-	stdout, _, err := runRootArgs(t,
-		"award", "SFO", "HND", "--profile", "bad-take", "--dry-run", "--no-learn")
-	if err == nil || !strings.Contains(err.Error(), "invalid --take 5") {
-		t.Fatalf("error = %v, want invalid profile take", err)
-	}
-	if strings.Contains(stdout, "take=5") {
-		t.Fatalf("invalid profile take reached dry-run serialization: %s", stdout)
+	for _, tc := range []struct{ profile, value string }{{"bad-take", "5"}, {"zero-take", "0"}} {
+		stdout, _, err := runRootArgs(t,
+			"award", "SFO", "HND", "--profile", tc.profile, "--dry-run", "--no-learn")
+		if err == nil || !strings.Contains(err.Error(), "invalid --take "+tc.value) {
+			t.Fatalf("profile %s error = %v, want invalid take", tc.profile, err)
+		}
+		if strings.Contains(stdout, "take="+tc.value) {
+			t.Fatalf("invalid profile take reached dry-run serialization: %s", stdout)
+		}
 	}
 }
 
@@ -201,6 +206,9 @@ func TestAwardCmd_NormalizesMultipleCabins(t *testing.T) {
 	}
 	if !strings.Contains(out, "cabins=business,economy") {
 		t.Fatalf("dry-run output missing plural cabins parameter: %s", out)
+	}
+	if !strings.Contains(out, "seatsaero.Search(SFO -> HND) cabins=business,economy") {
+		t.Fatalf("dry-run summary disagrees with plural cabins request: %s", out)
 	}
 	if strings.Contains(out, "&cabin=business,economy") {
 		t.Fatalf("multi-cabin filter used singular cabin parameter: %s", out)

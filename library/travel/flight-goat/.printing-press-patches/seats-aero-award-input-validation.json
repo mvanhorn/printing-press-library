@@ -12,5 +12,5 @@
     "internal/seatsaero/seatsaero.go",
     "internal/seatsaero/seatsaero_test.go"
   ],
-  "validated_outcome": "Synthetic CLI and client tests cover invalid input, profile result limits, plural cabin encoding, rejecting simultaneous singular and plural cabin filters, and a source URL included in successful results."
+  "validated_outcome": "Synthetic CLI and client tests cover invalid input, profile result limits including explicit zero, plural cabin encoding and dry-run summaries, rejecting simultaneous singular and plural cabin filters, and a source URL included in successful results."
 }
