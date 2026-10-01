@@ -1,0 +1,8 @@
+{
+  "internal/evidence/domain_test.go": "4a9b327c2f7cbcfa4691e2b625f00452c76ba8d147c1ecf9023059972c01375e",
+  "internal/evidence/http.go": "8b3928e6f11f82368c41636c11c6e6a80dea04ded3f4685517bcc80c0e21574d",
+  "internal/evidence/nuxt.go": "19b6c8817cf631b194e0bef784bd07d1d4add6516d25ebc7723ce668ce0d9728",
+  "internal/evidence/season.go": "b71a4fc9fec4a9c13bb70b041108d695718c0f0f7fb69747de61704c4ea6c97b",
+  "internal/evidence/weather.go": "0898bbe84cddf5ee3fbfe3a5d264d76ebbf1980dd8b2a41a070553b62bc60e92",
+  "internal/cli/travel_evidence.go": "32e59db82273f516c5a54dbdcc9eeb61dd5bafdbe3beff3c0a27196a04025956"
+}

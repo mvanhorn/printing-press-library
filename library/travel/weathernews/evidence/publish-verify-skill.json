@@ -1,0 +1,14 @@
+{
+  "cli_dir": "$PRESS_HOME/library/weathernews",
+  "skill_path": "$PRESS_HOME/library/weathernews/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 15,
+  "findings": []
+}

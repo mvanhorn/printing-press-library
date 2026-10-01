@@ -1,0 +1,237 @@
+[
+  {
+    "case": "places-kyoto",
+    "args": [
+      "places",
+      "resolve",
+      "--query",
+      "京都",
+      "--limit",
+      "3",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 985,
+    "latency_ms": 8,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":0}\n"
+  },
+  {
+    "case": "places-mountain",
+    "args": [
+      "places",
+      "resolve",
+      "--query",
+      "高尾山",
+      "--limit",
+      "3",
+      "--metrics"
+    ],
+    "exit": 5,
+    "json": false,
+    "bytes": 0,
+    "latency_ms": 7,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":0}\nError: Weathernews place URL is not first-party\n"
+  },
+  {
+    "case": "forecast",
+    "args": [
+      "weather",
+      "forecast",
+      "--lat",
+      "35.01167",
+      "--lon",
+      "135.76806",
+      "--hours",
+      "6",
+      "--days",
+      "3",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 3640,
+    "latency_ms": 7,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":0}\n"
+  },
+  {
+    "case": "forecast-outside",
+    "args": [
+      "weather",
+      "forecast",
+      "--lat",
+      "35.01167",
+      "--lon",
+      "135.76806",
+      "--date",
+      "2030-01-01",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 1288,
+    "latency_ms": 7,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":0}\n"
+  },
+  {
+    "case": "koyo-search",
+    "args": [
+      "season",
+      "search",
+      "--product",
+      "koyo",
+      "--area",
+      "kyoto",
+      "--query",
+      "嵐山",
+      "--limit",
+      "5",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 1747,
+    "latency_ms": 14,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":7}\n"
+  },
+  {
+    "case": "sakura-search",
+    "args": [
+      "season",
+      "search",
+      "--product",
+      "sakura",
+      "--query",
+      "清水",
+      "--limit",
+      "5",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 3282,
+    "latency_ms": 58,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":50}\n"
+  },
+  {
+    "case": "koyo-show",
+    "args": [
+      "season",
+      "show",
+      "--product",
+      "koyo",
+      "--id",
+      "26102",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 2072,
+    "latency_ms": 9,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":1}\n"
+  },
+  {
+    "case": "sakura-ended",
+    "args": [
+      "season",
+      "show",
+      "--product",
+      "sakura",
+      "--id",
+      "384",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 2645,
+    "latency_ms": 9,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":1}\n"
+  },
+  {
+    "case": "weather-compare",
+    "args": [
+      "weather",
+      "compare",
+      "--point",
+      "Kyoto=35.01167,135.76806",
+      "--point",
+      "Tokyo=35.681,139.767",
+      "--date",
+      "2026-10-01",
+      "--max-pop",
+      "40",
+      "--max-temp",
+      "30",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 2406,
+    "latency_ms": 303,
+    "stderr": "{\"requests\":1,\"cache_hits\":1,\"download_bytes\":8742,\"latency_ms\":295}\n"
+  },
+  {
+    "case": "season-compare",
+    "args": [
+      "season",
+      "compare",
+      "--product",
+      "koyo",
+      "--ids",
+      "26101,26111",
+      "--date",
+      "2026-11-26",
+      "--max-days-from-peak",
+      "3",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 2717,
+    "latency_ms": 12,
+    "stderr": "{\"requests\":0,\"cache_hits\":2,\"download_bytes\":0,\"latency_ms\":2}\n"
+  },
+  {
+    "case": "ended-compare",
+    "args": [
+      "season",
+      "compare",
+      "--product",
+      "sakura",
+      "--ids",
+      "384,301",
+      "--date",
+      "2026-04-01",
+      "--max-days-from-peak",
+      "3",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 2562,
+    "latency_ms": 12,
+    "stderr": "{\"requests\":0,\"cache_hits\":2,\"download_bytes\":0,\"latency_ms\":3}\n"
+  },
+  {
+    "case": "projection",
+    "args": [
+      "season",
+      "search",
+      "--product",
+      "koyo",
+      "--area",
+      "kyoto",
+      "--query",
+      "嵐山",
+      "--agent",
+      "--select",
+      "items.id,items.name_ja,season",
+      "--metrics"
+    ],
+    "exit": 0,
+    "json": true,
+    "bytes": 331,
+    "latency_ms": 17,
+    "stderr": "{\"requests\":0,\"cache_hits\":1,\"download_bytes\":0,\"latency_ms\":8}\n"
+  }
+]

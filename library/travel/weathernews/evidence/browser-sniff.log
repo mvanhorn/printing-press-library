@@ -1,0 +1,4 @@
+Spec written to $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/research/browser-spec.yaml (1 endpoints across 1 resources)
+Traffic analysis written to $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/discovery/traffic-analysis.json
+Samples written to $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/research/browser-spec-samples (1 endpoint)
+Run 'cli-printing-press generate --spec $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/research/browser-spec.yaml' to build the CLI

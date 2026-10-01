@@ -1,0 +1,155 @@
+{
+  "api_name": "weathernews",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "weathernews-python",
+      "url": "https://github.com/rnikko/weathernews-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Seasonal inventory",
+      "command": "season search",
+      "description": "Bounded literal Japanese seasonal search with lazy details",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli season search --product koyo --area kyoto --query 嵐山 --agent",
+      "why_it_matters": "Bounded literal Japanese seasonal search with lazy details",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Seasonal detail",
+      "command": "season show",
+      "description": "Separate observation, forecast, norm, season year and ended state",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli season show --product koyo --id 26102 --agent",
+      "why_it_matters": "Separate observation, forecast, norm, season year and ended state",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Weather criteria",
+      "command": "weather compare",
+      "description": "Compare caller daily thresholds across bounded exact coordinates",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli weather compare --points 'Kyoto=35.01167,135.76806|Tokyo=35.681,139.767' --date 2026-10-01 --max-pop 40 --agent",
+      "why_it_matters": "Compare caller daily thresholds across bounded exact coordinates",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Seasonal criteria",
+      "command": "season compare",
+      "description": "Compare caller date proximity to published peak predictions",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli season compare --product koyo --ids 26101,26111 --date 2026-11-26 --max-days-from-peak 3 --agent",
+      "why_it_matters": "Compare caller date proximity to published peak predictions",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Exact place identities",
+      "command": "places resolve",
+      "description": "Preserve source names, URLs and coordinates before forecast selection",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli places resolve --query 高尾山 --agent",
+      "why_it_matters": "Preserve source names, URLs and coordinates before forecast selection",
+      "group": "Travel evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Seasonal inventory",
+      "command": "season search",
+      "description": "Bounded literal Japanese seasonal search with lazy details",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli season search --product koyo --area kyoto --query 嵐山 --agent",
+      "why_it_matters": "Bounded literal Japanese seasonal search with lazy details",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Seasonal detail",
+      "command": "season show",
+      "description": "Separate observation, forecast, norm, season year and ended state",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli season show --product koyo --id 26102 --agent",
+      "why_it_matters": "Separate observation, forecast, norm, season year and ended state",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Weather criteria",
+      "command": "weather compare",
+      "description": "Compare caller daily thresholds across bounded exact coordinates",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli weather compare --points 'Kyoto=35.01167,135.76806|Tokyo=35.681,139.767' --date 2026-10-01 --max-pop 40 --agent",
+      "why_it_matters": "Compare caller daily thresholds across bounded exact coordinates",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Seasonal criteria",
+      "command": "season compare",
+      "description": "Compare caller date proximity to published peak predictions",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli season compare --product koyo --ids 26101,26111 --date 2026-11-26 --max-days-from-peak 3 --agent",
+      "why_it_matters": "Compare caller date proximity to published peak predictions",
+      "group": "Travel evidence"
+    },
+    {
+      "name": "Exact place identities",
+      "command": "places resolve",
+      "description": "Preserve source names, URLs and coordinates before forecast selection",
+      "rationale": "Focused travel evidence available from public first-party source",
+      "example": "weathernews-pp-cli places resolve --query 高尾山 --agent",
+      "why_it_matters": "Preserve source names, URLs and coordinates before forecast selection",
+      "group": "Travel evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Weathernews",
+    "headline": "Japan weather and seasonal travel evidence with explicit dates, freshness and coverage.",
+    "value_prop": "Resolve Japanese places, inspect bounded forecasts and seasonal evidence, and compare caller criteria. Public first-party access without a paid account.",
+    "auth_narrative": "Selected public products need no credentials. Member-only products and commercial WxTech are outside scope.",
+    "quickstart": [
+      {
+        "command": "weathernews-pp-cli doctor --dry-run",
+        "comment": "Check local readiness"
+      },
+      {
+        "command": "weathernews-pp-cli places resolve --query 京都",
+        "comment": "Resolve place identity"
+      },
+      {
+        "command": "weathernews-pp-cli weather forecast --lat 35.01167 --lon 135.76806",
+        "comment": "Read bounded Kyoto forecast"
+      }
+    ],
+    "when_to_use": "Resolve Japan weather places, inspect hourly/daily forecast horizons, and check sakura/foliage evidence or compare caller thresholds.",
+    "anti_triggers": [
+      "Purchases and bookings",
+      "Paid radar and commercial WxTech",
+      "Universal destination scores"
+    ],
+    "recipes": [
+      {
+        "title": "Compact seasonal search",
+        "command": "weathernews-pp-cli season search --product koyo --area kyoto --agent --select items.id,items.name_ja,season",
+        "explanation": "Find source IDs before lazy details"
+      }
+    ],
+    "trigger_phrases": [
+      "Japan weather evidence",
+      "Kyoto foliage dates",
+      "cherry blossom reports",
+      "use weathernews",
+      "run weathernews"
+    ]
+  }
+}

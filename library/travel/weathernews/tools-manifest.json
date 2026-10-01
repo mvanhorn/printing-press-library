@@ -1,0 +1,86 @@
+{
+  "api_name": "weathernews",
+  "base_url": "https://weathernews.jp",
+  "description": "Japan weather and seasonal travel evidence with explicit dates, freshness and coverage.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_forecast",
+      "description": "Public coordinate forecast used by the first-party homepage. Required: lat, lon. Returns the ForecastSource.",
+      "method": "GET",
+      "path": "/lba/wxdata/api_data_ss1",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_locations",
+      "description": "Public location search used by the first-party homepage. Required: query. Optional: lang (default: ja), callback. Returns array of SourcePlace.",
+      "method": "GET",
+      "path": "/onebox/api_search.cgi",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "callback",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Seasonal inventory",
+      "command": "season search",
+      "description": "Bounded literal Japanese seasonal search with lazy details"
+    },
+    {
+      "name": "Seasonal detail",
+      "command": "season show",
+      "description": "Separate observation, forecast, norm, season year and ended state"
+    },
+    {
+      "name": "Weather criteria",
+      "command": "weather compare",
+      "description": "Compare caller daily thresholds across bounded exact coordinates"
+    },
+    {
+      "name": "Seasonal criteria",
+      "command": "season compare",
+      "description": "Compare caller date proximity to published peak predictions"
+    },
+    {
+      "name": "Exact place identities",
+      "command": "places resolve",
+      "description": "Preserve source names, URLs and coordinates before forecast selection"
+    }
+  ]
+}

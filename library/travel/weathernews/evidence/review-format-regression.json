@@ -1,0 +1,14 @@
+[
+  {
+    "mode": "--csv",
+    "exit": 0,
+    "stdout": "daily.valid_date\n",
+    "stderr": ""
+  },
+  {
+    "mode": "--plain",
+    "exit": 0,
+    "stdout": "daily.valid_date\n",
+    "stderr": ""
+  }
+]

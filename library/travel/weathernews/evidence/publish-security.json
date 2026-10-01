@@ -1,0 +1,35 @@
+{
+  "mandatory_vendor_scan": "PASS (publish package)",
+  "tier1_matches": 0,
+  "sensitive_files": [],
+  "workspace_PII": "none",
+  "tier2_review": "All matches reviewed: synthetic unit-test fixtures, public license/creator attribution, API/help/documentation vocabulary and code identifiers. No live workspace names, emails, credentials or personal report/photo streams remain.",
+  "removed_private_records": [
+    ".press-run.json",
+    "evidence/dogfood-structural.json",
+    "evidence/dogfood-live-preliminary.stderr",
+    "evidence/dogfood-live.json",
+    "evidence/dogfood-live.stderr",
+    "evidence/paths.json",
+    "evidence/dogfood-live-preliminary.json",
+    ".manuscripts/20261001-020510-488a6a84/proofs/dogfood-live.json",
+    ".manuscripts/20261001-020510-488a6a84/proofs/paths.json"
+  ],
+  "local_paths_scrubbed": [
+    "evidence/final-report.md",
+    "evidence/publish-verify-skill.json",
+    "evidence/gosec.json",
+    "evidence/browser-sniff.log",
+    "evidence/shipcheck.log",
+    "evidence/promotion.log",
+    "evidence/verify-skill.json",
+    "evidence/generate.log",
+    "evidence/gosec.log",
+    ".manuscripts/20261001-020510-488a6a84/proofs/final-report.md",
+    ".manuscripts/20261001-020510-488a6a84/proofs/publish-verify-skill.json",
+    ".manuscripts/20261001-020510-488a6a84/proofs/gosec.json",
+    ".manuscripts/20261001-020510-488a6a84/proofs/shipcheck.log",
+    ".manuscripts/20261001-020510-488a6a84/proofs/promotion.log"
+  ],
+  "external_scanners": "gitleaks and trufflehog unavailable; mandatory vendor scan and structural/PII scans performed."
+}
