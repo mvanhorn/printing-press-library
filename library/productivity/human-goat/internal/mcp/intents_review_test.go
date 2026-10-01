@@ -10,12 +10,12 @@ import (
 func TestDispatchRemoteErrandUsesCallerPrompt(t *testing.T) {
 	args, err := dispatchRemoteErrandArgs(map[string]any{
 		"id":  "+12065550100",
-		"ask": "Ask whether curbside pickup is available.",
+		"ask": "- Ask whether curbside pickup is available.",
 	})
 	if err != nil {
 		t.Fatalf("dispatchRemoteErrandArgs() error: %v", err)
 	}
-	want := []string{"call", "+12065550100", "Ask whether curbside pickup is available."}
+	want := []string{"call", "+12065550100", "--ask=- Ask whether curbside pickup is available."}
 	if !reflect.DeepEqual(args, want) {
 		t.Fatalf("args = %#v, want %#v", args, want)
 	}

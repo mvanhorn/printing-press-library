@@ -50,4 +50,15 @@ func TestConcurrentCookieJarWritesPreserveEveryUpdate(t *testing.T) {
 	if len(rows) != writers {
 		t.Fatalf("persisted cookies = %d, want %d", len(rows), writers)
 	}
+	values := make(map[string]string, len(rows))
+	for _, row := range rows {
+		values[row.Name] = row.Value
+	}
+	for i := 0; i < writers; i++ {
+		name := fmt.Sprintf("cookie_%02d", i)
+		want := fmt.Sprintf("value_%02d", i)
+		if got := values[name]; got != want {
+			t.Fatalf("persisted cookie %s = %q, want %q", name, got, want)
+		}
+	}
 }

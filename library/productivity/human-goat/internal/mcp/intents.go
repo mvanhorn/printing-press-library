@@ -95,7 +95,7 @@ func dispatchRemoteErrandArgs(input map[string]any) ([]string, error) {
 		return nil, fmt.Errorf("id is required")
 	}
 	var missingAsk bool
-	args, missingAsk = appendRecipePositional(args, input["ask"], true)
+	args, missingAsk = appendRecipeStringFlag(args, "ask", input["ask"], "", true, true)
 	if missingAsk {
 		return nil, fmt.Errorf("ask is required")
 	}

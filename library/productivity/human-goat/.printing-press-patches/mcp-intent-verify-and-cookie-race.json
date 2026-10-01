@@ -15,5 +15,5 @@
     "internal/source/magic/magic.go",
     "internal/source/magic/magic_test.go"
   ],
-  "validated_outcome": "Synthetic tests cover caller prompts, verifier suppression without a network request, and concurrent cookie updates. The public version's narrower cookie selection and correct transaction rollback count remain intact."
+  "validated_outcome": "Synthetic tests cover caller prompts that begin with a dash, verifier suppression without a network request, and every concurrent cookie update by name and value. The public version's narrower cookie selection and correct transaction rollback count remain intact."
 }
