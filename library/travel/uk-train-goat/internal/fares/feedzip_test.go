@@ -22,13 +22,13 @@ func TestParseFeedZip(t *testing.T) {
 		// ParseLOCGroupMembers (yields GroupMembers) from the same file.
 		{"RJFAF798.LOC", locGroupMemberSample},
 		// FFL: one flow + two fares.
-		{"RJFAF798.FFL", fflSample},
+		{"RJFAF798.FFL", strings.ReplaceAll(fflSample, "RT0000001", "RT0000020")},
 		// FSC: one cluster member.
 		{"RJFAF798.FSC", fscSample},
 		// NFO: one non-derivable fare (railcard row filtered out).
 		{"RJFAF798.NFO", nfoSample},
 		// TTY: two ticket types.
-		{"RJFAF798.TTY", ttySample},
+		{"RJFAF798.TTY", strings.NewReplacer("R0AA", "RFDS", "R0AB", "RSSR").Replace(ttySample)},
 		// RLC: one railcard (blank-code row filtered out).
 		{"RJFAF798.RLC", rlcSample},
 		// RST: two restriction headers, one non-RRH line skipped.
@@ -115,6 +115,43 @@ func TestParseFeedZip(t *testing.T) {
 	// RST: rstSample has 2 restriction headers (non-RRH line skipped).
 	if len(data.Restrictions) != 2 {
 		t.Errorf("Restrictions: want 2, got %d", len(data.Restrictions))
+	}
+}
+
+func TestParseFeedZipRejectsPartialAndUnjoinedFares(t *testing.T) {
+	for _, tc := range []struct {
+		name, ffl, tty, want string
+	}{
+		{"missing fares", strings.SplitN(fflSample, "\n", 2)[0], ttySample, "fares=0"},
+		{"unjoined ticket", strings.ReplaceAll(fflSample, "RT0000001", "RT0000020"), ttySample, "no fare linked"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			zipPath := filepath.Join(t.TempDir(), "RJFAF999.ZIP")
+			var buf bytes.Buffer
+			w := zip.NewWriter(&buf)
+			for _, entry := range []struct{ name, content string }{
+				{"RJFAF999.LOC", locGroupMemberSample},
+				{"RJFAF999.FFL", tc.ffl},
+				{"RJFAF999.TTY", tc.tty},
+			} {
+				f, err := w.Create(entry.name)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if _, err := f.Write([]byte(entry.content)); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := w.Close(); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(zipPath, buf.Bytes(), 0600); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := ParseFeedZip(zipPath); err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("ParseFeedZip error = %v, want %q", err, tc.want)
+			}
+		})
 	}
 }
 
