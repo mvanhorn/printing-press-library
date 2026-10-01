@@ -1,0 +1,40 @@
+name: nifty-onsen
+category: travel
+description: Source-grounded Japanese day-use bath discovery
+version: 0.1.0
+base_url: https://onsen.nifty.com
+auth:
+  type: none
+learn:
+  disabled: true
+resources:
+  bath:
+    description: Find and inspect Japanese bath facilities
+    endpoints:
+      search:
+        method: GET
+        path: /search/
+        description: Search public facility listings
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: text
+            flag_name: query
+            type: string
+            required: false
+            description: Japanese facility or location keyword
+        happy_args: --query=草津
+      show:
+        method: GET
+        path: /cs/catalog/onsen_onsen-detail/catalog_{id}_1.htm
+        description: Inspect a public facility by source ID
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: id
+            type: string
+            required: true
+            description: Nifty source facility ID
+        happy_args: --id=onsen012278

@@ -1,0 +1,179 @@
+{
+  "scanner": "gosec v2.26.1",
+  "stats": {
+    "files": 64,
+    "lines": 23647,
+    "nosec": 19,
+    "found": 21
+  },
+  "issues": [
+    {
+      "severity": "HIGH",
+      "confidence": "MEDIUM",
+      "rule_id": "G119",
+      "details": "Sensitive headers should not be re-added in redirect policy callbacks",
+      "file": "internal/client/client.go",
+      "line": "454"
+    },
+    {
+      "severity": "HIGH",
+      "confidence": "LOW",
+      "rule_id": "G101",
+      "details": "Potential hardcoded credentials",
+      "file": "internal/platform/gate.go",
+      "line": "22"
+    },
+    {
+      "severity": "HIGH",
+      "confidence": "LOW",
+      "rule_id": "G101",
+      "details": "Potential hardcoded credentials",
+      "file": "cmd/nifty-onsen-pp-mcp/main.go",
+      "line": "37"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G201",
+      "details": "SQL string formatting",
+      "file": "internal/store/store.go",
+      "line": "3296-3299"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G201",
+      "details": "SQL string formatting",
+      "file": "internal/store/store.go",
+      "line": "2993-2996"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G201",
+      "details": "SQL string formatting",
+      "file": "internal/store/store.go",
+      "line": "1037"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G201",
+      "details": "SQL string formatting",
+      "file": "internal/store/store.go",
+      "line": "1013"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G202",
+      "details": "SQL string concatenation",
+      "file": "internal/platform/migration.go",
+      "line": "156"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "internal/store/store.go",
+      "line": "249"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "internal/platform/ratelimit.go",
+      "line": "148"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "internal/platform/profile.go",
+      "line": "510"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "internal/config/config.go",
+      "line": "104"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "internal/cli/feedback.go",
+      "line": "204"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "internal/cli/feedback.go",
+      "line": "66"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "file": "internal/platform/profile.go",
+      "line": "302"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15"
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "rule_id": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "file": "internal/client/client.go",
+      "line": "800"
+    },
+    {
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "rule_id": "G104",
+      "details": "Errors unhandled",
+      "file": "internal/store/store.go",
+      "line": "3084"
+    },
+    {
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "rule_id": "G104",
+      "details": "Errors unhandled",
+      "file": "internal/store/store.go",
+      "line": "2827"
+    },
+    {
+      "severity": "LOW",
+      "confidence": "HIGH",
+      "rule_id": "G104",
+      "details": "Errors unhandled",
+      "file": "internal/client/client.go",
+      "line": "1504"
+    }
+  ]
+}

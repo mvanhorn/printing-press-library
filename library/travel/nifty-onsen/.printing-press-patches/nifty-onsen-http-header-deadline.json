@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "nifty-onsen-http-header-deadline",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020155-5c0bf62e",
+  "base_printing_press_version": "4.32.5",
+  "summary": "HTTP MCP connections must have finite header and idle deadlines while allowing streaming responses.",
+  "reason": "Authenticated optional HTTP transport still consumes resources before authentication when clients send headers slowly.",
+  "files": [
+    "cmd/nifty-onsen-pp-mcp/main.go"
+  ]
+}

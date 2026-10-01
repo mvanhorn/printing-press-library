@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T02:02:39.359102Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "nifty-onsen",
+  "display_name": "Nifty Onsen",
+  "cli_name": "nifty-onsen-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "docs",
+  "spec_checksum": "sha256:8933ae0328bd0512b43fef6b3527e92350323ffe4afa3436ed03ad3bb2e713dc",
+  "run_id": "20261001-020155-5c0bf62e",
+  "category": "travel",
+  "description": "Find Japanese day-use baths with source evidence and explicit unknowns.",
+  "mcp_binary": "nifty-onsen-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Source-safe bath inspection",
+      "command": "bath show",
+      "description": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately."
+    },
+    {
+      "name": "Conditional public coupons",
+      "command": "bath coupons",
+      "description": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons."
+    },
+    {
+      "name": "Bounded nearby ranking",
+      "command": "bath nearby",
+      "description": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage."
+    },
+    {
+      "name": "Projected discovery",
+      "command": "bath search",
+      "description": "Select compact organic listing facts while keeping independent freshness and pagination metadata."
+    },
+    {
+      "name": "Fresh parsed detail cache",
+      "command": "bath show",
+      "description": "Reuse parsed source facts with timestamps and explicit offline/stale provenance."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Source-safe bath inspection",
+      "command": "bath show",
+      "description": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately."
+    },
+    {
+      "name": "Conditional public coupons",
+      "command": "bath coupons",
+      "description": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons."
+    },
+    {
+      "name": "Bounded nearby ranking",
+      "command": "bath nearby",
+      "description": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage."
+    },
+    {
+      "name": "Projected discovery",
+      "command": "bath search",
+      "description": "Select compact organic listing facts while keeping independent freshness and pagination metadata."
+    },
+    {
+      "name": "Fresh parsed detail cache",
+      "command": "bath show",
+      "description": "Reuse parsed source facts with timestamps and explicit offline/stale provenance."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 16,
+    "total": 16,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

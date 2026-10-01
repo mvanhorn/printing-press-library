@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/nifty-onsen-pp-cli
+/nifty-onsen-pp-cli.exe
+/nifty-onsen-pp-mcp
+/nifty-onsen-pp-mcp.exe
+/bin/
+/build/
+/dist/

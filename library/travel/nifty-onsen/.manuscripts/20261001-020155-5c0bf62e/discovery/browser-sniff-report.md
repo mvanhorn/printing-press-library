@@ -1,0 +1,1 @@
+Direct HTTP discovery: real search cards, source ID canonical redirects, semantic facility fields, public coupon conditions, and same-origin read-only map POST replay. No browser runtime, account session, or secrets retained. See research/brief.md.

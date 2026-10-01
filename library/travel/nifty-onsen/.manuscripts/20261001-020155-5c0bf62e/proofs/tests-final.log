@@ -1,0 +1,15 @@
+?   	nifty-onsen-pp-cli/cmd/nifty-onsen-pp-cli	[no test files]
+ok  	nifty-onsen-pp-cli/cmd/nifty-onsen-pp-mcp	0.596s
+?   	nifty-onsen-pp-cli/internal/cache	[no test files]
+ok  	nifty-onsen-pp-cli/internal/cli	1.273s
+ok  	nifty-onsen-pp-cli/internal/client	2.058s
+ok  	nifty-onsen-pp-cli/internal/cliutil	13.734s
+?   	nifty-onsen-pp-cli/internal/cliutil/testenv	[no test files]
+?   	nifty-onsen-pp-cli/internal/config	[no test files]
+ok  	nifty-onsen-pp-cli/internal/mcp	1.442s
+ok  	nifty-onsen-pp-cli/internal/mcp/bound	3.151s
+ok  	nifty-onsen-pp-cli/internal/mcp/cobratree	7.659s
+ok  	nifty-onsen-pp-cli/internal/onsen	2.801s
+ok  	nifty-onsen-pp-cli/internal/platform	2.736s
+ok  	nifty-onsen-pp-cli/internal/store	4.090s
+?   	nifty-onsen-pp-cli/internal/types	[no test files]

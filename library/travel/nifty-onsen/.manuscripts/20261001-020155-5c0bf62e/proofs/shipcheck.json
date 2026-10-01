@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-01T01:53:57Z",
+  "elapsed_ms": 13603,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:53:57Z",
+      "elapsed_ms": 3054,
+      "command": "cli-printing-press verify --dir [local project] --write-manifest [local project]/.printing-press.json --spec [local project]/spec.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:54:00Z",
+      "elapsed_ms": 111,
+      "command": "cli-printing-press validate-narrative --strict --full-examples --research [private runstate]/research.json --binary [local project]/nifty-onsen-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:54:01Z",
+      "elapsed_ms": 7126,
+      "command": "cli-printing-press dogfood --dir [local project] --spec [local project]/spec.yaml --research-dir [private runstate]"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:54:08Z",
+      "elapsed_ms": 12,
+      "command": "cli-printing-press workflow-verify --dir [local project]"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:54:08Z",
+      "elapsed_ms": 44,
+      "command": "cli-printing-press apify-audit --dir [local project] --research-dir [private runstate]"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:54:08Z",
+      "elapsed_ms": 704,
+      "command": "cli-printing-press verify-skill --dir [local project]"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:54:08Z",
+      "elapsed_ms": 2548,
+      "command": "cli-printing-press scorecard --dir [local project] --write-manifest [local project]/.printing-press.json --research-dir [private runstate] --spec [local project]/spec.yaml --live-check"
+    }
+  ]
+}

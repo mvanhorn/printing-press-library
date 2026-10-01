@@ -1,0 +1,55 @@
+version: 2
+project_name: nifty-onsen-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nifty-onsen-pp-cli
+    main: ./cmd/nifty-onsen-pp-cli
+    binary: nifty-onsen-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/nifty-onsen/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nifty-onsen-pp-mcp
+    main: ./cmd/nifty-onsen-pp-mcp
+    binary: nifty-onsen-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nifty-onsen-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//nifty-onsen-pp-cli"
+    description: "Find Japanese day-use baths with source evidence and explicit unknowns."
+    install: |
+      bin.install "nifty-onsen-pp-cli"
+      bin.install "nifty-onsen-pp-mcp"

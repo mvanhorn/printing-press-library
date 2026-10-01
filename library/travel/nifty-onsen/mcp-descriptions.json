@@ -1,0 +1,6 @@
+{
+ "descriptions": {
+  "bath_search": "Find organic Nifty Onsen day-use listings using the companion CLI domain parser. Optional: Japanese query, prefecture region, source filters, page and bounded limit. Returns source IDs/URLs, Japanese names, ratings and explicit freshness/partial-page coverage; inspect shortlist details separately.",
+  "bath_show": "Inspect a Nifty facility by stable source ID using the companion CLI domain parser. Required: id. Returns Japanese admission and hours/access text, separate natural/private-bath/room evidence and explicit unknown policies; no reservable capacity or payable quote."
+ }
+}

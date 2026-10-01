@@ -1,0 +1,119 @@
+{
+  "api_name": "nifty-onsen",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-30T18:14:40.620143Z",
+  "novel_features": [
+    {
+      "name": "Source-safe bath inspection",
+      "command": "bath show",
+      "description": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath show --id=onsen012278 --agent",
+      "why_it_matters": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately."
+    },
+    {
+      "name": "Conditional public coupons",
+      "command": "bath coupons",
+      "description": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath coupons --id=onsen012278 --limit=3 --agent",
+      "why_it_matters": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons."
+    },
+    {
+      "name": "Bounded nearby ranking",
+      "command": "bath nearby",
+      "description": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath nearby --lat=35.6895 --lon=139.6917 --limit=3 --agent",
+      "why_it_matters": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage."
+    },
+    {
+      "name": "Projected discovery",
+      "command": "bath search",
+      "description": "Select compact organic listing facts while keeping independent freshness and pagination metadata.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath search --region=tokyo --limit=3 --agent",
+      "why_it_matters": "Select compact organic listing facts while keeping independent freshness and pagination metadata."
+    },
+    {
+      "name": "Fresh parsed detail cache",
+      "command": "bath show",
+      "description": "Reuse parsed source facts with timestamps and explicit offline/stale provenance.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath show --id=onsen012278 --agent",
+      "why_it_matters": "Reuse parsed source facts with timestamps and explicit offline/stale provenance."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Source-safe bath inspection",
+      "command": "bath show",
+      "description": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath show --id=onsen012278 --agent",
+      "why_it_matters": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately."
+    },
+    {
+      "name": "Conditional public coupons",
+      "command": "bath coupons",
+      "description": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath coupons --id=onsen012278 --limit=3 --agent",
+      "why_it_matters": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons."
+    },
+    {
+      "name": "Bounded nearby ranking",
+      "command": "bath nearby",
+      "description": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath nearby --lat=35.6895 --lon=139.6917 --limit=3 --agent",
+      "why_it_matters": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage."
+    },
+    {
+      "name": "Projected discovery",
+      "command": "bath search",
+      "description": "Select compact organic listing facts while keeping independent freshness and pagination metadata.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath search --region=tokyo --limit=3 --agent",
+      "why_it_matters": "Select compact organic listing facts while keeping independent freshness and pagination metadata."
+    },
+    {
+      "name": "Fresh parsed detail cache",
+      "command": "bath show",
+      "description": "Reuse parsed source facts with timestamps and explicit offline/stale provenance.",
+      "rationale": "",
+      "example": "nifty-onsen-pp-cli bath show --id=onsen012278 --agent",
+      "why_it_matters": "Reuse parsed source facts with timestamps and explicit offline/stale provenance."
+    }
+  ],
+  "narrative": {
+    "display_name": "Nifty Onsen",
+    "headline": "Find Japanese day-use baths with source evidence and explicit unknowns.",
+    "quickstart": [
+      {
+        "command": "nifty-onsen-pp-cli doctor --dry-run",
+        "comment": "Check the local installation"
+      },
+      {
+        "command": "nifty-onsen-pp-cli bath search --query=草津 --agent",
+        "comment": "Find source listings"
+      },
+      {
+        "command": "nifty-onsen-pp-cli bath show --id=onsen012278 --agent",
+        "comment": "Inspect source admission and hours"
+      }
+    ],
+    "when_to_use": "Find day-use baths and inspect source facility facts in Japan.",
+    "recipes": [
+      {
+        "title": "Shortlist",
+        "command": "nifty-onsen-pp-cli bath search --query=草津 --agent --select=id,name,url",
+        "explanation": "Keep only shortlist facts"
+      }
+    ]
+  }
+}

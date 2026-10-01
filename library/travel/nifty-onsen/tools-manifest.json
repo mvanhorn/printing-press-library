@@ -1,0 +1,746 @@
+{
+  "api_name": "nifty-onsen",
+  "base_url": "https://onsen.nifty.com",
+  "description": "Find Japanese day-use baths with source evidence and explicit unknowns.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bath_compare",
+      "description": "Inspect 2 to 5 facilities side by side with per-item freshness and failures",
+      "command": "bath compare",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "facility": {
+            "description": "Positional argument [facility...]",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "ids": {
+            "description": "Two to five stable facility IDs, separated by commas",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "bath_coupons",
+      "description": "Read public coupon terms, app/subscription restrictions and handoff links",
+      "command": "bath coupons",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "facility": {
+            "description": "Positional argument [facility]",
+            "type": "string"
+          },
+          "full-text": {
+            "description": "Include complete visible coupon card text in each result (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Stable Nifty facility ID, for example onsen012278",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum public coupons returned, from 1 to 20 (default: 3)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "bath_nearby",
+      "description": "Rank a bounded public map window by straight-line distance",
+      "command": "bath nearby",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "all-types": {
+            "description": "Omit default day-use source filter and include all types (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "filter": {
+            "description": "Comma-separated source feature filters; see filters",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "lat": {
+            "description": "Japan latitude in decimal degrees, required (default: 0)",
+            "type": "number"
+          },
+          "limit": {
+            "description": "Maximum nearby rows returned, from 1 to 20 (default: 10)",
+            "type": "number"
+          },
+          "lon": {
+            "description": "Japan longitude in decimal degrees, required (default: 0)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Optional Japanese keyword sent to source map query",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "radius-km": {
+            "description": "Local distance filter within source candidates, 0.1 to 200 km (default: 20)",
+            "type": "number"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          },
+          "zoom": {
+            "description": "Source map zoom controlling candidate window, from 6 to 16 (default: 10)",
+            "type": "number"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "bath_search",
+      "description": "Find organic day-use listings by prefecture, keyword and source filters",
+      "command": "bath search",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "all-types": {
+            "description": "Include all source facility types by omitting default day-use filter (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "filter": {
+            "description": "Comma-separated source filters; see filters for meanings and caveats",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum organic rows returned from this page, from 1 to 30 (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "page": {
+            "description": "Source page number to fetch, from 1 to 100 (default: 1)",
+            "type": "number"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Japanese facility or place keywords, up to 120 characters",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Source prefecture slug or Japanese name; see regions",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "bath_show",
+      "description": "Inspect admission, hours, access and explicit bath/policy evidence",
+      "command": "bath show",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "facility": {
+            "description": "Positional argument [facility]",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Stable Nifty facility ID, for example onsen012278",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "filters",
+      "description": "List verified source filters with Japanese labels and domain caveats",
+      "command": "filters",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "regions",
+      "description": "List source prefecture slugs, Japanese names and geographic groups",
+      "command": "regions",
+      "no_auth": true,
+      "input_schema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Source-safe bath inspection",
+      "command": "bath show",
+      "description": "Preserve natural hot spring, ordinary bath and private bath/room evidence separately."
+    },
+    {
+      "name": "Conditional public coupons",
+      "command": "bath coupons",
+      "description": "Read public validity, app/subscription, pair, age and holiday terms without issuing coupons."
+    },
+    {
+      "name": "Bounded nearby ranking",
+      "command": "bath nearby",
+      "description": "Rank at most 20 live map candidates by straight-line distance with explicit partial coverage."
+    },
+    {
+      "name": "Projected discovery",
+      "command": "bath search",
+      "description": "Select compact organic listing facts while keeping independent freshness and pagination metadata."
+    },
+    {
+      "name": "Fresh parsed detail cache",
+      "command": "bath show",
+      "description": "Reuse parsed source facts with timestamps and explicit offline/stale provenance."
+    }
+  ],
+  "context_tool": "context",
+  "surface": "runtime Cobra provider workflows; 7 workflows plus context"
+}

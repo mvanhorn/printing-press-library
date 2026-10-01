@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "nifty-onsen-runtime-tool-manifest",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020155-5c0bf62e",
+  "base_printing_press_version": "4.32.5",
+  "summary": "MCP discovery metadata must describe the seven parsed provider workflows and their real input schemas.",
+  "reason": "Spec endpoint metadata predates the preserved provider MCP extension; runtime tools/list is authoritative for the exposed workflow surface.",
+  "files": [
+    "tools-manifest.json"
+  ]
+}

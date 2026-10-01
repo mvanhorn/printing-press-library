@@ -1,0 +1,85 @@
+{
+  "method": "One process per invocation; /usr/bin/time -l macOS RSS bytes; wall latency includes process startup; network request counter counts redirects; token estimate is bytes/4, not a model tokenizer. Single sample per workflow/mode.",
+  "measurements": [
+    {
+      "workflow": "search",
+      "mode": "uncached",
+      "output_bytes": 3177,
+      "estimated_tokens_bytes_div_4": 794,
+      "requests": 1,
+      "latency_ms": 1947.5,
+      "peak_rss_bytes": 29949952,
+      "cache": "miss"
+    },
+    {
+      "workflow": "search",
+      "mode": "cached",
+      "output_bytes": 3177,
+      "estimated_tokens_bytes_div_4": 794,
+      "requests": 0,
+      "latency_ms": 14.2,
+      "peak_rss_bytes": 19038208,
+      "cache": "hit"
+    },
+    {
+      "workflow": "detail",
+      "mode": "uncached",
+      "output_bytes": 5185,
+      "estimated_tokens_bytes_div_4": 1296,
+      "requests": 2,
+      "latency_ms": 1416.0,
+      "peak_rss_bytes": 27885568,
+      "cache": "miss"
+    },
+    {
+      "workflow": "detail",
+      "mode": "cached",
+      "output_bytes": 5185,
+      "estimated_tokens_bytes_div_4": 1296,
+      "requests": 0,
+      "latency_ms": 18.2,
+      "peak_rss_bytes": 19283968,
+      "cache": "hit"
+    },
+    {
+      "workflow": "coupons",
+      "mode": "uncached",
+      "output_bytes": 5291,
+      "estimated_tokens_bytes_div_4": 1323,
+      "requests": 3,
+      "latency_ms": 1848.7,
+      "peak_rss_bytes": 30736384,
+      "cache": "miss"
+    },
+    {
+      "workflow": "coupons",
+      "mode": "cached",
+      "output_bytes": 5291,
+      "estimated_tokens_bytes_div_4": 1323,
+      "requests": 0,
+      "latency_ms": 13.0,
+      "peak_rss_bytes": 19365888,
+      "cache": "hit"
+    },
+    {
+      "workflow": "nearby",
+      "mode": "uncached",
+      "output_bytes": 4064,
+      "estimated_tokens_bytes_div_4": 1016,
+      "requests": 2,
+      "latency_ms": 835.8,
+      "peak_rss_bytes": 25444352,
+      "cache": "miss"
+    },
+    {
+      "workflow": "nearby",
+      "mode": "cached",
+      "output_bytes": 4064,
+      "estimated_tokens_bytes_div_4": 1016,
+      "requests": 0,
+      "latency_ms": 14.5,
+      "peak_rss_bytes": 19365888,
+      "cache": "hit"
+    }
+  ]
+}

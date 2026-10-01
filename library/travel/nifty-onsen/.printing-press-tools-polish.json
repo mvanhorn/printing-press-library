@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-01T01:56:17.137834Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated optional platform profile helper; List client profiles is precise for its local configuration listing."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-10-01T01:25:35.584624Z"
+  }
+}
