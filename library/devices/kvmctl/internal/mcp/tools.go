@@ -199,7 +199,9 @@ func RegisterTools(s *server.MCPServer) {
 
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
-	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+	root := cli.RootCmd()
+	hidePhysicalCobraMirrors(root)
+	cobratree.RegisterAll(s, root, cobratree.SiblingCLIPath)
 }
 
 type mcpParamBinding struct {

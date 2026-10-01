@@ -90,7 +90,7 @@ kvmctl-pp-cli verify --expect-text "Save Changes" --agent
 
 `observe` is read-only and returns an observation ID, stored in the CLI cache directory for up to 60 seconds so a later `act` invocation can use it. `act click-text` and `act press-key` reject requests without both `--yes` and `--observation`; the semantic core then recaptures the screen and refuses stale, unavailable, ambiguous, or non-matching evidence. `verify` captures a new image and accepts only one exact high-confidence text match, including multi-word labels. Do not convert OCR output into an autonomous plan or guess another action. `KVMCTL_OCR_PROTOCOL=json` is only for a custom command that writes one JSON object to stdout. These commands have fixture-backed tests; no live BIOS test is claimed.
 
-For MCP, use `semantic_dispatch`: `observe` takes no arguments; `verify-text` needs `arguments.text`; `click-text` needs `arguments.text`, `arguments.observation_id`, and `arguments.write_enabled=true`; `press-key` needs `arguments.key`, `arguments.observation_id`, and `arguments.write_enabled=true`. The MCP host must also set `KVMCTL_WRITE_ENABLED=1` for mutating operations.
+For MCP, use `semantic_dispatch` for the observation steps: `observe` takes no arguments and `verify-text` needs `arguments.text`. Direct physical operations, including `click-text` and `press-key`, are disabled through MCP because they do not consume target- and operation-bound authorization. Use an authorized sequence or workflow for supported physical actions. The interactive CLI `act` commands above remain available with their observation and `--yes` checks.
 
 ## Command Reference
 

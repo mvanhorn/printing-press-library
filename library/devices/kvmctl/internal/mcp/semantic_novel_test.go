@@ -18,32 +18,10 @@ func TestSemanticDispatchDescribesOCRObservationLoopArguments(t *testing.T) {
 	for _, want := range []string{
 		"observe: no arguments",
 		"verify-text: arguments.text",
-		"click-text: arguments.text and arguments.observation_id; requires write_enabled=true",
-		"press-key: arguments.key and arguments.observation_id; requires write_enabled=true",
+		"click-text and press-key, are disabled through MCP",
 	} {
 		if !strings.Contains(description, want) {
 			t.Fatalf("semantic_dispatch description missing %q: %s", want, description)
 		}
-	}
-}
-
-func TestMCPWriteGateRequiresHostPolicyAndExplicitArgument(t *testing.T) {
-	for _, tc := range []struct {
-		name string
-		host bool
-		raw  any
-		want bool
-	}{
-		{"both true", true, true, true},
-		{"host policy false", false, true, false},
-		{"argument omitted", true, nil, false},
-		{"argument false", true, false, false},
-		{"argument wrong type", true, "true", false},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			if got := mcpWriteEnabled(tc.host, tc.raw); got != tc.want {
-				t.Fatalf("mcpWriteEnabled(%v, %#v) = %v, want %v", tc.host, tc.raw, got, tc.want)
-			}
-		})
 	}
 }
