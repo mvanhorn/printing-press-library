@@ -122,7 +122,7 @@ Resource scoping:
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = archiveDBPath()
+				dbPath = archiveDBPathForWrite(cmd.Context())
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)

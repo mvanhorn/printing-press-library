@@ -46,7 +46,7 @@ func main() {
 	}
 	s := server.NewMCPServer(
 		"WaveSpeed",
-		"2026.10.2",
+		"1.0.0",
 		server.WithToolCapabilities(false),
 	)
 

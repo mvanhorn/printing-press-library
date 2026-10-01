@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/config"
@@ -80,16 +81,17 @@ func TestSetTokenAcceptsLegacyPositionalToken(t *testing.T) {
 }
 
 // Releases before the reprint archived into archive.db while sync wrote
-// data.db. A leftover archive.db must be merged into data.db even when data.db
-// already exists (learning setup creates it first), including rows still only
-// in the legacy WAL, and the legacy file is renamed aside afterwards.
+// data.db. The writers merge a leftover archive.db into data.db even when
+// data.db already exists, including rows still only in the legacy WAL, index
+// them for search, keep existing rows, and never move or delete archive.db,
+// so a later commit by an older process still open on it merges next run.
+// The read-only path resolver never writes.
 func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	testenv.Isolate(t)
 	t.Setenv("WAVESPEED_ARCHIVE_DB", "")
 	current := defaultDBPath("wavespeed-pp-cli")
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
 
-	// data.db already exists with one row of its own.
 	cur, err := store.Open(current)
 	if err != nil {
 		t.Fatal(err)
@@ -100,13 +102,13 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	if err := cur.Close(); err != nil {
 		t.Fatal(err)
 	}
-	// The legacy store stays open, so its rows are still in archive.db-wal.
+	// An older process keeps archive.db open, so its rows sit in the WAL.
 	old, err := store.Open(legacy)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer old.Close()
-	if err := old.Upsert("models", "archived", json.RawMessage(`{"id":"archived"}`)); err != nil {
+	if err := old.Upsert("models", "archived", json.RawMessage(`{"id":"archived","name":"zebracorn"}`)); err != nil {
 		t.Fatal(err)
 	}
 	if err := old.Upsert("models", "keep", json.RawMessage(`{"id":"keep","v":"legacy"}`)); err != nil {
@@ -116,20 +118,32 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 		t.Fatalf("expected uncheckpointed legacy WAL: %v", err)
 	}
 
+	before, _ := os.Stat(current)
 	if got := archiveDBPath(); got != current {
 		t.Fatalf("got %q, want %q", got, current)
 	}
-	merged, err := store.OpenReadOnly(current)
-	if err != nil {
-		t.Fatal(err)
+	if after, _ := os.Stat(current); !after.ModTime().Equal(before.ModTime()) || !legacyArchivePending() {
+		t.Fatalf("read-only resolver must not merge or write")
 	}
-	defer merged.Close()
-	status, err := merged.Status()
-	if err != nil {
-		t.Fatal(err)
+
+	if got := archiveDBPathForWrite(context.Background()); got != current {
+		t.Fatalf("write path: got %q", got)
 	}
-	if status["models"] != 2 {
-		t.Fatalf("want both models after merge, got %v", status)
+	countModels := func() (int, *store.Store) {
+		t.Helper()
+		s, err := store.OpenReadOnly(current)
+		if err != nil {
+			t.Fatal(err)
+		}
+		status, err := s.Status()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return status["models"], s
+	}
+	n, merged := countModels()
+	if n != 2 {
+		t.Fatalf("want both models after merge, got %d", n)
 	}
 	var data string
 	if err := merged.DB().QueryRow(`SELECT data FROM resources WHERE resource_type='models' AND id='keep'`).Scan(&data); err != nil {
@@ -138,15 +152,28 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	if !strings.Contains(data, "current") {
 		t.Fatalf("existing data.db row was overwritten: %s", data)
 	}
-	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
-		t.Fatalf("archive.db still present after merge")
+	hits, err := merged.Search("zebracorn", 10)
+	if err != nil || len(hits) != 1 {
+		t.Fatalf("merged row not searchable: %d hits, %v", len(hits), err)
 	}
-	if _, err := os.Stat(legacy + ".migrated"); err != nil {
-		t.Fatalf("archive.db was not kept aside as archive.db.migrated: %v", err)
+	merged.Close()
+	if _, err := os.Stat(legacy); err != nil {
+		t.Fatalf("archive.db must be left in place: %v", err)
 	}
-	// A second call is a no-op.
-	if got := archiveDBPath(); got != current {
-		t.Fatalf("second call: got %q", got)
+	if legacyArchivePending() {
+		t.Fatalf("merge not recorded")
+	}
+
+	// The older process commits again after the merge: the next run merges it.
+	time.Sleep(10 * time.Millisecond)
+	if err := old.Upsert("models", "late", json.RawMessage(`{"id":"late"}`)); err != nil {
+		t.Fatal(err)
+	}
+	archiveDBPathForWrite(context.Background())
+	n, merged = countModels()
+	merged.Close()
+	if n != 3 {
+		t.Fatalf("late legacy commit lost: %d models", n)
 	}
 }
 
@@ -163,7 +190,7 @@ func TestPlanBriefLLMDryRunPreviews(t *testing.T) {
 	}
 }
 
-// Logout with an explicit --config removes that config's own credentials
+// Logout with an explicit config (here via WAVESPEED_CONFIG) removes that config's own credentials
 // file, keeps the separate default login, and says that the default login is
 // still active for the config. Plain logout clears the default login.
 func TestLogoutClearsOnlyTheSelectedLogin(t *testing.T) {
@@ -204,7 +231,9 @@ func TestLogoutClearsOnlyTheSelectedLogin(t *testing.T) {
 	if err := os.WriteFile(local, []byte("api_key = \"local-token\"\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	out := run("", "--config", cfgPath, "auth", "logout")
+	t.Setenv("WAVESPEED_CONFIG", cfgPath)
+	out := run("", "auth", "logout")
+	t.Setenv("WAVESPEED_CONFIG", "")
 	if _, err := os.Stat(local); !os.IsNotExist(err) {
 		t.Fatalf("explicit config credentials file not removed")
 	}
@@ -215,7 +244,7 @@ func TestLogoutClearsOnlyTheSelectedLogin(t *testing.T) {
 		t.Fatalf("logout of an explicit config removed the default login: got %q", got)
 	}
 	if !strings.Contains(out, "default login") {
-		t.Fatalf("logout did not report that the default login is still active: %q", out)
+		t.Fatalf("logout via WAVESPEED_CONFIG did not report that the default login is still active: %q", out)
 	}
 
 	out = run("", "auth", "logout")

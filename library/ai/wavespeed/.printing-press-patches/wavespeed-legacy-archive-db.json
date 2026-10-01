@@ -4,8 +4,8 @@
   "base_run_id": "20260930-225845-bd628bfa",
   "base_printing_press_version": "4.32.6",
   "id": "wavespeed-legacy-archive-db",
-  "summary": "workflow archive, workflow status, sync and the cached-pricing reader all use data.db; a leftover archive.db from earlier releases is merged into data.db through SQLite (INSERT OR IGNORE, so WAL-only rows are included and existing data.db rows win), then renamed to archive.db.migrated. A failed merge warns and retries next run.",
-  "reason": "Earlier releases archived into archive.db while sync wrote data.db. A file move was skipped when learning setup had already created data.db, and an ignored WAL rename failure could hide committed rows. Merging through SQLite covers both cases and never drops the legacy file before the copy commits.",
+  "summary": "workflow archive, workflow status, sync and the cached-pricing reader all use data.db. The writers (workflow archive, sync) merge a leftover archive.db from earlier releases into data.db through SQLite before opening it: other tables with INSERT OR IGNORE, resources through Upsert so search indexes them; WAL-only rows are included and existing data.db rows win. archive.db is never moved or deleted; a size/mtime stamp in archive.db.merged records what was merged, so later commits by an older process merge on the next run. workflow status and cached pricing never write; status prints a note while a merge is pending.",
+  "reason": "Earlier releases archived into archive.db while sync wrote data.db. A file move was skipped when learning setup had already created data.db, an ignored WAL rename failure could hide rows, removing the legacy files could drop a concurrent older process's commit, and a merge from the read-only status path could upgrade data.db.",
   "files": [
     "internal/cli/wavespeed_wiring.go",
     "internal/cli/channel_workflow.go",
@@ -14,9 +14,10 @@
   ],
   "call_sites": [
     "PATCH(legacy-archive-db)",
+    "archiveDBPathForWrite",
     "migrateLegacyArchiveDB",
     "mergeLegacyArchive",
-    "dbPath = archiveDBPath()"
+    "legacyArchivePending"
   ],
-  "validated_outcome": "TestArchiveDBPathMergesLegacyArchive: data.db already exists, legacy rows still in archive.db-wal, both rows present after merge, existing row kept, legacy renamed aside, second call a no-op. Fails on the previous rename-based code."
+  "validated_outcome": "TestArchiveDBPathMergesLegacyArchive: data.db pre-exists, legacy rows uncheckpointed in WAL; the read-only resolver writes nothing; the write path merges both rows, keeps the existing row, makes the merged row searchable, leaves archive.db in place, and merges a later legacy commit on the next run."
 }

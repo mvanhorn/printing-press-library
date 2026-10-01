@@ -91,72 +91,129 @@ func init() {
 // novel commands (cached pricing) use. WAVESPEED_ARCHIVE_DB overrides it.
 // PATCH(legacy-archive-db): releases before the 4.32.6 reprint archived into
 // archive.db beside data.db while sync wrote data.db. Everything now shares
-// data.db, the store sync writes. A leftover archive.db is merged into data.db
-// through SQLite (so rows still in its WAL are read too), then renamed aside.
+// data.db, the store sync writes. Readers (workflow status, cached pricing)
+// only resolve the path and never write; the writers (workflow archive, sync)
+// call archiveDBPathForWrite, which first merges a leftover archive.db.
 func archiveDBPath() string {
 	if env := strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")); env != "" {
 		return env
 	}
-	current := defaultDBPath("wavespeed-pp-cli")
-	if err := migrateLegacyArchiveDB(context.Background(), current); err != nil {
+	return defaultDBPath("wavespeed-pp-cli")
+}
+
+// archiveDBPathForWrite is archiveDBPath for commands that already open the
+// store read-write, so merging legacy rows there changes nothing a read-only
+// command promised to leave alone.
+func archiveDBPathForWrite(ctx context.Context) string {
+	current := archiveDBPath()
+	if strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")) != "" {
+		return current
+	}
+	if err := migrateLegacyArchiveDB(ctx, current); err != nil {
 		fmt.Fprintf(os.Stderr, "warning: archive.db from an earlier release was not merged into %s (it is kept, and the merge retries next run): %v\n", current, err)
 	}
 	return current
 }
 
-// migrateLegacyArchiveDB copies every row of a legacy archive.db into data.db
-// with INSERT OR IGNORE, whether or not data.db already exists (learning
-// setup can create it first). Rows already in data.db win. The legacy file
-// is renamed to archive.db.migrated only after the copy commits, so a failure
-// leaves it in place for the next run, and a repeat merge is a no-op.
+// legacyArchivePending reports whether an archive.db from an earlier release
+// has rows not yet merged into data.db, so read-only commands can say so.
+func legacyArchivePending() bool {
+	if strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")) != "" {
+		return false
+	}
+	legacy := filepath.Join(filepath.Dir(archiveDBPath()), "archive.db")
+	stamp, ok := legacyArchiveStamp(legacy)
+	if !ok {
+		return false
+	}
+	done, _ := os.ReadFile(legacy + ".merged")
+	return strings.TrimSpace(string(done)) != stamp
+}
+
+// legacyArchiveStamp fingerprints archive.db and its WAL by size and mtime.
+// A later commit by an older binary still writing archive.db changes it, so
+// that commit is merged on the next run instead of being lost.
+func legacyArchiveStamp(legacy string) (string, bool) {
+	info, err := os.Stat(legacy)
+	if err != nil || !info.Mode().IsRegular() {
+		return "", false
+	}
+	stamp := fmt.Sprintf("%d:%d", info.Size(), info.ModTime().UnixNano())
+	if wal, err := os.Stat(legacy + "-wal"); err == nil {
+		stamp += fmt.Sprintf(" wal %d:%d", wal.Size(), wal.ModTime().UnixNano())
+	}
+	return stamp, true
+}
+
+// migrateLegacyArchiveDB copies rows of a legacy archive.db into data.db with
+// INSERT OR IGNORE, whether or not data.db already exists (learning setup can
+// create it first). SQLite reads the legacy WAL, so rows not yet checkpointed
+// are included, and existing data.db rows win. archive.db and its sidecars
+// are never moved or deleted, so a concurrent older process loses nothing; a
+// stamp file records what was merged, and any later change merges again.
 func migrateLegacyArchiveDB(ctx context.Context, current string) error {
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
-	if info, err := os.Stat(legacy); err != nil || !info.Mode().IsRegular() {
+	stamp, ok := legacyArchiveStamp(legacy)
+	if !ok {
+		return nil
+	}
+	if done, _ := os.ReadFile(legacy + ".merged"); strings.TrimSpace(string(done)) == stamp {
 		return nil
 	}
 	s, err := store.OpenWithContext(ctx, current)
 	if err != nil {
 		return err
 	}
-	if err := mergeLegacyArchive(ctx, s.DB(), legacy); err != nil {
-		_ = s.Close()
-		return err
-	}
-	if err := s.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(legacy, legacy+".migrated"); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("merged, but could not rename %s: %w", legacy, err)
-	}
-	for _, suffix := range []string{"-wal", "-shm"} {
-		_ = os.Remove(legacy + suffix)
-	}
-	return nil
-}
-
-func mergeLegacyArchive(ctx context.Context, db *sql.DB, legacy string) error {
-	conn, err := db.Conn(ctx)
+	defer s.Close()
+	pending, err := mergeLegacyArchive(ctx, s.DB(), legacy)
 	if err != nil {
 		return err
 	}
+	// Generic resources go through Upsert so the search index covers them.
+	for _, r := range pending {
+		if err := s.Upsert(r.resourceType, r.id, r.data); err != nil {
+			return fmt.Errorf("merge resource %s/%s: %w", r.resourceType, r.id, err)
+		}
+	}
+	return os.WriteFile(legacy+".merged", []byte(stamp+"\n"), 0o600)
+}
+
+type legacyResource struct {
+	resourceType, id string
+	data             json.RawMessage
+}
+
+func mergeLegacyArchive(ctx context.Context, db *sql.DB, legacy string) ([]legacyResource, error) {
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return nil, err
+	}
 	defer conn.Close()
-	if _, err := conn.ExecContext(ctx, `ATTACH DATABASE ? AS legacy`, legacy); err != nil {
-		return fmt.Errorf("attach %s: %w", legacy, err)
+	if _, err := conn.ExecContext(ctx, `ATTACH DATABASE ? AS legacy`, "file:"+legacy+"?mode=ro"); err != nil {
+		return nil, fmt.Errorf("attach %s: %w", legacy, err)
 	}
 	defer func() { _, _ = conn.ExecContext(context.Background(), `DETACH DATABASE legacy`) }()
 	tables, err := sqliteTables(ctx, conn, "legacy")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	tx, err := conn.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() { _ = tx.Rollback() }()
+	var pending []legacyResource
 	for _, table := range tables {
+		if table == "resources" {
+			pending, err = missingLegacyResources(ctx, tx)
+			if err != nil {
+				return nil, err
+			}
+			continue
+		}
 		cols, err := sharedColumns(ctx, tx, table)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if len(cols) == 0 {
 			continue
@@ -164,10 +221,30 @@ func mergeLegacyArchive(ctx context.Context, db *sql.DB, legacy string) error {
 		list := `"` + strings.Join(cols, `", "`) + `"`
 		q := fmt.Sprintf(`INSERT OR IGNORE INTO main."%s" (%s) SELECT %s FROM legacy."%s"`, table, list, list, table)
 		if _, err := tx.ExecContext(ctx, q); err != nil {
-			return fmt.Errorf("merge %s: %w", table, err)
+			return nil, fmt.Errorf("merge %s: %w", table, err)
 		}
 	}
-	return tx.Commit()
+	return pending, tx.Commit()
+}
+
+func missingLegacyResources(ctx context.Context, tx *sql.Tx) ([]legacyResource, error) {
+	rows, err := tx.QueryContext(ctx, `SELECT l.resource_type, l.id, l.data FROM legacy.resources l
+		WHERE NOT EXISTS (SELECT 1 FROM main.resources m WHERE m.resource_type = l.resource_type AND m.id = l.id)`)
+	if err != nil {
+		return nil, fmt.Errorf("read legacy resources: %w", err)
+	}
+	defer rows.Close()
+	var out []legacyResource
+	for rows.Next() {
+		var r legacyResource
+		var data string
+		if err := rows.Scan(&r.resourceType, &r.id, &data); err != nil {
+			return nil, err
+		}
+		r.data = json.RawMessage(data)
+		out = append(out, r)
+	}
+	return out, rows.Err()
 }
 
 // sqliteTables lists ordinary tables, skipping SQLite internals and FTS

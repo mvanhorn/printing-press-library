@@ -84,7 +84,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = archiveDBPath()
+				dbPath = archiveDBPathForWrite(archiveCtx)
 			}
 			s, err := store.OpenWithContext(archiveCtx, dbPath)
 			if err != nil {
@@ -189,10 +189,14 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   # Show status as JSON
   wavespeed-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dbPath == "" {
+			defaultStore := dbPath == ""
+			if defaultStore {
 				dbPath = archiveDBPath()
 			}
 
+			if defaultStore && legacyArchivePending() {
+				fmt.Fprintln(cmd.ErrOrStderr(), "note: archive.db from an earlier release is not merged yet; run 'workflow archive' to merge it")
+			}
 			status := map[string]int{}
 			if _, err := os.Stat(dbPath); err == nil {
 				s, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)

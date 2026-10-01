@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/config"
-	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -266,11 +266,11 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// PATCH(explicit-config-credentials): logging out of an explicit
-			// --config never deletes the separate default login, but Load
-			// still falls back to it, so say so instead of implying the CLI is
-			// now unauthenticated.
+			// config (--config or WAVESPEED_CONFIG) never deletes the separate
+			// default login, but Load still falls back to it, so reload and
+			// say so instead of implying the CLI is now unauthenticated.
 			defaultStillActive := false
-			if envStillSet == "" && strings.TrimSpace(flags.configPath) != "" {
+			if envStillSet == "" {
 				if after, err := config.Load(flags.configPath); err == nil && after.WavespeedApiKey != "" {
 					defaultStillActive = true
 				}
