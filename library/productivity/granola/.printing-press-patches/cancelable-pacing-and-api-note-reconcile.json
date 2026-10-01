@@ -15,5 +15,5 @@
     "internal/granola/store_sync.go",
     "internal/granola/store_sync_reconcile_test.go"
   ],
-  "validated_outcome": "Synthetic tests cover cancellation, concurrent pacing, date-only audit boundaries, deletion of only API-owned transcript, attendee, and folder-membership rows after complete reconciliation, rollback when a dependent-row deletion fails, and recognition of a real stale WAL snapshot. Candidate selection and deletion share one transaction, and SQLite lock conflicts retry with a fresh transaction."
+  "validated_outcome": "Synthetic tests cover cancellation, concurrent pacing, date-only audit boundaries, deletion of only API-owned transcript, attendee, and folder-membership rows after complete reconciliation, rollback when a dependent-row deletion fails, and successful reconciliation after an injected real stale WAL snapshot forces a retry. Candidate selection and deletion share one transaction."
 }

@@ -1108,6 +1108,10 @@ func upsertAPINote(ctx context.Context, tx *sql.Tx, n *APINote, res *APISyncResu
 // complete unfiltered list. Incremental/windowed syncs must never call this:
 // absence from a partial response says nothing about upstream existence.
 func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]struct{}) (int, error) {
+	return reconcileMissingAPINotes(ctx, db, seen, nil)
+}
+
+func reconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]struct{}, afterScan func()) (int, error) {
 	if err := EnsureSchema(ctx, db); err != nil {
 		return 0, err
 	}
@@ -1115,7 +1119,7 @@ func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]s
 	// SQLite then refuses that snapshot's write upgrade; restart the complete
 	// selection and deletion transaction rather than leaving notes stale.
 	for attempt := 0; ; attempt++ {
-		deleted, err := reconcileMissingAPINotesOnce(ctx, db, seen)
+		deleted, err := reconcileMissingAPINotesOnce(ctx, db, seen, afterScan)
 		if err == nil || !isReconcileSQLiteBusy(err) || attempt >= 4 {
 			return deleted, err
 		}
@@ -1142,7 +1146,7 @@ func isReconcileSQLiteBusy(err error) bool {
 	}
 }
 
-func reconcileMissingAPINotesOnce(ctx context.Context, db *sql.DB, seen map[string]struct{}) (int, error) {
+func reconcileMissingAPINotesOnce(ctx context.Context, db *sql.DB, seen map[string]struct{}, afterScan func()) (int, error) {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -1172,6 +1176,9 @@ func reconcileMissingAPINotesOnce(ctx context.Context, db *sql.DB, seen map[stri
 	}
 	if len(missing) == 0 {
 		return 0, nil
+	}
+	if afterScan != nil {
+		afterScan()
 	}
 	deletedAt := time.Now().UTC().Format(time.RFC3339Nano)
 	for _, id := range missing {

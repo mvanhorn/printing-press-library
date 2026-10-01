@@ -60,9 +60,9 @@ func TestReconcileMissingAPINotesRollsBackDependentFailure(t *testing.T) {
 	assertCount(t, db, `SELECT COUNT(*) FROM attendees WHERE meeting_id='missing' AND row_source='api'`, 1, "attendee deletion was not rolled back")
 }
 
-func TestReconcileRecognizesStaleSQLiteSnapshot(t *testing.T) {
+func TestReconcileRetriesStaleSQLiteSnapshot(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "snapshot.db")
-	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=busy_timeout(0)"
+	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=busy_timeout(1000)"
 	reader, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		t.Fatal(err)
@@ -73,26 +73,31 @@ func TestReconcileRecognizesStaleSQLiteSnapshot(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer writer.Close()
+	if err := EnsureSchema(context.Background(), reader); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := reader.Exec(`INSERT INTO meetings(id, row_source) VALUES ('missing', 'api')`); err != nil {
+		t.Fatal(err)
+	}
 	if _, err := reader.Exec(`CREATE TABLE marker (value INTEGER)`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := reader.Exec(`INSERT INTO marker(value) VALUES (1)`); err != nil {
 		t.Fatal(err)
 	}
-	tx, err := reader.BeginTx(context.Background(), nil)
-	if err != nil {
-		t.Fatal(err)
+	attempts := 0
+	deleted, err := reconcileMissingAPINotes(context.Background(), reader, map[string]struct{}{}, func() {
+		attempts++
+		if attempts == 1 {
+			// Commit on a second connection after reconciliation has read its
+			// candidate snapshot. Its first write must fail with BUSY_SNAPSHOT.
+			if _, err := writer.Exec(`UPDATE marker SET value=2`); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+	if err != nil || deleted != 1 || attempts != 2 {
+		t.Fatalf("reconciliation after stale snapshot: deleted=%d attempts=%d err=%v", deleted, attempts, err)
 	}
-	defer tx.Rollback()
-	var value int
-	if err := tx.QueryRow(`SELECT value FROM marker`).Scan(&value); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := writer.Exec(`UPDATE marker SET value=2`); err != nil {
-		t.Fatal(err)
-	}
-	_, err = tx.Exec(`UPDATE marker SET value=3`)
-	if err == nil || !isReconcileSQLiteBusy(err) {
-		t.Fatalf("stale WAL snapshot error = %v, want a retryable SQLite lock", err)
-	}
+	assertCount(t, reader, `SELECT COUNT(*) FROM meetings WHERE id='missing' AND COALESCE(deleted_at, '')<>''`, 1, "missing meeting remained after retry")
 }
