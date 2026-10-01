@@ -16,5 +16,5 @@
     "internal/cli/cerca.go",
     "internal/cli/avvisi_search_pagination_test.go"
   ],
-  "validated_outcome": "Mock endpoint tests prove multiple pages including short pages, query/header preservation, non-advancing and malformed continuation failure, and unchanged single-page output."
+  "validated_outcome": "Mock endpoint tests prove multiple pages including short and duplicate-only middle pages, query/header preservation, malformed and repeated-token failures, a valid empty page, and unchanged single-page output."
 }

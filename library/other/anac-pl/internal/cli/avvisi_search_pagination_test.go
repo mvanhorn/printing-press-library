@@ -53,6 +53,8 @@ func TestAvvisiSearchAllFollowsContinuationTokens(t *testing.T) {
 func TestAvvisiSearchAllRejectsIncompleteContinuation(t *testing.T) {
 	for _, response := range []string{
 		`{"content":`,
+		`{"error":"temporary failure"}`,
+		`{"content":null}`,
 		`{"content":[{"idAvviso":"second"}],"lastPaginationToken":"same"}`,
 		`{"content":[],"lastPaginationToken":"next"}`,
 	} {
@@ -71,6 +73,51 @@ func TestAvvisiSearchAllRejectsIncompleteContinuation(t *testing.T) {
 				t.Fatalf("partial results must not become success: data=%s err=%v", data, err)
 			}
 		})
+	}
+}
+
+func TestAvvisiSearchAllContinuesAfterDuplicateOnlyPage(t *testing.T) {
+	var tokens []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("tokenPaginazione")
+		tokens = append(tokens, token)
+		switch token {
+		case "":
+			fmt.Fprint(w, `{"content":[{"idAvviso":"first"}],"lastPaginationToken":"next-1"}`)
+		case "next-1":
+			fmt.Fprint(w, `{"content":[{"idAvviso":"first"}],"lastPaginationToken":"next-2"}`)
+		case "next-2":
+			fmt.Fprint(w, `{"content":[{"idAvviso":"second"}],"lastPaginationToken":""}`)
+		default:
+			t.Errorf("unexpected continuation token %q", token)
+		}
+	}))
+	defer srv.Close()
+	data, err := paginatedGet(t.Context(), clientVerso(srv.URL), "/avvisi-full-text",
+		map[string]string{"size": "1"}, nil, true, "", "offset", "", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var items []struct {
+		ID string `json:"idAvviso"`
+	}
+	if err := json.Unmarshal(data, &items); err != nil || len(items) != 2 || items[1].ID != "second" {
+		t.Fatalf("duplicate-only page stopped token pagination: %s, err=%v", data, err)
+	}
+	if fmt.Sprint(tokens) != "[ next-1 next-2]" {
+		t.Fatalf("unexpected tokens: %v", tokens)
+	}
+}
+
+func TestAvvisiSearchAllAcceptsValidEmptyArray(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, `{"content":[],"lastPaginationToken":""}`)
+	}))
+	defer srv.Close()
+	data, err := paginatedGet(t.Context(), clientVerso(srv.URL), "/avvisi-full-text",
+		map[string]string{"size": "1"}, nil, true, "", "offset", "", "", "")
+	if err != nil || string(data) != "[]" {
+		t.Fatalf("valid empty search was rejected: data=%s err=%v", data, err)
 	}
 }
 

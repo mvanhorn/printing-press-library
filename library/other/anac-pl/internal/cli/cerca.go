@@ -58,6 +58,9 @@ func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[st
 		if err := json.Unmarshal(data, &env); err != nil {
 			return out, total, fetched, fmt.Errorf("risposta di /avvisi-full-text non decodificabile: %w", err)
 		}
+		if pages == 0 && env.Content == nil {
+			return out, total, fetched, fmt.Errorf("ricerca incompleta: risposta di /avvisi-full-text senza array content")
+		}
 		if len(env.Content) == 0 {
 			if pages == 0 && env.LastPaginationToken != "" {
 				return out, total, fetched, fmt.Errorf("ricerca incompleta: pagina vuota con token di continuazione")
@@ -84,7 +87,7 @@ func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[st
 		if env.LastPaginationToken == "" || (pages > 0 && (added == 0 || (size > 0 && len(env.Content) < size))) {
 			break
 		}
-		if pages == 0 && (added == 0 || seenTokens[env.LastPaginationToken]) {
+		if pages == 0 && seenTokens[env.LastPaginationToken] {
 			return out, total, fetched, fmt.Errorf("ricerca incompleta: la paginazione ANAC non avanza")
 		}
 		token = env.LastPaginationToken
