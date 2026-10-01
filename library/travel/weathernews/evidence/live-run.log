@@ -1,0 +1,12 @@
+places-kyoto 0 985 18
+places-mountain 5 0 
+forecast 0 3640 available
+forecast-outside 0 1288 out_of_horizon
+koyo-search 0 1747 2
+sakura-search 0 3282 16
+koyo-show 0 2072 available
+sakura-ended 0 2645 season_ended
+weather-compare 0 2406 
+season-compare 0 2717 
+ended-compare 0 2562 
+projection 0 331 

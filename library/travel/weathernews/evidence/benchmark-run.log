@@ -1,0 +1,110 @@
+[
+  {
+    "case": "forecast",
+    "mode": "uncached",
+    "exit": 0,
+    "output_bytes": 3719,
+    "wall_ms": 292,
+    "peak_memory_bytes": 24346624,
+    "requests": 1,
+    "cache_hits": 0,
+    "download_bytes": 8791,
+    "latency_ms": 278
+  },
+  {
+    "case": "forecast",
+    "mode": "populate",
+    "exit": 0,
+    "output_bytes": 3719,
+    "wall_ms": 132,
+    "peak_memory_bytes": 25149440,
+    "requests": 1,
+    "cache_hits": 0,
+    "download_bytes": 8791,
+    "latency_ms": 110
+  },
+  {
+    "case": "forecast",
+    "mode": "cached",
+    "exit": 0,
+    "output_bytes": 3719,
+    "wall_ms": 19,
+    "peak_memory_bytes": 19611648,
+    "requests": 0,
+    "cache_hits": 1,
+    "download_bytes": 0,
+    "latency_ms": 0
+  },
+  {
+    "case": "inventory",
+    "mode": "uncached",
+    "exit": 0,
+    "output_bytes": 1825,
+    "wall_ms": 66,
+    "peak_memory_bytes": 27688960,
+    "requests": 1,
+    "cache_hits": 0,
+    "download_bytes": 466144,
+    "latency_ms": 53
+  },
+  {
+    "case": "inventory",
+    "mode": "populate",
+    "exit": 0,
+    "output_bytes": 1825,
+    "wall_ms": 58,
+    "peak_memory_bytes": 28327936,
+    "requests": 1,
+    "cache_hits": 0,
+    "download_bytes": 466144,
+    "latency_ms": 47
+  },
+  {
+    "case": "inventory",
+    "mode": "cached",
+    "exit": 0,
+    "output_bytes": 1825,
+    "wall_ms": 19,
+    "peak_memory_bytes": 24084480,
+    "requests": 0,
+    "cache_hits": 1,
+    "download_bytes": 0,
+    "latency_ms": 8
+  },
+  {
+    "case": "nationwide",
+    "mode": "uncached",
+    "exit": 0,
+    "output_bytes": 3360,
+    "wall_ms": 1121,
+    "peak_memory_bytes": 42123264,
+    "requests": 1,
+    "cache_hits": 0,
+    "download_bytes": 1782069,
+    "latency_ms": 1111
+  },
+  {
+    "case": "nationwide",
+    "mode": "populate",
+    "exit": 0,
+    "output_bytes": 3360,
+    "wall_ms": 140,
+    "peak_memory_bytes": 44957696,
+    "requests": 1,
+    "cache_hits": 0,
+    "download_bytes": 1782069,
+    "latency_ms": 129
+  },
+  {
+    "case": "nationwide",
+    "mode": "cached",
+    "exit": 0,
+    "output_bytes": 3360,
+    "wall_ms": 61,
+    "peak_memory_bytes": 37142528,
+    "requests": 0,
+    "cache_hits": 1,
+    "download_bytes": 0,
+    "latency_ms": 51
+  }
+]

@@ -1,0 +1,128 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://weathernews.jp/onebox/api_search.cgi?callback=\u0026query=%E4%BA%AC%E9%83%BD\u0026lang=ja",
+    "entry_count": 1,
+    "api_entry_count": 1,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "weathernews.jp": 1
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "weathernews.jp",
+          "path": "/onebox/api_search.cgi",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "weathernews.jp",
+      "method": "GET",
+      "path": "/onebox/api_search.cgi",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "array",
+        "fields": [
+          {
+            "name": "lat",
+            "type": "number",
+            "required": true
+          },
+          {
+            "name": "loc",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "lon",
+            "type": "number",
+            "required": true
+          },
+          {
+            "name": "q",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "s",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "v",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "weathernews.jp",
+          "path": "/onebox/api_search.cgi",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "list_api_search.cgi",
+      "resource": "api_search.cgi",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /onebox/api_search.cgi traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "weathernews.jp",
+          "path": "/onebox/api_search.cgi",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

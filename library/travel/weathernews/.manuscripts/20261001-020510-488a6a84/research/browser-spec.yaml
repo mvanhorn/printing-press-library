@@ -1,0 +1,67 @@
+name: weathernews
+description: Discovered API spec for weathernews
+version: 0.1.0
+base_url: https://weathernews.jp
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "query" from query: search input'
+config:
+    format: toml
+    path: ~/.config/weathernews-pp-cli/config.toml
+resources:
+    onebox:
+        description: Operations on api_search.cgi
+        endpoints:
+            list_api_search.cgi:
+                method: GET
+                path: /onebox/api_search.cgi
+                description: GET /onebox/api_search.cgi
+                params:
+                    - name: callback
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: lang
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ApiSearchCgi
+                pagination: null
+types:
+    ApiSearchCgi:
+        fields:
+            - name: lat
+              type: number
+            - name: loc
+              type: string
+            - name: lon
+              type: number
+            - name: q
+              type: string
+            - name: s
+              type: integer
+            - name: url
+              type: string
+            - name: v
+              type: string

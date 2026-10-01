@@ -1,0 +1,56 @@
+[
+  {
+    "artifact": "forecast.raw",
+    "bytes": 8791,
+    "sha256": "da44f115ca71276be4bbb74496fdf662b1a050443d4cff35f94e579c4436b201",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "koyo-area.raw",
+    "bytes": 509828,
+    "sha256": "c1099d38ba416edc07a9bdcc3a4dd1cbad3fc564a88182c44b463afac67e078f",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "koyo-search-js.raw",
+    "bytes": 1219,
+    "sha256": "99f2f8d2b48e728ef2cfaf76208366579ddedbea0c19d091e27af69b6824877e",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "koyo-search.raw",
+    "bytes": 1589528,
+    "sha256": "a47ae5c8aa347e06caf97ff4a90122ba2fbf8f9220edc281e559fb4274b756e7",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "koyo-spot.raw",
+    "bytes": 165388,
+    "sha256": "74140068d7bc34ee019c44e23f587a5aed59ae520efda5623a1011be17920fae",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "sakura-area.raw",
+    "bytes": 355570,
+    "sha256": "f26c0c66944a2b6b89b8807ec701e0c84f1306249e4e3fd7600ee837540d4f7e",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "sakura-search-js.raw",
+    "bytes": 1501,
+    "sha256": "1de23b469e0da69b514da9b23473e47c4566ee24dafe67fb4b03ee7eba6ef03e",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "sakura-search.raw",
+    "bytes": 1820632,
+    "sha256": "3996357ed9994d58391adb10c2276157530c93a0008d210c483b20b7fbcb9904",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  },
+  {
+    "artifact": "sakura-spot.raw",
+    "bytes": 137039,
+    "sha256": "dd5724f7cad26bfa935ddab764f5ce99b6856a94dabbda3a89d86963eec73c5c",
+    "scope": "public first-party source research; raw SSR report streams omitted from archive"
+  }
+]

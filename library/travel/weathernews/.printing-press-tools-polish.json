@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-30T19:48:02.680227Z",
+  "cli_dir": "\u003ccli-dir\u003e/weathernews-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated DO-NOT-EDIT framework command: local profile listing has no required input, and its parent/help defines the profile context; precise Short retained. Template wording is a retro candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated DO-NOT-EDIT framework command: local learnings listing directly names the stored records it returns; precise Short retained. Richer template wording is a retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-30T19:33:08.178931Z"
+  }
+}

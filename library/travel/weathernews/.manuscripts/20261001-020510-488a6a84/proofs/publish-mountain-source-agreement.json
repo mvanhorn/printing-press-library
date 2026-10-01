@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "query": "\u9ad8\u5c3e\u5c71",
+  "matches_checked": 3,
+  "basis": "Independent JSON decode of actual refreshed public resolver response; source names, stripped URLs, coordinates and unavailable elevation agree."
+}

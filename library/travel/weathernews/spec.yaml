@@ -1,0 +1,82 @@
+name: weathernews
+cli_description: Japan weather and seasonal travel evidence with explicit dates, freshness and coverage.
+description: Public Weathernews website replay surfaces. Domain commands normalize evidence and enforce bounds.
+version: 0.1.0
+category: travel
+base_url: https://weathernews.jp
+http_transport: standard
+health_check_path: /koyo/
+auth:
+  type: none
+learn:
+  entity_lookup_seeds:
+    city:
+      - canonical: 京都市
+        aliases: [kyoto]
+      - canonical: 東京
+        aliases: [tokyo]
+resources:
+  source:
+    description: Public source replay primitives
+    endpoints:
+      locations:
+        method: GET
+        path: /onebox/api_search.cgi
+        description: Public location search used by the first-party homepage
+        happy_args: --query 京都 --lang ja
+        params:
+          - name: query
+            type: string
+            required: true
+          - name: lang
+            type: string
+            default: ja
+          - name: callback
+            type: string
+            default: ''
+        response:
+          type: array
+          item: SourcePlace
+      forecast:
+        method: GET
+        path: /lba/wxdata/api_data_ss1
+        base_url: https://site.weathernews.jp
+        description: Public coordinate forecast used by the first-party homepage
+        happy_args: --lat 35.01167 --lon 135.76806
+        params:
+          - name: lat
+            type: float
+            required: true
+          - name: lon
+            type: float
+            required: true
+        response:
+          type: object
+          item: ForecastSource
+types:
+  SourcePlace:
+    fields:
+      - name: lat
+        type: float
+      - name: lon
+        type: float
+      - name: loc
+        type: string
+      - name: url
+        type: string
+  ForecastSource:
+    fields:
+      - name: is_japan
+        type: int
+      - name: geo
+        type: object
+      - name: observation
+        type: object
+      - name: srf_attr
+        type: object
+      - name: srf
+        type: array
+      - name: mrf_attr
+        type: object
+      - name: mrf
+        type: array

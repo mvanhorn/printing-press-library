@@ -1,0 +1,20 @@
+?   	weathernews-pp-cli/cmd/weathernews-pp-cli	[no test files]
+ok  	weathernews-pp-cli/cmd/weathernews-pp-mcp	0.638s
+?   	weathernews-pp-cli/internal/cache	[no test files]
+ok  	weathernews-pp-cli/internal/cli	1.419s
+?   	weathernews-pp-cli/internal/cli/playbooks	[no test files]
+ok  	weathernews-pp-cli/internal/client	2.104s
+ok  	weathernews-pp-cli/internal/cliutil	13.524s
+?   	weathernews-pp-cli/internal/cliutil/testenv	[no test files]
+?   	weathernews-pp-cli/internal/config	[no test files]
+ok  	weathernews-pp-cli/internal/evidence	1.185s
+ok  	weathernews-pp-cli/internal/learn	2.219s
+ok  	weathernews-pp-cli/internal/learn/entities	3.067s
+ok  	weathernews-pp-cli/internal/learn/lookups	4.578s
+ok  	weathernews-pp-cli/internal/learn/patterns	2.340s
+ok  	weathernews-pp-cli/internal/mcp	3.609s
+ok  	weathernews-pp-cli/internal/mcp/bound	2.704s
+ok  	weathernews-pp-cli/internal/mcp/cobratree	9.764s
+ok  	weathernews-pp-cli/internal/platform	4.918s
+ok  	weathernews-pp-cli/internal/store	6.004s
+?   	weathernews-pp-cli/internal/types	[no test files]

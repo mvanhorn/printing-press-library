@@ -1,0 +1,16 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS weathernews-pp-cli --help
+PASS weathernews-pp-cli version
+PASS weathernews-pp-cli doctor
+agentcookie: skipping weathernews (cookie-only or no env-var auth)
+Generated weathernews at $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli
+Bundled $PRESS_HOME/.runstate/weathernews-cli-6320313f/runs/20261001-020510-488a6a84/working/weathernews-pp-cli/build/weathernews-pp-mcp-darwin-arm64.mcpb

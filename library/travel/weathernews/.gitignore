@@ -1,0 +1,17 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/weathernews-pp-cli
+/weathernews-pp-cli.exe
+/weathernews-pp-mcp
+/weathernews-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Task-local caches and mutable runtime state
+/.cache/
+/evidence/runtime-home/
+/evidence/benchmark-home/
+/.build-owner.json
+
+/evidence/workflow-home/
+/.press-run.json

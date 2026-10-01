@@ -1,0 +1,6 @@
+{
+  "cli": "weathernews-pp-cli",
+  "library_dir": "$PRESS_HOME/library/weathernews",
+  "preserved_patches": [],
+  "promoted": true
+}
