@@ -10,9 +10,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -116,48 +118,30 @@ func archiveDBPathForWrite(ctx context.Context) string {
 }
 
 // legacyArchivePending reports whether an archive.db from an earlier release
-// has rows not yet merged into data.db, so read-only commands can say so.
+// exists and no writer has merged it yet, so read-only commands can say so.
 func legacyArchivePending() bool {
 	if strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")) != "" {
 		return false
 	}
 	legacy := filepath.Join(filepath.Dir(archiveDBPath()), "archive.db")
-	stamp, ok := legacyArchiveStamp(legacy)
-	if !ok {
+	if info, err := os.Stat(legacy); err != nil || !info.Mode().IsRegular() {
 		return false
 	}
-	done, _ := os.ReadFile(legacy + ".merged")
-	return strings.TrimSpace(string(done)) != stamp
-}
-
-// legacyArchiveStamp fingerprints archive.db and its WAL by size and mtime.
-// A later commit by an older binary still writing archive.db changes it, so
-// that commit is merged on the next run instead of being lost.
-func legacyArchiveStamp(legacy string) (string, bool) {
-	info, err := os.Stat(legacy)
-	if err != nil || !info.Mode().IsRegular() {
-		return "", false
-	}
-	stamp := fmt.Sprintf("%d:%d", info.Size(), info.ModTime().UnixNano())
-	if wal, err := os.Stat(legacy + "-wal"); err == nil {
-		stamp += fmt.Sprintf(" wal %d:%d", wal.Size(), wal.ModTime().UnixNano())
-	}
-	return stamp, true
+	_, err := os.Stat(legacy + ".merged")
+	return err != nil
 }
 
 // migrateLegacyArchiveDB copies rows of a legacy archive.db into data.db with
 // INSERT OR IGNORE, whether or not data.db already exists (learning setup can
 // create it first). SQLite reads the legacy WAL, so rows not yet checkpointed
 // are included, and existing data.db rows win. archive.db and its sidecars
-// are never moved or deleted, so a concurrent older process loses nothing; a
-// stamp file records what was merged, and any later change merges again.
+// are never moved or deleted, and every writer run merges again (repeats are
+// no-ops), so a later commit by an older process still using archive.db is
+// picked up without relying on file timestamps. archive.db.merged only tells
+// read-only commands that a merge has happened.
 func migrateLegacyArchiveDB(ctx context.Context, current string) error {
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
-	stamp, ok := legacyArchiveStamp(legacy)
-	if !ok {
-		return nil
-	}
-	if done, _ := os.ReadFile(legacy + ".merged"); strings.TrimSpace(string(done)) == stamp {
+	if info, err := os.Stat(legacy); err != nil || !info.Mode().IsRegular() {
 		return nil
 	}
 	s, err := store.OpenWithContext(ctx, current)
@@ -175,7 +159,17 @@ func migrateLegacyArchiveDB(ctx context.Context, current string) error {
 			return fmt.Errorf("merge resource %s/%s: %w", r.resourceType, r.id, err)
 		}
 	}
-	return os.WriteFile(legacy+".merged", []byte(stamp+"\n"), 0o600)
+	return os.WriteFile(legacy+".merged", []byte(time.Now().UTC().Format(time.RFC3339)+"\n"), 0o600)
+}
+
+// legacyArchiveURI builds a read-only SQLite URI for path. url.URL escapes
+// '?', '#' and '%' in the path so they are not read as URI syntax.
+func legacyArchiveURI(path string) string {
+	u := url.URL{Scheme: "file", Path: filepath.ToSlash(path), RawQuery: "mode=ro"}
+	if !strings.HasPrefix(u.Path, "/") {
+		u.Path = "/" + u.Path
+	}
+	return u.String()
 }
 
 type legacyResource struct {
@@ -189,7 +183,7 @@ func mergeLegacyArchive(ctx context.Context, db *sql.DB, legacy string) ([]legac
 		return nil, err
 	}
 	defer conn.Close()
-	if _, err := conn.ExecContext(ctx, `ATTACH DATABASE ? AS legacy`, "file:"+legacy+"?mode=ro"); err != nil {
+	if _, err := conn.ExecContext(ctx, `ATTACH DATABASE ? AS legacy`, legacyArchiveURI(legacy)); err != nil {
 		return nil, fmt.Errorf("attach %s: %w", legacy, err)
 	}
 	defer func() { _, _ = conn.ExecContext(context.Background(), `DETACH DATABASE legacy`) }()

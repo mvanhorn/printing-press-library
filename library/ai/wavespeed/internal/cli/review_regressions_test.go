@@ -5,12 +5,12 @@ package cli
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/config"
@@ -91,6 +91,9 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	t.Setenv("WAVESPEED_ARCHIVE_DB", "")
 	current := defaultDBPath("wavespeed-pp-cli")
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
+	if err := os.MkdirAll(filepath.Dir(legacy), 0o700); err != nil {
+		t.Fatal(err)
+	}
 
 	cur, err := store.Open(current)
 	if err != nil {
@@ -164,8 +167,8 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 		t.Fatalf("merge not recorded")
 	}
 
-	// The older process commits again after the merge: the next run merges it.
-	time.Sleep(10 * time.Millisecond)
+	// The older process commits again after the merge (same size, same
+	// mtime granularity does not matter): the next writer run merges it.
 	if err := old.Upsert("models", "late", json.RawMessage(`{"id":"late"}`)); err != nil {
 		t.Fatal(err)
 	}
@@ -174,6 +177,47 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	merged.Close()
 	if n != 3 {
 		t.Fatalf("late legacy commit lost: %d models", n)
+	}
+}
+
+// The legacy archive is attached by URI; a path containing '?', '#' or '%'
+// must still name the file rather than be read as URI syntax.
+func TestLegacyArchiveURIEscapesPathSyntax(t *testing.T) {
+	plain := filepath.Join(t.TempDir(), "archive.db")
+	src, err := store.Open(plain)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := src.Upsert("models", "m", json.RawMessage(`{"id":"m"}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := src.Close(); err != nil {
+		t.Fatal(err)
+	}
+	dir := filepath.Join(t.TempDir(), "odd?dir#x%20y")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(plain)
+	if err != nil {
+		t.Fatal(err)
+	}
+	odd := filepath.Join(dir, "archive.db")
+	if err := os.WriteFile(odd, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	db.SetMaxOpenConns(1)
+	if _, err := db.Exec(`ATTACH DATABASE ? AS legacy`, legacyArchiveURI(odd)); err != nil {
+		t.Fatal(err)
+	}
+	var n int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM legacy.resources`).Scan(&n); err != nil || n != 1 {
+		t.Fatalf("attached wrong file: n=%d err=%v uri=%s", n, err, legacyArchiveURI(odd))
 	}
 }
 
