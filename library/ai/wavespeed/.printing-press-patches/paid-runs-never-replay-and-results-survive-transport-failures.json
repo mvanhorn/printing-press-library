@@ -1,24 +1,31 @@
 {
   "schema_version": 2,
   "id": "paid-runs-never-replay-and-results-survive-transport-failures",
-  "applied_at": "2026-09-30",
-  "base_run_id": "20260527-214905",
-  "base_printing_press_version": "4.18.1",
-  "summary": "Never replay a mutating request after an ambiguous failure, retry free media uploads with a size-scaled deadline, bound polls by the wait deadline and tolerate transient poll errors, treat a failed local download of a completed prediction as a recorded warning (not a failed generation) while keeping the prediction ID and output URLs, send JSON body pagination as numbers, and verify credentials in doctor with a /balance read.",
-  "reason": "WaveSpeed bills per accepted prediction. The 4.18.1 client retried POST submissions up to three times on 5xx or dropped connections, a 2.5 MB PNG upload failed on a stalled socket with no retry, poll or CDN download failures after completion discarded the paid result in novel commands, and billings sent page as a JSON string so the API returned HTTP 400.",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "doctor verifies credentials with a free /balance read; polls stop at --wait-timeout and tolerate transient errors; any post-submit failure keeps the prediction ID and the prediction-results recovery command; a failed download after a completed paid run is a warning (exit 6, partial_failure) across run/batch/pack/variants/aspects/compose/restyle; a pack rerun archives the superseded manifest as manifest.superseded-<ts>.json.",
+  "reason": "WaveSpeed bills per accepted prediction. The reprinted generator now owns the transport-level parts of this patch: POST submits are never replayed without an idempotency key or x-pp-replay-safe, the replay-safe upload endpoint retries with a size-scaled deadline, and JSON body pagination is typed as numbers. The WaveSpeed-specific doctor probe and post-submit recovery behavior stay hand-authored.",
   "files": [
-    "internal/client/client.go",
     "internal/cli/run.go",
     "internal/cli/doctor.go",
-    "internal/cli/promoted_billings.go",
     "internal/cli/novel_aspects.go",
     "internal/cli/novel_batch.go",
     "internal/cli/novel_compose.go",
     "internal/cli/novel_pack.go",
     "internal/cli/novel_restyle.go",
     "internal/cli/novel_variants.go",
-    "internal/cli/reliability_test.go"
+    "internal/cli/reliability_test.go",
+    "internal/cli/wavespeed_wiring.go",
+    "internal/client/wavespeed_upload_test.go"
   ],
-  "validated_outcome": "Against the unpatched client, a prediction POST that hit a 504 or dropped connection was sent 4 times; the patched client sends it once. Live billings --agent returns HTTP 200 with numeric page. doctor reports verified credentials with the account balance.",
-  "upstream_issue": "Generator already fixed body-param typing in v4.30.0 (#3867) and unsafe retries in v4.29.0 (#3615); upload retry and deadline scaling are not yet in the generator."
+  "call_sites": [
+    "func verifyCredentialsWithBalance(",
+    "GetWithHeadersNoCache(cmd.Context(), \"/balance\"",
+    "&submittedPredictionError{ID: taskID, Err: err}",
+    "manifest.superseded-",
+    "func partialFailureErr("
+  ],
+  "validated_outcome": "TestPredictionSubmitIsNotReplayedAfterAmbiguousFailure (one POST on 504 and dropped connection), TestBillingsSendsNumericPagination, TestUploadRetriesTransientTransportFailure, TestUploadTransferAllowanceScalesWithSize, TestSubmitAndAwait*/TestWaitForPrediction*/TestDoctorVerifiesCredentialsWithBalance/TestPackManifestSkipsShotsWithMissingDownloads pass on the reprint; live doctor reports Credentials verified and billings --agent returns code 200.",
+  "first_applied_at": "2026-09-30"
 }

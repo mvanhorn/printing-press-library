@@ -1,0 +1,470 @@
+{
+  "api_name": "wavespeed",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "wavespeed (official TypeScript CLI)",
+      "url": "https://github.com/WaveSpeedAI",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "No local generation library or cost report",
+    "No platform-pack or brand workflow",
+    "Paid submits can be replayed on network errors in generic clients"
+  ],
+  "patterns": [
+    "Dynamic model-path runner",
+    "Prompt shorthand and typed key=value inputs"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-27T21:49:05Z",
+  "novel_features": [
+    {
+      "name": "Dynamic model runner",
+      "command": "run",
+      "description": "Submit WaveSpeed model runs with prompt shorthand, typed --set inputs, local @file media uploads, price estimates, waiting, recovery-safe downloads, and library recording.",
+      "rationale": "WaveSpeed model IDs are slash-delimited paths, so a generated path-param command would percent-encode them; run submits to the literal path and never replays a paid submit.",
+      "example": "wavespeed-pp-cli run --model-id google/nano-banana-2/edit --prompt \"a red mug on oak\" --images @ref.png --set aspect_ratio=9:16 --wait --download 'out/mug_{index}.{ext}' --agent",
+      "why_it_matters": "Use it for any single generation; the prediction ID and recovery command survive every post-submit failure.",
+      "group": "Core"
+    },
+    {
+      "name": "Dynamic model schema help",
+      "command": "schema",
+      "description": "Fetch the live WaveSpeed model catalog and print the request schema for a model or project alias.",
+      "rationale": "Model inputs change weekly; the live schema is the only reliable source.",
+      "example": "wavespeed-pp-cli schema google/nano-banana-2/edit --agent",
+      "why_it_matters": "Check accepted inputs and enums before a paid run.",
+      "group": "Core"
+    },
+    {
+      "name": "Model price estimate",
+      "command": "price",
+      "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction.",
+      "rationale": "Pricing depends on inputs such as resolution and duration.",
+      "example": "wavespeed-pp-cli price --model-id google/nano-banana-2/edit --set aspect_ratio=9:16 --set resolution=2k --agent",
+      "why_it_matters": "Free; quote the cost before spending.",
+      "group": "Core"
+    },
+    {
+      "name": "Media upload helper",
+      "command": "upload",
+      "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs, retrying stalled uploads with a size-scaled deadline.",
+      "rationale": "Model inputs take URLs; uploads are free so they are safe to retry.",
+      "example": "wavespeed-pp-cli upload ./ref.png --agent",
+      "why_it_matters": "Turn a local file into a URL a model accepts.",
+      "group": "Media"
+    },
+    {
+      "name": "Output downloader",
+      "command": "download",
+      "description": "Download generated output URLs with directory, exact-path, or templated-path destinations, never sending API credentials to CDN hosts.",
+      "rationale": "Outputs live on a CDN that rejects the API Authorization header.",
+      "example": "wavespeed-pp-cli download \"$OUTPUT_URL\" --output 'out/{index}.{ext}'",
+      "why_it_matters": "Re-fetch outputs from a finished prediction.",
+      "group": "Media"
+    },
+    {
+      "name": "Latest download shortcuts",
+      "command": "last",
+      "description": "Print or open the most recent downloaded output.",
+      "rationale": "Iterating on images is faster when the newest file is one command away.",
+      "example": "wavespeed-pp-cli last",
+      "why_it_matters": "Grab the path of the last generated file.",
+      "group": "Media"
+    },
+    {
+      "name": "Project aliases",
+      "command": "aliases",
+      "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows.",
+      "rationale": "Repeatable projects need short model names and fixed output dirs.",
+      "example": "wavespeed-pp-cli aliases --agent",
+      "why_it_matters": "See which short names map to which models.",
+      "group": "Core"
+    },
+    {
+      "name": "Project init",
+      "command": "init",
+      "description": "Write a starter wavespeed.json with aliases, default model, and output directory.",
+      "rationale": "Bootstraps the project config the alias resolver reads.",
+      "example": "wavespeed-pp-cli init",
+      "why_it_matters": "Start a new image project.",
+      "group": "Core"
+    },
+    {
+      "name": "Brief-to-shotlist planner",
+      "command": "plan brief-to-shotlist",
+      "description": "Turn a free-text brief into a structured shotlist across platforms and aspect ratios with a hybrid deterministic-parser/LLM planner.",
+      "rationale": "Planning before spending keeps packs on brief.",
+      "example": "wavespeed-pp-cli plan brief-to-shotlist --prompt \"Helm Black launch\" --platforms instagram,tiktok --agent",
+      "why_it_matters": "Draft the shot list for a campaign.",
+      "group": "Plan"
+    },
+    {
+      "name": "Model pick",
+      "command": "plan model-pick",
+      "description": "Recommend a model for an intent from the live catalog with rationale.",
+      "rationale": "The catalog is large and changes often.",
+      "example": "wavespeed-pp-cli plan model-pick \"short product video\" --agent",
+      "why_it_matters": "Choose a model for a job.",
+      "group": "Plan"
+    },
+    {
+      "name": "Cost estimate",
+      "command": "plan cost-estimate",
+      "description": "Price a shotlist against live /model/pricing and the account balance, with cached-pricing fallback and per-shot breakdown.",
+      "rationale": "Know the bill before a batch.",
+      "example": "wavespeed-pp-cli plan cost-estimate shotlist.json --agent",
+      "why_it_matters": "Check a shotlist fits the budget.",
+      "group": "Plan"
+    },
+    {
+      "name": "Production QA preflight",
+      "command": "qa preflight",
+      "description": "Pass/warn/fail validation of a shotlist: balance vs cost, model availability, prompt safety, platform request-shape, and brand coverage.",
+      "rationale": "Catch a failing run before it is billed.",
+      "example": "wavespeed-pp-cli qa preflight shotlist.json --agent",
+      "why_it_matters": "Gate a pack before producing it.",
+      "group": "Plan"
+    },
+    {
+      "name": "Multi-platform pack",
+      "command": "pack",
+      "description": "Produce a multi-platform creative pack from one concept at stable packs/<slug>/<platform>/ paths with per-platform manifests, concurrency, cost ceiling, and image-dimension validation; a rerun archives the superseded manifest.",
+      "rationale": "One concept, every platform, one command.",
+      "example": "wavespeed-pp-cli pack --concept \"Helm Black hero\" --platforms instagram,tiktok --max-cost 5.00 --agent",
+      "why_it_matters": "Produce platform-ready assets.",
+      "group": "Produce"
+    },
+    {
+      "name": "Batch producer",
+      "command": "batch",
+      "description": "Submit many prompts from CSV or JSON with a spend ceiling and fail-fast/fail-tolerant semantics; records completed generations before any abort.",
+      "rationale": "Bulk production with cost control.",
+      "example": "wavespeed-pp-cli batch --from prompts.csv --max-cost 5.00 --agent",
+      "why_it_matters": "Run a prompt list under a budget.",
+      "group": "Produce"
+    },
+    {
+      "name": "Controlled variants",
+      "command": "variants",
+      "description": "Sweep seed, style, or model off a base shot to produce comparable outputs with side-by-side metadata.",
+      "rationale": "Compare options with one variable changed.",
+      "example": "wavespeed-pp-cli variants --base shotlist.json --vary seed --count 4 --agent",
+      "why_it_matters": "Explore seeds or models for one shot.",
+      "group": "Produce"
+    },
+    {
+      "name": "Pipeline compose",
+      "command": "compose",
+      "description": "Run an explicit multi-step pipeline (text->image->upscale->video), feeding each step's output to the next, with rollback of later steps on failure.",
+      "rationale": "Chained generations without glue scripts.",
+      "example": "wavespeed-pp-cli compose --steps \"text->image,image->video\" --prompt \"...\" --models m1,m2 --agent",
+      "why_it_matters": "Turn a prompt into an image and then a clip.",
+      "group": "Produce"
+    },
+    {
+      "name": "Aspect re-framing",
+      "command": "aspects",
+      "description": "Re-frame one image into standard platform aspect ratios, using outpaint when supported and an anchored re-render otherwise.",
+      "rationale": "Every platform wants a different ratio.",
+      "example": "wavespeed-pp-cli aspects hero.png --platforms instagram,tiktok --agent",
+      "why_it_matters": "Make 9:16 and 1:1 versions of a hero image.",
+      "group": "Refine"
+    },
+    {
+      "name": "Brand restyle",
+      "command": "restyle",
+      "description": "Apply a brand profile or explicit style to an existing asset via img2img with a style prompt.",
+      "rationale": "Keep assets on brand.",
+      "example": "wavespeed-pp-cli restyle hero.png --brand helm --agent",
+      "why_it_matters": "Bring an asset onto brand.",
+      "group": "Refine"
+    },
+    {
+      "name": "Generation library",
+      "command": "library",
+      "description": "List, search (FTS5), show, tag, export, and cost-report the local generation library by brand, model, platform, and tag.",
+      "rationale": "A record of what was generated, with what prompt, at what cost.",
+      "example": "wavespeed-pp-cli library cost-report --group-by model --agent",
+      "why_it_matters": "Find a past generation or total spend.",
+      "group": "Library",
+      "aliases": [
+        "library list"
+      ]
+    },
+    {
+      "name": "Brand profiles",
+      "command": "brand",
+      "description": "Create, inspect, apply, and edit brand profiles that auto-merge into pack, compose, variants, restyle, and run.",
+      "rationale": "Brand rules applied once, everywhere.",
+      "example": "wavespeed-pp-cli brand init helm --palette '#111,#eee' --voice calm",
+      "why_it_matters": "Set up a brand for consistent output.",
+      "group": "Library",
+      "aliases": [
+        "brand list"
+      ]
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dynamic model runner",
+      "command": "run",
+      "description": "Submit WaveSpeed model runs with prompt shorthand, typed --set inputs, local @file media uploads, price estimates, waiting, recovery-safe downloads, and library recording.",
+      "rationale": "WaveSpeed model IDs are slash-delimited paths, so a generated path-param command would percent-encode them; run submits to the literal path and never replays a paid submit.",
+      "example": "wavespeed-pp-cli run --model-id google/nano-banana-2/edit --prompt \"a red mug on oak\" --images @ref.png --set aspect_ratio=9:16 --wait --download 'out/mug_{index}.{ext}' --agent",
+      "why_it_matters": "Use it for any single generation; the prediction ID and recovery command survive every post-submit failure.",
+      "group": "Core"
+    },
+    {
+      "name": "Dynamic model schema help",
+      "command": "schema",
+      "description": "Fetch the live WaveSpeed model catalog and print the request schema for a model or project alias.",
+      "rationale": "Model inputs change weekly; the live schema is the only reliable source.",
+      "example": "wavespeed-pp-cli schema google/nano-banana-2/edit --agent",
+      "why_it_matters": "Check accepted inputs and enums before a paid run.",
+      "group": "Core"
+    },
+    {
+      "name": "Model price estimate",
+      "command": "price",
+      "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction.",
+      "rationale": "Pricing depends on inputs such as resolution and duration.",
+      "example": "wavespeed-pp-cli price --model-id google/nano-banana-2/edit --set aspect_ratio=9:16 --set resolution=2k --agent",
+      "why_it_matters": "Free; quote the cost before spending.",
+      "group": "Core"
+    },
+    {
+      "name": "Media upload helper",
+      "command": "upload",
+      "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs, retrying stalled uploads with a size-scaled deadline.",
+      "rationale": "Model inputs take URLs; uploads are free so they are safe to retry.",
+      "example": "wavespeed-pp-cli upload ./ref.png --agent",
+      "why_it_matters": "Turn a local file into a URL a model accepts.",
+      "group": "Media"
+    },
+    {
+      "name": "Output downloader",
+      "command": "download",
+      "description": "Download generated output URLs with directory, exact-path, or templated-path destinations, never sending API credentials to CDN hosts.",
+      "rationale": "Outputs live on a CDN that rejects the API Authorization header.",
+      "example": "wavespeed-pp-cli download \"$OUTPUT_URL\" --output 'out/{index}.{ext}'",
+      "why_it_matters": "Re-fetch outputs from a finished prediction.",
+      "group": "Media"
+    },
+    {
+      "name": "Latest download shortcuts",
+      "command": "last",
+      "description": "Print or open the most recent downloaded output.",
+      "rationale": "Iterating on images is faster when the newest file is one command away.",
+      "example": "wavespeed-pp-cli last",
+      "why_it_matters": "Grab the path of the last generated file.",
+      "group": "Media"
+    },
+    {
+      "name": "Project aliases",
+      "command": "aliases",
+      "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows.",
+      "rationale": "Repeatable projects need short model names and fixed output dirs.",
+      "example": "wavespeed-pp-cli aliases --agent",
+      "why_it_matters": "See which short names map to which models.",
+      "group": "Core"
+    },
+    {
+      "name": "Project init",
+      "command": "init",
+      "description": "Write a starter wavespeed.json with aliases, default model, and output directory.",
+      "rationale": "Bootstraps the project config the alias resolver reads.",
+      "example": "wavespeed-pp-cli init",
+      "why_it_matters": "Start a new image project.",
+      "group": "Core"
+    },
+    {
+      "name": "Brief-to-shotlist planner",
+      "command": "plan brief-to-shotlist",
+      "description": "Turn a free-text brief into a structured shotlist across platforms and aspect ratios with a hybrid deterministic-parser/LLM planner.",
+      "rationale": "Planning before spending keeps packs on brief.",
+      "example": "wavespeed-pp-cli plan brief-to-shotlist --prompt \"Helm Black launch\" --platforms instagram,tiktok --agent",
+      "why_it_matters": "Draft the shot list for a campaign.",
+      "group": "Plan"
+    },
+    {
+      "name": "Model pick",
+      "command": "plan model-pick",
+      "description": "Recommend a model for an intent from the live catalog with rationale.",
+      "rationale": "The catalog is large and changes often.",
+      "example": "wavespeed-pp-cli plan model-pick \"short product video\" --agent",
+      "why_it_matters": "Choose a model for a job.",
+      "group": "Plan"
+    },
+    {
+      "name": "Cost estimate",
+      "command": "plan cost-estimate",
+      "description": "Price a shotlist against live /model/pricing and the account balance, with cached-pricing fallback and per-shot breakdown.",
+      "rationale": "Know the bill before a batch.",
+      "example": "wavespeed-pp-cli plan cost-estimate shotlist.json --agent",
+      "why_it_matters": "Check a shotlist fits the budget.",
+      "group": "Plan"
+    },
+    {
+      "name": "Production QA preflight",
+      "command": "qa preflight",
+      "description": "Pass/warn/fail validation of a shotlist: balance vs cost, model availability, prompt safety, platform request-shape, and brand coverage.",
+      "rationale": "Catch a failing run before it is billed.",
+      "example": "wavespeed-pp-cli qa preflight shotlist.json --agent",
+      "why_it_matters": "Gate a pack before producing it.",
+      "group": "Plan"
+    },
+    {
+      "name": "Multi-platform pack",
+      "command": "pack",
+      "description": "Produce a multi-platform creative pack from one concept at stable packs/<slug>/<platform>/ paths with per-platform manifests, concurrency, cost ceiling, and image-dimension validation; a rerun archives the superseded manifest.",
+      "rationale": "One concept, every platform, one command.",
+      "example": "wavespeed-pp-cli pack --concept \"Helm Black hero\" --platforms instagram,tiktok --max-cost 5.00 --agent",
+      "why_it_matters": "Produce platform-ready assets.",
+      "group": "Produce"
+    },
+    {
+      "name": "Batch producer",
+      "command": "batch",
+      "description": "Submit many prompts from CSV or JSON with a spend ceiling and fail-fast/fail-tolerant semantics; records completed generations before any abort.",
+      "rationale": "Bulk production with cost control.",
+      "example": "wavespeed-pp-cli batch --from prompts.csv --max-cost 5.00 --agent",
+      "why_it_matters": "Run a prompt list under a budget.",
+      "group": "Produce"
+    },
+    {
+      "name": "Controlled variants",
+      "command": "variants",
+      "description": "Sweep seed, style, or model off a base shot to produce comparable outputs with side-by-side metadata.",
+      "rationale": "Compare options with one variable changed.",
+      "example": "wavespeed-pp-cli variants --base shotlist.json --vary seed --count 4 --agent",
+      "why_it_matters": "Explore seeds or models for one shot.",
+      "group": "Produce"
+    },
+    {
+      "name": "Pipeline compose",
+      "command": "compose",
+      "description": "Run an explicit multi-step pipeline (text->image->upscale->video), feeding each step's output to the next, with rollback of later steps on failure.",
+      "rationale": "Chained generations without glue scripts.",
+      "example": "wavespeed-pp-cli compose --steps \"text->image,image->video\" --prompt \"...\" --models m1,m2 --agent",
+      "why_it_matters": "Turn a prompt into an image and then a clip.",
+      "group": "Produce"
+    },
+    {
+      "name": "Aspect re-framing",
+      "command": "aspects",
+      "description": "Re-frame one image into standard platform aspect ratios, using outpaint when supported and an anchored re-render otherwise.",
+      "rationale": "Every platform wants a different ratio.",
+      "example": "wavespeed-pp-cli aspects hero.png --platforms instagram,tiktok --agent",
+      "why_it_matters": "Make 9:16 and 1:1 versions of a hero image.",
+      "group": "Refine"
+    },
+    {
+      "name": "Brand restyle",
+      "command": "restyle",
+      "description": "Apply a brand profile or explicit style to an existing asset via img2img with a style prompt.",
+      "rationale": "Keep assets on brand.",
+      "example": "wavespeed-pp-cli restyle hero.png --brand helm --agent",
+      "why_it_matters": "Bring an asset onto brand.",
+      "group": "Refine"
+    },
+    {
+      "name": "Generation library",
+      "command": "library",
+      "description": "List, search (FTS5), show, tag, export, and cost-report the local generation library by brand, model, platform, and tag.",
+      "rationale": "A record of what was generated, with what prompt, at what cost.",
+      "example": "wavespeed-pp-cli library cost-report --group-by model --agent",
+      "why_it_matters": "Find a past generation or total spend.",
+      "group": "Library"
+    },
+    {
+      "name": "Brand profiles",
+      "command": "brand",
+      "description": "Create, inspect, apply, and edit brand profiles that auto-merge into pack, compose, variants, restyle, and run.",
+      "rationale": "Brand rules applied once, everywhere.",
+      "example": "wavespeed-pp-cli brand init helm --palette '#111,#eee' --voice calm",
+      "why_it_matters": "Set up a brand for consistent output.",
+      "group": "Library"
+    }
+  ],
+  "narrative": {
+    "display_name": "WaveSpeed",
+    "headline": "Run any WaveSpeed model from the terminal, with price checks, safe uploads, and recovery-safe downloads.",
+    "value_prop": "WaveSpeed hosts image, video, audio, and 3D models behind one API. This CLI adds a dynamic model runner for slash-delimited model IDs, free price estimates, local file uploads, a generation library with cost reports, and a D2C content layer (plan, pack, batch, variants, compose, aspects, restyle, brand, qa). Paid submissions are never replayed, and every post-submit failure keeps the prediction ID and a recovery command.",
+    "auth_narrative": "WaveSpeed uses an API key sent as `Authorization: Bearer <key>`. Create one at https://wavespeed.ai/accesskey and export it as `WAVESPEED_API_KEY`. `doctor` verifies the key with a free `/balance` read.",
+    "quickstart": [
+      {
+        "command": "wavespeed-pp-cli doctor",
+        "comment": "Verify the API key with a free balance read"
+      },
+      {
+        "command": "wavespeed-pp-cli models --capability image-edit --agent",
+        "comment": "Find an image-edit model and its price"
+      },
+      {
+        "command": "wavespeed-pp-cli price --model-id google/nano-banana-2/edit --set aspect_ratio=9:16 --set resolution=2k --agent",
+        "comment": "Quote the cost before spending"
+      },
+      {
+        "command": "wavespeed-pp-cli run --model-id google/nano-banana-2/edit --prompt \"a red mug on oak\" --images https://wavespeed.ai/ref.png --set aspect_ratio=9:16 --wait --download 'out/mug_{index}.{ext}' --record --agent",
+        "comment": "Generate, wait, and download (local files work too: --images @ref.png)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A run timed out or the download failed after submission",
+        "fix": "The prediction may still be running and is billed once. Check it with `wavespeed-pp-cli prediction-results \"$PREDICTION_ID\"`; the ID is printed with every post-submit failure. A failed download after a completed run is a warning (exit 6, partial_failure), not a failed generation."
+      },
+      {
+        "symptom": "Upload of a large local file stalls",
+        "fix": "Uploads retry network errors, 429, and 5xx up to three times with a per-attempt deadline of --timeout plus size / 128 KiB/s. Uploads are free, so retries cannot add cost."
+      },
+      {
+        "symptom": "price quotes more than billings charged",
+        "fix": "`price` returns list price; `billings` shows the charged price after account discounts (`order.price` vs `order.origin_price`)."
+      }
+    ],
+    "when_to_use": "Use this CLI to generate or edit images and video with WaveSpeed models from scripts or agents: check prices, upload reference files, run models with waits and downloads, and keep a local record of every generation and its cost. Use the plan/pack/batch commands for multi-platform D2C content production.",
+    "anti_triggers": [
+      "Training or fine-tuning models",
+      "Hosting or serving your own models"
+    ],
+    "recipes": [
+      {
+        "title": "Image edit with a reference, 9:16 at 2k",
+        "command": "wavespeed-pp-cli run --model-id google/nano-banana-2/edit --prompt \"$PROMPT\" --images https://wavespeed.ai/anchor.png --set aspect_ratio=9:16 --set resolution=2k --wait --download 'raw/shot_{index}.{ext}' --record --agent",
+        "explanation": "Pass a URL or a local `@file`; local files upload automatically. The download template names each output."
+      },
+      {
+        "title": "First-and-last-frame video",
+        "command": "wavespeed-pp-cli run --model-id bytedance/seedance-v1.5-pro/image-to-video --prompt \"$MOTION\" --image https://wavespeed.ai/a.jpg --last-image https://wavespeed.ai/b.jpg --set duration=5 --wait --wait-timeout 10m --download 'clip_{index}.{ext}' --record --agent",
+        "explanation": "`--wait-timeout` bounds polling; on timeout the prediction ID and recovery command are printed."
+      },
+      {
+        "title": "Spend for a session",
+        "command": "wavespeed-pp-cli billings --page-size 20 --agent",
+        "explanation": "Billing rows carry the charged price per prediction."
+      },
+      {
+        "title": "Plan a campaign",
+        "command": "wavespeed-pp-cli plan brief-to-shotlist --prompt \"launch\" --platforms instagram,tiktok --agent",
+        "explanation": "Save the shotlist, then run `plan cost-estimate` and `qa preflight` on it before `pack`."
+      }
+    ],
+    "trigger_phrases": [
+      "generate an image with wavespeed",
+      "run a wavespeed model",
+      "make a video with seedance",
+      "check my wavespeed balance",
+      "how much will this wavespeed run cost"
+    ]
+  }
+}

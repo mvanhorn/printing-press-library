@@ -17,20 +17,30 @@ func newPredictionDeletionsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "prediction-deletions",
-		Aliases:     []string{"delete"},
 		Short:       "Delete one or more predictions from history.",
 		Long:        "Delete one or more predictions from history.",
-		Example:     "  wavespeed-pp-cli prediction-deletions",
-		Annotations: map[string]string{"pp:endpoint": "prediction_deletions.delete-predictions", "pp:method": "POST", "pp:path": "/predictions/delete"},
+		Example:     "  wavespeed-pp-cli prediction-deletions --ids 550e8400-e29b-41d4-a716-446655440000 --dry-run",
+		Annotations: map[string]string{"pp:endpoint": "prediction_deletions.delete-predictions", "pp:method": "POST", "pp:path": "/predictions/delete", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only reads fall through so a bare call still executes; positional
 			// commands keep their existing usageErr (exit 2 + JSON envelope).
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("ids") && !flags.dryRun {
+			if !cmd.Flags().Changed("ids") && bodyIds == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "ids")
 			}
 			c, err := flags.newClient()
@@ -44,16 +54,21 @@ func newPredictionDeletionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyIds != "" {
-				body["ids"] = cliutil.SplitCSV(bodyIds)
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("ids") {
+				parsedIds, parseErr := cliutil.ParseStringList(bodyIds)
+				if parseErr != nil {
+					return fmt.Errorf("parsing --ids list: %w", parseErr)
+				}
+				bodyMap["ids"] = parsedIds
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
@@ -61,6 +76,7 @@ func newPredictionDeletionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
 				writeMutationResponseToStore(cmd.Context(), "prediction_deletions", data, "")
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -68,9 +84,9 @@ func newPredictionDeletionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -80,21 +96,43 @@ func newPredictionDeletionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// opt out of the auto-JSON path so piped consumers that asked for a
 			// non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				var selectErr error
 				filtered := data
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"code": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
 					return wrapErr
 				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				if flags.dryRun {
+					// PATCH(dry-run-envelope): the promoted-command template nests the
+					// client's {"dry_run":true} under results; surface it (and the
+					// skipped action) at the top level like command_endpoint does.
+					var top map[string]any
+					if json.Unmarshal(wrapped, &top) == nil && top != nil {
+						top["dry_run"] = true
+						top["action"] = "post " + path
+						if b, mErr := json.Marshal(top); mErr == nil {
+							wrapped = b
+						}
+					}
+				}
+				if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+					return err
+				}
+				return selectErr
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -104,7 +142,11 @@ func newPredictionDeletionsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"code": true})
 		},
 	}
 	cmd.Flags().StringVar(&bodyIds, "ids", "", "Ids")

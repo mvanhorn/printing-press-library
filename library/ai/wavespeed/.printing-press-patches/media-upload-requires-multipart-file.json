@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "media-upload-requires-multipart-file",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "media-uploads takes the local file as a positional argument (or --file), validates it before any request, previews request-free under --dry-run, and sends it as the multipart file field.",
+  "reason": "The spec now declares the endpoint as multipart/form-data with a binary file part, so the generator emits multipart and replay-safe retries. The positional <file> form that scripts and docs use, and local-file validation before a dry run, remain hand-authored.",
+  "files": [
+    "internal/cli/promoted_media-uploads.go",
+    "internal/cli/promoted_media_uploads_test.go",
+    "internal/cli/run.go"
+  ],
+  "call_sites": [
+    "Use:         \"media-uploads <file>\"",
+    "uploadMediaBinary(cmd.Context(), c, bodyFile, cmd.ErrOrStderr())"
+  ],
+  "validated_outcome": "TestMediaUpload* (multipart body, positional arity, missing/dir file without HTTP, dry run without HTTP, provider and transport errors) pass on the reprint.",
+  "first_applied_at": "2026-09-06"
+}

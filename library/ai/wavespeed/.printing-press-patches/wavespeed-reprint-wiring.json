@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-reprint-wiring",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "Bind the generator's newNovel<Name>Cmd hooks to the hand-authored commands, register `open` and the official-CLI aliases through registerNovelCommand, keep run/price/schema/upload/download printing their payload (not the generated {meta, results} envelope), and stop run --dry-run from polling, downloading, or recording.",
+  "reason": "The reprint keeps root.go fully generated. Scripts parse `price --agent`, `schema --agent`, and `run --agent` output directly, so those documents keep the 2026.10.1 shape. `run --dry-run --wait` previously exited 5 trying to poll a prediction that was never submitted.",
+  "files": [
+    "internal/cli/wavespeed_wiring.go",
+    "internal/cli/run.go"
+  ],
+  "call_sites": [
+    "func newNovelRunCmd(",
+    "func printRunOutput("
+  ],
+  "validated_outcome": "compat_test.py (old 2026.10.1 vs reprint) is green: no command or flag removed except the hollow `api` browser, JSON keys unchanged for account-balance, billings, models, price, schema, and run --dry-run, and all 11 script invocations pass."
+}

@@ -1,7 +1,8 @@
+// pp:data-source live
+
 package cli
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
@@ -9,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -83,7 +83,7 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
   wavespeed-pp-cli run hero -i size=1024 -i enable_base64_output=false --price --wait --download ./outputs/{index}.{ext}
   wavespeed-pp-cli run --model-id wavespeed-ai/flux-dev --prompt "agent-friendly MCP call" --price-only`,
 		Args:        validateRunArgs(&opts),
-		Annotations: map[string]string{"pp:method": "POST", "pp:path": "/{model_id}"},
+		Annotations: map[string]string{"pp:method": "POST", "pp:path": "/{model_id}", "pp:live-happy-path": "true", "pp:happy-args": "model-or-alias=wavespeed-ai/z-image/turbo;--prompt=a red circle on white;--set=size=512*512"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			project, err := loadWavespeedProjectConfig()
 			if err != nil {
@@ -136,9 +136,9 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 					"inputs":   inputs,
 				})
 				if err != nil {
-					return classifyAPIError(err, flags)
+					return classifyAPIError(cmd.OutOrStdout(), err, flags)
 				}
-				return printOutputWithFlags(cmd.OutOrStdout(), pricing, flags)
+				return printRunOutput(cmd.OutOrStdout(), pricing, flags)
 			}
 
 			res, err := submitAndAwait(cmd.Context(), c, submitRequest{
@@ -154,9 +154,9 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 				if errors.As(err, &submitted) && len(res.Result) > 0 {
 					// The prediction was accepted and may be billed; print the
 					// last known payload so the ID and any output URLs survive.
-					_ = printOutputWithFlags(cmd.OutOrStdout(), runOutputEnvelope(res.Pricing, res.Result, nil), flags)
+					_ = printRunOutput(cmd.OutOrStdout(), runOutputEnvelope(res.Pricing, res.Result, nil), flags)
 				}
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 
 			if len(res.Pricing) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
@@ -173,7 +173,7 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 			// run records to the library only when --record is passed (opt-in),
 			// the inverse of novel commands which record by default. A record
 			// failure is logged and never fails a successful generation.
-			if opts.record {
+			if opts.record && !flags.dryRun {
 				if recErr := recordRunGeneration(modelID, inputs, res); recErr != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: library record failed: %v\n", recErr)
 				}
@@ -181,19 +181,26 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 
 			var downloadSpec string
 			var plannedDownloads []downloadedFile
-			if cmd.Flags().Changed("download") {
+			if cmd.Flags().Changed("download") && !flags.dryRun {
 				downloadSpec = runDownloadSpec(opts, project, cmd.Flags().Changed("download-dir"))
 				plannedDownloads = planRunDownloads(unwrapWaveSpeedData(res.Result), downloadSpec)
 			}
 
+			if flags.dryRun {
+				// PATCH(dry-run-envelope): name the previewed action next to
+				// dry_run:true so agents (and the live-dogfood dry-run
+				// contract) see what would have been submitted. Additive key
+				// only; no existing key changes.
+				res.Result = withDryRunAction(res.Result, "submit prediction to "+modelID)
+			}
 			output := runOutputEnvelope(res.Pricing, res.Result, plannedDownloads)
-			if err := printOutputWithFlags(cmd.OutOrStdout(), output, flags); err != nil {
+			if err := printRunOutput(cmd.OutOrStdout(), output, flags); err != nil {
 				return err
 			}
 			if res.Failed {
 				return apiErr(fmt.Errorf("prediction finished with status %q", res.Status))
 			}
-			if cmd.Flags().Changed("download") {
+			if cmd.Flags().Changed("download") && !flags.dryRun {
 				downloads, err := downloadPlannedRunOutputs(cmd.Context(), c, plannedDownloads)
 				for _, item := range downloads {
 					fmt.Fprintf(cmd.ErrOrStderr(), "downloaded %s\n", item.Path)
@@ -324,7 +331,7 @@ func newSchemaCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Print the request schema for a WaveSpeed model by fetching the dynamic /models catalog and reading api_schema.api_schemas[0].request_schema. Non-slash names resolve through wavespeed.json aliases.",
 		Example:     "  wavespeed-pp-cli schema wavespeed-ai/flux-dev\n  wavespeed-pp-cli schema hero --json",
 		Args:        cobra.MaximumNArgs(1),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "model-or-alias=google/nano-banana-2/edit"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			project, err := loadWavespeedProjectConfig()
 			if err != nil {
@@ -357,7 +364,7 @@ func newPriceCmd(flags *rootFlags) *cobra.Command {
 		Example: `  wavespeed-pp-cli price wavespeed-ai/z-image/turbo -p "a product photo"
   wavespeed-pp-cli price hero -i size=1024*1024 -i output_format=png --json`,
 		Args:        cobra.MaximumNArgs(1),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "model-or-alias=google/nano-banana-2/edit;--set=aspect_ratio=9:16;--set=resolution=2k;--prompt=a red mug on oak"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			project, err := loadWavespeedProjectConfig()
 			if err != nil {
@@ -386,14 +393,16 @@ func newPriceCmd(flags *rootFlags) *cobra.Command {
 			if err := resolveRunInputRefs(cmd.Context(), c, inputs, cmd.ErrOrStderr()); err != nil {
 				return err
 			}
-			pricing, _, err := c.PostQueryWithParams(cmd.Context(), "/model/pricing", nil, map[string]any{
-				"model_id": modelID,
-				"inputs":   inputs,
-			})
-			if err != nil {
-				return classifyAPIError(err, flags)
+			body := map[string]any{"model_id": modelID, "inputs": inputs}
+			if flags.dryRun {
+				preview, _ := json.Marshal(map[string]any{"dry_run": true, "action": "POST /model/pricing", "body": body})
+				return printRunOutput(cmd.OutOrStdout(), preview, flags)
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), pricing, flags)
+			pricing, _, err := c.PostQueryWithParams(cmd.Context(), "/model/pricing", nil, body)
+			if err != nil {
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
+			}
+			return printRunOutput(cmd.OutOrStdout(), pricing, flags)
 		},
 	}
 	addRunInputFlags(cmd, &opts)
@@ -469,11 +478,17 @@ func newLastCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "last",
 		Short:       "Print the most recently downloaded WaveSpeed output path",
+		Example:     "  wavespeed-pp-cli last --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			state, err := loadLastDownloadState()
 			if err != nil {
 				if os.IsNotExist(err) {
+					if flags.asJSON {
+						// Machine callers get an explicit empty result instead of
+						// an error: "nothing downloaded yet" is a normal state.
+						return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"found": false, "path": nil, "message": "no downloaded image recorded yet; run with --download first"}, flags)
+					}
 					return fmt.Errorf("no downloaded image recorded yet; run with --download first")
 				}
 				return err
@@ -493,9 +508,10 @@ func newLastCmd(flags *rootFlags) *cobra.Command {
 
 func newOpenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "open [path]",
-		Short: "Open the most recently downloaded WaveSpeed output (or a supplied path)",
-		Args:  cobra.MaximumNArgs(1),
+		Use:     "open [path]",
+		Short:   "Open the most recently downloaded WaveSpeed output (or a supplied path)",
+		Example: "  wavespeed-pp-cli open out/mug_1.png",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p := ""
 			if len(args) > 0 {
@@ -542,11 +558,12 @@ func openCommand(p, goos string) (string, []string, error) {
 
 func newUploadCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "upload <file>...",
-		Short:   "Upload local media files for use as model inputs",
-		Long:    "Upload local image, video, or audio files to WaveSpeed media storage and print the returned URLs for use with run -i image=<url> or other model-specific media fields.",
-		Example: "  wavespeed-pp-cli upload ./input.png\n  wavespeed-pp-cli upload ./a.png ./b.png --json",
-		Args:    cobra.MinimumNArgs(1),
+		Use:         "upload <file>...",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "file=testdata/dogfood/red-circle.png"},
+		Short:       "Upload local media files for use as model inputs",
+		Long:        "Upload local image, video, or audio files to WaveSpeed media storage and print the returned URLs for use with run -i image=<url> or other model-specific media fields.",
+		Example:     "  wavespeed-pp-cli upload ./input.png\n  wavespeed-pp-cli upload ./a.png ./b.png --json",
+		Args:        cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -557,7 +574,7 @@ func newUploadCmd(flags *rootFlags) *cobra.Command {
 			for _, file := range args {
 				raw, err := uploadMediaBinary(cmd.Context(), c, file, cmd.ErrOrStderr())
 				if err != nil {
-					return classifyAPIError(err, flags)
+					return classifyAPIError(cmd.OutOrStdout(), err, flags)
 				}
 				results = append(results, raw)
 				if url := uploadedMediaURL(raw); url != "" {
@@ -578,7 +595,7 @@ func newUploadCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(raw), flags)
+				return printRunOutput(cmd.OutOrStdout(), json.RawMessage(raw), flags)
 			}
 			for _, u := range urls {
 				fmt.Fprintln(cmd.OutOrStdout(), u)
@@ -596,9 +613,9 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 		Use:         "download <url>...",
 		Short:       "Download one or more WaveSpeed output URLs",
 		Long:        "Download one or more WaveSpeed output URLs. Use --output for an exact file path or template, or --output-dir for directory downloads.",
-		Example:     "  wavespeed-pp-cli download https://example.com/output.png\n  wavespeed-pp-cli download https://example.com/a.png https://example.com/b.png --output-dir ./outputs\n  wavespeed-pp-cli download https://example.com/a.png --output ./out/final.png",
+		Example:     "  wavespeed-pp-cli download https://d2h7xmz5gqybh9.cloudfront.net/output.png\n  wavespeed-pp-cli download https://d2h7xmz5gqybh9.cloudfront.net/a.png https://d2h7xmz5gqybh9.cloudfront.net/b.png --output-dir ./outputs\n  wavespeed-pp-cli download https://d2h7xmz5gqybh9.cloudfront.net/a.png --output ./out/final.png",
 		Args:        cobra.MinimumNArgs(1),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:live-happy-path": "true", "pp:happy-args": "url=https://d2h7xmz5gqybh9.cloudfront.net/media/3b5938cbb8bd4aa4b1c92a38a6a96061/images/1790869637202002474_8FxGQZ8h.png"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
 				if !strings.HasPrefix(arg, "http://") && !strings.HasPrefix(arg, "https://") {
@@ -612,6 +629,17 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 			spec := outputDir
 			if cmd.Flags().Changed("output") {
 				spec = output
+			}
+			if flags.dryRun {
+				// PATCH(download-dry-run): list the planned paths without
+				// fetching or writing anything. Before this, --dry-run still
+				// downloaded every URL.
+				planned := planRunDownloads(json.RawMessage(raw), spec)
+				out, err := json.MarshalIndent(map[string]any{"dry_run": true, "action": fmt.Sprintf("download %d file(s)", len(planned)), "downloads": planned}, "", "  ")
+				if err != nil {
+					return err
+				}
+				return printRunOutput(cmd.OutOrStdout(), json.RawMessage(out), flags)
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -634,7 +662,7 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(raw), flags)
+			return printRunOutput(cmd.OutOrStdout(), json.RawMessage(raw), flags)
 		},
 	}
 	cmd.Flags().StringVarP(&output, "output", "o", "", "Exact output file path or template such as ./out/{index}.{ext}")
@@ -661,112 +689,17 @@ func uploadMediaBinary(ctx context.Context, c *client.Client, filePath string, s
 		return raw, nil
 	}
 
-	// Stream the file into the replayable multipart body so only one copy of
-	// the payload is held in memory across retries.
-	src, err := os.Open(filePath)
+	// The generated client owns upload reliability: the endpoint is declared
+	// x-pp-replay-safe, so a dropped connection, 429, or 5xx is retried, and
+	// each attempt gets --timeout plus size / 128 KiB/s. Uploads are free, so
+	// a replay cannot add cost. Paid prediction submits never take this path.
+	data, _, err := c.PostMultipartWithHeaders(ctx, "/media/upload/binary", nil,
+		map[string]string{"file": filePath},
+		map[string]string{client.ReplaySafeHeader: "true"})
 	if err != nil {
-		return nil, fmt.Errorf("reading upload file: %w", err)
+		return nil, err
 	}
-	defer src.Close()
-	var body bytes.Buffer
-	body.Grow(int(info.Size()) + 1024)
-	writer := multipart.NewWriter(&body)
-	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
-	if err != nil {
-		return nil, fmt.Errorf("creating multipart upload: %w", err)
-	}
-	if _, err := io.Copy(part, src); err != nil {
-		return nil, fmt.Errorf("reading upload file: %w", err)
-	}
-	if err := writer.Close(); err != nil {
-		return nil, fmt.Errorf("finalizing multipart upload: %w", err)
-	}
-	encoded := body.Bytes()
-	contentType := writer.FormDataContentType()
-
-	target := strings.TrimRight(c.BaseURL, "/") + "/media/upload/binary"
-	httpClient := uploadHTTPClient(c, int64(len(encoded)))
-	var lastErr error
-	for attempt := 0; attempt <= uploadMaxRetries; attempt++ {
-		if attempt > 0 {
-			wait := uploadRetryBackoff(attempt)
-			fmt.Fprintf(stderr, "upload of %s failed (%v); retrying in %s (attempt %d/%d)\n", filepath.Base(filePath), lastErr, wait, attempt, uploadMaxRetries)
-			select {
-			case <-ctx.Done():
-				return nil, ctx.Err()
-			case <-time.After(wait):
-			}
-		}
-		data, retryable, err := postUploadOnce(ctx, c, httpClient, target, contentType, encoded)
-		if err == nil {
-			return data, nil
-		}
-		lastErr = err
-		if !retryable || ctx.Err() != nil {
-			return nil, err
-		}
-	}
-	return nil, fmt.Errorf("uploading %s failed after %d attempts: %w", filepath.Base(filePath), uploadMaxRetries+1, lastErr)
-}
-
-// Media uploads are free and each attempt yields an independent storage URL,
-// so replaying after a transport failure cannot double-charge. That makes
-// them safe to retry, unlike prediction submissions.
-const uploadMaxRetries = 3
-
-var uploadRetryBackoff = func(attempt int) time.Duration {
-	return time.Duration(attempt*attempt) * time.Second
-}
-
-// uploadMinThroughput is the slowest sustained uplink an upload is allowed to
-// run at before the per-attempt deadline trips. The generic --timeout (60s by
-// default) is sized for JSON calls; a multi-megabyte image or a video on a
-// slow connection needs a size-proportional budget.
-const uploadMinThroughput = 128 * 1024 // bytes per second
-
-func uploadHTTPClient(c *client.Client, size int64) *http.Client {
-	base := c.ConfiguredTimeout()
-	budget := base + time.Duration(size/uploadMinThroughput)*time.Second
-	hc := *c.HTTPClient
-	hc.Timeout = budget
-	return &hc
-}
-
-func postUploadOnce(ctx context.Context, c *client.Client, httpClient *http.Client, target, contentType string, encoded []byte) (json.RawMessage, bool, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, target, bytes.NewReader(encoded))
-	if err != nil {
-		return nil, false, fmt.Errorf("creating upload request: %w", err)
-	}
-	req.ContentLength = int64(len(encoded))
-	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "wavespeed-pp-cli/1.0.0")
-	if c.Config != nil {
-		auth, err := c.AuthHeader(ctx)
-		if err != nil {
-			return nil, false, err
-		}
-		if auth != "" {
-			req.Header.Set("Authorization", auth)
-		}
-		for k, v := range c.Config.Headers {
-			req.Header.Set(k, v)
-		}
-	}
-	resp, err := c.DoRawWith(httpClient, req)
-	if err != nil {
-		return nil, true, err
-	}
-	defer resp.Body.Close()
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, true, err
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		retryable := resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500
-		return nil, retryable, &client.APIError{Method: http.MethodPost, Path: "/media/upload/binary", StatusCode: resp.StatusCode, Body: string(data)}
-	}
-	return json.RawMessage(data), false, nil
+	return data, nil
 }
 
 func resolveRunInputRefs(ctx context.Context, c *client.Client, inputs map[string]any, stderr io.Writer) error {
@@ -916,7 +849,7 @@ func newAliasesCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(raw), flags)
+				return printRunOutput(cmd.OutOrStdout(), json.RawMessage(raw), flags)
 			}
 			if len(rows) == 0 {
 				if project.Path == "" {
@@ -938,9 +871,10 @@ func newAliasesCmd(flags *rootFlags) *cobra.Command {
 
 func newInitCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Write a starter wavespeed.json project config",
-		Long:  "Write a starter wavespeed.json project config in the current directory when one is not already present in the current directory or its parents.",
+		Use:         "init",
+		Annotations: map[string]string{"pp:live-happy-path": "true"},
+		Short:       "Write a starter wavespeed.json project config",
+		Long:        "Write a starter wavespeed.json project config in the current directory when one is not already present in the current directory or its parents.",
 		Example: `  wavespeed-pp-cli init
   wavespeed-pp-cli init --json`,
 		Args: cobra.NoArgs,
@@ -950,9 +884,13 @@ func newInitCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(err)
 			}
 			if existing != "" {
+				if flags.dryRun {
+					out, _ := json.MarshalIndent(map[string]any{"dry_run": true, "action": "none: config already exists", "path": existing, "created": false}, "", "  ")
+					return printRunOutput(cmd.OutOrStdout(), json.RawMessage(out), flags)
+				}
 				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 					out, _ := json.MarshalIndent(map[string]any{"path": existing, "created": false}, "", "  ")
-					return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(out), flags)
+					return printRunOutput(cmd.OutOrStdout(), json.RawMessage(out), flags)
 				}
 				fmt.Fprintf(cmd.OutOrStdout(), "wavespeed.json already exists at %s\n", existing)
 				return nil
@@ -975,12 +913,16 @@ func newInitCmd(flags *rootFlags) *cobra.Command {
 			}
 			raw = append(raw, '\n')
 			path := filepath.Join(".", "wavespeed.json")
+			if flags.dryRun {
+				out, _ := json.MarshalIndent(map[string]any{"dry_run": true, "action": "create " + path, "path": path, "created": false}, "", "  ")
+				return printRunOutput(cmd.OutOrStdout(), json.RawMessage(out), flags)
+			}
 			if err := os.WriteFile(path, raw, 0o644); err != nil {
 				return fmt.Errorf("writing %s: %w", path, err)
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				out, _ := json.MarshalIndent(map[string]any{"path": path, "created": true}, "", "  ")
-				return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(out), flags)
+				return printRunOutput(cmd.OutOrStdout(), json.RawMessage(out), flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Created %s\n", path)
 			return nil
@@ -1267,19 +1209,19 @@ func runDownloadSpec(opts runCommandOptions, project wavespeedProjectConfig, dow
 func printModelSchema(cmd *cobra.Command, flags *rootFlags, c *client.Client, modelID string) error {
 	models, err := c.Get(cmd.Context(), "/models", nil)
 	if err != nil {
-		return classifyAPIError(err, flags)
+		return classifyAPIError(cmd.OutOrStdout(), err, flags)
 	}
 	schema, err := requestSchemaForModel(models, modelID)
 	if err != nil {
 		return err
 	}
-	return printOutputWithFlags(cmd.OutOrStdout(), schema, flags)
+	return printRunOutput(cmd.OutOrStdout(), schema, flags)
 }
 
 func printModelHelp(cmd *cobra.Command, flags *rootFlags, c *client.Client, modelID string) error {
 	models, err := c.Get(cmd.Context(), "/models", nil)
 	if err != nil {
-		return classifyAPIError(err, flags)
+		return classifyAPIError(cmd.OutOrStdout(), err, flags)
 	}
 	model, ok := findModelObject(models, modelID)
 	if !ok {
@@ -1966,6 +1908,12 @@ func submitAndAwait(ctx context.Context, c *client.Client, req submitRequest) (s
 	}
 	res.Result = result
 	res.PredictionID = extractPredictionID(result)
+	// --dry-run printed the request and sent nothing, so there is no
+	// prediction to poll, download, or record.
+	if c.DryRun {
+		res.Status = "dry_run"
+		return res, nil
+	}
 
 	if req.wait {
 		taskID := res.PredictionID
@@ -2118,6 +2066,27 @@ func isFailedPredictionStatus(status string) bool {
 	default:
 		return false
 	}
+}
+
+// withDryRunAction adds an "action" key to a {"dry_run": true} preview object
+// when it has none. Anything else is returned unchanged.
+func withDryRunAction(result json.RawMessage, action string) json.RawMessage {
+	var obj map[string]any
+	if err := json.Unmarshal(result, &obj); err != nil || obj == nil {
+		return result
+	}
+	if dry, _ := obj["dry_run"].(bool); !dry {
+		return result
+	}
+	if a, _ := obj["action"].(string); strings.TrimSpace(a) != "" {
+		return result
+	}
+	obj["action"] = action
+	raw, err := json.Marshal(obj)
+	if err != nil {
+		return result
+	}
+	return raw
 }
 
 func runOutputEnvelope(pricing, result json.RawMessage, downloads []downloadedFile) json.RawMessage {

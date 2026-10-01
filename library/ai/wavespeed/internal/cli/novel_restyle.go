@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -23,10 +25,12 @@ type restyleFlags struct {
 func newRestyleCmd(flags *rootFlags) *cobra.Command {
 	var rf restyleFlags
 	cmd := &cobra.Command{
-		Use:   "restyle <image>",
-		Short: "Apply a brand or style to an existing asset",
-		Long:  "Re-style an existing asset using a brand profile or an explicit style (img2img with a style prompt, or a style-transfer model when one is available). Fails clearly when no style-capable model can be resolved.",
-		Args:  cobra.ExactArgs(1),
+		Use:         "restyle <image>",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "image=https://d2h7xmz5gqybh9.cloudfront.net/media/3b5938cbb8bd4aa4b1c92a38a6a96061/images/1790869637202002474_8FxGQZ8h.png;--model=wavespeed-ai/z-image-turbo/image-to-image;--style=flat poster colors"},
+		Example:     "  wavespeed-pp-cli restyle hero.png --brand helm --agent",
+		Short:       "Apply a brand or style to an existing asset",
+		Long:        "Re-style an existing asset using a brand profile or an explicit style (img2img with a style prompt, or a style-transfer model when one is available). Fails clearly when no style-capable model can be resolved.",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			source := args[0]
 			if rf.outDir == "" {
@@ -63,6 +67,7 @@ func newRestyleCmd(flags *rootFlags) *cobra.Command {
 			env := newEnvelope("restyle")
 			if flags.dryRun {
 				env.DryRun = true
+				env.Action = "submit 1 restyle prediction"
 				env.Results = []any{map[string]any{"source": source, "model": model, "style_prompt": stylePrompt}}
 				return emitEnvelope(cmd.OutOrStdout(), env)
 			}
@@ -81,7 +86,7 @@ func newRestyleCmd(flags *rootFlags) *cobra.Command {
 			})
 			oc := shotOutcome{Shot: Shot{Prompt: stylePrompt, Model: model}, Files: []string{}}
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			oc.Cost = extractCostFromPricing(res.Pricing)
 			oc.ContentHash = hashContent(res.Result)

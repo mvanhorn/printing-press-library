@@ -1,15 +1,20 @@
 {
   "schema_version": 2,
   "id": "wavespeed-novel-store-schema",
-  "applied_at": "2026-05-28",
-  "base_run_id": "20260527-214905",
-  "base_printing_press_version": "4.18.1",
-  "summary": "Split the store into archive (sync-cache) and library (D2C content) DBs with independent version domains; added OpenLibrary, migrateLibrary, and library tables/indexes/FTS5.",
-  "reason": "The novel content-production layer needs its own persistent tables versioned independently of the generated sync-cache schema.",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "The D2C library (generations, brand_profiles, briefs, tags, tag_links, platform_targets + FTS5) lives in its own library.db with an independent schema version.",
+  "reason": "The novel content-production layer needs persistent tables versioned independently of the generated sync store. On the reprint this is a separate file (library_db.go) that builds its own Store and migration, so generated store.go and extras.go carry no hand edits. The sync store keeps the generated data.db name, which is the file existing installs already have.",
   "files": [
-    "internal/store/store.go",
-    "internal/store/extras.go",
-    "internal/store/library.go"
+    "internal/store/library.go",
+    "internal/store/library_db.go",
+    "internal/store/library_test.go"
   ],
-  "validated_outcome": "Schema migration test creates archive.db and library.db with independent user_version domains; FTS5 prompt search returns expected results."
+  "call_sites": [
+    "func OpenLibraryWithContext(",
+    "const LibrarySchemaVersion = 1"
+  ],
+  "validated_outcome": "Schema migration test creates archive.db and library.db with independent user_version domains; FTS5 prompt search returns expected results.",
+  "first_applied_at": "2026-05-28"
 }

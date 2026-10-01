@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -25,17 +27,26 @@ type batchFlags struct {
 	outDir       string
 	model        string
 	brand        string
+	stdin        bool
 }
 
 func newBatchCmd(flags *rootFlags) *cobra.Command {
 	var bf batchFlags
 	cmd := &cobra.Command{
-		Use:   "batch",
-		Short: "Submit many prompts from a CSV or JSON file",
-		Long:  "Submit N prompts from a CSV (prompt[,model][,platform] columns) or JSON shotlist. Honors a spend ceiling and fail-fast (default) or fail-tolerant semantics; completed generations are recorded to the library before any abort.",
+		Use:         "batch",
+		Example:     "  wavespeed-pp-cli batch --stdin --max-cost 2 --agent --dry-run < shots.json\n  wavespeed-pp-cli batch --from prompts.csv --max-cost 2 --agent --dry-run",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "--max-cost=0.02", "pp:happy-stdin": "[{\"prompt\":\"a red circle on white\",\"model\":\"pruna-ai/p-image/text-to-image\",\"aspect_ratio\":\"1:1\"}]"},
+		Short:       "Submit many prompts from a CSV or JSON file",
+		Long:        "Submit N prompts from a CSV (prompt[,model][,platform] columns) or JSON shotlist. Honors a spend ceiling and fail-fast (default) or fail-tolerant semantics; completed generations are recorded to the library before any abort.",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if bf.stdin {
+				if strings.TrimSpace(bf.from) != "" && bf.from != "-" {
+					return usageErr(fmt.Errorf("use either --from <file> or --stdin, not both"))
+				}
+				bf.from = "-"
+			}
 			if strings.TrimSpace(bf.from) == "" {
-				return usageErr(fmt.Errorf("--from <file.csv|file.json> is required"))
+				return usageErr(fmt.Errorf("--from <file.csv|file.json> (or --stdin) is required"))
 			}
 			if bf.concurrency < 1 {
 				bf.concurrency = 1
@@ -91,6 +102,7 @@ func newBatchCmd(flags *rootFlags) *cobra.Command {
 					env.Results = append(env.Results, map[string]any{"shot": i, "model": shots[i].Model, "prompt": shots[i].Prompt, "estimated_cost": cost})
 				}
 				env.CostSpent = total
+				env.Action = fmt.Sprintf("submit %d batch predictions", len(shots))
 				return emitEnvelope(cmd.OutOrStdout(), env)
 			}
 
@@ -106,12 +118,13 @@ func newBatchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bf.outDir, "out-dir", "batch", "Directory for downloaded outputs")
 	cmd.Flags().StringVar(&bf.model, "model", "", "Default model for shots that don't specify one")
 	cmd.Flags().StringVar(&bf.brand, "brand", "", "Brand profile to merge (defaults to active brand)")
+	cmd.Flags().BoolVar(&bf.stdin, "stdin", false, "Read a JSON shotlist from stdin (same as --from -)")
 	return cmd
 }
 
 // readBatchInput parses a JSON shotlist or a CSV with a prompt column.
 func readBatchInput(path string) ([]Shot, error) {
-	if strings.HasSuffix(strings.ToLower(path), ".json") {
+	if path == "-" || strings.HasSuffix(strings.ToLower(path), ".json") {
 		return readShotlist(path)
 	}
 	f, err := os.Open(path)
@@ -208,11 +221,11 @@ func batchExecute(cmd *cobra.Command, c *client.Client, project wavespeedProject
 				modelID:       s.Model,
 				inputs:        s.toModelInputs(),
 				estimatePrice: true, priceBestEffort: true,
-				wait:          true,
-				waitTimeout:   5 * time.Minute,
-				pollInitial:   2 * time.Second,
-				download:      true,
-				downloadSpec:  spec,
+				wait:         true,
+				waitTimeout:  5 * time.Minute,
+				pollInitial:  2 * time.Second,
+				download:     true,
+				downloadSpec: spec,
 			})
 			oc := shotOutcome{Shot: s, Files: []string{}}
 			if err != nil {

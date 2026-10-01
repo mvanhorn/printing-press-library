@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -31,13 +32,12 @@ type FeedbackEntry struct {
 const feedbackMaxTextLen = 4096
 
 func feedbackFilePath() (string, error) {
-	home, err := os.UserHomeDir()
+	dir, err := cliutil.DataDir()
 	if err != nil {
-		return "", fmt.Errorf("resolving home dir: %w", err)
+		return "", err
 	}
-	dir := filepath.Join(home, ".local", "share", "wavespeed-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
+		return "", fmt.Errorf("creating feedback data dir: %w", err)
 	}
 	return filepath.Join(dir, "feedback.jsonl"), nil
 }
@@ -100,7 +100,7 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.local/share/wavespeed-pp-cli/feedback.jsonl.
+		Long: `Feedback is captured locally first in the CLI data directory's feedback.jsonl.
 When ` + "`WAVESPEED_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`WAVESPEED_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -108,6 +108,9 @@ POSTed as JSON after the local write.
 Write what surprised you or tripped you up, not a bug report. The
 loop is: agent notices friction -> one invocation -> captured -> the
 maintainer sees it.`,
+		Example: `  wavespeed-pp-cli feedback "docs said exclusive but the boundary is inclusive"
+  wavespeed-pp-cli feedback --stdin < notes.txt
+  wavespeed-pp-cli feedback list`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var text string
 			if useStdin {
@@ -184,10 +187,16 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  wavespeed-pp-cli feedback list
   wavespeed-pp-cli feedback list --limit 5
   wavespeed-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "feedback list")
+			}
 			p, err := feedbackFilePath()
 			if err != nil {
 				return err

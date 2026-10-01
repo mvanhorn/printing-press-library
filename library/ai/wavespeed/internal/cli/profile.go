@@ -11,13 +11,14 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
 // Profile is a named set of flag values saved for reuse across invocations.
-// HeyGen's "Beacon" pattern: one named context that a scheduled agent reuses
-// day after day with the same voice/format but different input each run.
+// Use a named profile when a scheduled or recurring workflow reuses the same
+// saved flags while providing different input each run.
 type Profile struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
@@ -29,14 +30,22 @@ type profileStore struct {
 }
 
 func profileStorePath() (string, error) {
+	dir, err := cliutil.ConfigDir()
+	if err != nil {
+		return "", err
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", fmt.Errorf("creating profile config dir: %w", err)
+	}
+	return filepath.Join(dir, "profiles.json"), nil
+}
+
+func legacyProfileStorePath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
 	dir := filepath.Join(home, ".wavespeed-pp-cli")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
-	}
 	return filepath.Join(dir, "profiles.json"), nil
 }
 
@@ -45,9 +54,13 @@ func loadProfileStore() (*profileStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(p)
+	legacy, legacyErr := legacyProfileStorePath()
+	if legacyErr != nil || legacy == p {
+		legacy = ""
+	}
+	data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(p, legacy)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if os.IsNotExist(err) || sourcePath == legacy {
 			return &profileStore{Profiles: map[string]Profile{}}, nil
 		}
 		return nil, fmt.Errorf("reading profiles: %w", err)
@@ -98,12 +111,14 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		return nil
 	}
 	// Reserved flags that never come from a profile - they control profile
-	// resolution itself or are dangerous to overlay.
+	// resolution itself or are dangerous to overlay. profile save's skip
+	// map must remain a superset of this set so saved profiles never carry
+	// values that apply would silently refuse.
 	reserved := map[string]bool{
-		"profile": true, "config": true, "help": true,
+		"profile": true, "client-profile": true, "config": true, "home": true, "help": true,
 	}
 	for name, value := range profile.Values {
-		if reserved[name] {
+		if reserved[name] || credentialLikeRunProfileFlag(name) {
 			continue
 		}
 		flag := cmd.Flags().Lookup(name)
@@ -116,6 +131,8 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		if flag.Changed {
 			continue
 		}
+		// PATCH(wavespeed-profile-array-flags): repeatable run inputs such as
+		// --images are stored as a JSON array and replayed one value at a time.
 		if isProfileArrayFlag(flag) && strings.HasPrefix(strings.TrimSpace(value), "[") {
 			var items []string
 			if err := json.Unmarshal([]byte(value), &items); err != nil {
@@ -132,6 +149,16 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 		flag.Changed = true
 	}
 	return nil
+}
+
+func credentialLikeRunProfileFlag(name string) bool {
+	name = strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), "_", "-"))
+	for _, marker := range []string{"token", "secret", "password", "credential", "api-key", "apikey", "authorization", "cookie", "private-key", "client-secret"} {
+		if strings.Contains(name, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 // ListProfileNames returns profile names sorted alphabetically. Used by the
@@ -164,7 +191,8 @@ agent can invoke the same command with the same configuration each run.
 
 Use --profile <name> on any command to apply that profile's values.
 Explicit flags override profile values.`,
-		RunE: parentNoSubcommandRunE(flags),
+		Annotations: map[string]string{"pp:parent-group": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newProfileSaveCmd(flags))
 	cmd.AddCommand(newProfileUseCmd(flags))
@@ -185,7 +213,8 @@ them under <name>. To update an existing profile, run save again; the
 entry is replaced.
 
 To avoid creating empty profiles, at least one non-default flag must be
-present (other than --profile and --config).`,
+present (other than --profile, --config, and --home, which are never
+captured: they control profile/config resolution and would never apply).`,
 		Example: `  wavespeed-pp-cli profile save my-defaults --json --compact
   wavespeed-pp-cli profile save tonight-defaults --region US`,
 		Args: cobra.MinimumNArgs(1),
@@ -201,12 +230,19 @@ present (other than --profile and --config).`,
 			}
 			values := map[string]string{}
 			// Walk inherited + local flags, capture only those the user set.
-			skip := map[string]bool{"profile": true, "config": true, "help": true, "description": true}
+			// Must stay a superset of ApplyProfileToFlags' reserved map for
+			// root flags: capturing a flag that apply refuses to overlay
+			// would store values that never take effect.
+			skip := map[string]bool{"profile": true, "client-profile": true, "config": true, "home": true, "help": true, "description": true}
+			credentialFlags := []string{}
 			visit := func(fl *pflag.Flag) {
+				if fl.Changed && credentialLikeRunProfileFlag(fl.Name) {
+					credentialFlags = append(credentialFlags, fl.Name)
+					return
+				}
 				if fl.Changed && !skip[fl.Name] {
 					if isProfileArrayFlag(fl) {
-						items := profileArrayValues(fl.Value.String())
-						raw, _ := json.Marshal(items)
+						raw, _ := json.Marshal(profileArrayValues(fl.Value.String()))
 						values[fl.Name] = string(raw)
 					} else {
 						values[fl.Name] = fl.Value.String()
@@ -215,6 +251,10 @@ present (other than --profile and --config).`,
 			}
 			cmd.InheritedFlags().VisitAll(visit)
 			cmd.Flags().VisitAll(visit)
+			if len(credentialFlags) > 0 {
+				sort.Strings(credentialFlags)
+				return fmt.Errorf("run profiles may not store credential-like flags: %s; use --client-profile with exact external references", strings.Join(credentialFlags, ", "))
+			}
 			if len(values) == 0 {
 				return fmt.Errorf("no non-default flags set - pass at least one flag to save into %q", name)
 			}
@@ -236,35 +276,6 @@ present (other than --profile and --config).`,
 	cmd.Flags().StringVar(&description, "description", "", "Short description shown in 'profile list'")
 	addRunInputFlags(cmd, &runDefaults)
 	return cmd
-}
-
-func isProfileArrayFlag(fl *pflag.Flag) bool {
-	if fl == nil {
-		return false
-	}
-	switch fl.Value.Type() {
-	case "stringArray", "stringSlice":
-		return true
-	default:
-		return false
-	}
-}
-
-func profileArrayValues(raw string) []string {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return nil
-	}
-	if strings.HasPrefix(raw, "[") && strings.HasSuffix(raw, "]") {
-		var items []string
-		if err := json.Unmarshal([]byte(raw), &items); err == nil {
-			if len(items) == 0 {
-				return nil
-			}
-			return items
-		}
-	}
-	return []string{raw}
 }
 
 func newProfileUseCmd(flags *rootFlags) *cobra.Command {
@@ -306,9 +317,15 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List saved profiles",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  wavespeed-pp-cli profile list
   wavespeed-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "profile list")
+			}
 			s, err := loadProfileStore()
 			if err != nil {
 				return err
@@ -345,6 +362,9 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <name>",
 		Short: "Show a profile's values as JSON",
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		Example: `  wavespeed-pp-cli profile show my-defaults
   wavespeed-pp-cli profile show tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),
@@ -395,4 +415,33 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func isProfileArrayFlag(fl *pflag.Flag) bool {
+	if fl == nil {
+		return false
+	}
+	switch fl.Value.Type() {
+	case "stringArray", "stringSlice":
+		return true
+	default:
+		return false
+	}
+}
+
+func profileArrayValues(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+	if strings.HasPrefix(raw, "[") && strings.HasSuffix(raw, "]") {
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err == nil {
+			if len(items) == 0 {
+				return nil
+			}
+			return items
+		}
+	}
+	return []string{raw}
 }

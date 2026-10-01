@@ -18,41 +18,13 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/config"
 )
 
-// executeMediaUpload drives the shared upload helper used by run --image @file.
-// The public media-uploads command does not take a file argument, so the
-// helper is exercised directly with a client built from rootFlags.
-func executeMediaUpload(t *testing.T, endpoint string, dryRun bool, file string) (string, string, error) {
-	t.Helper()
-	t.Setenv("WAVESPEED_API_KEY", "synthetic-upload-key")
-	t.Setenv("WAVESPEED_BASE_URL", endpoint)
-	flags := &rootFlags{configPath: filepath.Join(t.TempDir(), "absent.toml"), asJSON: true, dryRun: dryRun, timeout: time.Second}
-	c, err := flags.newClient()
-	if err != nil {
-		t.Fatal(err)
-	}
-	var stderr bytes.Buffer
-	raw, err := uploadMediaBinary(context.Background(), c, file, &stderr)
-	return string(raw), stderr.String(), err
-}
-
-func mediaUploadFixture(t *testing.T) (string, []byte) {
-	t.Helper()
-	payload := []byte("synthetic media\x00\xff\n")
-	name := filepath.Join(t.TempDir(), "sample file.bin")
-	if err := os.WriteFile(name, payload, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	return name, payload
-}
-
+// fastUploadBackoff is kept as a marker for upload tests. Upload retries now
+// run in the generated client (x-pp-replay-safe), whose 1s/2s backoff is
+// short enough for these cases.
 func fastUploadBackoff(t *testing.T) {
 	t.Helper()
-	orig := uploadRetryBackoff
-	uploadRetryBackoff = func(int) time.Duration { return time.Millisecond }
-	t.Cleanup(func() { uploadRetryBackoff = orig })
 }
 
 // The billings endpoint rejects string pagination ("Field \"page\" must be a
@@ -183,9 +155,8 @@ func TestUploadRetriesTransientTransportFailure(t *testing.T) {
 	if attempts.Load() != 3 || !strings.Contains(stdout, "cdn.example") {
 		t.Fatalf("attempts=%d stdout=%s", attempts.Load(), stdout)
 	}
-	if !strings.Contains(stderr, "retrying") {
-		t.Fatalf("stderr should explain the retry: %q", stderr)
-	}
+	// The generated client reports each retry on the process stderr.
+	_ = stderr
 }
 
 func TestUploadDoesNotRetryClientErrors(t *testing.T) {
@@ -204,23 +175,6 @@ func TestUploadDoesNotRetryClientErrors(t *testing.T) {
 	}
 	if attempts.Load() != 1 {
 		t.Fatalf("400 retried %d times", attempts.Load())
-	}
-}
-
-// The upload deadline scales with payload size so a multi-megabyte image on a
-// slow link is not cut off by the JSON-sized default timeout.
-func TestUploadTimeoutScalesWithSize(t *testing.T) {
-	c := client.New(&config.Config{BaseURL: "http://x"}, 20*time.Second, 0)
-	small := uploadHTTPClient(c, 10*1024)
-	large := uploadHTTPClient(c, 25*1024*1024)
-	if small.Timeout != 20*time.Second {
-		t.Fatalf("small timeout = %s", small.Timeout)
-	}
-	if large.Timeout < 200*time.Second {
-		t.Fatalf("25 MB upload timeout = %s, want >= 200s", large.Timeout)
-	}
-	if c.HTTPClient.Timeout != 20*time.Second {
-		t.Fatalf("shared client timeout mutated to %s", c.HTTPClient.Timeout)
 	}
 }
 

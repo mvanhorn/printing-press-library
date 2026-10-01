@@ -39,9 +39,9 @@ func TestBuildPackShots(t *testing.T) {
 func TestSlugify(t *testing.T) {
 	cases := map[string]string{
 		"Helm Black Hero": "helm-black-hero",
-		"  spaces  ":       "spaces",
-		"!!!":              "pack",
-		"Already-Slug":     "already-slug",
+		"  spaces  ":      "spaces",
+		"!!!":             "pack",
+		"Already-Slug":    "already-slug",
 	}
 	for in, want := range cases {
 		if got := slugify(in); got != want {

@@ -1,12 +1,17 @@
 {
   "schema_version": 2,
   "id": "wavespeed-novel-pack",
-  "applied_at": "2026-05-28",
-  "base_run_id": "20260527-214905",
-  "base_printing_press_version": "4.18.1",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
   "summary": "Added pack: multi-platform producer with concurrency, cost ceiling, on-failure policy, history/clean, mutable-latest layout, per-platform manifests, and stdlib image-dimension validation.",
   "reason": "The core produce command that turns one concept into a post-ready, manifest-bearing pack.",
   "files": [
-    "internal/cli/novel_pack.go"
-  ]
+    "internal/cli/novel_pack.go",
+    "internal/cli/novel_pack_test.go"
+  ],
+  "call_sites": [
+    "func newPackCmd("
+  ],
+  "first_applied_at": "2026-05-28"
 }

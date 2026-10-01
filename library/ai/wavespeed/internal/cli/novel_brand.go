@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source local
+
 package cli
 
 import (
@@ -44,9 +46,10 @@ func newBrandCmd(flags *rootFlags) *cobra.Command {
 func newBrandInitCmd(flags *rootFlags) *cobra.Command {
 	var bf brandFlags
 	cmd := &cobra.Command{
-		Use:   "init <name>",
-		Short: "Create a brand profile (non-interactive by default)",
-		Args:  cobra.ExactArgs(1),
+		Use:     "init <name>",
+		Example: "  wavespeed-pp-cli brand init helm --style-anchors \"warm oak,soft light\" --palette \"#1f2a44,#f4efe6\" --agent",
+		Short:   "Create a brand profile (non-interactive by default)",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := strings.TrimSpace(args[0])
 			if name == "" {
@@ -91,9 +94,10 @@ func newBrandInitCmd(flags *rootFlags) *cobra.Command {
 
 func newBrandShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "show <name>",
-		Short: "Show a brand profile",
-		Args:  cobra.ExactArgs(1),
+		Use:     "show <name>",
+		Example: "  wavespeed-pp-cli brand show helm --agent",
+		Short:   "Show a brand profile",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			prof, body, err := loadBrandProfile(strings.TrimSpace(args[0]))
 			if err != nil {
@@ -111,9 +115,10 @@ func newBrandShowCmd(flags *rootFlags) *cobra.Command {
 
 func newBrandListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: "List brand profiles",
-		Args:  cobra.NoArgs,
+		Use:     "list",
+		Example: "  wavespeed-pp-cli brand list --agent",
+		Short:   "List brand profiles",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := openLibrary()
 			if err != nil {
@@ -142,9 +147,10 @@ func newBrandListCmd(flags *rootFlags) *cobra.Command {
 
 func newBrandApplyCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "apply <name>",
-		Short: "Set the active brand (writes activeBrand to wavespeed.json)",
-		Args:  cobra.ExactArgs(1),
+		Use:     "apply <name>",
+		Example: "  wavespeed-pp-cli brand apply helm --agent",
+		Short:   "Set the active brand (writes activeBrand to wavespeed.json)",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := strings.TrimSpace(args[0])
 			if _, _, err := loadBrandProfile(name); err != nil {
@@ -172,9 +178,10 @@ func newBrandApplyCmd(flags *rootFlags) *cobra.Command {
 func newBrandEditCmd(flags *rootFlags) *cobra.Command {
 	var bf brandFlags
 	cmd := &cobra.Command{
-		Use:   "edit <name>",
-		Short: "Patch fields on an existing brand profile",
-		Args:  cobra.ExactArgs(1),
+		Use:     "edit <name>",
+		Example: "  wavespeed-pp-cli brand edit helm --voice \"calm and direct\" --agent",
+		Short:   "Patch fields on an existing brand profile",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := strings.TrimSpace(args[0])
 			s, err := openLibrary()

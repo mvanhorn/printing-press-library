@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source auto
+
 package cli
 
 import (
@@ -41,8 +43,10 @@ type planBriefFlags struct {
 func newPlanBriefToShotlistCmd(flags *rootFlags) *cobra.Command {
 	var pf planBriefFlags
 	cmd := &cobra.Command{
-		Use:   "brief-to-shotlist",
-		Short: "Turn a creative brief into a structured shotlist",
+		Use:         "brief-to-shotlist",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "--prompt=a red circle on white;--platforms=instagram;--planner=llm;--planner-model=wavespeed-ai/any-llm"},
+		Example:     "  wavespeed-pp-cli plan brief-to-shotlist --prompt \"launch a red mug\" --platforms instagram,tiktok --planner deterministic --agent",
+		Short:       "Turn a creative brief into a structured shotlist",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			brief := strings.TrimSpace(pf.prompt)
 			if pf.fromFile != "" {
@@ -82,6 +86,10 @@ func newPlanBriefToShotlistCmd(flags *rootFlags) *cobra.Command {
 
 			env := newEnvelope("plan brief-to-shotlist")
 			env.PlannerUsed = plannerUsed
+			if flags.dryRun {
+				env.DryRun = true
+				env.Action = "plan a shotlist; no predictions submitted"
+			}
 			env.Warnings = warnings
 			for _, s := range shots {
 				env.Results = append(env.Results, s)
@@ -322,9 +330,11 @@ func parseShotsFromText(text string) ([]Shot, error) {
 
 func newPlanModelPickCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "model-pick <intent>",
-		Short: "Recommend a model for an intent from the live catalog",
-		Args:  cobra.MinimumNArgs(1),
+		Use:         "model-pick <intent>",
+		Example:     "  wavespeed-pp-cli plan model-pick \"product photo\" --agent",
+		Short:       "Recommend a model for an intent from the live catalog",
+		Args:        cobra.MinimumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "intent=product photo", "pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			intent := strings.ToLower(strings.Join(args, " "))
 			c, err := flags.newClient()
@@ -333,7 +343,7 @@ func newPlanModelPickCmd(flags *rootFlags) *cobra.Command {
 			}
 			models, err := c.GetNoCache(cmd.Context(), "/models", nil)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			pick, rationale := pickModelForIntent(models, intent)
 			if pick == "" {
@@ -398,13 +408,16 @@ func decodeModelArray(models json.RawMessage) []map[string]any {
 // --- cost-estimate ------------------------------------------------------
 
 func newPlanCostEstimateCmd(flags *rootFlags) *cobra.Command {
+	var readStdin bool
 	cmd := &cobra.Command{
-		Use:   "cost-estimate <shotlist.json>",
-		Short: "Price a shotlist against the live pricing API and your balance",
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "cost-estimate <shotlist.json>",
+		Example:     "  wavespeed-pp-cli plan cost-estimate - --agent",
+		Short:       "Price a shotlist against the live pricing API and your balance",
+		Args:        cobra.MaximumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-stdin": "[{\"prompt\":\"a red mug on oak\",\"model\":\"wavespeed-ai/z-image/turbo\",\"aspect_ratio\":\"1:1\"}]"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "-"
-			if len(args) == 1 {
+			if len(args) == 1 && !readStdin {
 				path = args[0]
 			}
 			shots, err := readShotlist(path)
@@ -455,10 +468,10 @@ func newPlanCostEstimateCmd(flags *rootFlags) *cobra.Command {
 			env.CostSpent = total
 			env.BalanceAfter = balance
 			result := map[string]any{
-				"total_cost":   total,
-				"currency":     "account credits (WaveSpeed credit unit)",
-				"per_shot":     breakdown,
-				"shot_count":   len(shots),
+				"total_cost": total,
+				"currency":   "account credits (WaveSpeed credit unit)",
+				"per_shot":   breakdown,
+				"shot_count": len(shots),
 			}
 			if balance != nil {
 				result["balance"] = *balance
@@ -470,6 +483,7 @@ func newPlanCostEstimateCmd(flags *rootFlags) *cobra.Command {
 			return emitEnvelope(cmd.OutOrStdout(), env)
 		},
 	}
+	cmd.Flags().BoolVar(&readStdin, "stdin", false, "Read the shotlist JSON from stdin (same as passing -)")
 	return cmd
 }
 

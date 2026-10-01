@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -126,9 +128,11 @@ type manifestAsset struct {
 func newPackCmd(flags *rootFlags) *cobra.Command {
 	var pf packFlags
 	cmd := &cobra.Command{
-		Use:   "pack",
-		Short: "Produce a multi-platform creative pack from one concept",
-		Long:  "Generate a full creative pack for one concept across platforms and aspect ratios, writing post-ready files at stable packs/<slug>/<platform>/ paths plus a per-platform manifest a downstream posting tool consumes.",
+		Use:         "pack",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "--concept=a red circle on white;--platforms=facebook;--model=pruna-ai/p-image/text-to-image;--max-cost=0.02"},
+		Example:     "  wavespeed-pp-cli pack --concept \"a red mug on oak\" --platforms instagram,tiktok --max-cost 2 --agent --dry-run",
+		Short:       "Produce a multi-platform creative pack from one concept",
+		Long:        "Generate a full creative pack for one concept across platforms and aspect ratios, writing post-ready files at stable packs/<slug>/<platform>/ paths plus a per-platform manifest a downstream posting tool consumes.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(pf.concept) == "" {
 				return usageErr(fmt.Errorf("--concept is required"))
@@ -273,6 +277,7 @@ func packDryRun(cmd *cobra.Command, c *client.Client, pf packFlags, slug string,
 		})
 	}
 	env.CostSpent = total
+	env.Action = fmt.Sprintf("submit %d pack predictions", len(shots))
 	env.RecommendedAction = "drop --dry-run to produce the pack"
 	return emitEnvelope(cmd.OutOrStdout(), env)
 }
@@ -417,8 +422,8 @@ func produceShot(ctx context.Context, c *client.Client, pf packFlags, slug strin
 	spec := filepath.Join(platformDir, fileBase+".{ext}")
 
 	res, err := submitAndAwait(ctx, c, submitRequest{
-		modelID:      s.Model,
-		inputs:       s.toModelInputs(),
+		modelID:       s.Model,
+		inputs:        s.toModelInputs(),
 		estimatePrice: true, priceBestEffort: true,
 		wait:         true,
 		waitTimeout:  5 * time.Minute,
@@ -519,7 +524,7 @@ func writePlatformManifests(pf packFlags, slug string, shots []Shot, outcomes []
 		if _, err := os.Stat(stale); err == nil {
 			// Keep the earlier pack recoverable, but not under the
 			// post-ready name a posting tool reads.
-			ts := time.Now().UTC().Format("20060102-150405.000000000")
+			ts := time.Now().UTC().Format(packArchiveStampLayout)
 			archived := filepath.Join(filepath.Dir(stale), "manifest.superseded-"+ts+".json")
 			// Stop on anything but "exists" so an unreadable directory
 			// cannot spin here; the rename then reports nothing harmful.
@@ -638,3 +643,7 @@ func dirSafe(platform string) string {
 	}
 	return slugify(platform)
 }
+
+// packArchiveStampLayout timestamps a superseded manifest to the nanosecond
+// so two reruns in the same second never collide.
+const packArchiveStampLayout = "20060102-150405" + ".000000000"

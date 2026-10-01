@@ -22,7 +22,6 @@ func newPredictionsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "predictions",
-		Aliases:     []string{"history"},
 		Short:       "Query recent prediction history. The API history window is limited; sync accumulates across runs.",
 		Long:        "Query recent prediction history. The API history window is limited; sync accumulates across runs.",
 		Example:     "  wavespeed-pp-cli predictions",
@@ -39,34 +38,36 @@ func newPredictionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			if bodyCreatedAfter != "" {
-				body["created_after"] = bodyCreatedAfter
+			bodyMap := map[string]any{}
+			var body any = bodyMap
+			if cmd.Flags().Changed("created-after") || bodyCreatedAfter != "" {
+				bodyMap["created_after"] = bodyCreatedAfter
 			}
-			if bodyCreatedBefore != "" {
-				body["created_before"] = bodyCreatedBefore
+			if cmd.Flags().Changed("created-before") || bodyCreatedBefore != "" {
+				bodyMap["created_before"] = bodyCreatedBefore
 			}
 			if cmd.Flags().Changed("include-inputs") {
-				body["include_inputs"] = bodyIncludeInputs
+				bodyMap["include_inputs"] = bodyIncludeInputs
 			}
-			if bodyModel != "" {
-				body["model"] = bodyModel
+			if cmd.Flags().Changed("model") || bodyModel != "" {
+				bodyMap["model"] = bodyModel
 			}
-			if bodyPage != 0 {
-				body["page"] = bodyPage
+			if cmd.Flags().Changed("page") || bodyPage != 0 {
+				bodyMap["page"] = bodyPage
 			}
-			if bodyPageSize != 0 {
-				body["page_size"] = bodyPageSize
+			if cmd.Flags().Changed("page-size") || bodyPageSize != 0 {
+				bodyMap["page_size"] = bodyPageSize
 			}
-			if bodyStatus != "" {
-				body["status"] = bodyStatus
+			if cmd.Flags().Changed("status") || bodyStatus != "" {
+				bodyMap["status"] = bodyStatus
 			}
 			data, _, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
 
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -74,9 +75,9 @@ func newPredictionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
+				if json.Unmarshal(outputData, &countItems) != nil {
 					// Single object, not an array
-					countItems = []json.RawMessage{data}
+					countItems = []json.RawMessage{outputData}
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
@@ -86,21 +87,30 @@ func newPredictionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// opt out of the auto-JSON path so piped consumers that asked for a
 			// non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				var selectErr error
 				filtered := data
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"code": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
 					return wrapErr
 				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+					return err
+				}
+				return selectErr
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -110,7 +120,11 @@ func newPredictionsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"code": true})
 		},
 	}
 	cmd.Flags().StringVar(&bodyCreatedAfter, "created-after", "", "Created after")

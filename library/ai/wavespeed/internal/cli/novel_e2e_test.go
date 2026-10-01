@@ -18,8 +18,8 @@ import (
 
 // fakeServerOpts configures the stub WaveSpeed API used by the e2e tests.
 type fakeServerOpts struct {
-	price        float64
-	balance      float64
+	price         float64
+	balance       float64
 	deterministic bool // fixed task id => identical result JSON across runs
 }
 

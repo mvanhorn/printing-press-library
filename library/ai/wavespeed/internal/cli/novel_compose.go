@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -30,9 +32,11 @@ type composeStep struct {
 func newComposeCmd(flags *rootFlags) *cobra.Command {
 	var cf composeFlags
 	cmd := &cobra.Command{
-		Use:   "compose",
-		Short: "Run an explicit multi-step generation pipeline",
-		Long:  "Chain steps (e.g. text->image,image->upscale,image->video), feeding each step's output into the next. A step failure rolls back later steps and records the completed steps.",
+		Use:         "compose",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "--steps=text->image,image->image;--prompt=a red circle on white;--models=pruna-ai/p-image/text-to-image,wavespeed-ai/z-image-turbo/image-to-image"},
+		Example:     "  wavespeed-pp-cli compose --steps \"text->image,image->video\" --prompt \"a red mug on oak\" --models wavespeed-ai/flux-dev,bytedance/seedance-v1.5-pro/image-to-video --agent",
+		Short:       "Run an explicit multi-step generation pipeline",
+		Long:        "Chain steps (e.g. text->image,image->upscale,image->video), feeding each step's output into the next. A step failure rolls back later steps and records the completed steps.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(cf.prompt) == "" {
 				return usageErr(fmt.Errorf("--prompt is required"))
@@ -56,6 +60,7 @@ func newComposeCmd(flags *rootFlags) *cobra.Command {
 			env := newEnvelope("compose")
 			if flags.dryRun {
 				env.DryRun = true
+				env.Action = fmt.Sprintf("submit %d chained predictions", len(steps))
 				for i, st := range steps {
 					env.Results = append(env.Results, map[string]any{"step": i, "from": st.From, "to": st.To, "model": st.Model})
 				}

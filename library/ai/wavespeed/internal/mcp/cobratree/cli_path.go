@@ -13,17 +13,38 @@ import (
 // SiblingCLIPath resolves the companion CLI via sibling-of-executable,
 // WAVESPEED_CLI_PATH env var, then PATH.
 func SiblingCLIPath() (string, error) {
-	cliName := cliExecutableName(runtime.GOOS)
 	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
+		for _, candidate := range siblingCLICandidates(runtime.GOOS, runtime.GOARCH, exe) {
+			if _, err := os.Stat(candidate); err == nil {
+				return candidate, nil
+			}
 		}
 	}
 	if v := os.Getenv("WAVESPEED_CLI_PATH"); v != "" {
 		return v, nil
 	}
-	return exec.LookPath(cliName)
+	return exec.LookPath(cliExecutableName(runtime.GOOS))
+}
+
+// Suffixed names follow the bare name so a multi-platform bundle can ship
+// thin <name>-<GOOS>-<GOARCH> binaries and an arch-free <name>-<GOOS> build.
+// GOOS is the runtime spelling: darwin, linux, or windows.
+func siblingCLICandidates(goos, goarch, exePath string) []string {
+	dir := filepath.Dir(exePath)
+	bare := "wavespeed-pp-cli"
+	names := []string{
+		bare,
+		bare + "-" + goos + "-" + goarch,
+		bare + "-" + goos,
+	}
+	candidates := make([]string, 0, len(names)*2)
+	for _, name := range names {
+		if goos == "windows" {
+			candidates = append(candidates, filepath.Join(dir, name+".exe"))
+		}
+		candidates = append(candidates, filepath.Join(dir, name))
+	}
+	return candidates
 }
 
 func cliExecutableName(goos string) string {

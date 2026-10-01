@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from novel hero features first, then promoted endpoint
+// commands, deduped by Command so a novel that replaced a promoted leaf keeps
+// the hero copy.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -22,20 +22,39 @@ type whichEntry struct {
 	WhyItMatters string `json:"why_it_matters,omitempty"`
 }
 
-// whichIndex is the curated list of capabilities this CLI advertises as
-// its hero features. Endpoint-level commands are discoverable via
-// `--help`; `which` exists to resolve a natural-language capability
-// query to one of the commands the skill says matter most.
+// whichIndex is the curated list of capabilities this CLI advertises.
+// Novel hero features come first (declaration-order ties); promoted
+// endpoint commands follow so natural-language queries can find them.
 var whichIndex = []whichEntry{
-	{Command: "account_balance get-balance", Description: "Retrieve the authenticated account balance.", Group: "account_balance"},
-	{Command: "billings search", Description: "Search billing records for the authenticated account.", Group: "billings"},
-	{Command: "media_uploads upload-media-binary", Description: "Upload a binary file to WaveSpeed media storage.", Group: "media_uploads"},
-	{Command: "model_pricing estimate", Description: "Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint.", Group: "model_pricing"},
-	{Command: "models list", Description: "List available WaveSpeed models and their API schemas.", Group: "models"},
-	{Command: "prediction_deletions delete-predictions", Description: "Delete one or more predictions from history.", Group: "prediction_deletions"},
-	{Command: "prediction_results get", Description: "Retrieve the latest status and result payload for a prediction task.", Group: "prediction_results"},
-	{Command: "predictions query", Description: "Query recent prediction history. The API history window is limited; sync accumulates across runs.", Group: "predictions"},
-	{Command: "usage_stats get", Description: "Retrieve usage statistics for the authenticated account.", Group: "usage_stats"},
+	{Command: "run", Description: "Submit WaveSpeed model runs with prompt shorthand, typed --set inputs, local @file media uploads, price estimates, waiting, recovery-safe downloads, and library recording.", Group: "Core", WhyItMatters: "Use it for any single generation; the prediction ID and recovery command survive every post-submit failure."},
+	{Command: "schema", Description: "Fetch the live WaveSpeed model catalog and print the request schema for a model or project alias.", Group: "Core", WhyItMatters: "Check accepted inputs and enums before a paid run."},
+	{Command: "price", Description: "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction.", Group: "Core", WhyItMatters: "Free; quote the cost before spending."},
+	{Command: "upload", Description: "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs, retrying stalled uploads with a size-scaled deadline.", Group: "Media", WhyItMatters: "Turn a local file into a URL a model accepts."},
+	{Command: "download", Description: "Download generated output URLs with directory, exact-path, or templated-path destinations, never sending API credentials to CDN hosts.", Group: "Media", WhyItMatters: "Re-fetch outputs from a finished prediction."},
+	{Command: "last", Description: "Print or open the most recent downloaded output.", Group: "Media", WhyItMatters: "Grab the path of the last generated file."},
+	{Command: "aliases", Description: "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows.", Group: "Core", WhyItMatters: "See which short names map to which models."},
+	{Command: "init", Description: "Write a starter wavespeed.json with aliases, default model, and output directory.", Group: "Core", WhyItMatters: "Start a new image project."},
+	{Command: "plan brief-to-shotlist", Description: "Turn a free-text brief into a structured shotlist across platforms and aspect ratios with a hybrid deterministic-parser/LLM planner.", Group: "Plan", WhyItMatters: "Draft the shot list for a campaign."},
+	{Command: "plan model-pick", Description: "Recommend a model for an intent from the live catalog with rationale.", Group: "Plan", WhyItMatters: "Choose a model for a job."},
+	{Command: "plan cost-estimate", Description: "Price a shotlist against live /model/pricing and the account balance, with cached-pricing fallback and per-shot breakdown.", Group: "Plan", WhyItMatters: "Check a shotlist fits the budget."},
+	{Command: "qa preflight", Description: "Pass/warn/fail validation of a shotlist: balance vs cost, model availability, prompt safety, platform request-shape, and brand coverage.", Group: "Plan", WhyItMatters: "Gate a pack before producing it."},
+	{Command: "pack", Description: "Produce a multi-platform creative pack from one concept at stable packs/<slug>/<platform>/ paths with per-platform manifests, concurrency, cost ceiling, and image-dimension validation; a rerun archives the superseded manifest.", Group: "Produce", WhyItMatters: "Produce platform-ready assets."},
+	{Command: "batch", Description: "Submit many prompts from CSV or JSON with a spend ceiling and fail-fast/fail-tolerant semantics; records completed generations before any abort.", Group: "Produce", WhyItMatters: "Run a prompt list under a budget."},
+	{Command: "variants", Description: "Sweep seed, style, or model off a base shot to produce comparable outputs with side-by-side metadata.", Group: "Produce", WhyItMatters: "Explore seeds or models for one shot."},
+	{Command: "compose", Description: "Run an explicit multi-step pipeline (text->image->upscale->video), feeding each step's output to the next, with rollback of later steps on failure.", Group: "Produce", WhyItMatters: "Turn a prompt into an image and then a clip."},
+	{Command: "aspects", Description: "Re-frame one image into standard platform aspect ratios, using outpaint when supported and an anchored re-render otherwise.", Group: "Refine", WhyItMatters: "Make 9:16 and 1:1 versions of a hero image."},
+	{Command: "restyle", Description: "Apply a brand profile or explicit style to an existing asset via img2img with a style prompt.", Group: "Refine", WhyItMatters: "Bring an asset onto brand."},
+	{Command: "library", Description: "List, search (FTS5), show, tag, export, and cost-report the local generation library by brand, model, platform, and tag.", Group: "Library", WhyItMatters: "Find a past generation or total spend."},
+	{Command: "brand", Description: "Create, inspect, apply, and edit brand profiles that auto-merge into pack, compose, variants, restyle, and run.", Group: "Library", WhyItMatters: "Set up a brand for consistent output."},
+	{Command: "account-balance", Description: "Retrieve the authenticated account balance.", Group: "account-balance", WhyItMatters: "Retrieve the authenticated account balance."},                                                                                                                                                   // pp:which-promoted
+	{Command: "billings", Description: "Search billing records for the authenticated account.", Group: "billings", WhyItMatters: "Search billing records for the authenticated account."},                                                                                                                                             // pp:which-promoted
+	{Command: "media-uploads", Description: "Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs.", Group: "media-uploads", WhyItMatters: "Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs."}, // pp:which-promoted
+	{Command: "model-pricing", Description: "Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint.", Group: "model-pricing", WhyItMatters: "Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint."},                       // pp:which-promoted
+	{Command: "models", Description: "List available WaveSpeed models and their API schemas.", Group: "models", WhyItMatters: "List available WaveSpeed models and their API schemas."},                                                                                                                                               // pp:which-promoted
+	{Command: "prediction-deletions", Description: "Delete one or more predictions from history.", Group: "prediction-deletions", WhyItMatters: "Delete one or more predictions from history."},                                                                                                                                       // pp:which-promoted
+	{Command: "prediction-results", Description: "Retrieve the latest status and result payload for a prediction task.", Group: "prediction-results", WhyItMatters: "Retrieve the latest status and result payload for a prediction task."},                                                                                           // pp:which-promoted
+	{Command: "predictions", Description: "Query recent prediction history. The API history window is limited; sync accumulates across runs.", Group: "predictions", WhyItMatters: "Query recent prediction history."},                                                                                                                // pp:which-promoted
+	{Command: "usage-stats", Description: "Retrieve usage statistics for the authenticated account.", Group: "usage-stats", WhyItMatters: "Retrieve usage statistics for the authenticated account."},                                                                                                                                 // pp:which-promoted
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -53,8 +72,9 @@ type whichMatch struct {
 //
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
-//	+2  substring match on the description
-//	+1  group tag contains the query as a word
+//	+2  substring match on description or why_it_matters
+//	+1  per-token match on description or why_it_matters (capped at 3)
+//	+1  group tag contains the query as a whole token
 //
 // Ties break on declaration order in the index. An empty query returns
 // every entry at score 0 in declaration order - this is the "list all"
@@ -71,7 +91,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -81,7 +103,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -100,37 +129,268 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
+	commandParts := strings.Fields(cmd)
+	leaf := ""
+	if len(commandParts) > 0 {
+		leaf = commandParts[len(commandParts)-1]
+	}
 	desc := strings.ToLower(e.Description)
+	descTokens := whichSubTokens(desc)
+	why := strings.ToLower(e.WhyItMatters)
+	whyTokens := whichSubTokens(why)
 	group := strings.ToLower(e.Group)
 
-	// Exact token match on the command path (any token).
+	// Exact token match on the command path (any token). Filler words
+	// credit a command only when they are the whole unsplit leaf
+	// ("run a" → "a"), not a hyphenated sub-token ("in" vs "check-in").
 	for _, qt := range qTokens {
+		if whichIncidentalToken(qt) && !whichTokenMatch(qt, leaf) {
+			continue
+		}
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
 		}
 	}
 	// Substring match on the full command (covers hyphenated leaves).
+	// An incidental-only query must still name the whole command or leaf
+	// so "in" does not admit "check-in" via the trailing fragment.
 	if strings.Contains(cmd, query) {
+		if !whichAllIncidental(qTokens) || whichTokenMatch(query, leaf) || whichTokenMatch(query, cmd) {
+			score += 2
+		}
+	}
+	// Description and rationale are correlated prose fields. Share the existing
+	// per-token cap so repeating the same query in both fields cannot outweigh
+	// an exact command match. A rationale-only match needs two tokens or an
+	// exact multi-token phrase to avoid promoting incidental prose words.
+	descPhrase := strings.Contains(desc, query)
+	descCredit := whichFieldCredit(qTokens, descTokens)
+	whyCredit := whichFieldCredit(qTokens, whyTokens)
+	whyPhrase := len(qTokens) > 1 && strings.Contains(why, query)
+	if score == 0 && whyCredit < 2 && !whyPhrase {
+		whyCredit = 0
+	}
+	if descPhrase || whyPhrase {
 		score += 2
 	}
-	// Substring match on the description.
-	if strings.Contains(desc, query) {
-		score += 2
+	if whyCredit > descCredit {
+		score += whyCredit
+	} else {
+		score += descCredit
 	}
-	// Group tag match.
-	if group != "" {
-		for _, qt := range qTokens {
-			if strings.Contains(group, qt) {
+	// Group tag match requires a whole token, not an arbitrary substring.
+	// Filler words credit a group only when they are the whole group name.
+	groupTokens := whichSubTokens(group)
+	groupMatched := false
+	for _, qt := range qTokens {
+		if whichIncidentalToken(qt) && !whichTokenMatch(qt, group) {
+			continue
+		}
+		for _, gt := range groupTokens {
+			if whichTokenMatch(qt, gt) {
 				score += 1
+				groupMatched = true
+				break
+			}
+		}
+		if groupMatched {
+			break
+		}
+	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
 				break
 			}
 		}
 	}
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] {
+				queryWrite = true
+				break
+			}
+		}
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
+				}
+			}
+		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path. A
+	// single-token leaf has no variant to disambiguate; the penalty may still
+	// down-rank it but must not zero a description/path hit by itself.
+	if score > 0 && len(qTokens) > 1 {
+		leafTokens := whichSubTokens(leaf)
+		unmatched := 0
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		if len(leafTokens) < 2 && unmatched >= score {
+			unmatched = score - 1
+		}
+		score -= unmatched
+	}
 	return score
+}
+
+func whichFieldCredit(qTokens, fieldTokens []string) int {
+	credit := 0
+	matched := make(map[string]struct{})
+	for _, qt := range qTokens {
+		if whichIncidentalToken(qt) {
+			continue
+		}
+		for _, ft := range fieldTokens {
+			if whichTokenMatch(qt, ft) {
+				key := whichTokenKey(ft)
+				if _, ok := matched[key]; ok {
+					break
+				}
+				matched[key] = struct{}{}
+				credit++
+				break
+			}
+		}
+		if credit == 3 {
+			break
+		}
+	}
+	return credit
+}
+
+func whichTokenKey(token string) string {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if alias := whichTokenAliases[token]; alias != "" {
+		return alias
+	}
+	return whichSingular(token)
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+func whichIncidentalToken(token string) bool {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if token == "" {
+		return true
+	}
+	return whichIncidentalTokens[token]
+}
+
+func whichAllIncidental(qTokens []string) bool {
+	if len(qTokens) == 0 {
+		return false
+	}
+	for _, qt := range qTokens {
+		if !whichIncidentalToken(qt) {
+			return false
+		}
+	}
+	return true
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+// Filler words that must not create a which match by themselves. Possessive
+// aliases (my/mine/me/current) stay significant so authenticated-scoped
+// commands can still outrank generic listings.
+var whichIncidentalTokens = map[string]bool{
+	"a": true, "an": true, "the": true, "i": true,
+	"is": true, "are": true, "was": true, "were": true, "be": true, "been": true, "being": true,
+	"of": true, "to": true, "in": true, "on": true, "at": true, "for": true, "with": true, "from": true, "by": true, "about": true,
+	"what": true, "which": true, "who": true, "whom": true, "whose": true, "how": true, "when": true, "why": true, "where": true,
+	"will": true, "would": true, "could": true, "should": true, "may": true, "might": true, "can": true, "shall": true,
+	"do": true, "does": true, "did": true, "have": true, "has": true, "had": true,
+	"and": true, "or": true, "but": true, "if": true, "then": true, "than": true,
+	"this": true, "that": true, "these": true, "those": true, "it": true, "its": true,
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		return strings.TrimSuffix(s, "es")
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -139,13 +399,15 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
   0  at least one match found
-  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one`,
+  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {"matches":[]} (or the equivalent empty table) to stdout.`,
+		SilenceUsage: true,
 		Example: `  wavespeed-pp-cli which "stale tickets"
   wavespeed-pp-cli which "bottleneck"
   wavespeed-pp-cli which --limit 1 "send message"
@@ -163,14 +425,22 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
-				// Under --json, return an empty matches envelope at exit 0
-				// so agents can branch on `matches.length == 0` instead of
-				// parsing a usage error message. Non-JSON keeps the typed
-				// exit-2 path so terminal users see the help hint.
-				if flags.asJSON {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				// Machine output still uses the typed exit-2 no-match path.
+				// --json (and piped auto-JSON) emit {"matches":[]} on stdout
+				// so agents can branch on the envelope without treating exit 0
+				// as success. Human terminals keep the usage error only.
+				asJSON := flags.asJSON
+				if !asJSON && !isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain {
+					asJSON = true
+				}
+				if asJSON || flags.csv || flags.plain || flags.quiet {
+					outputFlags := *flags
+					outputFlags.asJSON = asJSON || flags.asJSON
+					if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"matches": []whichMatch{},
-					}, flags)
+					}, &outputFlags); err != nil {
+						return err
+					}
 				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}

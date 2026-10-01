@@ -1,17 +1,19 @@
 {
   "schema_version": 2,
   "id": "wavespeed-model-discovery",
-  "applied_at": "2026-05-28",
-  "base_run_id": "20260527-214905",
-  "base_printing_press_version": "4.18.1",
-  "summary": "Added model search/filter ergonomics and official-style aliases for common account/history commands.",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "Model search/filter ergonomics (query, --type/--category, --popular, --refresh, --capability) and official-style aliases (balance, history, show, delete, submit).",
   "reason": "WaveSpeed users need to discover fast-changing model families and recognize official CLI command names while keeping the generated endpoint commands available.",
   "files": [
     "internal/cli/promoted_models.go",
-    "internal/cli/promoted_account-balance.go",
-    "internal/cli/promoted_predictions.go",
-    "internal/cli/promoted_prediction-results.go",
-    "internal/cli/promoted_prediction-deletions.go"
+    "internal/cli/wavespeed_wiring.go"
   ],
-  "validated_outcome": "models z-image --json returned filtered live catalog results; publish verify passed."
+  "call_sites": [
+    "filterModelsForCLI(data, query, modelType, category, popular)",
+    "\"account-balance\":      {\"balance\"}"
+  ],
+  "validated_outcome": "Compat test: models --agent, models --capability image-edit --agent, and every alias resolve with the same JSON keys as 2026.10.1.",
+  "first_applied_at": "2026-05-28"
 }

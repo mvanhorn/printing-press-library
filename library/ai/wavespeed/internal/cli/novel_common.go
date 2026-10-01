@@ -70,19 +70,21 @@ func (s Shot) toModelInputs() map[string]any {
 // --compact is intentionally suppressed when an envelope is in effect (it
 // would mangle the nested JSON), so emitEnvelope always pretty-prints.
 type AgentEnvelope struct {
-	Command             string   `json:"command"`
-	Version             string   `json:"version"`
-	Args                any      `json:"args,omitempty"`
-	DryRun              bool     `json:"dry_run"`
-	PlannerUsed         string   `json:"planner_used,omitempty"`
-	Results             []any    `json:"results"`
-	SuggestedNext       []string `json:"suggested_next,omitempty"`
-	RecommendedAction   string   `json:"recommended_action,omitempty"`
+	Command string `json:"command"`
+	Version string `json:"version"`
+	Args    any    `json:"args,omitempty"`
+	DryRun  bool   `json:"dry_run"`
+	// Action names what a --dry-run would have done.
+	Action            string   `json:"action,omitempty"`
+	PlannerUsed       string   `json:"planner_used,omitempty"`
+	Results           []any    `json:"results"`
+	SuggestedNext     []string `json:"suggested_next,omitempty"`
+	RecommendedAction string   `json:"recommended_action,omitempty"`
 	// Manifests lists per-platform manifest.json paths a producer wrote. Kept
 	// distinct from Warnings so agents don't misread successful output as a
 	// problem.
-	Manifests []string `json:"manifests,omitempty"`
-	Warnings  []string `json:"warnings,omitempty"`
+	Manifests           []string `json:"manifests,omitempty"`
+	Warnings            []string `json:"warnings,omitempty"`
 	LibraryRecordErrors []string `json:"library_record_errors"`
 	CostSpent           float64  `json:"cost_spent"`
 	BalanceAfter        *float64 `json:"balance_after,omitempty"`

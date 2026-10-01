@@ -1,7 +1,7 @@
 {
   "api_name": "wavespeed",
   "base_url": "https://api.wavespeed.ai/api/v3",
-  "description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
+  "description": "Run any WaveSpeed model from the terminal, with price checks, safe uploads, and recovery-safe downloads.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -66,10 +66,18 @@
     },
     {
       "name": "media_uploads_upload-media-binary",
-      "description": "Upload a binary file to WaveSpeed media storage. Returns the new UploadEnvelope.",
+      "description": "Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs. Required: file. Returns the new UploadEnvelope.",
       "method": "POST",
       "path": "/media/upload/binary",
-      "params": []
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Local image, video, or audio file to upload",
+          "required": true
+        }
+      ]
     },
     {
       "name": "model_pricing_estimate",
@@ -199,6 +207,108 @@
           "description": "Created before"
         }
       ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Dynamic model runner",
+      "command": "run",
+      "description": "Submit WaveSpeed model runs with prompt shorthand, typed --set inputs, local @file media uploads, price estimates, waiting, recovery-safe downloads, and library recording."
+    },
+    {
+      "name": "Dynamic model schema help",
+      "command": "schema",
+      "description": "Fetch the live WaveSpeed model catalog and print the request schema for a model or project alias."
+    },
+    {
+      "name": "Model price estimate",
+      "command": "price",
+      "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction."
+    },
+    {
+      "name": "Media upload helper",
+      "command": "upload",
+      "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs, retrying stalled uploads with a size-scaled deadline."
+    },
+    {
+      "name": "Output downloader",
+      "command": "download",
+      "description": "Download generated output URLs with directory, exact-path, or templated-path destinations, never sending API credentials to CDN hosts."
+    },
+    {
+      "name": "Latest download shortcuts",
+      "command": "last",
+      "description": "Print or open the most recent downloaded output."
+    },
+    {
+      "name": "Project aliases",
+      "command": "aliases",
+      "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows."
+    },
+    {
+      "name": "Project init",
+      "command": "init",
+      "description": "Write a starter wavespeed.json with aliases, default model, and output directory."
+    },
+    {
+      "name": "Brief-to-shotlist planner",
+      "command": "plan brief-to-shotlist",
+      "description": "Turn a free-text brief into a structured shotlist across platforms and aspect ratios with a hybrid deterministic-parser/LLM planner."
+    },
+    {
+      "name": "Model pick",
+      "command": "plan model-pick",
+      "description": "Recommend a model for an intent from the live catalog with rationale."
+    },
+    {
+      "name": "Cost estimate",
+      "command": "plan cost-estimate",
+      "description": "Price a shotlist against live /model/pricing and the account balance, with cached-pricing fallback and per-shot breakdown."
+    },
+    {
+      "name": "Production QA preflight",
+      "command": "qa preflight",
+      "description": "Pass/warn/fail validation of a shotlist: balance vs cost, model availability, prompt safety, platform request-shape, and brand coverage."
+    },
+    {
+      "name": "Multi-platform pack",
+      "command": "pack",
+      "description": "Produce a multi-platform creative pack from one concept at stable packs/\u003cslug\u003e/\u003cplatform\u003e/ paths with per-platform manifests, concurrency, cost ceiling, and image-dimension validation; a rerun archives the superseded manifest."
+    },
+    {
+      "name": "Batch producer",
+      "command": "batch",
+      "description": "Submit many prompts from CSV or JSON with a spend ceiling and fail-fast/fail-tolerant semantics; records completed generations before any abort."
+    },
+    {
+      "name": "Controlled variants",
+      "command": "variants",
+      "description": "Sweep seed, style, or model off a base shot to produce comparable outputs with side-by-side metadata."
+    },
+    {
+      "name": "Pipeline compose",
+      "command": "compose",
+      "description": "Run an explicit multi-step pipeline (text-\u003eimage-\u003eupscale-\u003evideo), feeding each step's output to the next, with rollback of later steps on failure."
+    },
+    {
+      "name": "Aspect re-framing",
+      "command": "aspects",
+      "description": "Re-frame one image into standard platform aspect ratios, using outpaint when supported and an anchored re-render otherwise."
+    },
+    {
+      "name": "Brand restyle",
+      "command": "restyle",
+      "description": "Apply a brand profile or explicit style to an existing asset via img2img with a style prompt."
+    },
+    {
+      "name": "Generation library",
+      "command": "library",
+      "description": "List, search (FTS5), show, tag, export, and cost-report the local generation library by brand, model, platform, and tag."
+    },
+    {
+      "name": "Brand profiles",
+      "command": "brand",
+      "description": "Create, inspect, apply, and edit brand profiles that auto-merge into pack, compose, variants, restyle, and run."
     }
   ]
 }

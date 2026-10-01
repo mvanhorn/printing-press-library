@@ -1,15 +1,19 @@
 {
   "schema_version": 2,
   "id": "wavespeed-publish-review-hardening",
-  "applied_at": "2026-05-28",
-  "base_run_id": "20260527-214905",
-  "base_printing_press_version": "4.18.1",
-  "summary": "Hardened custom run input aliases and raw media transfer paths after public-library review.",
-  "reason": "The hand-authored run surface needed separate --set backing storage and custom upload/download requests needed to honor configured client rate limiting, timeout, and credential-validation policy.",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "Hardened custom run input aliases and raw download transfers: --set has its own backing storage and output downloads go through the client rate limiter on a streaming client.",
+  "reason": "The hand-authored run surface needed separate --set backing storage, and custom download requests must honor client rate limiting and must not be cut off by the JSON-sized --timeout. Uploads now go through the generated client (x-pp-replay-safe), so the raw upload path from the prior record is gone.",
   "files": [
     "internal/cli/run.go",
     "internal/cli/run_test.go",
-    "internal/client/client.go"
+    "internal/client/wavespeed_raw.go"
   ],
-  "validated_outcome": "go test ./... passed after the publish-review fixes, including mixed --set/--input-kv and echoed-input URL filtering."
+  "call_sites": [
+    "func (c *Client) DoRaw("
+  ],
+  "validated_outcome": "go test ./... passed after the publish-review fixes, including mixed --set/--input-kv and echoed-input URL filtering.",
+  "first_applied_at": "2026-05-28"
 }

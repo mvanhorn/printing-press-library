@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -26,10 +28,12 @@ type aspectsFlags struct {
 func newAspectsCmd(flags *rootFlags) *cobra.Command {
 	var af aspectsFlags
 	cmd := &cobra.Command{
-		Use:   "aspects <image>",
-		Short: "Re-frame one image into standard aspect ratios",
-		Long:  "Produce platform aspect ratios from a single source image. Uses outpaint/extend when the model supports it; otherwise falls back to a re-render with an anchored prompt and warns.",
-		Args:  cobra.ExactArgs(1),
+		Use:         "aspects <image>",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "image=https://d2h7xmz5gqybh9.cloudfront.net/media/3b5938cbb8bd4aa4b1c92a38a6a96061/images/1790869637202002474_8FxGQZ8h.png;--platforms=facebook;--model=pruna-ai/p-image/text-to-image;--prompt=a red circle on white;--out-dir=aspects"},
+		Example:     "  wavespeed-pp-cli aspects https://d2h7xmz5gqybh9.cloudfront.net/hero.png --platforms instagram,tiktok --agent --dry-run",
+		Short:       "Re-frame one image into standard aspect ratios",
+		Long:        "Produce platform aspect ratios from a single source image. Uses outpaint/extend when the model supports it; otherwise falls back to a re-render with an anchored prompt and warns.",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			source := args[0]
 			if af.outDir == "" {
@@ -67,6 +71,7 @@ func newAspectsCmd(flags *rootFlags) *cobra.Command {
 
 			if flags.dryRun {
 				env.DryRun = true
+				env.Action = fmt.Sprintf("submit %d aspect predictions", len(targets))
 				for i, a := range targets {
 					env.Results = append(env.Results, map[string]any{"target": i, "aspect_ratio": a, "model": model, "mode": outpaintMode(useOutpaint)})
 				}

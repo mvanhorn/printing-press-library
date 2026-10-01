@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/wavespeed-pp-cli
+/wavespeed-pp-cli.exe
+/wavespeed-pp-mcp
+/wavespeed-pp-mcp.exe
+/bin/
+/build/
+/dist/

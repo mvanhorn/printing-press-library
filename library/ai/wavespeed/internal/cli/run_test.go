@@ -330,6 +330,7 @@ func TestRunDownloadFailureWarnsAfterPrintingCompletedResult(t *testing.T) {
 }
 
 func TestRunDownloadFailureReportsPartialSuccesses(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
 	t.Chdir(t.TempDir())
 	outTemplate := filepath.Join(t.TempDir(), "{index}.{ext}")
 

@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "live-happy-path-paid-coverage",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "The paid and file-writing novel commands (run, aspects, restyle, pack, batch, variants, compose, plan brief-to-shotlist, upload, download, init) carry pp:live-happy-path plus cheap pp:happy-args so an approved live dogfood run exercises each one for real, once, on the cheapest models (pruna-ai/p-image/text-to-image, wavespeed-ai/z-image/turbo, wavespeed-ai/z-image-turbo/image-to-image, wavespeed-ai/any-llm). testdata/dogfood/red-circle.png is the 922-byte upload fixture. Three commands that ignored --dry-run now honor it: download lists planned paths without fetching, library export writes nothing, and library tag previews instead of tagging. run, aspects and restyle dry runs name the previewed action.",
+  "reason": "publish validate refused the reprint for hollow coverage: these commands could only be dry-run, so the phase5 gate never saw them run. Cathryn approved a capped paid run ($2 cap). The annotation is inert without the press flag from mvanhorn/cli-printing-press#4872 and dogfood --allow-destructive. The dry-run fixes are real bugs the approved run exposed: the dry_run_json probe downloaded a file and exported the library into the CLI tree.",
+  "files": [
+    "internal/cli/run.go",
+    "internal/cli/novel_aspects.go",
+    "internal/cli/novel_restyle.go",
+    "internal/cli/novel_pack.go",
+    "internal/cli/novel_batch.go",
+    "internal/cli/novel_variants.go",
+    "internal/cli/novel_compose.go",
+    "internal/cli/novel_plan.go",
+    "internal/cli/novel_library.go",
+    "internal/cli/dry_run_side_effects_test.go",
+    "testdata/dogfood/red-circle.png"
+  ],
+  "call_sites": [
+    "\"pp:live-happy-path\": \"true\"",
+    "PATCH(dry-run-envelope)",
+    "PATCH(download-dry-run)",
+    "PATCH(library-export-dry-run)",
+    "PATCH(library-tag-dry-run)"
+  ],
+  "validated_outcome": "Full live dogfood with --allow-destructive behind a capped spend guard (allowlisted cheap models, per-model quota, $0.25 ceiling): all 11 features covered, coverage_hollow false. Real spend per billing records is reported in the PR. dry_run_side_effects_test.go fails on the pre-fix code and passes on the fix. Compatibility test against 2026.10.1 green."
+}

@@ -14,10 +14,10 @@ func TestRecordPolicyAndShouldRecord(t *testing.T) {
 		noRecord bool
 		want     bool
 	}{
-		{"", true, false, true},        // default novel-only: novel records
-		{"", false, false, false},      // default: run does not
-		{"always", false, false, true}, // always: run records too
-		{"never", true, false, false},  // never: even novel skips
+		{"", true, false, true},           // default novel-only: novel records
+		{"", false, false, false},         // default: run does not
+		{"always", false, false, true},    // always: run records too
+		{"never", true, false, false},     // never: even novel skips
 		{"novel-only", true, true, false}, // explicit opt-out wins
 	}
 	for _, c := range cases {

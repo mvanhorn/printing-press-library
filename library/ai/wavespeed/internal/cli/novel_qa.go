@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -29,14 +31,17 @@ func newQACmd(flags *rootFlags) *cobra.Command {
 
 func newQAPreflightCmd(flags *rootFlags) *cobra.Command {
 	var brandFlag string
+	var readStdin bool
 	cmd := &cobra.Command{
-		Use:   "preflight <shotlist.json>",
-		Short: "Validate a shotlist before producing it (pass/warn/fail)",
-		Long:  "Runs pass/warn/fail checks over a shotlist: balance vs estimated cost, model availability in the live catalog, prompt-safety heuristics, param ranges, brand-profile coverage, and platform request-shape validity (e.g. an Instagram reel duration above the 90s cap). Validates the REQUEST shape; response-shape checks happen in pack.",
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "preflight <shotlist.json>",
+		Example:     "  wavespeed-pp-cli qa preflight - --agent",
+		Short:       "Validate a shotlist before producing it (pass/warn/fail)",
+		Long:        "Runs pass/warn/fail checks over a shotlist: balance vs estimated cost, model availability in the live catalog, prompt-safety heuristics, param ranges, brand-profile coverage, and platform request-shape validity (e.g. an Instagram reel duration above the 90s cap). Validates the REQUEST shape; response-shape checks happen in pack.",
+		Args:        cobra.MaximumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-stdin": "[{\"prompt\":\"a red mug on oak\",\"model\":\"wavespeed-ai/z-image/turbo\",\"aspect_ratio\":\"1:1\"}]"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "-"
-			if len(args) == 1 {
+			if len(args) == 1 && !readStdin {
 				path = args[0]
 			}
 			shots, err := readShotlist(path)
@@ -114,6 +119,7 @@ func newQAPreflightCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&brandFlag, "brand", "", "Brand profile to validate coverage against (defaults to active brand)")
+	cmd.Flags().BoolVar(&readStdin, "stdin", false, "Read the shotlist JSON from stdin (same as passing -)")
 	return cmd
 }
 

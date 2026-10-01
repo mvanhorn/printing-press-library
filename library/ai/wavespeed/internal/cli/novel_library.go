@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source local
+
 package cli
 
 import (
@@ -40,9 +42,10 @@ func newLibraryListCmd(flags *rootFlags) *cobra.Command {
 		limit                              int
 	)
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List recorded generations (newest first)",
-		Args:  cobra.NoArgs,
+		Use:     "list",
+		Example: "  wavespeed-pp-cli library list --since 30d --limit 20 --agent",
+		Short:   "List recorded generations (newest first)",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := openLibrary()
 			if err != nil {
@@ -77,9 +80,10 @@ func newLibraryListCmd(flags *rootFlags) *cobra.Command {
 func newLibrarySearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "search <query>",
-		Short: "Full-text search generation prompts (FTS5)",
-		Args:  cobra.MinimumNArgs(1),
+		Use:     "search <query>",
+		Example: "  wavespeed-pp-cli library search mug --agent",
+		Short:   "Full-text search generation prompts (FTS5)",
+		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := openLibrary()
 			if err != nil {
@@ -105,9 +109,10 @@ func newLibrarySearchCmd(flags *rootFlags) *cobra.Command {
 
 func newLibraryShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "show <id>",
-		Short: "Show one generation with its tags",
-		Args:  cobra.ExactArgs(1),
+		Use:     "show <id>",
+		Example: "  wavespeed-pp-cli library show 1 --agent",
+		Short:   "Show one generation with its tags",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := openLibrary()
 			if err != nil {
@@ -131,9 +136,10 @@ func newLibraryShowCmd(flags *rootFlags) *cobra.Command {
 func newLibraryTagCmd(flags *rootFlags) *cobra.Command {
 	var add, remove []string
 	cmd := &cobra.Command{
-		Use:   "tag <id>",
-		Short: "Add or remove tags on a generation",
-		Args:  cobra.ExactArgs(1),
+		Use:     "tag <id>",
+		Example: "  wavespeed-pp-cli library tag 1 --add hero --agent",
+		Short:   "Add or remove tags on a generation",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(add) == 0 && len(remove) == 0 {
 				return usageErr(fmt.Errorf("pass --add and/or --remove"))
@@ -148,6 +154,15 @@ func newLibraryTagCmd(flags *rootFlags) *cobra.Command {
 					return notFoundErr(fmt.Errorf("generation %q not found", args[0]))
 				}
 				return apiErr(err)
+			}
+			if flags.dryRun {
+				// PATCH(library-tag-dry-run): preview the tag change without
+				// writing it. Before this, --dry-run still added/removed tags.
+				env := newEnvelope("library tag")
+				env.DryRun = true
+				env.Action = fmt.Sprintf("tag %s: add %d, remove %d", args[0], len(add), len(remove))
+				env.Results = []any{map[string]any{"id": args[0], "add": add, "remove": remove}}
+				return emitEnvelope(cmd.OutOrStdout(), env)
 			}
 			for _, t := range add {
 				if err := s.AddTag(args[0], t); err != nil {
@@ -179,11 +194,21 @@ func newLibraryExportCmd(flags *rootFlags) *cobra.Command {
 		limit                              int
 	)
 	cmd := &cobra.Command{
-		Use:   "export <dir>",
-		Short: "Export matching generations as JSON files",
-		Args:  cobra.ExactArgs(1),
+		Use:     "export <dir>",
+		Example: "  wavespeed-pp-cli library export library-export --since 30d --agent",
+		Short:   "Export matching generations as JSON files",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dir := args[0]
+			if flags.dryRun {
+				// PATCH(library-export-dry-run): preview only. Before this,
+				// --dry-run still created the directory and wrote every file.
+				env := newEnvelope("library export")
+				env.DryRun = true
+				env.Action = "export matching generations to " + dir
+				env.Results = []any{map[string]any{"dir": dir, "exported": 0}}
+				return emitEnvelope(cmd.OutOrStdout(), env)
+			}
 			if err := os.MkdirAll(dir, 0o755); err != nil {
 				return notFoundErr(fmt.Errorf("export target %q is not writable: %w", dir, err))
 			}
@@ -226,9 +251,10 @@ func newLibraryExportCmd(flags *rootFlags) *cobra.Command {
 func newLibraryCostReportCmd(flags *rootFlags) *cobra.Command {
 	var since, groupBy string
 	cmd := &cobra.Command{
-		Use:   "cost-report",
-		Short: "Roll up cost grouped by brand, model, platform, or tag",
-		Args:  cobra.NoArgs,
+		Use:     "cost-report",
+		Example: "  wavespeed-pp-cli library cost-report --since 30d --group-by model --agent",
+		Short:   "Roll up cost grouped by brand, model, platform, or tag",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if groupBy == "" {
 				groupBy = "brand"
@@ -252,6 +278,10 @@ func newLibraryCostReportCmd(flags *rootFlags) *cobra.Command {
 			}
 			env := newEnvelope("library cost-report")
 			env.CostSpent = total
+			if flags.dryRun {
+				env.DryRun = true
+				env.Action = "read the local library cost report; nothing changed"
+			}
 			env.Results = []any{map[string]any{"group_by": groupBy, "rows": rows, "total_cost": total}}
 			return emitEnvelope(cmd.OutOrStdout(), env)
 		},

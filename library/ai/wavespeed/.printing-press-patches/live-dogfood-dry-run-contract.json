@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "live-dogfood-dry-run-contract",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "summary": "Hand-authored and one generated command now meet the live-dogfood dry-run and fixture contract: pack, variants and batch dry runs name the skipped action; plan brief-to-shotlist and library cost-report report dry_run:true under --dry-run; plan cost-estimate, qa preflight and batch accept --stdin; last --json returns an empty result instead of exiting 1 before any download; schema, price and plan model-pick declare pp:happy-args fixtures; prediction-deletions surfaces dry_run and action at the top level of its JSON envelope.",
+  "reason": "The publish-time live dogfood gate failed 13 checks on the reprint. None affected existing script invocations. The prediction-deletions change works around the promoted-command template, which nests the client dry-run marker under results instead of setting it on the envelope; a reprint on a fixed generator drops it.",
+  "files": [
+    "internal/cli/novel_pack.go",
+    "internal/cli/novel_variants.go",
+    "internal/cli/novel_batch.go",
+    "internal/cli/novel_plan.go",
+    "internal/cli/novel_qa.go",
+    "internal/cli/novel_library.go",
+    "internal/cli/run.go",
+    "internal/cli/promoted_prediction-deletions.go"
+  ],
+  "call_sites": [
+    "PATCH(dry-run-envelope)",
+    "cmd.Flags().BoolVar(&readStdin, \"stdin\"",
+    "cmd.Flags().BoolVar(&bf.stdin, \"stdin\""
+  ],
+  "validated_outcome": "Full live dogfood (level full) behind a read-only spend guard: 163/163 counted tests pass, 0 fail, zero model submissions. go test ./... green; compatibility test against 2026.10.1 green."
+}

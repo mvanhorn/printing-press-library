@@ -7,9 +7,12 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,12 +22,25 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/store"
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	installFreshTenantGate(s)
 	s.AddTool(
 		mcplib.NewTool("account_balance_get-balance",
 			mcplib.WithDescription("Retrieve the authenticated account balance. Returns the BalanceEnvelope."),
@@ -32,7 +48,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/balance", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/balance", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billings_search",
@@ -45,25 +61,26 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/billings/search", true, false, nil, []mcpParamBinding{{PublicName: "created_after", WireName: "created_after", Location: "body"}, {PublicName: "created_before", WireName: "created_before", Location: "body"}, {PublicName: "page", WireName: "page", Location: "body"}, {PublicName: "page_size", WireName: "page_size", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/billings/search", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "created_after", WireName: "created_after", Location: "body"}, {PublicName: "created_before", WireName: "created_before", Location: "body"}, {PublicName: "page", WireName: "page", Location: "body"}, {PublicName: "page_size", WireName: "page_size", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_uploads_upload-media-binary",
-			mcplib.WithDescription("Upload a binary file to WaveSpeed media storage. Returns the new UploadEnvelope."),
+			mcplib.WithDescription("Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs. Required: file. Returns the new UploadEnvelope."),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Local image, video, or audio file to upload")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/media/upload/binary", false, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/media/upload/binary", false, false, map[string]string{client.ReplaySafeHeader: "true"}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "file", WireName: "file", Location: "body", Format: "binary", RequestContentType: "multipart/form-data"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("model_pricing_estimate",
 			mcplib.WithDescription("Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint. Required: inputs, model_id. Returns the new ModelPricingEnvelope."),
-			mcplib.WithString("inputs", mcplib.Required(), mcplib.Description("Inputs")),
+			mcplib.WithObject("inputs", mcplib.Required(), mcplib.Description("Inputs")),
 			mcplib.WithString("model_id", mcplib.Required(), mcplib.Description("Model id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/model/pricing", false, false, nil, []mcpParamBinding{{PublicName: "inputs", WireName: "inputs", Location: "body"}, {PublicName: "model_id", WireName: "model_id", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/model/pricing", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "inputs", WireName: "inputs", Location: "body"}, {PublicName: "model_id", WireName: "model_id", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("models_list",
@@ -72,7 +89,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/models", true, false, nil, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/models", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("prediction_deletions_delete-predictions",
@@ -81,7 +98,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/predictions/delete", false, false, nil, []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/predictions/delete", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "ids", WireName: "ids", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("prediction_results_get",
@@ -91,7 +108,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/predictions/{task_id}/result", true, false, nil, []mcpParamBinding{{PublicName: "task_id", WireName: "task_id", Location: "path"}}, []string{"task_id"}),
+		makeAPIHandler("GET", "/predictions/{task_id}/result", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "task_id", WireName: "task_id", Location: "path"}}, []string{"task_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("predictions_query",
@@ -107,7 +124,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/predictions", true, false, nil, []mcpParamBinding{{PublicName: "created_after", WireName: "created_after", Location: "body"}, {PublicName: "created_before", WireName: "created_before", Location: "body"}, {PublicName: "include_inputs", WireName: "include_inputs", Location: "body"}, {PublicName: "model", WireName: "model", Location: "body"}, {PublicName: "page", WireName: "page", Location: "body"}, {PublicName: "page_size", WireName: "page_size", Location: "body"}, {PublicName: "status", WireName: "status", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/predictions", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "created_after", WireName: "created_after", Location: "body"}, {PublicName: "created_before", WireName: "created_before", Location: "body"}, {PublicName: "include_inputs", WireName: "include_inputs", Location: "body"}, {PublicName: "model", WireName: "model", Location: "body"}, {PublicName: "page", WireName: "page", Location: "body"}, {PublicName: "page_size", WireName: "page_size", Location: "body"}, {PublicName: "status", WireName: "status", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("usage_stats_get",
@@ -118,13 +135,24 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/user/usage_stats", true, false, nil, []mcpParamBinding{{PublicName: "created_after", WireName: "created_after", Location: "body"}, {PublicName: "created_before", WireName: "created_before", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/user/usage_stats", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "created_after", WireName: "created_after", Location: "body"}, {PublicName: "created_before", WireName: "created_before", Location: "body"}}, []string{}),
+	)
+	// Search tool — faster than iterating list endpoints for finding specific items
+	s.AddTool(
+		mcplib.NewTool("search",
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
+			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleSearch,
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='account_balance'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -139,7 +167,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
-		handleContext,
+		handleContext(s),
 	)
 
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
@@ -148,23 +176,85 @@ func RegisterTools(s *server.MCPServer) {
 }
 
 type mcpParamBinding struct {
-	PublicName string
-	WireName   string
-	Location   string
+	PublicName         string
+	WireName           string
+	Location           string
+	Format             string
+	RequestContentType string
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
+}
+func mcpMultipartFieldValue(v any) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	if data, err := json.Marshal(v); err == nil {
+		return string(data)
+	}
+	return fmt.Sprintf("%v", v)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
+		}
+		if platformSession != nil {
+			defer platformSession.ZeroCredentials()
 		}
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
+			return mcpToolError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
@@ -174,6 +264,24 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
 		var headers map[string]string
 		if len(headerOverrides) > 0 {
 			headers = make(map[string]string, len(headerOverrides)+1)
@@ -187,8 +295,14 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			headers[client.BinaryResponseHeader] = "true"
 		}
+		multipartFields := make(map[string]string)
+		multipartFileFields := make(map[string]string)
+		multipart := false
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
+			if strings.EqualFold(binding.RequestContentType, "multipart/form-data") {
+				multipart = true
+			}
 			v, ok := args[binding.PublicName]
 			if !ok {
 				continue
@@ -197,11 +311,23 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "header":
+				if headers == nil {
+					headers = map[string]string{}
+				}
+				headers[binding.WireName] = formatMCPParamValue(v)
 			case "body":
 				bodyArgs[binding.WireName] = v
+				if multipart {
+					if strings.EqualFold(binding.Format, "binary") {
+						multipartFileFields[binding.WireName] = fmt.Sprintf("%v", v)
+					} else {
+						multipartFields[binding.WireName] = mcpMultipartFieldValue(v)
+					}
+				}
 			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
+				params[binding.WireName] = formatMCPParamValue(v)
 			}
 		}
 		for _, p := range positionalParams {
@@ -211,7 +337,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
 			}
 		}
 
@@ -222,8 +348,11 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			switch method {
 			case "POST", "PUT", "PATCH":
 				bodyArgs[k] = v
+				if multipart {
+					multipartFields[k] = mcpMultipartFieldValue(v)
+				}
 			default:
-				params[k] = fmt.Sprintf("%v", v)
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
@@ -231,11 +360,27 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		switch method {
 		case "GET":
 			if len(headers) > 0 {
-				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				if readOnly {
+					data, err = c.GetWithHeaders(ctx, path, params, headers)
+				} else {
+					data, err = c.GetMutatingWithHeaders(ctx, path, params, headers)
+				}
 				break
 			}
-			data, err = c.Get(ctx, path, params)
+			if readOnly {
+				data, err = c.Get(ctx, path, params)
+			} else {
+				data, err = c.GetMutating(ctx, path, params)
+			}
 		case "POST":
+			if multipart {
+				if len(headers) > 0 {
+					data, _, err = c.PostMultipartWithParamsAndHeaders(ctx, path, params, multipartFields, multipartFileFields, headers)
+					break
+				}
+				data, _, err = c.PostMultipartWithParams(ctx, path, params, multipartFields, multipartFileFields)
+				break
+			}
 			if len(headers) > 0 {
 				if readOnly {
 					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
@@ -250,17 +395,65 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
 			}
 		case "PUT":
-			if len(headers) > 0 {
-				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+			if multipart {
+				if len(headers) > 0 {
+					if readOnly {
+						data, _, err = c.PutQueryMultipartWithParamsAndHeaders(ctx, path, params, multipartFields, multipartFileFields, headers)
+						break
+					}
+					data, _, err = c.PutMultipartWithParamsAndHeaders(ctx, path, params, multipartFields, multipartFileFields, headers)
+					break
+				}
+				if readOnly {
+					data, _, err = c.PutQueryMultipartWithParams(ctx, path, params, multipartFields, multipartFileFields)
+					break
+				}
+				data, _, err = c.PutMultipartWithParams(ctx, path, params, multipartFields, multipartFileFields)
 				break
 			}
-			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
-			if len(headers) > 0 {
-				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+			if multipart {
+				if len(headers) > 0 {
+					if readOnly {
+						data, _, err = c.PatchQueryMultipartWithParamsAndHeaders(ctx, path, params, multipartFields, multipartFileFields, headers)
+						break
+					}
+					data, _, err = c.PatchMultipartWithParamsAndHeaders(ctx, path, params, multipartFields, multipartFileFields, headers)
+					break
+				}
+				if readOnly {
+					data, _, err = c.PatchQueryMultipartWithParams(ctx, path, params, multipartFields, multipartFileFields)
+					break
+				}
+				data, _, err = c.PatchMultipartWithParams(ctx, path, params, multipartFields, multipartFileFields)
 				break
 			}
-			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
 			if len(headers) > 0 {
 				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
@@ -268,117 +461,304 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
 			msg := err.Error()
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
+				return mcpToolTextWithPlatform("already exists (no-op)", platformSession), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export WAVESPEED_API_KEY=<your-key>" +
+					"\n      Set your API key with: export WAVESPEED_API_KEY=\"your-token-here\"" +
 					"\n      Get a key at: https://wavespeed.ai/accesskey" +
 					"\n      Run 'wavespeed-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
-					"\n      Set it with: export WAVESPEED_API_KEY=<your-key>" +
+					"\n      Set your API key with: export WAVESPEED_API_KEY=\"your-token-here\"" +
 					"\n      Get a key at: https://wavespeed.ai/accesskey" +
 					"\n      Run 'wavespeed-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export WAVESPEED_API_KEY=<your-key>" +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set your API key with: export WAVESPEED_API_KEY=\"your-token-here\"" +
 					"\n      Get a key at: https://wavespeed.ai/accesskey" +
 					"\n      Run 'wavespeed-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+					return mcpToolTextWithPlatform("already deleted (no-op)", platformSession), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
-			}
-		}
 		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
 				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"data_base64":      encoded,
 				"byte_count":       len(data),
 			})
-			return mcplib.NewToolResultText(string(out)), nil
+			if err != nil {
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
+			}
+			if len(out) > bound.MaxBytes {
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			result := string(out)
+			if platformSession != nil {
+				result = bound.WithMetadata(result, platformSession.OutputMetadata())
+			}
+			return mcplib.NewToolResultText(result), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
+		}
+		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "wavespeed-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcpToolResultTextWithPlatform(method, data, nil)
+}
+
+func mcpToolTextWithPlatform(result string, platformSession *platform.Session) *mcplib.CallToolResult {
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func mcpToolResultTextWithPlatform(method string, data json.RawMessage, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointResponse(method, data)
+	return mcpToolTextWithPlatform(result, platformSession)
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+}
+
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	})
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	return newMCPClientFromConfig(ctx, cfg)
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 60*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(ctx context.Context, cfg *config.Config) (*client.Client, *platform.Session, error) {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := cli.ApplyClientHooks(c); err != nil {
+		if session != nil {
+			session.ZeroCredentials()
+		}
+		return nil, nil, fmt.Errorf("initializing MCP client: %w", err)
+	}
+	return c, session, nil
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "wavespeed-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty   mcpStoreStatusKind = "empty"
+	mcpStoreStatusPartial mcpStoreStatusKind = "partial"
+	mcpStoreStatusReady   mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run wavespeed-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run wavespeed-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	var checkpoints, completed int
+	err = db.DB().QueryRow(`SELECT COUNT(*), COALESCE(SUM(CASE WHEN last_attempt_complete = 1 THEN 1 ELSE 0 END), 0) FROM sync_state`).Scan(&checkpoints, &completed)
+	if err != nil && strings.Contains(strings.ToLower(err.Error()), "no such column: last_attempt_complete") {
+		// Read-only stores have not run the conservative completion migration.
+		// Legacy timestamps were also written by partial walks, so prove nothing.
+		err = db.DB().QueryRow(`SELECT COUNT(*), 0 FROM sync_state`).Scan(&checkpoints, &completed)
+	}
+	if err != nil {
+		msg := strings.ToLower(err.Error())
+		if strings.Contains(msg, "no such table") || strings.Contains(msg, "no such column") {
+			if len(status) > 0 {
+				return mcpStoreStatusReady, nil
+			}
+			return mcpStoreStatusEmpty, nil
+		}
+		return "", err
+	}
+	if checkpoints > 0 {
+		if completed == checkpoints {
+			return mcpStoreStatusReady, nil
+		}
+		return mcpStoreStatusPartial, nil
+	}
+	if len(status) > 0 {
+		return mcpStoreStatusReady, nil
+	}
+	return mcpStoreStatusEmpty, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run wavespeed-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
+
+func mcpPartialStoreNextStep() string {
+	return "The latest sync attempt is incomplete. Resume or rerun wavespeed-pp-cli sync before treating local search/sql results as a complete snapshot."
+}
+
+func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	limit := 25
+	if v, ok := args["limit"].(float64); ok && v > 0 {
+		limit = int(v)
+	}
+
+	path, err := mcpDBPath()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
+	}
+	defer db.Close()
+
+	results, err := db.Search(query, limit)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
+
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if storeStatus == mcpStoreStatusPartial {
+		out["warning"] = "Local data may be incomplete because the latest sync attempt did not finish."
+		out["next_step"] = mcpPartialStoreNextStep()
+	} else if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
+}
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
 // to the host is ReadOnlyHintAnnotation(true); a false annotation on a
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -412,6 +792,99 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
+const mcpSQLMaxValueBytes = 4 << 20
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -423,46 +896,182 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
+	defer cancel()
+
+	conn, err := db.DB().Conn(queryCtx)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+	}
+	defer conn.Close()
+
+	if _, err := sqlite.Limit(conn, sqlite3.SQLITE_LIMIT_LENGTH, mcpSQLMaxValueBytes); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("setting SQL value length cap: %v", err)), nil
+	}
+
+	rows, err := conn.QueryContext(queryCtx, query)
+	if err != nil {
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
-	var results []map[string]any
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
+	scan := bound.NewSQLScanState(cols)
 	for rows.Next() {
 		values := make([]any, len(cols))
 		ptrs := make([]any, len(cols))
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			if mcpSQLValueTooBig(err) {
+				return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+			}
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
-		results = append(results, row)
+		if !scan.Add(row) {
+			break
+		}
+	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(mcpSQLQueryError(queryCtx, err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(scan.Rows, cols, storeStatus, scan.Truncated))
 }
 
-func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind, truncated bool) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+		"truncated":    truncated,
+	}
+	if truncated {
+		out["returned_count"] = len(rows)
+		out["max_bytes"] = bound.MaxBytes
+		out["note"] = bound.SQLResultBoundNote
+	}
+	if storeStatus == mcpStoreStatusPartial {
+		out["warning"] = "Local data may be incomplete because the latest sync attempt did not finish."
+		out["next_step"] = mcpPartialStoreNextStep()
+	} else if len(rows) == 0 && !truncated {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(queryCtx context.Context, err error) string {
+	if queryCtx.Err() != nil {
+		return fmt.Sprintf("query cancelled: %v. MCP SQL queries are bounded to %s; narrow the query with WHERE, GROUP BY, or an aggregate.", err, bound.SQLQueryTimeout)
+	}
+	if mcpSQLValueTooBig(err) {
+		return fmt.Sprintf("query failed: a string or blob exceeds the MCP SQL value cap of %d bytes (4 MiB). Narrow the selected columns or use substr, json_extract, or length instead of returning oversized values.", mcpSQLMaxValueBytes)
+	}
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='account_balance', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+func mcpSQLValueTooBig(err error) bool {
+	var sqliteErr *sqlite.Error
+	return errors.As(err, &sqliteErr) && sqliteErr.Code() == sqlite3.SQLITE_TOOBIG
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
+}
+func registeredCommandMirrorCapabilities(s *server.MCPServer, capabilities []map[string]string) []map[string]string {
+	registered := make([]map[string]string, 0, len(capabilities))
+	root := cli.RootCmd()
+	for _, capability := range capabilities {
+		toolName := cobratree.ToolNameForCommand(s, root, capability["cli_command"])
+		if toolName == "" {
+			continue
+		}
+		entry := s.GetTool(toolName)
+		if entry == nil || entry.Tool.Meta == nil || entry.Tool.Meta.AdditionalFields["pp:tenant-gate"] != "child-cli" {
+			continue
+		}
+		capability["mcp_tool"] = toolName
+		registered = append(registered, capability)
+	}
+	return registered
+}
+
+func handleContext(s *server.MCPServer) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		return handleContextResult(s, ctx, req)
+	}
+}
+
+func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "wavespeed",
-		"description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
-		"archetype":   "content",
-		"tool_count":  9,
+		"description": "Run any WaveSpeed model from the terminal, with price checks, safe uploads, and recovery-safe downloads.",
+		"archetype":   "payments",
+		"tool_count":  len(s.ListTools()),
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion wavespeed-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{
@@ -492,12 +1101,15 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "media_uploads",
 				"description": "Manage media uploads",
 				"endpoints":   []string{"upload-media-binary"},
+				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "model_pricing",
 				"description": "Manage model pricing",
 				"endpoints":   []string{"estimate"},
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "models",
@@ -509,6 +1121,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "prediction_deletions",
 				"description": "Manage prediction deletions",
 				"endpoints":   []string{"delete-predictions"},
+				"writable":    true,
 			},
 			{
 				"name":        "prediction_results",
@@ -538,25 +1151,54 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Dynamic model runner", "command": "run", "description": "Submit WaveSpeed model runs with prompt shorthand, JSON input merging, schema help, price estimates, waiting, downloads", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Dynamic model schema help", "command": "schema", "description": "Fetch the live WaveSpeed model catalog and print api_schema.api_schemas[0].request_schema for a model or project alias.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Media upload helper", "command": "upload", "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Output downloader", "command": "download", "description": "Download generated output URLs with directory, exact-path, or templated-path destinations.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Model price estimate", "command": "price", "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Project aliases", "command": "aliases", "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows.", "rationale": "", "via": "mcp-command-mirror"},
-		},
+		"command_mirror_capabilities": registeredCommandMirrorCapabilities(s, []map[string]string{
+			{"name": "Dynamic model runner", "command": "run", "cli_command": "run", "description": "Submit WaveSpeed model runs with prompt shorthand, typed --set inputs, local @file media uploads, price estimates", "rationale": "WaveSpeed model IDs are slash-delimited paths, so a generated path-param command would percent-encode them", "via": "mcp-command-mirror"},
+			{"name": "Dynamic model schema help", "command": "schema", "cli_command": "schema", "description": "Fetch the live WaveSpeed model catalog and print the request schema for a model or project alias.", "rationale": "Model inputs change weekly; the live schema is the only reliable source.", "via": "mcp-command-mirror"},
+			{"name": "Model price estimate", "command": "price", "cli_command": "price", "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction.", "rationale": "Pricing depends on inputs such as resolution and duration.", "via": "mcp-command-mirror"},
+			{"name": "Media upload helper", "command": "upload", "cli_command": "upload", "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs", "rationale": "Model inputs take URLs; uploads are free so they are safe to retry.", "via": "mcp-command-mirror"},
+			{"name": "Output downloader", "command": "download", "cli_command": "download", "description": "Download generated output URLs with directory, exact-path, or templated-path destinations", "rationale": "Outputs live on a CDN that rejects the API Authorization header.", "via": "mcp-command-mirror"},
+			{"name": "Latest download shortcuts", "command": "last", "cli_command": "last", "description": "Print or open the most recent downloaded output.", "rationale": "Iterating on images is faster when the newest file is one command away.", "via": "mcp-command-mirror"},
+			{"name": "Project aliases", "command": "aliases", "cli_command": "aliases", "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows.", "rationale": "Repeatable projects need short model names and fixed output dirs.", "via": "mcp-command-mirror"},
+			{"name": "Project init", "command": "init", "cli_command": "init", "description": "Write a starter wavespeed.json with aliases, default model, and output directory.", "rationale": "Bootstraps the project config the alias resolver reads.", "via": "mcp-command-mirror"},
+			{"name": "Brief-to-shotlist planner", "command": "plan brief-to-shotlist", "cli_command": "plan brief-to-shotlist", "description": "Turn a free-text brief into a structured shotlist across platforms and aspect ratios with a hybrid", "rationale": "Planning before spending keeps packs on brief.", "via": "mcp-command-mirror"},
+			{"name": "Model pick", "command": "plan model-pick", "cli_command": "plan model-pick", "description": "Recommend a model for an intent from the live catalog with rationale.", "rationale": "The catalog is large and changes often.", "via": "mcp-command-mirror"},
+			{"name": "Cost estimate", "command": "plan cost-estimate", "cli_command": "plan cost-estimate", "description": "Price a shotlist against live /model/pricing and the account balance", "rationale": "Know the bill before a batch.", "via": "mcp-command-mirror"},
+			{"name": "Production QA preflight", "command": "qa preflight", "cli_command": "qa preflight", "description": "Pass/warn/fail validation of a shotlist: balance vs cost, model availability, prompt safety, platform request-shape", "rationale": "Catch a failing run before it is billed.", "via": "mcp-command-mirror"},
+			{"name": "Multi-platform pack", "command": "pack", "cli_command": "pack", "description": "Produce a multi-platform creative pack from one concept at stable packs/<slug>/<platform>/ paths with per-platform", "rationale": "One concept, every platform, one command.", "via": "mcp-command-mirror"},
+			{"name": "Batch producer", "command": "batch", "cli_command": "batch", "description": "Submit many prompts from CSV or JSON with a spend ceiling and fail-fast/fail-tolerant semantics", "rationale": "Bulk production with cost control.", "via": "mcp-command-mirror"},
+			{"name": "Controlled variants", "command": "variants", "cli_command": "variants", "description": "Sweep seed, style, or model off a base shot to produce comparable outputs with side-by-side metadata.", "rationale": "Compare options with one variable changed.", "via": "mcp-command-mirror"},
+			{"name": "Pipeline compose", "command": "compose", "cli_command": "compose", "description": "Run an explicit multi-step pipeline (text->image->upscale->video), feeding each step's output to the next", "rationale": "Chained generations without glue scripts.", "via": "mcp-command-mirror"},
+			{"name": "Aspect re-framing", "command": "aspects", "cli_command": "aspects", "description": "Re-frame one image into standard platform aspect ratios", "rationale": "Every platform wants a different ratio.", "via": "mcp-command-mirror"},
+			{"name": "Brand restyle", "command": "restyle", "cli_command": "restyle", "description": "Apply a brand profile or explicit style to an existing asset via img2img with a style prompt.", "rationale": "Keep assets on brand.", "via": "mcp-command-mirror"},
+			{"name": "Generation library", "command": "library", "cli_command": "library", "description": "List, search (FTS5), show, tag, export, and cost-report the local generation library by brand, model, platform, and tag.", "rationale": "A record of what was generated, with what prompt, at what cost.", "via": "mcp-command-mirror"},
+			{"name": "Brand profiles", "command": "brand", "cli_command": "brand", "description": "Create, inspect, apply, and edit brand profiles that auto-merge into pack, compose, variants, restyle, and run.", "rationale": "Brand rules applied once, everywhere.", "via": "mcp-command-mirror"},
+		}),
 		"playbook": []map[string]string{
-			{"topic": "Dynamic model runner", "insight": ""},
-			{"topic": "Dynamic model schema help", "insight": ""},
-			{"topic": "Media upload helper", "insight": ""},
-			{"topic": "Output downloader", "insight": ""},
-			{"topic": "Model price estimate", "insight": ""},
-			{"topic": "Project aliases", "insight": ""},
+			{"topic": "Dynamic model runner", "insight": "WaveSpeed model IDs are slash-delimited paths, so a generated path-param command would percent-encode them; run submits to the literal path and never replays a paid submit."},
+			{"topic": "Dynamic model schema help", "insight": "Model inputs change weekly; the live schema is the only reliable source."},
+			{"topic": "Model price estimate", "insight": "Pricing depends on inputs such as resolution and duration."},
+			{"topic": "Media upload helper", "insight": "Model inputs take URLs; uploads are free so they are safe to retry."},
+			{"topic": "Output downloader", "insight": "Outputs live on a CDN that rejects the API Authorization header."},
+			{"topic": "Latest download shortcuts", "insight": "Iterating on images is faster when the newest file is one command away."},
+			{"topic": "Project aliases", "insight": "Repeatable projects need short model names and fixed output dirs."},
+			{"topic": "Project init", "insight": "Bootstraps the project config the alias resolver reads."},
+			{"topic": "Brief-to-shotlist planner", "insight": "Planning before spending keeps packs on brief."},
+			{"topic": "Model pick", "insight": "The catalog is large and changes often."},
+			{"topic": "Cost estimate", "insight": "Know the bill before a batch."},
+			{"topic": "Production QA preflight", "insight": "Catch a failing run before it is billed."},
+			{"topic": "Multi-platform pack", "insight": "One concept, every platform, one command."},
+			{"topic": "Batch producer", "insight": "Bulk production with cost control."},
+			{"topic": "Controlled variants", "insight": "Compare options with one variable changed."},
+			{"topic": "Pipeline compose", "insight": "Chained generations without glue scripts."},
+			{"topic": "Aspect re-framing", "insight": "Every platform wants a different ratio."},
+			{"topic": "Brand restyle", "insight": "Keep assets on brand."},
+			{"topic": "Generation library", "insight": "A record of what was generated, with what prompt, at what cost."},
+			{"topic": "Brand profiles", "insight": "Brand rules applied once, everywhere."},
+			{"topic": "Financial data", "insight": "Always use read-only operations for financial queries. Never use create/update tools for payment data without explicit user confirmation."},
+			{"topic": "Reconciliation", "insight": "For reconciliation tasks, sync first then use sql for cross-referencing. API pagination over financial records is slow and rate-limited."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

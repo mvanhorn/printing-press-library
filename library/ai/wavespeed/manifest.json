@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "wavespeed-pp-mcp",
   "display_name": "WaveSpeed",
-  "version": "4.18.1",
-  "description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
+  "version": "1.0.0",
+  "description": "Run any WaveSpeed model from the terminal, with price checks, safe uploads, and recovery-safe downloads.",
   "author": {
     "name": "CLI Printing Press"
   },

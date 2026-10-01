@@ -89,6 +89,7 @@ paths:
   /predictions/{task_id}/result:
     get:
       operationId: getPredictionResult
+      x-pp-example: "wavespeed-pp-cli prediction-results 550e8400-e29b-41d4-a716-446655440000"
       summary: Get prediction result
       description: Retrieve the latest status and result payload for a prediction task.
       tags: [predictions]
@@ -114,6 +115,7 @@ paths:
   /predictions/delete:
     post:
       operationId: deletePredictions
+      x-pp-example: "wavespeed-pp-cli prediction-deletions --ids 550e8400-e29b-41d4-a716-446655440000 --dry-run"
       summary: Delete predictions
       description: Delete one or more predictions from history.
       tags: [predictions]
@@ -200,6 +202,7 @@ paths:
   /model/pricing:
     post:
       operationId: estimateModelPricing
+      x-pp-example: "wavespeed-pp-cli model-pricing --model-id google/nano-banana-2/edit --inputs '{\"aspect_ratio\":\"9:16\",\"resolution\":\"2k\"}'"
       summary: Estimate model pricing
       description: Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint.
       tags: [models]
@@ -224,16 +227,22 @@ paths:
     post:
       operationId: uploadMediaBinary
       summary: Upload binary media
-      description: Upload a binary file to WaveSpeed media storage.
+      description: Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs.
       tags: [media]
       x-pp-resource: media_uploads
+      x-pp-replay-safe: true
       requestBody:
         required: true
         content:
-          application/octet-stream:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Local image, video, or audio file to upload
       responses:
         "200":
           description: Upload response envelope

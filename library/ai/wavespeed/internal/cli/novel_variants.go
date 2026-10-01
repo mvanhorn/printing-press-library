@@ -1,5 +1,7 @@
 // Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 
+// pp:data-source live
+
 package cli
 
 import (
@@ -31,9 +33,11 @@ type variantsFlags struct {
 func newVariantsCmd(flags *rootFlags) *cobra.Command {
 	var vf variantsFlags
 	cmd := &cobra.Command{
-		Use:   "variants",
-		Short: "Produce controlled variations of one base shot",
-		Long:  "Sweep one dimension (seed, style, or model) off a base shot to produce comparable outputs with side-by-side metadata an agent can pick from.",
+		Use:         "variants",
+		Annotations: map[string]string{"pp:live-happy-path": "true", "pp:happy-args": "--prompt=a red circle on white;--model=pruna-ai/p-image/text-to-image;--count=2;--max-cost=0.02"},
+		Example:     "  wavespeed-pp-cli variants --prompt \"a red mug on oak\" --model wavespeed-ai/z-image/turbo --vary seed --count 3 --agent --dry-run",
+		Short:       "Produce controlled variations of one base shot",
+		Long:        "Sweep one dimension (seed, style, or model) off a base shot to produce comparable outputs with side-by-side metadata an agent can pick from.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base, err := variantBaseShot(vf)
 			if err != nil {
@@ -74,6 +78,7 @@ func newVariantsCmd(flags *rootFlags) *cobra.Command {
 			if flags.dryRun {
 				env := newEnvelope("variants")
 				env.DryRun = true
+				env.Action = fmt.Sprintf("submit %d variant predictions", len(shots))
 				for i, s := range shots {
 					env.Results = append(env.Results, map[string]any{
 						"variant": i, "vary": vary, "model": s.Model, "seed": s.Seed, "params": s.toModelInputs(),
