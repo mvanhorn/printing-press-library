@@ -9,7 +9,11 @@
   "files": [
     "internal/cli/search.go",
     "internal/cli/sync.go",
-    "internal/cli/crossref_response_test.go"
+    "internal/cli/helpers.go",
+    "internal/cli/works_search.go",
+    "internal/cli/crossref_response_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
   ],
-  "validated_outcome": "Synthetic Crossref message.items tests confirm search extracts one work and sync identifies that work by its uppercase DOI."
+  "validated_outcome": "Synthetic Crossref tests confirm generic search and paginated works search extract message.items, all pages are fetched, and sync stores works under their uppercase DOI identity."
 }

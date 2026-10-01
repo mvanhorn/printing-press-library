@@ -171,6 +171,25 @@ func TestUpsertBatch_TemplatedIDFieldOverrideWins(t *testing.T) {
 	}
 }
 
+func TestUpsertBatchCrossrefWorksUsesUppercaseDOI(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	const doi = "10.1000/example"
+	item := json.RawMessage(`{"DOI":"10.1000/example","title":["Example"]}`)
+	stored, extractFailures, err := s.UpsertBatch("works", []json.RawMessage{item})
+	if err != nil || stored != 1 || extractFailures != 0 {
+		t.Fatalf("UpsertBatch works: stored=%d extractFailures=%d err=%v", stored, extractFailures, err)
+	}
+	got, err := s.Get("works", doi)
+	if err != nil || string(got) != string(item) {
+		t.Fatalf("stored work by DOI: data=%s err=%v", got, err)
+	}
+}
+
 // TestUpsertBatch_GenericFallbackList covers each name in the reduced
 // fallback list. The kalshi-accreted names (ticker/event_ticker/series_ticker)
 // were dropped because the user owns kalshi and will regenerate

@@ -715,6 +715,13 @@ func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, b
 			}
 		}
 	}
+	// Crossref wraps work pages under message.items rather than a top-level array.
+	if raw, ok := rawAtPath(obj, "message.items"); ok {
+		var items []json.RawMessage
+		if json.Unmarshal(raw, &items) == nil {
+			return items, true
+		}
+	}
 
 	var onlyArray []json.RawMessage
 	arrayCount := 0
