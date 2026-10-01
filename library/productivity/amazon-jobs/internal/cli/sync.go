@@ -99,7 +99,8 @@ This is the store populator; run it before 'stats' or 'skills'.`, "\n"),
 				return err
 			}
 
-			var synced, pages, totalHits int
+			var pages, totalHits int
+			seenIDs := make(map[string]struct{})
 			for p := 0; p < maxPages; p++ {
 				values := buildSearchValues(query, country, state, city, sort, syncPageSize, p*syncPageSize)
 				hits, raw, ferr := searchPage(ctx, c, values)
@@ -111,15 +112,20 @@ This is the store populator; run it before 'stats' or 'skills'.`, "\n"),
 				if len(raw) == 0 {
 					break
 				}
-				stored, _, uerr := db.UpsertBatch("postings", raw)
+				_, _, uerr := db.UpsertBatch("postings", raw)
 				if uerr != nil {
 					return fmt.Errorf("storing jobs: %w", uerr)
 				}
-				synced += stored
+				for _, record := range raw {
+					if id := jobIDFromRaw(record); id != "" {
+						seenIDs[id] = struct{}{}
+					}
+				}
 				if len(raw) < syncPageSize {
 					break
 				}
 			}
+			synced := len(seenIDs)
 			if totalHits > synced {
 				curtailed = true
 			}

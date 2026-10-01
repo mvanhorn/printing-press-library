@@ -171,6 +171,40 @@ func TestSyncReportsACappedPartialMirror(t *testing.T) {
 	}
 }
 
+func TestSyncReportsRepeatedJobAcrossFullPages(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+		jobs := make([]map[string]any, 0, syncPageSize)
+		for i := offset; i < offset+syncPageSize; i++ {
+			idNumber := i
+			if offset == syncPageSize {
+				idNumber-- // The second page repeats the first page's last job.
+			}
+			id := fmt.Sprintf("job-%03d", idNumber)
+			jobs = append(jobs, map[string]any{"id": id, "id_icims": id, "title": "synthetic job"})
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(map[string]any{"hits": 200, "jobs": jobs}); err != nil {
+			t.Errorf("encoding fake search response: %v", err)
+		}
+	}))
+	defer srv.Close()
+	t.Setenv("AMAZON_JOBS_BASE_URL", srv.URL)
+	home := t.TempDir()
+
+	out, err := runCLI(t, home, "sync", "engineer", "--max-pages", "2", "--db", filepath.Join(home, "store.db"), "--json")
+	if err != nil {
+		t.Fatalf("sync error = %v\n%s", err, out)
+	}
+	var got syncView
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("decoding sync output: %v\n%s", err, out)
+	}
+	if got.Pages != 2 || got.Synced != 199 || got.TotalHits != 200 || !got.Curtailed {
+		t.Fatalf("repeated job must leave a curtailed 199-of-200 mirror, got %+v", got)
+	}
+}
+
 // TestNewKeepsCursorWhenMirrorWriteFails pins that a failed mirror write aborts
 // new before the cursor moves. Advancing it anyway left stats/skills reading an
 // incomplete mirror while the unwritten jobs never surfaced as new again.
