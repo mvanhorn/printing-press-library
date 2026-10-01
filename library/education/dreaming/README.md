@@ -402,6 +402,8 @@ Verifies configuration, credentials, and connectivity to the API.
 
 Config file: `~/.config/dreaming-pp-cli/config.toml`
 
+The MCP server follows the same config directory rules as the CLI, including `DREAMING_HOME` and XDG settings. `DREAMING_CONFIG` takes precedence when set.
+
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
 Environment variables:

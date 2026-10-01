@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "mcp-config-path-resolver",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260618T050021Z-649b15eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Resolve MCP config through the CLI path resolver while preserving the explicit config override.",
+  "reason": "The MCP server otherwise reads a different credential file when DREAMING_HOME or XDG config paths are used.",
+  "files": ["internal/mcp/tools.go", "internal/mcp/tools_test.go", "README.md"]
+}

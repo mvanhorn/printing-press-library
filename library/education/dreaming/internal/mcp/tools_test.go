@@ -67,6 +67,21 @@ func TestMCPPathResolutionMatchesCLIResolverWithPlatformDefaults(t *testing.T) {
 	}
 }
 
+func TestMCPExplicitConfigPathTakesPrecedence(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("DREAMING_HOME", filepath.Join(t.TempDir(), "shared-home"))
+	want := filepath.Join(t.TempDir(), "explicit-config.toml")
+	t.Setenv("DREAMING_CONFIG", want)
+
+	cfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatalf("newMCPConfig() error = %v", err)
+	}
+	if cfg.Path != want {
+		t.Fatalf("MCP config path = %q, want explicit path %q", cfg.Path, want)
+	}
+}
+
 func resetMCPPathEnv(t *testing.T) string {
 	t.Helper()
 	home := t.TempDir()

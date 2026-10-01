@@ -437,7 +437,16 @@ func newMCPClient() (*client.Client, error) {
 }
 
 func newMCPConfig() (*config.Config, error) {
-	cfg, err := config.Load("")
+	configPath := ""
+	if os.Getenv("DREAMING_CONFIG") == "" {
+		configDir, err := cliutil.ConfigDir()
+		if err != nil {
+			return nil, fmt.Errorf("resolving config directory: %w", err)
+		}
+		configPath = filepath.Join(configDir, "config.toml")
+	}
+
+	cfg, err := config.Load(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
