@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
 )
 
 func newPlanCmd(flags *rootFlags) *cobra.Command {
@@ -136,6 +136,13 @@ func planBrief(ctx context.Context, flags *rootFlags, planner string, pf planBri
 		if model == "" {
 			warnings = append(warnings, "no --planner-model set; used deterministic parser")
 			return parseBriefToShots(brief, pf.platforms, pf.aspects), "fallback-parser", warnings, nil
+		}
+		if flags.dryRun {
+			// PATCH(plan-llm-dry-run): a dry run never submits the planner
+			// prediction, so there is no model output to parse. Preview the
+			// deterministic shotlist and say the LLM call was skipped.
+			warnings = append(warnings, "dry run: skipped the LLM planner call to "+model+"; showing the deterministic parser shotlist")
+			return parseBriefToShots(brief, pf.platforms, pf.aspects), "llm:" + model + " (dry-run preview)", warnings, nil
 		}
 		c, err := flags.newClient()
 		if err != nil {

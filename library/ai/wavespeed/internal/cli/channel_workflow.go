@@ -11,9 +11,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/store"
-	"github.com/spf13/cobra"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -84,7 +84,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("wavespeed-pp-cli")
+				dbPath = archiveDBPath()
 			}
 			s, err := store.OpenWithContext(archiveCtx, dbPath)
 			if err != nil {
@@ -161,7 +161,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db, or an existing archive.db from earlier releases)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Minute, "Maximum time to spend archiving (0 = no timeout)")
@@ -190,7 +190,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   wavespeed-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("wavespeed-pp-cli")
+				dbPath = archiveDBPath()
 			}
 
 			status := map[string]int{}
@@ -245,7 +245,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db, or an existing archive.db from earlier releases)")
 
 	return cmd
 }

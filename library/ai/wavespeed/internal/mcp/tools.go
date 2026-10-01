@@ -65,12 +65,16 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("media_uploads_upload-media-binary",
-			mcplib.WithDescription("Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs. Required: file. Returns the new UploadEnvelope."),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Local image, video, or audio file to upload")),
+			// PATCH(typed-media-upload-requires-file-contract): the typed tool
+			// would read any server-side path a remote MCP caller names and
+			// send it to WaveSpeed. Keep it refusing before any file or
+			// network access; the upload command mirror owns local uploads.
+			mcplib.WithDescription("Unsupported typed upload: this tool has no safe binary-file input contract. Use wavespeed-pp-cli upload <file> instead; the separate upload command mirror remains available."),
+			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(false),
 		),
-		makeAPIHandler("POST", "/media/upload/binary", false, false, map[string]string{client.ReplaySafeHeader: "true"}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "file", WireName: "file", Location: "body", Format: "binary", RequestContentType: "multipart/form-data"}}, []string{}),
+		handleUnsupportedMediaUpload,
 	)
 	s.AddTool(
 		mcplib.NewTool("model_pricing_estimate",
@@ -173,6 +177,12 @@ func RegisterTools(s *server.MCPServer) {
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+}
+
+// handleUnsupportedMediaUpload refuses before loading config, opening files or
+// constructing a client.
+func handleUnsupportedMediaUpload(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return mcplib.NewToolResultError("Typed MCP media upload is unsupported: no safe binary-file input contract is defined. Use wavespeed-pp-cli upload <file> (add --dry-run to preview without uploading), or the existing upload command mirror."), nil
 }
 
 type mcpParamBinding struct {

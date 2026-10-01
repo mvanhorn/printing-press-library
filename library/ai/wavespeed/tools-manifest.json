@@ -66,18 +66,10 @@
     },
     {
       "name": "media_uploads_upload-media-binary",
-      "description": "Upload one existing local media file (image, video or audio) to WaveSpeed storage and return its URL for model inputs. Required: file. Returns the new UploadEnvelope.",
+      "description": "Unsupported typed upload: this tool has no safe binary-file input contract. Use wavespeed-pp-cli upload <file> instead; the separate upload command mirror remains available.",
       "method": "POST",
       "path": "/media/upload/binary",
-      "params": [
-        {
-          "name": "file",
-          "type": "string",
-          "location": "body",
-          "description": "Local image, video, or audio file to upload",
-          "required": true
-        }
-      ]
+      "params": []
     },
     {
       "name": "model_pricing_estimate",
@@ -273,7 +265,7 @@
     {
       "name": "Multi-platform pack",
       "command": "pack",
-      "description": "Produce a multi-platform creative pack from one concept at stable packs/\u003cslug\u003e/\u003cplatform\u003e/ paths with per-platform manifests, concurrency, cost ceiling, and image-dimension validation; a rerun archives the superseded manifest."
+      "description": "Produce a multi-platform creative pack from one concept at stable packs/<slug>/<platform>/ paths with per-platform manifests, concurrency, cost ceiling, and image-dimension validation; a rerun archives the superseded manifest."
     },
     {
       "name": "Batch producer",
@@ -288,7 +280,7 @@
     {
       "name": "Pipeline compose",
       "command": "compose",
-      "description": "Run an explicit multi-step pipeline (text-\u003eimage-\u003eupscale-\u003evideo), feeding each step's output to the next, with rollback of later steps on failure."
+      "description": "Run an explicit multi-step pipeline (text->image->upscale->video), feeding each step's output to the next, with rollback of later steps on failure."
     },
     {
       "name": "Aspect re-framing",

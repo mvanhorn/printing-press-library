@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "id": "wavespeed-legacy-archive-db",
+  "summary": "workflow archive, workflow status and the cached-pricing reader keep using an existing archive.db from earlier releases; otherwise they use data.db.",
+  "reason": "Releases before the reprint archived into archive.db. Switching the default to data.db would make status look empty after upgrade and strand the archived data.",
+  "files": [
+    "internal/cli/wavespeed_wiring.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/review_regressions_test.go"
+  ],
+  "call_sites": [
+    "PATCH(legacy-archive-db)",
+    "dbPath = archiveDBPath()"
+  ],
+  "validated_outcome": "TestArchiveDBPathKeepsLegacyArchive fails on the generated default and passes here."
+}

@@ -83,14 +83,22 @@ func init() {
 	})
 }
 
-// archiveDBPath is the generated sync store that novel commands read for
-// cached pricing. WAVESPEED_ARCHIVE_DB overrides it (tests and relocated
-// installs); otherwise it is the same data.db the generated sync writes.
+// archiveDBPath is the generated sync store that workflow archive/status and
+// novel commands (cached pricing) use. WAVESPEED_ARCHIVE_DB overrides it.
+// PATCH(legacy-archive-db): releases before the 4.32.6 reprint archived into
+// archive.db beside data.db. When that file exists, keep using it (as those
+// releases did) so an upgrade never strands archived data; otherwise use the
+// same data.db the generated sync writes.
 func archiveDBPath() string {
 	if env := strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")); env != "" {
 		return env
 	}
-	return defaultDBPath("wavespeed-pp-cli")
+	current := defaultDBPath("wavespeed-pp-cli")
+	legacy := filepath.Join(filepath.Dir(current), "archive.db")
+	if info, err := os.Stat(legacy); err == nil && !info.IsDir() {
+		return legacy
+	}
+	return current
 }
 
 // libraryDBFile is the library database file name inside the data dir.

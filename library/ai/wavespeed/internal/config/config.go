@@ -39,6 +39,7 @@ type Config struct {
 	ClientSecret     string          `toml:"client_secret"`
 	Path             string          `toml:"-"`
 	envOverrides     map[string]bool `toml:"-"`
+	explicitConfig   bool            `toml:"-"`
 	fileConfig       *Config         `toml:"-"`
 	WavespeedApiKey  string          `toml:"api_key"`
 }
@@ -54,6 +55,7 @@ func Load(configPath string) (*Config, error) {
 		return nil, err
 	}
 	cfg.Path = path
+	cfg.explicitConfig = explicitConfigFile
 
 	if explicitConfigFile {
 		// Keep non-secret settings from a readable config even when its permissions
@@ -467,13 +469,29 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	}
 }
 
-func (c *Config) saveCredentialsFirst() error {
+// CredentialsFilePath is the credentials file this config reads and writes.
+// PATCH(explicit-config-credentials): when an explicit --config already has a
+// colocated credentials file, Load prefers it, so saves and removals must use
+// it too; otherwise auth set-token reports success while the old token stays
+// active. Everything else uses the global credentials file.
+func (c *Config) CredentialsFilePath() (string, error) {
+	if c != nil && c.explicitConfig && strings.TrimSpace(c.Path) != "" {
+		if p, err := cliutil.CredentialsFilePathForConfig(c.Path); err == nil {
+			if _, statErr := os.Lstat(p); statErr == nil {
+				return p, nil
+			}
+		}
+	}
+	return cliutil.CredentialsFilePath()
+}
+
+func (c *Config) saveCredentialsFirst(credsPath string) error {
 	if c.AgentcookieManagedByExternalStore() {
 		c.markAgentcookieManaged()
 		return nil
 	}
 	persisted := c.configForSave()
-	if err := cliutil.SaveCredentials(persisted.credentials()); err != nil {
+	if err := cliutil.SaveCredentialsAt(credsPath, persisted.credentials()); err != nil {
 		return err
 	}
 	c.CredentialSource = "credentials file"
@@ -491,7 +509,7 @@ type credentialsSnapshot struct {
 // Credentials and config are separate files. Publishing tokens first would
 // otherwise leave a new credentials.toml if the config write fails.
 func (c *Config) saveCredentialsThenConfig() error {
-	credsPath, err := cliutil.CredentialsFilePath()
+	credsPath, err := c.CredentialsFilePath()
 	if err != nil {
 		return err
 	}
@@ -508,7 +526,7 @@ func (c *Config) saveCredentialsThenConfigLocked(credsPath string) error {
 	if err != nil {
 		return err
 	}
-	if err := c.saveCredentialsFirst(); err != nil {
+	if err := c.saveCredentialsFirst(credsPath); err != nil {
 		return err
 	}
 	if err := c.save(); err != nil {
@@ -675,7 +693,11 @@ func (c *Config) ClearTokens() error {
 		// back; returning early would leave the secrets on disk.
 		return c.save()
 	}
-	if err := cliutil.RemoveCredentials(); err != nil {
+	credsPath, err := c.CredentialsFilePath()
+	if err != nil {
+		return err
+	}
+	if err := cliutil.RemoveCredentialsAt(credsPath); err != nil {
 		return err
 	}
 	return c.save()

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "id": "wavespeed-plan-llm-dry-run",
+  "summary": "plan brief-to-shotlist --planner llm --dry-run previews the deterministic shotlist and warns that the LLM call was skipped, instead of trying to parse a prediction it never submitted.",
+  "reason": "The dry run returned a synthetic submission, the parser rejected it twice, and the command exited with an error before showing any preview.",
+  "files": [
+    "internal/cli/novel_plan.go",
+    "internal/cli/review_regressions_test.go"
+  ],
+  "call_sites": [
+    "PATCH(plan-llm-dry-run)"
+  ],
+  "validated_outcome": "TestPlanBriefLLMDryRunPreviews fails before the change and passes after."
+}

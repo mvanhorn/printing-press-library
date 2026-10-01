@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-225845-bd628bfa",
+  "base_printing_press_version": "4.32.6",
+  "id": "typed-media-upload-requires-file-contract",
+  "summary": "The typed MCP tool media_uploads_upload-media-binary refuses before any file, config or network access, advertises no inputs, and points callers at the upload command mirror.",
+  "reason": "The 4.32.6 generator binds a free-form 'file' path to a multipart upload, so an authenticated remote MCP caller could make the server read any readable local file and send it to WaveSpeed. Carried forward from the earlier print; the CLI upload command and its MCP mirror stay the supported upload path.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/media_upload_test.go",
+    "tools-manifest.json"
+  ],
+  "call_sites": [
+    "PATCH(typed-media-upload-requires-file-contract)",
+    "handleUnsupportedMediaUpload"
+  ],
+  "validated_outcome": "TestTypedMediaUploadRefusesWithoutReadingFiles fails on the generated handler and passes with the refusal."
+}

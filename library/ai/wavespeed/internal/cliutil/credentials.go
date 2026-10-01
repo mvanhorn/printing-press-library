@@ -286,6 +286,13 @@ func SaveCredentials(creds *Credentials) error {
 	if err != nil {
 		return err
 	}
+	return SaveCredentialsAt(path, creds)
+}
+
+// SaveCredentialsAt writes creds to an explicit credentials file path. Used
+// when an explicit --config owns a colocated credentials file, so a token
+// save lands in the same file the next load reads.
+func SaveCredentialsAt(path string, creds *Credentials) error {
 	data, err := toml.Marshal(credentialsFileFrom(creds)) // #nosec G117 -- credentials are intentionally persisted to a 0600 private file.
 	if err != nil {
 		return fmt.Errorf("marshaling credentials: %w", err)
@@ -308,6 +315,11 @@ func RemoveCredentials() error {
 	if err != nil {
 		return err
 	}
+	return RemoveCredentialsAt(path)
+}
+
+// RemoveCredentialsAt deletes the credentials file at an explicit path.
+func RemoveCredentialsAt(path string) error {
 	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("removing credentials: %w", err)
 	}
