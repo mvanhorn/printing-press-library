@@ -1,0 +1,22 @@
+workflows:
+  - name: Discover a Japan hike and inspect dated source evidence
+    primary: true
+    steps:
+      - command: mountains search 高尾山 --limit 2 --agent
+        mode: live
+        expect_fields: [meta, results]
+      - command: mountains routes 108 --limit 2 --agent
+        mode: live
+        expect_fields: [meta, results]
+      - command: routes get 1771 --agent
+        mode: live
+        expect_fields: [meta, results]
+      - command: reports recent --mountain-id 108 --limit 2 --agent
+        mode: live
+        expect_fields: [meta, results]
+      - command: reports observations 51497803 --agent
+        mode: live
+        expect_fields: [meta, results]
+      - command: maps coverage 77 --agent
+        mode: live
+        expect_fields: [meta, results]

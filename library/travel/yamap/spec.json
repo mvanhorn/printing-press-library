@@ -1,0 +1,367 @@
+{
+  "name": "yamap",
+  "description": "Discover Japan hikes with compact source facts and dated contributor evidence.",
+  "version": "0.1.0",
+  "category": "travel",
+  "base_url": "https://api.yamap.com/v6",
+  "health_check_path": "/activity_types",
+  "required_headers": [
+    {
+      "name": "Accept-Language",
+      "value": "ja"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; YAMAP-CLI/0.1)"
+    }
+  ],
+  "auth": {
+    "type": "none"
+  },
+  "learn": {
+    "entity_lookup_seeds": {
+      "mountain": [
+        {
+          "canonical": "高尾山",
+          "aliases": [
+            "Takao",
+            "Mount Takao"
+          ]
+        },
+        {
+          "canonical": "富士山",
+          "aliases": [
+            "Fuji",
+            "Mount Fuji"
+          ]
+        },
+        {
+          "canonical": "筑波山",
+          "aliases": [
+            "Tsukuba",
+            "Mount Tsukuba"
+          ]
+        }
+      ]
+    }
+  },
+  "mcp": {
+    "transport": [
+      "stdio"
+    ],
+    "endpoint_tools": "hidden"
+  },
+  "resources": {
+    "source_mountain": {
+      "description": "Internal source contract; use focused hiking commands for compact evidence",
+      "endpoints": {
+        "search": {
+          "method": "GET",
+          "path": "/mountains/search",
+          "description": "Read one bounded source result page",
+          "params": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "description": "Japanese mountain name or report text search",
+              "default": "高尾山"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "description": "One-based source result page",
+              "default": 1
+            },
+            {
+              "name": "per",
+              "type": "int",
+              "description": "Bounded source page size, maximum twenty",
+              "default": 5
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": ""
+        },
+        "detail": {
+          "method": "GET",
+          "path": "/mountains/{id}",
+          "description": "Read exact public source detail",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "description": "Exact first-party source identifier",
+              "default": 108,
+              "required": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "--id=108"
+        },
+        "courses": {
+          "method": "GET",
+          "path": "/mountains/{id}/model_courses",
+          "description": "Read model courses related to a mountain",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "description": "Exact first-party source identifier",
+              "default": 108,
+              "required": true
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "description": "One-based source result page",
+              "default": 1
+            },
+            {
+              "name": "per",
+              "type": "int",
+              "description": "Bounded source page size, maximum twenty",
+              "default": 5
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "--id=108"
+        },
+        "reports": {
+          "method": "GET",
+          "path": "/mountains/{id}/activities",
+          "description": "Read recorded reports related to a mountain",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "description": "Exact first-party source identifier",
+              "default": 108,
+              "required": true
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "description": "One-based source result page",
+              "default": 1
+            },
+            {
+              "name": "per",
+              "type": "int",
+              "description": "Bounded source page size, maximum twenty",
+              "default": 5
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "--id=108"
+        }
+      }
+    },
+    "source_activity": {
+      "description": "Internal source contract; use focused hiking commands for compact evidence",
+      "endpoints": {
+        "search": {
+          "method": "GET",
+          "path": "/activities/search",
+          "description": "Read one bounded source result page",
+          "params": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "description": "Japanese mountain name or report text search",
+              "default": "高尾山"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "description": "One-based source result page",
+              "default": 1
+            },
+            {
+              "name": "per",
+              "type": "int",
+              "description": "Bounded source page size, maximum twenty",
+              "default": 5
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": ""
+        },
+        "detail": {
+          "method": "GET",
+          "path": "/activities/{id}",
+          "description": "Read exact public source detail",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "description": "Exact first-party source identifier",
+              "default": 51497803,
+              "required": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "--id=51497803"
+        }
+      }
+    },
+    "source_map": {
+      "description": "Internal source contract; use focused hiking commands for compact evidence",
+      "endpoints": {
+        "search": {
+          "method": "GET",
+          "path": "/maps/search",
+          "description": "Read one bounded source result page",
+          "params": [
+            {
+              "name": "keyword",
+              "type": "string",
+              "description": "Japanese mountain name or report text search",
+              "default": "高尾山"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "description": "One-based source result page",
+              "default": 1
+            },
+            {
+              "name": "per",
+              "type": "int",
+              "description": "Bounded source page size, maximum twenty",
+              "default": 5
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": ""
+        },
+        "detail": {
+          "method": "GET",
+          "path": "/maps/{id}",
+          "description": "Read exact public source detail",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "description": "Exact first-party source identifier",
+              "default": 77,
+              "required": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "--id=77"
+        }
+      }
+    },
+    "source_course": {
+      "description": "Internal source contract; use focused hiking commands for compact evidence",
+      "endpoints": {
+        "search": {
+          "method": "GET",
+          "path": "/model_courses/",
+          "description": "Read one bounded source result page",
+          "params": [
+            {
+              "name": "name",
+              "type": "string",
+              "description": "Source model-course name substring",
+              "default": "高尾山"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "description": "One-based source result page",
+              "default": 1
+            },
+            {
+              "name": "per",
+              "type": "int",
+              "description": "Bounded source page size, maximum twenty",
+              "default": 5
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "",
+          "pagination": {
+            "type": "page",
+            "limit_param": "per",
+            "cursor_param": "page",
+            "next_cursor_path": "meta.next_page"
+          },
+          "response_path": "model_courses"
+        },
+        "detail": {
+          "method": "GET",
+          "path": "/model_courses/{id}",
+          "description": "Read exact public source detail",
+          "params": [
+            {
+              "name": "id",
+              "type": "int",
+              "description": "Exact first-party source identifier",
+              "default": 1771,
+              "required": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": "--id=1771"
+        }
+      }
+    },
+    "source_types": {
+      "description": "Activity type vocabulary",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/activity_types",
+          "description": "Read source activity-type vocabulary",
+          "params": [],
+          "response": {
+            "type": "object",
+            "item": "Envelope"
+          },
+          "happy_args": ""
+        }
+      }
+    }
+  },
+  "types": {
+    "Envelope": {
+      "fields": [
+        {
+          "name": "meta",
+          "type": "object"
+        }
+      ]
+    }
+  }
+}

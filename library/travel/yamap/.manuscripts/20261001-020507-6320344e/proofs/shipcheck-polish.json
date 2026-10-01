@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-09-30T20:33:39Z",
+  "elapsed_ms": 14490,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:39Z",
+      "elapsed_ms": 3230,
+      "command": "<private-runstate> verify --dir <private-runstate> --write-manifest <private-runstate> --spec <private-runstate>"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:43Z",
+      "elapsed_ms": 106,
+      "command": "<private-runstate> validate-narrative --strict --full-examples --research <private-runstate> --binary <private-runstate>"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:43Z",
+      "elapsed_ms": 2717,
+      "command": "<private-runstate> dogfood --dir <private-runstate> --spec <private-runstate> --research-dir <private-runstate>"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:45Z",
+      "elapsed_ms": 3794,
+      "command": "<private-runstate> workflow-verify --dir <private-runstate>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:49Z",
+      "elapsed_ms": 38,
+      "command": "<private-runstate> apify-audit --dir <private-runstate> --research-dir <private-runstate>"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:49Z",
+      "elapsed_ms": 1363,
+      "command": "<private-runstate> verify-skill --dir <private-runstate>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:33:51Z",
+      "elapsed_ms": 3239,
+      "command": "<private-runstate> scorecard --dir <private-runstate> --write-manifest <private-runstate> --research-dir <private-runstate> --spec <private-runstate> --live-check"
+    }
+  ]
+}
