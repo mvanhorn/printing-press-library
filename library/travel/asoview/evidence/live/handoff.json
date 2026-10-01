@@ -1,0 +1,12 @@
+{
+  "meta": {
+    "source": "computed"
+  },
+  "results": {
+    "booking_performed": false,
+    "booking_url": "https://www.asoview.com/item/ticket/ticket0000049223/",
+    "existence_verified": false,
+    "id": "ticket0000049223",
+    "kind": "ticket"
+  }
+}

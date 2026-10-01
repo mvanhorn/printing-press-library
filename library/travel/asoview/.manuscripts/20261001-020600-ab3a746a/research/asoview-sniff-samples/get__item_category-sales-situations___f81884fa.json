@@ -1,0 +1,61 @@
+{
+  "endpoint": "GET /item/category-sales-situations/",
+  "method": "GET",
+  "raw_url": "https://www.asoview.com/item/category-sales-situations/?ticketTypeCode=ticket0000049223&channelCode=asoview&date=2026-10-02&time=09%3A30",
+  "status": 200,
+  "request_body": null,
+  "response_body": {
+    "categories": [
+      {
+        "allocation": 1,
+        "basicFeeCode": "0000000000125356",
+        "basicFeeNumber": 2411665,
+        "discountPercentage": 0,
+        "feeLabel": "一般",
+        "feeLabelDependencyType": null,
+        "feeLabelType": "GENERAL",
+        "isAdult": false,
+        "isChild": false,
+        "isDiscounted": false,
+        "quantity": null,
+        "regularFee": 700,
+        "sellingFee": 700,
+        "unit": "枚"
+      },
+      {
+        "allocation": 1,
+        "basicFeeCode": "0000000000125357",
+        "basicFeeNumber": 2411666,
+        "discountPercentage": 0,
+        "feeLabel": "65歳以上　※年齢確認ができるものをご持参ください",
+        "feeLabelDependencyType": null,
+        "feeLabelType": "SENIOR",
+        "isAdult": false,
+        "isChild": false,
+        "isDiscounted": false,
+        "quantity": null,
+        "regularFee": 350,
+        "sellingFee": 350,
+        "unit": "枚"
+      },
+      {
+        "allocation": 1,
+        "basicFeeCode": "0000000000125358",
+        "basicFeeNumber": 2411667,
+        "discountPercentage": 0,
+        "feeLabel": "中学生　※都内在住または在学は無料※生徒手帳をご持参ください",
+        "feeLabelDependencyType": null,
+        "feeLabelType": "JUNIOR_HIGH_SCHOOL_STUDENTS",
+        "isAdult": false,
+        "isChild": false,
+        "isDiscounted": false,
+        "quantity": null,
+        "regularFee": 250,
+        "sellingFee": 250,
+        "unit": "枚"
+      }
+    ],
+    "maximumNumberChild": 0
+  },
+  "response_body_known": true
+}

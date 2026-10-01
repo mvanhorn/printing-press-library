@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "asoview-status-pagination-cache-semantics",
+  "applied_at": "2026-10-01T02:08:59.753740+00:00",
+  "base_run_id": "20261001-020600-ab3a746a",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve uniform dated slot states, source-matched venue pagination and successful public reads when optional cache persistence fails.",
+  "reason": "Closed stock is distinct from mixed unavailability; recommendations do not exhaust matching pages and product cards do not count as venues. Response caching is optional, so storage failures must remain observable without discarding a valid live response.",
+  "files": [
+    "internal/asoview/availability.go",
+    "internal/asoview/html.go",
+    "internal/asoview/client.go",
+    "internal/asoview/publish_review_test.go",
+    "scripts/live_check.py",
+    "README.md"
+  ],
+  "validated_outcome": "Domain regressions exercise full availability/discovery requests and failed persistence with live provenance; fresh publication live acceptance is required after every source edit."
+}

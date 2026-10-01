@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-09-30T19:26:08Z",
+  "elapsed_ms": 11075,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:08Z",
+      "elapsed_ms": 3503,
+      "command": "<local-home>/go/bin/cli-printing-press verify --dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli --write-manifest <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli/.printing-press.json --spec <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research/asoview.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:12Z",
+      "elapsed_ms": 89,
+      "command": "<local-home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research.json --binary <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli/build/stage/bin/asoview-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:12Z",
+      "elapsed_ms": 3407,
+      "command": "<local-home>/go/bin/cli-printing-press dogfood --dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli --spec <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research/asoview.yaml --research-dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:15Z",
+      "elapsed_ms": 857,
+      "command": "<local-home>/go/bin/cli-printing-press workflow-verify --dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:16Z",
+      "elapsed_ms": 22,
+      "command": "<local-home>/go/bin/cli-printing-press apify-audit --dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli --research-dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:16Z",
+      "elapsed_ms": 983,
+      "command": "<local-home>/go/bin/cli-printing-press verify-skill --dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:26:17Z",
+      "elapsed_ms": 2210,
+      "command": "<local-home>/go/bin/cli-printing-press scorecard --dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli --write-manifest <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli/.printing-press.json --research-dir <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a --spec <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research/asoview.yaml --live-check"
+    }
+  ]
+}

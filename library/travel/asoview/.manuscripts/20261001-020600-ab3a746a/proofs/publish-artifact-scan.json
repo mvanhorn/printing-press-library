@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-10-01T02:13:54.456255+00:00",
+  "status": "pass",
+  "mandatory_package_vendor_scan": "pass",
+  "tier1_secret_findings": 0,
+  "structural_auth_files": [],
+  "final_tracked_binary_payloads": 0,
+  "raw_reports_removed": [
+    "evidence/dogfood-results.json",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/dogfood-results.json"
+  ],
+  "local_path_artifacts_redacted": [
+    ".manuscripts/20261001-020600-ab3a746a/proofs/final-evidence.md",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/security-triage.json",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/gosec-after.json",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/shipcheck.json",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/shipcheck-final.json",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/promotion.json",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/sniff.log",
+    ".manuscripts/20261001-020600-ab3a746a/proofs/generate.log",
+    "evidence/security-triage.json",
+    "evidence/gosec-after.json",
+    "evidence/shipcheck.json",
+    "evidence/mcp-sync.log",
+    "evidence/gosec.json",
+    "evidence/gosec-after.log",
+    "evidence/FINAL.md",
+    "evidence/gosec.log"
+  ],
+  "tier2_review": "All hits are technical/source vocabulary, public generator attribution, synthetic framework fixtures, an image URL test or the public-contact redaction target in the semantic runner. No workspace/customer PII or bearer values are present.",
+  "extra_secret_tools": "Neither gitleaks nor trufflehog is installed."
+}

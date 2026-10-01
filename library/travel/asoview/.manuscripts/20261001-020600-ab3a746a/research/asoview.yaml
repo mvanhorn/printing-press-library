@@ -1,0 +1,49 @@
+name: asoview
+description: Discover and compare Japan leisure tickets with exact units and public dated stock.
+version: "0.1.0"
+category: travel
+base_url: https://www.asoview.com
+http_transport: standard
+health_check_path: /search/
+auth:
+  type: none
+cache:
+  enabled: false
+learn:
+  disabled: true
+mcp:
+  transport: [stdio]
+resources:
+  source:
+    description: First-party read-only source pages; prefer discover/product for normalized output.
+    endpoints:
+      index:
+        method: GET
+        path: /search/
+        description: Inspect first-party public discovery page metadata.
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/item]
+        example: "  asoview-pp-cli source index --dry-run"
+      detail:
+        method: GET
+        path: /item/{kind}/{id}/
+        description: Inspect first-party public product page metadata.
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: kind
+            type: string
+            positional: true
+            required: true
+            enum: [ticket, activity]
+            description: Source product kind ticket or activity.
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Canonical source product code for detail.
+        happy_args: "kind=ticket;id=ticket0000049223;--dry-run"
+        example: "  asoview-pp-cli source detail ticket ticket0000049223 --dry-run"

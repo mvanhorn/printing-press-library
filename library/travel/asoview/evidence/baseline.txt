@@ -1,0 +1,2 @@
+Empty workspace at start; no existing source or git repository. Printing Press lock status: held=false, has_cli=false.
+Global skill/config upgrades skipped per explicit user instruction. Version advisory cache isolated to task scope.

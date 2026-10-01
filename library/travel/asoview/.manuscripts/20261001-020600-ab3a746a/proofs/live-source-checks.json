@@ -1,0 +1,124 @@
+{
+  "status": "pass",
+  "checked_at": "2026-09-30T20:02:11.736961+00:00",
+  "requested_date": "2026-10-02",
+  "fixture_use": false,
+  "sample_redaction": "Stored samples replace the published provider email with PII_EMAIL_EXAMPLE; runtime comparisons use unredacted live data.",
+  "checks": [
+    {
+      "check": "ticket terms, bands, validity and cancellations match source",
+      "status": "pass"
+    },
+    {
+      "check": "activity age, inclusion, price and cancellation variants match source",
+      "status": "pass"
+    },
+    {
+      "check": "Tokyo aquarium query relevance",
+      "status": "pass",
+      "returned": 7
+    },
+    {
+      "check": "negative local keyword result is empty with bounded scan coverage",
+      "status": "pass"
+    },
+    {
+      "check": "same-page continuation neither repeats nor skips source cursor position",
+      "status": "pass"
+    },
+    {
+      "check": "local Japanese relevance contains requested substring",
+      "status": "pass"
+    },
+    {
+      "check": "native date and party candidates labeled separately from stock confirmation",
+      "status": "pass"
+    },
+    {
+      "check": "dated stock, price unit and date-only opening window match source",
+      "status": "pass",
+      "date": "2026-10-02"
+    },
+    {
+      "check": "dated bands and arithmetic subtotal match source without claiming quote",
+      "status": "pass"
+    },
+    {
+      "check": "dated activity bands preserve source label and product age separately",
+      "status": "pass"
+    },
+    {
+      "check": "explicit timed schedules distinguished; legacy ambiguous windows remain unclassified; one slot auto-selects",
+      "status": "pass"
+    },
+    {
+      "check": "general admission validity never fabricated as reserved inventory",
+      "status": "pass"
+    },
+    {
+      "check": "comparison preserves both source cancellation sets and missing party total",
+      "status": "pass"
+    },
+    {
+      "check": "dotted field projection retains only requested result fields",
+      "status": "pass"
+    },
+    {
+      "check": "taxonomy refresh is explicit, persisted and reused without network",
+      "status": "pass"
+    },
+    {
+      "check": "canonical handoff derives source URL without transaction",
+      "status": "pass"
+    },
+    {
+      "check": "bad-date",
+      "status": "pass",
+      "exit": 2
+    },
+    {
+      "check": "bad-limit",
+      "status": "pass",
+      "exit": 2
+    },
+    {
+      "check": "bad-id",
+      "status": "pass",
+      "exit": 2
+    },
+    {
+      "check": "wrong-host",
+      "status": "pass",
+      "exit": 2
+    },
+    {
+      "check": "bad-party",
+      "status": "pass",
+      "exit": 2
+    }
+  ],
+  "source_observations": [
+    {
+      "source": "https://www.asoview.com/item/ticket/ticket0000049223/",
+      "id": "ticket0000049223",
+      "title": "葛西臨海水族園　日付指定WEBチケット",
+      "bands": [
+        {
+          "id": 2411665,
+          "label": "一般",
+          "amount": 700
+        },
+        {
+          "id": 2411666,
+          "label": "65歳以上　※年齢確認ができるものをご持参ください",
+          "amount": 350
+        },
+        {
+          "id": 2411667,
+          "label": "中学生　※都内在住または在学は無料※生徒手帳をご持参ください",
+          "amount": 250
+        }
+      ]
+    }
+  ]
+}

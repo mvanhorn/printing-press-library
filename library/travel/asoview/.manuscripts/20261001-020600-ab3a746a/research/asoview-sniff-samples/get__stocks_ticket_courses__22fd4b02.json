@@ -1,0 +1,32 @@
+{
+  "endpoint": "GET /stocks/ticket/courses",
+  "method": "GET",
+  "raw_url": "https://www.asoview.com/stocks/ticket/courses?planCode=ticket0000049223&channelCode=asoview&date=2026-10-02",
+  "status": 200,
+  "request_body": null,
+  "response_body": [
+    {
+      "canRequestAfterFull": false,
+      "discountPercentage": 0,
+      "endTimeLabel": "16:00",
+      "id": "01",
+      "isClosed": false,
+      "isDiscounted": false,
+      "isPriceVisible": true,
+      "isRequest": false,
+      "maximumReservableQuantity": 5,
+      "minimumReservableQuantity": 0,
+      "motionPictureEventId": null,
+      "originalFee": "700",
+      "remainReserveNumber": 99979,
+      "sellingFee": "700",
+      "startTimeLabel": "9:30",
+      "stockStatus": "REALTIME",
+      "stockStatusLabel": "○",
+      "timeTicketScheduleId": null,
+      "totalStockQuantity": 99999,
+      "unit": "枚"
+    }
+  ],
+  "response_body_known": true
+}

@@ -1,0 +1,4 @@
+Spec written to <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research/asoview-sniff.yaml (4 endpoints across 2 resources)
+Traffic analysis written to <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/discovery/traffic-analysis.json
+Samples written to <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research/asoview-sniff-samples (4 endpoints)
+Run 'cli-printing-press generate --spec <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/research/asoview-sniff.yaml' to build the CLI

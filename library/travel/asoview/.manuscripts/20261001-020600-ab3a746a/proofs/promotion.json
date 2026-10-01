@@ -1,0 +1,6 @@
+{
+  "cli": "asoview-pp-cli",
+  "library_dir": "<local-home>/printing-press/library/asoview",
+  "preserved_patches": [],
+  "promoted": true
+}

@@ -1,0 +1,48 @@
+{
+  "endpoint": "GET /stocks/courses",
+  "method": "GET",
+  "raw_url": "https://www.asoview.com/stocks/courses?planCode=pln3000044589&date=2026-10-03",
+  "status": 200,
+  "request_body": null,
+  "response_body": [
+    {
+      "canRequestAfterFull": false,
+      "discountPercentage": 0,
+      "group_id": 223345,
+      "id": 202673,
+      "isClosed": true,
+      "isDiscounted": false,
+      "isRequest": false,
+      "isRequestDeadlinePassed": false,
+      "label": "10:00",
+      "maximumReservableQuantity": 1000,
+      "minimumReservableQuantity": 0,
+      "originalFee": "16,500",
+      "remainReserveNumber": 0,
+      "sellingFee": "16,500",
+      "stockStatus": "NOT_OPEN",
+      "stockStatusLabel": "開催なし",
+      "unit": "名"
+    },
+    {
+      "canRequestAfterFull": false,
+      "discountPercentage": 0,
+      "group_id": 223346,
+      "id": 202674,
+      "isClosed": true,
+      "isDiscounted": false,
+      "isRequest": false,
+      "isRequestDeadlinePassed": false,
+      "label": "14:00",
+      "maximumReservableQuantity": 1000,
+      "minimumReservableQuantity": 0,
+      "originalFee": "16,500",
+      "remainReserveNumber": 0,
+      "sellingFee": "16,500",
+      "stockStatus": "NOT_OPEN",
+      "stockStatusLabel": "開催なし",
+      "unit": "名"
+    }
+  ],
+  "response_body_known": true
+}

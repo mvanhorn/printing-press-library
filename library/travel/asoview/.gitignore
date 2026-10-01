@@ -1,0 +1,12 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/asoview-pp-cli
+/asoview-pp-cli.exe
+/asoview-pp-mcp
+/asoview-pp-mcp.exe
+/bin/
+/build/
+/dist/
+/evidence/cache/
+/evidence/benchmark-cache/
+/evidence/runtime-home/
+/evidence/check-cache/

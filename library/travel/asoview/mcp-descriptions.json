@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "source_index": "Read metadata and product links from the public first-party discovery page. No inputs are required. Prefer discover for bounded native region/category/date filters and product for normalized ticket terms; this endpoint is a raw metadata surface."
+  }
+}

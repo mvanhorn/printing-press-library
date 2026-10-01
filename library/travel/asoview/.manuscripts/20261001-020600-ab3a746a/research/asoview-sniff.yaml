@@ -1,0 +1,268 @@
+name: asoview
+description: Discovered API spec for asoview
+version: 0.1.0
+base_url: https://www.asoview.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+config:
+    format: toml
+    path: ~/.config/asoview-pp-cli/config.toml
+resources:
+    item:
+        description: Operations on category-sales-situations
+        endpoints:
+            list_category_sales_situations:
+                method: GET
+                path: /item/category-sales-situations/
+                description: GET /item/category-sales-situations/
+                params:
+                    - name: channelCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ticketTypeCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: time
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: CategorySalesSituationCategory
+                pagination: null
+                response_path: categories
+    stocks:
+        description: Operations on calendars
+        endpoints:
+            list_calendars:
+                method: GET
+                path: /stocks/ticket/calendars
+                description: GET /stocks/ticket/calendars
+                params:
+                    - name: channelCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: planCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: yearMonth
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: CalendarYear
+                pagination: null
+                response_path: years
+            list_courses:
+                method: GET
+                path: /stocks/ticket/courses
+                description: GET /stocks/ticket/courses
+                params:
+                    - name: channelCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: planCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Course
+                pagination: null
+            list_courses_2:
+                method: GET
+                path: /stocks/courses
+                description: GET /stocks/courses
+                params:
+                    - name: date
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: planCode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Course2
+                pagination: null
+types:
+    CalendarYear:
+        fields:
+            - name: months
+              type: '[]ref:Month'
+            - name: year
+              type: string
+    CategorySalesSituationCategory:
+        fields:
+            - name: allocation
+              type: integer
+            - name: basicFeeCode
+              type: string
+            - name: basicFeeNumber
+              type: integer
+            - name: discountPercentage
+              type: integer
+            - name: feeLabel
+              type: string
+            - name: feeLabelType
+              type: string
+            - name: isAdult
+              type: bool
+            - name: isChild
+              type: bool
+            - name: isDiscounted
+              type: bool
+            - name: regularFee
+              type: integer
+            - name: sellingFee
+              type: integer
+            - name: unit
+              type: string
+    Course:
+        fields:
+            - name: canRequestAfterFull
+              type: bool
+            - name: discountPercentage
+              type: integer
+            - name: endTimeLabel
+              type: string
+            - name: id
+              type: string
+            - name: isClosed
+              type: bool
+            - name: isDiscounted
+              type: bool
+            - name: isPriceVisible
+              type: bool
+            - name: isRequest
+              type: bool
+            - name: maximumReservableQuantity
+              type: integer
+            - name: minimumReservableQuantity
+              type: integer
+            - name: originalFee
+              type: string
+            - name: remainReserveNumber
+              type: integer
+            - name: sellingFee
+              type: string
+            - name: startTimeLabel
+              type: string
+            - name: stockStatus
+              type: string
+            - name: stockStatusLabel
+              type: string
+            - name: totalStockQuantity
+              type: integer
+            - name: unit
+              type: string
+    Course2:
+        fields:
+            - name: canRequestAfterFull
+              type: bool
+            - name: discountPercentage
+              type: integer
+            - name: group_id
+              type: integer
+            - name: id
+              type: integer
+            - name: isClosed
+              type: bool
+            - name: isDiscounted
+              type: bool
+            - name: isRequest
+              type: bool
+            - name: isRequestDeadlinePassed
+              type: bool
+            - name: label
+              type: string
+            - name: maximumReservableQuantity
+              type: integer
+            - name: minimumReservableQuantity
+              type: integer
+            - name: originalFee
+              type: string
+            - name: remainReserveNumber
+              type: integer
+            - name: sellingFee
+              type: string
+            - name: stockStatus
+              type: string
+            - name: stockStatusLabel
+              type: string
+            - name: unit
+              type: string
+    Month:
+        fields:
+            - name: month
+              type: string
+            - name: weeks
+              type: array
