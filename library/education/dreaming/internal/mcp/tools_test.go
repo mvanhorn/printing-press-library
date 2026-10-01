@@ -9,10 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/store"
 )
@@ -33,6 +35,20 @@ func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	if want := filepath.Join(cliConfigDir, "config.toml"); cfg.Path != want {
 		t.Fatalf("MCP config path = %q, want CLI resolver path %q", cfg.Path, want)
 	}
+	cliCfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("CLI config load: %v", err)
+	}
+	if cliCfg.Path != cfg.Path {
+		t.Fatalf("CLI saved path = %q, MCP read path = %q", cliCfg.Path, cfg.Path)
+	}
+	if err := cliCfg.SaveTokens("", "", "synthetic-test-token", "", time.Time{}); err != nil {
+		t.Fatalf("CLI token save: %v", err)
+	}
+	cfg, err = newMCPConfig()
+	if err != nil || cfg.AuthHeader() != "Bearer synthetic-test-token" {
+		t.Fatalf("MCP did not read the token saved by the CLI: %v", err)
+	}
 
 	gotDB, err := mcpDBPath()
 	if err != nil {
@@ -44,6 +60,37 @@ func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	}
 	if want := filepath.Join(cliDataDir, "data.db"); gotDB != want {
 		t.Fatalf("MCP db path = %q, want CLI resolver path %q", gotDB, want)
+	}
+}
+
+func TestMCPEnvironmentTokenWorksWithoutHomeDirectory(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("HOME", "")
+	t.Setenv("DREAMING_TOKEN", "synthetic-test-token")
+	cfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatalf("environment token should work without home directory: %v", err)
+	}
+	if cfg.AuthHeader() != "Bearer synthetic-test-token" {
+		t.Fatal("environment token was not applied")
+	}
+}
+
+func TestMCPConfigMatchesCLIWithXDGConfigHome(t *testing.T) {
+	resetMCPPathEnv(t)
+	xdgHome := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdgHome)
+	cliCfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	mcpCfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(xdgHome, "dreaming-pp-cli", "config.toml")
+	if cliCfg.Path != want || mcpCfg.Path != want {
+		t.Fatalf("CLI path = %q, MCP path = %q; want %q", cliCfg.Path, mcpCfg.Path, want)
 	}
 }
 
@@ -88,6 +135,7 @@ func resetMCPPathEnv(t *testing.T) string {
 	t.Setenv("HOME", home)
 	for _, name := range []string{
 		"DREAMING_CONFIG",
+		"DREAMING_TOKEN",
 		"DREAMING_CONFIG_DIR",
 		"DREAMING_DATA_DIR",
 		"DREAMING_STATE_DIR",

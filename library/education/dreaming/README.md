@@ -4,6 +4,9 @@
 
 Dreaming's web app shows your hours but won't plan, search, or bulk-import for you, and the community's features are scattered across a dozen browser extensions and scripts. This CLI unifies them into one agent-native tool backed by a local SQLite mirror of your catalog, daily series, and external-hours log - so `next` picks your next video offline, `external import` clears a CSV backlog in one shot, and `roadmap` lays out the whole L1-L7 fluency ladder with personalized ETAs.
 
+Created by [@paulbockewitz](https://github.com/paulbockewitz) (Paul Bockewitz).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `dreaming-pp-cli` binary and the `pp-dreaming` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

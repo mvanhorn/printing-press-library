@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -45,8 +46,14 @@ func Load(configPath string) (*Config, error) {
 		path = os.Getenv("DREAMING_CONFIG")
 	}
 	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "dreaming-pp-cli", "config.toml")
+		if dir, err := cliutil.ConfigDir(); err == nil {
+			path = filepath.Join(dir, "config.toml")
+		} else {
+			// Keep environment-only credentials usable when no home directory
+			// can be resolved. A later save still reports its own path error.
+			home, _ := os.UserHomeDir()
+			path = filepath.Join(home, ".config", "dreaming-pp-cli", "config.toml")
+		}
 	}
 	cfg.Path = path
 
