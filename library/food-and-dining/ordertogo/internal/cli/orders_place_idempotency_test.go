@@ -3,74 +3,96 @@
 package cli
 
 import (
+	"errors"
 	"os"
-	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 )
 
-func testFingerprint(itemID int, subtotal float64) string {
-	return cartFingerprint("mixsushibarlin", 42, []cartItem{{ItemID: itemID, Price: subtotal}}, subtotal, 1.1, 2, "cus_test", "card_test")
+func checkoutTestHome(t *testing.T) {
+	t.Helper()
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	if runtime.GOOS == "windows" {
+		t.Skip("checkout is disabled on Windows until reservation metadata is crash safe")
+	}
 }
 
-func TestReservationReusesIDForSameCartRetry(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	fp := testFingerprint(7, 12.5)
+func testOrderBody(itemID int, subtotal float64) postOrderBody {
+	return postOrderBody{Param: postOrderParam{
+		RestName: "mixsushibarlin", RestID: 42,
+		OrderDetails: orderDetails{Items: []cartItem{{ItemID: itemID, Price: subtotal}}, Subtotal: subtotal},
+		Tax:          1.1,
+		PaymentCard:  paymentCard{StripeCustomer: "cus_test", DefaultCardMap: map[string]any{"key": "card_test"}, Tip: 2, BillingAddress1: "First address"},
+		Context:      map[string]any{"source": "test"},
+	}}
+}
+
+func fingerprintBody(t *testing.T, body postOrderBody) string {
+	t.Helper()
+	fingerprint, err := cartFingerprint(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return fingerprint
+}
+
+func testFingerprint(t *testing.T, itemID int, subtotal float64) string {
+	t.Helper()
+	return fingerprintBody(t, testOrderBody(itemID, subtotal))
+}
+
+func TestReservationBlocksRetryAfterUnknownOutcome(t *testing.T) {
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
 
 	first, err := reservePlacement(fp)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if first.Reused {
-		t.Fatal("first placement must not reuse an id")
-	}
-	firstID := first.RequestID
 	first.Release()
 
-	second, err := reservePlacement(fp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer second.Release()
-	if !second.Reused || second.RequestID != firstID {
-		t.Fatalf("retry got id %q (reused=%v), want %q reused", second.RequestID, second.Reused, firstID)
+	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "unknown outcome") {
+		t.Fatalf("uncertain retry got err %v, want unknown-outcome refusal", err)
 	}
 }
 
-func TestReservationFingerprintCoversPaymentIdentityAndTax(t *testing.T) {
-	base := cartFingerprint("slug", 1, []cartItem{{ItemID: 1, Price: 5}}, 5, 0.5, 1, "cus_a", "card_a")
-	for name, other := range map[string]string{
-		"tax":      cartFingerprint("slug", 1, []cartItem{{ItemID: 1, Price: 5}}, 5, 0.6, 1, "cus_a", "card_a"),
-		"customer": cartFingerprint("slug", 1, []cartItem{{ItemID: 1, Price: 5}}, 5, 0.5, 1, "cus_b", "card_a"),
-		"card":     cartFingerprint("slug", 1, []cartItem{{ItemID: 1, Price: 5}}, 5, 0.5, 1, "cus_a", "card_b"),
+func TestReservationFingerprintCoversSubmittedOrder(t *testing.T) {
+	base := fingerprintBody(t, testOrderBody(1, 5))
+	for name, change := range map[string]func(*postOrderBody){
+		"tax":             func(b *postOrderBody) { b.Param.Tax = 0.6 },
+		"customer":        func(b *postOrderBody) { b.Param.PaymentCard.StripeCustomer = "cus_other" },
+		"card":            func(b *postOrderBody) { b.Param.PaymentCard.DefaultCardMap["key"] = "card_other" },
+		"billing address": func(b *postOrderBody) { b.Param.PaymentCard.BillingAddress1 = "Other address" },
+		"order context":   func(b *postOrderBody) { b.Param.Context["source"] = "other" },
+		"customer phone":  func(b *postOrderBody) { b.Param.CustomerPhone = "other" },
 	} {
-		if other == base {
+		body := testOrderBody(1, 5)
+		change(&body)
+		if fingerprintBody(t, body) == base {
 			t.Fatalf("fingerprint ignores %s", name)
 		}
 	}
 }
 
-func TestReservationFreshForDifferentCart(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	a, err := reservePlacement(testFingerprint(7, 12.5))
+func TestReservationBlocksDifferentCartAfterUnknownOutcome(t *testing.T) {
+	checkoutTestHome(t)
+	a, err := reservePlacement(testFingerprint(t, 7, 12.5))
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer a.Release()
-	b, err := reservePlacement(testFingerprint(8, 18.0))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer b.Release()
-	if b.Reused || b.RequestID == a.RequestID {
-		t.Fatalf("different cart got id %q (reused=%v), want a fresh id", b.RequestID, b.Reused)
+	a.Release()
+	if _, err := reservePlacement(testFingerprint(t, 8, 18.0)); err == nil || !strings.Contains(err.Error(), "different details has an unknown outcome") {
+		t.Fatalf("changed cart got err %v, want unknown-outcome refusal", err)
 	}
 }
 
 func TestReservationFreshAfterConfirmedOrder(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	fp := testFingerprint(7, 12.5)
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
 	first, err := reservePlacement(fp)
 	if err != nil {
 		t.Fatal(err)
@@ -86,14 +108,14 @@ func TestReservationFreshAfterConfirmedOrder(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer second.Release()
-	if second.Reused || second.RequestID == firstID {
-		t.Fatalf("post-success placement got id %q (reused=%v), want a fresh id", second.RequestID, second.Reused)
+	if second.RequestID == firstID {
+		t.Fatalf("post-success placement got id %q, want a fresh id", second.RequestID)
 	}
 }
 
 func TestReservationBlocksConcurrentSameCartPlacement(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	fp := testFingerprint(7, 12.5)
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
 	first, err := reservePlacement(fp)
 	if err != nil {
 		t.Fatal(err)
@@ -103,49 +125,25 @@ func TestReservationBlocksConcurrentSameCartPlacement(t *testing.T) {
 	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "already in progress") {
 		t.Fatalf("overlapping same-cart placement got err %v, want lock-held refusal", err)
 	}
-	// A different cart is not blocked by this cart's lock.
-	other, err := reservePlacement(testFingerprint(9, 3.0))
-	if err != nil {
-		t.Fatalf("different cart blocked: %v", err)
+	// A changed cart must not bypass the in-flight checkout lock.
+	if _, err := reservePlacement(testFingerprint(t, 9, 3.0)); err == nil || !strings.Contains(err.Error(), "already in progress") {
+		t.Fatalf("changed cart bypassed checkout lock: %v", err)
 	}
-	other.Release()
 }
 
 func TestReservationFailsClosedWhenRecordCannotPersist(t *testing.T) {
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-	// First reservation creates the config dir; make it read-only so the
-	// record write fails, then require reservation (and thus the POST) to
-	// refuse.
-	fp := testFingerprint(7, 12.5)
-	r, err := reservePlacement(fp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if warn := r.ConfirmSuccess(); warn != "" {
-		t.Fatal(warn)
-	}
-	r.Release()
-	dir := filepath.Dir(pendingPlaceRecordPath(fp))
-	if err := os.Chmod(dir, 0o500); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
-
-	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "refusing to place the order") {
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
+	writeFailure := func(string, pendingPlace) error { return errors.New("simulated disk failure") }
+	if _, err := reservePlacementWithWriter(fp, writeFailure); err == nil || !strings.Contains(err.Error(), "refusing to place the order") {
 		t.Fatalf("persistence failure got err %v, want fail-closed refusal", err)
 	}
 }
 
-// Old reservations are reused deliberately — there is no auto-expiry. An
-// uncertain attempt (POST fired, response lost, record never cleared) must
-// keep presenting the same id no matter how much time passes: expiring it
-// into a fresh id is exactly the double-charge path. Reusing an old id is
-// always safe — the server either dedups it or, once its own dedup window
-// has passed, places the order exactly once.
-func TestReservationReusesOldRecordsWithoutExpiry(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	fp := testFingerprint(7, 12.5)
+// Old reservations must not silently expire into a new charge attempt.
+func TestReservationBlocksOldRecordsWithoutExpiry(t *testing.T) {
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
 	first, err := reservePlacement(fp)
 	if err != nil {
 		t.Fatal(err)
@@ -154,28 +152,23 @@ func TestReservationReusesOldRecordsWithoutExpiry(t *testing.T) {
 	first.Release()
 
 	stale := pendingPlace{RequestID: firstID, CartFingerprint: fp, At: time.Now().Add(-24 * time.Hour)}
-	if err := writeFileDurable(pendingPlaceRecordPath(fp), stale); err != nil {
+	if err := writeFileDurable(pendingPlaceRecordPath(), stale); err != nil {
 		t.Fatal(err)
 	}
-	second, err := reservePlacement(fp)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer second.Release()
-	if !second.Reused || second.RequestID != firstID {
-		t.Fatalf("day-old uncertain record got id %q (reused=%v), want %q reused — auto-expiry would recreate the double-charge", second.RequestID, second.Reused, firstID)
+	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "unknown outcome") {
+		t.Fatalf("day-old uncertain checkout got err %v, want refusal", err)
 	}
 }
 
 func TestReservationFailsClosedOnCorruptRecord(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
-	fp := testFingerprint(7, 12.5)
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
 	r, err := reservePlacement(fp)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r.Release()
-	if err := os.WriteFile(pendingPlaceRecordPath(fp), []byte(`{"request_id":""}`), 0o600); err != nil {
+	if err := os.WriteFile(pendingPlaceRecordPath(), []byte(`{"request_id":""}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "corrupt") {

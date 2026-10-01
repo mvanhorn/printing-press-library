@@ -202,21 +202,20 @@ strings. Payment uses the Stripe customer + saved card configured via
 			// fetch-metadata, client hints, priority, and a restaurant-page
 			// Referer (the generic "/" referer the client otherwise sends is a
 			// tell). cfg.BaseURL + the restaurant path mirrors the browser.
-			// Reuse the reserved __requestid when retrying the same cart: if a
-			// prior POST reached the server but its response was lost, a fresh
-			// id would place (and charge) the order a second time; the same id
-			// lets the server's dedup absorb the retry. The reservation holds a
-			// per-cart lock through the POST and fails closed on any
-			// persistence error — an order must never fire without a durable
-			// idempotency record.
-			reservation, err := reservePlacement(cartFingerprint(slug, rid, items, subtotal, body.Param.Tax, tip, cfg.StripeCustomerID, cfg.StripeDefaultCard))
+			// Persist __requestid before the POST. A lost response leaves a
+			// reservation that blocks any further checkout until the customer
+			// inspects recent orders. Provider deduplication may expire, so the
+			// CLI cannot automatically retry an unknown outcome. The lock and
+			// durable record prevent parallel or changed-cart bypasses.
+			fingerprint, err := cartFingerprint(body)
+			if err != nil {
+				return &cliError{code: 10, err: err}
+			}
+			reservation, err := reservePlacement(fingerprint)
 			if err != nil {
 				return &cliError{code: 10, err: err}
 			}
 			defer reservation.Release()
-			if reservation.Reused {
-				fmt.Fprintln(cmd.ErrOrStderr(), "note: retrying the same cart; reusing the previous __requestid so the server dedups instead of double-charging")
-			}
 			headers := map[string]string{
 				"Accept":             "*/*",
 				"X-Requested-With":   "XMLHttpRequest",

@@ -9,6 +9,8 @@ import (
 	"syscall"
 )
 
+func checkPlacementDurability() error { return nil }
+
 // lockPlacementFile takes the exclusive, non-blocking advisory lock that
 // serializes one checkout attempt per cart fingerprint.
 func lockPlacementFile(f *os.File) error {

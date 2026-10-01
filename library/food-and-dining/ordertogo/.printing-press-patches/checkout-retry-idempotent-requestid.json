@@ -4,7 +4,7 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260510-083403",
   "base_printing_press_version": "4.2.2",
-  "summary": "Reserve a durable request ID per cart and reuse it when retrying an uncertain checkout.",
+  "summary": "Reserve a durable request ID for checkout and block another order after an uncertain outcome.",
   "reason": "A lost response after the server accepts an order must not cause a retry with a fresh ID and a second charge.",
-  "files": ["internal/cli/orders_place.go", "internal/cli/orders_place_idempotency.go", "internal/cli/orders_place_idempotency_test.go", "internal/cli/placement_lock_unix.go", "internal/cli/placement_lock_windows.go", "README.md"]
+  "files": ["internal/cli/orders_place.go", "internal/cli/orders_place_idempotency.go", "internal/cli/orders_place_idempotency_test.go", "internal/cli/placement_lock_unix.go", "internal/cli/placement_lock_windows.go", "internal/cli/placement_lock_windows_test.go", "README.md"]
 }

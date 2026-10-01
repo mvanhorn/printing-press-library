@@ -259,7 +259,7 @@ Order history, detail, validation, and tracking - the core ordering data path
 - **`ordertogo-pp-cli orders plan`** - Reuse a previous order or item list, validate tax and tip, and save the active cart behind a budget gate
 - **`ordertogo-pp-cli orders place`** - Drive Chrome through checkout for the active cart after explicit confirmation and max-budget validation
 
-If checkout loses its response, inspect your recent orders before retrying. An identical cart reuses its saved request ID so the server can recognize the retry; a confirmed order clears that reservation for a future intentional reorder. If the CLI cannot save or lock the reservation, it refuses to submit the order.
+If checkout loses its response, inspect your recent orders. The CLI blocks further checkout, including a changed cart or payment details, because the server may not recognize an old request ID forever. Once you confirm whether an order was placed, you can delete the reservation file named in the error and start a new checkout. A confirmed order clears the reservation automatically. If the CLI cannot save or lock the reservation, it refuses to submit the order. Checkout is disabled on Windows until its reservation can be made crash safe; use the web checkout there.
 
 ### payment
 
