@@ -51,7 +51,8 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		if err := validateHTTPAddr(*addr); err != nil {
+		bindAddr, err := loopbackHTTPAddr(*addr)
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "unsafe MCP HTTP bind: %v\n", err)
 			os.Exit(2)
 		}
@@ -60,8 +61,8 @@ func main() {
 			fmt.Fprintf(os.Stderr, "MCP HTTP requires %s to authenticate clients\n", httpTokenEnv)
 			os.Exit(2)
 		}
-		fmt.Fprintf(os.Stderr, "axs-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := serveAuthenticatedHTTP(s, *addr, token); err != nil {
+		fmt.Fprintf(os.Stderr, "axs-pp-mcp serving MCP over streamable HTTP at %s\n", bindAddr)
+		if err := serveAuthenticatedHTTP(s, bindAddr, token); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -71,29 +72,35 @@ func main() {
 	}
 }
 
-func validateHTTPAddr(addr string) error {
+func loopbackHTTPAddr(addr string) (string, error) {
 	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
-		return fmt.Errorf("invalid --addr %q: %w", addr, err)
+		return "", fmt.Errorf("invalid --addr %q: %w", addr, err)
 	}
 	portNumber, err := strconv.Atoi(port)
 	if err != nil || portNumber < 1 || portNumber > 65535 {
-		return fmt.Errorf("invalid port %q", port)
+		return "", fmt.Errorf("invalid port %q", port)
 	}
 	if strings.EqualFold(host, "localhost") {
-		return nil
+		// Never pass a hostname to Listen: a modified hosts file could resolve
+		// localhost to an externally reachable interface.
+		return net.JoinHostPort("127.0.0.1", port), nil
 	}
 	ip := net.ParseIP(host)
 	if ip == nil || !ip.IsLoopback() {
-		return fmt.Errorf("%q is not loopback; expose this server remotely only through an authenticated TLS reverse proxy or tunnel", host)
+		return "", fmt.Errorf("%q is not loopback; expose this server remotely only through an authenticated TLS reverse proxy or tunnel", host)
 	}
-	return nil
+	return net.JoinHostPort(ip.String(), port), nil
 }
 
 func serveAuthenticatedHTTP(mcpServer *server.MCPServer, addr, token string) error {
+	_, transport := newAuthenticatedHTTPServer(mcpServer, token)
+	return transport.Start(addr)
+}
+
+func newAuthenticatedHTTPServer(mcpServer *server.MCPServer, token string) (*http.Server, *server.StreamableHTTPServer) {
 	mux := http.NewServeMux()
 	httpServer := &http.Server{
-		Addr:              addr,
 		Handler:           mux,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
@@ -102,14 +109,14 @@ func serveAuthenticatedHTTP(mcpServer *server.MCPServer, addr, token string) err
 		server.WithStreamableHTTPServer(httpServer),
 	)
 	mux.Handle("/mcp", requireBearerToken(token, httpTransport))
-	return httpTransport.Start(addr)
+	return httpServer, httpTransport
 }
 
 func requireBearerToken(token string, next http.Handler) http.Handler {
-	want := []byte("Bearer " + token)
+	want := []byte(token)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		got := []byte(r.Header.Get("Authorization"))
-		if len(got) != len(want) || subtle.ConstantTimeCompare(got, want) != 1 {
+		parts := strings.Fields(r.Header.Get("Authorization"))
+		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || subtle.ConstantTimeCompare([]byte(parts[1]), want) != 1 {
 			w.Header().Set("WWW-Authenticate", "Bearer")
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return

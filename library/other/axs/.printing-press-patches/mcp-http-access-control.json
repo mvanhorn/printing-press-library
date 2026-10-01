@@ -4,7 +4,7 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260614-174950-dcc2e342",
   "base_printing_press_version": "4.24.0",
-  "summary": "Restrict HTTP MCP to loopback and authenticate every request with a dedicated bearer token.",
+  "summary": "Bind HTTP MCP to a verified loopback IP and authenticate every request with a dedicated bearer token, accepting case-insensitive bearer schemes.",
   "reason": "Credential-backed MCP tools must not be exposed by an unauthenticated server bound to every network interface.",
   "files": ["cmd/axs-pp-mcp/main.go", "cmd/axs-pp-mcp/main_test.go", "README.md"]
 }
