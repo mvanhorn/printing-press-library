@@ -238,6 +238,16 @@ func TestOverlayOccupancyRejectsCrossCityCollision(t *testing.T) {
 	}
 }
 
+func TestOverlayOccupancyRecognizesSaintCitySpelling(t *testing.T) {
+	pop := 25
+	base := []Shelter{{ShelterID: 1, Name: "Community Center", State: "MO", City: "Saint Louis", Zip: "63101", Address: "100 Main St", Source: "fema"}}
+	occ := []Shelter{{Name: "Community Center", State: "MO", City: "St. Louis,", Zip: "63101", Address: "100 Main St", Source: "occupancy", TotalPopulation: &pop}}
+	out, filled, withheld, ambiguous := overlayOccupancy(base, occ)
+	if filled != 1 || withheld != 0 || ambiguous != 0 || out[0].TotalPopulation == nil || *out[0].TotalPopulation != pop {
+		t.Fatalf("Saint/St. city spelling should match: filled=%d withheld=%d ambiguous=%d row=%+v", filled, withheld, ambiguous, out[0])
+	}
+}
+
 // TestOverlayOccupancyWithholdsAmbiguousMatch prevents a population from being
 // assigned when two public shelters share the same name and state and the
 // occupancy row has the same ZIP for both.

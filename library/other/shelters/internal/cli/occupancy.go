@@ -216,7 +216,7 @@ func overlayOccupancy(base, occ []Shelter) (out []Shelter, filled, withheld, amb
 // independent corroboration required to merge the records safely. Different
 // known cities reject a match even if the names, states and ZIPs are equal.
 func occupancyIdentityCompatible(public, operational Shelter) bool {
-	publicCity, operationalCity := normName(cleanCity(public.City)), normName(cleanCity(operational.City))
+	publicCity, operationalCity := occupancyCityKey(public.City), occupancyCityKey(operational.City)
 	if publicCity != "" && operationalCity != "" && publicCity != operationalCity {
 		return false
 	}
@@ -226,6 +226,16 @@ func occupancyIdentityCompatible(public, operational Shelter) bool {
 	}
 	publicStreet, operationalStreet := streetKey(public.Address), streetKey(operational.Address)
 	return publicCity != "" && operationalCity != "" && publicStreet != "" && operationalStreet != "" && publicStreet == operationalStreet
+}
+
+// occupancyCityKey recognizes the common leading St./Saint spelling without
+// treating unrelated city names as aliases.
+func occupancyCityKey(city string) string {
+	parts := strings.Fields(cleanCity(city))
+	if len(parts) > 0 && strings.EqualFold(strings.TrimSuffix(parts[0], "."), "st") {
+		parts[0] = "Saint"
+	}
+	return normName(strings.Join(parts, " "))
 }
 
 // fillOccupancy folds an Open_Shelters record onto a unioned shelter. The
