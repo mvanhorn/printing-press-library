@@ -90,7 +90,7 @@ These capabilities aren't available in any other tool for this API.
   retraction-checker-pp-cli watch "machine learning" --json
   ```
 
-  The first run saves a checkpoint without fetching historical notices. Later runs check newly indexed records, including Retraction Watch additions.
+  The first run saves a checkpoint without fetching historical notices. Later runs check newly indexed records, including Retraction Watch additions. Existing config-directory checkpoints are imported into the current state path, including when a state override is set.
 
 ## Command Reference
 

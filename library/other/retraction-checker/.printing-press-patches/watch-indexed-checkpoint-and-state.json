@@ -10,5 +10,5 @@
     "internal/cli/watch.go",
     "internal/cli/watch_test.go"
   ],
-  "validated_outcome": "Synthetic tests check cursor pagination with fixed from-index-date and until-index-date filters, first-run behavior without API access, legacy checkpoint fallback, corruption rejection, and private file permissions."
+  "validated_outcome": "Synthetic tests check complete cursor pagination beyond 100 pages, two command runs that import a legacy checkpoint under a state override, corruption rejection, and private file permissions."
 }

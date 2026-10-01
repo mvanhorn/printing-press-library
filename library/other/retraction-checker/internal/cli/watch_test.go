@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -113,6 +115,112 @@ func TestFetchRetractionNoticesPaginatesFromBaseline(t *testing.T) {
 	}
 	if client.params[0]["cursor"] != "*" || client.params[1]["cursor"] != "page-2" {
 		t.Fatalf("cursors = %q then %q, want * then page-2", client.params[0]["cursor"], client.params[1]["cursor"])
+	}
+}
+
+func TestFetchRetractionNoticesBeyondFormerPageLimit(t *testing.T) {
+	responses := make([]string, 101)
+	for i := range responses {
+		next := ""
+		if i < len(responses)-1 {
+			next = fmt.Sprintf("page-%d", i+2)
+		}
+		responses[i] = fmt.Sprintf(`{"message":{"items":[{"DOI":"10.1000/%d"}],"next-cursor":%q}}`, i+1, next)
+	}
+	client := &scriptedCrossref{responses: responses}
+	since := time.Now().UTC().Add(-time.Hour)
+	got, err := fetchRetractionNoticesFrom(context.Background(), client, "", "topic", 1, since, time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	lastDOI := ""
+	if len(got) > 0 {
+		lastDOI = got[len(got)-1].DOI
+	}
+	if len(got) != 101 || len(client.params) != 101 || lastDOI != "10.1000/101" {
+		t.Fatalf("notices = %d, requests = %d, final DOI = %q; want complete 101-page window", len(got), len(client.params), lastDOI)
+	}
+}
+
+func TestLegacyWatchPathAvailableWithHomeOverride(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	restore, err := cliutil.SetHomeOverride(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+	legacy, err := legacyWatchPath("topic")
+	if err != nil || legacy == "" {
+		t.Fatalf("legacy path with --home: %q, %v", legacy, err)
+	}
+}
+
+func TestWatchImportsLegacyCheckpointAndPollsOnLaterRuns(t *testing.T) {
+	home := t.TempDir()
+	stateDir := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("RETRACTION_CHECKER_STATE_DIR", stateDir)
+	restore, err := cliutil.SetHomeOverride("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+	topic := "topic"
+	legacy, err := legacyWatchPath(topic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(legacy), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	checkpoint := fmt.Sprintf(`{"query":"topic","updated_at":%q,"seen":["10.1000/known"]}`, time.Now().UTC().Add(-time.Hour).Format(time.RFC3339))
+	if err := os.WriteFile(legacy, []byte(checkpoint), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		if r.Method != http.MethodGet || r.URL.Path != "/works" || !strings.Contains(r.URL.Query().Get("filter"), "from-index-date:") {
+			t.Errorf("unexpected watch request %s %s", r.Method, r.URL.String())
+			http.Error(w, "unexpected request", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"message":{"items":[{"DOI":"10.1000/known"},{"DOI":"10.1000/new"}],"next-cursor":""}}`))
+	}))
+	defer server.Close()
+	t.Setenv("RETRACTION_CHECKER_BASE_URL", server.URL)
+
+	run := func() watchOutput {
+		cmd := RootCmd()
+		var out, stderr bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(&stderr)
+		cmd.SetArgs([]string{"--config", filepath.Join(home, "missing.toml"), "--no-cache", "watch", topic, "--rows", "2", "--json"})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("watch command: %v; stderr %s", err, stderr.String())
+		}
+		var result watchOutput
+		if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+			t.Fatalf("watch JSON %q: %v", out.String(), err)
+		}
+		return result
+	}
+	first, second := run(), run()
+	if first.FirstRun || first.NewCount != 1 || len(first.New) != 1 || first.New[0].DOI != "10.1000/new" {
+		t.Fatalf("first poll from legacy checkpoint = %+v", first)
+	}
+	if second.FirstRun || second.NewCount != 0 || requests.Load() != 2 {
+		t.Fatalf("second poll = %+v, requests = %d; want no duplicate alert after two fetches", second, requests.Load())
+	}
+	current, err := watchPath(topic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	base, err := loadWatchBaseline(current, "", watchTTLDays)
+	if err != nil || base.UpdatedAt == "" || len(base.Seen) != 2 {
+		t.Fatalf("new watch checkpoint = %+v, %v", base, err)
 	}
 }
 

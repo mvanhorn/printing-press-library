@@ -175,7 +175,7 @@ These capabilities aren't available in any other tool for this API.
   retraction-checker-pp-cli watch "machine learning" --json
   ```
 
-  The first run starts a checkpoint without fetching historical notices. Later runs check newly indexed Crossref and Retraction Watch records. Watch state uses the CLI state directory and reads an older config-directory checkpoint when the default path is in use.
+  The first run starts a checkpoint without fetching historical notices. Later runs check newly indexed Crossref and Retraction Watch records. Watch state uses the CLI state directory and imports an older config-directory checkpoint even when a state path or `--home` override is set.
 
 ## Recipes
 

@@ -84,20 +84,13 @@ func watchPath(query string) (string, error) {
 	return filepath.Join(dir, hex.EncodeToString(sum[:8])+".json"), nil
 }
 
-// Earlier releases kept watch state under the user config directory. Read
-// that file once when using the default state path so an upgrade retains the
-// last successful poll. Explicit state overrides do not import it.
+// Earlier releases kept watch state under the user config directory even when
+// a state override was set. Import that checkpoint into the new state path so
+// an upgrade does not skip notices for an existing watch.
 func legacyWatchPath(query string) (string, error) {
-	resolution, err := cliutil.ResolveKindDir(cliutil.PathKindState)
-	if err != nil {
-		return "", err
-	}
-	if resolution.Rung != "platform-default" {
-		return "", nil
-	}
 	configDir, err := os.UserConfigDir()
 	if err != nil {
-		return "", err
+		configDir = os.TempDir() // Match the earlier watchDir fallback.
 	}
 	sum := sha256.Sum256([]byte(query))
 	return filepath.Join(configDir, "retraction-checker-pp-cli", "watch", hex.EncodeToString(sum[:8])+".json"), nil
@@ -235,8 +228,6 @@ func fetchRetractionNotices(cmd *cobra.Command, flags *rootFlags, mailto, query 
 	return fetchRetractionNoticesFrom(ctx, c, mailto, query, rows, since, until)
 }
 
-const maxWatchPages = 100
-
 func fetchRetractionNoticesFrom(ctx context.Context, c crossrefGetter, mailto, query string, rows int, since, until time.Time) ([]watchNotice, error) {
 	if rows < 1 {
 		return nil, fmt.Errorf("rows must be at least 1")
@@ -264,7 +255,11 @@ func fetchRetractionNoticesFrom(ctx context.Context, c crossrefGetter, mailto, q
 		params["mailto"] = mailto
 	}
 	notices := make([]watchNotice, 0, rows)
-	for page := 0; page < maxWatchPages; page++ {
+	seenCursors := map[string]bool{"*": true}
+	for {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		raw, err := c.Get(ctx, "/works", params)
 		if err != nil {
 			return nil, err
@@ -293,12 +288,12 @@ func fetchRetractionNoticesFrom(ctx context.Context, c crossrefGetter, mailto, q
 		if next == "" || len(envelope.Message.Items) < rows {
 			return notices, nil
 		}
-		if next == params["cursor"] {
-			return nil, fmt.Errorf("Crossref returned the same watch cursor twice")
+		if seenCursors[next] {
+			return nil, fmt.Errorf("Crossref repeated a watch cursor")
 		}
+		seenCursors[next] = true
 		params["cursor"] = next
 	}
-	return nil, fmt.Errorf("watch results exceeded the %d-page safety limit", maxWatchPages)
 }
 
 // ---------- Watch command ----------
