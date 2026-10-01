@@ -35,6 +35,9 @@ import (
 // joined onto it.
 const DefaultBaseURL = "https://seats.aero/partnerapi"
 
+// SourceURL accompanies displayed award data as required by the API terms.
+const SourceURL = "https://seats.aero"
+
 func defaultAPIKey() string {
 	if v := strings.TrimSpace(os.Getenv("SEATS_AERO_API_KEY")); v != "" {
 		return v
@@ -163,8 +166,9 @@ type SearchResult struct {
 	// endpoint, so Cached is always true on success — it is NOT a live
 	// redemption search (those are commercial-only) and callers must not
 	// present the data as freshly computed.
-	APIKeyUsed bool `json:"api_key_used,omitempty"`
-	Cached     bool `json:"cached"`
+	APIKeyUsed bool   `json:"api_key_used,omitempty"`
+	Cached     bool   `json:"cached"`
+	SourceURL  string `json:"source_url"`
 }
 
 // Search runs a cached award-availability search. Returns ErrNoAPIKey when no
@@ -232,6 +236,7 @@ func (c *Client) Search(ctx context.Context, p SearchParams) (*SearchResult, err
 		return nil, fmt.Errorf("seats.aero search: decode: %w (body=%s)", err, truncate(body))
 	}
 	result.Cached = true
+	result.SourceURL = SourceURL
 	return &result, nil
 }
 

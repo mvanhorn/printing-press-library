@@ -105,6 +105,9 @@ func TestSearch_UsesPartnerAuthAndParses(t *testing.T) {
 	if !res.Cached {
 		t.Error("Cached should be true — the Seats.aero cached-search endpoint returns cached, not live, data")
 	}
+	if res.SourceURL != SourceURL {
+		t.Fatalf("source URL = %q, want visible attribution link %q", res.SourceURL, SourceURL)
+	}
 }
 
 func TestSearch_SendsEnvelopeParams(t *testing.T) {

@@ -183,8 +183,9 @@ By default results are ordered by departure date (premium cabins first); pass
 				return nil
 			}
 
-			fmt.Fprintf(cmd.ErrOrStderr(), "%d award options for %s -> %s (programs merged, source: seats.aero cached)\n",
+			fmt.Fprintf(cmd.ErrOrStderr(), "%d award options for %s -> %s (programs merged, cached)\n",
 				result.Count, origin, dest)
+			fmt.Fprintf(cmd.OutOrStdout(), "Source: %s (Seats.aero cached availability)\n", result.SourceURL)
 			if result.HasMore {
 				fmt.Fprintf(cmd.ErrOrStderr(), "note: more results available (use --json or increase --take)\n")
 			}
