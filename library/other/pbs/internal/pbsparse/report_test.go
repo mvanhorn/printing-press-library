@@ -191,6 +191,7 @@ func TestReportRejectsInvalidInvariants(t *testing.T) {
 		{"missing section", func(r *Report) { r.Totals = r.Totals[:2] }},
 		{"duplicate section", func(r *Report) { r.Totals[1].Section = r.Totals[0].Section }},
 		{"missing weight", func(r *Report) { r.Totals[0].WeightLowest = Value{State: StateBlank} }},
+		{"zero-state weight", func(r *Report) { r.Totals[0].WeightLowest = Value{State: StateZero, Raw: "0"} }},
 		{"invalid weight sum", func(r *Report) { r.Totals[0].WeightCombined.Num += 1 }},
 		{"invalid declared count", func(r *Report) { r.Totals[0].DeclaredCount++ }},
 		{"missing item", func(r *Report) { r.Items = r.Items[1:] }},
@@ -203,6 +204,15 @@ func TestReportRejectsInvalidInvariants(t *testing.T) {
 				t.Fatal("accepted inconsistent report")
 			}
 		})
+	}
+}
+
+func TestReportAcceptsPublishedWeightRounding(t *testing.T) {
+	r := loadReport(t)
+	r.Totals[0].WeightLowest.Num -= 0.01
+	r.Totals[0].WeightCombined.Num += 0.01
+	if err := r.validate(); err != nil {
+		t.Fatalf("rejected totals within one hundredth of 100: %v", err)
 	}
 }
 

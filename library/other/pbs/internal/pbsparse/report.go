@@ -331,7 +331,7 @@ func (r *Report) validate() error {
 		}
 		seen[total.Section] = true
 		for _, weight := range []Value{total.WeightLowest, total.WeightCombined} {
-			if (!weight.Present() && weight.State != StateZero) || math.IsNaN(weight.Num) || math.IsInf(weight.Num, 0) || weight.Num < 0 {
+			if !weight.Present() || math.IsNaN(weight.Num) || math.IsInf(weight.Num, 0) || weight.Num < 0 {
 				return fmt.Errorf("section %s has invalid weight total", total.Section)
 			}
 		}
@@ -343,7 +343,8 @@ func (r *Report) validate() error {
 		return fmt.Errorf("section counts disagree: %s", strings.Join(detail, "; "))
 	}
 	lowest, combined, _ := r.WeightTotals()
-	if math.Abs(lowest-100) > 0.01 || math.Abs(combined-100) > 0.01 {
+	// Allow one hundredth of published rounding, plus floating-point noise.
+	if math.Abs(lowest-100) > 0.01+1e-9 || math.Abs(combined-100) > 0.01+1e-9 {
 		return fmt.Errorf("section weight totals must sum to 100: lowest=%.4f combined=%.4f", lowest, combined)
 	}
 	return nil
