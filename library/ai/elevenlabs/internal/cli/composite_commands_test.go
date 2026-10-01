@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -84,7 +85,7 @@ func TestVoiceBudgetRejectsMissingSubscriptionCounters(t *testing.T) {
 	}
 }
 
-func TestVoiceBudgetTableShowsResetAndRemainingSlots(t *testing.T) {
+func TestVoiceBudgetHumanReadoutShowsResetAndRemainingSlots(t *testing.T) {
 	resetIn := 2.5
 	budget := voiceBudget{NextResetUTC: "2026-10-04T00:00:00Z", DaysUntilReset: &resetIn, VoicesUsed: 12, VoiceLimit: 30, VoiceSlotsRemaining: 18}
 	headers, rows := voiceBudgetTable(budget)
@@ -92,8 +93,12 @@ func TestVoiceBudgetTableShowsResetAndRemainingSlots(t *testing.T) {
 	for i, header := range headers {
 		columns[header] = rows[0][i]
 	}
-	if columns["RESET UTC"] != budget.NextResetUTC || columns["SLOTS LEFT"] != "18" || columns["RESET IN"] != "2.5 days" {
-		t.Fatalf("human voice budget columns = %v", columns)
+	if len(headers) != 6 || columns["RESET IN"] != "2.5 days" {
+		t.Fatalf("human voice budget table = %v, %v", headers, columns)
+	}
+	details := voiceBudgetDetails(budget)
+	if !strings.Contains(details, "Reset UTC: "+budget.NextResetUTC) || !strings.Contains(details, "Voice slots left: 18") {
+		t.Fatalf("human voice budget details = %q", details)
 	}
 }
 

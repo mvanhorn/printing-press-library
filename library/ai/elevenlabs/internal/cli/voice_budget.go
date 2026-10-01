@@ -100,7 +100,11 @@ func newVoiceBudgetCmd(flags *rootFlags) *cobra.Command {
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				headers, rows := voiceBudgetTable(budget)
-				return flags.printTable(cmd, headers, rows)
+				if err := flags.printTable(cmd, headers, rows); err != nil {
+					return err
+				}
+				_, err := fmt.Fprint(cmd.OutOrStdout(), voiceBudgetDetails(budget))
+				return err
 			}
 
 			return flags.printJSON(cmd, budget)
@@ -133,20 +137,22 @@ func voiceBudgetTable(budget voiceBudget) ([]string, [][]string) {
 	if budget.DaysUntilReset != nil {
 		resetIn = fmt.Sprintf("%.1f days", *budget.DaysUntilReset)
 	}
-	resetUTC := budget.NextResetUTC
-	if resetUTC == "" {
-		resetUTC = "n/a"
-	}
-	return []string{"TIER", "CHARS USED", "REMAINING", "USED %", "RESET IN", "RESET UTC", "VOICES", "SLOTS LEFT"}, [][]string{{
+	return []string{"TIER", "CHARS USED", "REMAINING", "USED %", "RESET IN", "VOICES"}, [][]string{{
 		budget.Tier,
 		strconv.FormatInt(budget.CharactersUsed, 10),
 		strconv.FormatInt(budget.CharactersRemaining, 10),
 		fmt.Sprintf("%.1f%%", budget.PercentUsed),
 		resetIn,
-		resetUTC,
 		fmt.Sprintf("%d/%d", budget.VoicesUsed, budget.VoiceLimit),
-		strconv.FormatInt(budget.VoiceSlotsRemaining, 10),
 	}}
+}
+
+func voiceBudgetDetails(budget voiceBudget) string {
+	resetUTC := budget.NextResetUTC
+	if resetUTC == "" {
+		resetUTC = "n/a"
+	}
+	return fmt.Sprintf("Reset UTC: %s\nVoice slots left: %d\n", resetUTC, budget.VoiceSlotsRemaining)
 }
 
 // summarizeVoiceBudget derives remaining credits, percent used, reset timing,
