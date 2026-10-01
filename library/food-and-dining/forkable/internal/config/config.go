@@ -399,10 +399,21 @@ func (c *Config) ClearTokens() error {
 	}
 	// A malformed old JSON file must not block logout. The active config is
 	// cleared first; legacy cleanup is best effort and reported separately.
-	if err := c.saveWithLegacyScrubWarning(); err != nil {
-		return err
+	settingsErr := c.saveWithLegacyScrubWarning()
+	// A settings write can fail after Load (for example, the directory becomes
+	// unwritable). Still remove the separate active credentials file. Neither
+	// failure should prevent the other cleanup attempt.
+	credentialsErr := cliutil.RemoveCredentials()
+	switch {
+	case settingsErr != nil && credentialsErr != nil:
+		return fmt.Errorf("settings could not be cleared: %v; credentials file could not be removed: %w", settingsErr, credentialsErr)
+	case settingsErr != nil:
+		return fmt.Errorf("credentials file removed, but settings could not be cleared: %w", settingsErr)
+	case credentialsErr != nil:
+		return fmt.Errorf("settings cleared, but credentials file could not be removed: %w", credentialsErr)
+	default:
+		return nil
 	}
-	return cliutil.RemoveCredentials()
 }
 
 func (c *Config) markEnvOverride(field string) {

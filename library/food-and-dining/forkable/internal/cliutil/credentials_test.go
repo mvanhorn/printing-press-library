@@ -429,6 +429,25 @@ func TestClearTokensFromBothStateClearsCredentialsAndLegacy(t *testing.T) {
 	assertConfigCredential(t, reloaded, "")
 }
 
+func TestClearTokensRemovesCredentialsWhenSettingsWriteFails(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	if err := cliutil.SaveCredentials(testCredentials("synthetic-secret")); err != nil {
+		t.Fatal(err)
+	}
+	blockedParent := filepath.Join(home, "blocked-settings-parent")
+	if err := os.WriteFile(blockedParent, []byte("ordinary file"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg := &config.Config{Path: filepath.Join(blockedParent, "config.toml")}
+	err := cfg.ClearTokens()
+	if err == nil || !strings.Contains(err.Error(), "credentials file removed") || !strings.Contains(err.Error(), "settings could not be cleared") {
+		t.Fatalf("logout must report the partial cleanup accurately: %v", err)
+	}
+	if _, ok, loadErr := cliutil.LoadCredentials(); loadErr != nil || ok {
+		t.Fatalf("credentials file remained after settings write failure: present=%v error=%v", ok, loadErr)
+	}
+}
+
 func TestConcurrentCredentialWritersLeaveParseableCredentials(t *testing.T) {
 	resetCredentialEnv(t)
 	cfgA := &config.Config{Path: filepath.Join(t.TempDir(), "a.toml")}

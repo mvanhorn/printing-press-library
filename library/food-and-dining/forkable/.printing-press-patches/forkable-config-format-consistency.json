@@ -4,8 +4,8 @@
   "applied_at": "2026-08-10",
   "base_run_id": "20260717-100008-2c197495",
   "base_printing_press_version": "4.28.0",
-  "summary": "Keep Forkable settings in config.toml, preflight legacy files before adding credentials, and clear active credentials on logout while warning about unreadable old files.",
-  "reason": "Malformed coexisting JSON must not cause set-token to change auth state before reporting failure, and must not prevent logout from clearing active credentials. Explicit settings paths may share a folder with unrelated files, while app-managed homes need their own legacy JSON scrubbed or flagged honestly.",
+  "summary": "Keep Forkable settings in config.toml, preflight legacy files before adding credentials, and clear the credentials file on logout even when a settings write fails.",
+  "reason": "Malformed coexisting JSON must not cause set-token to change auth state before reporting failure, and must not prevent logout from clearing active credentials. Settings write errors must not skip removal of the separate credentials file. Explicit settings paths may share a folder with unrelated files, while app-managed homes need their own legacy JSON scrubbed or flagged honestly.",
   "files": [
     "internal/config/config.go",
     "internal/cliutil/credentials_test.go",
@@ -14,5 +14,5 @@
     "internal/cli/auth.go",
     "internal/mcp/tools_test.go"
   ],
-  "validated_outcome": "Synthetic tests prove failed set-token preflight preserves auth state, logout clears active credentials with a warning for malformed legacy JSON, and doctor identifies the unreadable path without claiming unrelated sibling files."
+  "validated_outcome": "Synthetic tests prove failed set-token preflight preserves auth state, logout clears the credentials file despite settings write failure and reports the partial failure, malformed legacy JSON raises a cleanup warning, and doctor identifies the unreadable path without claiming unrelated sibling files."
 }
