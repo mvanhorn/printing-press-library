@@ -5,6 +5,7 @@
 Medium Reader talks **directly to Medium's own public surfaces** — the RSS feeds, the article page, and Medium's internal `/_/graphql` endpoint — so it needs **no API key and no proxy**. Every command runs anonymously. It mirrors authors, publications, and tags into a local SQLite store, so you can archive a writer's entire body of work, search across everything you have synced, and see what is new in a topic — offline, in one command, agent-native.
 
 Created by [@maxswinguy](https://github.com/maxswinguy) (Maxime Delavergne).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -158,7 +159,7 @@ The installer manages the **CLI binary and the agent skill**; the **MCP server i
 
 There is one **optional** layer, "Tier 1": your own Medium **session cookie**. Medium serves only a short preview body for member-locked articles to anonymous readers. If you are a logged-in Medium member, you can hand the CLI your own browser session so the `read` path returns the full article body you can already read in your browser. This is **your own cookie, never an API key** — and it is always optional.
 
-Your single medium.com session unlocks member posts on **every** Medium publication, whether served from `medium.com` or a custom publication domain (`uxdesign.cc`, `uxplanet.org`, `towardsdatascience.com`, …): the reader forwards your session to the article's canonical host as Medium redirects to it. You do not need a separate cookie per domain.
+Your medium.com session can unlock member posts served on medium.com. The reader does not forward it to another site when an article redirects to a custom publication domain. Those articles may return a preview instead of the full body.
 
 Import it any of these ways (first hit wins):
 

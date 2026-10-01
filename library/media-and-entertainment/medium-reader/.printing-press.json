@@ -12,6 +12,12 @@
   "owner": "maxswinguy",
   "printer": "maxswinguy",
   "printer_name": "Maxime Delavergne",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "medium-unofficial-api.normalized.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:6af67e7814a10d1527ec680fcc4c3a1bd8e6ad71580ae207a77dfd78136a3557",

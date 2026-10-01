@@ -11,6 +11,7 @@ package source
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -84,27 +85,54 @@ func NewHTTPClient(timeout time.Duration) *http.Client {
 		Timeout(timeout)
 	b = b.ForceHTTP2()
 	b = b.Session()
-	// Preserve the request's headers (notably Cookie) across redirects. read
-	// canonicalises every article to https://medium.com/p/<id>, which Medium
-	// 302-redirects to the post's canonical host — for a custom-domain
-	// publication that host is a DIFFERENT registrable domain (uxdesign.cc,
-	// uxplanet.org, towardsdatascience.com, …). Go's stdlib redirect logic
-	// classifies Cookie as sensitive and strips it on a cross-registrable-domain
-	// hop, so without this the Tier-1 session never reaches the custom host and
-	// the member post comes back as the anonymous preview (IsPreviewOnly=true).
-	// Surf's ForwardHeadersOnRedirect re-copies the original request's headers
-	// onto each redirect hop (via the CheckRedirect that .Std() installs), which
-	// runs AFTER stdlib's strip and therefore restores the cookie. The target
-	// hosts are always Medium-served publication domains, which is exactly where
-	// the user intends their Medium session to apply.
-	b = b.ForwardHeadersOnRedirect()
 	sc := b.Build().Unwrap()
 	if t, ok := sc.GetTransport().(*enetxhttp.Transport); ok {
 		t.ResponseHeaderTimeout = timeout
 	}
 	hc := sc.Std()
 	hc.Timeout = timeout
+	hc.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) == 0 || sameOrigin(via[0].URL, req.URL) {
+			return nil
+		}
+
+		// Redirect targets are controlled by the remote server. Do not allow a
+		// Medium session or other caller-supplied credentials to cross an origin
+		// boundary, even when the destination looks like a publication domain.
+		for _, header := range []string{
+			"Authorization",
+			"Proxy-Authorization",
+			"Www-Authenticate",
+			"Cookie",
+			"Cookie2",
+		} {
+			req.Header.Del(header)
+		}
+		return nil
+	}
 	return hc
+}
+
+func sameOrigin(a, b *url.URL) bool {
+	if a == nil || b == nil || !strings.EqualFold(a.Scheme, b.Scheme) ||
+		!strings.EqualFold(a.Hostname(), b.Hostname()) {
+		return false
+	}
+	return originPort(a) == originPort(b)
+}
+
+func originPort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	switch strings.ToLower(u.Scheme) {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		return ""
+	}
 }
 
 // AttachCookies sets the Cookie header on req from the supplied cookies,

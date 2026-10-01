@@ -3,7 +3,10 @@
 package source
 
 import (
+	"io"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -95,55 +98,93 @@ func TestNewHTTPClientBuilds(t *testing.T) {
 	}
 }
 
-// TestNewHTTPClientForwardsCookieAcrossRedirect is the regression guard for the
-// multi-domain read fix. read canonicalises every article to
-// https://medium.com/p/<id>, which Medium 302-redirects to the post's canonical
-// host. For a custom-domain publication that host is a DIFFERENT registrable
-// domain (uxdesign.cc, uxplanet.org, …), and Go's stdlib strips the sensitive
-// Cookie header on that cross-domain hop — so the Tier-1 session never reached
-// the custom host and member posts came back as the anonymous preview.
-//
-// NewHTTPClient enables Surf's ForwardHeadersOnRedirect, which installs (via
-// .Std()) a CheckRedirect that re-copies the original request's headers onto
-// each redirect hop. Because stdlib runs CheckRedirect AFTER its sensitive-header
-// strip, this restores the Cookie. We assert that behaviour directly on the
-// returned client's CheckRedirect: the redirect request starts with no Cookie
-// (as stdlib would leave it) and must come out carrying the original cookie. If
-// someone drops the ForwardHeadersOnRedirect() call, the cookie is not copied
-// and this test fails. No network and no real cookie value is used.
-func TestNewHTTPClientForwardsCookieAcrossRedirect(t *testing.T) {
+func TestNewHTTPClientStripsCredentialsAcrossOrigins(t *testing.T) {
 	hc := NewHTTPClient(30 * time.Second)
 	if hc.CheckRedirect == nil {
-		t.Fatal("NewHTTPClient must install a CheckRedirect that forwards headers across redirects")
+		t.Fatal("NewHTTPClient must install a redirect credential policy")
 	}
 
-	const wantCookie = "sid=synthetic-test-sid; uid=synthetic-test-uid"
-
-	// Original request to the medium.com short link, carrying the Tier-1 cookie
-	// exactly as AttachCookies would have set it.
 	orig, err := http.NewRequest(http.MethodGet, "https://medium.com/p/abc123", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	orig.Header.Set("Cookie", wantCookie)
-
-	// The upcoming redirect hop to a different registrable domain. Stdlib would
-	// have stripped the sensitive Cookie here, so it starts empty — the exact
-	// state CheckRedirect receives.
+	orig.Header.Set("Cookie", "sid=synthetic-test-sid; uid=synthetic-test-uid")
 	next, err := http.NewRequest(http.MethodGet, "https://uxdesign.cc/some-post-abc123", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := next.Header.Get("Cookie"); got != "" {
-		t.Fatalf("precondition: cross-domain redirect request should start with no Cookie, got %q", got)
+	for _, header := range []string{"Authorization", "Proxy-Authorization", "Www-Authenticate", "Cookie", "Cookie2"} {
+		next.Header.Set(header, "synthetic-secret")
 	}
 
 	if err := hc.CheckRedirect(next, []*http.Request{orig}); err != nil {
 		t.Fatalf("CheckRedirect returned error: %v", err)
 	}
 
-	if got := next.Header.Get("Cookie"); got != wantCookie {
-		t.Fatalf("Cookie not forwarded across the cross-domain redirect: got %q, want %q "+
-			"(the multi-domain read bug — custom-domain member posts return the anonymous preview)", got, wantCookie)
+	for _, header := range []string{"Authorization", "Proxy-Authorization", "Www-Authenticate", "Cookie", "Cookie2"} {
+		if got := next.Header.Get(header); got != "" {
+			t.Fatalf("%s crossed an origin boundary: %q", header, got)
+		}
+	}
+}
+
+func TestNewHTTPClientDoesNotSendCookieToCrossOriginRedirect(t *testing.T) {
+	received := make(chan string, 1)
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received <- r.Header.Get("Cookie")
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer target.Close()
+
+	targetURL, err := url.Parse(target.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	redirectTarget := "http://localhost:" + targetURL.Port() + "/target"
+	source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, redirectTarget, http.StatusFound)
+	}))
+	defer source.Close()
+
+	req, err := http.NewRequest(http.MethodGet, source.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	AttachCookies(req, Cookies{Sid: "synthetic-test-sid", Uid: "synthetic-test-uid"})
+
+	resp, err := NewHTTPClient(10 * time.Second).Do(req)
+	if err != nil {
+		t.Fatalf("redirected request failed: %v", err)
+	}
+	_, _ = io.Copy(io.Discard, resp.Body)
+	_ = resp.Body.Close()
+
+	select {
+	case got := <-received:
+		if got != "" {
+			t.Fatalf("cross-origin target received Cookie %q", got)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("cross-origin target did not receive the redirected request")
+	}
+}
+
+func TestNewHTTPClientKeepsCookieOnSameOriginRedirect(t *testing.T) {
+	hc := NewHTTPClient(30 * time.Second)
+	orig, err := http.NewRequest(http.MethodGet, "https://medium.com/p/abc123", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, err := http.NewRequest(http.MethodGet, "https://medium.com/article/abc123", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next.Header.Set("Cookie", "sid=synthetic-test-sid")
+
+	if err := hc.CheckRedirect(next, []*http.Request{orig}); err != nil {
+		t.Fatalf("CheckRedirect returned error: %v", err)
+	}
+	if got := next.Header.Get("Cookie"); got != "sid=synthetic-test-sid" {
+		t.Fatalf("same-origin Cookie = %q, want it preserved", got)
 	}
 }
