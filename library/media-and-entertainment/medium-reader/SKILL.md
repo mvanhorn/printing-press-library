@@ -54,7 +54,7 @@ Do not use this CLI for:
 
 **None required.** Every command runs anonymously, with no key and no account ("Tier 0").
 
-There is one **optional** layer ("Tier 1"): your own Medium **session cookie**, which unlocks the full body of member-locked articles on the `read` path (anonymously, those return only a short preview). It is your own browser session, never an API key, and is always optional:
+There is one **optional** layer ("Tier 1"): your own Medium **session cookie**, which can unlock the full body of member-locked articles served on medium.com (anonymously, those return only a short preview). It is your own browser session, never an API key, and is always optional. The reader keeps this cookie on its original site, so an article redirected to a custom publication domain may still return a preview:
 
 ```bash
 export MEDIUM_SESSION="sid=<sid>; uid=<uid>"
@@ -71,7 +71,7 @@ Copy `sid`/`uid` from your browser's medium.com cookies (DevTools → Applicatio
   ```bash
   medium-reader-pp-cli feed tag/ux --agent
   ```
-- **`read <url|id>`** — Read a single article as Markdown. Member-locked posts return a preview anonymously; a Tier-1 cookie unlocks the full body.
+- **`read <url|id>`** — Read a single article as Markdown. Member-locked posts return a preview anonymously; a Tier-1 cookie can unlock the full body on medium.com. A redirect to a custom publication domain may still return a preview.
 
   ```bash
   medium-reader-pp-cli read https://medium.com/p/818e7841df9c --agent
@@ -186,7 +186,7 @@ export MEDIUM_SESSION="sid=<sid>; uid=<uid>"
 medium-reader-pp-cli read 818e7841df9c --agent
 ```
 
-Anonymously this returns the preview; with your own member session it returns the full body.
+Anonymously this returns the preview; with your own member session it can return the full body on medium.com. A custom publication domain may still return a preview.
 
 ## Agent Mode
 
@@ -286,7 +286,7 @@ Parse `$ARGUMENTS`:
    ```
 3. Verify: `claude mcp list`
 
-The MCP server exposes 10 keyless tools (feed, read, search, author_archive, author_compare, corpus, digest, analytics, plus a local SQL tool and a context tool). To unlock member full bodies, pass your own cookie via the `MEDIUM_SESSION` env on the server.
+The MCP server exposes 10 keyless tools (feed, read, search, author_archive, author_compare, corpus, digest, analytics, plus a local SQL tool and a context tool). To access member full bodies served on medium.com, pass your own cookie via the `MEDIUM_SESSION` env on the server. Custom publication domains may still return a preview.
 
 ## Updating
 

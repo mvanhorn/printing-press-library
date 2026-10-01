@@ -188,3 +188,41 @@ func TestNewHTTPClientKeepsCookieOnSameOriginRedirect(t *testing.T) {
 		t.Fatalf("same-origin Cookie = %q, want it preserved", got)
 	}
 }
+
+func TestNewHTTPClientSendsCookieThroughSameOriginRedirect(t *testing.T) {
+	received := make(chan string, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/start":
+			http.Redirect(w, r, "/target", http.StatusFound)
+		case "/target":
+			received <- r.Header.Get("Cookie")
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+
+	req, err := http.NewRequest(http.MethodGet, server.URL+"/start", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	AttachCookies(req, Cookies{Sid: "synthetic-test-sid"})
+
+	resp, err := NewHTTPClient(10 * time.Second).Do(req)
+	if err != nil {
+		t.Fatalf("redirected request failed: %v", err)
+	}
+	_, _ = io.Copy(io.Discard, resp.Body)
+	_ = resp.Body.Close()
+
+	select {
+	case got := <-received:
+		if got != "sid=synthetic-test-sid" {
+			t.Fatalf("same-origin target received Cookie %q", got)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("same-origin target did not receive the redirected request")
+	}
+}
