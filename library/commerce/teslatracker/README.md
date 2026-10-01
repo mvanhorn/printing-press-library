@@ -146,6 +146,8 @@ teslatracker-pp-cli watch run mine
 
 ```
 
+`sync` stores listing links under their VIN, so a local `inventory get --vin` can find the listing. The listing link does not contain the full vehicle detail. Run `hydrate` before using the local derived commands that need mileage, warranty, and price fields.
+
 ## Unique Features
 
 These capabilities aren't available in any other tool for this API.

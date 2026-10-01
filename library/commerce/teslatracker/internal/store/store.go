@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"math"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -1309,6 +1310,27 @@ var resourceIDFieldOverrides = map[string]string{"inventory": "vin"}
 var genericIDFieldFallbacks = []string{"id", "ID", "_id", "gid", "sid", "uid", "uuid", "guid", "api_id"}
 var genericDescriptiveIDFieldFallbacks = []string{"name", "slug", "key", "code"}
 
+var inventoryVINPath = regexp.MustCompile(`^/inventory/([A-HJ-NPR-Z0-9]{17})/?$`)
+
+// TeslaTracker's inventory sync extracts HTML links, which have a URL but no
+// vin field. Key those links by the VIN in their URL so inventory get --vin
+// can find them offline after sync. Hydrate still fetches full vehicle detail.
+func inventoryLinkVIN(obj map[string]any) string {
+	raw, ok := obj["url"].(string)
+	if !ok {
+		return ""
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return ""
+	}
+	match := inventoryVINPath.FindStringSubmatch(u.Path)
+	if match == nil {
+		return ""
+	}
+	return match[1]
+}
+
 // resourceIDBaseOverrides preserves the complete final collection name for
 // composed dependents whose child segment is itself multiword.
 var resourceIDBaseOverrides = map[string]string{}
@@ -1332,6 +1354,11 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 			if s != "" && s != "<nil>" {
 				return s
 			}
+		}
+	}
+	if resourceType == "inventory" {
+		if vin := inventoryLinkVIN(obj); vin != "" {
+			return vin
 		}
 	}
 	for _, key := range genericIDFieldFallbacks {
