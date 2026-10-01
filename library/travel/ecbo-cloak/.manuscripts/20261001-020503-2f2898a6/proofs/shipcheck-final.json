@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-09-30T20:05:48Z",
+  "elapsed_ms": 10628,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:48Z",
+      "elapsed_ms": 1583,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press verify --dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli --write-manifest <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/.printing-press.json --spec <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/research/ecbo-cloak.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:50Z",
+      "elapsed_ms": 595,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press validate-narrative --strict --full-examples --research <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/research.json --binary <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/build/stage/bin/ecbo-cloak-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:51Z",
+      "elapsed_ms": 2203,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press dogfood --dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli --spec <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/research/ecbo-cloak.yaml --research-dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:53Z",
+      "elapsed_ms": 2407,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press workflow-verify --dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:55Z",
+      "elapsed_ms": 968,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press apify-audit --dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli --research-dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:56Z",
+      "elapsed_ms": 1307,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press verify-skill --dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T20:05:57Z",
+      "elapsed_ms": 1562,
+      "command": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/tool-bin/cli-printing-press scorecard --dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli --write-manifest <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/.printing-press.json --research-dir <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6 --spec <press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/research/ecbo-cloak.yaml --live-check"
+    }
+  ]
+}

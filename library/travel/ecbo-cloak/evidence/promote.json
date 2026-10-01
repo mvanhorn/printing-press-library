@@ -1,0 +1,6 @@
+{
+  "cli": "ecbo-cloak-pp-cli",
+  "library_dir": "<press-home>/library/ecbo-cloak",
+  "preserved_patches": [],
+  "promoted": true
+}

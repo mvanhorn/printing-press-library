@@ -1,0 +1,127 @@
+{
+  "api_name": "ecbo-cloak",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-30T18:13:49.561578Z",
+  "novel_features": [
+    {
+      "name": "Nearby discovery",
+      "command": "facilities near",
+      "description": "Nearby discovery",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent --select id,name,name_ja,booking_url"
+    },
+    {
+      "name": "Facility identity/hours/restrictions",
+      "command": "facilities get",
+      "description": "Facility identity/hours/restrictions",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli facilities get GBy4uBrI --agent"
+    },
+    {
+      "name": "Source date/time/count price and validity",
+      "command": "offer inspect",
+      "description": "Source date/time/count price and validity",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli offer inspect 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026-10-03T19:00 --to 2026-10-03T21:00 --small 1 --large 1 --agent --select quote,validation,availability,booking_url"
+    },
+    {
+      "name": "Explicit bounded inventory refresh",
+      "command": "inventory refresh",
+      "description": "Explicit bounded inventory refresh",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli inventory refresh --lat 35.6812 --lon 139.7671 --limit 3 --agent"
+    },
+    {
+      "name": "Offline inventory/query",
+      "command": "inventory list",
+      "description": "Offline inventory/query",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli inventory list --limit 3 --agent"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Nearby discovery",
+      "command": "facilities near",
+      "description": "Nearby discovery",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent --select id,name,name_ja,booking_url"
+    },
+    {
+      "name": "Facility identity/hours/restrictions",
+      "command": "facilities get",
+      "description": "Facility identity/hours/restrictions",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli facilities get GBy4uBrI --agent"
+    },
+    {
+      "name": "Source date/time/count price and validity",
+      "command": "offer inspect",
+      "description": "Source date/time/count price and validity",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli offer inspect 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026-10-03T19:00 --to 2026-10-03T21:00 --small 1 --large 1 --agent --select quote,validation,availability,booking_url"
+    },
+    {
+      "name": "Explicit bounded inventory refresh",
+      "command": "inventory refresh",
+      "description": "Explicit bounded inventory refresh",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli inventory refresh --lat 35.6812 --lon 139.7671 --limit 3 --agent"
+    },
+    {
+      "name": "Offline inventory/query",
+      "command": "inventory list",
+      "description": "Offline inventory/query",
+      "rationale": "Combines source correctness and bounded agent retrieval",
+      "example": "ecbo-cloak-pp-cli inventory list --limit 3 --agent"
+    }
+  ],
+  "narrative": {
+    "display_name": "ecbo cloak",
+    "headline": "Discover Japan luggage storage and inspect read-only source offers.",
+    "quickstart": [
+      {
+        "command": "ecbo-cloak-pp-cli doctor --dry-run",
+        "comment": "Check setup without a request"
+      },
+      {
+        "command": "ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent --select id,name,name_ja,booking_url",
+        "comment": "Find listed Tokyo facilities"
+      },
+      {
+        "command": "ecbo-cloak-pp-cli facilities get GBy4uBrI --agent",
+        "comment": "Inspect station-specific restrictions"
+      },
+      {
+        "command": "ecbo-cloak-pp-cli offer inspect 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026-10-03T19:00 --to 2026-10-03T21:00 --small 1 --large 1 --agent --select quote,validation,availability,booking_url",
+        "comment": "Read exact source quote and validation"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Find nearby storage with Japanese names",
+        "command": "ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent --select id,name,name_ja,booking_url",
+        "explanation": "Find nearby storage with Japanese names"
+      },
+      {
+        "title": "Inspect source quote and validation separately",
+        "command": "ecbo-cloak-pp-cli offer inspect 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026-10-03T19:00 --to 2026-10-03T21:00 --small 1 --large 1 --agent --select quote,validation,availability,booking_url",
+        "explanation": "Inspect source quote and validation separately"
+      },
+      {
+        "title": "Explicitly refresh a bounded window",
+        "command": "ecbo-cloak-pp-cli inventory refresh --lat 35.6812 --lon 139.7671 --limit 3 --agent",
+        "explanation": "Explicitly refresh a bounded window"
+      },
+      {
+        "title": "Read the last window offline",
+        "command": "ecbo-cloak-pp-cli inventory list --limit 3 --agent",
+        "explanation": "Read the last window offline"
+      }
+    ]
+  }
+}

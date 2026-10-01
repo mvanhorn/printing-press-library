@@ -1,0 +1,37 @@
+[
+  {
+    "kind": "empty-short",
+    "command": "near",
+    "file": "ecbo_commands.go",
+    "line": 149,
+    "evidence": "(empty)"
+  },
+  {
+    "kind": "empty-short",
+    "command": "refresh",
+    "file": "ecbo_commands.go",
+    "line": 199,
+    "evidence": "(empty)"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "get",
+    "file": "ecbo_commands.go",
+    "line": 243,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "list",
+    "file": "ecbo_commands.go",
+    "line": 318,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  }
+]

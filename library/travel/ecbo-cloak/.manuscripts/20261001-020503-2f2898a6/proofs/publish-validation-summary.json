@@ -1,0 +1,48 @@
+{
+  "live_gate": {
+    "level": "full",
+    "verdict": "PASS",
+    "matrix_size": 53,
+    "passed": 53,
+    "failed": 0,
+    "skipped": 14,
+    "unverified": 14,
+    "pass_rate": 100,
+    "ran_at": "2026-10-01T01:48:45.104743Z",
+    "failures": []
+  },
+  "source_tests": "go test -count=1 ./... passed",
+  "source_vet": "go vet ./... passed",
+  "source_validate": true,
+  "pii_source_findings": 0,
+  "raw_transcript": "Deleted after summary and runner-written acceptance were retained.",
+  "packaged_module": "github.com/mvanhorn/printing-press-library/library/travel/ecbo-cloak",
+  "packaged_build": "PASS",
+  "packaged_tests": "go test -count=1 ./... PASS",
+  "packaged_vet": "go vet ./... PASS",
+  "packaged_govulncheck": "No vulnerabilities found. Reachable-symbol mode, this module only.",
+  "catalog_guards": {
+    "verify_skill": "PASS",
+    "publish_package": "PASS, one new CLI",
+    "release_ledger": "PASS",
+    "binary_payload": "PASS",
+    "attribution": "PASS",
+    "supply_chain": "PASS, no findings",
+    "press_version": "PASS"
+  },
+  "independent_source_e2e": {
+    "status": "pass",
+    "cases": 23,
+    "source_comparisons": {
+      "price": {
+        "price": 1300,
+        "currency": "JPY",
+        "has_duplicated_reservations": false
+      },
+      "validation": {
+        "valid": true
+      }
+    },
+    "observed_at": "2026-10-01T01:56:30.983083+00:00"
+  }
+}

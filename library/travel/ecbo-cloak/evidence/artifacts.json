@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "workspace_matches_promoted_root_binaries": true,
+  "bundle_matches_promoted_staged_binaries": true,
+  "root_sha256": {
+    "ecbo-cloak-pp-cli": "aa063ab6a66f7b7d818a633c8927732afb28b8ae4ab6c540e4d2880fb309f5fc",
+    "ecbo-cloak-pp-mcp": "9fd66b4b90c0eec91ec0590304679c81324edb35ad7256af4e1acd1580e29048"
+  },
+  "staged_sha256": {
+    "ecbo-cloak-pp-cli": "4bfde58da01eabca825f402003a0c2af0961f1b4535914093b5c416ed45eb75b",
+    "ecbo-cloak-pp-mcp": "887e64252324550fa1b9d05e49672eb7ab38049e0423fc21ebd92242fdb43a74"
+  },
+  "note": "Root and staged builds differ in build paths/flags; bundle contains the final staged binaries exactly."
+}

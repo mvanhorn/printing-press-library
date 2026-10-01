@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-30T20:14:38.474541Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "ecbo-cloak",
+  "display_name": "ecbo cloak",
+  "cli_name": "ecbo-cloak-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "ecbo-cloak.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:3c6f312a0d463af7c4e6eac94f2691967fc1edf769f5b4653f714180ee4fbe56",
+  "run_id": "20261001-020503-2f2898a6",
+  "category": "travel",
+  "description": "Discover Japan luggage storage and inspect read-only source offers.",
+  "mcp_binary": "ecbo-cloak-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Nearby discovery",
+      "command": "facilities near",
+      "description": "Nearby discovery"
+    },
+    {
+      "name": "Facility identity/hours/restrictions",
+      "command": "facilities get",
+      "description": "Facility identity/hours/restrictions"
+    },
+    {
+      "name": "Source date/time/count price and validity",
+      "command": "offer inspect",
+      "description": "Source date/time/count price and validity"
+    },
+    {
+      "name": "Explicit bounded inventory refresh",
+      "command": "inventory refresh",
+      "description": "Explicit bounded inventory refresh"
+    },
+    {
+      "name": "Offline inventory/query",
+      "command": "inventory list",
+      "description": "Offline inventory/query"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Nearby discovery",
+      "command": "facilities near",
+      "description": "Nearby discovery"
+    },
+    {
+      "name": "Facility identity/hours/restrictions",
+      "command": "facilities get",
+      "description": "Facility identity/hours/restrictions"
+    },
+    {
+      "name": "Source date/time/count price and validity",
+      "command": "offer inspect",
+      "description": "Source date/time/count price and validity"
+    },
+    {
+      "name": "Explicit bounded inventory refresh",
+      "command": "inventory refresh",
+      "description": "Explicit bounded inventory refresh"
+    },
+    {
+      "name": "Offline inventory/query",
+      "command": "inventory list",
+      "description": "Offline inventory/query"
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 9,
+    "total": 9,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

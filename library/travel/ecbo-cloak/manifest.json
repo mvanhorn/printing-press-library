@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ecbo-cloak-pp-mcp",
+  "display_name": "ecbo cloak",
+  "version": "0.1.0",
+  "description": "Discover Japan luggage storage and inspect read-only source offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ecbo-cloak-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ecbo-cloak-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

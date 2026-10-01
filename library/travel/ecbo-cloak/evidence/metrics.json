@@ -1,0 +1,467 @@
+{
+  "observed_at": "2026-10-01T01:56:30.982886+00:00",
+  "live": true,
+  "measurements": [
+    {
+      "case": "near_uncached",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5",
+        "--no-cache"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 872,
+      "stdout_bytes": 5334,
+      "peak_rss_bytes": 24543232,
+      "requests": 1,
+      "cache_hits": 0
+    },
+    {
+      "case": "near_cache_prime",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5",
+        "--refresh"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 936,
+      "stdout_bytes": 5334,
+      "peak_rss_bytes": 24788992,
+      "requests": 1,
+      "cache_hits": 0
+    },
+    {
+      "case": "near_cached",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 20,
+      "stdout_bytes": 5331,
+      "peak_rss_bytes": 19054592,
+      "requests": 0,
+      "cache_hits": 1
+    },
+    {
+      "case": "near_projected",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5",
+        "--select",
+        "id,name,name_ja,booking_url"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 13,
+      "stdout_bytes": 1836,
+      "peak_rss_bytes": 19169280,
+      "requests": 0,
+      "cache_hits": 1
+    },
+    {
+      "case": "near_next_page",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5",
+        "--offset",
+        "5"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 11,
+      "stdout_bytes": 5153,
+      "peak_rss_bytes": 20037632,
+      "requests": 0,
+      "cache_hits": 1
+    },
+    {
+      "case": "query_japanese",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5",
+        "--query",
+        "\u6771\u4eac"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 11,
+      "stdout_bytes": 5166,
+      "peak_rss_bytes": 19021824,
+      "requests": 0,
+      "cache_hits": 1
+    },
+    {
+      "case": "kyoto_window",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "34.9858",
+        "--lon",
+        "135.7588",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 583,
+      "stdout_bytes": 3335,
+      "peak_rss_bytes": 24772608,
+      "requests": 1,
+      "cache_hits": 0
+    },
+    {
+      "case": "osaka_window",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "34.7025",
+        "--lon",
+        "135.4959",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 668,
+      "stdout_bytes": 3399,
+      "peak_rss_bytes": 24920064,
+      "requests": 1,
+      "cache_hits": 0
+    },
+    {
+      "case": "filtered_window",
+      "args": [
+        "facilities",
+        "near",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "5",
+        "--from",
+        "2026-10-03T10:00",
+        "--to",
+        "2026-10-03T12:00",
+        "--large",
+        "1",
+        "--refresh"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 783,
+      "stdout_bytes": 5600,
+      "peak_rss_bytes": 24952832,
+      "requests": 1,
+      "cache_hits": 0
+    },
+    {
+      "case": "detail_uncached",
+      "args": [
+        "facilities",
+        "get",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--no-cache"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 970,
+      "stdout_bytes": 4945,
+      "peak_rss_bytes": 22937600,
+      "requests": 2,
+      "cache_hits": 0
+    },
+    {
+      "case": "detail_cache_prime",
+      "args": [
+        "facilities",
+        "get",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--refresh"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 750,
+      "stdout_bytes": 4945,
+      "peak_rss_bytes": 23379968,
+      "requests": 2,
+      "cache_hits": 0
+    },
+    {
+      "case": "detail_cached",
+      "args": [
+        "facilities",
+        "get",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 17,
+      "stdout_bytes": 4941,
+      "peak_rss_bytes": 19038208,
+      "requests": 0,
+      "cache_hits": 2
+    },
+    {
+      "case": "legacy_jr_detail",
+      "args": [
+        "facilities",
+        "get",
+        "GBy4uBrI",
+        "--refresh"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 4255,
+      "stdout_bytes": 6163,
+      "peak_rss_bytes": 27033600,
+      "requests": 4,
+      "cache_hits": 0
+    },
+    {
+      "case": "offer_uncached",
+      "args": [
+        "offer",
+        "inspect",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--from",
+        "2026-10-03T19:00",
+        "--to",
+        "2026-10-03T21:00",
+        "--small",
+        "1",
+        "--large",
+        "1",
+        "--no-cache"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 1275,
+      "stdout_bytes": 5851,
+      "peak_rss_bytes": 23117824,
+      "requests": 4,
+      "cache_hits": 0
+    },
+    {
+      "case": "offer_valid",
+      "args": [
+        "offer",
+        "inspect",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--from",
+        "2026-10-03T19:00",
+        "--to",
+        "2026-10-03T21:00",
+        "--small",
+        "1",
+        "--large",
+        "1"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 715,
+      "stdout_bytes": 5848,
+      "peak_rss_bytes": 23363584,
+      "requests": 2,
+      "cache_hits": 2
+    },
+    {
+      "case": "offer_overnight",
+      "args": [
+        "offer",
+        "inspect",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--from",
+        "2026-10-03T23:00",
+        "--to",
+        "2026-10-04T01:00",
+        "--large",
+        "1"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 541,
+      "stdout_bytes": 5921,
+      "peak_rss_bytes": 24018944,
+      "requests": 2,
+      "cache_hits": 2
+    },
+    {
+      "case": "offer_24h_overnight",
+      "args": [
+        "offer",
+        "inspect",
+        "bYXqIesH",
+        "--from",
+        "2026-10-03T23:00",
+        "--to",
+        "2026-10-04T01:00",
+        "--large",
+        "1"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 2357,
+      "stdout_bytes": 6188,
+      "peak_rss_bytes": 27131904,
+      "requests": 6,
+      "cache_hits": 0
+    },
+    {
+      "case": "offer_outside_hours",
+      "args": [
+        "offer",
+        "inspect",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--from",
+        "2026-10-03T10:00",
+        "--to",
+        "2026-10-03T12:00",
+        "--large",
+        "1"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 598,
+      "stdout_bytes": 5922,
+      "peak_rss_bytes": 24199168,
+      "requests": 2,
+      "cache_hits": 2
+    },
+    {
+      "case": "offer_excess_capacity",
+      "args": [
+        "offer",
+        "inspect",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--from",
+        "2026-10-03T19:00",
+        "--to",
+        "2026-10-03T21:00",
+        "--large",
+        "50"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 553,
+      "stdout_bytes": 5953,
+      "peak_rss_bytes": 24641536,
+      "requests": 2,
+      "cache_hits": 2
+    },
+    {
+      "case": "inventory_refresh",
+      "args": [
+        "inventory",
+        "refresh",
+        "--lat",
+        "35.6812",
+        "--lon",
+        "139.7671",
+        "--limit",
+        "3"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 746,
+      "stdout_bytes": 3579,
+      "peak_rss_bytes": 24870912,
+      "requests": 1,
+      "cache_hits": 0
+    },
+    {
+      "case": "inventory_offline",
+      "args": [
+        "inventory",
+        "list",
+        "--query",
+        "\u6771\u4eac",
+        "--limit",
+        "3"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_ms": 11,
+      "stdout_bytes": 3573,
+      "peak_rss_bytes": 19054592,
+      "requests": 0,
+      "cache_hits": 0
+    },
+    {
+      "case": "invalid_time",
+      "args": [
+        "offer",
+        "inspect",
+        "0c3fb1e9-ad5a-42de-bfda-3027ebe4921e",
+        "--from",
+        "2026-02-30T12:00",
+        "--to",
+        "2026-03-01T12:00",
+        "--large",
+        "1"
+      ],
+      "exit_code": 2,
+      "expected_exit": 2,
+      "elapsed_ms": 10,
+      "stdout_bytes": 0,
+      "peak_rss_bytes": 18530304
+    },
+    {
+      "case": "unknown_id",
+      "args": [
+        "facilities",
+        "get",
+        "ffffffff-ffff-ffff-ffff-ffffffffffff"
+      ],
+      "exit_code": 3,
+      "expected_exit": 3,
+      "elapsed_ms": 426,
+      "stdout_bytes": 0,
+      "peak_rss_bytes": 22872064
+    }
+  ]
+}

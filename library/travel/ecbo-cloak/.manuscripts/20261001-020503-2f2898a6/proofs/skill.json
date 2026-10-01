@@ -1,0 +1,71 @@
+{
+  "cli_dir": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli",
+  "skill_path": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 9,
+  "findings": [
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "ecbo-cloak-pp-cli facilities",
+      "detail": "--lat is declared elsewhere but not on facilities",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "ecbo-cloak-pp-cli facilities",
+      "detail": "--lon is declared elsewhere but not on facilities",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "ecbo-cloak-pp-cli facilities",
+      "detail": "--lat is declared elsewhere but not on facilities",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "ecbo-cloak-pp-cli facilities",
+      "detail": "--lon is declared elsewhere but not on facilities",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "positional-args",
+      "severity": "warning",
+      "command": "ecbo-cloak-pp-cli facilities",
+      "detail": "got 1 positional args; Use: \"facilities\" expects 0–0",
+      "evidence": "SKILL.md: near",
+      "likely_false_positive": true
+    },
+    {
+      "check": "positional-args",
+      "severity": "warning",
+      "command": "ecbo-cloak-pp-cli facilities",
+      "detail": "got 1 positional args; Use: \"facilities\" expects 0–0",
+      "evidence": "README.md: near",
+      "likely_false_positive": true
+    },
+    {
+      "check": "canonical-sections",
+      "severity": "error",
+      "command": "(file: SKILL.md)",
+      "detail": "install section is missing or malformed; this section is generator-owned. Regenerate the printed CLI to restore it.",
+      "evidence": "expected canonical block:\n## Prerequisites: Install the CLI\n\nThis skill drives the `ecbo-cloak-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:\n\n1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\\Programs\\PrintingPress\\bin` on Windows:\n   ```bash\n   npx -y @mvanhorn/printing-press-library install ecbo-cloak --cli-only\n   ```\n2. Verify: `ecbo-cloak-pp-cli --version`\n3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.\n\nIf the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:\n\n```bash\ngo install github.com/mvanhorn/printing-press-library/library/travel/ecbo-cloak/cmd/ecbo-cloak-pp-cli@latest\n```\n\nIf `--version` reports \"command not found\" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.\n",
+      "likely_false_positive": false
+    }
+  ]
+}

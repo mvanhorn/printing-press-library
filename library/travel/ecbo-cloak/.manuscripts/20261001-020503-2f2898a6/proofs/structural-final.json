@@ -1,0 +1,125 @@
+{
+  "dir": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli",
+  "spec_path": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 21,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 101,
+    "dead": 7,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "isDryRunResponseForClient",
+      "paginatedGetWithResponsePath",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found"
+  },
+  "example_check": {
+    "tested": 9,
+    "with_examples": 5,
+    "valid_examples": 5,
+    "missing": [
+      "source detail",
+      "source nearby",
+      "source price",
+      "source validate"
+    ],
+    "detail": "5/9 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 38,
+      "registered": 38
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 3,
+      "mapped_steps": 3,
+      "detail": "3/3 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5,
+    "depth_mismatches": [
+      {
+        "command": "inventory list",
+        "advertised": "inventory list",
+        "actual": "feedback list, profile list"
+      }
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 0
+  },
+  "description_drift_check": {
+    "expected": "Discover Japan luggage storage and inspect read-only source offers."
+  },
+  "source_client_check": {
+    "checked": 13
+  },
+  "print_json_filtered_check": {
+    "checked": 23
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 23
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "7 dead helper functions found",
+    "sync uses generic Upsert only",
+    "1 novel feature command-depth mismatches: inventory list advertised as inventory list but registered as feedback list, profile list"
+  ]
+}

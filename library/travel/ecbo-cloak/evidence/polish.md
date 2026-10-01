@@ -1,0 +1,7 @@
+# Final polish
+
+ship recommendation: ship. 5 planned/5 built, no missing features. Verify 100% (9/9 structural mock cases), persisted scorecard 80/A, all shipcheck legs pass. Full live matrix 53 pass / 0 fail / 14 expected skips, no hollow coverage; 23 separate actual source E2E/metric cases pass. Full tests and vet pass; pinned gosec has no unresolved hand-authored findings. Generated security candidates retained in gosec JSON; no shared Printing Press edits. Five tools-audit findings accepted with documented static false-positive rationale (runtime descriptions/hints correct; unreachable generator profile helper); PII strict audit has no pending findings. Exactly one independent fresh-context reviewer reused; no remaining actionable findings after source/MCP/state/home/dry-run corrections.
+
+Original installed Press did not support confined local-write live probes. Existing corrected source was compiled into this run's tool-bin; global installation/config unchanged. An absolute prepared fixture home and accurate local-write hints allow actual inventory refresh. Raw endpoint previews are one JSON request plan, never fabricated provider data. Source-bound normalized fingerprint is generated/validated by Press, not hand-edited. CLI/MCP/bundle were rebuilt after corrections.
+
+further polish recommended: no; public-source limitations remain documented as missing capacity counts/cutoffs and bounded source-window coverage. No publishing, PRs, purchases, booking/payment/account operations or unrelated writes.

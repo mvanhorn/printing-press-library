@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "ecbo-cloak-read-only-workflows",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020503-2f2898a6",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve first-party read-only discovery, source offers and explicit confined local inventory workflows.",
+  "reason": "Generated raw endpoint helpers cannot express listed-versus-validated availability, null undisclosed capacity and cutoffs, source-bounded pagination or operator-owned cache destinations.",
+  "files": [
+    "internal/ecbo/client.go",
+    "internal/ecbo/domain.go",
+    "internal/ecbo/resolve.go",
+    "internal/ecbo/projection.go",
+    "internal/ecbo/domain_test.go",
+    "internal/cli/ecbo_commands.go",
+    "internal/cli/ecbo_commands_test.go",
+    "internal/cli/root.go",
+    "internal/cli/doctor.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/ecbo_scope_test.go"
+  ],
+  "validated_outcome": "Deterministic source-shape, cache, input and MCP-boundary tests; full live dogfood and independent first-party quote/validation comparisons."
+}
