@@ -601,7 +601,9 @@ func newBuildApisDefinitionsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["dropLocation"] = bodyDropLocation
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyJobAuthorizationScope != "" {
 					body["jobAuthorizationScope"] = bodyJobAuthorizationScope

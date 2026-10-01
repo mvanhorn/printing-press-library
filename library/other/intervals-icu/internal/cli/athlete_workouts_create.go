@@ -117,7 +117,9 @@ func newAthleteWorkoutsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["filename"] = bodyFilename
 				}
 				if bodyFolderId != "" {
-					body["folder_id"] = bodyFolderId
+					if err := setJSONBodyScalar(body, "folder_id", "folder-id", "int", bodyFolderId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("for-week") {
 					body["for_week"] = bodyForWeek
@@ -132,7 +134,9 @@ func newAthleteWorkoutsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["icu_training_load"] = bodyIcuTrainingLoad
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("indoor") {
 					body["indoor"] = bodyIndoor

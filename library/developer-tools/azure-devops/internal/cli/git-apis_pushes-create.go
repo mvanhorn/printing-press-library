@@ -141,7 +141,9 @@ func newGitApisPushesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["date"] = bodyDate
 				}
 				if bodyPushId != "" {
-					body["pushId"] = bodyPushId
+					if err := setJSONBodyScalar(body, "pushId", "push-id", "int", bodyPushId); err != nil {
+						return err
+					}
 				}
 				{
 					nestedPushedBy := map[string]any{}

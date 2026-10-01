@@ -81,7 +81,9 @@ func newAccountsMagicSiteLansCreateLanCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyBondId != "" {
-					body["bond_id"] = bodyBondId
+					if err := setJSONBodyScalar(body, "bond_id", "bond-id", "int", bodyBondId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("ha-link") {
 					body["ha_link"] = bodyHaLink

@@ -73,7 +73,9 @@ func newMarketplaceUpdateListingCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyReleaseId != "" {
-					bodyMap["release_id"] = bodyReleaseId
+					if err := setJSONBodyScalar(bodyMap, "release_id", "release-id", "int", bodyReleaseId); err != nil {
+						return err
+					}
 				}
 				if bodyCondition != "" {
 					bodyMap["condition"] = bodyCondition

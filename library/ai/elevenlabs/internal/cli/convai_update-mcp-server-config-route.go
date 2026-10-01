@@ -66,16 +66,22 @@ func newConvaiUpdateMcpServerConfigRouteCmd(flags *rootFlags) *cobra.Command {
 					body["auth_connection"] = bodyAuthConnection
 				}
 				if bodyDisableCompression != "" {
-					body["disable_compression"] = bodyDisableCompression
+					if err := setJSONBodyScalar(body, "disable_compression", "disable-compression", "bool", bodyDisableCompression); err != nil {
+						return err
+					}
 				}
 				if bodyDisableInterruptions != "" {
-					body["disable_interruptions"] = bodyDisableInterruptions
+					if err := setJSONBodyScalar(body, "disable_interruptions", "disable-interruptions", "bool", bodyDisableInterruptions); err != nil {
+						return err
+					}
 				}
 				if bodyExecutionMode != "" {
 					body["execution_mode"] = bodyExecutionMode
 				}
 				if bodyForcePreToolSpeech != "" {
-					body["force_pre_tool_speech"] = bodyForcePreToolSpeech
+					if err := setJSONBodyScalar(body, "force_pre_tool_speech", "force-pre-tool-speech", "bool", bodyForcePreToolSpeech); err != nil {
+						return err
+					}
 				}
 				if bodyPreToolSpeech != "" {
 					body["pre_tool_speech"] = bodyPreToolSpeech
@@ -84,7 +90,9 @@ func newConvaiUpdateMcpServerConfigRouteCmd(flags *rootFlags) *cobra.Command {
 					body["request_headers"] = bodyRequestHeaders
 				}
 				if bodyResponseTimeoutSecs != "" {
-					body["response_timeout_secs"] = bodyResponseTimeoutSecs
+					if err := setJSONBodyScalar(body, "response_timeout_secs", "response-timeout-secs", "int", bodyResponseTimeoutSecs); err != nil {
+						return err
+					}
 				}
 				if bodySecretToken != "" {
 					body["secret_token"] = bodySecretToken

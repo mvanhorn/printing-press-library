@@ -181,7 +181,9 @@ func newRelationCreateCmd(flags *rootFlags) *cobra.Command {
 					body["inactive"] = bodyInactive
 				}
 				if bodyLedgerId != "" {
-					body["ledgerId"] = bodyLedgerId
+					if err := setJSONBodyScalar(body, "ledgerId", "ledger-id", "int", bodyLedgerId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("mandate") {
 					body["mandate"] = bodyMandate

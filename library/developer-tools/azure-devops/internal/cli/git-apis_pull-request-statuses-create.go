@@ -187,10 +187,14 @@ func newGitApisPullRequestStatusesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["description"] = bodyDescription
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyIterationId != "" {
-					body["iterationId"] = bodyIterationId
+					if err := setJSONBodyScalar(body, "iterationId", "iteration-id", "int", bodyIterationId); err != nil {
+						return err
+					}
 				}
 				{
 					nestedProperties := map[string]any{}

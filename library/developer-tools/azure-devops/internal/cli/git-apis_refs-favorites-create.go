@@ -85,7 +85,9 @@ func newGitApisRefsFavoritesCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyIdentityId != "" {
 					body["identityId"] = bodyIdentityId

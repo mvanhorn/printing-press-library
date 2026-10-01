@@ -106,7 +106,9 @@ func newAthleteFoldersCreateCmd(flags *rootFlags) *cobra.Command {
 					body["children"] = parsedChildren
 				}
 				if bodyCopyFolderId != "" {
-					body["copy_folder_id"] = bodyCopyFolderId
+					if err := setJSONBodyScalar(body, "copy_folder_id", "copy-folder-id", "int", bodyCopyFolderId); err != nil {
+						return err
+					}
 				}
 				if bodyDescription != "" {
 					body["description"] = bodyDescription
@@ -121,7 +123,9 @@ func newAthleteFoldersCreateCmd(flags *rootFlags) *cobra.Command {
 					body["hours_per_week_min"] = bodyHoursPerWeekMin
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

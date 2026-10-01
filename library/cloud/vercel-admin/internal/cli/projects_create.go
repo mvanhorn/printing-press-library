@@ -206,7 +206,9 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedResourceConfig["functionDefaultTimeout"] = bodyResourceConfigFunctionDefaultTimeout
 					}
 					if bodyResourceConfigFunctionZeroConfigFailover != "" {
-						nestedResourceConfig["functionZeroConfigFailover"] = bodyResourceConfigFunctionZeroConfigFailover
+						if err := setJSONBodyScalar(nestedResourceConfig, "functionZeroConfigFailover", "resource-config-function-zero-config-failover", "bool", bodyResourceConfigFunctionZeroConfigFailover); err != nil {
+							return err
+						}
 					}
 					if cmd.Flags().Changed("resource-config-is-nsnb-disabled") {
 						nestedResourceConfig["isNSNBDisabled"] = bodyResourceConfigIsNSNBDisabled
@@ -222,7 +224,9 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["serverlessFunctionRegion"] = bodyServerlessFunctionRegion
 				}
 				if bodyServerlessFunctionZeroConfigFailover != "" {
-					body["serverlessFunctionZeroConfigFailover"] = bodyServerlessFunctionZeroConfigFailover
+					if err := setJSONBodyScalar(body, "serverlessFunctionZeroConfigFailover", "serverless-function-zero-config-failover", "bool", bodyServerlessFunctionZeroConfigFailover); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("skip-git-connect-during-link") {
 					body["skipGitConnectDuringLink"] = bodySkipGitConnectDuringLink

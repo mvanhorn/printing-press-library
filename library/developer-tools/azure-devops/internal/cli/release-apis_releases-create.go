@@ -85,7 +85,9 @@ func newReleaseApisReleasesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["artifacts"] = parsedArtifacts
 				}
 				if bodyDefinitionId != "" {
-					body["definitionId"] = bodyDefinitionId
+					if err := setJSONBodyScalar(body, "definitionId", "definition-id", "int", bodyDefinitionId); err != nil {
+						return err
+					}
 				}
 				if bodyDescription != "" {
 					body["description"] = bodyDescription

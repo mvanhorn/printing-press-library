@@ -258,7 +258,9 @@ func newMyUserUpdateCmd(flags *rootFlags) *cobra.Command {
 							nestedAgentSettingsPhonebookOverride["Hidden"] = bodyAgentSettingsPhonebookOverrideHidden
 						}
 						if bodyAgentSettingsPhonebookOverrideId != "" {
-							nestedAgentSettingsPhonebookOverride["Id"] = bodyAgentSettingsPhonebookOverrideId
+							if err := setJSONBodyScalar(nestedAgentSettingsPhonebookOverride, "Id", "agent-settings-phonebook-override-id", "int", bodyAgentSettingsPhonebookOverrideId); err != nil {
+								return err
+							}
 						}
 						if bodyAgentSettingsPhonebookOverrideMemberOf != "" {
 							var parsedAgentSettingsPhonebookOverrideMemberOf any
@@ -489,7 +491,9 @@ func newMyUserUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("internal") {
 					body["Internal"] = bodyInternal
@@ -560,7 +564,9 @@ func newMyUserUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["PinProtected"] = bodyPinProtected
 				}
 				if bodyPrimaryGroupId != "" {
-					body["PrimaryGroupId"] = bodyPrimaryGroupId
+					if err := setJSONBodyScalar(body, "PrimaryGroupId", "primary-group-id", "int", bodyPrimaryGroupId); err != nil {
+						return err
+					}
 				}
 				if bodyPromptSet != "" {
 					body["PromptSet"] = bodyPromptSet

@@ -110,7 +110,9 @@ func newSandboxesUpdateSandboxCmd(flags *rootFlags) *cobra.Command {
 					body["runtime"] = bodyRuntime
 				}
 				if bodySnapshotExpiration != "" {
-					body["snapshotExpiration"] = bodySnapshotExpiration
+					if err := setJSONBodyScalar(body, "snapshotExpiration", "snapshot-expiration", "int", bodySnapshotExpiration); err != nil {
+						return err
+					}
 				}
 				if bodyTags != "" {
 					var parsedTags any

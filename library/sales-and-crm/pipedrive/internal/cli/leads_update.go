@@ -89,13 +89,19 @@ func newLeadsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["label_ids"] = cliutil.SplitCSV(bodyLabelIds)
 				}
 				if bodyOrganizationId != "" {
-					body["organization_id"] = bodyOrganizationId
+					if err := setJSONBodyScalar(body, "organization_id", "organization-id", "int", bodyOrganizationId); err != nil {
+						return err
+					}
 				}
 				if bodyOwnerId != "" {
-					body["owner_id"] = bodyOwnerId
+					if err := setJSONBodyScalar(body, "owner_id", "owner-id", "int", bodyOwnerId); err != nil {
+						return err
+					}
 				}
 				if bodyPersonId != "" {
-					body["person_id"] = bodyPersonId
+					if err := setJSONBodyScalar(body, "person_id", "person-id", "int", bodyPersonId); err != nil {
+						return err
+					}
 				}
 				if bodyTitle != "" {
 					body["title"] = bodyTitle

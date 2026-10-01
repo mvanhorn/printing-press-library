@@ -74,7 +74,9 @@ func newFaxServerSettingsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["Email"] = bodyEmail
 				}
 				if bodyFaxServerId != "" {
-					body["FaxServerId"] = bodyFaxServerId
+					if err := setJSONBodyScalar(body, "FaxServerId", "fax-server-id", "int", bodyFaxServerId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("g711-to-t38-fallback") {
 					body["G711ToT38Fallback"] = bodyG711ToT38Fallback

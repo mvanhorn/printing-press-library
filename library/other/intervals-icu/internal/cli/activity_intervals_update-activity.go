@@ -232,7 +232,9 @@ func newActivityIntervalsUpdateActivityCmd(flags *rootFlags) *cobra.Command {
 					body["headwind_percent"] = bodyHeadwindPercent
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyIntensity != 0 {
 					body["intensity"] = bodyIntensity

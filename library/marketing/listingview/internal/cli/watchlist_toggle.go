@@ -60,7 +60,9 @@ func newWatchlistToggleCmd(flags *rootFlags) *cobra.Command {
 					body["type"] = bodyType
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

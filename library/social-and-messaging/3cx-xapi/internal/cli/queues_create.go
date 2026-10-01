@@ -315,7 +315,9 @@ func newQueuesCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyIntroFile != "" {
 					body["IntroFile"] = bodyIntroFile

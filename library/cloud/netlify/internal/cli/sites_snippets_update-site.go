@@ -74,7 +74,9 @@ func newSitesSnippetsUpdateSiteCmd(flags *rootFlags) *cobra.Command {
 					body["goal_position"] = bodyGoalPosition
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodySiteId2 != "" {
 					body["site_id"] = bodySiteId2

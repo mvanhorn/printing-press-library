@@ -80,10 +80,14 @@ func newCompaniesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["phone_numbers"] = bodyPhoneNumbers
 				}
 				if bodyAssigneeId != "" {
-					body["assignee_id"] = bodyAssigneeId
+					if err := setJSONBodyScalar(body, "assignee_id", "assignee-id", "int", bodyAssigneeId); err != nil {
+						return err
+					}
 				}
 				if bodyContactTypeId != "" {
-					body["contact_type_id"] = bodyContactTypeId
+					if err := setJSONBodyScalar(body, "contact_type_id", "contact-type-id", "int", bodyContactTypeId); err != nil {
+						return err
+					}
 				}
 				if bodyTags != "" {
 					var parsedTags any

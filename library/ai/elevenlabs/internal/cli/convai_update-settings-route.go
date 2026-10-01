@@ -56,7 +56,9 @@ func newConvaiUpdateSettingsRouteCmd(flags *rootFlags) *cobra.Command {
 					body["can_use_mcp_servers"] = bodyCanUseMcpServers
 				}
 				if bodyConversationEmbeddingRetentionDays != "" {
-					body["conversation_embedding_retention_days"] = bodyConversationEmbeddingRetentionDays
+					if err := setJSONBodyScalar(body, "conversation_embedding_retention_days", "conversation-embedding-retention-days", "int", bodyConversationEmbeddingRetentionDays); err != nil {
+						return err
+					}
 				}
 				if bodyConversationInitiationClientDataWebhook != "" {
 					body["conversation_initiation_client_data_webhook"] = bodyConversationInitiationClientDataWebhook
@@ -80,7 +82,9 @@ func newConvaiUpdateSettingsRouteCmd(flags *rootFlags) *cobra.Command {
 						nestedWebhooks["post_call_webhook_id"] = bodyWebhooksPostCallWebhookId
 					}
 					if bodyWebhooksSendAudio != "" {
-						nestedWebhooks["send_audio"] = bodyWebhooksSendAudio
+						if err := setJSONBodyScalar(nestedWebhooks, "send_audio", "webhooks-send-audio", "bool", bodyWebhooksSendAudio); err != nil {
+							return err
+						}
 					}
 					if bodyWebhooksTranscriptFormat != "" {
 						nestedWebhooks["transcript_format"] = bodyWebhooksTranscriptFormat

@@ -77,7 +77,9 @@ func newConvaiUpdatePhoneNumberRouteCmd(flags *rootFlags) *cobra.Command {
 					body["outbound_trunk_config"] = bodyOutboundTrunkConfig
 				}
 				if bodyStoreSipMessages != "" {
-					body["store_sip_messages"] = bodyStoreSipMessages
+					if err := setJSONBodyScalar(body, "store_sip_messages", "store-sip-messages", "bool", bodyStoreSipMessages); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(path, params, body)

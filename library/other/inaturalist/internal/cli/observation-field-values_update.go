@@ -68,10 +68,14 @@ func newObservationFieldValuesUpdateCmd(flags *rootFlags) *cobra.Command {
 				{
 					nestedObservationFieldValue := map[string]any{}
 					if bodyObservationFieldValueObservationFieldId != "" {
-						nestedObservationFieldValue["observation_field_id"] = bodyObservationFieldValueObservationFieldId
+						if err := setJSONBodyScalar(nestedObservationFieldValue, "observation_field_id", "observation-field-value-observation-field-id", "int", bodyObservationFieldValueObservationFieldId); err != nil {
+							return err
+						}
 					}
 					if bodyObservationFieldValueObservationId != "" {
-						nestedObservationFieldValue["observation_id"] = bodyObservationFieldValueObservationId
+						if err := setJSONBodyScalar(nestedObservationFieldValue, "observation_id", "observation-field-value-observation-id", "int", bodyObservationFieldValueObservationId); err != nil {
+							return err
+						}
 					}
 					if bodyObservationFieldValueValue != "" {
 						nestedObservationFieldValue["value"] = bodyObservationFieldValueValue

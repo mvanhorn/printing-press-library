@@ -252,7 +252,9 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyAcceptCoachingGroupId != "" {
-					body["accept_coaching_group_id"] = bodyAcceptCoachingGroupId
+					if err := setJSONBodyScalar(body, "accept_coaching_group_id", "accept-coaching-group-id", "int", bodyAcceptCoachingGroupId); err != nil {
+						return err
+					}
 				}
 				{
 					nestedActivity := map[string]any{}
@@ -448,7 +450,9 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 						nestedActivity["icu_cadence_z2"] = bodyActivityIcuCadenceZ2
 					}
 					if bodyActivityIcuChatId != "" {
-						nestedActivity["icu_chat_id"] = bodyActivityIcuChatId
+						if err := setJSONBodyScalar(nestedActivity, "icu_chat_id", "activity-icu-chat-id", "int", bodyActivityIcuChatId); err != nil {
+							return err
+						}
 					}
 					if bodyActivityIcuColor != "" {
 						nestedActivity["icu_color"] = bodyActivityIcuColor
@@ -717,7 +721,9 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 						nestedActivity["name"] = bodyActivityName
 					}
 					if bodyActivityOauthClientId != "" {
-						nestedActivity["oauth_client_id"] = bodyActivityOauthClientId
+						if err := setJSONBodyScalar(nestedActivity, "oauth_client_id", "activity-oauth-client-id", "int", bodyActivityOauthClientId); err != nil {
+							return err
+						}
 					}
 					if bodyActivityOauthClientName != "" {
 						nestedActivity["oauth_client_name"] = bodyActivityOauthClientName
@@ -752,7 +758,9 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 						nestedActivity["pace_zones"] = parsedActivityPaceZones
 					}
 					if bodyActivityPairedEventId != "" {
-						nestedActivity["paired_event_id"] = bodyActivityPairedEventId
+						if err := setJSONBodyScalar(nestedActivity, "paired_event_id", "activity-paired-event-id", "int", bodyActivityPairedEventId); err != nil {
+							return err
+						}
 					}
 					if bodyActivityPerceivedExertion != 0.0 {
 						nestedActivity["perceived_exertion"] = bodyActivityPerceivedExertion
@@ -795,7 +803,9 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 						nestedActivity["recording_stops"] = parsedActivityRecordingStops
 					}
 					if bodyActivityRouteId != "" {
-						nestedActivity["route_id"] = bodyActivityRouteId
+						if err := setJSONBodyScalar(nestedActivity, "route_id", "activity-route-id", "int", bodyActivityRouteId); err != nil {
+							return err
+						}
 					}
 					if bodyActivitySessionRpe != 0 {
 						nestedActivity["session_rpe"] = bodyActivitySessionRpe
@@ -898,7 +908,9 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 					body["attachment_url"] = bodyAttachmentUrl
 				}
 				if bodyChatId != "" {
-					body["chat_id"] = bodyChatId
+					if err := setJSONBodyScalar(body, "chat_id", "chat-id", "int", bodyChatId); err != nil {
+						return err
+					}
 				}
 				if bodyContent != "" {
 					body["content"] = bodyContent
@@ -916,10 +928,14 @@ func newChatsSendMessageCmd(flags *rootFlags) *cobra.Command {
 					body["end_index"] = bodyEndIndex
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyJoinGroupId != "" {
-					body["join_group_id"] = bodyJoinGroupId
+					if err := setJSONBodyScalar(body, "join_group_id", "join-group-id", "int", bodyJoinGroupId); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

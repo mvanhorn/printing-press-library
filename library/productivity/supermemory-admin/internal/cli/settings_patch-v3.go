@@ -62,7 +62,9 @@ func newSettingsPatchV3Cmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyChunkSize != "" {
-					body["chunkSize"] = bodyChunkSize
+					if err := setJSONBodyScalar(body, "chunkSize", "chunk-size", "int", bodyChunkSize); err != nil {
+						return err
+					}
 				}
 				if bodyExcludeItems != "" {
 					body["excludeItems"] = bodyExcludeItems
@@ -77,7 +79,9 @@ func newSettingsPatchV3Cmd(flags *rootFlags) *cobra.Command {
 					body["githubClientSecret"] = bodyGithubClientSecret
 				}
 				if bodyGithubCustomKeyEnabled != "" {
-					body["githubCustomKeyEnabled"] = bodyGithubCustomKeyEnabled
+					if err := setJSONBodyScalar(body, "githubCustomKeyEnabled", "github-custom-key-enabled", "bool", bodyGithubCustomKeyEnabled); err != nil {
+						return err
+					}
 				}
 				if bodyGoogleDriveClientId != "" {
 					body["googleDriveClientId"] = bodyGoogleDriveClientId
@@ -86,7 +90,9 @@ func newSettingsPatchV3Cmd(flags *rootFlags) *cobra.Command {
 					body["googleDriveClientSecret"] = bodyGoogleDriveClientSecret
 				}
 				if bodyGoogleDriveCustomKeyEnabled != "" {
-					body["googleDriveCustomKeyEnabled"] = bodyGoogleDriveCustomKeyEnabled
+					if err := setJSONBodyScalar(body, "googleDriveCustomKeyEnabled", "google-drive-custom-key-enabled", "bool", bodyGoogleDriveCustomKeyEnabled); err != nil {
+						return err
+					}
 				}
 				if bodyIncludeItems != "" {
 					body["includeItems"] = bodyIncludeItems
@@ -98,7 +104,9 @@ func newSettingsPatchV3Cmd(flags *rootFlags) *cobra.Command {
 					body["notionClientSecret"] = bodyNotionClientSecret
 				}
 				if bodyNotionCustomKeyEnabled != "" {
-					body["notionCustomKeyEnabled"] = bodyNotionCustomKeyEnabled
+					if err := setJSONBodyScalar(body, "notionCustomKeyEnabled", "notion-custom-key-enabled", "bool", bodyNotionCustomKeyEnabled); err != nil {
+						return err
+					}
 				}
 				if bodyOnedriveClientId != "" {
 					body["onedriveClientId"] = bodyOnedriveClientId
@@ -107,10 +115,14 @@ func newSettingsPatchV3Cmd(flags *rootFlags) *cobra.Command {
 					body["onedriveClientSecret"] = bodyOnedriveClientSecret
 				}
 				if bodyOnedriveCustomKeyEnabled != "" {
-					body["onedriveCustomKeyEnabled"] = bodyOnedriveCustomKeyEnabled
+					if err := setJSONBodyScalar(body, "onedriveCustomKeyEnabled", "onedrive-custom-key-enabled", "bool", bodyOnedriveCustomKeyEnabled); err != nil {
+						return err
+					}
 				}
 				if bodyShouldLLMFilter != "" {
-					body["shouldLLMFilter"] = bodyShouldLLMFilter
+					if err := setJSONBodyScalar(body, "shouldLLMFilter", "should-llm-filter", "bool", bodyShouldLLMFilter); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)

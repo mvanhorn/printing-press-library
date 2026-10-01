@@ -109,7 +109,9 @@ func newNewsCreateItemCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["reactions"] = parsedReactions
 				}
 				if bodySenderId != "" {
-					bodyMap["sender_id"] = bodySenderId
+					if err := setJSONBodyScalar(bodyMap, "sender_id", "sender-id", "int", bodySenderId); err != nil {
+						return err
+					}
 				}
 				if bodyState != "" {
 					bodyMap["state"] = bodyState

@@ -61,7 +61,9 @@ func newScheduledReportsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["FilterDescription"] = bodyFilterDescription
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["Name"] = bodyName

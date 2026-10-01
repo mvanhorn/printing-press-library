@@ -57,7 +57,9 @@ func newDubbingRenderCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyNormalizeVolume != "" {
-					body["normalize_volume"] = bodyNormalizeVolume
+					if err := setJSONBodyScalar(body, "normalize_volume", "normalize-volume", "bool", bodyNormalizeVolume); err != nil {
+						return err
+					}
 				}
 				if bodyRenderType != "" {
 					body["render_type"] = bodyRenderType

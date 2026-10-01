@@ -146,7 +146,9 @@ func newSbcsNameUpdateSbcCmd(flags *rootFlags) *cobra.Command {
 					body["PhoneMAC"] = bodyPhoneMAC
 				}
 				if bodyPhoneUserId != "" {
-					body["PhoneUserId"] = bodyPhoneUserId
+					if err := setJSONBodyScalar(body, "PhoneUserId", "phone-user-id", "int", bodyPhoneUserId); err != nil {
+						return err
+					}
 				}
 				if bodyProvisionLink != "" {
 					body["ProvisionLink"] = bodyProvisionLink

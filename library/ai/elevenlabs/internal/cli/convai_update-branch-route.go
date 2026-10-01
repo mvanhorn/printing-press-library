@@ -55,7 +55,9 @@ func newConvaiUpdateBranchRouteCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyIsArchived != "" {
-					body["is_archived"] = bodyIsArchived
+					if err := setJSONBodyScalar(body, "is_archived", "is-archived", "bool", bodyIsArchived); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

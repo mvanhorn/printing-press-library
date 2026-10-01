@@ -56,7 +56,9 @@ func newDeviceInfosIdProvisionCmd(flags *rootFlags) *cobra.Command {
 					body["reprovision"] = bodyReprovision
 				}
 				if bodyUserId != "" {
-					body["userId"] = bodyUserId
+					if err := setJSONBodyScalar(body, "userId", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

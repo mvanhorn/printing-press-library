@@ -420,7 +420,9 @@ func newGitApisPullRequestsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["closedDate"] = bodyClosedDate
 				}
 				if bodyCodeReviewId != "" {
-					body["codeReviewId"] = bodyCodeReviewId
+					if err := setJSONBodyScalar(body, "codeReviewId", "code-review-id", "int", bodyCodeReviewId); err != nil {
+						return err
+					}
 				}
 				if bodyCommits != "" {
 					var parsedCommits any

@@ -228,7 +228,9 @@ func newTrunksIdUpdateTrunkCmd(flags *rootFlags) *cobra.Command {
 						nestedGateway["IPInRegistrationContact"] = bodyGatewayIPInRegistrationContact
 					}
 					if bodyGatewayId != "" {
-						nestedGateway["Id"] = bodyGatewayId
+						if err := setJSONBodyScalar(nestedGateway, "Id", "gateway-id", "int", bodyGatewayId); err != nil {
+							return err
+						}
 					}
 					if bodyGatewayInboundParams != "" {
 						var parsedGatewayInboundParams any
@@ -327,7 +329,9 @@ func newTrunksIdUpdateTrunkCmd(flags *rootFlags) *cobra.Command {
 					body["IPRestriction"] = bodyIPRestriction
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyInCIDFormatting != "" {
 					var parsedInCIDFormatting any

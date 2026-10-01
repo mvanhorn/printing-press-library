@@ -165,7 +165,9 @@ func newImmichSearchAssetsCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["originalPath"] = bodyOriginalPath
 				}
 				if bodyPage != "" {
-					bodyMap["page"] = bodyPage
+					if err := setJSONBodyScalar(bodyMap, "page", "page", "int", bodyPage); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("person-ids") {
 					parsedPersonIds, parseErr := cliutil.ParseStringList(bodyPersonIds)

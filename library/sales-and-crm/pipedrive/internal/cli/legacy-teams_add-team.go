@@ -64,7 +64,9 @@ func newLegacyTeamsAddTeamCmd(flags *rootFlags) *cobra.Command {
 					body["description"] = bodyDescription
 				}
 				if bodyManagerId != "" {
-					body["manager_id"] = bodyManagerId
+					if err := setJSONBodyScalar(body, "manager_id", "manager-id", "int", bodyManagerId); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

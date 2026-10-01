@@ -122,7 +122,9 @@ func newAccountsAiSearchCreateInstanceCmd(flags *rootFlags) *cobra.Command {
 					body["cache_threshold"] = bodyCacheThreshold
 				}
 				if bodyCacheTtl != "" {
-					body["cache_ttl"] = bodyCacheTtl
+					if err := setJSONBodyScalar(body, "cache_ttl", "cache-ttl", "number", bodyCacheTtl); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("chunk") {
 					body["chunk"] = bodyChunk
@@ -315,7 +317,9 @@ func newAccountsAiSearchCreateInstanceCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodySyncInterval != "" {
-					body["sync_interval"] = bodySyncInterval
+					if err := setJSONBodyScalar(body, "sync_interval", "sync-interval", "number", bodySyncInterval); err != nil {
+						return err
+					}
 				}
 				if bodyTokenId != "" {
 					body["token_id"] = bodyTokenId

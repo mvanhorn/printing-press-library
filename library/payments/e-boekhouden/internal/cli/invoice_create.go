@@ -95,7 +95,9 @@ func newInvoiceCreateCmd(flags *rootFlags) *cobra.Command {
 					body["email"] = bodyEmail
 				}
 				if bodyEmailTemplateId != "" {
-					body["emailTemplateId"] = bodyEmailTemplateId
+					if err := setJSONBodyScalar(body, "emailTemplateId", "email-template-id", "int", bodyEmailTemplateId); err != nil {
+						return err
+					}
 				}
 				if bodyInExVat != "" {
 					body["inExVat"] = bodyInExVat
@@ -120,10 +122,14 @@ func newInvoiceCreateCmd(flags *rootFlags) *cobra.Command {
 					body["reference"] = bodyReference
 				}
 				if bodyRelationId != "" {
-					body["relationId"] = bodyRelationId
+					if err := setJSONBodyScalar(body, "relationId", "relation-id", "int", bodyRelationId); err != nil {
+						return err
+					}
 				}
 				if bodyTemplateId != "" {
-					body["templateId"] = bodyTemplateId
+					if err := setJSONBodyScalar(body, "templateId", "template-id", "int", bodyTemplateId); err != nil {
+						return err
+					}
 				}
 				if bodyTermOfPayment != 0 {
 					body["termOfPayment"] = bodyTermOfPayment

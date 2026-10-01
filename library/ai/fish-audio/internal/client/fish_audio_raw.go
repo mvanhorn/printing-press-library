@@ -35,7 +35,12 @@ const maxRawResponseBytes = 512 << 20 // 512 MiB
 //   - the verify harness short-circuits before any dial
 //   - --dry-run returns an empty body and status 0 without dialing
 //   - the adaptive rate limiter gates every attempt
-//   - 429 and 5xx are retried with exponential backoff
+//   - 429 is retried with exponential backoff; the request was refused, so
+//     nothing was generated or billed
+//   - a transport error, unreadable response, or 5xx is NOT retried: every
+//     PostRaw caller (TTS, voice design, model create, ASR) starts billed or
+//     side-effecting work, and the server may have accepted the request
+//     before the failure was observed. Replaying would bill the user again.
 //   - non-2xx returns an *APIError with a truncated, credential-masked body
 func (c *Client) PostRaw(ctx context.Context, path string, body []byte, headers map[string]string) ([]byte, int, error) {
 	if cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
@@ -89,27 +94,15 @@ func (c *Client) PostRaw(ctx context.Context, path string, body []byte, headers 
 			if ctxErr := ctx.Err(); ctxErr != nil {
 				return nil, 0, ctxErr
 			}
-			lastErr = fmt.Errorf("POST %s: %w", c.displayURL(path, authHeader), c.maskError(doErr, authHeader))
-			if attempt < maxRetries {
-				if waitErr := backoffSleep(ctx, attempt); waitErr != nil {
-					return nil, 0, waitErr
-				}
-				continue
-			}
-			return nil, 0, lastErr
+			// PATCH(paid-raw-posts-never-replayed): ambiguous failure, the
+			// request may already be generating (and billing). Do not replay.
+			return nil, 0, fmt.Errorf("POST %s: %w (not retried: the request may have been accepted)", c.displayURL(path, authHeader), c.maskError(doErr, authHeader))
 		}
 
 		data, readErr := io.ReadAll(io.LimitReader(resp.Body, maxRawResponseBytes+1))
 		_ = resp.Body.Close()
 		if readErr != nil {
-			lastErr = fmt.Errorf("POST %s: reading response: %w", c.displayURL(path, authHeader), c.maskError(readErr, authHeader))
-			if attempt < maxRetries {
-				if waitErr := backoffSleep(ctx, attempt); waitErr != nil {
-					return nil, 0, waitErr
-				}
-				continue
-			}
-			return nil, resp.StatusCode, lastErr
+			return nil, resp.StatusCode, fmt.Errorf("POST %s: reading response: %w (not retried: the request was accepted)", c.displayURL(path, authHeader), c.maskError(readErr, authHeader))
 		}
 		if int64(len(data)) > maxRawResponseBytes {
 			return nil, resp.StatusCode, fmt.Errorf("POST %s: response exceeds the %d byte limit", path, int64(maxRawResponseBytes))
@@ -121,7 +114,7 @@ func (c *Client) PostRaw(ctx context.Context, path string, body []byte, headers 
 			c.limiter.OnSuccess()
 		}
 
-		if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500 {
+		if resp.StatusCode == http.StatusTooManyRequests {
 			lastErr = &APIError{
 				Method:     http.MethodPost,
 				Path:       path,

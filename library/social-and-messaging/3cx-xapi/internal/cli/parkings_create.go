@@ -54,7 +54,9 @@ func newParkingsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["Groups"] = parsedGroups
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyNumber != "" {
 					body["Number"] = bodyNumber

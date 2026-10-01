@@ -60,13 +60,17 @@ func newAccountsCloudforceOnePutTakedownNoticeUpdateCmd(flags *rootFlags) *cobra
 					body["domain"] = bodyDomain
 				}
 				if bodyMatchId != "" {
-					body["matchId"] = bodyMatchId
+					if err := setJSONBodyScalar(body, "matchId", "match-id", "int", bodyMatchId); err != nil {
+						return err
+					}
 				}
 				if bodyMatchType != "" {
 					body["matchType"] = bodyMatchType
 				}
 				if bodyQueryId != "" {
-					body["queryId"] = bodyQueryId
+					if err := setJSONBodyScalar(body, "queryId", "query-id", "int", bodyQueryId); err != nil {
+						return err
+					}
 				}
 				if bodyStatus != "" {
 					body["status"] = bodyStatus

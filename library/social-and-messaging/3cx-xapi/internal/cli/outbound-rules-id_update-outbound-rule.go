@@ -86,7 +86,9 @@ func newOutboundRulesIdUpdateOutboundRuleCmd(flags *rootFlags) *cobra.Command {
 					body["GroupNames"] = parsedGroupNames
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["Name"] = bodyName

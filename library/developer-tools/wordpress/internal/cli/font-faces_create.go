@@ -91,7 +91,9 @@ func newFontFacesCreateCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyFontFamilyId2 != "" {
-					bodyMap["font_family_id"] = bodyFontFamilyId2
+					if err := setJSONBodyScalar(bodyMap, "font_family_id", "font-family-id-2", "int", bodyFontFamilyId2); err != nil {
+						return err
+					}
 				}
 				if bodyThemeJsonVersion != 0 {
 					bodyMap["theme_json_version"] = bodyThemeJsonVersion

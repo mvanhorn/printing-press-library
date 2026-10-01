@@ -59,13 +59,19 @@ func newDubbingCreateSpeakerCmd(flags *rootFlags) *cobra.Command {
 					body["voice_id"] = bodyVoiceId
 				}
 				if bodyVoiceSimilarity != "" {
-					body["voice_similarity"] = bodyVoiceSimilarity
+					if err := setJSONBodyScalar(body, "voice_similarity", "voice-similarity", "number", bodyVoiceSimilarity); err != nil {
+						return err
+					}
 				}
 				if bodyVoiceStability != "" {
-					body["voice_stability"] = bodyVoiceStability
+					if err := setJSONBodyScalar(body, "voice_stability", "voice-stability", "number", bodyVoiceStability); err != nil {
+						return err
+					}
 				}
 				if bodyVoiceStyle != "" {
-					body["voice_style"] = bodyVoiceStyle
+					if err := setJSONBodyScalar(body, "voice_style", "voice-style", "number", bodyVoiceStyle); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(path, params, body)

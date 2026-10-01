@@ -54,7 +54,9 @@ func newCostcenterCreateCostCenterCmd(flags *rootFlags) *cobra.Command {
 					body["description"] = bodyDescription
 				}
 				if bodyParentId != "" {
-					body["parentId"] = bodyParentId
+					if err := setJSONBodyScalar(body, "parentId", "parent-id", "int", bodyParentId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

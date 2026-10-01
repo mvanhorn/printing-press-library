@@ -179,7 +179,9 @@ func newConvaiRunConversationSimulationRouteStreamCmd(flags *rootFlags) *cobra.C
 								nestedSimulationSpecificationSimulatedUserConfigPrompt["custom_llm"] = bodySimulationSpecificationSimulatedUserConfigPromptCustomLlm
 							}
 							if bodySimulationSpecificationSimulatedUserConfigPromptIgnoreDefaultPersonality != "" {
-								nestedSimulationSpecificationSimulatedUserConfigPrompt["ignore_default_personality"] = bodySimulationSpecificationSimulatedUserConfigPromptIgnoreDefaultPersonality
+								if err := setJSONBodyScalar(nestedSimulationSpecificationSimulatedUserConfigPrompt, "ignore_default_personality", "simulation-specification-simulated-user-config-prompt-ignore-default-personality", "bool", bodySimulationSpecificationSimulatedUserConfigPromptIgnoreDefaultPersonality); err != nil {
+									return err
+								}
 							}
 							if bodySimulationSpecificationSimulatedUserConfigPromptKnowledgeBase != "" {
 								var parsedSimulationSpecificationSimulatedUserConfigPromptKnowledgeBase any
@@ -229,7 +231,9 @@ func newConvaiRunConversationSimulationRouteStreamCmd(flags *rootFlags) *cobra.C
 									nestedSimulationSpecificationSimulatedUserConfigPromptRag["max_vector_distance"] = bodySimulationSpecificationSimulatedUserConfigPromptRagMaxVectorDistance
 								}
 								if bodySimulationSpecificationSimulatedUserConfigPromptRagNumCandidates != "" {
-									nestedSimulationSpecificationSimulatedUserConfigPromptRag["num_candidates"] = bodySimulationSpecificationSimulatedUserConfigPromptRagNumCandidates
+									if err := setJSONBodyScalar(nestedSimulationSpecificationSimulatedUserConfigPromptRag, "num_candidates", "simulation-specification-simulated-user-config-prompt-rag-num-candidates", "int", bodySimulationSpecificationSimulatedUserConfigPromptRagNumCandidates); err != nil {
+										return err
+									}
 								}
 								if bodySimulationSpecificationSimulatedUserConfigPromptRagQueryRewritePromptOverride != "" {
 									nestedSimulationSpecificationSimulatedUserConfigPromptRag["query_rewrite_prompt_override"] = bodySimulationSpecificationSimulatedUserConfigPromptRagQueryRewritePromptOverride
@@ -242,10 +246,14 @@ func newConvaiRunConversationSimulationRouteStreamCmd(flags *rootFlags) *cobra.C
 								nestedSimulationSpecificationSimulatedUserConfigPrompt["reasoning_effort"] = bodySimulationSpecificationSimulatedUserConfigPromptReasoningEffort
 							}
 							if bodySimulationSpecificationSimulatedUserConfigPromptTemperature != "" {
-								nestedSimulationSpecificationSimulatedUserConfigPrompt["temperature"] = bodySimulationSpecificationSimulatedUserConfigPromptTemperature
+								if err := setJSONBodyScalar(nestedSimulationSpecificationSimulatedUserConfigPrompt, "temperature", "simulation-specification-simulated-user-config-prompt-temperature", "number", bodySimulationSpecificationSimulatedUserConfigPromptTemperature); err != nil {
+									return err
+								}
 							}
 							if bodySimulationSpecificationSimulatedUserConfigPromptThinkingBudget != "" {
-								nestedSimulationSpecificationSimulatedUserConfigPrompt["thinking_budget"] = bodySimulationSpecificationSimulatedUserConfigPromptThinkingBudget
+								if err := setJSONBodyScalar(nestedSimulationSpecificationSimulatedUserConfigPrompt, "thinking_budget", "simulation-specification-simulated-user-config-prompt-thinking-budget", "int", bodySimulationSpecificationSimulatedUserConfigPromptThinkingBudget); err != nil {
+									return err
+								}
 							}
 							if bodySimulationSpecificationSimulatedUserConfigPromptTimezone != "" {
 								nestedSimulationSpecificationSimulatedUserConfigPrompt["timezone"] = bodySimulationSpecificationSimulatedUserConfigPromptTimezone

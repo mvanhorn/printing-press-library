@@ -54,19 +54,29 @@ func newVoicesSettingsEditVoiceCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodySimilarityBoost != "" {
-					body["similarity_boost"] = bodySimilarityBoost
+					if err := setJSONBodyScalar(body, "similarity_boost", "similarity-boost", "number", bodySimilarityBoost); err != nil {
+						return err
+					}
 				}
 				if bodySpeed != "" {
-					body["speed"] = bodySpeed
+					if err := setJSONBodyScalar(body, "speed", "speed", "number", bodySpeed); err != nil {
+						return err
+					}
 				}
 				if bodyStability != "" {
-					body["stability"] = bodyStability
+					if err := setJSONBodyScalar(body, "stability", "stability", "number", bodyStability); err != nil {
+						return err
+					}
 				}
 				if bodyStyle != "" {
-					body["style"] = bodyStyle
+					if err := setJSONBodyScalar(body, "style", "style", "number", bodyStyle); err != nil {
+						return err
+					}
 				}
 				if bodyUseSpeakerBoost != "" {
-					body["use_speaker_boost"] = bodyUseSpeakerBoost
+					if err := setJSONBodyScalar(body, "use_speaker_boost", "use-speaker-boost", "bool", bodyUseSpeakerBoost); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(path, params, body)

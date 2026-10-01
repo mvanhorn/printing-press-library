@@ -58,7 +58,9 @@ func newSoundGenerationPromotedCmd(flags *rootFlags) *cobra.Command {
 			// second store-backed POST-search consumer ships.
 			body := map[string]any{}
 			if bodyDurationSeconds != "" {
-				body["duration_seconds"] = bodyDurationSeconds
+				if err := setJSONBodyScalar(body, "duration_seconds", "duration-seconds", "number", bodyDurationSeconds); err != nil {
+					return err
+				}
 			}
 			if bodyLoop != false {
 				body["loop"] = bodyLoop
@@ -67,7 +69,9 @@ func newSoundGenerationPromotedCmd(flags *rootFlags) *cobra.Command {
 				body["model_id"] = bodyModelId
 			}
 			if bodyPromptInfluence != "" {
-				body["prompt_influence"] = bodyPromptInfluence
+				if err := setJSONBodyScalar(body, "prompt_influence", "prompt-influence", "number", bodyPromptInfluence); err != nil {
+					return err
+				}
 			}
 			if bodyText != "" {
 				body["text"] = bodyText

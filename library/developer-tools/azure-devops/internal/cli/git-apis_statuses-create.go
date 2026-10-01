@@ -181,7 +181,9 @@ func newGitApisStatusesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["description"] = bodyDescription
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyState != "" {
 					body["state"] = bodyState

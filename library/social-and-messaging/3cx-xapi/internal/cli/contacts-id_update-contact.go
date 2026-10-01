@@ -95,7 +95,9 @@ func newContactsIdUpdateContactCmd(flags *rootFlags) *cobra.Command {
 					body["Home"] = bodyHome
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyLastName != "" {
 					body["LastName"] = bodyLastName

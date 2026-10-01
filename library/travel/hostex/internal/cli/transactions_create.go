@@ -82,16 +82,22 @@ func newTransactionsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["direction"] = bodyDirection
 				}
 				if bodyItemId != "" {
-					body["item_id"] = bodyItemId
+					if err := setJSONBodyScalar(body, "item_id", "item-id", "int", bodyItemId); err != nil {
+						return err
+					}
 				}
 				if bodyNote != "" {
 					body["note"] = bodyNote
 				}
 				if bodyPaymentMethodId != "" {
-					body["payment_method_id"] = bodyPaymentMethodId
+					if err := setJSONBodyScalar(body, "payment_method_id", "payment-method-id", "int", bodyPaymentMethodId); err != nil {
+						return err
+					}
 				}
 				if bodyPropertyId != "" {
-					body["property_id"] = bodyPropertyId
+					if err := setJSONBodyScalar(body, "property_id", "property-id", "int", bodyPropertyId); err != nil {
+						return err
+					}
 				}
 				if bodyStayCode != "" {
 					body["stay_code"] = bodyStayCode

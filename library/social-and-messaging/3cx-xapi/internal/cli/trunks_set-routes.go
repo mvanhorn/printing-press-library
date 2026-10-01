@@ -47,7 +47,9 @@ func newTrunksSetRoutesCmd(flags *rootFlags) *cobra.Command {
 				{
 					nestedRoutes := map[string]any{}
 					if bodyRoutesId != "" {
-						nestedRoutes["Id"] = bodyRoutesId
+						if err := setJSONBodyScalar(nestedRoutes, "Id", "routes-id", "int", bodyRoutesId); err != nil {
+							return err
+						}
 					}
 					if bodyRoutesRoutes != "" {
 						var parsedRoutesRoutes any

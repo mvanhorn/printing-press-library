@@ -104,7 +104,9 @@ func newDownloadWorkoutExtPromotedCmd(flags *rootFlags) *cobra.Command {
 				body["distance"] = bodyDistance
 			}
 			if bodyFolderId != "" {
-				body["folder_id"] = bodyFolderId
+				if err := setJSONBodyScalar(body, "folder_id", "folder-id", "int", bodyFolderId); err != nil {
+					return err
+				}
 			}
 			if cmd.Flags().Changed("for-week") {
 				body["for_week"] = bodyForWeek
@@ -119,7 +121,9 @@ func newDownloadWorkoutExtPromotedCmd(flags *rootFlags) *cobra.Command {
 				body["icu_training_load"] = bodyIcuTrainingLoad
 			}
 			if bodyId != "" {
-				body["id"] = bodyId
+				if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+					return err
+				}
 			}
 			if cmd.Flags().Changed("indoor") {
 				body["indoor"] = bodyIndoor

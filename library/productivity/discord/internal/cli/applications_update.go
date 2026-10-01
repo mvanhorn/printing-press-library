@@ -138,7 +138,9 @@ func newApplicationsUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 						bodyMap["event_webhooks_status"] = parsedEventWebhooksStatus
 					} else {
-						bodyMap["event_webhooks_status"] = bodyEventWebhooksStatus
+						if err := setJSONBodyScalar(bodyMap, "event_webhooks_status", "event-webhooks-status", "int", bodyEventWebhooksStatus); err != nil {
+							return err
+						}
 					}
 				}
 				if cmd.Flags().Changed("event-webhooks-types") {
@@ -152,7 +154,9 @@ func newApplicationsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["event_webhooks_url"] = bodyEventWebhooksUrl
 				}
 				if cmd.Flags().Changed("explicit-content-filter") || bodyExplicitContentFilter != "" {
-					bodyMap["explicit_content_filter"] = bodyExplicitContentFilter
+					if err := setJSONBodyScalar(bodyMap, "explicit_content_filter", "explicit-content-filter", "int", bodyExplicitContentFilter); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("flags") || bodyFlags != 0 {
 					bodyMap["flags"] = bodyFlags
@@ -202,7 +206,9 @@ func newApplicationsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["team_id"] = bodyTeamId
 				}
 				if cmd.Flags().Changed("type") || bodyType != "" {
-					bodyMap["type"] = bodyType
+					if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)

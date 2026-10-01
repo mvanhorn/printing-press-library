@@ -93,7 +93,9 @@ func newMusicGenerateCmd(flags *rootFlags) *cobra.Command {
 					body["model_id"] = bodyModelId
 				}
 				if bodyMusicLengthMs != "" {
-					body["music_length_ms"] = bodyMusicLengthMs
+					if err := setJSONBodyScalar(body, "music_length_ms", "music-length-ms", "int", bodyMusicLengthMs); err != nil {
+						return err
+					}
 				}
 				if bodyMusicPrompt != "" {
 					body["music_prompt"] = bodyMusicPrompt
@@ -105,7 +107,9 @@ func newMusicGenerateCmd(flags *rootFlags) *cobra.Command {
 					body["respect_sections_durations"] = bodyRespectSectionsDurations
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodySignWithC2pa != false {
 					body["sign_with_c2pa"] = bodySignWithC2pa

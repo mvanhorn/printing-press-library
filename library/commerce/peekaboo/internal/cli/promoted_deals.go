@@ -77,7 +77,9 @@ func newDealsPromotedCmd(flags *rootFlags) *cobra.Command {
 				bodyMap["language"] = bodyLanguage
 			}
 			if bodyOffset != "" {
-				bodyMap["offset"] = bodyOffset
+				if err := setJSONBodyScalar(bodyMap, "offset", "offset", "int", bodyOffset); err != nil {
+					return err
+				}
 			}
 			if bodyLimit != 0 {
 				bodyMap["limit"] = bodyLimit

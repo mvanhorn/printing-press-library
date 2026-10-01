@@ -85,7 +85,9 @@ func newSandboxesCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedKeepLastSnapshots["deleteEvicted"] = bodyKeepLastSnapshotsDeleteEvicted
 					}
 					if bodyKeepLastSnapshotsExpiration != "" {
-						nestedKeepLastSnapshots["expiration"] = bodyKeepLastSnapshotsExpiration
+						if err := setJSONBodyScalar(nestedKeepLastSnapshots, "expiration", "keep-last-snapshots-expiration", "int", bodyKeepLastSnapshotsExpiration); err != nil {
+							return err
+						}
 					}
 					if len(nestedKeepLastSnapshots) > 0 {
 						body["keepLastSnapshots"] = nestedKeepLastSnapshots
@@ -133,7 +135,9 @@ func newSandboxesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["runtime"] = bodyRuntime
 				}
 				if bodySnapshotExpiration != "" {
-					body["snapshotExpiration"] = bodySnapshotExpiration
+					if err := setJSONBodyScalar(body, "snapshotExpiration", "snapshot-expiration", "int", bodySnapshotExpiration); err != nil {
+						return err
+					}
 				}
 				if bodySource != "" {
 					body["source"] = bodySource

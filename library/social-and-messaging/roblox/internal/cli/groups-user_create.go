@@ -45,7 +45,9 @@ func newGroupsUserCreateCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyGroupId != "" {
-					bodyMap["groupId"] = bodyGroupId
+					if err := setJSONBodyScalar(bodyMap, "groupId", "group-id", "int", bodyGroupId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

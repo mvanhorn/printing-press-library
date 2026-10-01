@@ -230,7 +230,9 @@ func newAthleteSportSettingsUpdateSettingsCmd(flags *rootFlags) *cobra.Command {
 					body["best_effort_distances"] = parsedBestEffortDistances
 				}
 				if bodyCalendarTileActivityPanelId != "" {
-					body["calendar_tile_activity_panel_id"] = bodyCalendarTileActivityPanelId
+					if err := setJSONBodyScalar(body, "calendar_tile_activity_panel_id", "calendar-tile-activity-panel-id", "int", bodyCalendarTileActivityPanelId); err != nil {
+						return err
+					}
 				}
 				if bodyCooldownTime != 0 {
 					body["cooldown_time"] = bodyCooldownTime
@@ -399,7 +401,9 @@ func newAthleteSportSettingsUpdateSettingsCmd(flags *rootFlags) *cobra.Command {
 					body["hrrc_min_percent"] = bodyHrrcMinPercent
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("ignore-velocity") {
 					body["ignore_velocity"] = bodyIgnoreVelocity

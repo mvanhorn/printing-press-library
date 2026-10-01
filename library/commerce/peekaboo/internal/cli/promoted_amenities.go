@@ -53,7 +53,9 @@ func newAmenitiesPromotedCmd(flags *rootFlags) *cobra.Command {
 				bodyMap["limit"] = bodyLimit
 			}
 			if bodyOffset != "" {
-				bodyMap["offset"] = bodyOffset
+				if err := setJSONBodyScalar(bodyMap, "offset", "offset", "int", bodyOffset); err != nil {
+					return err
+				}
 			}
 			data, prov, err := resolvePostReadWithStrategy(cmd.Context(), c, flags, "auto", "amenities", path, params, body, "", cmd.ErrOrStderr())
 

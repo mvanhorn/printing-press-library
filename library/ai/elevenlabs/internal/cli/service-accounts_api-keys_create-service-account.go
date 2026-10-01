@@ -62,7 +62,9 @@ func newServiceAccountsApiKeysCreateServiceAccountCmd(flags *rootFlags) *cobra.C
 					body["allowed_ips"] = bodyAllowedIps
 				}
 				if bodyCharacterLimit != "" {
-					body["character_limit"] = bodyCharacterLimit
+					if err := setJSONBodyScalar(body, "character_limit", "character-limit", "int", bodyCharacterLimit); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

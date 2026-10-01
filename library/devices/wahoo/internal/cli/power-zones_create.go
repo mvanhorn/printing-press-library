@@ -72,7 +72,9 @@ func newPowerZonesCreateCmd(flags *rootFlags) *cobra.Command {
 					body["ftp"] = bodyFtp
 				}
 				if bodyWorkoutTypeFamilyId != "" {
-					body["workout_type_family_id"] = bodyWorkoutTypeFamilyId
+					if err := setJSONBodyScalar(body, "workout_type_family_id", "workout-type-family-id", "int", bodyWorkoutTypeFamilyId); err != nil {
+						return err
+					}
 				}
 				if bodyZone1 != 0 {
 					body["zone_1"] = bodyZone1

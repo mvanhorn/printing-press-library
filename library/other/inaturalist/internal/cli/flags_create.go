@@ -53,7 +53,9 @@ func newFlagsCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedFlag["flag"] = bodyFlagFlag
 					}
 					if bodyFlagFlaggableId != "" {
-						nestedFlag["flaggable_id"] = bodyFlagFlaggableId
+						if err := setJSONBodyScalar(nestedFlag, "flaggable_id", "flag-flaggable-id", "int", bodyFlagFlaggableId); err != nil {
+							return err
+						}
 					}
 					if bodyFlagFlaggableType != "" {
 						nestedFlag["flaggable_type"] = bodyFlagFlaggableType

@@ -197,7 +197,9 @@ func newConvaiCreateAgentRouteCmd(flags *rootFlags) *cobra.Command {
 								nestedConversationConfigAgentPrompt["custom_llm"] = bodyConversationConfigAgentPromptCustomLlm
 							}
 							if bodyConversationConfigAgentPromptIgnoreDefaultPersonality != "" {
-								nestedConversationConfigAgentPrompt["ignore_default_personality"] = bodyConversationConfigAgentPromptIgnoreDefaultPersonality
+								if err := setJSONBodyScalar(nestedConversationConfigAgentPrompt, "ignore_default_personality", "conversation-config-agent-prompt-ignore-default-personality", "bool", bodyConversationConfigAgentPromptIgnoreDefaultPersonality); err != nil {
+									return err
+								}
 							}
 							if bodyConversationConfigAgentPromptKnowledgeBase != "" {
 								var parsedConversationConfigAgentPromptKnowledgeBase any
@@ -247,7 +249,9 @@ func newConvaiCreateAgentRouteCmd(flags *rootFlags) *cobra.Command {
 									nestedConversationConfigAgentPromptRag["max_vector_distance"] = bodyConversationConfigAgentPromptRagMaxVectorDistance
 								}
 								if bodyConversationConfigAgentPromptRagNumCandidates != "" {
-									nestedConversationConfigAgentPromptRag["num_candidates"] = bodyConversationConfigAgentPromptRagNumCandidates
+									if err := setJSONBodyScalar(nestedConversationConfigAgentPromptRag, "num_candidates", "conversation-config-agent-prompt-rag-num-candidates", "int", bodyConversationConfigAgentPromptRagNumCandidates); err != nil {
+										return err
+									}
 								}
 								if bodyConversationConfigAgentPromptRagQueryRewritePromptOverride != "" {
 									nestedConversationConfigAgentPromptRag["query_rewrite_prompt_override"] = bodyConversationConfigAgentPromptRagQueryRewritePromptOverride
@@ -260,10 +264,14 @@ func newConvaiCreateAgentRouteCmd(flags *rootFlags) *cobra.Command {
 								nestedConversationConfigAgentPrompt["reasoning_effort"] = bodyConversationConfigAgentPromptReasoningEffort
 							}
 							if bodyConversationConfigAgentPromptTemperature != "" {
-								nestedConversationConfigAgentPrompt["temperature"] = bodyConversationConfigAgentPromptTemperature
+								if err := setJSONBodyScalar(nestedConversationConfigAgentPrompt, "temperature", "conversation-config-agent-prompt-temperature", "number", bodyConversationConfigAgentPromptTemperature); err != nil {
+									return err
+								}
 							}
 							if bodyConversationConfigAgentPromptThinkingBudget != "" {
-								nestedConversationConfigAgentPrompt["thinking_budget"] = bodyConversationConfigAgentPromptThinkingBudget
+								if err := setJSONBodyScalar(nestedConversationConfigAgentPrompt, "thinking_budget", "conversation-config-agent-prompt-thinking-budget", "int", bodyConversationConfigAgentPromptThinkingBudget); err != nil {
+									return err
+								}
 							}
 							if bodyConversationConfigAgentPromptTimezone != "" {
 								nestedConversationConfigAgentPrompt["timezone"] = bodyConversationConfigAgentPromptTimezone
@@ -420,7 +428,9 @@ func newConvaiCreateAgentRouteCmd(flags *rootFlags) *cobra.Command {
 					{
 						nestedConversationConfigTurn := map[string]any{}
 						if bodyConversationConfigTurnInitialWaitTime != "" {
-							nestedConversationConfigTurn["initial_wait_time"] = bodyConversationConfigTurnInitialWaitTime
+							if err := setJSONBodyScalar(nestedConversationConfigTurn, "initial_wait_time", "conversation-config-turn-initial-wait-time", "number", bodyConversationConfigTurnInitialWaitTime); err != nil {
+								return err
+							}
 						}
 						if bodyConversationConfigTurnMode != "" {
 							nestedConversationConfigTurn["mode"] = bodyConversationConfigTurnMode

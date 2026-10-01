@@ -77,7 +77,9 @@ func newChannelsPermissionsSetChannelOverwriteCmd(flags *rootFlags) *cobra.Comma
 					bodyMap["deny"] = bodyDeny
 				}
 				if cmd.Flags().Changed("type") || bodyType != "" {
-					bodyMap["type"] = bodyType
+					if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)

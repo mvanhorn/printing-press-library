@@ -85,10 +85,14 @@ func newAthleteRoutesUpdateAthleteCmd(flags *rootFlags) *cobra.Command {
 					body["rename_activities"] = bodyRenameActivities
 				}
 				if bodyReplacedByRouteId != "" {
-					body["replaced_by_route_id"] = bodyReplacedByRouteId
+					if err := setJSONBodyScalar(body, "replaced_by_route_id", "replaced-by-route-id", "int", bodyReplacedByRouteId); err != nil {
+						return err
+					}
 				}
 				if bodyRouteId2 != "" {
-					body["route_id"] = bodyRouteId2
+					if err := setJSONBodyScalar(body, "route_id", "route-id-2", "int", bodyRouteId2); err != nil {
+						return err
+					}
 				}
 				if bodyTags != "" {
 					body["tags"] = cliutil.SplitCSV(bodyTags)

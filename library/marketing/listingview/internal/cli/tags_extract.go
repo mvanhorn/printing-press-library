@@ -53,7 +53,9 @@ func newTagsExtractCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyListingId != "" {
-					body["listingId"] = bodyListingId
+					if err := setJSONBodyScalar(body, "listingId", "listing-id", "int", bodyListingId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

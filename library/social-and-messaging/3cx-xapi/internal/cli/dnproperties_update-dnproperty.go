@@ -56,7 +56,9 @@ func newDnpropertiesUpdateDnpropertyCmd(flags *rootFlags) *cobra.Command {
 						nestedProperty["Description"] = bodyPropertyDescription
 					}
 					if bodyPropertyId != "" {
-						nestedProperty["Id"] = bodyPropertyId
+						if err := setJSONBodyScalar(nestedProperty, "Id", "property-id", "int", bodyPropertyId); err != nil {
+							return err
+						}
 					}
 					if bodyPropertyName != "" {
 						nestedProperty["Name"] = bodyPropertyName

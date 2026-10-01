@@ -57,7 +57,9 @@ func newLeadsUpsertCmd(flags *rootFlags) *cobra.Command {
 					body["details"] = bodyDetails
 				}
 				if bodyCustomerSourceId != "" {
-					body["customer_source_id"] = bodyCustomerSourceId
+					if err := setJSONBodyScalar(body, "customer_source_id", "customer-source-id", "int", bodyCustomerSourceId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)

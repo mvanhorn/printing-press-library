@@ -149,7 +149,9 @@ func newMicrosoft365IntegrationUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["ApplicationId"] = bodyApplicationId
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				{
 					nestedSharedMailboxesSync := map[string]any{}

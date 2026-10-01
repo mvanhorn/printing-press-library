@@ -63,7 +63,9 @@ func newSystemSecretsStoreCreateCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyAccountId != "" {
-					body["account_id"] = bodyAccountId
+					if err := setJSONBodyScalar(body, "account_id", "account-id", "int", bodyAccountId); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

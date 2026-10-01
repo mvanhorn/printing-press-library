@@ -69,7 +69,9 @@ func newScheduledReportsIdUpdateScheduledReportCmd(flags *rootFlags) *cobra.Comm
 					body["FilterDescription"] = bodyFilterDescription
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["Name"] = bodyName

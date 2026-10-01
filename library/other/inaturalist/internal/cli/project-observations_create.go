@@ -46,10 +46,14 @@ func newProjectObservationsCreateCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyObservationId != "" {
-					bodyMap["observation_id"] = bodyObservationId
+					if err := setJSONBodyScalar(bodyMap, "observation_id", "observation-id", "int", bodyObservationId); err != nil {
+						return err
+					}
 				}
 				if bodyProjectId != "" {
-					bodyMap["project_id"] = bodyProjectId
+					if err := setJSONBodyScalar(bodyMap, "project_id", "project-id", "int", bodyProjectId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

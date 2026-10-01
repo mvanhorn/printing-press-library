@@ -77,7 +77,9 @@ func newDpCreateCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyAdvertiserId != "" {
-					body["advertiserId"] = bodyAdvertiserId
+					if err := setJSONBodyScalar(body, "advertiserId", "advertiser-id", "int", bodyAdvertiserId); err != nil {
+						return err
+					}
 				}
 				if bodyDescription != "" {
 					body["description"] = bodyDescription

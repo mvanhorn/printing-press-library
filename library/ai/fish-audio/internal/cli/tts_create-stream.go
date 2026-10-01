@@ -182,7 +182,9 @@ func newTtsCreateStreamCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["repetition_penalty"] = bodyRepetitionPenalty
 				}
 				if cmd.Flags().Changed("sample-rate") || bodySampleRate != "" {
-					bodyMap["sample_rate"] = bodySampleRate
+					if err := setJSONBodyScalar(bodyMap, "sample_rate", "sample-rate", "int", bodySampleRate); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("temperature") || bodyTemperature != 0.0 {
 					bodyMap["temperature"] = bodyTemperature

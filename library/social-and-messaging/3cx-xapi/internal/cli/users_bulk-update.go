@@ -361,7 +361,9 @@ func newUsersBulkUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 					if bodyUserId != "" {
-						nestedUser["Id"] = bodyUserId
+						if err := setJSONBodyScalar(nestedUser, "Id", "user-id", "int", bodyUserId); err != nil {
+							return err
+						}
 					}
 					if cmd.Flags().Changed("user-internal") {
 						nestedUser["Internal"] = bodyUserInternal
@@ -432,7 +434,9 @@ func newUsersBulkUpdateCmd(flags *rootFlags) *cobra.Command {
 						nestedUser["PinProtected"] = bodyUserPinProtected
 					}
 					if bodyUserPrimaryGroupId != "" {
-						nestedUser["PrimaryGroupId"] = bodyUserPrimaryGroupId
+						if err := setJSONBodyScalar(nestedUser, "PrimaryGroupId", "user-primary-group-id", "int", bodyUserPrimaryGroupId); err != nil {
+							return err
+						}
 					}
 					if bodyUserPromptSet != "" {
 						nestedUser["PromptSet"] = bodyUserPromptSet

@@ -50,7 +50,9 @@ func newParametersCreateCmd(flags *rootFlags) *cobra.Command {
 					body["Description"] = bodyDescription
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["Name"] = bodyName

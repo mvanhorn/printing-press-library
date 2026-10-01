@@ -82,10 +82,14 @@ func newAccountsEmailSecurityCreateImpersonationRegistryCmd(flags *rootFlags) *c
 					body["created_at"] = bodyCreatedAt
 				}
 				if bodyDirectoryId != "" {
-					body["directory_id"] = bodyDirectoryId
+					if err := setJSONBodyScalar(body, "directory_id", "directory-id", "int", bodyDirectoryId); err != nil {
+						return err
+					}
 				}
 				if bodyDirectoryNodeId != "" {
-					body["directory_node_id"] = bodyDirectoryNodeId
+					if err := setJSONBodyScalar(body, "directory_node_id", "directory-node-id", "int", bodyDirectoryNodeId); err != nil {
+						return err
+					}
 				}
 				if bodyEmail != "" {
 					body["email"] = bodyEmail

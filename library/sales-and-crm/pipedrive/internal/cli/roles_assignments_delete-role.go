@@ -58,7 +58,9 @@ func newRolesAssignmentsDeleteRoleCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyUserId != "" {
-					body["user_id"] = bodyUserId
+					if err := setJSONBodyScalar(body, "user_id", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.DeleteWithBody(cmd.Context(), path, body)

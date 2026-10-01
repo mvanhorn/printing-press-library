@@ -90,7 +90,9 @@ func newTeamsBookingTypesCreateTeamCmd(flags *rootFlags) *cobra.Command {
 					body["booking_availability_interval_minutes"] = bodyBookingAvailabilityIntervalMinutes
 				}
 				if bodyBookingTypeCategoryId != "" {
-					body["booking_type_category_id"] = bodyBookingTypeCategoryId
+					if err := setJSONBodyScalar(body, "booking_type_category_id", "booking-type-category-id", "int", bodyBookingTypeCategoryId); err != nil {
+						return err
+					}
 				}
 				if bodyCurrencyCode != "" {
 					body["currency_code"] = bodyCurrencyCode

@@ -90,7 +90,9 @@ func newAthleteGearCreateReminderCmd(flags *rootFlags) *cobra.Command {
 					body["gear_id"] = bodyGearId2
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyLastReset != "" {
 					body["last_reset"] = bodyLastReset

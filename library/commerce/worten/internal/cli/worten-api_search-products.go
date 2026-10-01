@@ -69,7 +69,9 @@ func newWortenApiSearchProductsCmd(flags *rootFlags) *cobra.Command {
 				{
 					nestedParams := map[string]any{}
 					if bodyParamsPage != "" {
-						nestedParams["page"] = bodyParamsPage
+						if err := setJSONBodyScalar(nestedParams, "page", "params-page", "int", bodyParamsPage); err != nil {
+							return err
+						}
 					}
 					if bodyParamsQuery != "" {
 						nestedParams["query"] = bodyParamsQuery

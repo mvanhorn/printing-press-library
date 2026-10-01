@@ -51,13 +51,19 @@ func newConvaiGetAgentLlmExpectedCostCalculationCmd(flags *rootFlags) *cobra.Com
 			} else {
 				body = map[string]any{}
 				if bodyNumberOfPages != "" {
-					body["number_of_pages"] = bodyNumberOfPages
+					if err := setJSONBodyScalar(body, "number_of_pages", "number-of-pages", "int", bodyNumberOfPages); err != nil {
+						return err
+					}
 				}
 				if bodyPromptLength != "" {
-					body["prompt_length"] = bodyPromptLength
+					if err := setJSONBodyScalar(body, "prompt_length", "prompt-length", "int", bodyPromptLength); err != nil {
+						return err
+					}
 				}
 				if bodyRagEnabled != "" {
-					body["rag_enabled"] = bodyRagEnabled
+					if err := setJSONBodyScalar(body, "rag_enabled", "rag-enabled", "bool", bodyRagEnabled); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(path, params, body)

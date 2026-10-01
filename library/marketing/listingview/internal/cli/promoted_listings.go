@@ -71,7 +71,9 @@ func newListingsPromotedCmd(flags *rootFlags) *cobra.Command {
 				body["salesInterval"] = bodySalesInterval
 			}
 			if bodyPage != "" {
-				body["page"] = bodyPage
+				if err := setJSONBodyScalar(body, "page", "page", "int", bodyPage); err != nil {
+					return err
+				}
 			}
 			if bodyLimit != 0 {
 				body["limit"] = bodyLimit

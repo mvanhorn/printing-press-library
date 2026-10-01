@@ -89,7 +89,9 @@ func newWebhooksAddCmd(flags *rootFlags) *cobra.Command {
 					body["subscription_url"] = bodySubscriptionUrl
 				}
 				if bodyUserId != "" {
-					body["user_id"] = bodyUserId
+					if err := setJSONBodyScalar(body, "user_id", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 				if bodyVersion != "" {
 					body["version"] = bodyVersion

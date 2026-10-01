@@ -146,7 +146,9 @@ func newAccountsCloudforceOnePostLetterGenerateCmd(flags *rootFlags) *cobra.Comm
 						nestedNoticeParams["domain"] = bodyNoticeParamsDomain
 					}
 					if bodyNoticeParamsQueryId != "" {
-						nestedNoticeParams["queryId"] = bodyNoticeParamsQueryId
+						if err := setJSONBodyScalar(nestedNoticeParams, "queryId", "notice-params-query-id", "int", bodyNoticeParamsQueryId); err != nil {
+							return err
+						}
 					}
 					if bodyNoticeParamsStatus != "" {
 						nestedNoticeParams["status"] = bodyNoticeParamsStatus

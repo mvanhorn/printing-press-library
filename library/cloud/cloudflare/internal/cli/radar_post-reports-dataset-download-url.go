@@ -72,7 +72,9 @@ func newRadarPostReportsDatasetDownloadUrlCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyDatasetId != "" {
-					body["datasetId"] = bodyDatasetId
+					if err := setJSONBodyScalar(body, "datasetId", "dataset-id", "int", bodyDatasetId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

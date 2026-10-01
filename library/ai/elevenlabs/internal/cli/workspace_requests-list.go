@@ -50,7 +50,9 @@ func newWorkspaceRequestsListCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyEndTime != "" {
-					body["end_time"] = bodyEndTime
+					if err := setJSONBodyScalar(body, "end_time", "end-time", "int", bodyEndTime); err != nil {
+						return err
+					}
 				}
 				if bodyFilters != "" {
 					body["filters"] = bodyFilters
@@ -65,7 +67,9 @@ func newWorkspaceRequestsListCmd(flags *rootFlags) *cobra.Command {
 					body["sort"] = bodySort
 				}
 				if bodyStartTime != "" {
-					body["start_time"] = bodyStartTime
+					if err := setJSONBodyScalar(body, "start_time", "start-time", "int", bodyStartTime); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(path, params, body)

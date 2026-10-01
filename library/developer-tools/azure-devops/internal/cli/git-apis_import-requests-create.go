@@ -141,7 +141,9 @@ func newGitApisImportRequestsCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyImportRequestId != "" {
-					body["importRequestId"] = bodyImportRequestId
+					if err := setJSONBodyScalar(body, "importRequestId", "import-request-id", "int", bodyImportRequestId); err != nil {
+						return err
+					}
 				}
 				{
 					nestedParameters := map[string]any{}

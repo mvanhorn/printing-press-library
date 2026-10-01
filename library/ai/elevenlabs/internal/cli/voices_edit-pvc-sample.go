@@ -66,10 +66,14 @@ func newVoicesEditPvcSampleCmd(flags *rootFlags) *cobra.Command {
 					body["selected_speaker_ids"] = bodySelectedSpeakerIds
 				}
 				if bodyTrimEndTime != "" {
-					body["trim_end_time"] = bodyTrimEndTime
+					if err := setJSONBodyScalar(body, "trim_end_time", "trim-end-time", "int", bodyTrimEndTime); err != nil {
+						return err
+					}
 				}
 				if bodyTrimStartTime != "" {
-					body["trim_start_time"] = bodyTrimStartTime
+					if err := setJSONBodyScalar(body, "trim_start_time", "trim-start-time", "int", bodyTrimStartTime); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(path, params, body)

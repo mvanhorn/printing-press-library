@@ -79,7 +79,9 @@ func newStageInstancesCreateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["guild_scheduled_event_id"] = bodyGuildScheduledEventId
 				}
 				if cmd.Flags().Changed("privacy-level") || bodyPrivacyLevel != "" {
-					bodyMap["privacy_level"] = bodyPrivacyLevel
+					if err := setJSONBodyScalar(bodyMap, "privacy_level", "privacy-level", "int", bodyPrivacyLevel); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("send-start-notification") {
 					bodyMap["send_start_notification"] = bodySendStartNotification

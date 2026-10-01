@@ -128,7 +128,9 @@ func newAccountsAiSearchNamespaceUpdateInstanceCmd(flags *rootFlags) *cobra.Comm
 					body["cache_threshold"] = bodyCacheThreshold
 				}
 				if bodyCacheTtl != "" {
-					body["cache_ttl"] = bodyCacheTtl
+					if err := setJSONBodyScalar(body, "cache_ttl", "cache-ttl", "number", bodyCacheTtl); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("chunk") {
 					body["chunk"] = bodyChunk
@@ -321,7 +323,9 @@ func newAccountsAiSearchNamespaceUpdateInstanceCmd(flags *rootFlags) *cobra.Comm
 					body["summarization_model"] = bodySummarizationModel
 				}
 				if bodySyncInterval != "" {
-					body["sync_interval"] = bodySyncInterval
+					if err := setJSONBodyScalar(body, "sync_interval", "sync-interval", "number", bodySyncInterval); err != nil {
+						return err
+					}
 				}
 				if bodySystemPromptAiSearch != "" {
 					body["system_prompt_ai_search"] = bodySystemPromptAiSearch

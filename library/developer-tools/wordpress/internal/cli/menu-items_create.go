@@ -86,7 +86,9 @@ func newMenuItemsCreateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["object"] = bodyObject
 				}
 				if bodyObjectId != "" {
-					bodyMap["object_id"] = bodyObjectId
+					if err := setJSONBodyScalar(bodyMap, "object_id", "object-id", "int", bodyObjectId); err != nil {
+						return err
+					}
 				}
 				if bodyTarget != "" {
 					bodyMap["target"] = bodyTarget

@@ -72,7 +72,9 @@ func newConferenceSettingsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["ExternalNumbers"] = bodyExternalNumbers
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyLogoPath != "" {
 					body["LogoPath"] = bodyLogoPath

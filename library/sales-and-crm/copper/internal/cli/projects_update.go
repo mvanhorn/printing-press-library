@@ -59,7 +59,9 @@ func newProjectsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["name"] = bodyName
 				}
 				if bodyAssigneeId != "" {
-					body["assignee_id"] = bodyAssigneeId
+					if err := setJSONBodyScalar(body, "assignee_id", "assignee-id", "int", bodyAssigneeId); err != nil {
+						return err
+					}
 				}
 				if bodyStatus != "" {
 					body["status"] = bodyStatus

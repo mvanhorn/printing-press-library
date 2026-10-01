@@ -83,7 +83,9 @@ func newVoicemailSettingsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["Extension"] = bodyExtension
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyMinDuration != 0 {
 					body["MinDuration"] = bodyMinDuration

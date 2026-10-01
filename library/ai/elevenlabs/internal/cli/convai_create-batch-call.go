@@ -86,10 +86,14 @@ func newConvaiCreateBatchCallCmd(flags *rootFlags) *cobra.Command {
 					body["recipients"] = parsedRecipients
 				}
 				if bodyScheduledTimeUnix != "" {
-					body["scheduled_time_unix"] = bodyScheduledTimeUnix
+					if err := setJSONBodyScalar(body, "scheduled_time_unix", "scheduled-time-unix", "int", bodyScheduledTimeUnix); err != nil {
+						return err
+					}
 				}
 				if bodyTargetConcurrencyLimit != "" {
-					body["target_concurrency_limit"] = bodyTargetConcurrencyLimit
+					if err := setJSONBodyScalar(body, "target_concurrency_limit", "target-concurrency-limit", "int", bodyTargetConcurrencyLimit); err != nil {
+						return err
+					}
 				}
 				{
 					nestedTelephonyCallConfig := map[string]any{}

@@ -153,7 +153,9 @@ func newInboundRulesIdUpdateInboundRuleCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				{
 					nestedOfficeHoursDestination := map[string]any{}
@@ -220,7 +222,9 @@ func newInboundRulesIdUpdateInboundRuleCmd(flags *rootFlags) *cobra.Command {
 						nestedTrunkDN["Hidden"] = bodyTrunkDNHidden
 					}
 					if bodyTrunkDNId != "" {
-						nestedTrunkDN["Id"] = bodyTrunkDNId
+						if err := setJSONBodyScalar(nestedTrunkDN, "Id", "trunk-dn-id", "int", bodyTrunkDNId); err != nil {
+							return err
+						}
 					}
 					if bodyTrunkDNMemberOf != "" {
 						var parsedTrunkDNMemberOf any

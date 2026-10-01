@@ -301,7 +301,9 @@ func newSpeechEngineCreateCmd(flags *rootFlags) *cobra.Command {
 				{
 					nestedTurn := map[string]any{}
 					if bodyTurnInitialWaitTime != "" {
-						nestedTurn["initial_wait_time"] = bodyTurnInitialWaitTime
+						if err := setJSONBodyScalar(nestedTurn, "initial_wait_time", "turn-initial-wait-time", "number", bodyTurnInitialWaitTime); err != nil {
+							return err
+						}
 					}
 					if bodyTurnMode != "" {
 						nestedTurn["mode"] = bodyTurnMode

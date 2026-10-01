@@ -85,7 +85,9 @@ func newTrunksFinalizeProvisioningCmd(flags *rootFlags) *cobra.Command {
 							nestedModelDefaultRule["Data"] = bodyModelDefaultRuleData
 						}
 						if bodyModelDefaultRuleId != "" {
-							nestedModelDefaultRule["Id"] = bodyModelDefaultRuleId
+							if err := setJSONBodyScalar(nestedModelDefaultRule, "Id", "model-default-rule-id", "int", bodyModelDefaultRuleId); err != nil {
+								return err
+							}
 						}
 						if bodyModelDefaultRuleRuleName != "" {
 							nestedModelDefaultRule["RuleName"] = bodyModelDefaultRuleRuleName

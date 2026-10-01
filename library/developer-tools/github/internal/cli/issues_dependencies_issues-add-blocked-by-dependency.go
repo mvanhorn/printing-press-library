@@ -67,7 +67,9 @@ func newIssuesDependenciesIssuesAddBlockedByDependencyCmd(flags *rootFlags) *cob
 			} else {
 				body = map[string]any{}
 				if bodyIssueId != "" {
-					body["issue_id"] = bodyIssueId
+					if err := setJSONBodyScalar(body, "issue_id", "issue-id", "int", bodyIssueId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

@@ -101,13 +101,17 @@ func newMutationCreateCmd(flags *rootFlags) *cobra.Command {
 					body["invoiceNumber"] = bodyInvoiceNumber
 				}
 				if bodyLedgerId != "" {
-					body["ledgerId"] = bodyLedgerId
+					if err := setJSONBodyScalar(body, "ledgerId", "ledger-id", "int", bodyLedgerId); err != nil {
+						return err
+					}
 				}
 				if bodyPaymentReference != "" {
 					body["paymentReference"] = bodyPaymentReference
 				}
 				if bodyRelationId != "" {
-					body["relationId"] = bodyRelationId
+					if err := setJSONBodyScalar(body, "relationId", "relation-id", "int", bodyRelationId); err != nil {
+						return err
+					}
 				}
 				if bodyRows != "" {
 					var parsedRows any

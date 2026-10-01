@@ -86,13 +86,19 @@ func newPeopleCreateCmd(flags *rootFlags) *cobra.Command {
 					body["title"] = bodyTitle
 				}
 				if bodyCompanyId != "" {
-					body["company_id"] = bodyCompanyId
+					if err := setJSONBodyScalar(body, "company_id", "company-id", "int", bodyCompanyId); err != nil {
+						return err
+					}
 				}
 				if bodyAssigneeId != "" {
-					body["assignee_id"] = bodyAssigneeId
+					if err := setJSONBodyScalar(body, "assignee_id", "assignee-id", "int", bodyAssigneeId); err != nil {
+						return err
+					}
 				}
 				if bodyContactTypeId != "" {
-					body["contact_type_id"] = bodyContactTypeId
+					if err := setJSONBodyScalar(body, "contact_type_id", "contact-type-id", "int", bodyContactTypeId); err != nil {
+						return err
+					}
 				}
 				if bodyDetails != "" {
 					body["details"] = bodyDetails

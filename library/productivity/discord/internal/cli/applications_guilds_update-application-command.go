@@ -112,7 +112,9 @@ func newApplicationsGuildsUpdateApplicationCommandCmd(flags *rootFlags) *cobra.C
 					bodyMap["dm_permission"] = bodyDmPermission
 				}
 				if cmd.Flags().Changed("handler") || bodyHandler != "" {
-					bodyMap["handler"] = bodyHandler
+					if err := setJSONBodyScalar(bodyMap, "handler", "handler", "int", bodyHandler); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("integration-types") || bodyIntegrationTypes != "" {
 					var parsedIntegrationTypes any

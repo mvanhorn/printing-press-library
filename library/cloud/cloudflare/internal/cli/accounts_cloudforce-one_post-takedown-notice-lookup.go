@@ -64,7 +64,9 @@ func newAccountsCloudforceOnePostTakedownNoticeLookupCmd(flags *rootFlags) *cobr
 					body["domains"] = cliutil.SplitCSV(bodyDomains)
 				}
 				if bodyQueryId != "" {
-					body["queryId"] = bodyQueryId
+					if err := setJSONBodyScalar(body, "queryId", "query-id", "int", bodyQueryId); err != nil {
+						return err
+					}
 				}
 				if bodyQueryIds != "" {
 					var parsedQueryIds any

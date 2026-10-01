@@ -53,7 +53,9 @@ func newRolesUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["name"] = bodyName
 				}
 				if bodyParentRoleId != "" {
-					body["parent_role_id"] = bodyParentRoleId
+					if err := setJSONBodyScalar(body, "parent_role_id", "parent-role-id", "int", bodyParentRoleId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)

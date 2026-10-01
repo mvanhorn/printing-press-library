@@ -228,7 +228,9 @@ func newRingGroupsCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("is-registered") {
 					body["IsRegistered"] = bodyIsRegistered

@@ -162,7 +162,9 @@ func newCallFlowAppsIdUpdateCallFlowAppCmd(flags *rootFlags) *cobra.Command {
 					body["Groups"] = parsedGroups
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("invalid-script") {
 					body["InvalidScript"] = bodyInvalidScript
@@ -286,7 +288,9 @@ func newCallFlowAppsIdUpdateCallFlowAppCmd(flags *rootFlags) *cobra.Command {
 							nestedTrunkGateway["IPInRegistrationContact"] = bodyTrunkGatewayIPInRegistrationContact
 						}
 						if bodyTrunkGatewayId != "" {
-							nestedTrunkGateway["Id"] = bodyTrunkGatewayId
+							if err := setJSONBodyScalar(nestedTrunkGateway, "Id", "trunk-gateway-id", "int", bodyTrunkGatewayId); err != nil {
+								return err
+							}
 						}
 						if bodyTrunkGatewayInboundParams != "" {
 							var parsedTrunkGatewayInboundParams any
@@ -385,7 +389,9 @@ func newCallFlowAppsIdUpdateCallFlowAppCmd(flags *rootFlags) *cobra.Command {
 						nestedTrunk["IPRestriction"] = bodyTrunkIPRestriction
 					}
 					if bodyTrunkId != "" {
-						nestedTrunk["Id"] = bodyTrunkId
+						if err := setJSONBodyScalar(nestedTrunk, "Id", "trunk-id", "int", bodyTrunkId); err != nil {
+							return err
+						}
 					}
 					if bodyTrunkInCIDFormatting != "" {
 						var parsedTrunkInCIDFormatting any

@@ -86,10 +86,14 @@ func newLeadsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["company_name"] = bodyCompanyName
 				}
 				if bodyCustomerSourceId != "" {
-					body["customer_source_id"] = bodyCustomerSourceId
+					if err := setJSONBodyScalar(body, "customer_source_id", "customer-source-id", "int", bodyCustomerSourceId); err != nil {
+						return err
+					}
 				}
 				if bodyAssigneeId != "" {
-					body["assignee_id"] = bodyAssigneeId
+					if err := setJSONBodyScalar(body, "assignee_id", "assignee-id", "int", bodyAssigneeId); err != nil {
+						return err
+					}
 				}
 				if bodyStatus != "" {
 					body["status"] = bodyStatus

@@ -64,7 +64,9 @@ func newBlocklistCreateAddrCmd(flags *rootFlags) *cobra.Command {
 					body["IPAddrMask"] = bodyIPAddrMask
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

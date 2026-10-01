@@ -67,13 +67,17 @@ func newMeetingsSaveUserProviderLinkCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyCompanyId != "" {
-					body["company_id"] = bodyCompanyId
+					if err := setJSONBodyScalar(body, "company_id", "company-id", "int", bodyCompanyId); err != nil {
+						return err
+					}
 				}
 				if bodyMarketplaceClientId != "" {
 					body["marketplace_client_id"] = bodyMarketplaceClientId
 				}
 				if bodyUserId != "" {
-					body["user_id"] = bodyUserId
+					if err := setJSONBodyScalar(body, "user_id", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 				if bodyUserProviderId != "" {
 					body["user_provider_id"] = bodyUserProviderId

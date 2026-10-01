@@ -62,7 +62,9 @@ func newAccountsIntelCustomIndicatorFeedsCreateProviderCmd(flags *rootFlags) *co
 			} else {
 				body = map[string]any{}
 				if bodyAccountId2 != "" {
-					body["account_id"] = bodyAccountId2
+					if err := setJSONBodyScalar(body, "account_id", "account-id-2", "int", bodyAccountId2); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

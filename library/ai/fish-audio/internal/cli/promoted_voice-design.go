@@ -93,7 +93,9 @@ func newVoiceDesignPromotedCmd(flags *rootFlags) *cobra.Command {
 				bodyMap["reference_text"] = bodyReferenceText
 			}
 			if cmd.Flags().Changed("seed") || bodySeed != "" {
-				bodyMap["seed"] = bodySeed
+				if err := setJSONBodyScalar(bodyMap, "seed", "seed", "int", bodySeed); err != nil {
+					return err
+				}
 			}
 			if cmd.Flags().Changed("speed") || bodySpeed != 0.0 {
 				bodyMap["speed"] = bodySpeed

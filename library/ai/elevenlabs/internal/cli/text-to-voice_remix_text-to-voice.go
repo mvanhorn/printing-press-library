@@ -88,7 +88,9 @@ func newTextToVoiceRemixTextToVoiceCmd(flags *rootFlags) *cobra.Command {
 					body["loudness"] = bodyLoudness
 				}
 				if bodyPromptStrength != "" {
-					body["prompt_strength"] = bodyPromptStrength
+					if err := setJSONBodyScalar(body, "prompt_strength", "prompt-strength", "number", bodyPromptStrength); err != nil {
+						return err
+					}
 				}
 				if bodyRemixingSessionId != "" {
 					body["remixing_session_id"] = bodyRemixingSessionId
@@ -97,7 +99,9 @@ func newTextToVoiceRemixTextToVoiceCmd(flags *rootFlags) *cobra.Command {
 					body["remixing_session_iteration_id"] = bodyRemixingSessionIterationId
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodyStreamPreviews != false {
 					body["stream_previews"] = bodyStreamPreviews

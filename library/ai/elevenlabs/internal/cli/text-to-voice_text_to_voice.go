@@ -84,7 +84,9 @@ func newTextToVoiceTextToVoiceCmd(flags *rootFlags) *cobra.Command {
 					body["quality"] = bodyQuality
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodyShouldEnhance != false {
 					body["should_enhance"] = bodyShouldEnhance

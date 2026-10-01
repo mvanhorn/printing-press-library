@@ -90,7 +90,9 @@ func newContactsCreateByNumberCmd(flags *rootFlags) *cobra.Command {
 						nestedContact["Home"] = bodyContactHome
 					}
 					if bodyContactId != "" {
-						nestedContact["Id"] = bodyContactId
+						if err := setJSONBodyScalar(nestedContact, "Id", "contact-id", "int", bodyContactId); err != nil {
+							return err
+						}
 					}
 					if bodyContactLastName != "" {
 						nestedContact["LastName"] = bodyContactLastName

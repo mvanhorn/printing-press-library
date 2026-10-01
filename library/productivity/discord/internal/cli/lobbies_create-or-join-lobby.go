@@ -72,7 +72,9 @@ func newLobbiesCreateOrJoinLobbyCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if cmd.Flags().Changed("flags") || bodyFlags != "" {
-					bodyMap["flags"] = bodyFlags
+					if err := setJSONBodyScalar(bodyMap, "flags", "flags", "int", bodyFlags); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("idle-timeout-seconds") || bodyIdleTimeoutSeconds != 0 {
 					bodyMap["idle_timeout_seconds"] = bodyIdleTimeoutSeconds

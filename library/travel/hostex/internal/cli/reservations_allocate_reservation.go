@@ -62,7 +62,9 @@ func newReservationsAllocateReservationCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyPropertyId != "" {
-					body["property_id"] = bodyPropertyId
+					if err := setJSONBodyScalar(body, "property_id", "property-id", "int", bodyPropertyId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

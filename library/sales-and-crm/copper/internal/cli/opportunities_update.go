@@ -66,10 +66,14 @@ func newOpportunitiesUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["name"] = bodyName
 				}
 				if bodyPipelineId != "" {
-					body["pipeline_id"] = bodyPipelineId
+					if err := setJSONBodyScalar(body, "pipeline_id", "pipeline-id", "int", bodyPipelineId); err != nil {
+						return err
+					}
 				}
 				if bodyPipelineStageId != "" {
-					body["pipeline_stage_id"] = bodyPipelineStageId
+					if err := setJSONBodyScalar(body, "pipeline_stage_id", "pipeline-stage-id", "int", bodyPipelineStageId); err != nil {
+						return err
+					}
 				}
 				if bodyMonetaryValue != 0.0 {
 					body["monetary_value"] = bodyMonetaryValue
@@ -81,16 +85,24 @@ func newOpportunitiesUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["close_date"] = bodyCloseDate
 				}
 				if bodyPrimaryContactId != "" {
-					body["primary_contact_id"] = bodyPrimaryContactId
+					if err := setJSONBodyScalar(body, "primary_contact_id", "primary-contact-id", "int", bodyPrimaryContactId); err != nil {
+						return err
+					}
 				}
 				if bodyCompanyId != "" {
-					body["company_id"] = bodyCompanyId
+					if err := setJSONBodyScalar(body, "company_id", "company-id", "int", bodyCompanyId); err != nil {
+						return err
+					}
 				}
 				if bodyAssigneeId != "" {
-					body["assignee_id"] = bodyAssigneeId
+					if err := setJSONBodyScalar(body, "assignee_id", "assignee-id", "int", bodyAssigneeId); err != nil {
+						return err
+					}
 				}
 				if bodyCustomerSourceId != "" {
-					body["customer_source_id"] = bodyCustomerSourceId
+					if err := setJSONBodyScalar(body, "customer_source_id", "customer-source-id", "int", bodyCustomerSourceId); err != nil {
+						return err
+					}
 				}
 				if bodyDetails != "" {
 					body["details"] = bodyDetails

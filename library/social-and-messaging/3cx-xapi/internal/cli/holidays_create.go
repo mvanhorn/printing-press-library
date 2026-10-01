@@ -68,7 +68,9 @@ func newHolidaysCreateCmd(flags *rootFlags) *cobra.Command {
 					body["HolidayPrompt"] = bodyHolidayPrompt
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("is-recurrent") {
 					body["IsRecurrent"] = bodyIsRecurrent

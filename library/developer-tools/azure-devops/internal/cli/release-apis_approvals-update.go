@@ -252,7 +252,9 @@ func newReleaseApisApprovalsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["history"] = parsedHistory
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("is-automated") {
 					body["isAutomated"] = bodyIsAutomated

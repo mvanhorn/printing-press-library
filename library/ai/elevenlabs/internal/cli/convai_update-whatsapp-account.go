@@ -54,10 +54,14 @@ func newConvaiUpdateWhatsappAccountCmd(flags *rootFlags) *cobra.Command {
 					body["assigned_agent_id"] = bodyAssignedAgentId
 				}
 				if bodyEnableAudioMessageResponse != "" {
-					body["enable_audio_message_response"] = bodyEnableAudioMessageResponse
+					if err := setJSONBodyScalar(body, "enable_audio_message_response", "enable-audio-message-response", "bool", bodyEnableAudioMessageResponse); err != nil {
+						return err
+					}
 				}
 				if bodyEnableMessaging != "" {
-					body["enable_messaging"] = bodyEnableMessaging
+					if err := setJSONBodyScalar(body, "enable_messaging", "enable-messaging", "bool", bodyEnableMessaging); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(path, params, body)

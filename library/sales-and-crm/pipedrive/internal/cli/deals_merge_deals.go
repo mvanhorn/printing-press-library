@@ -59,7 +59,9 @@ func newDealsMergeDealsCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyMergeWithId != "" {
-					body["merge_with_id"] = bodyMergeWithId
+					if err := setJSONBodyScalar(body, "merge_with_id", "merge-with-id", "int", bodyMergeWithId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)

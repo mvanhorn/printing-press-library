@@ -75,10 +75,14 @@ func newIdentificationsUpdateCmd(flags *rootFlags) *cobra.Command {
 						nestedIdentification["current"] = bodyIdentificationCurrent
 					}
 					if bodyIdentificationObservationId != "" {
-						nestedIdentification["observation_id"] = bodyIdentificationObservationId
+						if err := setJSONBodyScalar(nestedIdentification, "observation_id", "identification-observation-id", "int", bodyIdentificationObservationId); err != nil {
+							return err
+						}
 					}
 					if bodyIdentificationTaxonId != "" {
-						nestedIdentification["taxon_id"] = bodyIdentificationTaxonId
+						if err := setJSONBodyScalar(nestedIdentification, "taxon_id", "identification-taxon-id", "int", bodyIdentificationTaxonId); err != nil {
+							return err
+						}
 					}
 					if len(nestedIdentification) > 0 {
 						bodyMap["identification"] = nestedIdentification

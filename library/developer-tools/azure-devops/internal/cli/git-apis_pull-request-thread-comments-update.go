@@ -178,7 +178,9 @@ func newGitApisPullRequestThreadCommentsUpdateCmd(flags *rootFlags) *cobra.Comma
 					body["content"] = bodyContent
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("is-deleted") {
 					body["isDeleted"] = bodyIsDeleted
@@ -190,7 +192,9 @@ func newGitApisPullRequestThreadCommentsUpdateCmd(flags *rootFlags) *cobra.Comma
 					body["lastUpdatedDate"] = bodyLastUpdatedDate
 				}
 				if bodyParentCommentId != "" {
-					body["parentCommentId"] = bodyParentCommentId
+					if err := setJSONBodyScalar(body, "parentCommentId", "parent-comment-id", "int", bodyParentCommentId); err != nil {
+						return err
+					}
 				}
 				if bodyPublishedDate != "" {
 					body["publishedDate"] = bodyPublishedDate

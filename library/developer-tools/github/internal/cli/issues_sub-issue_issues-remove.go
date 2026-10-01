@@ -69,7 +69,9 @@ func newIssuesSubIssueIssuesRemoveCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodySubIssueId != "" {
-					body["sub_issue_id"] = bodySubIssueId
+					if err := setJSONBodyScalar(body, "sub_issue_id", "sub-issue-id", "int", bodySubIssueId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.DeleteWithBody(cmd.Context(), path, body)

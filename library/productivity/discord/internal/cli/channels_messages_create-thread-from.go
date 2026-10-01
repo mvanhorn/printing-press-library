@@ -91,7 +91,9 @@ func newChannelsMessagesCreateThreadFromCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if cmd.Flags().Changed("auto-archive-duration") || bodyAutoArchiveDuration != "" {
-					bodyMap["auto_archive_duration"] = bodyAutoArchiveDuration
+					if err := setJSONBodyScalar(bodyMap, "auto_archive_duration", "auto-archive-duration", "int", bodyAutoArchiveDuration); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("name") || bodyName != "" {
 					bodyMap["name"] = bodyName

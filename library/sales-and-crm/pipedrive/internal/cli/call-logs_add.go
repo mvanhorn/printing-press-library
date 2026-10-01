@@ -77,10 +77,14 @@ func newCallLogsAddCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyActivityId != "" {
-					body["activity_id"] = bodyActivityId
+					if err := setJSONBodyScalar(body, "activity_id", "activity-id", "int", bodyActivityId); err != nil {
+						return err
+					}
 				}
 				if bodyDealId != "" {
-					body["deal_id"] = bodyDealId
+					if err := setJSONBodyScalar(body, "deal_id", "deal-id", "int", bodyDealId); err != nil {
+						return err
+					}
 				}
 				if bodyDuration != "" {
 					body["duration"] = bodyDuration
@@ -98,13 +102,17 @@ func newCallLogsAddCmd(flags *rootFlags) *cobra.Command {
 					body["note"] = bodyNote
 				}
 				if bodyOrgId != "" {
-					body["org_id"] = bodyOrgId
+					if err := setJSONBodyScalar(body, "org_id", "org-id", "int", bodyOrgId); err != nil {
+						return err
+					}
 				}
 				if bodyOutcome != "" {
 					body["outcome"] = bodyOutcome
 				}
 				if bodyPersonId != "" {
-					body["person_id"] = bodyPersonId
+					if err := setJSONBodyScalar(body, "person_id", "person-id", "int", bodyPersonId); err != nil {
+						return err
+					}
 				}
 				if bodyStartTime != "" {
 					body["start_time"] = bodyStartTime
@@ -116,7 +124,9 @@ func newCallLogsAddCmd(flags *rootFlags) *cobra.Command {
 					body["to_phone_number"] = bodyToPhoneNumber
 				}
 				if bodyUserId != "" {
-					body["user_id"] = bodyUserId
+					if err := setJSONBodyScalar(body, "user_id", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

@@ -131,7 +131,9 @@ func newImmichSearchSmartCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["ocr"] = bodyOcr
 				}
 				if bodyPage != "" {
-					bodyMap["page"] = bodyPage
+					if err := setJSONBodyScalar(bodyMap, "page", "page", "int", bodyPage); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("person-ids") {
 					parsedPersonIds, parseErr := cliutil.ParseStringList(bodyPersonIds)

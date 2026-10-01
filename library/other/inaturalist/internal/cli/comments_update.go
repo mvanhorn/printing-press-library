@@ -71,7 +71,9 @@ func newCommentsUpdateCmd(flags *rootFlags) *cobra.Command {
 						nestedComment["body"] = bodyCommentBody
 					}
 					if bodyCommentParentId != "" {
-						nestedComment["parent_id"] = bodyCommentParentId
+						if err := setJSONBodyScalar(nestedComment, "parent_id", "comment-parent-id", "int", bodyCommentParentId); err != nil {
+							return err
+						}
 					}
 					if bodyCommentParentType != "" {
 						nestedComment["parent_type"] = bodyCommentParentType

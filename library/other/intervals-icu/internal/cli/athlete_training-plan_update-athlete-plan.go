@@ -59,7 +59,9 @@ func newAthleteTrainingPlanUpdateAthletePlanCmd(flags *rootFlags) *cobra.Command
 					body["training_plan_alias"] = bodyTrainingPlanAlias
 				}
 				if bodyTrainingPlanId != "" {
-					body["training_plan_id"] = bodyTrainingPlanId
+					if err := setJSONBodyScalar(body, "training_plan_id", "training-plan-id", "int", bodyTrainingPlanId); err != nil {
+						return err
+					}
 				}
 				if bodyTrainingPlanStartDate != "" {
 					body["training_plan_start_date"] = bodyTrainingPlanStartDate

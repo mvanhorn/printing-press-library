@@ -50,22 +50,34 @@ func newAvatarCreateSetbodycolorsCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyHeadColorId != "" {
-					bodyMap["headColorId"] = bodyHeadColorId
+					if err := setJSONBodyScalar(bodyMap, "headColorId", "head-color-id", "int", bodyHeadColorId); err != nil {
+						return err
+					}
 				}
 				if bodyLeftArmColorId != "" {
-					bodyMap["leftArmColorId"] = bodyLeftArmColorId
+					if err := setJSONBodyScalar(bodyMap, "leftArmColorId", "left-arm-color-id", "int", bodyLeftArmColorId); err != nil {
+						return err
+					}
 				}
 				if bodyLeftLegColorId != "" {
-					bodyMap["leftLegColorId"] = bodyLeftLegColorId
+					if err := setJSONBodyScalar(bodyMap, "leftLegColorId", "left-leg-color-id", "int", bodyLeftLegColorId); err != nil {
+						return err
+					}
 				}
 				if bodyRightArmColorId != "" {
-					bodyMap["rightArmColorId"] = bodyRightArmColorId
+					if err := setJSONBodyScalar(bodyMap, "rightArmColorId", "right-arm-color-id", "int", bodyRightArmColorId); err != nil {
+						return err
+					}
 				}
 				if bodyRightLegColorId != "" {
-					bodyMap["rightLegColorId"] = bodyRightLegColorId
+					if err := setJSONBodyScalar(bodyMap, "rightLegColorId", "right-leg-color-id", "int", bodyRightLegColorId); err != nil {
+						return err
+					}
 				}
 				if bodyTorsoColorId != "" {
-					bodyMap["torsoColorId"] = bodyTorsoColorId
+					if err := setJSONBodyScalar(bodyMap, "torsoColorId", "torso-color-id", "int", bodyTorsoColorId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

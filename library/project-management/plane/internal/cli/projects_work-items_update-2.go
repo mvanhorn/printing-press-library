@@ -145,7 +145,9 @@ func newProjectsWorkItemsUpdate2Cmd(flags *rootFlags) *cobra.Command {
 					bodyMap["priority"] = bodyPriority
 				}
 				if bodySequenceId != "" {
-					bodyMap["sequence_id"] = bodySequenceId
+					if err := setJSONBodyScalar(bodyMap, "sequence_id", "sequence-id", "int", bodySequenceId); err != nil {
+						return err
+					}
 				}
 				if bodySortOrder != 0.0 {
 					bodyMap["sort_order"] = bodySortOrder

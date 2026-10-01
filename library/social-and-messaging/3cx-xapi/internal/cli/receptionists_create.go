@@ -186,7 +186,9 @@ func newReceptionistsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["IVRType"] = bodyIVRType
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyInvalidKeyForwardDN != "" {
 					body["InvalidKeyForwardDN"] = bodyInvalidKeyForwardDN

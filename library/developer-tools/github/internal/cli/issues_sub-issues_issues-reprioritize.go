@@ -69,13 +69,19 @@ func newIssuesSubIssuesIssuesReprioritizeCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyAfterId != "" {
-					body["after_id"] = bodyAfterId
+					if err := setJSONBodyScalar(body, "after_id", "after-id", "int", bodyAfterId); err != nil {
+						return err
+					}
 				}
 				if bodyBeforeId != "" {
-					body["before_id"] = bodyBeforeId
+					if err := setJSONBodyScalar(body, "before_id", "before-id", "int", bodyBeforeId); err != nil {
+						return err
+					}
 				}
 				if bodySubIssueId != "" {
-					body["sub_issue_id"] = bodySubIssueId
+					if err := setJSONBodyScalar(body, "sub_issue_id", "sub-issue-id", "int", bodySubIssueId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)

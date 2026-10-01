@@ -78,7 +78,9 @@ func newWorkoutsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["name"] = bodyName
 				}
 				if bodyPlanId != "" {
-					body["plan_id"] = bodyPlanId
+					if err := setJSONBodyScalar(body, "plan_id", "plan-id", "int", bodyPlanId); err != nil {
+						return err
+					}
 				}
 				if bodyStarts != "" {
 					body["starts"] = bodyStarts
@@ -87,7 +89,9 @@ func newWorkoutsUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["workout_token"] = bodyWorkoutToken
 				}
 				if bodyWorkoutTypeId != "" {
-					body["workout_type_id"] = bodyWorkoutTypeId
+					if err := setJSONBodyScalar(body, "workout_type_id", "workout-type-id", "int", bodyWorkoutTypeId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)

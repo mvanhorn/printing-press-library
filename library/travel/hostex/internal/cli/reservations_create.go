@@ -105,7 +105,9 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["currency"] = bodyCurrency
 				}
 				if bodyCustomChannelId != "" {
-					body["custom_channel_id"] = bodyCustomChannelId
+					if err := setJSONBodyScalar(body, "custom_channel_id", "custom-channel-id", "int", bodyCustomChannelId); err != nil {
+						return err
+					}
 				}
 				if bodyEmail != "" {
 					body["email"] = bodyEmail
@@ -114,7 +116,9 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["guest_name"] = bodyGuestName
 				}
 				if bodyIncomeMethodId != "" {
-					body["income_method_id"] = bodyIncomeMethodId
+					if err := setJSONBodyScalar(body, "income_method_id", "income-method-id", "int", bodyIncomeMethodId); err != nil {
+						return err
+					}
 				}
 				if bodyMobile != "" {
 					body["mobile"] = bodyMobile
@@ -123,7 +127,9 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["number_of_guests"] = bodyNumberOfGuests
 				}
 				if bodyPropertyId != "" {
-					body["property_id"] = bodyPropertyId
+					if err := setJSONBodyScalar(body, "property_id", "property-id", "int", bodyPropertyId); err != nil {
+						return err
+					}
 				}
 				if bodyRateAmount != 0 {
 					body["rate_amount"] = bodyRateAmount

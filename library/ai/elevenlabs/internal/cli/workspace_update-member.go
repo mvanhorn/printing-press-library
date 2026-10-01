@@ -54,7 +54,9 @@ func newWorkspaceUpdateMemberCmd(flags *rootFlags) *cobra.Command {
 					body["email"] = bodyEmail
 				}
 				if bodyIsLocked != "" {
-					body["is_locked"] = bodyIsLocked
+					if err := setJSONBodyScalar(body, "is_locked", "is-locked", "bool", bodyIsLocked); err != nil {
+						return err
+					}
 				}
 				if bodyWorkspaceRole != "" {
 					body["workspace_role"] = bodyWorkspaceRole

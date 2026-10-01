@@ -71,7 +71,9 @@ func newIssuesSubIssuesIssuesAddCmd(flags *rootFlags) *cobra.Command {
 					body["replace_parent"] = bodyReplaceParent
 				}
 				if bodySubIssueId != "" {
-					body["sub_issue_id"] = bodySubIssueId
+					if err := setJSONBodyScalar(body, "sub_issue_id", "sub-issue-id", "int", bodySubIssueId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

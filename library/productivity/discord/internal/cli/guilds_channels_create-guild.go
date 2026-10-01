@@ -118,10 +118,14 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["bitrate"] = bodyBitrate
 				}
 				if cmd.Flags().Changed("default-auto-archive-duration") || bodyDefaultAutoArchiveDuration != "" {
-					bodyMap["default_auto_archive_duration"] = bodyDefaultAutoArchiveDuration
+					if err := setJSONBodyScalar(bodyMap, "default_auto_archive_duration", "default-auto-archive-duration", "int", bodyDefaultAutoArchiveDuration); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("default-forum-layout") || bodyDefaultForumLayout != "" {
-					bodyMap["default_forum_layout"] = bodyDefaultForumLayout
+					if err := setJSONBodyScalar(bodyMap, "default_forum_layout", "default-forum-layout", "int", bodyDefaultForumLayout); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("default-reaction-emoji") || bodyDefaultReactionEmoji != "" {
 					if looksLikeJSONComposite(bodyDefaultReactionEmoji) {
@@ -135,7 +139,9 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if cmd.Flags().Changed("default-sort-order") || bodyDefaultSortOrder != "" {
-					bodyMap["default_sort_order"] = bodyDefaultSortOrder
+					if err := setJSONBodyScalar(bodyMap, "default_sort_order", "default-sort-order", "int", bodyDefaultSortOrder); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("default-tag-setting") || bodyDefaultTagSetting != "" {
 					bodyMap["default_tag_setting"] = bodyDefaultTagSetting
@@ -183,14 +189,18 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 						}
 						bodyMap["type"] = parsedType
 					} else {
-						bodyMap["type"] = bodyType
+						if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+							return err
+						}
 					}
 				}
 				if cmd.Flags().Changed("user-limit") || bodyUserLimit != 0 {
 					bodyMap["user_limit"] = bodyUserLimit
 				}
 				if cmd.Flags().Changed("video-quality-mode") || bodyVideoQualityMode != "" {
-					bodyMap["video_quality_mode"] = bodyVideoQualityMode
+					if err := setJSONBodyScalar(bodyMap, "video_quality_mode", "video-quality-mode", "int", bodyVideoQualityMode); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

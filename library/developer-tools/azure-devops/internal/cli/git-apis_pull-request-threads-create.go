@@ -121,7 +121,9 @@ func newGitApisPullRequestThreadsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["comments"] = parsedComments
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyIdentities != "" {
 					var parsedIdentities any

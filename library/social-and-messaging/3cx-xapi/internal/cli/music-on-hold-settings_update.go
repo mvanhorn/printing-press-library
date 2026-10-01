@@ -56,7 +56,9 @@ func newMusicOnHoldSettingsUpdateCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyMusicOnHold != "" {
 					body["MusicOnHold"] = bodyMusicOnHold

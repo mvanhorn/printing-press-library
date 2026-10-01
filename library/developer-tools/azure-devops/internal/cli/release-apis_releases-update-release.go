@@ -292,7 +292,9 @@ func newReleaseApisReleasesUpdateReleaseCmd(flags *rootFlags) *cobra.Command {
 					body["environments"] = parsedEnvironments
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("keep-forever") {
 					body["keepForever"] = bodyKeepForever

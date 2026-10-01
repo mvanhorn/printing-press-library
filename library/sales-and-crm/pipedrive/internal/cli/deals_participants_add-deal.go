@@ -59,7 +59,9 @@ func newDealsParticipantsAddDealCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyPersonId != "" {
-					body["person_id"] = bodyPersonId
+					if err := setJSONBodyScalar(body, "person_id", "person-id", "int", bodyPersonId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

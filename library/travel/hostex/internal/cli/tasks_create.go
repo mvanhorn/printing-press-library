@@ -87,10 +87,14 @@ func newTasksCreateCmd(flags *rootFlags) *cobra.Command {
 					body["note"] = bodyNote
 				}
 				if bodyPropertyId != "" {
-					body["property_id"] = bodyPropertyId
+					if err := setJSONBodyScalar(body, "property_id", "property-id", "int", bodyPropertyId); err != nil {
+						return err
+					}
 				}
 				if bodyStaffId != "" {
-					body["staff_id"] = bodyStaffId
+					if err := setJSONBodyScalar(body, "staff_id", "staff-id", "int", bodyStaffId); err != nil {
+						return err
+					}
 				}
 				if bodyStayCode != "" {
 					body["stay_code"] = bodyStayCode

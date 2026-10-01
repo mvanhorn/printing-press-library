@@ -575,7 +575,9 @@ func newAthleteUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["shoes"] = parsedShoes
 				}
 				if bodySponsoredByChatId != "" {
-					body["sponsored_by_chat_id"] = bodySponsoredByChatId
+					if err := setJSONBodyScalar(body, "sponsored_by_chat_id", "sponsored-by-chat-id", "int", bodySponsoredByChatId); err != nil {
+						return err
+					}
 				}
 				if bodyState != "" {
 					body["state"] = bodyState
@@ -593,7 +595,9 @@ func newAthleteUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["strava_authorized"] = bodyStravaAuthorized
 				}
 				if bodyStravaId != "" {
-					body["strava_id"] = bodyStravaId
+					if err := setJSONBodyScalar(body, "strava_id", "strava-id", "int", bodyStravaId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("strava-sync-activities") {
 					body["strava_sync_activities"] = bodyStravaSyncActivities
@@ -655,7 +659,9 @@ func newAthleteUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["training_availability"] = parsedTrainingAvailability
 				}
 				if bodyTrainingPlanId != "" {
-					body["training_plan_id"] = bodyTrainingPlanId
+					if err := setJSONBodyScalar(body, "training_plan_id", "training-plan-id", "int", bodyTrainingPlanId); err != nil {
+						return err
+					}
 				}
 				if bodyTrainingPlanStartDate != "" {
 					body["training_plan_start_date"] = bodyTrainingPlanStartDate

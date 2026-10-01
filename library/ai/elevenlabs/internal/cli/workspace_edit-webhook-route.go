@@ -68,7 +68,9 @@ func newWorkspaceEditWebhookRouteCmd(flags *rootFlags) *cobra.Command {
 					body["request_headers"] = bodyRequestHeaders
 				}
 				if bodyRetryEnabled != "" {
-					body["retry_enabled"] = bodyRetryEnabled
+					if err := setJSONBodyScalar(body, "retry_enabled", "retry-enabled", "bool", bodyRetryEnabled); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(path, params, body)

@@ -75,16 +75,22 @@ func newNotesAddCmd(flags *rootFlags) *cobra.Command {
 					body["content"] = bodyContent
 				}
 				if bodyDealId != "" {
-					body["deal_id"] = bodyDealId
+					if err := setJSONBodyScalar(body, "deal_id", "deal-id", "int", bodyDealId); err != nil {
+						return err
+					}
 				}
 				if bodyLeadId != "" {
 					body["lead_id"] = bodyLeadId
 				}
 				if bodyOrgId != "" {
-					body["org_id"] = bodyOrgId
+					if err := setJSONBodyScalar(body, "org_id", "org-id", "int", bodyOrgId); err != nil {
+						return err
+					}
 				}
 				if bodyPersonId != "" {
-					body["person_id"] = bodyPersonId
+					if err := setJSONBodyScalar(body, "person_id", "person-id", "int", bodyPersonId); err != nil {
+						return err
+					}
 				}
 				if bodyPinnedToDealFlag != 0.0 {
 					body["pinned_to_deal_flag"] = bodyPinnedToDealFlag
@@ -105,13 +111,19 @@ func newNotesAddCmd(flags *rootFlags) *cobra.Command {
 					body["pinned_to_task_flag"] = bodyPinnedToTaskFlag
 				}
 				if bodyProjectId != "" {
-					body["project_id"] = bodyProjectId
+					if err := setJSONBodyScalar(body, "project_id", "project-id", "int", bodyProjectId); err != nil {
+						return err
+					}
 				}
 				if bodyTaskId != "" {
-					body["task_id"] = bodyTaskId
+					if err := setJSONBodyScalar(body, "task_id", "task-id", "int", bodyTaskId); err != nil {
+						return err
+					}
 				}
 				if bodyUserId != "" {
-					body["user_id"] = bodyUserId
+					if err := setJSONBodyScalar(body, "user_id", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

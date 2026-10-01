@@ -580,7 +580,9 @@ func newBuildApisBuildsQueueCmd(flags *rootFlags) *cobra.Command {
 					body["finishTime"] = bodyFinishTime
 				}
 				if bodyId != "" {
-					body["id"] = bodyId
+					if err := setJSONBodyScalar(body, "id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				{
 					nestedLastChangedBy := map[string]any{}

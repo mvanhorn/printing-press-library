@@ -60,10 +60,14 @@ func newDubbingUpdateSegmentLanguageCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyEndTime != "" {
-					body["end_time"] = bodyEndTime
+					if err := setJSONBodyScalar(body, "end_time", "end-time", "number", bodyEndTime); err != nil {
+						return err
+					}
 				}
 				if bodyStartTime != "" {
-					body["start_time"] = bodyStartTime
+					if err := setJSONBodyScalar(body, "start_time", "start-time", "number", bodyStartTime); err != nil {
+						return err
+					}
 				}
 				if bodyText != "" {
 					body["text"] = bodyText

@@ -48,7 +48,9 @@ func newBooksPromotedCmd(flags *rootFlags) *cobra.Command {
 			// second store-backed POST-search consumer ships.
 			body := map[string]any{}
 			if bodyFolderId != "" {
-				body["folder_id"] = bodyFolderId
+				if err := setJSONBodyScalar(body, "folder_id", "folder-id", "int", bodyFolderId); err != nil {
+					return err
+				}
 			}
 			data, statusCode, err := c.PostWithParamsAndHeaders(cmd.Context(), path, params, body, kdpCSRFHeaders(c))
 

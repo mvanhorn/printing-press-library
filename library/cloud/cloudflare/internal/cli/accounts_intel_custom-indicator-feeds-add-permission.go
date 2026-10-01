@@ -53,7 +53,9 @@ func newAccountsIntelCustomIndicatorFeedsAddPermissionCmd(flags *rootFlags) *cob
 					body["account_tag"] = bodyAccountTag
 				}
 				if bodyFeedId != "" {
-					body["feed_id"] = bodyFeedId
+					if err := setJSONBodyScalar(body, "feed_id", "feed-id", "int", bodyFeedId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)

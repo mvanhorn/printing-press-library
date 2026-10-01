@@ -51,7 +51,9 @@ func newSbGetBidsRecommendationsCmd(flags *rootFlags) *cobra.Command {
 					body["adFormat"] = bodyAdFormat
 				}
 				if bodyCampaignId != "" {
-					body["campaignId"] = bodyCampaignId
+					if err := setJSONBodyScalar(body, "campaignId", "campaign-id", "int", bodyCampaignId); err != nil {
+						return err
+					}
 				}
 				if bodyKeywords != "" {
 					var parsedKeywords any

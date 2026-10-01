@@ -121,7 +121,9 @@ func newAthleteFoldersUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["hours_per_week_min"] = bodyHoursPerWeekMin
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyName != "" {
 					body["name"] = bodyName

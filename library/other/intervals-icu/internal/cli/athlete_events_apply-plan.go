@@ -58,7 +58,9 @@ func newAthleteEventsApplyPlanCmd(flags *rootFlags) *cobra.Command {
 					body["extra_workouts"] = parsedExtraWorkouts
 				}
 				if bodyFolderId != "" {
-					body["folder_id"] = bodyFolderId
+					if err := setJSONBodyScalar(body, "folder_id", "folder-id", "int", bodyFolderId); err != nil {
+						return err
+					}
 				}
 				if bodyStartDateLocal != "" {
 					body["start_date_local"] = bodyStartDateLocal

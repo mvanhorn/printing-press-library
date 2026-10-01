@@ -56,10 +56,14 @@ func newMessagesCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedMessage["subject"] = bodyMessageSubject
 					}
 					if bodyMessageThreadId != "" {
-						nestedMessage["thread_id"] = bodyMessageThreadId
+						if err := setJSONBodyScalar(nestedMessage, "thread_id", "message-thread-id", "int", bodyMessageThreadId); err != nil {
+							return err
+						}
 					}
 					if bodyMessageToUserId != "" {
-						nestedMessage["to_user_id"] = bodyMessageToUserId
+						if err := setJSONBodyScalar(nestedMessage, "to_user_id", "message-to-user-id", "int", bodyMessageToUserId); err != nil {
+							return err
+						}
 					}
 					if len(nestedMessage) > 0 {
 						bodyMap["message"] = nestedMessage

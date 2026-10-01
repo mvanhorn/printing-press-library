@@ -125,7 +125,9 @@ func newAthleteCustomItemCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if bodyFromId != "" {
-					body["from_id"] = bodyFromId
+					if err := setJSONBodyScalar(body, "from_id", "from-id", "int", bodyFromId); err != nil {
+						return err
+					}
 				}
 				if bodyHiddenById != "" {
 					body["hidden_by_id"] = bodyHiddenById
@@ -134,7 +136,9 @@ func newAthleteCustomItemCreateCmd(flags *rootFlags) *cobra.Command {
 					body["hide_script"] = bodyHideScript
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyImage != "" {
 					body["image"] = bodyImage

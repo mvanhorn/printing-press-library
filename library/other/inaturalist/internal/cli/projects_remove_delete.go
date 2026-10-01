@@ -63,7 +63,9 @@ func newProjectsRemoveDeleteCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyObservationId != "" {
-					bodyMap["observation_id"] = bodyObservationId
+					if err := setJSONBodyScalar(bodyMap, "observation_id", "observation-id", "int", bodyObservationId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.DeleteWithBody(cmd.Context(), path, body)

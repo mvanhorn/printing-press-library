@@ -64,7 +64,9 @@ func newGroups2ChangeOwnerCreateCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyUserId != "" {
-					bodyMap["userId"] = bodyUserId
+					if err := setJSONBodyScalar(bodyMap, "userId", "user-id", "int", bodyUserId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

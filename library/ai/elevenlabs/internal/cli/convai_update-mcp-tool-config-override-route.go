@@ -65,13 +65,17 @@ func newConvaiUpdateMcpToolConfigOverrideRouteCmd(flags *rootFlags) *cobra.Comma
 					body["assignments"] = bodyAssignments
 				}
 				if bodyDisableInterruptions != "" {
-					body["disable_interruptions"] = bodyDisableInterruptions
+					if err := setJSONBodyScalar(body, "disable_interruptions", "disable-interruptions", "bool", bodyDisableInterruptions); err != nil {
+						return err
+					}
 				}
 				if bodyExecutionMode != "" {
 					body["execution_mode"] = bodyExecutionMode
 				}
 				if bodyForcePreToolSpeech != "" {
-					body["force_pre_tool_speech"] = bodyForcePreToolSpeech
+					if err := setJSONBodyScalar(body, "force_pre_tool_speech", "force-pre-tool-speech", "bool", bodyForcePreToolSpeech); err != nil {
+						return err
+					}
 				}
 				if bodyInputOverrides != "" {
 					body["input_overrides"] = bodyInputOverrides
@@ -83,7 +87,9 @@ func newConvaiUpdateMcpToolConfigOverrideRouteCmd(flags *rootFlags) *cobra.Comma
 					body["response_mocks"] = bodyResponseMocks
 				}
 				if bodyResponseTimeoutSecs != "" {
-					body["response_timeout_secs"] = bodyResponseTimeoutSecs
+					if err := setJSONBodyScalar(body, "response_timeout_secs", "response-timeout-secs", "int", bodyResponseTimeoutSecs); err != nil {
+						return err
+					}
 				}
 				if bodyToolCallSound != "" {
 					body["tool_call_sound"] = bodyToolCallSound

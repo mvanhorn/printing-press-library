@@ -76,7 +76,9 @@ func newBuildApisLeasesUpdateCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyDaysValid != "" {
-					body["daysValid"] = bodyDaysValid
+					if err := setJSONBodyScalar(body, "daysValid", "days-valid", "int", bodyDaysValid); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("protect-pipeline") {
 					body["protectPipeline"] = bodyProtectPipeline

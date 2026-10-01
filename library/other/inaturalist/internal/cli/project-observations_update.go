@@ -68,13 +68,17 @@ func newProjectObservationsUpdateCmd(flags *rootFlags) *cobra.Command {
 				{
 					nestedProjectObservation := map[string]any{}
 					if bodyProjectObservationObservationId != "" {
-						nestedProjectObservation["observation_id"] = bodyProjectObservationObservationId
+						if err := setJSONBodyScalar(nestedProjectObservation, "observation_id", "project-observation-observation-id", "int", bodyProjectObservationObservationId); err != nil {
+							return err
+						}
 					}
 					if cmd.Flags().Changed("project-observation-prefers-curator-coordinate-access") {
 						nestedProjectObservation["prefers_curator_coordinate_access"] = bodyProjectObservationPrefersCuratorCoordinateAccess
 					}
 					if bodyProjectObservationProjectId != "" {
-						nestedProjectObservation["project_id"] = bodyProjectObservationProjectId
+						if err := setJSONBodyScalar(nestedProjectObservation, "project_id", "project-observation-project-id", "int", bodyProjectObservationProjectId); err != nil {
+							return err
+						}
 					}
 					if len(nestedProjectObservation) > 0 {
 						bodyMap["project_observation"] = nestedProjectObservation

@@ -76,7 +76,9 @@ func newAccountsCloudforceOneRequestMessageListCmd(flags *rootFlags) *cobra.Comm
 					body["before"] = bodyBefore
 				}
 				if bodyPage != "" {
-					body["page"] = bodyPage
+					if err := setJSONBodyScalar(body, "page", "page", "int", bodyPage); err != nil {
+						return err
+					}
 				}
 				if bodyPerPage != 0 {
 					body["per_page"] = bodyPerPage

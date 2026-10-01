@@ -70,7 +70,9 @@ func newMenusUpdateCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyId2 != "" {
-					bodyMap["id"] = bodyId2
+					if err := setJSONBodyScalar(bodyMap, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyDescription != "" {
 					bodyMap["description"] = bodyDescription

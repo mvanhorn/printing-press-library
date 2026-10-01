@@ -50,13 +50,19 @@ func newAnnotationsCreateCmd(flags *rootFlags) *cobra.Command {
 				{
 					nestedAnnotation := map[string]any{}
 					if bodyAnnotationControlledAttributeId != "" {
-						nestedAnnotation["controlled_attribute_id"] = bodyAnnotationControlledAttributeId
+						if err := setJSONBodyScalar(nestedAnnotation, "controlled_attribute_id", "annotation-controlled-attribute-id", "int", bodyAnnotationControlledAttributeId); err != nil {
+							return err
+						}
 					}
 					if bodyAnnotationControlledValueId != "" {
-						nestedAnnotation["controlled_value_id"] = bodyAnnotationControlledValueId
+						if err := setJSONBodyScalar(nestedAnnotation, "controlled_value_id", "annotation-controlled-value-id", "int", bodyAnnotationControlledValueId); err != nil {
+							return err
+						}
 					}
 					if bodyAnnotationResourceId != "" {
-						nestedAnnotation["resource_id"] = bodyAnnotationResourceId
+						if err := setJSONBodyScalar(nestedAnnotation, "resource_id", "annotation-resource-id", "int", bodyAnnotationResourceId); err != nil {
+							return err
+						}
 					}
 					if bodyAnnotationResourceType != "" {
 						nestedAnnotation["resource_type"] = bodyAnnotationResourceType

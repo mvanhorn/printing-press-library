@@ -169,7 +169,9 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["attachments"] = parsedAttachments
 				}
 				if bodyCalendarId != "" {
-					body["calendar_id"] = bodyCalendarId
+					if err := setJSONBodyScalar(body, "calendar_id", "calendar-id", "int", bodyCalendarId); err != nil {
+						return err
+					}
 				}
 				if bodyCanTrainSports != "" {
 					body["can_train_sports"] = cliutil.SplitCSV(bodyCanTrainSports)
@@ -241,7 +243,9 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["icu_training_load"] = bodyIcuTrainingLoad
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("indoor") {
 					body["indoor"] = bodyIndoor
@@ -268,7 +272,9 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["not_on_fitness_chart"] = bodyNotOnFitnessChart
 				}
 				if bodyOauthClientId != "" {
-					body["oauth_client_id"] = bodyOauthClientId
+					if err := setJSONBodyScalar(body, "oauth_client_id", "oauth-client-id", "int", bodyOauthClientId); err != nil {
+						return err
+					}
 				}
 				if bodyPMax != 0 {
 					body["p_max"] = bodyPMax
@@ -280,10 +286,14 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["plan_athlete_id"] = bodyPlanAthleteId
 				}
 				if bodyPlanFolderId != "" {
-					body["plan_folder_id"] = bodyPlanFolderId
+					if err := setJSONBodyScalar(body, "plan_folder_id", "plan-folder-id", "int", bodyPlanFolderId); err != nil {
+						return err
+					}
 				}
 				if bodyPlanWorkoutId != "" {
-					body["plan_workout_id"] = bodyPlanWorkoutId
+					if err := setJSONBodyScalar(body, "plan_workout_id", "plan-workout-id", "int", bodyPlanWorkoutId); err != nil {
+						return err
+					}
 				}
 				if bodyPushErrors != "" {
 					var parsedPushErrors any
@@ -293,7 +303,9 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["push_errors"] = parsedPushErrors
 				}
 				if bodySharedEventId != "" {
-					body["shared_event_id"] = bodySharedEventId
+					if err := setJSONBodyScalar(body, "shared_event_id", "shared-event-id", "int", bodySharedEventId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("show-as-note") {
 					body["show_as_note"] = bodyShowAsNote
@@ -377,7 +389,9 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedWorkout["distance"] = bodyWorkoutDistance
 					}
 					if bodyWorkoutFolderId != "" {
-						nestedWorkout["folder_id"] = bodyWorkoutFolderId
+						if err := setJSONBodyScalar(nestedWorkout, "folder_id", "workout-folder-id", "int", bodyWorkoutFolderId); err != nil {
+							return err
+						}
 					}
 					if cmd.Flags().Changed("workout-for-week") {
 						nestedWorkout["for_week"] = bodyWorkoutForWeek
@@ -392,7 +406,9 @@ func newAthleteEventsCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedWorkout["icu_training_load"] = bodyWorkoutIcuTrainingLoad
 					}
 					if bodyWorkoutId != "" {
-						nestedWorkout["id"] = bodyWorkoutId
+						if err := setJSONBodyScalar(nestedWorkout, "id", "workout-id", "int", bodyWorkoutId); err != nil {
+							return err
+						}
 					}
 					if cmd.Flags().Changed("workout-indoor") {
 						nestedWorkout["indoor"] = bodyWorkoutIndoor

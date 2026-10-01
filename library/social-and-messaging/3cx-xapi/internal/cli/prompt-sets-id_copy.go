@@ -72,7 +72,9 @@ func newPromptSetsIdCopyCmd(flags *rootFlags) *cobra.Command {
 						nestedOverrides["Folder"] = bodyOverridesFolder
 					}
 					if bodyOverridesId != "" {
-						nestedOverrides["Id"] = bodyOverridesId
+						if err := setJSONBodyScalar(nestedOverrides, "Id", "overrides-id", "int", bodyOverridesId); err != nil {
+							return err
+						}
 					}
 					if bodyOverridesLanguageCode != "" {
 						nestedOverrides["LanguageCode"] = bodyOverridesLanguageCode

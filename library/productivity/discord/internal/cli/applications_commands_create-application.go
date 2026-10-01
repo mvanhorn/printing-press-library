@@ -127,7 +127,9 @@ func newApplicationsCommandsCreateApplicationCmd(flags *rootFlags) *cobra.Comman
 					bodyMap["dm_permission"] = bodyDmPermission
 				}
 				if cmd.Flags().Changed("handler") || bodyHandler != "" {
-					bodyMap["handler"] = bodyHandler
+					if err := setJSONBodyScalar(bodyMap, "handler", "handler", "int", bodyHandler); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("integration-types") || bodyIntegrationTypes != "" {
 					var parsedIntegrationTypes any
@@ -166,7 +168,9 @@ func newApplicationsCommandsCreateApplicationCmd(flags *rootFlags) *cobra.Comman
 					bodyMap["options"] = asArray
 				}
 				if cmd.Flags().Changed("type") || bodyType != "" {
-					bodyMap["type"] = bodyType
+					if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

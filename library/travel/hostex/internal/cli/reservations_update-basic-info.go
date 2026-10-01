@@ -79,7 +79,9 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 					body["currency"] = bodyCurrency
 				}
 				if bodyCustomChannelId != "" {
-					body["custom_channel_id"] = bodyCustomChannelId
+					if err := setJSONBodyScalar(body, "custom_channel_id", "custom-channel-id", "int", bodyCustomChannelId); err != nil {
+						return err
+					}
 				}
 				if bodyEmail != "" {
 					body["email"] = bodyEmail

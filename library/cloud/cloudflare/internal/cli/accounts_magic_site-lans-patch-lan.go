@@ -84,7 +84,9 @@ func newAccountsMagicSiteLansPatchLanCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyBondId != "" {
-					body["bond_id"] = bodyBondId
+					if err := setJSONBodyScalar(body, "bond_id", "bond-id", "int", bodyBondId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("is-breakout") {
 					body["is_breakout"] = bodyIsBreakout

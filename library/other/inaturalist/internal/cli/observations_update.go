@@ -74,7 +74,9 @@ func newObservationsUpdateCmd(flags *rootFlags) *cobra.Command {
 						nestedObservation["species_guess"] = bodyObservationSpeciesGuess
 					}
 					if bodyObservationTaxonId != "" {
-						nestedObservation["taxon_id"] = bodyObservationTaxonId
+						if err := setJSONBodyScalar(nestedObservation, "taxon_id", "observation-taxon-id", "int", bodyObservationTaxonId); err != nil {
+							return err
+						}
 					}
 					if len(nestedObservation) > 0 {
 						bodyMap["observation"] = nestedObservation

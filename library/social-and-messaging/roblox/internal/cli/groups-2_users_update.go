@@ -68,7 +68,9 @@ func newGroups2UsersUpdateCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if bodyRoleId != "" {
-					bodyMap["roleId"] = bodyRoleId
+					if err := setJSONBodyScalar(bodyMap, "roleId", "role-id", "int", bodyRoleId); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)

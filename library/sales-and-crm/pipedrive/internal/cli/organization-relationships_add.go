@@ -64,13 +64,19 @@ func newOrganizationRelationshipsAddCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyOrgId != "" {
-					body["org_id"] = bodyOrgId
+					if err := setJSONBodyScalar(body, "org_id", "org-id", "int", bodyOrgId); err != nil {
+						return err
+					}
 				}
 				if bodyRelLinkedOrgId != "" {
-					body["rel_linked_org_id"] = bodyRelLinkedOrgId
+					if err := setJSONBodyScalar(body, "rel_linked_org_id", "rel-linked-org-id", "int", bodyRelLinkedOrgId); err != nil {
+						return err
+					}
 				}
 				if bodyRelOwnerOrgId != "" {
-					body["rel_owner_org_id"] = bodyRelOwnerOrgId
+					if err := setJSONBodyScalar(body, "rel_owner_org_id", "rel-owner-org-id", "int", bodyRelOwnerOrgId); err != nil {
+						return err
+					}
 				}
 				if bodyType != "" {
 					body["type"] = bodyType

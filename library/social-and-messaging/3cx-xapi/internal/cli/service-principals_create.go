@@ -63,7 +63,9 @@ func newServicePrincipalsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["Groups"] = parsedGroups
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("is-system") {
 					body["IsSystem"] = bodyIsSystem

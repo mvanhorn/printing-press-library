@@ -49,7 +49,9 @@ func newSandboxesCreateSessionSnapshotCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodyExpiration != "" {
-					body["expiration"] = bodyExpiration
+					if err := setJSONBodyScalar(body, "expiration", "expiration", "int", bodyExpiration); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)

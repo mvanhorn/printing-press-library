@@ -62,7 +62,9 @@ func newEmergencyNotificationsSettingsUpdateCmd(flags *rootFlags) *cobra.Command
 						nestedEmergencyDNPrompt["Hidden"] = bodyEmergencyDNPromptHidden
 					}
 					if bodyEmergencyDNPromptId != "" {
-						nestedEmergencyDNPrompt["Id"] = bodyEmergencyDNPromptId
+						if err := setJSONBodyScalar(nestedEmergencyDNPrompt, "Id", "emergency-dn-prompt-id", "int", bodyEmergencyDNPromptId); err != nil {
+							return err
+						}
 					}
 					if bodyEmergencyDNPromptMemberOf != "" {
 						var parsedEmergencyDNPromptMemberOf any

@@ -117,7 +117,9 @@ func newTextToSpeechStreamTextToSpeechCmd(flags *rootFlags) *cobra.Command {
 					body["pronunciation_dictionary_locators"] = bodyPronunciationDictionaryLocators
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodyText != "" {
 					body["text"] = bodyText

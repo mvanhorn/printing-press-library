@@ -80,19 +80,25 @@ func newProductCreateCmd(flags *rootFlags) *cobra.Command {
 					body["code"] = bodyCode
 				}
 				if bodyCostCenterId != "" {
-					body["costCenterId"] = bodyCostCenterId
+					if err := setJSONBodyScalar(body, "costCenterId", "cost-center-id", "int", bodyCostCenterId); err != nil {
+						return err
+					}
 				}
 				if bodyDescription != "" {
 					body["description"] = bodyDescription
 				}
 				if bodyGroupId != "" {
-					body["groupId"] = bodyGroupId
+					if err := setJSONBodyScalar(body, "groupId", "group-id", "int", bodyGroupId); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("in-stock-management") {
 					body["inStockManagement"] = bodyInStockManagement
 				}
 				if bodyLedgerId != "" {
-					body["ledgerId"] = bodyLedgerId
+					if err := setJSONBodyScalar(body, "ledgerId", "ledger-id", "int", bodyLedgerId); err != nil {
+						return err
+					}
 				}
 				if bodyPriceExcl != 0.0 {
 					body["priceExcl"] = bodyPriceExcl
@@ -104,7 +110,9 @@ func newProductCreateCmd(flags *rootFlags) *cobra.Command {
 					body["purchasePriceExcl"] = bodyPurchasePriceExcl
 				}
 				if bodyUnitId != "" {
-					body["unitId"] = bodyUnitId
+					if err := setJSONBodyScalar(body, "unitId", "unit-id", "int", bodyUnitId); err != nil {
+						return err
+					}
 				}
 				if bodyVat != "" {
 					body["vat"] = bodyVat

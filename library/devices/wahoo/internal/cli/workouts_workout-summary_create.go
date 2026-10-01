@@ -94,7 +94,9 @@ func newWorkoutsWorkoutSummaryCreateCmd(flags *rootFlags) *cobra.Command {
 					body["heart_rate_avg"] = bodyHeartRateAvg
 				}
 				if bodyId2 != "" {
-					body["id"] = bodyId2
+					if err := setJSONBodyScalar(body, "id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 				if bodyPowerBikeAvg != "" {
 					body["power_bike_avg"] = bodyPowerBikeAvg

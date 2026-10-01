@@ -425,7 +425,9 @@ func newAthleteActivitiesCreateManualActivityCmd(flags *rootFlags) *cobra.Comman
 					body["icu_cadence_z2"] = bodyIcuCadenceZ2
 				}
 				if bodyIcuChatId != "" {
-					body["icu_chat_id"] = bodyIcuChatId
+					if err := setJSONBodyScalar(body, "icu_chat_id", "icu-chat-id", "int", bodyIcuChatId); err != nil {
+						return err
+					}
 				}
 				if bodyIcuColor != "" {
 					body["icu_color"] = bodyIcuColor
@@ -694,7 +696,9 @@ func newAthleteActivitiesCreateManualActivityCmd(flags *rootFlags) *cobra.Comman
 					body["name"] = bodyName
 				}
 				if bodyOauthClientId != "" {
-					body["oauth_client_id"] = bodyOauthClientId
+					if err := setJSONBodyScalar(body, "oauth_client_id", "oauth-client-id", "int", bodyOauthClientId); err != nil {
+						return err
+					}
 				}
 				if bodyOauthClientName != "" {
 					body["oauth_client_name"] = bodyOauthClientName
@@ -729,7 +733,9 @@ func newAthleteActivitiesCreateManualActivityCmd(flags *rootFlags) *cobra.Comman
 					body["pace_zones"] = parsedPaceZones
 				}
 				if bodyPairedEventId != "" {
-					body["paired_event_id"] = bodyPairedEventId
+					if err := setJSONBodyScalar(body, "paired_event_id", "paired-event-id", "int", bodyPairedEventId); err != nil {
+						return err
+					}
 				}
 				if bodyPerceivedExertion != 0.0 {
 					body["perceived_exertion"] = bodyPerceivedExertion
@@ -772,7 +778,9 @@ func newAthleteActivitiesCreateManualActivityCmd(flags *rootFlags) *cobra.Comman
 					body["recording_stops"] = parsedRecordingStops
 				}
 				if bodyRouteId != "" {
-					body["route_id"] = bodyRouteId
+					if err := setJSONBodyScalar(body, "route_id", "route-id", "int", bodyRouteId); err != nil {
+						return err
+					}
 				}
 				if bodySessionRpe != 0 {
 					body["session_rpe"] = bodySessionRpe

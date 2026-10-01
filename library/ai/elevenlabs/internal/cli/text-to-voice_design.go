@@ -90,10 +90,14 @@ func newTextToVoiceDesignCmd(flags *rootFlags) *cobra.Command {
 					body["model_id"] = bodyModelId
 				}
 				if bodyPromptStrength != "" {
-					body["prompt_strength"] = bodyPromptStrength
+					if err := setJSONBodyScalar(body, "prompt_strength", "prompt-strength", "number", bodyPromptStrength); err != nil {
+						return err
+					}
 				}
 				if bodyQuality != "" {
-					body["quality"] = bodyQuality
+					if err := setJSONBodyScalar(body, "quality", "quality", "number", bodyQuality); err != nil {
+						return err
+					}
 				}
 				if bodyReferenceAudioBase64 != "" {
 					body["reference_audio_base64"] = bodyReferenceAudioBase64
@@ -105,7 +109,9 @@ func newTextToVoiceDesignCmd(flags *rootFlags) *cobra.Command {
 					body["remixing_session_iteration_id"] = bodyRemixingSessionIterationId
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodyShouldEnhance != false {
 					body["should_enhance"] = bodyShouldEnhance

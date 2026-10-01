@@ -54,7 +54,9 @@ func newMusicComposePlanCmd(flags *rootFlags) *cobra.Command {
 					body["model_id"] = bodyModelId
 				}
 				if bodyMusicLengthMs != "" {
-					body["music_length_ms"] = bodyMusicLengthMs
+					if err := setJSONBodyScalar(body, "music_length_ms", "music-length-ms", "int", bodyMusicLengthMs); err != nil {
+						return err
+					}
 				}
 				if bodyPrompt != "" {
 					body["prompt"] = bodyPrompt

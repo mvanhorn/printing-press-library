@@ -184,7 +184,9 @@ func newWebsiteLinksLinkUpdateWeblinkCmd(flags *rootFlags) *cobra.Command {
 						nestedDN["Hidden"] = bodyDNHidden
 					}
 					if bodyDNId != "" {
-						nestedDN["Id"] = bodyDNId
+						if err := setJSONBodyScalar(nestedDN, "Id", "dn-id", "int", bodyDNId); err != nil {
+							return err
+						}
 					}
 					if bodyDNMemberOf != "" {
 						var parsedDNMemberOf any
@@ -253,7 +255,9 @@ func newWebsiteLinksLinkUpdateWeblinkCmd(flags *rootFlags) *cobra.Command {
 					body["Hidden"] = bodyHidden
 				}
 				if bodyId != "" {
-					body["Id"] = bodyId
+					if err := setJSONBodyScalar(body, "Id", "id", "int", bodyId); err != nil {
+						return err
+					}
 				}
 				if bodyLink2 != "" {
 					body["Link"] = bodyLink2

@@ -69,7 +69,9 @@ func newMonitorUpdateCmd(flags *rootFlags) *cobra.Command {
 					body["autoFailover"] = bodyAutoFailover
 				}
 				if bodyProtocolId != "" {
-					body["protocolId"] = bodyProtocolId
+					if err := setJSONBodyScalar(body, "protocolId", "protocol-id", "int", bodyProtocolId); err != nil {
+						return err
+					}
 				}
 				if bodyPort != 0 {
 					body["port"] = bodyPort

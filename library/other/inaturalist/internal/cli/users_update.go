@@ -58,7 +58,9 @@ func newUsersUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["preferred_taxon_page_ancestors_shown"] = bodyPreferredTaxonPageAncestorsShown
 				}
 				if bodyPreferredTaxonPagePlaceId != "" {
-					bodyMap["preferred_taxon_page_place_id"] = bodyPreferredTaxonPagePlaceId
+					if err := setJSONBodyScalar(bodyMap, "preferred_taxon_page_place_id", "preferred-taxon-page-place-id", "int", bodyPreferredTaxonPagePlaceId); err != nil {
+						return err
+					}
 				}
 				if bodyPreferredTaxonPageTab != "" {
 					bodyMap["preferred_taxon_page_tab"] = bodyPreferredTaxonPageTab

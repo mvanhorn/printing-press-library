@@ -91,7 +91,9 @@ func newMusicStreamComposeCmd(flags *rootFlags) *cobra.Command {
 					body["model_id"] = bodyModelId
 				}
 				if bodyMusicLengthMs != "" {
-					body["music_length_ms"] = bodyMusicLengthMs
+					if err := setJSONBodyScalar(body, "music_length_ms", "music-length-ms", "int", bodyMusicLengthMs); err != nil {
+						return err
+					}
 				}
 				if bodyMusicPrompt != "" {
 					body["music_prompt"] = bodyMusicPrompt
@@ -100,7 +102,9 @@ func newMusicStreamComposeCmd(flags *rootFlags) *cobra.Command {
 					body["prompt"] = bodyPrompt
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodyStoreForInpainting != false {
 					body["store_for_inpainting"] = bodyStoreForInpainting

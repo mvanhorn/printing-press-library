@@ -74,7 +74,9 @@ func newLobbiesMembersAddLobbyCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["additional_name"] = bodyAdditionalName
 				}
 				if cmd.Flags().Changed("flags") || bodyFlags != "" {
-					bodyMap["flags"] = bodyFlags
+					if err := setJSONBodyScalar(bodyMap, "flags", "flags", "int", bodyFlags); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("metadata") || bodyMetadata != "" {
 					var parsedMetadata any

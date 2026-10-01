@@ -420,7 +420,9 @@ func newGitApisPullRequestsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["closedDate"] = bodyClosedDate
 				}
 				if bodyCodeReviewId != "" {
-					body["codeReviewId"] = bodyCodeReviewId
+					if err := setJSONBodyScalar(body, "codeReviewId", "code-review-id", "int", bodyCodeReviewId); err != nil {
+						return err
+					}
 				}
 				if bodyCommits != "" {
 					var parsedCommits any
@@ -1095,7 +1097,9 @@ func newGitApisPullRequestsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["mergeStatus"] = bodyMergeStatus
 				}
 				if bodyPullRequestId != "" {
-					body["pullRequestId"] = bodyPullRequestId
+					if err := setJSONBodyScalar(body, "pullRequestId", "pull-request-id", "int", bodyPullRequestId); err != nil {
+						return err
+					}
 				}
 				if bodyRemoteUrl != "" {
 					body["remoteUrl"] = bodyRemoteUrl

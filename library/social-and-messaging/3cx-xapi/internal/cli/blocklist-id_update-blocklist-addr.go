@@ -72,7 +72,9 @@ func newBlocklistIdUpdateBlocklistAddrCmd(flags *rootFlags) *cobra.Command {
 					body["IPAddrMask"] = bodyIPAddrMask
 				}
 				if bodyId2 != "" {
-					body["Id"] = bodyId2
+					if err := setJSONBodyScalar(body, "Id", "id-2", "int", bodyId2); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)

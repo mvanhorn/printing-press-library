@@ -88,13 +88,17 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["afk_channel_id"] = bodyAfkChannelId
 				}
 				if cmd.Flags().Changed("afk-timeout") || bodyAfkTimeout != "" {
-					bodyMap["afk_timeout"] = bodyAfkTimeout
+					if err := setJSONBodyScalar(bodyMap, "afk_timeout", "afk-timeout", "int", bodyAfkTimeout); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("banner") || bodyBanner != "" {
 					bodyMap["banner"] = bodyBanner
 				}
 				if cmd.Flags().Changed("default-message-notifications") || bodyDefaultMessageNotifications != "" {
-					bodyMap["default_message_notifications"] = bodyDefaultMessageNotifications
+					if err := setJSONBodyScalar(bodyMap, "default_message_notifications", "default-message-notifications", "int", bodyDefaultMessageNotifications); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("description") || bodyDescription != "" {
 					bodyMap["description"] = bodyDescription
@@ -103,7 +107,9 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["discovery_splash"] = bodyDiscoverySplash
 				}
 				if cmd.Flags().Changed("explicit-content-filter") || bodyExplicitContentFilter != "" {
-					bodyMap["explicit_content_filter"] = bodyExplicitContentFilter
+					if err := setJSONBodyScalar(bodyMap, "explicit_content_filter", "explicit-content-filter", "int", bodyExplicitContentFilter); err != nil {
+						return err
+					}
 				}
 				if cmd.Flags().Changed("features") {
 					parsedFeatures, parseErr := cliutil.ParseStringList(bodyFeatures)
@@ -149,7 +155,9 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["system_channel_id"] = bodySystemChannelId
 				}
 				if cmd.Flags().Changed("verification-level") || bodyVerificationLevel != "" {
-					bodyMap["verification_level"] = bodyVerificationLevel
+					if err := setJSONBodyScalar(bodyMap, "verification_level", "verification-level", "int", bodyVerificationLevel); err != nil {
+						return err
+					}
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)

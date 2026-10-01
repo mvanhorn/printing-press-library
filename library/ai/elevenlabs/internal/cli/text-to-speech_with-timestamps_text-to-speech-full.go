@@ -129,7 +129,9 @@ func newTextToSpeechWithTimestampsTextToSpeechFullCmd(flags *rootFlags) *cobra.C
 					body["pronunciation_dictionary_locators"] = parsedPronunciationDictionaryLocators
 				}
 				if bodySeed != "" {
-					body["seed"] = bodySeed
+					if err := setJSONBodyScalar(body, "seed", "seed", "int", bodySeed); err != nil {
+						return err
+					}
 				}
 				if bodyText != "" {
 					body["text"] = bodyText

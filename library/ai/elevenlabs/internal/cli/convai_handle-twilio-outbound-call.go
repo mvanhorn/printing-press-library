@@ -65,7 +65,9 @@ func newConvaiHandleTwilioOutboundCallCmd(flags *rootFlags) *cobra.Command {
 					body["agent_phone_number_id"] = bodyAgentPhoneNumberId
 				}
 				if bodyCallRecordingEnabled != "" {
-					body["call_recording_enabled"] = bodyCallRecordingEnabled
+					if err := setJSONBodyScalar(body, "call_recording_enabled", "call-recording-enabled", "bool", bodyCallRecordingEnabled); err != nil {
+						return err
+					}
 				}
 				if bodyConversationInitiationClientData != "" {
 					body["conversation_initiation_client_data"] = bodyConversationInitiationClientData
