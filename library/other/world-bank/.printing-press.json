@@ -54,5 +54,11 @@
       "command": "data diff",
       "description": "Compare a fresh pull against the last synced snapshot to surface revised observations."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
   ]
 }

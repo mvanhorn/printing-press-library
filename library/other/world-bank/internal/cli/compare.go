@@ -25,6 +25,98 @@ type wbCompareView struct {
 	Rows      []wbCompareRow `json:"rows"`
 }
 
+func buildCompareView(indicator, countries string, obs []wbObservation) (wbCompareView, error) {
+	byCountry := make(map[string]map[string]wbObservation)
+	firstSeen := make([]string, 0)
+	for _, observation := range obs {
+		if observation.Value == nil || observation.CountryISO3Code == "" || observation.Date == "" {
+			continue
+		}
+		code := observation.CountryISO3Code
+		if byCountry[code] == nil {
+			byCountry[code] = make(map[string]wbObservation)
+			firstSeen = append(firstSeen, code)
+		}
+		byCountry[code][observation.Date] = observation
+	}
+
+	orderedCodes := make([]string, 0, len(byCountry))
+	seen := make(map[string]bool)
+	for _, requestedCode := range strings.Split(countries, ";") {
+		requestedCode = strings.ToUpper(strings.TrimSpace(requestedCode))
+		if requestedCode == "" {
+			return wbCompareView{}, fmt.Errorf("country list contains an empty code")
+		}
+		matched := false
+		for _, code := range firstSeen {
+			if seen[code] {
+				continue
+			}
+			var sample wbObservation
+			for _, candidate := range byCountry[code] {
+				sample = candidate
+				break
+			}
+			if strings.EqualFold(code, requestedCode) || strings.EqualFold(sample.Country.ID, requestedCode) {
+				orderedCodes = append(orderedCodes, code)
+				seen[code] = true
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return wbCompareView{}, fmt.Errorf("no non-null observations found for country %s", requestedCode)
+		}
+	}
+	if len(orderedCodes) == 0 {
+		return wbCompareView{}, fmt.Errorf("no non-null observations found for the requested countries")
+	}
+
+	// Compute the newest date present for every country. Comparing independent
+	// "latest" values can silently subtract different years, which is not a
+	// meaningful cross-country delta.
+	commonDates := make(map[string]bool)
+	for date := range byCountry[orderedCodes[0]] {
+		commonDates[date] = true
+	}
+	for _, code := range orderedCodes[1:] {
+		for date := range commonDates {
+			if _, ok := byCountry[code][date]; !ok {
+				delete(commonDates, date)
+			}
+		}
+	}
+	alignedDate := ""
+	for date := range commonDates {
+		if date > alignedDate {
+			alignedDate = date
+		}
+	}
+	if alignedDate == "" {
+		return wbCompareView{}, fmt.Errorf("no common observation year exists for all requested countries")
+	}
+
+	view := wbCompareView{Indicator: indicator, Date: alignedDate}
+	var baseVal *float64
+	for _, code := range orderedCodes {
+		o := byCountry[code][alignedDate]
+		row := wbCompareRow{Country: o.Country.Value, CountryCode: o.CountryISO3Code, Date: alignedDate, Value: o.Value}
+		if baseVal == nil {
+			baseVal = o.Value
+			view.Baseline = o.Country.Value
+		} else {
+			delta := *o.Value - *baseVal
+			row.DeltaVsBase = &delta
+			if *baseVal != 0 {
+				percent := delta / *baseVal * 100
+				row.PctVsBase = &percent
+			}
+		}
+		view.Rows = append(view.Rows, row)
+	}
+	return view, nil
+}
+
 func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 
@@ -59,75 +151,18 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 			if flagDate != "" {
 				extra["date"] = flagDate
 			} else {
-				extra["mrv"] = "1"
+				// Fetch enough history to find the newest year shared by every
+				// country instead of comparing mismatched independent latest years.
+				extra["mrv"] = "25"
 			}
 			obs, err := wbFetchObservations(ctx, c, countries, indicator, extra, 10)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Keep the most recent non-null observation per country.
-			best := map[string]wbObservation{}
-			order := []string{}
-			for _, o := range obs {
-				if o.Value == nil {
-					continue
-				}
-				key := o.CountryISO3Code
-				if _, seen := best[key]; !seen {
-					order = append(order, key)
-				}
-				cur, ok := best[key]
-				if !ok || o.Date > cur.Date {
-					best[key] = o
-				}
+			view, err := buildCompareView(indicator, countries, obs)
+			if err != nil {
+				return err
 			}
-			// Baseline = first country in the user's ;-list that has data.
-			wantOrder := strings.Split(countries, ";")
-			var baseVal *float64
-			var baseName string
-			view := wbCompareView{Indicator: indicator, Date: flagDate}
-			emit := func(code string) {
-				o, ok := best[code]
-				if !ok {
-					return
-				}
-				row := wbCompareRow{Country: o.Country.Value, CountryCode: o.CountryISO3Code, Date: o.Date, Value: o.Value}
-				if baseVal == nil {
-					baseVal = o.Value
-					baseName = o.Country.Value
-				} else if o.Value != nil && baseVal != nil {
-					d := *o.Value - *baseVal
-					row.DeltaVsBase = &d
-					if *baseVal != 0 {
-						p := d / *baseVal * 100
-						row.PctVsBase = &p
-					}
-				}
-				view.Rows = append(view.Rows, row)
-			}
-			seen := map[string]bool{}
-			for _, code := range wantOrder {
-				code = strings.ToUpper(strings.TrimSpace(code))
-				// match by ISO3 directly or via observed code
-				for _, k := range order {
-					if seen[k] {
-						continue
-					}
-					if strings.EqualFold(k, code) || strings.EqualFold(best[k].Country.ID, code) {
-						emit(k)
-						seen[k] = true
-					}
-				}
-			}
-			// Append any remaining (e.g. when input was an aggregate code).
-			for _, k := range order {
-				if !seen[k] {
-					emit(k)
-					seen[k] = true
-				}
-			}
-			view.Baseline = baseName
-			// view.Rows is already in baseline-first insertion order.
 			return flags.printJSON(cmd, view)
 		},
 	}

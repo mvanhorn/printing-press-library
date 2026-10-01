@@ -4,6 +4,9 @@
 
 A single-binary CLI for the World Bank Open Data API. Mirrors the ~16,000-indicator catalog and observations into local SQLite for offline search, then adds cross-country compare, rankings, trend stats, and pipeline exports the Python wrappers and MCP shims don't offer. No API key — World Bank is fully public.
 
+Created by [@LukeTheoJohnson](https://github.com/LukeTheoJohnson) (Luke J).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `world-bank-pp-cli` binary and the `pp-world-bank` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

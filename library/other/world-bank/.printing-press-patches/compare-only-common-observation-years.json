@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "compare-only-common-observation-years",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260617-195946-cffecdb0",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Cross-country indicator comparisons use the newest year with non-null observations for every compared country.",
+  "reason": "Independent most-recent values can come from different years and yield a misleading delta; fetch a bounded history and fail when no common year exists.",
+  "files": [
+    "internal/cli/compare.go",
+    "internal/cli/compare_test.go"
+  ]
+}
