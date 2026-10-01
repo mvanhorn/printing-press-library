@@ -50,7 +50,7 @@ func unsupportedArticleImageError(path string, data []byte, mediaType string) er
 		resolved = abs
 	}
 	if bytes.HasPrefix(data, []byte("version https://git-lfs.github.com/spec/")) {
-		return fmt.Errorf("%s is an unresolved Git LFS pointer (%d bytes), not image data; run `git lfs pull` to fetch the real file, then retry", resolved, len(data))
+		return fmt.Errorf("%s is an unresolved Git LFS pointer (%d bytes, detected %s), not image data; run `git lfs pull` to fetch the real file, then retry", resolved, len(data), mediaType)
 	}
 	return fmt.Errorf("read %d bytes from %s but it is %s, not a supported image (X Articles accept PNG, JPEG, GIF, or WebP); verify the path points at the actual image and not an SVG or text file", len(data), resolved, mediaType)
 }
