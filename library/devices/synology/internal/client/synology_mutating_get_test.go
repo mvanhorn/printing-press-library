@@ -104,6 +104,49 @@ func TestDSMMutatingGetDoesNotRetryServerFailure(t *testing.T) {
 	}
 }
 
+func TestDSMMutatingGetInvalidatesExpiredSessionWithoutReplaying(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("SYNOLOGY_DATA_DIR", t.TempDir())
+	t.Setenv("SYNOLOGY_ACCOUNT", "")
+	t.Setenv("SYNOLOGY_PASSWORD", "")
+	var writes, logins atomic.Int32
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Query().Get("api") == "SYNO.API.Auth" {
+			logins.Add(1)
+			_, _ = w.Write([]byte(`{"success":true,"data":{"sid":"renewed-synthetic","synotoken":"renewed-synthetic"}}`))
+			return
+		}
+		writes.Add(1)
+		if r.URL.Query().Get("_sid") == "expired-synthetic" {
+			_, _ = w.Write([]byte(`{"success":false,"error":{"code":119}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"success":true,"data":{"taskid":"synthetic"}}`))
+	}))
+	defer fixture.Close()
+	cfg := &config.Config{BaseURL: fixture.URL}
+	c := New(cfg, time.Second, 0)
+	c.Session.SetSession(dsmLoginResult{SID: "expired-synthetic", SynoToken: "expired-synthetic"})
+	if _, err := c.Get(context.Background(), dsmCopyStartPath, nil); err == nil {
+		t.Fatal("expired session should fail the first write without replay")
+	}
+	if writes.Load() != 1 || c.Session.Token() != "" || c.Session.SynoToken() != "" {
+		t.Fatalf("expired write was replayed or session kept: writes=%d", writes.Load())
+	}
+	if reloaded := New(cfg, time.Second, 0); reloaded.Session.Token() != "" {
+		t.Fatal("expired session remained on disk for a new CLI process")
+	}
+	t.Setenv("SYNOLOGY_ACCOUNT", "synthetic-user")
+	t.Setenv("SYNOLOGY_PASSWORD", "synthetic-password")
+	if _, err := c.Get(context.Background(), dsmCopyStartPath, nil); err != nil {
+		t.Fatalf("next explicit call did not renew session: %v", err)
+	}
+	if writes.Load() != 2 || logins.Load() != 1 {
+		t.Fatalf("next call did not renew exactly once: writes=%d logins=%d", writes.Load(), logins.Load())
+	}
+}
+
 func TestDSMMutatingGetVerifyModeNeverDials(t *testing.T) {
 	t.Setenv("PRINTING_PRESS_VERIFY", "1")
 	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")

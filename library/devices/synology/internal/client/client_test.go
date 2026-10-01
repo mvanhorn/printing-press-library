@@ -6,6 +6,8 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -128,5 +130,48 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 	}
 	if _, err := c.GetWithHeadersValues(context.Background(), "/titles", params, nil); err != nil {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
+	}
+}
+
+func TestDownloadMarkersKeepCLIJSONAndForceMCPBytes(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	payload := []byte(`{"success":true,"data":{"message":"synthetic"}}`)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get(BinaryResponseHeader) != "" {
+			t.Error("internal download marker was sent to DSM")
+		}
+		if r.URL.Query().Get("mode") == "text" {
+			w.Header().Set("Content-Type", "text/plain")
+			_, _ = w.Write([]byte("synthetic text"))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Disposition", `attachment; filename="test.json"`)
+		_, _ = w.Write(payload)
+	}))
+	defer server.Close()
+	c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.Session = nil
+	c.NoCache = true
+	path := "/webapi/entry.cgi?api=SYNO.FileStation.Download&method=download&version=2"
+	cliData, err := c.GetWithHeaders(context.Background(), path, nil, map[string]string{BinaryResponseHeader: "true"})
+	if err != nil || string(cliData) != `{"message":"synthetic"}` {
+		t.Fatalf("CLI JSON output changed: %s %v", cliData, err)
+	}
+	textData, err := c.GetWithHeaders(context.Background(), path, map[string]string{"mode": "text"}, map[string]string{BinaryResponseHeader: "true"})
+	if err != nil || string(textData) != "synthetic text" {
+		t.Fatalf("CLI text output changed: %s %v", textData, err)
+	}
+	mcpData, err := c.GetWithHeaders(context.Background(), path, nil, map[string]string{BinaryResponseHeader: ForceBinaryResponseValue})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope binaryResponseEnvelope
+	if err := json.Unmarshal(mcpData, &envelope); err != nil || !envelope.PPBinary {
+		t.Fatalf("MCP download is not a binary envelope: %s %v", mcpData, err)
+	}
+	decoded, err := base64.StdEncoding.DecodeString(envelope.Data)
+	if err != nil || !bytes.Equal(decoded, payload) {
+		t.Fatalf("MCP download bytes changed: %v", err)
 	}
 }

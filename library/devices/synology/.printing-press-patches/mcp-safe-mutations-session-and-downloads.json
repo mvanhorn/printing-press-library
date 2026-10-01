@@ -4,17 +4,18 @@
   "applied_at": "2026-09-20",
   "base_run_id": "20260824-135140",
   "base_printing_press_version": "4.29.0",
-  "summary": "DSM GET-shaped writes must bypass cache and ambiguous retries; MCP must disclose their effects, redact login credentials, and preserve attached downloads byte-for-byte or return explicit size errors.",
-  "reason": "DSM uses GET for state-changing operations and embeds live credentials and binary transport envelopes in responses; generic GET retry/cache, read-only annotations and text handling are unsafe.",
+  "summary": "DSM GET-shaped writes must bypass cache and ambiguous retries; expired sessions must be invalidated without replay; MCP must disclose writes, redact login credentials, and preserve attached downloads byte-for-byte.",
+  "reason": "DSM uses GET for state-changing operations and reports expired sessions inside HTTP 200 JSON; generic GET retry/cache is unsafe, while MCP needs forced byte wrapping without changing CLI text/JSON download output.",
   "files": [
     "internal/mcp/tools.go",
     "internal/mcp/security_regression_test.go",
     "internal/cli/session_redact.go",
     "internal/client/binary_decode.go",
     "internal/client/client.go",
+    "internal/client/session.go",
     "internal/client/synology.go",
     "internal/client/synology_mutating_get_test.go",
     "internal/cliutil/credentials_test.go"
   ],
-  "validated_outcome": "Credential precedence tests verify stored credentials while preserving DSM session authentication without an Authorization header."
+  "validated_outcome": "Synthetic tests prove an expired write is not replayed, a later call renews the cleared session, CLI JSON keeps its output shape, and MCP preserves original download bytes."
 }

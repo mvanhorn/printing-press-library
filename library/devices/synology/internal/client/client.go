@@ -28,6 +28,11 @@ import (
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
+// BinaryResponseHeader value "true" keeps CLI text/JSON downloads in their
+// original output shape. "force" is reserved for MCP base64 downloads, which
+// must preserve every file byte regardless of its Content-Type.
+const ForceBinaryResponseValue = "force"
+
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
 type Client struct {
@@ -281,7 +286,7 @@ func binaryResponseHeaderValue(headers map[string]string) (bool, bool) {
 	for k, v := range headers {
 		if strings.EqualFold(k, BinaryResponseHeader) {
 			found = true
-			if strings.EqualFold(v, "true") {
+			if strings.EqualFold(v, "true") || strings.EqualFold(v, ForceBinaryResponseValue) {
 				return true, true
 			}
 		}
@@ -677,7 +682,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
+		binaryMode := req.Header.Get(BinaryResponseHeader)
+		forceBinaryResponse := strings.EqualFold(binaryMode, ForceBinaryResponseValue)
+		binaryResponse := forceBinaryResponse || strings.EqualFold(binaryMode, "true")
 		if binaryResponse {
 			req.Header.Del(BinaryResponseHeader)
 		}
@@ -760,23 +767,25 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			// take precedence over RPC error parsing.
 			attachedDownload := binaryResponse && strings.HasPrefix(strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Disposition"))), "attachment")
 			if dsmCode, failed := dsmErrorCode(respBody); failed && !attachedDownload {
-				if dsmCode == dsmErrSessionExpired && c.Session != nil && attempt < maxRetries && authHeader != "" {
+				if dsmCode == dsmErrSessionExpired && c.Session != nil && authHeader != "" {
 					c.Session.Invalidate()
-					authHeader = ""
-					lastErr = &APIError{
-						Method:     method,
-						Path:       c.displayURL(path, authHeader),
-						StatusCode: resp.StatusCode,
-						Body:       dsmErrorText(dsmCode, path),
+					if attempt < maxRetries {
+						authHeader = ""
+						lastErr = &APIError{
+							Method:     method,
+							Path:       c.displayURL(path, authHeader),
+							StatusCode: resp.StatusCode,
+							Body:       dsmErrorText(dsmCode, path),
+						}
+						continue
 					}
-					continue
 				}
 				return nil, resp.StatusCode, fmt.Errorf("%s %s: %s", method, c.displayURL(path, authHeader), dsmErrorText(dsmCode, path))
 			}
 			// A download is opaque bytes even when the file's Content-Type is
 			// text or JSON. Always wrap the marked response before the JSON
 			// sanitizer can alter it or mistake file content for our envelope.
-			if binaryResponse || isBinaryResponseContentType(resp.Header.Get("Content-Type")) {
+			if forceBinaryResponse || isBinaryResponseContentType(resp.Header.Get("Content-Type")) {
 				env, encErr := wrapBinaryResponse(resp.Header.Get("Content-Type"), respBody)
 				if encErr != nil {
 					return nil, 0, encErr
@@ -833,11 +842,13 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Session-handshake invalidation: some status codes indicate the token
 		// was rejected. Clear the cache and retry once; EnsureToken() at the
 		// top of the next loop iteration will re-bootstrap.
-		if c.Session != nil && c.Session.ShouldInvalidate(resp.StatusCode) && attempt < maxRetries && authHeader != "" && (resp.StatusCode < 500 || canRetryAmbiguousFailure) {
+		if c.Session != nil && c.Session.ShouldInvalidate(resp.StatusCode) && authHeader != "" {
 			c.Session.Invalidate()
-			authHeader = "" // force re-fetch on next iteration
-			lastErr = apiErr
-			continue
+			if attempt < maxRetries && (resp.StatusCode < 500 || canRetryAmbiguousFailure) {
+				authHeader = "" // force re-fetch on next iteration
+				lastErr = apiErr
+				continue
+			}
 		}
 
 		// Server error - retry with backoff

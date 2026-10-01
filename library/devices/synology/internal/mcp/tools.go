@@ -669,7 +669,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			if headers == nil {
 				headers = map[string]string{}
 			}
-			headers[client.BinaryResponseHeader] = "true"
+			headers[client.BinaryResponseHeader] = client.ForceBinaryResponseValue
 		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true

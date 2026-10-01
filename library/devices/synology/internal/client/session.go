@@ -214,11 +214,14 @@ func (m *SessionManager) ShouldInvalidate(statusCode int) bool {
 	return sessionInvalidationStatuses[statusCode]
 }
 
-// Invalidate clears the cached token so the next EnsureToken re-bootstraps.
+// Invalidate clears both cached auth values and persists the invalidation so a
+// later CLI process cannot reload an expired session from disk.
 func (m *SessionManager) Invalidate() {
 	m.mu.Lock()
 	m.token = ""
+	m.synoToken = ""
 	m.mu.Unlock()
+	m.saveToDisk()
 }
 
 // ImportSession accepts cookies + a token captured from a real browser session
