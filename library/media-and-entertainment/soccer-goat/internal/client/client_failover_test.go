@@ -209,3 +209,74 @@ func TestFailover_SingleSource(t *testing.T) {
 		t.Fatalf("single source hit count = %d, want 1 (0 retries under dogfood)", got)
 	}
 }
+
+func TestFailover_CrossOriginStripsSensitiveHeaders(t *testing.T) {
+	t.Setenv(cliutil.DogfoodEnvVar, "1")
+
+	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer primary.Close()
+
+	received := make(chan http.Header, 1)
+	mirror := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received <- r.Header.Clone()
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	defer mirror.Close()
+
+	c := New(&config.Config{
+		BaseURLs:      []string{primary.URL, mirror.URL},
+		AuthHeaderVal: "Bearer primary-secret",
+		Headers:       map[string]string{"X-Config-Secret": "config-secret"},
+	}, 2*time.Second, 0)
+	c.NoCache = true
+	_, _, err := c.do(context.Background(), http.MethodGet, "/x", nil, nil, map[string]string{"X-Endpoint-Secret": "endpoint-secret"})
+	if err != nil {
+		t.Fatalf("expected cross-origin failover success, got %v", err)
+	}
+
+	headers := <-received
+	for _, name := range []string{"Authorization", "X-Config-Secret", "X-Endpoint-Secret"} {
+		if got := headers.Get(name); got != "" {
+			t.Fatalf("cross-origin mirror received %s=%q", name, got)
+		}
+	}
+}
+
+func TestFailover_SameOriginPreservesConfiguredHeaders(t *testing.T) {
+	t.Setenv(cliutil.DogfoodEnvVar, "1")
+
+	received := make(chan http.Header, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/primary/x" {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		received <- r.Header.Clone()
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	defer server.Close()
+
+	c := New(&config.Config{
+		BaseURLs:      []string{server.URL + "/primary", server.URL + "/mirror"},
+		AuthHeaderVal: "Bearer trusted-secret",
+		Headers:       map[string]string{"X-Config-Value": "config-value"},
+	}, 2*time.Second, 0)
+	c.NoCache = true
+	_, _, err := c.do(context.Background(), http.MethodGet, "/x", nil, nil, map[string]string{"X-Endpoint-Value": "endpoint-value"})
+	if err != nil {
+		t.Fatalf("expected same-origin failover success, got %v", err)
+	}
+
+	headers := <-received
+	for name, want := range map[string]string{
+		"Authorization":    "Bearer trusted-secret",
+		"X-Config-Value":   "config-value",
+		"X-Endpoint-Value": "endpoint-value",
+	} {
+		if got := headers.Get(name); got != want {
+			t.Fatalf("same-origin mirror %s=%q, want %q", name, got, want)
+		}
+	}
+}

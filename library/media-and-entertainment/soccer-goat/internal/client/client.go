@@ -170,23 +170,34 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
+		// Redirects to another origin must not receive caller-configured
+		// headers, which may contain credentials under custom names.
+		if sameOrigin(req.URL.String(), via[0].URL.String()) {
 			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("Authorization", h)
 			}
 		} else {
-			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
-			req.Header.Del("Authorization")
+			stripCrossOriginRedirectHeaders(req.Header)
 		}
 		return nil
 	}
 	return c
+}
+
+// stripCrossOriginRedirectHeaders keeps only headers needed to negotiate a
+// public HTTP response. Custom headers can carry credentials under any name.
+func stripCrossOriginRedirectHeaders(headers http.Header) {
+	safe := map[string]bool{
+		"Accept":          true,
+		"Accept-Encoding": true,
+		"Content-Type":    true,
+		"User-Agent":      true,
+	}
+	for name := range headers {
+		if !safe[http.CanonicalHeaderKey(name)] {
+			headers.Del(name)
+		}
+	}
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.
@@ -584,6 +595,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// 4xx/429 the server actually returned) returns immediately — a working
 	// source that says "not found" must never trigger failover onto a mirror.
 	bases := c.requestBaseURLs()
+	primaryBase := bases[0]
 	canRetryAmbiguousFailure := readOnlyIntent || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
 	var lastErr error
 	var lastStatus int
@@ -603,7 +615,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			// exponential backoff on a source that is already down.
 			maxRetries = failoverRetriesPerSource
 		}
-		result, status, aerr, sourceFailed := c.attempt(ctx, method, targetURL, path, params, bodyBytes, headerOverrides, authHeader, maxRetries, canRetryAmbiguousFailure)
+		// Independent mirrors do not inherit the primary source's credentials.
+		forwardSensitiveHeaders := sameOrigin(primaryBase, base)
+		candidateAuth := authHeader
+		candidateHeaderOverrides := headerOverrides
+		if !forwardSensitiveHeaders {
+			candidateAuth = ""
+			candidateHeaderOverrides = nil
+		}
+		result, status, aerr, sourceFailed := c.attempt(ctx, method, targetURL, path, params, bodyBytes, candidateHeaderOverrides, candidateAuth, forwardSensitiveHeaders, maxRetries, canRetryAmbiguousFailure)
 		if !sourceFailed {
 			return result, status, aerr
 		}
@@ -643,13 +663,24 @@ func displayBaseHost(base string) string {
 	return base
 }
 
+// sameOrigin compares scheme and host, including the port. Malformed URLs
+// fail closed so they cannot inherit primary-source credentials.
+func sameOrigin(a, b string) bool {
+	ua, errA := url.Parse(a)
+	ub, errB := url.Parse(b)
+	if errA != nil || errB != nil || ua.Scheme == "" || ua.Host == "" || ub.Scheme == "" || ub.Host == "" {
+		return false
+	}
+	return strings.EqualFold(ua.Scheme, ub.Scheme) && strings.EqualFold(ua.Host, ub.Host)
+}
+
 // attempt runs one candidate source through the send/retry cycle. It returns
 // sourceFailed=true only for outcomes that justify trying the next candidate: a
 // transport error after retries, or a 5xx after retries, for a read-only request.
 // An unprotected write failure, a success, a 4xx, a
 // retry-exhausted 429, a context cancellation, or a local build error all
 // return sourceFailed=false so the caller stops.
-func (c *Client) attempt(ctx context.Context, method, targetURL, path string, params map[string]string, bodyBytes []byte, headerOverrides map[string]string, authHeader string, maxRetries int, canRetryAmbiguousFailure bool) (json.RawMessage, int, error, bool) {
+func (c *Client) attempt(ctx context.Context, method, targetURL, path string, params map[string]string, bodyBytes []byte, headerOverrides map[string]string, authHeader string, forwardConfiguredHeaders bool, maxRetries int, canRetryAmbiguousFailure bool) (json.RawMessage, int, error, bool) {
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
@@ -681,7 +712,7 @@ func (c *Client) attempt(ctx context.Context, method, targetURL, path string, pa
 		if authHeader != "" {
 			req.Header.Set("Authorization", authHeader)
 		}
-		if c.Config != nil {
+		if forwardConfiguredHeaders && c.Config != nil {
 			for k, v := range c.Config.Headers {
 				req.Header.Set(k, v)
 			}

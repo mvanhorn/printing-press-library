@@ -4,6 +4,8 @@
 
 soccer-goat resolves a name once and fans out to Transfermarkt market value, EA Sports FC ratings and attribute stats, sofifa/fifacm potential, and ESPN context, then merges them into a single report. A local SQLite store unlocks cross-source queries no single site can answer: over/under-rated vs the market, potential growth gaps, and wonderkid scouting.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `soccer-goat-pp-cli` binary and the `pp-soccer-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -237,7 +239,7 @@ export SOCCER_GOAT_BASE_URL=https://your-instance.example        # single source
 export SOCCER_GOAT_BASE_URLS=https://a.example,https://b.example  # ordered failover list
 ```
 
-Resolution precedence (highest first): `--base-url` → `SOCCER_GOAT_BASE_URL` → `base_url` config key → `SOCCER_GOAT_BASE_URLS` → `base_urls` config key → the built-in default list. A single-value override collapses to exactly that one source. Config-file form:
+Resolution precedence (highest first): `--base-url` → `SOCCER_GOAT_BASE_URL` → `base_url` config key → `SOCCER_GOAT_BASE_URLS` → `base_urls` config key → the built-in default list. A single-value override collapses to exactly that one source. Credentials and custom request headers are sent only to the first source, or to another path on that same origin. Config-file form:
 
 ```toml
 # config.toml

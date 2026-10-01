@@ -130,3 +130,71 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
 	}
 }
+
+func TestRedirect_CrossOriginStripsCustomCredentialHeaders(t *testing.T) {
+	received := make(chan http.Header, 1)
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received <- r.Header.Clone()
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(target.Close)
+
+	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL+"/final", http.StatusFound)
+	}))
+	t.Cleanup(primary.Close)
+
+	c := New(&config.Config{
+		BaseURL:       primary.URL,
+		AuthHeaderVal: "Bearer primary-secret",
+		Headers:       map[string]string{"X-API-Key": "config-secret"},
+	}, time.Second, 0)
+	c.NoCache = true
+	_, err := c.GetWithHeaders(context.Background(), "/start", nil, map[string]string{"X-Endpoint-Credential": "endpoint-secret"})
+	if err != nil {
+		t.Fatalf("cross-origin redirect failed: %v", err)
+	}
+
+	headers := <-received
+	for _, name := range []string{"Authorization", "Cookie", "X-API-Key", "X-Endpoint-Credential"} {
+		if got := headers.Get(name); got != "" {
+			t.Fatalf("cross-origin redirect target received %s=%q", name, got)
+		}
+	}
+}
+
+func TestRedirect_SameOriginPreservesConfiguredHeaders(t *testing.T) {
+	received := make(chan http.Header, 1)
+	var server *httptest.Server
+	server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/start" {
+			http.Redirect(w, r, server.URL+"/final", http.StatusFound)
+			return
+		}
+		received <- r.Header.Clone()
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+
+	c := New(&config.Config{
+		BaseURL:       server.URL,
+		AuthHeaderVal: "Bearer trusted-secret",
+		Headers:       map[string]string{"X-Config-Value": "config-value"},
+	}, time.Second, 0)
+	c.NoCache = true
+	_, err := c.GetWithHeaders(context.Background(), "/start", nil, map[string]string{"X-Endpoint-Value": "endpoint-value"})
+	if err != nil {
+		t.Fatalf("same-origin redirect failed: %v", err)
+	}
+
+	headers := <-received
+	for name, want := range map[string]string{
+		"Authorization":    "Bearer trusted-secret",
+		"X-Config-Value":   "config-value",
+		"X-Endpoint-Value": "endpoint-value",
+	} {
+		if got := headers.Get(name); got != want {
+			t.Fatalf("same-origin redirect %s=%q, want %q", name, got, want)
+		}
+	}
+}
