@@ -50,23 +50,39 @@ func TestWritesAreNotReplayedAfterAmbiguousFailures(t *testing.T) {
 	}
 }
 
-func TestReadStillRetriesAfterServerError(t *testing.T) {
-	var calls atomic.Int32
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if calls.Add(1) == 1 {
-			http.Error(w, "bad gateway", http.StatusBadGateway)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"ok":true}`))
-	}))
-	defer server.Close()
-	client := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 0)
-	client.NoCache = true
-	if _, err := client.Get("/test", nil); err != nil {
-		t.Fatalf("GET: %v", err)
-	}
-	if got := calls.Load(); got != 2 {
-		t.Fatalf("GET sent %d times, want 2", got)
+func TestReadStillRetriesAfterAmbiguousFailures(t *testing.T) {
+	for _, failure := range []string{"server-error", "dropped-connection"} {
+		t.Run(failure, func(t *testing.T) {
+			var calls atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if calls.Add(1) == 1 {
+					if failure == "server-error" {
+						http.Error(w, "bad gateway", http.StatusBadGateway)
+						return
+					}
+					connection, _, err := w.(http.Hijacker).Hijack()
+					if err != nil {
+						t.Errorf("hijack: %v", err)
+						return
+					}
+					if tcp, ok := connection.(*net.TCPConn); ok {
+						_ = tcp.SetLinger(0)
+					}
+					_ = connection.Close()
+					return
+				}
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"ok":true}`))
+			}))
+			defer server.Close()
+			client := New(&config.Config{BaseURL: server.URL}, 5*time.Second, 0)
+			client.NoCache = true
+			if _, err := client.Get("/test", nil); err != nil {
+				t.Fatalf("GET: %v", err)
+			}
+			if got := calls.Load(); got != 2 {
+				t.Fatalf("GET sent %d times after %s, want 2", got, failure)
+			}
+		})
 	}
 }
