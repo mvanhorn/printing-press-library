@@ -521,8 +521,10 @@ func writePlatformManifests(pf packFlags, slug string, shots []Shot, outcomes []
 			// post-ready name a posting tool reads.
 			ts := time.Now().UTC().Format("20060102-150405.000000000")
 			archived := filepath.Join(filepath.Dir(stale), "manifest.superseded-"+ts+".json")
-			for n := 2; ; n++ {
-				if _, err := os.Stat(archived); os.IsNotExist(err) {
+			// Stop on anything but "exists" so an unreadable directory
+			// cannot spin here; the rename then reports nothing harmful.
+			for n := 2; n < 100; n++ {
+				if _, err := os.Stat(archived); err != nil {
 					break
 				}
 				archived = filepath.Join(filepath.Dir(stale), fmt.Sprintf("manifest.superseded-%s-%d.json", ts, n))
