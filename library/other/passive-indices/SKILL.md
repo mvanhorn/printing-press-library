@@ -18,6 +18,9 @@ metadata:
 
 # Passive Indices — Printing Press CLI
 
+Created by [@lavs9](https://github.com/lavs9) (Mayank Lavania).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `passive-indices-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
@@ -29,7 +32,7 @@ This skill drives the `passive-indices-pp-cli` binary. **You must verify the CLI
 2. Verify: `passive-indices-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/passive-indices/cmd/passive-indices-pp-cli@latest
@@ -48,7 +51,7 @@ Use this CLI for anything that requires knowing both an NSE index's current or h
 Do not use this CLI for:
 - Do not use this CLI for live trading, order placement, or brokerage account actions — it is a read-only data/research tool.
 - Do not use this CLI for BSE indices — bseindices.com was deprioritized this run and is not covered.
-- Do not use this CLI for subjective 'which fund should I buy for my risk profile' recommendations — it surfaces mechanical rankings (cost, fidelity, tracking error) only, not personalized advice.
+- Do not use this CLI for subjective 'which fund should I buy for my risk profile' recommendations — it surfaces mechanical cost rankings and provider-reported tracking metrics only, not personalized advice.
 
 ## Unique Capabilities
 
@@ -62,9 +65,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli index funds "NIFTY 50" --json
   ```
-- **`index tracking <index>`** — Rank every fund tracking an index by cost and NAV fidelity against the index level.
+- **`index tracking <index>`** — Rank trackers by disclosed expense ratio and show provider-reported tracking error and difference.
 
-  _Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list._
+  _Use for a transparent cost ranking. Tracking error and difference are displayed as provider-reported context and do not affect ordering; this command does not calculate NAV-to-index fidelity._
 
   ```bash
   passive-indices-pp-cli index tracking "NIFTY 50" --json
@@ -85,7 +88,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`compare <schemeId> <index>`** — See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.
 
-  _Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index._
+  _When the fund reports a benchmark, it must match the requested index; use index tracking for ranking multiple funds by disclosed expense ratio._
 
   ```bash
   passive-indices-pp-cli compare 12345 "NIFTY 50" --json

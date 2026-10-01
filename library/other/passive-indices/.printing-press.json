@@ -30,9 +30,9 @@
       "description": "See every ETF and index fund that tracks a given NSE index in one call."
     },
     {
-      "name": "Tracking fidelity report",
+      "name": "Tracking cost and metrics report",
       "command": "index tracking <index>",
-      "description": "Rank every fund tracking an index by cost and NAV fidelity against the index level."
+      "description": "Rank trackers by disclosed expense ratio and show provider-reported tracking metrics."
     },
     {
       "name": "Cheapest tracker finder",

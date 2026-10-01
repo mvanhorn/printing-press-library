@@ -29,4 +29,23 @@ func TestNovelIndexTrackingHelpWires(t *testing.T) {
 			t.Fatalf("index tracking --help missing %q in output:\n%s", want, help)
 		}
 	}
+	if !strings.Contains(help, "disclosed expense ratio") || strings.Contains(help, "NAV fidelity") {
+		t.Fatalf("index tracking help must describe expense-ratio ordering without claiming calculated fidelity:\n%s", help)
+	}
+}
+
+func TestSortTrackingMetricsUsesExpenseRatioOnly(t *testing.T) {
+	rows := []trackingFidelityRow{
+		{SchemeID: "worse-tracking", ExpenseRatio: 0.67, TrackingError: 0.12},
+		{SchemeID: "better-tracking", ExpenseRatio: 1.06, TrackingError: 0.11},
+		{SchemeID: "undisclosed", ExpenseRatio: 0, TrackingError: 0.01},
+		{SchemeID: "cheapest", ExpenseRatio: 0.20, TrackingError: 0.50},
+	}
+	sortTrackingMetrics(rows)
+	want := []string{"cheapest", "worse-tracking", "better-tracking", "undisclosed"}
+	for i := range want {
+		if rows[i].SchemeID != want[i] {
+			t.Fatalf("ranked scheme %d = %q, want %q", i, rows[i].SchemeID, want[i])
+		}
+	}
 }

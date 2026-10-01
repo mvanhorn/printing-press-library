@@ -4,6 +4,9 @@
 
 niftyindices.com publishes index levels and constituents; indiapassivefunds.com publishes the ETFs and index funds that track those indices. Nothing links the two. This CLI joins them locally so you can ask "what tracks NIFTY 50, and how well" in one command — plus offline search, agent-native JSON, and a local SQLite layer for historical constituent diffs.
 
+Created by [@lavs9](https://github.com/lavs9) (Mayank Lavania).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `passive-indices-pp-cli` binary and the `pp-passive-indices` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -33,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install passive-indices --agent claude-c
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/passive-indices/cmd/passive-indices-pp-cli@latest
@@ -126,7 +129,7 @@ passive-indices-pp-cli sync --resources index
 # See every fund tracking NIFTY 50
 passive-indices-pp-cli index funds "NIFTY 50"
 
-# Rank those funds by cost and fidelity
+# Rank those funds by disclosed expense ratio and inspect provider tracking metrics
 passive-indices-pp-cli index tracking "NIFTY 50" --json
 
 # Narrow a fund-vs-index comparison to just the fields that matter
@@ -188,9 +191,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli index funds "NIFTY 50" --json
   ```
-- **`index tracking <index>`** — Rank every fund tracking an index by cost and NAV fidelity against the index level.
+- **`index tracking <index>`** — Rank trackers by disclosed expense ratio and show provider-reported tracking error and difference.
 
-  _Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list._
+  _Use for a transparent cost ranking. Tracking error and difference are displayed as provider-reported context and do not affect ordering; this command does not calculate NAV-to-index fidelity._
 
   ```bash
   passive-indices-pp-cli index tracking "NIFTY 50" --json
@@ -211,7 +214,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`compare <schemeId> <index>`** — See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.
 
-  _Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index._
+  _When the fund reports a benchmark, it must match the requested index; use index tracking for ranking multiple funds by disclosed expense ratio._
 
   ```bash
   passive-indices-pp-cli compare 12345 "NIFTY 50" --json

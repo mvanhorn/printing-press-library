@@ -26,8 +26,8 @@ func newNovelIndexTrackingCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "tracking <index>",
-		Short:       "Rank every fund tracking an index by cost and NAV fidelity against the index level.",
-		Long:        "Use for a ranked table of all funds tracking an index by fidelity/cost. Use 'index funds' for a plain membership list with no fidelity math, and 'compare' for one fund against one index.",
+		Short:       "Rank trackers by disclosed expense ratio and show provider-reported tracking metrics.",
+		Long:        "Ranks tracking funds by disclosed expense ratio. Provider-reported tracking error and tracking difference are shown for context but do not affect ordering; this command does not calculate NAV-to-index fidelity. Use 'index funds' for a plain membership list and 'compare' for one fund against one index.",
 		Example:     "  passive-indices-pp-cli index tracking \"NIFTY 50\" --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -35,7 +35,7 @@ func newNovelIndexTrackingCmd(flags *rootFlags) *cobra.Command {
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
-				fmt.Fprintln(cmd.OutOrStdout(), "would rank tracking funds by cost and fidelity")
+				fmt.Fprintln(cmd.OutOrStdout(), "would rank tracking funds by disclosed expense ratio")
 				return nil
 			}
 			if len(args) == 0 {
@@ -75,15 +75,7 @@ func newNovelIndexTrackingCmd(flags *rootFlags) *cobra.Command {
 					RatiosAsOf:    fd.RatiosAsOf,
 				})
 			}
-			// A 0 expense ratio means "not yet disclosed", not "free" — sort
-			// those to the end so an undisclosed fund never appears to be
-			// the cheapest by default.
-			sort.Slice(rows, func(i, j int) bool {
-				if (rows[i].ExpenseRatio <= 0) != (rows[j].ExpenseRatio <= 0) {
-					return rows[j].ExpenseRatio <= 0
-				}
-				return rows[i].ExpenseRatio < rows[j].ExpenseRatio
-			})
+			sortTrackingMetrics(rows)
 
 			if len(fetchFailures) > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d fetches failed; ranking computed over the remaining %d funds\n", len(fetchFailures), len(trackers), len(rows))
@@ -101,4 +93,17 @@ func newNovelIndexTrackingCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&limit, "limit", 25, "maximum tracking funds to rank (bounds fan-out fetch cost)")
 	return cmd
+}
+
+func sortTrackingMetrics(rows []trackingFidelityRow) {
+	// A 0 expense ratio means "not yet disclosed", not "free" — sort
+	// those to the end so an undisclosed fund never appears to be
+	// the cheapest by default. Tracking error and difference are disclosed
+	// alongside the cost ranking but do not affect its order.
+	sort.SliceStable(rows, func(i, j int) bool {
+		if (rows[i].ExpenseRatio <= 0) != (rows[j].ExpenseRatio <= 0) {
+			return rows[j].ExpenseRatio <= 0
+		}
+		return rows[i].ExpenseRatio < rows[j].ExpenseRatio
+	})
 }
