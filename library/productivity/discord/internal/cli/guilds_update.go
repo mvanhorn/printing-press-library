@@ -88,7 +88,7 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["afk_channel_id"] = bodyAfkChannelId
 				}
 				if cmd.Flags().Changed("afk-timeout") || bodyAfkTimeout != "" {
-					if err := setJSONBodyScalar(bodyMap, "afk_timeout", "afk-timeout", "int", bodyAfkTimeout); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "afk_timeout", "afk-timeout", "int", bodyAfkTimeout); err != nil {
 						return err
 					}
 				}
@@ -96,7 +96,7 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["banner"] = bodyBanner
 				}
 				if cmd.Flags().Changed("default-message-notifications") || bodyDefaultMessageNotifications != "" {
-					if err := setJSONBodyScalar(bodyMap, "default_message_notifications", "default-message-notifications", "int", bodyDefaultMessageNotifications); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "default_message_notifications", "default-message-notifications", "int", bodyDefaultMessageNotifications); err != nil {
 						return err
 					}
 				}
@@ -107,7 +107,7 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["discovery_splash"] = bodyDiscoverySplash
 				}
 				if cmd.Flags().Changed("explicit-content-filter") || bodyExplicitContentFilter != "" {
-					if err := setJSONBodyScalar(bodyMap, "explicit_content_filter", "explicit-content-filter", "int", bodyExplicitContentFilter); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "explicit_content_filter", "explicit-content-filter", "int", bodyExplicitContentFilter); err != nil {
 						return err
 					}
 				}
@@ -155,7 +155,7 @@ func newGuildsUpdateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["system_channel_id"] = bodySystemChannelId
 				}
 				if cmd.Flags().Changed("verification-level") || bodyVerificationLevel != "" {
-					if err := setJSONBodyScalar(bodyMap, "verification_level", "verification-level", "int", bodyVerificationLevel); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "verification_level", "verification-level", "int", bodyVerificationLevel); err != nil {
 						return err
 					}
 				}

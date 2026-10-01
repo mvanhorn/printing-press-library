@@ -290,3 +290,16 @@ func TestJSONBodyScalarsSentWithDeclaredType(t *testing.T) {
 		})
 	}
 }
+
+func TestExplicitJSONBodyScalarRejectsEmpty(t *testing.T) {
+	for _, raw := range []string{"", "   "} {
+		body := map[string]any{}
+		if err := setExplicitJSONBodyScalar(body, "k", "flag", "int", raw); err == nil {
+			t.Fatalf("explicit empty value %q was accepted; body=%v", raw, body)
+		}
+	}
+	body := map[string]any{}
+	if err := setExplicitJSONBodyScalar(body, "k", "flag", "int", "7"); err != nil || body["k"] == nil {
+		t.Fatalf("valid value rejected: err=%v body=%v", err, body)
+	}
+}

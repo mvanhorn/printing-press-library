@@ -7,6 +7,12 @@
   "cli_name": "fish-audio-pp-cli",
   "printer": "jongouveia",
   "printer_name": "Jon Gouveia",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "fish-audio-spec.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:d4a1807558f88032e2fd468179e50871b68e460bf672af4222857beaa07e82ad",

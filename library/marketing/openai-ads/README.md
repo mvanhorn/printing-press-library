@@ -4,6 +4,8 @@
 
 Covers the whole Advertiser API surface rather than a read-only slice of it, and mirrors your account into SQLite so questions the REST API structurally cannot answer become one command. Pacing, drift, creative fatigue, and structural audits all come from local snapshots. Every monetary value is rendered in your account currency instead of raw micros.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `openai-ads-pp-cli` binary and the `pp-openai-ads` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

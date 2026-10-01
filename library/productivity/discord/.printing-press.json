@@ -12,6 +12,12 @@
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Hunter Veltri",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_url": "https://github.com/discord/discord-api-spec/blob/main/specs/openapi.json",
   "spec_path": "discord-openapi.json",
   "spec_format": "openapi3",

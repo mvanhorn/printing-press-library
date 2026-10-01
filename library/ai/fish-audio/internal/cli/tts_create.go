@@ -179,7 +179,7 @@ func newTtsCreateCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["repetition_penalty"] = bodyRepetitionPenalty
 				}
 				if cmd.Flags().Changed("sample-rate") || bodySampleRate != "" {
-					if err := setJSONBodyScalar(bodyMap, "sample_rate", "sample-rate", "int", bodySampleRate); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "sample_rate", "sample-rate", "int", bodySampleRate); err != nil {
 						return err
 					}
 				}

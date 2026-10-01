@@ -12,6 +12,12 @@
   "owner": "somsamantray",
   "printer": "SomSamantray",
   "printer_name": "Som Samantray",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "spec.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:192e197747370a6128d62ac43c1309978de78a4715587b82e7898513ce16b5dd",

@@ -68,7 +68,7 @@ func newLobbiesEditLobbyCmd(flags *rootFlags) *cobra.Command {
 				bodyMap := map[string]any{}
 				body = bodyMap
 				if cmd.Flags().Changed("flags") || bodyFlags != "" {
-					if err := setJSONBodyScalar(bodyMap, "flags", "flags", "int", bodyFlags); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "flags", "flags", "int", bodyFlags); err != nil {
 						return err
 					}
 				}

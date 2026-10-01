@@ -5,6 +5,7 @@ Preview of the Discord v10 HTTP API specification. See https://discord.com/devel
 Learn more at [Discord](https://discord.com/developers/docs).
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Hunter Veltri).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

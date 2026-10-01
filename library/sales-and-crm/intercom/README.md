@@ -7,7 +7,7 @@ This CLI exposes the full Intercom REST API as a single Go binary. Every endpoin
 Learn more at [Intercom](https://developers.intercom.com).
 
 Created by [@rob-coco](https://github.com/rob-coco) (Rob Zehner).
-Contributors: [@francobee](https://github.com/francobee) (Francis Battikha).
+Contributors: [@francobee](https://github.com/francobee) (Francis Battikha), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

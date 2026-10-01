@@ -135,7 +135,7 @@ func newApplicationsUpdateMyCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["event_webhooks_url"] = bodyEventWebhooksUrl
 				}
 				if cmd.Flags().Changed("explicit-content-filter") || bodyExplicitContentFilter != "" {
-					if err := setJSONBodyScalar(bodyMap, "explicit_content_filter", "explicit-content-filter", "int", bodyExplicitContentFilter); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "explicit_content_filter", "explicit-content-filter", "int", bodyExplicitContentFilter); err != nil {
 						return err
 					}
 				}
@@ -187,7 +187,7 @@ func newApplicationsUpdateMyCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["team_id"] = bodyTeamId
 				}
 				if cmd.Flags().Changed("type") || bodyType != "" {
-					if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
 						return err
 					}
 				}

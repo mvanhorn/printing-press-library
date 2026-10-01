@@ -118,12 +118,12 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["bitrate"] = bodyBitrate
 				}
 				if cmd.Flags().Changed("default-auto-archive-duration") || bodyDefaultAutoArchiveDuration != "" {
-					if err := setJSONBodyScalar(bodyMap, "default_auto_archive_duration", "default-auto-archive-duration", "int", bodyDefaultAutoArchiveDuration); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "default_auto_archive_duration", "default-auto-archive-duration", "int", bodyDefaultAutoArchiveDuration); err != nil {
 						return err
 					}
 				}
 				if cmd.Flags().Changed("default-forum-layout") || bodyDefaultForumLayout != "" {
-					if err := setJSONBodyScalar(bodyMap, "default_forum_layout", "default-forum-layout", "int", bodyDefaultForumLayout); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "default_forum_layout", "default-forum-layout", "int", bodyDefaultForumLayout); err != nil {
 						return err
 					}
 				}
@@ -139,7 +139,7 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if cmd.Flags().Changed("default-sort-order") || bodyDefaultSortOrder != "" {
-					if err := setJSONBodyScalar(bodyMap, "default_sort_order", "default-sort-order", "int", bodyDefaultSortOrder); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "default_sort_order", "default-sort-order", "int", bodyDefaultSortOrder); err != nil {
 						return err
 					}
 				}
@@ -198,7 +198,7 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["user_limit"] = bodyUserLimit
 				}
 				if cmd.Flags().Changed("video-quality-mode") || bodyVideoQualityMode != "" {
-					if err := setJSONBodyScalar(bodyMap, "video_quality_mode", "video-quality-mode", "int", bodyVideoQualityMode); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "video_quality_mode", "video-quality-mode", "int", bodyVideoQualityMode); err != nil {
 						return err
 					}
 				}

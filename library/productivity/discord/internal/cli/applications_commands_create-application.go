@@ -127,7 +127,7 @@ func newApplicationsCommandsCreateApplicationCmd(flags *rootFlags) *cobra.Comman
 					bodyMap["dm_permission"] = bodyDmPermission
 				}
 				if cmd.Flags().Changed("handler") || bodyHandler != "" {
-					if err := setJSONBodyScalar(bodyMap, "handler", "handler", "int", bodyHandler); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "handler", "handler", "int", bodyHandler); err != nil {
 						return err
 					}
 				}
@@ -168,7 +168,7 @@ func newApplicationsCommandsCreateApplicationCmd(flags *rootFlags) *cobra.Comman
 					bodyMap["options"] = asArray
 				}
 				if cmd.Flags().Changed("type") || bodyType != "" {
-					if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
 						return err
 					}
 				}

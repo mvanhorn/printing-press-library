@@ -97,7 +97,7 @@ func newFindSimilarPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("exclude-source-domain") || bodyExcludeSourceDomain != "" {
-				if err := setJSONBodyScalar(bodyMap, "excludeSourceDomain", "exclude-source-domain", "bool", bodyExcludeSourceDomain); err != nil {
+				if err := setExplicitJSONBodyScalar(bodyMap, "excludeSourceDomain", "exclude-source-domain", "bool", bodyExcludeSourceDomain); err != nil {
 					return err
 				}
 			}

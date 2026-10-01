@@ -4,6 +4,8 @@
 
 Render text to audio files, clone a voice from a sample, design a voice from a prompt, and transcribe audio, all with agent-friendly JSON output. Every render lands in a local SQLite log so you can skip duplicate renders, report spend by voice or model, and verify a clone's fidelity before it goes live.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `fish-audio-pp-cli` binary and the `pp-fish-audio` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

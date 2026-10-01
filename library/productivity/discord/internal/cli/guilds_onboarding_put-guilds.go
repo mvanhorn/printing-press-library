@@ -79,7 +79,7 @@ func newGuildsOnboardingPutGuildsCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["enabled"] = bodyEnabled
 				}
 				if cmd.Flags().Changed("mode") || bodyMode != "" {
-					if err := setJSONBodyScalar(bodyMap, "mode", "mode", "int", bodyMode); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "mode", "mode", "int", bodyMode); err != nil {
 						return err
 					}
 				}

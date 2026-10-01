@@ -95,7 +95,7 @@ func newCampaignsUpdateMethodCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["description"] = bodyDescription
 				}
 				if cmd.Flags().Changed("end-time") || bodyEndTime != "" {
-					if err := setJSONBodyScalar(bodyMap, "end_time", "end-time", "int", bodyEndTime); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "end_time", "end-time", "int", bodyEndTime); err != nil {
 						return err
 					}
 				}
@@ -103,7 +103,7 @@ func newCampaignsUpdateMethodCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["name"] = bodyName
 				}
 				if cmd.Flags().Changed("start-time") || bodyStartTime != "" {
-					if err := setJSONBodyScalar(bodyMap, "start_time", "start-time", "int", bodyStartTime); err != nil {
+					if err := setExplicitJSONBodyScalar(bodyMap, "start_time", "start-time", "int", bodyStartTime); err != nil {
 						return err
 					}
 				}

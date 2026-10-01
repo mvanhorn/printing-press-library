@@ -33,6 +33,16 @@ func setJSONBodyScalar(body map[string]any, key, flag, kind, raw string) error {
 	return nil
 }
 
+// setExplicitJSONBodyScalar is setJSONBodyScalar for flags the user passed
+// explicitly: an empty or whitespace-only value is rejected instead of being
+// silently dropped, so a supplied setting is never ignored.
+func setExplicitJSONBodyScalar(body map[string]any, key, flag, kind, raw string) error {
+	if strings.TrimSpace(raw) == "" {
+		return fmt.Errorf("--%s must not be empty", flag)
+	}
+	return setJSONBodyScalar(body, key, flag, kind, raw)
+}
+
 func jsonBodyScalar(flag, kind, raw string) (any, bool, error) {
 	s := strings.TrimSpace(raw)
 	if s == "" {
