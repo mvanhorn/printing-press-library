@@ -42,11 +42,12 @@ type Client struct {
 	// NewClient seeds a DefaultRatePerSec AdaptiveLimiter.
 	Limiter *cliutil.AdaptiveLimiter
 
-	initMu      sync.Mutex
-	initialized bool
-	sessionID   string
-	reqID       int64
-	reqIDMu     sync.Mutex
+	initGateOnce sync.Once
+	initGate     chan struct{}
+	initialized  bool
+	sessionID    string
+	reqID        int64
+	reqIDMu      sync.Mutex
 }
 
 func NewClient() *Client {
@@ -131,12 +132,18 @@ func (c *Client) nextID() int64 {
 }
 
 func (c *Client) ensureInit(ctx context.Context) error {
-	// Initialization is fallible, so sync.Once is not appropriate: a transient
-	// initialize or notification failure must be retried by a later call. Hold
-	// the mutex across the handshake to serialize concurrent first use, and only
-	// publish the session after both protocol steps succeed.
-	c.initMu.Lock()
-	defer c.initMu.Unlock()
+	// A channel serializes first use while allowing waiting callers to cancel.
+	// Only the gate itself is initialized once; a failed handshake is retryable.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	c.initGateOnce.Do(func() { c.initGate = make(chan struct{}, 1) })
+	select {
+	case c.initGate <- struct{}{}:
+		defer func() { <-c.initGate }()
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 	if c.initialized {
 		return nil
 	}
@@ -179,7 +186,7 @@ func (c *Client) ensureInit(ctx context.Context) error {
 		return fmt.Errorf("trivago: invalid initialize response envelope")
 	}
 	if initialized.Error != nil {
-		return fmt.Errorf("trivago initialize: %s", initialized.Error.Message)
+		return fmt.Errorf("trivago initialize: %s", truncate([]byte(initialized.Error.Message)))
 	}
 	if result := bytes.TrimSpace(initialized.Result); len(result) == 0 || bytes.Equal(result, []byte("null")) {
 		return fmt.Errorf("trivago: initialize response has no result")
@@ -202,6 +209,12 @@ func (c *Client) ensureInit(ctx context.Context) error {
 	if sessionID == "" {
 		return fmt.Errorf("trivago: no mcp-session-id in initialize response")
 	}
+	sessionReady := false
+	defer func() {
+		if !sessionReady {
+			c.closeFailedSession(sessionID)
+		}
+	}()
 
 	// Per spec, send the initialized notification before any tools/call.
 	nb, _ := json.Marshal(rpcRequest{JSONRPC: "2.0", Method: "notifications/initialized"})
@@ -219,17 +232,50 @@ func (c *Client) ensureInit(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, readErr = readHandshakeBody(nResp.Body)
+	notificationBody, readErr := readHandshakeBody(nResp.Body)
 	if readErr != nil {
 		return fmt.Errorf("trivago: read initialized notification response: %w", readErr)
 	}
 	if nResp.StatusCode < 200 || nResp.StatusCode >= 300 {
 		return fmt.Errorf("trivago: initialized notification HTTP %d", nResp.StatusCode)
 	}
+	if len(bytes.TrimSpace(notificationBody)) > 0 {
+		var notification rpcResponse
+		if err := json.Unmarshal(parseMaybeSSE(notificationBody), &notification); err != nil {
+			return fmt.Errorf("trivago: invalid initialized notification response: %w", err)
+		}
+		if notification.Error != nil {
+			return fmt.Errorf("trivago initialized notification: %s", truncate([]byte(notification.Error.Message)))
+		}
+		return fmt.Errorf("trivago: unexpected initialized notification response body")
+	}
 
 	c.sessionID = sessionID
 	c.initialized = true
+	sessionReady = true
 	return nil
+}
+
+// closeFailedSession releases a session created by initialize but rejected by
+// the notification step. Cleanup is best effort and has its own short timeout
+// so a canceled caller does not leave a session behind.
+func (c *Client) closeFailedSession(sessionID string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.Endpoint, nil)
+	if err != nil {
+		return
+	}
+	req.Header.Set("Mcp-Session-Id", sessionID)
+	if err := c.waitForSlot(ctx); err != nil {
+		return
+	}
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return
+	}
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1024))
+	_ = resp.Body.Close()
 }
 
 func (c *Client) callTool(ctx context.Context, name string, args any) (json.RawMessage, error) {

@@ -159,8 +159,18 @@ func TestCallTool_NilLimiter_NoPanic(t *testing.T) {
 
 func TestCallToolRetriesAfterTransientInitializedNotificationFailure(t *testing.T) {
 	var mu sync.Mutex
-	var initializeCount, notificationCount, toolCount int
+	var initializeCount, notificationCount, cleanupCount, toolCount int
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodDelete {
+			mu.Lock()
+			cleanupCount++
+			mu.Unlock()
+			if got := r.Header.Get("Mcp-Session-Id"); got != "session-1" {
+				t.Errorf("cleanup session = %q, want session-1", got)
+			}
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
 		var req rpcRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Errorf("decode request: %v", err)
@@ -221,9 +231,104 @@ func TestCallToolRetriesAfterTransientInitializedNotificationFailure(t *testing.
 
 	mu.Lock()
 	defer mu.Unlock()
-	if initializeCount != 2 || notificationCount != 2 || toolCount != 1 {
-		t.Fatalf("requests initialize=%d notification=%d tool=%d, want 2/2/1",
-			initializeCount, notificationCount, toolCount)
+	if initializeCount != 2 || notificationCount != 2 || cleanupCount != 1 || toolCount != 1 {
+		t.Fatalf("requests initialize=%d notification=%d cleanup=%d tool=%d, want 2/2/1/1",
+			initializeCount, notificationCount, cleanupCount, toolCount)
+	}
+}
+
+func TestCallToolRejectsNotificationRPCErrorAndCleansSession(t *testing.T) {
+	var cleanupCount, toolCount int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodDelete {
+			cleanupCount++
+			if got := r.Header.Get("Mcp-Session-Id"); got != "rejected-session" {
+				t.Errorf("cleanup session = %q", got)
+			}
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		var req rpcRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			return
+		}
+		switch req.Method {
+		case "initialize":
+			w.Header().Set("Mcp-Session-Id", "rejected-session")
+			fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"result":{"protocolVersion":"2024-11-05","capabilities":{},"serverInfo":{"name":"test","version":"1"}}}`, req.ID)
+		case "notifications/initialized":
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(w, `{"jsonrpc":"2.0","error":{"code":-32603,"message":"notification rejected"}}`)
+		case "tools/call":
+			toolCount++
+		default:
+			t.Errorf("unexpected method %q", req.Method)
+		}
+	}))
+	defer srv.Close()
+
+	c := &Client{HTTPClient: srv.Client(), Endpoint: srv.URL}
+	_, err := c.callTool(context.Background(), "noop", nil)
+	if err == nil || !strings.Contains(err.Error(), "notification rejected") {
+		t.Fatalf("callTool error = %v, want notification error", err)
+	}
+	if c.initialized || c.sessionID != "" || cleanupCount != 1 || toolCount != 0 {
+		t.Fatalf("failed handshake published session or skipped cleanup: initialized=%t cleanup=%d tools=%d", c.initialized, cleanupCount, toolCount)
+	}
+}
+
+func TestEnsureInitWaitingCallerCanCancel(t *testing.T) {
+	started := make(chan struct{})
+	release := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req rpcRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			return
+		}
+		switch req.Method {
+		case "initialize":
+			close(started)
+			<-release
+			w.Header().Set("Mcp-Session-Id", "test-session")
+			fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"result":{"protocolVersion":"2024-11-05","capabilities":{},"serverInfo":{"name":"test","version":"1"}}}`, req.ID)
+		case "notifications/initialized":
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			t.Errorf("unexpected method %q", req.Method)
+		}
+	}))
+	defer srv.Close()
+
+	c := &Client{HTTPClient: srv.Client(), Endpoint: srv.URL}
+	firstDone := make(chan error, 1)
+	go func() { firstDone <- c.ensureInit(context.Background()) }()
+	<-started
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	begin := time.Now()
+	err := c.ensureInit(ctx)
+	if err != context.DeadlineExceeded || time.Since(begin) > time.Second {
+		t.Fatalf("waiting caller error = %v after %v, want prompt cancellation", err, time.Since(begin))
+	}
+	close(release)
+	if err := <-firstDone; err != nil {
+		t.Fatalf("first handshake: %v", err)
+	}
+}
+
+func TestEnsureInitBoundsRPCErrorMessage(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req rpcRequest
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"error":{"code":-32603,"message":%q}}`, req.ID, strings.Repeat("x", 10000))
+	}))
+	defer srv.Close()
+	c := &Client{HTTPClient: srv.Client(), Endpoint: srv.URL}
+	err := c.ensureInit(context.Background())
+	if err == nil || len(err.Error()) > 600 {
+		t.Fatalf("initialize error length = %d, want a bounded message", len(fmt.Sprint(err)))
 	}
 }
 

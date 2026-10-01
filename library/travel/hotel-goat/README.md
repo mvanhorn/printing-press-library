@@ -43,7 +43,7 @@ Learn more at [Google Hotels](https://www.google.com).
 
 Created by [@kothari-nikunj](https://github.com/kothari-nikunj) (kothari-nikunj).
 
-Contributor: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
