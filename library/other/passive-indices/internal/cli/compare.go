@@ -96,10 +96,7 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 var indexIdentityBoundaryRE = regexp.MustCompile(`([a-z])(\d)|(\d)([a-z])`)
 
 func canonicalIndexIdentity(name string) string {
-	name = strings.ToLower(strings.TrimSpace(name))
-	name = strings.NewReplacer("-", " ", "_", " ", "(", " ", ")", " ").Replace(name)
-	name = indexIdentityBoundaryRE.ReplaceAllString(name, "$1$3 $2$4")
-	name = strings.Join(strings.Fields(name), " ")
+	name = normalizeIndexName(name)
 	for {
 		before := name
 		for _, suffix := range []string{" total return index", " total return", " tri", " index"} {
@@ -110,6 +107,19 @@ func canonicalIndexIdentity(name string) string {
 		}
 	}
 	return strings.TrimSpace(name)
+}
+
+func normalizeIndexName(name string) string {
+	name = strings.ToLower(strings.TrimSpace(name))
+	name = strings.NewReplacer("-", " ", "_", " ", "(", " ", ")", " ").Replace(name)
+	for {
+		before := name
+		name = indexIdentityBoundaryRE.ReplaceAllString(name, "$1$3 $2$4")
+		if name == before {
+			break
+		}
+	}
+	return strings.Join(strings.Fields(name), " ")
 }
 
 func validateBenchmarkIdentity(schemeID, benchmark, requested string) error {
@@ -125,13 +135,26 @@ func findLiveQuote(quotes []niftyindices.LiveQuote, requested string) *niftyindi
 			return &quotes[i]
 		}
 	}
-	target := canonicalIndexIdentity(requested)
+	target := canonicalQuoteIdentity(requested)
 	for i := range quotes {
-		if canonicalIndexIdentity(quotes[i].IndexName) == target {
+		if canonicalQuoteIdentity(quotes[i].IndexName) == target {
 			return &quotes[i]
 		}
 	}
 	return nil
+}
+
+// Keep price and total-return quotes distinct even when their names use
+// different spacing or abbreviations. Benchmark validation can accept either.
+func canonicalQuoteIdentity(name string) string {
+	normalized := normalizeIndexName(name)
+	core := canonicalIndexIdentity(name)
+	for _, suffix := range []string{" tri", " tri index", " total return", " total return index"} {
+		if strings.HasSuffix(normalized, suffix) {
+			return core + " tri"
+		}
+	}
+	return core
 }
 
 func constituentSlug(requested string, matched *niftyindices.LiveQuote) string {

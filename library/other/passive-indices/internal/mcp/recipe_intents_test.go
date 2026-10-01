@@ -62,6 +62,63 @@ func TestRecipeIntentHandlerOverridesParams(t *testing.T) {
 	}
 }
 
+func TestCompareRecipeUsesFundBenchmarkOrExplicitIndex(t *testing.T) {
+	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
+	t.Cleanup(func() { recipeCLIPath, recipeCLIPathErr = oldPath, oldErr })
+	recipeCLIPathErr = nil
+
+	recipeCLIPath = writeBenchmarkRecipeRecorder(t, `{"benchmark_index":"NIFTY BANK"}`)
+	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"id": "1150"}}}
+	result, err := handleCompareAHeldFundAgainstItsBenchmark(context.Background(), req)
+	if err != nil || result.IsError {
+		t.Fatalf("benchmark recipe: result=%#v err=%v", result, err)
+	}
+	if got := strings.TrimSpace(recipeToolText(t, result)); got != "compare 1150 NIFTY BANK --json" {
+		t.Fatalf("benchmark recipe args = %q", got)
+	}
+
+	recipeCLIPath = writeRecipeIntentRecorder(t)
+	req.Params.Arguments = map[string]any{"id": "1150", "index": "NIFTY 50"}
+	result, err = handleCompareAHeldFundAgainstItsBenchmark(context.Background(), req)
+	if err != nil || result.IsError {
+		t.Fatalf("explicit index recipe: result=%#v err=%v", result, err)
+	}
+	if got := strings.TrimSpace(recipeToolText(t, result)); got != "compare 1150 NIFTY 50 --json" {
+		t.Fatalf("explicit index recipe args = %q", got)
+	}
+}
+
+func TestCompareRecipeRequiresReportedOrExplicitBenchmark(t *testing.T) {
+	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
+	t.Cleanup(func() { recipeCLIPath, recipeCLIPathErr = oldPath, oldErr })
+	recipeCLIPath = writeBenchmarkRecipeRecorder(t, `{}`)
+	recipeCLIPathErr = nil
+	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"id": "1150"}}}
+	result, err := handleCompareAHeldFundAgainstItsBenchmark(context.Background(), req)
+	if err != nil || !result.IsError || !strings.Contains(recipeToolText(t, result), "provide index explicitly") {
+		t.Fatalf("missing benchmark result=%#v err=%v", result, err)
+	}
+}
+
+func writeBenchmarkRecipeRecorder(t *testing.T, fundJSON string) string {
+	t.Helper()
+	dir := t.TempDir()
+	if runtime.GOOS == "windows" {
+		path := filepath.Join(dir, "benchmark-recorder.bat")
+		script := "@echo off\r\nif \"%1\"==\"fund\" (\r\n  echo " + fundJSON + "\r\n) else (\r\n  echo %*\r\n)\r\n"
+		if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		return path
+	}
+	path := filepath.Join(dir, "benchmark-recorder.sh")
+	script := "#!/bin/sh\nif [ \"$1\" = fund ]; then printf '%s\\n' '" + fundJSON + "'; else printf '%s\\n' \"$*\"; fi\n"
+	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
 func writeRecipeIntentRecorder(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()

@@ -36,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install passive-indices --agent claude-c
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/passive-indices/cmd/passive-indices-pp-cli@latest

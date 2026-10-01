@@ -84,7 +84,7 @@ func TestCompareCommandReportsBenchmarkAndConstituentStatus(t *testing.T) {
 			t.Cleanup(func() { http.DefaultTransport = originalTransport })
 
 			cmd := RootCmd()
-			cmd.SetArgs([]string{"--home", t.TempDir(), "--no-learn", "--json", "compare", "1150", "nifty50tri"})
+			cmd.SetArgs([]string{"--home", t.TempDir(), "--no-learn", "--json", "compare", "1150", "Nifty-50 Index"})
 			var out bytes.Buffer
 			cmd.SetOut(&out)
 			cmd.SetErr(io.Discard)
@@ -168,12 +168,19 @@ func TestComparePrefersExactQuoteAndUsesItForConstituents(t *testing.T) {
 	if tri == nil || tri.IndexName != "NIFTY 50 TRI" {
 		t.Fatalf("exact TRI quote was not preferred: %#v", tri)
 	}
-	base := findLiveQuote(quotes[:1], "nifty50tri")
-	if base == nil || base.IndexName != "NIFTY 50" {
-		t.Fatalf("equivalent live quote not found: %#v", base)
+	tri = findLiveQuote(quotes, "nifty50tri")
+	if tri == nil || tri.IndexName != "NIFTY 50 TRI" {
+		t.Fatalf("abbreviated TRI request selected wrong quote: %#v", tri)
 	}
-	if got := constituentSlug("nifty50tri", base); got != "nifty50" {
+	if got := constituentSlug("nifty50tri", tri); got != "nifty50tri" {
 		t.Fatalf("constituent slug = %q, want matched quote slug", got)
+	}
+	if got := findLiveQuote(quotes[:1], "nifty50tri"); got != nil {
+		t.Fatalf("TRI request selected price quote: %#v", got)
+	}
+	base := findLiveQuote(quotes, "Nifty-50 Index")
+	if base == nil || base.IndexName != "NIFTY 50" {
+		t.Fatalf("price quote lookup = %#v", base)
 	}
 }
 
