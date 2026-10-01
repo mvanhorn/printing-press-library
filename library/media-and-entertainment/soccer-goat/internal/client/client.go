@@ -177,17 +177,28 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 				req.Header.Set("Authorization", h)
 			}
 		} else {
-			stripCrossOriginRedirectHeaders(req.Header)
+			stripCrossOriginRedirectHeaders(req, via[0])
 		}
 		return nil
 	}
 	return c
 }
 
-// stripCrossOriginRedirectHeaders removes all caller-supplied headers. Even a
-// normally harmless header may contain a credential supplied by the caller.
-func stripCrossOriginRedirectHeaders(headers http.Header) {
-	clear(headers)
+// stripCrossOriginRedirectHeaders removes caller-supplied headers, then
+// regenerates safe literals used by this client for public response handling.
+// Even a normally harmless header may contain a caller-supplied credential.
+func stripCrossOriginRedirectHeaders(req, original *http.Request) {
+	binaryResponse := original.Header.Get("Accept") == "*/*"
+	clear(req.Header)
+	req.Header.Set("User-Agent", "soccer-goat-pp-cli/0.1.0")
+	if binaryResponse {
+		req.Header.Set("Accept", "*/*")
+	} else {
+		req.Header.Set("Accept", "application/json")
+	}
+	if req.Body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.

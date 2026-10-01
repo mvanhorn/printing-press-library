@@ -177,6 +177,39 @@ func TestRedirect_CrossOriginStripsCustomCredentialHeaders(t *testing.T) {
 			t.Fatalf("cross-origin redirect forwarded caller-configured %s", name)
 		}
 	}
+	if got := headers.Get("Accept"); got != "application/json" {
+		t.Fatalf("cross-origin redirect Accept = %q, want client default", got)
+	}
+	if got := headers.Get("User-Agent"); got != "soccer-goat-pp-cli/0.1.0" {
+		t.Fatalf("cross-origin redirect User-Agent = %q, want client default", got)
+	}
+}
+
+func TestRedirectRegeneratesBinaryAndBodyDefaults(t *testing.T) {
+	original, err := http.NewRequest(http.MethodPost, "https://primary.example/test", strings.NewReader(`{}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	original.Header.Set("Accept", "*/*")
+	redirected, err := http.NewRequest(http.MethodPost, "https://mirror.example/test", strings.NewReader(`{}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	redirected.Header.Set("Content-Type", "caller-secret")
+	redirected.Header.Set("X-Secret", "caller-secret")
+	stripCrossOriginRedirectHeaders(redirected, original)
+	for name, want := range map[string]string{
+		"Accept":       "*/*",
+		"Content-Type": "application/json",
+		"User-Agent":   "soccer-goat-pp-cli/0.1.0",
+	} {
+		if got := redirected.Header.Get(name); got != want {
+			t.Errorf("regenerated %s = %q, want %q", name, got, want)
+		}
+	}
+	if got := redirected.Header.Get("X-Secret"); got != "" {
+		t.Fatal("redirect retained caller-supplied credential header")
+	}
 }
 
 func TestSameOriginNormalizesDefaultPorts(t *testing.T) {
