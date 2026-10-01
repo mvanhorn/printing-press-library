@@ -124,7 +124,12 @@ func Load(configPath string) (*Config, error) {
 					return nil, err
 				}
 			}
-			if !ok || creds == nil || !creds.HasValues() {
+			// A legacy config that already carries its API key should not
+			// inspect the unrelated global credentials file just because its
+			// application ID is absent. Explicit config homes can still use
+			// their sibling file and the existing fallback path.
+			needGlobalCredentials := explicitConfigFile || (cfg.AuthHeaderVal == "" && cfg.AlgoliaApiKey == "")
+			if (!ok || creds == nil || !creds.HasValues()) && needGlobalCredentials {
 				creds, ok, err = cliutil.LoadCredentials()
 				if err != nil {
 					return nil, err
@@ -372,16 +377,13 @@ func (c *Config) hasCredentialFields() bool {
 }
 
 func (c *Config) hasCompleteCredentialFields() bool {
-	if c.AuthHeaderVal != "" {
-		return true
+	hasAPIKey := c.AuthHeaderVal != "" || c.AlgoliaApiKey != ""
+	applicationID := strings.TrimSpace(c.AlgoliaApplicationId)
+	if applicationID == "" {
+		applicationID = strings.TrimSpace(c.TemplateVars["appId"])
 	}
-	if c.AlgoliaApiKey == "" {
-		return false
-	}
-	if c.AlgoliaApiKey == "" {
-		return false
-	}
-	return true
+	hasApplicationID := applicationID != "" && applicationID != "ALGOLIA_APPLICATION_ID"
+	return hasAPIKey && hasApplicationID
 }
 
 func (c *Config) clearCredentialFields() {

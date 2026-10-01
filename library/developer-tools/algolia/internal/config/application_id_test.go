@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/algolia/internal/cliutil"
 )
 
 func TestApplicationIDResolvesEndpointFromEffectiveConfig(t *testing.T) {
@@ -31,6 +33,41 @@ func TestApplicationIDResolvesEndpointFromEffectiveConfig(t *testing.T) {
 			}
 			if cfg.AlgoliaApplicationId != tc.want {
 				t.Fatalf("header application ID = %q, want %q", cfg.AlgoliaApplicationId, tc.want)
+			}
+		})
+	}
+}
+
+func TestApplicationIDLoadsFromSiblingCredentialsWhenConfigHasAPIKey(t *testing.T) {
+	for _, tc := range []struct{ name, config string }{
+		{"missing ID", "api_key = \"test-key\"\n"},
+		{"legacy placeholder", "api_key = \"test-key\"\n[template_vars]\nappId = \"ALGOLIA_APPLICATION_ID\"\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			clearCredEnv(t)
+			t.Setenv("PRINTING_PRESS_VERIFY", "")
+			file := filepath.Join(t.TempDir(), "config.toml")
+			if err := os.WriteFile(file, []byte(tc.config), 0600); err != nil {
+				t.Fatal(err)
+			}
+			lockOwnerOnly(t, file)
+			credentialsFile, err := cliutil.CredentialsFilePathForConfig(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.MkdirAll(filepath.Dir(credentialsFile), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(credentialsFile, []byte("application_id = \"SAVEDAPP\"\n"), 0600); err != nil {
+				t.Fatal(err)
+			}
+			lockOwnerOnly(t, credentialsFile)
+			cfg, err := Load(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if cfg.AlgoliaApplicationId != "SAVEDAPP" || cfg.TemplateVars["appId"] != "SAVEDAPP" || cfg.AlgoliaApiKey != "test-key" {
+				t.Fatalf("separate application ID was not paired with the saved API key: app=%q endpoint=%q", cfg.AlgoliaApplicationId, cfg.TemplateVars["appId"])
 			}
 		})
 	}

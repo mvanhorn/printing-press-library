@@ -4,6 +4,8 @@
 
 The Algolia CLI manages indices, records, search, rules, synonyms, API keys, and settings from the terminal — with a local SQLite mirror, cross-index search, settings diffing, and relevance regression checks that the official CLI cannot offer.
 
+Created by [@SomSamantray](https://github.com/SomSamantray) (Som Samantray).
+
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install

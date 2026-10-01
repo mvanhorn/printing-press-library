@@ -42,9 +42,10 @@ func TestApplicationIDMatchesEndpointAndHeader(t *testing.T) {
 			}))
 			defer server.Close()
 			cfg.BaseURL = server.URL + "/{appId}"
+			cfg.Headers = map[string]string{"x-algolia-application-id": "WRONGAPP"}
 			c := New(cfg, time.Second, 0)
 			c.NoCache = true
-			if _, err := c.Get(context.Background(), "/1/indexes", nil); err != nil {
+			if _, err := c.GetWithHeaders(context.Background(), "/1/indexes", nil, map[string]string{"x-algolia-application-id": "WRONGENDPOINT"}); err != nil {
 				t.Fatal(err)
 			}
 			if calls != 1 {
