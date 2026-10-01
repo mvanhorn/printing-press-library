@@ -10,6 +10,9 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	sqlite "modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 // granolaSchemaSQL is the set of CREATE TABLE statements added on top of
@@ -1108,6 +1111,38 @@ func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]s
 	if err := EnsureSchema(ctx, db); err != nil {
 		return 0, err
 	}
+	// A peer can commit to the WAL between our read snapshot and first write.
+	// SQLite then refuses that snapshot's write upgrade; restart the complete
+	// selection and deletion transaction rather than leaving notes stale.
+	for attempt := 0; ; attempt++ {
+		deleted, err := reconcileMissingAPINotesOnce(ctx, db, seen)
+		if err == nil || !isReconcileSQLiteBusy(err) || attempt >= 4 {
+			return deleted, err
+		}
+		wait := time.NewTimer(time.Duration(25<<attempt) * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			wait.Stop()
+			return 0, ctx.Err()
+		case <-wait.C:
+		}
+	}
+}
+
+func isReconcileSQLiteBusy(err error) bool {
+	var sqliteErr *sqlite.Error
+	if !errors.As(err, &sqliteErr) {
+		return false
+	}
+	switch sqliteErr.Code() & 0xff {
+	case sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED:
+		return true
+	default:
+		return false
+	}
+}
+
+func reconcileMissingAPINotesOnce(ctx context.Context, db *sql.DB, seen map[string]struct{}) (int, error) {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err

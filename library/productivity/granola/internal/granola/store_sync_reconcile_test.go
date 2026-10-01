@@ -2,6 +2,8 @@ package granola
 
 import (
 	"context"
+	"database/sql"
+	"path/filepath"
 	"testing"
 )
 
@@ -56,4 +58,41 @@ func TestReconcileMissingAPINotesRollsBackDependentFailure(t *testing.T) {
 	assertCount(t, db, `SELECT COUNT(*) FROM meetings WHERE id='missing' AND COALESCE(deleted_at, '')=''`, 1, "meeting tombstone was not rolled back")
 	assertCount(t, db, `SELECT COUNT(*) FROM transcript_segments WHERE meeting_id='missing' AND row_source='api'`, 1, "transcript deletion was not rolled back")
 	assertCount(t, db, `SELECT COUNT(*) FROM attendees WHERE meeting_id='missing' AND row_source='api'`, 1, "attendee deletion was not rolled back")
+}
+
+func TestReconcileRecognizesStaleSQLiteSnapshot(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "snapshot.db")
+	dsn := path + "?_pragma=journal_mode(WAL)&_pragma=busy_timeout(0)"
+	reader, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reader.Close()
+	writer, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer writer.Close()
+	if _, err := reader.Exec(`CREATE TABLE marker (value INTEGER)`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := reader.Exec(`INSERT INTO marker(value) VALUES (1)`); err != nil {
+		t.Fatal(err)
+	}
+	tx, err := reader.BeginTx(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	var value int
+	if err := tx.QueryRow(`SELECT value FROM marker`).Scan(&value); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := writer.Exec(`UPDATE marker SET value=2`); err != nil {
+		t.Fatal(err)
+	}
+	_, err = tx.Exec(`UPDATE marker SET value=3`)
+	if err == nil || !isReconcileSQLiteBusy(err) {
+		t.Fatalf("stale WAL snapshot error = %v, want a retryable SQLite lock", err)
+	}
 }
