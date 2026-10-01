@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "nifty-onsen-release-destination",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020155-5c0bf62e",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Release builds must match the module; optional Homebrew publication must remain absent until a personal tap is provisioned and verified.",
+  "reason": "An empty or unprovisioned Homebrew destination breaks releases. This CLI has no verified tap, so the unused deprecated publisher is omitted without claiming an installation path.",
+  "files": [
+    ".goreleaser.yaml"
+  ],
+  "validated_outcome": "Regression passes across all output modes; release configuration checked with official GoReleaser."
+}

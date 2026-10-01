@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "nifty-onsen-invalid-selection-emits-no-data",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020155-5c0bf62e",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Reject invalid field selections before serializing any provider result in every output format.",
+  "reason": "An all-miss selector returns a usage error; printing unfiltered rows first lets stdout consumers treat rejected commands as success.",
+  "files": [
+    "internal/cli/onsen_commands.go",
+    "internal/cli/onsen_commands_test.go"
+  ],
+  "validated_outcome": "Regression passes across all output modes; release configuration checked with official GoReleaser."
+}

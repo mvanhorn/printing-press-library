@@ -116,3 +116,5 @@ nifty-onsen-pp-cli bath search --query=草津 --agent --select=id,name,url
 ```
 
 Keep only shortlist facts
+
+Homebrew publishing is unavailable until a personal tap is provisioned and verified. GitHub release builds remain configured; no Homebrew tap or formula installation is claimed.

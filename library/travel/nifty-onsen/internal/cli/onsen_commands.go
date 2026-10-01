@@ -78,6 +78,9 @@ func onsenOutput(cmd *cobra.Command, f *rootFlags, data any, p onsen.Provenance,
 			paths[i] = s
 		}
 		raw, selectErr = filterFieldsChecked(raw, strings.Join(paths, ","))
+		if selectErr != nil {
+			return selectErr
+		}
 	}
 	source := "live"
 	if p.Cache != "miss" {

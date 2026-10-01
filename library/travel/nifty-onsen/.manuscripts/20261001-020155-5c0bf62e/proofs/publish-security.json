@@ -2,7 +2,7 @@
   "scanner": "gosec v2.26.1",
   "stats": {
     "files": 64,
-    "lines": 23647,
+    "lines": 23650,
     "nosec": 19,
     "found": 21
   },

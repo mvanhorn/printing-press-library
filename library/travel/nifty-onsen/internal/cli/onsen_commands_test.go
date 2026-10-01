@@ -171,3 +171,37 @@ func TestOnsenLiveHarnessRefreshesWarmCache(t *testing.T) {
 type onsenTestTransport func(*http.Request) (*http.Response, error)
 
 func (f onsenTestTransport) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func TestOnsenInvalidProjectionWritesNoResults(t *testing.T) {
+	for _, mode := range []string{"agent", "json", "compact", "csv", "plain", "quiet"} {
+		t.Run(mode, func(t *testing.T) {
+			var f rootFlags
+			r := newRootCmd(&f)
+			f.selectFields = "results.typo"
+			switch mode {
+			case "agent":
+				f.agent, f.asJSON = true, true
+			case "json":
+				f.asJSON = true
+			case "compact":
+				f.compact = true
+			case "csv":
+				f.csv = true
+			case "plain":
+				f.plain = true
+			case "quiet":
+				f.quiet = true
+			}
+			var out, diagnostics bytes.Buffer
+			r.SetOut(&out)
+			r.SetErr(&diagnostics)
+			err := onsenOutput(r, &f, []map[string]any{{"id": "onsen012278", "name": "fixture bath"}}, onsen.Provenance{}, nil)
+			if err == nil || ExitCode(err) != 2 {
+				t.Fatalf("invalid selection must return a usage error, got %v", err)
+			}
+			if out.Len() != 0 {
+				t.Fatalf("rejected selection emitted result data: %s", out.String())
+			}
+		})
+	}
+}

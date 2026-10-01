@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "b72fc0151795448f98edd72cfcd1de306531b71c97e31489b949e9b667497120",
+  "source_fingerprint": "d62236cf955696a74c4638b19f713c80f80272c9e8791751cd784f85c036256b",
   "source_files": {
     "cmd/nifty-onsen-pp-cli/main.go": "a3ae7b5bfc2f38254394685c82128e77fe3e3c3ea7b925ad6c3d43e668a9a98a",
     "cmd/nifty-onsen-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -32,8 +32,8 @@
     "internal/cli/feedback.go": "5877d2a9373921151f5814db52718131d3995e032fff5671efb12dd64467fc46",
     "internal/cli/helpers.go": "1e7c68124d4459e5daadfd29f4bfdaa57684204a5df28698dda945390f259788",
     "internal/cli/html_extract.go": "804cd31c52bd178fe2d50f58126b0be3eacffb8f17447ba5631fd8c4bc2f4db0",
-    "internal/cli/onsen_commands.go": "30fac2bde2bb4fb696c63c983aa95db224e18183b2904a92e75286847cf67ded",
-    "internal/cli/onsen_commands_test.go": "a8b6a6449fac0c34198f0cd3011013d7e22845e7b322aa28c3b5d338449ed2b6",
+    "internal/cli/onsen_commands.go": "16689805591f797cae4b8fea1530e709300871881d51e94b258cf0f6f19e7694",
+    "internal/cli/onsen_commands_test.go": "ebe70ec09f80e07d1a343dcae190c3d06bc69d5a1210e56bc7c2265bb9dfb7bd",
     "internal/cli/platform_cli_test.go": "823ef039ecdbd32de78b36a667c55f2b70231963c4af840c70f494c15a1b4ade",
     "internal/cli/platform_client.go": "77d3302b1af402e5ec1de19b69cb6d73774501833626878443d59b8f8c7b3486",
     "internal/cli/platform_window.go": "0b121c479383afc40cd5061b934e2bb4d35534acc81dc90de97ca9b9909ef0cd",

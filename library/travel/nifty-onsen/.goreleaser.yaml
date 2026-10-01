@@ -43,13 +43,4 @@ archives:
         formats: [zip]
 checksum:
   name_template: checksums.txt
-brews:
-  - name: nifty-onsen-pp-cli
-    repository:
-      owner: 
-      name: homebrew-tap
-    homepage: "https://github.com//nifty-onsen-pp-cli"
-    description: "Find Japanese day-use baths with source evidence and explicit unknowns."
-    install: |
-      bin.install "nifty-onsen-pp-cli"
-      bin.install "nifty-onsen-pp-mcp"
+# Homebrew publishing is unavailable until a personal tap is provisioned and verified.

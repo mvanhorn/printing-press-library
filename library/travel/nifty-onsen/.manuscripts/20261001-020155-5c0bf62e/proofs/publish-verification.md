@@ -11,3 +11,11 @@ Pinned gosec v2.26.1 was freshly rerun: 21 inherited scaffold findings remain, z
 Limits: unofficial public website integration; finite nearby candidate window; unknown admission/coupon eligibility or bookable inventory unless explicit source evidence. No coupon redemption, bookings, purchases or account actions.
 
 Exact canonical package checks: `publish validate` passes every check including canonical module path; `go test -count=1 ./...` passes; the library SKILL verifier reports zero errors and four recognized dynamic-command false positives. Mandatory package secret scan and additional vendor/email/bearer/structural scans are clear; static public attribution and test-query names are documented false positives. No executable payload remains.
+
+## Review corrections
+
+Greptile round one: invalid all-miss field selections now return usage errors with empty stdout in agent/JSON/compact/CSV/plain/quiet output; focused regressions first reproduced the original emission and then passed after correction. Valid projection and stale comparison tests remain passing.
+
+Release metadata uses the canonical CLI linker symbol. The personal tap is not provisioned, so the unused deprecated Homebrew publisher is omitted; no live Homebrew installation is claimed. Official GoReleaser configuration check passes without deprecated properties.
+
+After both review fixes, fresh full live acceptance again passes 54 checks with zero failures and no hollow coverage; the full canonical-package test suite passes, and official GoReleaser configuration validation passes. Acceptance and compact proof are refreshed for the current source.
