@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"strconv"
 )
 
 // HTTP has no built-in client authentication or TLS, so it must stay local.
@@ -12,6 +13,10 @@ func loopbackHTTPAddr(addr string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("invalid HTTP listen address: %w", err)
 	}
+	portNumber, err := strconv.Atoi(port)
+	if err != nil || portNumber < 1 || portNumber > 65535 {
+		return "", fmt.Errorf("HTTP MCP requires a numeric port from 1 to 65535")
+	}
 	if host == "localhost" {
 		host = "127.0.0.1"
 	}
@@ -19,5 +24,5 @@ func loopbackHTTPAddr(addr string) (string, error) {
 	if ip == nil || !ip.IsLoopback() {
 		return "", fmt.Errorf("HTTP MCP requires a loopback IP address; use an authenticated TLS proxy for remote access")
 	}
-	return net.JoinHostPort(ip.String(), port), nil
+	return net.JoinHostPort(ip.String(), strconv.Itoa(portNumber)), nil
 }
