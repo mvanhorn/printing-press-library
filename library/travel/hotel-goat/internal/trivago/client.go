@@ -212,8 +212,9 @@ func (c *Client) ensureInit(ctx context.Context) error {
 	sessionReady := false
 	defer func() {
 		if !sessionReady {
-			// A slow DELETE must not delay cancellation or hold the init gate.
-			go c.closeFailedSession(sessionID)
+			// Attempt cleanup before a short-lived CLI exits. Bound the wait so
+			// a slow DELETE cannot hold a canceled lookup for long.
+			c.closeFailedSession(sessionID)
 		}
 	}()
 
@@ -259,18 +260,17 @@ func (c *Client) ensureInit(ctx context.Context) error {
 
 // closeFailedSession releases a session created by initialize but rejected by
 // the notification step. Cleanup is best effort and has its own short timeout
-// so a canceled caller does not leave a session behind.
+// so a canceled caller can return promptly after the DELETE attempt.
 func (c *Client) closeFailedSession(sessionID string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.Endpoint, nil)
 	if err != nil {
 		return
 	}
 	req.Header.Set("Mcp-Session-Id", sessionID)
-	if err := c.waitForSlot(ctx); err != nil {
-		return
-	}
+	// This is an exceptional cleanup request; waiting for the normal pacing
+	// slot could consume the whole deadline before DELETE reaches the server.
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return

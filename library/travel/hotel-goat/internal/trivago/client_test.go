@@ -300,7 +300,7 @@ func TestCallToolRejectsNotificationRPCErrorAndCleansSession(t *testing.T) {
 	}
 }
 
-func TestEnsureInitDoesNotWaitForSlowSessionCleanup(t *testing.T) {
+func TestEnsureInitBoundsSlowSessionCleanup(t *testing.T) {
 	cleanupStarted := make(chan struct{}, 1)
 	releaseCleanup := make(chan struct{})
 	var notifications atomic.Int32
