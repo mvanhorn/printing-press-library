@@ -399,8 +399,11 @@ func newNovelRepoDeleteCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			// Confirm unless --yes
-			if !flags.yes && !flags.noInput && isTerminal(os.Stdin) {
+			// Non-interactive callers must opt in to this destructive request.
+			if !flags.yes {
+				if flags.noInput || !isTerminal(os.Stdin) {
+					return fmt.Errorf("refusing to delete %s/%s without confirmation: pass --yes (stdin is not a terminal)", owner, repo)
+				}
 				fmt.Fprintf(os.Stderr, "Delete repository %s/%s? This cannot be undone. [y/N]: ", owner, repo)
 				reader := bufio.NewReader(os.Stdin)
 				line, _ := reader.ReadString('\n')

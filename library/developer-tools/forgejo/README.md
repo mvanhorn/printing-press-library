@@ -5,6 +5,7 @@
 fj brings GitHub CLI-level ergonomics to every Forgejo instance: multi-host auth with OAuth2 device flow, offline-searchable local SQLite, cross-repo dashboards, and Forgejo-specific features (runner management, ActivityPub, repo migration) that no other tool exposes. Works with Codeberg, self-hosted instances, and Forgejo Cloud with the same command surface.
 
 Printed by [@jrimmer](https://github.com/jrimmer) (jrimmer).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
