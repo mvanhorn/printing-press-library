@@ -66,7 +66,7 @@ type GenerationEntry struct {
 func (s *Store) LedgerGeneration(ctx context.Context, e GenerationEntry) error {
 	var createdAt any
 	if !e.CreatedAt.IsZero() {
-		createdAt = e.CreatedAt.Format(time.RFC3339)
+		createdAt = e.CreatedAt.UTC().Format("2006-01-02 15:04:05")
 	}
 	if _, err := s.db.ExecContext(ctx,
 		`INSERT OR REPLACE INTO generation_ledger (id, model, prompt, params, cost_usd, tokens, output_path, created_at)
@@ -105,9 +105,11 @@ func (s *Store) ListGenerations(ctx context.Context, since time.Time, limit int)
 	if limit <= 0 {
 		limit = 100
 	}
+	// Historical rows use RFC3339 while SQLite's default uses a space between
+	// date and time. Normalize both before filtering or sorting.
 	rows, err := s.db.QueryContext(ctx,
 		`SELECT id, model, COALESCE(prompt,''), COALESCE(params,''), COALESCE(cost_usd,0), COALESCE(tokens,''), COALESCE(output_path,''), COALESCE(created_at, CURRENT_TIMESTAMP)
-		 FROM generation_ledger WHERE created_at >= ? ORDER BY created_at DESC LIMIT ?`,
+		 FROM generation_ledger WHERE datetime(created_at) >= datetime(?) ORDER BY datetime(created_at) DESC LIMIT ?`,
 		since.Format("2006-01-02 15:04:05"), limit)
 	if err != nil {
 		return nil, fmt.Errorf("listing generations: %w", err)

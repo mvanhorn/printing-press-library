@@ -83,6 +83,36 @@ func TestGenerationLedgerZeroTimestampUsesCurrentTime(t *testing.T) {
 	}
 }
 
+func TestListGenerationsOrdersMixedTimestampFormatsByTime(t *testing.T) {
+	db := openTestStore(t)
+	ctx := context.Background()
+	for _, row := range []struct{ id, createdAt string }{
+		{"legacy-early", "2026-10-01T09:00:00Z"},
+		{"database-late", "2026-10-01 13:00:00"},
+	} {
+		if _, err := db.db.ExecContext(ctx,
+			"INSERT INTO generation_ledger (id, model, created_at) VALUES (?, ?, ?)",
+			row.id, "model", row.createdAt); err != nil {
+			t.Fatalf("seed %s: %v", row.id, err)
+		}
+	}
+	sameDayNoon := time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)
+	recent, err := db.ListGenerations(ctx, sameDayNoon, 10)
+	if err != nil {
+		t.Fatalf("ListGenerations recent: %v", err)
+	}
+	if len(recent) != 1 || recent[0].ID != "database-late" {
+		t.Fatalf("recent generations = %+v, want only database-late", recent)
+	}
+	all, err := db.ListGenerations(ctx, sameDayNoon.Add(-4*time.Hour), 10)
+	if err != nil {
+		t.Fatalf("ListGenerations all: %v", err)
+	}
+	if len(all) != 2 || all[0].ID != "database-late" || all[1].ID != "legacy-early" {
+		t.Fatalf("generation order = %+v, want database-late then legacy-early", all)
+	}
+}
+
 func TestListGenerationsNewestFirst(t *testing.T) {
 	db := openTestStore(t)
 	ctx := context.Background()

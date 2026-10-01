@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260803-205427-851f4b39",
   "base_printing_press_version": "4.29.0",
-  "summary": "Default zero-valued ledger timestamps to the database clock and preserve comma-bearing reference values across MCP and CLI parsing.",
-  "reason": "Formatting a zero time bypasses the SQL default with year 0001, while comma-joining MCP references or CSV-style CLI flag parsing corrupts valid image data URLs.",
+  "summary": "Default zero-valued ledger timestamps to the database clock, normalize ledger time queries, and preserve comma-bearing reference values.",
+  "reason": "Formatting a zero time bypasses the SQL default, mixed timestamp formats break recent-window queries, and comma-joining reference values corrupts valid image data URLs.",
   "files": ["internal/store/openrouter_image_migrations.go", "internal/store/openrouter_image_migrations_test.go", "internal/mcp/cobratree/shellout.go", "internal/mcp/cobratree/shellout_test.go", "internal/cli/generate.go", "internal/cli/generate_fixes_test.go"],
-  "validated_outcome": "Local tests keep zero-time generations in recent usage windows and forward each data URL as one reference argument."
+  "validated_outcome": "Local tests keep zero-time and historical RFC3339 generations in correct time windows and forward each data URL as one reference argument."
 }
