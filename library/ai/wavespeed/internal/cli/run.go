@@ -2010,7 +2010,16 @@ func waitForPrediction(ctx context.Context, c *client.Client, taskID string, tim
 	var last json.RawMessage
 	consecutiveErrors := 0
 	for {
-		data, err := c.GetNoCache(ctx, pollPath, nil)
+		// Bound each poll (including the client's internal read retries) by
+		// the wait deadline so a stalled connection cannot hold the command
+		// past --wait-timeout before the recovery command is printed.
+		pollCtx, cancel := context.WithDeadline(ctx, deadline)
+		data, err := c.GetNoCache(pollCtx, pollPath, nil)
+		pollTimedOut := pollCtx.Err() != nil && ctx.Err() == nil
+		cancel()
+		if err != nil && pollTimedOut {
+			return last, fmt.Errorf("timed out waiting for prediction %s: %w", taskID, err)
+		}
 		if err != nil {
 			// A poll is a free, idempotent read. Transient failures (network
 			// drops, 5xx, 429) must not abandon a prediction that is already

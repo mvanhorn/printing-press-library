@@ -87,12 +87,12 @@ func newComposeCmd(flags *rootFlags) *cobra.Command {
 					for _, d := range res.Downloads {
 						oc.Files = append(oc.Files, d.Path)
 					}
-					if msg := downloadFailureMessage(res); msg != "" {
-						// The prediction completed and was billed. Its output URL
-						// still feeds the next step, so a failed local download is
-						// a warning, not a reason to stop the pipeline.
-						oc.Warning = msg
-						env.Warnings = append(env.Warnings, fmt.Sprintf("step %d (%s->%s): %s", i, st.From, st.To, msg))
+					// The prediction completed and was billed. Its output URL
+					// still feeds the next step, so a failed local download is
+					// a warning, not a reason to stop the pipeline.
+					noteDownloadFailure(&oc, res)
+					if oc.DownloadFailed {
+						env.Warnings = append(env.Warnings, fmt.Sprintf("step %d (%s->%s): %s", i, st.From, st.To, oc.Warning))
 						downloadIncomplete = true
 					}
 					if urls := collectURLStrings(unwrapWaveSpeedData(res.Result)); len(urls) > 0 {

@@ -52,6 +52,24 @@ type shotOutcome struct {
 	Skipped     bool     `json:"skipped,omitempty"`
 	Warning     string   `json:"warning,omitempty"`
 	Err         string   `json:"error,omitempty"`
+	// DownloadFailed marks a prediction that completed (and was billed) but
+	// whose output could not be saved locally. It is not a failed generation:
+	// the output URL is in Warning and the result is still recorded.
+	DownloadFailed bool `json:"download_failed,omitempty"`
+}
+
+// noteDownloadFailure records a post-completion download failure as a
+// warning on the outcome, keeping it distinct from a failed prediction.
+func noteDownloadFailure(oc *shotOutcome, res submitResult) {
+	msg := downloadFailureMessage(res)
+	if msg == "" {
+		return
+	}
+	oc.DownloadFailed = true
+	if oc.Warning != "" {
+		oc.Warning += "; "
+	}
+	oc.Warning += msg
 }
 
 // platformManifest is the contract a downstream social-posting tool consumes.
@@ -303,7 +321,7 @@ func packExecute(cmd *cobra.Command, c *client.Client, project wavespeedProjectC
 			if oc.Err != "" && pf.onFailure == "abort" {
 				aborted = true
 				failure = true
-			} else if oc.Err != "" {
+			} else if oc.Err != "" || oc.DownloadFailed {
 				failure = true
 			}
 			outcomes[i] = oc
@@ -400,14 +418,12 @@ func produceShot(ctx context.Context, c *client.Client, pf packFlags, slug strin
 	for _, d := range res.Downloads {
 		oc.Files = append(oc.Files, d.Path)
 	}
-	if msg := downloadFailureMessage(res); msg != "" {
-		oc.Err = msg
-	}
 	// Inspection-light image-dimension validation.
 	if dims, warn := validateImageDims(oc.Files, s); dims != "" {
 		oc.Dimensions = dims
 		oc.Warning = warn
 	}
+	noteDownloadFailure(&oc, res)
 	return oc
 }
 

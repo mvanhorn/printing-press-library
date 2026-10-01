@@ -223,9 +223,7 @@ func batchExecute(cmd *cobra.Command, c *client.Client, project wavespeedProject
 				for _, d := range res.Downloads {
 					oc.Files = append(oc.Files, d.Path)
 				}
-				if msg := downloadFailureMessage(res); msg != "" {
-					oc.Err = msg
-				}
+				noteDownloadFailure(&oc, res)
 				if res.Failed {
 					oc.Err = fmt.Sprintf("prediction failed with status %q", res.Status)
 				}
@@ -268,11 +266,18 @@ func batchExecute(cmd *cobra.Command, c *client.Client, project wavespeedProject
 	for i := range results {
 		env.Results = append(env.Results, results[i])
 	}
+	downloadIncomplete := false
+	for i := range results {
+		if results[i].DownloadFailed {
+			downloadIncomplete = true
+			env.Warnings = append(env.Warnings, results[i].Warning)
+		}
+	}
 	costCeilingHit := bf.maxCost > 0 && spent >= bf.maxCost
-	if failure || costCeilingHit {
+	if failure || costCeilingHit || downloadIncomplete {
 		env.PartialFailure = true
 		_ = emitEnvelope(cmd.OutOrStdout(), env)
-		return partialFailureErr(fmt.Errorf("batch incomplete (failure=%v, cost-ceiling=%v, spent=%.2f)", failure, costCeilingHit, spent))
+		return partialFailureErr(fmt.Errorf("batch incomplete (failure=%v, cost-ceiling=%v, download-failed=%v, spent=%.2f)", failure, costCeilingHit, downloadIncomplete, spent))
 	}
 	env.RecommendedAction = "wavespeed-pp-cli library list --since 1d"
 	return emitEnvelope(cmd.OutOrStdout(), env)

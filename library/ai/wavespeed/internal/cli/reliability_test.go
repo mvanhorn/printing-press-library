@@ -369,6 +369,36 @@ func TestRestyleDownloadFailureIsPartialFailure(t *testing.T) {
 	}
 }
 
+// A stalled poll must not hold the command past the wait deadline.
+func TestWaitForPredictionRespectsDeadlineDuringStalledPoll(t *testing.T) {
+	release := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case <-release:
+		case <-r.Context().Done():
+		}
+	}))
+	defer server.Close()
+	defer close(release)
+	c := newTestClient(server.URL)
+	start := time.Now()
+	_, err := waitForPrediction(context.Background(), c, "stall-1", 300*time.Millisecond, 10*time.Millisecond)
+	if err == nil || !strings.Contains(err.Error(), "stall-1") {
+		t.Fatalf("want timeout naming the prediction, got %v", err)
+	}
+	if elapsed := time.Since(start); elapsed > 3*time.Second {
+		t.Fatalf("poll outlasted the wait deadline: %s", elapsed)
+	}
+}
+
+func TestNoteDownloadFailureIsWarningNotError(t *testing.T) {
+	oc := shotOutcome{Warning: "dims mismatch"}
+	noteDownloadFailure(&oc, submitResult{PredictionID: "p9", DownloadErr: errors.New("401"), Result: json.RawMessage(`{"data":{"outputs":["https://cdn.example/o.png"]}}`)})
+	if oc.Err != "" || !oc.DownloadFailed || !strings.Contains(oc.Warning, "dims mismatch; ") || !strings.Contains(oc.Warning, "p9") {
+		t.Fatalf("unexpected outcome: %+v", oc)
+	}
+}
+
 func TestDoctorVerifiesCredentialsWithBalance(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -378,6 +408,7 @@ func TestDoctorVerifiesCredentialsWithBalance(t *testing.T) {
 	}{
 		{"ok", 200, `{"code":200,"data":{"balance":12.3456}}`, "verified (balance $12.3456)"},
 		{"bad key", 401, `{"message":"unauthorized"}`, "invalid (HTTP 401"},
+		{"unrecognized 200", 200, `<html>sign in</html>`, "present, not verified"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

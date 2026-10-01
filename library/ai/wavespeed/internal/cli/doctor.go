@@ -593,5 +593,7 @@ func verifyCredentialsWithBalance(data json.RawMessage, err error) (string, bool
 			return fmt.Sprintf("verified (balance $%.4f)", *bal), true
 		}
 	}
-	return "verified (authenticated /balance returned 200)", true
+	// A 200 without a recognizable balance (proxy page, captive portal)
+	// does not prove the API accepted the key.
+	return "", false
 }

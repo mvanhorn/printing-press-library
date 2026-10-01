@@ -102,14 +102,16 @@ func newAspectsCmd(flags *rootFlags) *cobra.Command {
 					for _, d := range res.Downloads {
 						oc.Files = append(oc.Files, d.Path)
 					}
-					if msg := downloadFailureMessage(res); msg != "" {
-						oc.Err = msg
-					}
+					noteDownloadFailure(&oc, res)
 					if res.Failed {
 						oc.Err = fmt.Sprintf("prediction failed with status %q", res.Status)
 					}
 				}
 				env.CostSpent += oc.Cost
+				if oc.DownloadFailed {
+					env.Warnings = append(env.Warnings, oc.Warning)
+					env.PartialFailure = true
+				}
 				env.Results = append(env.Results, map[string]any{"target": i, "aspect_ratio": aspect, "mode": outpaintMode(useOutpaint), "outcome": oc})
 				if recordEnabled && oc.Err == "" {
 					g := store.Generation{ID: newGenerationID(), Command: "aspects", ModelID: model, Prompt: anchor, BrandName: brandName, AspectRatio: aspect, Cost: oc.Cost, ContentHash: oc.ContentHash, Status: "completed"}
