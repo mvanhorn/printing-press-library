@@ -17,7 +17,8 @@
     "internal/cli/which.go",
     "README.md",
     "SKILL.md",
+    "NOTICE",
     "internal/mcp/tools.go"
   ],
-  "validated_outcome": "Unit tests cover equivalent and mismatched benchmarks, exact quote preference, canonical quote to constituent slug mapping, labeled constituent failures, and expense-ratio ordering with undisclosed costs last."
+  "validated_outcome": "Synthetic provider command tests cover matched, missing, and mismatched benchmarks, constituent failures in user-facing JSON, exact quote preference and constituent slug mapping; unit tests cover expense-ratio ordering with undisclosed costs last."
 }

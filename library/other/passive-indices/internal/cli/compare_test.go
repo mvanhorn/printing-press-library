@@ -6,7 +6,11 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -34,8 +38,112 @@ func TestNovelCompareHelpWires(t *testing.T) {
 	}
 }
 
+type compareTransport func(*http.Request) (*http.Response, error)
+
+func (f compareTransport) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
+
+func TestCompareCommandReportsBenchmarkAndConstituentStatus(t *testing.T) {
+	for _, tc := range []struct {
+		name, benchmark, wantValidation string
+		constituentStatus               int
+		wantFailure                     bool
+	}{
+		{"matching TRI index with failed constituents", "Nifty 50 TRI Index", "matched", http.StatusServiceUnavailable, true},
+		{"unreported benchmark with constituents", "", "not_reported", http.StatusOK, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			benchmarkJSON, err := json.Marshal(tc.benchmark)
+			if err != nil {
+				t.Fatal(err)
+			}
+			originalTransport := http.DefaultTransport
+			http.DefaultTransport = compareTransport(func(req *http.Request) (*http.Response, error) {
+				status := http.StatusOK
+				body := ""
+				contentType := "application/json"
+				switch req.URL.Host + req.URL.Path {
+				case "www.indiapassivefunds.com/pages/api/login":
+					body = `{"status":true,"response":{"token":"synthetic-token"}}`
+				case "data.indiapassivefunds.com/api/v1/etf/funddetail":
+					body = fmt.Sprintf(`{"status":true,"response":{"funddescription":{"columns":[{"field":"f_05","displayName":"Benchmark Index"}],"data":[{"f_05":%s}]}}}`, benchmarkJSON)
+				case "www.nseindia.com/api/allIndices":
+					body = `{"timestamp":"2026-10-01","data":[{"index":"NIFTY 50","last":100}]}`
+				case "www.niftyindices.com/IndexConstituent/ind_nifty50list.csv":
+					status = tc.constituentStatus
+					if status == http.StatusOK {
+						contentType = "text/csv"
+						body = "Company,Industry,Symbol,Series,ISIN\nExample,Finance,EX,NSE,INE000000000\n"
+					} else {
+						body = "provider unavailable"
+					}
+				default:
+					return nil, fmt.Errorf("unexpected synthetic request to %s", req.URL)
+				}
+				return &http.Response{StatusCode: status, Header: http.Header{"Content-Type": {contentType}}, Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+			})
+			t.Cleanup(func() { http.DefaultTransport = originalTransport })
+
+			cmd := RootCmd()
+			cmd.SetArgs([]string{"--home", t.TempDir(), "--no-learn", "--json", "compare", "1150", "nifty50tri"})
+			var out bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetErr(io.Discard)
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("compare: %v", err)
+			}
+			var result struct {
+				BenchmarkValidation string              `json:"benchmark_validation"`
+				IndexQuote          json.RawMessage     `json:"index_quote"`
+				Constituents        []json.RawMessage   `json:"index_constituents_sample"`
+				FetchFailures       []map[string]string `json:"fetch_failures"`
+			}
+			if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+				t.Fatalf("decode compare output: %v\n%s", err, out.String())
+			}
+			if result.BenchmarkValidation != tc.wantValidation || len(result.IndexQuote) == 0 {
+				t.Fatalf("comparison validation=%q index quote=%s, want %q and quote", result.BenchmarkValidation, result.IndexQuote, tc.wantValidation)
+			}
+			if tc.wantFailure {
+				if len(result.FetchFailures) != 1 || result.FetchFailures[0]["source"] != "index_constituents" {
+					t.Fatalf("fetch failures = %#v, want index_constituents", result.FetchFailures)
+				}
+			} else if len(result.FetchFailures) != 0 || len(result.Constituents) != 1 {
+				t.Fatalf("fetch failures = %#v, constituents = %#v, want one constituent and no failure", result.FetchFailures, result.Constituents)
+			}
+		})
+	}
+}
+
+func TestCompareCommandRejectsMismatchedBenchmarkBeforeIndexFetch(t *testing.T) {
+	originalTransport := http.DefaultTransport
+	indexFetched := false
+	http.DefaultTransport = compareTransport(func(req *http.Request) (*http.Response, error) {
+		body := ""
+		switch req.URL.Host + req.URL.Path {
+		case "www.indiapassivefunds.com/pages/api/login":
+			body = `{"status":true,"response":{"token":"synthetic-token"}}`
+		case "data.indiapassivefunds.com/api/v1/etf/funddetail":
+			body = `{"status":true,"response":{"funddescription":{"columns":[{"field":"f_05","displayName":"Benchmark Index"}],"data":[{"f_05":"NIFTY BANK"}]}}}`
+		default:
+			indexFetched = true
+			return nil, fmt.Errorf("unexpected index request to %s", req.URL)
+		}
+		return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+	})
+	t.Cleanup(func() { http.DefaultTransport = originalTransport })
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"--home", t.TempDir(), "--no-learn", "--json", "compare", "1150", "NIFTY 50"})
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	err := cmd.Execute()
+	if err == nil || ExitCode(err) != 2 || !strings.Contains(err.Error(), "does not match") || indexFetched {
+		t.Fatalf("mismatched compare error=%v exit=%d index fetched=%t, want usage rejection before index fetch", err, ExitCode(err), indexFetched)
+	}
+}
+
 func TestCompareNormalizesAndValidatesBenchmarkIdentity(t *testing.T) {
-	for _, benchmark := range []string{"Nifty 50 TRI", "Nifty50TRI", "Nifty-50 (TRI)", "Nifty 50 Total Return Index", "Nifty 50 Index"} {
+	for _, benchmark := range []string{"Nifty 50 TRI", "Nifty50TRI", "Nifty-50 (TRI)", "Nifty 50 Total Return Index", "Nifty 50 TRI Index", "Nifty 50 Index"} {
 		if err := validateBenchmarkIdentity("1150", benchmark, "nifty 50"); err != nil {
 			t.Fatalf("equivalent benchmark %q rejected: %v", benchmark, err)
 		}

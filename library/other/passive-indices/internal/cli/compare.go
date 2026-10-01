@@ -100,10 +100,15 @@ func canonicalIndexIdentity(name string) string {
 	name = strings.NewReplacer("-", " ", "_", " ", "(", " ", ")", " ").Replace(name)
 	name = indexIdentityBoundaryRE.ReplaceAllString(name, "$1$3 $2$4")
 	name = strings.Join(strings.Fields(name), " ")
-	name = strings.TrimSuffix(name, " total return index")
-	name = strings.TrimSuffix(name, " total return")
-	name = strings.TrimSuffix(name, " tri")
-	name = strings.TrimSuffix(name, " index")
+	for {
+		before := name
+		for _, suffix := range []string{" total return index", " total return", " tri", " index"} {
+			name = strings.TrimSuffix(name, suffix)
+		}
+		if name == before {
+			break
+		}
+	}
 	return strings.TrimSpace(name)
 }
 

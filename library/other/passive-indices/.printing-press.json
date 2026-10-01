@@ -9,6 +9,9 @@
     "handle": "lavs9",
     "name": "Mayank Lavania"
   },
+  "contributors": [
+    {"handle": "cathrynlavery", "name": "Cathryn Lavery"}
+  ],
   "owner": "lavs9",
   "printer": "lavs9",
   "printer_name": "Mayank Lavania",
