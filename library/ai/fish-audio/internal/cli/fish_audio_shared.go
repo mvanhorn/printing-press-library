@@ -172,7 +172,7 @@ func writeAudioFileWith(path string, audio []byte, write func(*os.File, []byte) 
 		if !info.Mode().IsRegular() {
 			return "", fmt.Errorf("output %s is not a regular file", path)
 		}
-		outputMode = info.Mode() & (os.ModePerm | os.ModeSetuid | os.ModeSetgid | os.ModeSticky)
+		outputMode = info.Mode().Perm()
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return "", fmt.Errorf("checking output %s: %w", path, err)
 	}
