@@ -246,6 +246,39 @@ func TestLegacyJSONConfigMigratesToTOML(t *testing.T) {
 	}
 }
 
+func TestRelocatedJSONConfigMigratesToTOML(t *testing.T) {
+	resetCredentialEnv(t)
+	root := t.TempDir()
+	t.Setenv("FORKABLE_HOME", root)
+	configPath := filepath.Join(root, "config", "config.toml")
+	legacyJSONPath := filepath.Join(root, "config", "config.json")
+	if err := os.MkdirAll(filepath.Dir(legacyJSONPath), 0o700); err != nil {
+		t.Fatalf("mkdir relocated config: %v", err)
+	}
+	if err := os.WriteFile(legacyJSONPath, []byte(`{"base_url":"https://relocated.example","access_token":"legacy-secret"}`), 0o600); err != nil {
+		t.Fatalf("write relocated JSON config: %v", err)
+	}
+
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.Path != configPath || cfg.BaseURL != "https://relocated.example" {
+		t.Fatalf("relocated settings were not loaded: path=%q base_url=%q", cfg.Path, cfg.BaseURL)
+	}
+	assertConfigCredential(t, cfg, "legacy-secret")
+	writeConfigCredential(t, cfg, "new-secret")
+
+	activeData, err := os.ReadFile(configPath)
+	if err != nil || !strings.Contains(string(activeData), "https://relocated.example") {
+		t.Fatalf("relocated TOML settings were not saved: %v", err)
+	}
+	legacyData, err := os.ReadFile(legacyJSONPath)
+	if err != nil || strings.Contains(string(legacyData), "legacy-secret") {
+		t.Fatalf("relocated JSON credentials were not scrubbed: %v", err)
+	}
+}
+
 func TestClearTokensFromBothStateClearsCredentialsAndLegacy(t *testing.T) {
 	_, configPath := resetCredentialEnv(t)
 	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {

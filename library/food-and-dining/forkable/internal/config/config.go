@@ -66,10 +66,12 @@ func Load(configPath string) (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(path, legacyPath)
+		// A pre-TOML config.json follows the active config directory when
+		// FORKABLE_HOME, --home, or a per-kind override relocates it.
+		activeJSONPath := filepath.Join(filepath.Dir(path), "config.json")
+		data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(path, activeJSONPath)
 		if err != nil && os.IsNotExist(err) {
-			data, err = os.ReadFile(filepath.Clean(legacyJSONPath)) // #nosec G304 -- app-owned pre-TOML compatibility path.
-			sourcePath = legacyJSONPath
+			data, sourcePath, err = cliutil.ReadFileWithLegacyFallback(legacyPath, legacyJSONPath)
 		}
 		if err != nil {
 			if !os.IsNotExist(err) {
