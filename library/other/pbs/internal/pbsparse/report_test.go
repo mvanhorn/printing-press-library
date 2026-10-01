@@ -3,7 +3,11 @@
 package pbsparse
 
 import (
+	"archive/zip"
+	"bytes"
+	"io"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -175,5 +179,71 @@ func TestReportPrevWeekIsDistinct(t *testing.T) {
 func TestParseReportRejectsGarbage(t *testing.T) {
 	if _, err := ParseReportXLSX([]byte("not a zip"), "2026-09-03"); err == nil {
 		t.Fatal("expected an error for a non-xlsx payload")
+	}
+}
+
+func TestReportRejectsInvalidInvariants(t *testing.T) {
+	tests := []struct {
+		name    string
+		corrupt func(*Report)
+	}{
+		{"missing totals", func(r *Report) { r.Totals = nil }},
+		{"missing section", func(r *Report) { r.Totals = r.Totals[:2] }},
+		{"duplicate section", func(r *Report) { r.Totals[1].Section = r.Totals[0].Section }},
+		{"missing weight", func(r *Report) { r.Totals[0].WeightLowest = Value{State: StateBlank} }},
+		{"invalid weight sum", func(r *Report) { r.Totals[0].WeightCombined.Num += 1 }},
+		{"invalid declared count", func(r *Report) { r.Totals[0].DeclaredCount++ }},
+		{"missing item", func(r *Report) { r.Items = r.Items[1:] }},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			r := loadReport(t)
+			tc.corrupt(r)
+			if err := r.validate(); err == nil {
+				t.Fatal("accepted inconsistent report")
+			}
+		})
+	}
+}
+
+func TestParseReportRejectsWorkbookWithMissingTotals(t *testing.T) {
+	original := readFixture(t, "3.-SPI-Report-03.09.2026.xlsx")
+	source, err := zip.NewReader(bytes.NewReader(original), int64(len(original)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var corrupted bytes.Buffer
+	writer := zip.NewWriter(&corrupted)
+	changed := false
+	for _, file := range source.File {
+		reader, err := file.Open()
+		if err != nil {
+			t.Fatal(err)
+		}
+		content, err := io.ReadAll(reader)
+		reader.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.HasSuffix(file.Name, ".xml") && bytes.Contains(content, []byte("TOTAL")) {
+			content = bytes.ReplaceAll(content, []byte("TOTAL"), []byte("UNRECOGNIZED TOTAL"))
+			changed = true
+		}
+		entry, err := writer.Create(file.Name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := entry.Write(content); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if !changed {
+		t.Fatal("fixture has no TOTAL marker to corrupt")
+	}
+	if _, err := ParseReportXLSX(corrupted.Bytes(), "2026-09-03"); err == nil {
+		t.Fatal("parser accepted a workbook with no recognized section totals")
 	}
 }

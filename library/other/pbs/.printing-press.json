@@ -12,6 +12,12 @@
   "owner": "qazmataz",
   "printer": "qazmataz",
   "printer_name": "qazmataz",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "spec.yaml",
   "spec_format": "internal",
   "spec_source": "sniffed",

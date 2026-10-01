@@ -7,6 +7,9 @@ Pakistan Bureau of Statistics publishes the richest sub-national price data in t
 Learn more at [Pakistan Bureau of Statistics](https://www.pbs.gov.pk).
 
 Created by [@qazmataz](https://github.com/qazmataz) (qazmataz).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+The report importer rejects incomplete section counts and weight totals instead of saving partial statistics.
 
 ## Install
 

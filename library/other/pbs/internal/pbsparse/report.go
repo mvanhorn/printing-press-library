@@ -4,6 +4,7 @@ package pbsparse
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"sort"
 	"strconv"
@@ -256,6 +257,9 @@ func ParseReportXLSX(data []byte, asOf string) (*Report, error) {
 	if len(rep.Quintiles) == 0 && len(rep.Items) == 0 {
 		return nil, fmt.Errorf("report for %s parsed to zero quintile rows and zero item rows: the workbook layout changed", asOf)
 	}
+	if err := rep.validate(); err != nil {
+		return nil, fmt.Errorf("report for %s: %w", asOf, err)
+	}
 	sort.SliceStable(rep.Quintiles, func(i, j int) bool { return rep.Quintiles[i].Quintile < rep.Quintiles[j].Quintile })
 	rep.Census = Census(vals)
 	return rep, nil
@@ -311,4 +315,36 @@ func (r *Report) SectionCountsAgree() (ok bool, detail []string) {
 		}
 	}
 	return ok, detail
+}
+
+// validate enforces the source's published invariants before data can be saved.
+func (r *Report) validate() error {
+	seen := map[MovementSection]bool{}
+	for _, total := range r.Totals {
+		switch total.Section {
+		case SectionIncreased, SectionDecreased, SectionUnchanged:
+		default:
+			return fmt.Errorf("unknown section %q", total.Section)
+		}
+		if seen[total.Section] {
+			return fmt.Errorf("duplicate total for section %s", total.Section)
+		}
+		seen[total.Section] = true
+		for _, weight := range []Value{total.WeightLowest, total.WeightCombined} {
+			if (!weight.Present() && weight.State != StateZero) || math.IsNaN(weight.Num) || math.IsInf(weight.Num, 0) || weight.Num < 0 {
+				return fmt.Errorf("section %s has invalid weight total", total.Section)
+			}
+		}
+	}
+	if len(seen) != 3 {
+		return fmt.Errorf("expected all three section totals, parsed %d", len(seen))
+	}
+	if ok, detail := r.SectionCountsAgree(); !ok {
+		return fmt.Errorf("section counts disagree: %s", strings.Join(detail, "; "))
+	}
+	lowest, combined, _ := r.WeightTotals()
+	if math.Abs(lowest-100) > 0.01 || math.Abs(combined-100) > 0.01 {
+		return fmt.Errorf("section weight totals must sum to 100: lowest=%.4f combined=%.4f", lowest, combined)
+	}
+	return nil
 }
