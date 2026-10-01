@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -118,17 +117,39 @@ func archiveDBPathForWrite(ctx context.Context) string {
 }
 
 // legacyArchivePending reports whether an archive.db from an earlier release
-// exists and no writer has merged it yet, so read-only commands can say so.
-func legacyArchivePending() bool {
+// holds resources that data.db lacks, so read-only commands can say a writer
+// run is needed. It compares rows read-only rather than trusting a marker, so
+// a commit an older binary makes after a merge is still reported.
+func legacyArchivePending(ctx context.Context) bool {
 	if strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")) != "" {
 		return false
 	}
-	legacy := filepath.Join(filepath.Dir(archiveDBPath()), "archive.db")
+	current := archiveDBPath()
+	legacy := filepath.Join(filepath.Dir(current), "archive.db")
 	if info, err := os.Stat(legacy); err != nil || !info.Mode().IsRegular() {
 		return false
 	}
-	_, err := os.Stat(legacy + ".merged")
-	return err != nil
+	if _, err := os.Stat(current); err != nil {
+		return true
+	}
+	s, err := store.OpenReadOnlyContext(ctx, current)
+	if err != nil {
+		return false
+	}
+	defer s.Close()
+	conn, err := s.DB().Conn(ctx)
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+	if _, err := conn.ExecContext(ctx, `ATTACH DATABASE ? AS legacy`, legacyArchiveURI(legacy)); err != nil {
+		return false
+	}
+	defer func() { _, _ = conn.ExecContext(context.Background(), `DETACH DATABASE legacy`) }()
+	var missing bool
+	err = conn.QueryRowContext(ctx, `SELECT EXISTS (SELECT 1 FROM legacy.resources l
+		WHERE NOT EXISTS (SELECT 1 FROM main.resources m WHERE m.resource_type = l.resource_type AND m.id = l.id))`).Scan(&missing)
+	return err == nil && missing
 }
 
 // migrateLegacyArchiveDB copies rows of a legacy archive.db into data.db with
@@ -137,8 +158,9 @@ func legacyArchivePending() bool {
 // are included, and existing data.db rows win. archive.db and its sidecars
 // are never moved or deleted, and every writer run merges again (repeats are
 // no-ops), so a later commit by an older process still using archive.db is
-// picked up without relying on file timestamps. archive.db.merged only tells
-// read-only commands that a merge has happened.
+// picked up without relying on file timestamps. The repeat is one indexed
+// NOT EXISTS pass per table over the legacy models catalog, cheap next to the
+// network sync that follows it.
 func migrateLegacyArchiveDB(ctx context.Context, current string) error {
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
 	if info, err := os.Stat(legacy); err != nil || !info.Mode().IsRegular() {
@@ -159,7 +181,7 @@ func migrateLegacyArchiveDB(ctx context.Context, current string) error {
 			return fmt.Errorf("merge resource %s/%s: %w", r.resourceType, r.id, err)
 		}
 	}
-	return os.WriteFile(legacy+".merged", []byte(time.Now().UTC().Format(time.RFC3339)+"\n"), 0o600)
+	return nil
 }
 
 // legacyArchiveURI builds a read-only SQLite URI for path. url.URL escapes

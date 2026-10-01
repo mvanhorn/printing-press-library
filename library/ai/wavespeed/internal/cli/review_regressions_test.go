@@ -125,7 +125,7 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	if got := archiveDBPath(); got != current {
 		t.Fatalf("got %q, want %q", got, current)
 	}
-	if after, _ := os.Stat(current); !after.ModTime().Equal(before.ModTime()) || !legacyArchivePending() {
+	if after, _ := os.Stat(current); !after.ModTime().Equal(before.ModTime()) || !legacyArchivePending(context.Background()) {
 		t.Fatalf("read-only resolver must not merge or write")
 	}
 
@@ -163,7 +163,7 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	if _, err := os.Stat(legacy); err != nil {
 		t.Fatalf("archive.db must be left in place: %v", err)
 	}
-	if legacyArchivePending() {
+	if legacyArchivePending(context.Background()) {
 		t.Fatalf("merge not recorded")
 	}
 
@@ -172,7 +172,13 @@ func TestArchiveDBPathMergesLegacyArchive(t *testing.T) {
 	if err := old.Upsert("models", "late", json.RawMessage(`{"id":"late"}`)); err != nil {
 		t.Fatal(err)
 	}
+	if !legacyArchivePending(context.Background()) {
+		t.Fatalf("a legacy commit after the merge must be reported as pending")
+	}
 	archiveDBPathForWrite(context.Background())
+	if legacyArchivePending(context.Background()) {
+		t.Fatalf("still pending after the second merge")
+	}
 	n, merged = countModels()
 	merged.Close()
 	if n != 3 {

@@ -11,9 +11,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/store"
-	"github.com/spf13/cobra"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -194,7 +194,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 				dbPath = archiveDBPath()
 			}
 
-			if defaultStore && legacyArchivePending() {
+			if defaultStore && legacyArchivePending(cmd.Context()) {
 				fmt.Fprintln(cmd.ErrOrStderr(), "note: archive.db from an earlier release is not merged yet; run 'workflow archive' to merge it")
 			}
 			status := map[string]int{}
