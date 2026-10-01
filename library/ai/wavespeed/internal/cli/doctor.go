@@ -269,7 +269,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						report["credentials"] = "skipped (API unreachable)"
 					} else if flags.dryRun {
 						report["credentials"] = "present, not verified (--dry-run skips the balance probe)"
-					} else if verdict, ok := verifyCredentialsWithBalance(cmd.Context(), c); ok {
+					} else if verdict, ok := verifyCredentialsWithBalance(reachBody, reachErr); ok {
 						report["credentials"] = verdict
 					} else {
 						suggestion := suggestReadCommand(cmd.Root())
@@ -570,8 +570,7 @@ func renderCacheReport(w io.Writer, rep map[string]any) {
 // cheapest authenticated read WaveSpeed offers. It returns ok=false when the
 // probe was inconclusive (network or 5xx) so the caller falls back to the
 // generic "not verified" hint instead of claiming a bad key.
-func verifyCredentialsWithBalance(ctx context.Context, c *client.Client) (string, bool) {
-	data, err := c.GetNoCache(ctx, "/balance", nil)
+func verifyCredentialsWithBalance(data json.RawMessage, err error) (string, bool) {
 	if err != nil {
 		var apiErr *client.APIError
 		if errors.As(err, &apiErr) && (apiErr.StatusCode == http.StatusUnauthorized || apiErr.StatusCode == http.StatusForbidden) {

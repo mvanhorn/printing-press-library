@@ -317,6 +317,58 @@ func TestSubmitAndAwaitDownloadFailureIsNotFatal(t *testing.T) {
 	}
 }
 
+// A completed but undownloadable step must not stop compose: its output URL
+// still feeds the next step, and the run reports partial failure at the end.
+func TestComposeContinuesPastDownloadFailure(t *testing.T) {
+	cdn := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "denied", http.StatusUnauthorized)
+	}))
+	defer cdn.Close()
+	var submits atomic.Int32
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.Method == http.MethodPost && !strings.Contains(r.URL.Path, "pric") {
+			submits.Add(1)
+			_, _ = w.Write([]byte(`{"data":{"id":"c1","status":"created"}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"data":{"id":"c1","status":"completed","outputs":["` + cdn.URL + `/out.png"]}}`))
+	}))
+	defer api.Close()
+	stdout, stderr, err := executeRootForTest(t, []string{"compose", "--prompt", "p", "--steps", "text->image,image->video", "--models", "m/a,m/b", "--no-record", "--out-dir", t.TempDir(), "--json"}, api.URL)
+	if submits.Load() != 2 {
+		t.Fatalf("compose submitted %d steps, want 2 (stdout=%s stderr=%s)", submits.Load(), stdout, stderr)
+	}
+	if err == nil || !strings.Contains(stdout, `"partial_failure": true`) || !strings.Contains(stdout, cdn.URL+"/out.png") {
+		t.Fatalf("want partial failure with output URL, err=%v stdout=%s", err, stdout)
+	}
+}
+
+// A restyle whose output cannot be downloaded is reported as a partial
+// failure that keeps the prediction ID and output URL.
+func TestRestyleDownloadFailureIsPartialFailure(t *testing.T) {
+	cdn := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "denied", http.StatusUnauthorized)
+	}))
+	defer cdn.Close()
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.Method == http.MethodPost && !strings.Contains(r.URL.Path, "pric") {
+			_, _ = w.Write([]byte(`{"data":{"id":"r1","status":"created"}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"data":{"id":"r1","status":"completed","outputs":["` + cdn.URL + `/out.png"]}}`))
+	}))
+	defer api.Close()
+	stdout, _, err := executeRootForTest(t, []string{"restyle", "https://example.com/in.png", "--model", "m/x", "--style", "noir", "--no-record", "--out-dir", t.TempDir(), "--json"}, api.URL)
+	if err == nil {
+		t.Fatalf("restyle without a local file must not report success: %s", stdout)
+	}
+	if !strings.Contains(stdout, `"partial_failure": true`) || !strings.Contains(stdout, "r1") || !strings.Contains(stdout, cdn.URL+"/out.png") {
+		t.Fatalf("want partial failure naming prediction and URL: %s", stdout)
+	}
+}
+
 func TestDoctorVerifiesCredentialsWithBalance(t *testing.T) {
 	for _, tc := range []struct {
 		name   string

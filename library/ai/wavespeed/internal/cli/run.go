@@ -661,17 +661,21 @@ func uploadMediaBinary(ctx context.Context, c *client.Client, filePath string, s
 		return raw, nil
 	}
 
-	payload, err := os.ReadFile(filePath)
+	// Stream the file into the replayable multipart body so only one copy of
+	// the payload is held in memory across retries.
+	src, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("reading upload file: %w", err)
 	}
+	defer src.Close()
 	var body bytes.Buffer
+	body.Grow(int(info.Size()) + 1024)
 	writer := multipart.NewWriter(&body)
 	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
 	if err != nil {
 		return nil, fmt.Errorf("creating multipart upload: %w", err)
 	}
-	if _, err := part.Write(payload); err != nil {
+	if _, err := io.Copy(part, src); err != nil {
 		return nil, fmt.Errorf("reading upload file: %w", err)
 	}
 	if err := writer.Close(); err != nil {
