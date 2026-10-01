@@ -120,6 +120,9 @@ This is the store populator; run it before 'stats' or 'skills'.`, "\n"),
 					break
 				}
 			}
+			if totalHits > synced {
+				curtailed = true
+			}
 
 			// Note: the new-since cursor is owned by `new`, not `sync`.
 			// `sync --saved` only reuses the saved query/filters to mirror

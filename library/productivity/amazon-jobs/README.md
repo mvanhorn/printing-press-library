@@ -138,6 +138,9 @@ amazon-jobs-pp-cli save sde-seattle "software engineer" --city Seattle --country
 # Mirror listings into the local store.
 amazon-jobs-pp-cli sync engineer --max-pages 5
 
+# JSON output sets curtailed=true if the page cap leaves more jobs upstream.
+amazon-jobs-pp-cli sync engineer --max-pages 5 --json
+
 
 # Aggregate the synced store by city — counts Amazon's site never shows.
 amazon-jobs-pp-cli stats --by city

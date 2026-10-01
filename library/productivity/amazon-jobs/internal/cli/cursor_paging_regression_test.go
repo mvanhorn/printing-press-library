@@ -1,8 +1,9 @@
 // Copyright 2026 qazmataz and contributors. Licensed under Apache-2.0. See LICENSE.
-// Regression coverage for three review findings that share one theme: a command
+// Regression coverage for four review findings that share one theme: a command
 // reporting or persisting progress it did not actually make.
 //   - find: --page applied to the raw API offset skipped client-side matches.
 //   - sync: success output claimed it advanced a cursor it deliberately leaves alone.
+//   - sync: a page-capped partial mirror omitted its curtailed JSON signal.
 //   - new:  a discarded mirror-write error let the saved-search cursor advance.
 
 package cli
@@ -148,6 +149,25 @@ func TestSyncSavedDoesNotClaimItAdvancedTheCursor(t *testing.T) {
 	}
 	if !strings.Contains(out, "unchanged") {
 		t.Fatalf("sync should state the cursor is unchanged:\n%s", out)
+	}
+}
+
+func TestSyncReportsACappedPartialMirror(t *testing.T) {
+	srv := jobCorpusServer(t, 101, nil)
+	t.Setenv("AMAZON_JOBS_BASE_URL", srv.URL)
+	home := t.TempDir()
+	dbPath := filepath.Join(home, "store.db")
+
+	out, err := runCLI(t, home, "sync", "engineer", "--max-pages", "1", "--db", dbPath, "--json")
+	if err != nil {
+		t.Fatalf("capped sync error = %v\n%s", err, out)
+	}
+	var got syncView
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("decoding sync output: %v\n%s", err, out)
+	}
+	if got.Synced != 100 || got.TotalHits != 101 || !got.Curtailed {
+		t.Fatalf("partial mirror must report 100 of 101 jobs and curtailed=true, got %+v", got)
 	}
 }
 
