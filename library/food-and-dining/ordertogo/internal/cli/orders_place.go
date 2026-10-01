@@ -120,6 +120,7 @@ func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 	var confirmOverBudget bool
 	var tipSpec string
 	var force bool
+	var ackLastOrder int
 
 	cmd := &cobra.Command{
 		Use:   "place",
@@ -136,6 +137,9 @@ strings. Payment uses the Stripe customer + saved card configured via
 			}
 			if maxBudget <= 0 {
 				return usageErr(fmt.Errorf("--max is required (budget cap in dollars)"))
+			}
+			if ackLastOrder < 0 {
+				return usageErr(fmt.Errorf("--ack-last-order must be a positive order ID"))
 			}
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
@@ -169,10 +173,11 @@ strings. Payment uses the Stripe customer + saved card configured via
 			}
 
 			body := buildPostOrderBody(cfg, items, subtotal, tip, tax, slug, rid)
-			if verifyMode() {
+			if verifyMode() || flags.dryRun {
 				redacted := redactPostOrderBody(body)
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"status":     "would_post",
+					"dry_run":    flags.dryRun,
 					"endpoint":   "/m/api/postmicmeshorder",
 					"projected":  projected,
 					"item_count": len(items),
@@ -184,7 +189,7 @@ strings. Payment uses the Stripe customer + saved card configured via
 			if err != nil {
 				return &cliError{code: 10, err: err}
 			}
-			if err := checkPendingPlacement(fingerprint); err != nil {
+			if err := checkPendingPlacement(fingerprint, ackLastOrder); err != nil {
 				return &cliError{code: 10, err: err}
 			}
 			// Report an unknown checkout before a cooldown or token failure can
@@ -222,7 +227,7 @@ strings. Payment uses the Stripe customer + saved card configured via
 			// inspects recent orders. Provider deduplication may expire, so the
 			// CLI cannot automatically retry an unknown outcome. The lock and
 			// durable record prevent parallel or changed-cart bypasses.
-			reservation, err := reservePlacement(fingerprint)
+			reservation, err := reservePlacementAcknowledging(fingerprint, ackLastOrder)
 			if err != nil {
 				return &cliError{code: 10, err: err}
 			}
@@ -254,7 +259,7 @@ strings. Payment uses the Stripe customer + saved card configured via
 			if err != nil {
 				return &cliError{code: 5, err: fmt.Errorf("checkout POST returned 200 but response did not contain a valid order: %w. Raw body: %s", err, truncate(string(data), 500))}
 			}
-			if warn := reservation.ConfirmSuccess(); warn != "" {
+			if warn := reservation.MarkConfirmed(result.OrderID); warn != "" {
 				result.Warning = appendWarning(result.Warning, warn)
 			}
 			if result.Total > 0 && result.Total > maxBudget && !confirmOverBudget {
@@ -275,6 +280,7 @@ strings. Payment uses the Stripe customer + saved card configured via
 	cmd.Flags().Float64Var(&maxBudget, "max", 0, "Maximum allowed total in dollars (required)")
 	cmd.Flags().BoolVar(&confirmOverBudget, "confirm-over-budget", false, "Allow totals over --max")
 	cmd.Flags().BoolVar(&force, "force", false, "Override the post-order cooldown (rapid retries can trip abuse detection)")
+	cmd.Flags().IntVar(&ackLastOrder, "ack-last-order", 0, "Acknowledge the previous confirmed order ID before a new checkout")
 	cmd.Flags().StringVar(&tipSpec, "tip", "auto", "Tip as auto, pct%, or dollars")
 	return cmd
 }

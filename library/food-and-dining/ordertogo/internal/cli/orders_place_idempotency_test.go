@@ -5,6 +5,9 @@ package cli
 import (
 	"bytes"
 	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -102,18 +105,43 @@ func TestReservationFreshAfterConfirmedOrder(t *testing.T) {
 		t.Fatal(err)
 	}
 	firstID := first.RequestID
-	if warn := first.ConfirmSuccess(); warn != "" {
+	if warn := first.MarkConfirmed(123); warn != "" {
 		t.Fatalf("confirm warned: %s", warn)
 	}
 	first.Release()
 
-	second, err := reservePlacement(fp)
+	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "order 123") {
+		t.Fatalf("unacknowledged confirmed order did not block a new charge: %v", err)
+	}
+	if _, err := reservePlacementAcknowledging(fp, 999); err == nil || !strings.Contains(err.Error(), "order 123") {
+		t.Fatalf("wrong acknowledged order ID did not block checkout: %v", err)
+	}
+	second, err := reservePlacementAcknowledging(fp, 123)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer second.Release()
 	if second.RequestID == firstID {
 		t.Fatalf("post-success placement got id %q, want a fresh id", second.RequestID)
+	}
+}
+
+func TestReservationRejectsMismatchedConfirmedReceipt(t *testing.T) {
+	checkoutTestHome(t)
+	fp := testFingerprint(t, 7, 12.5)
+	first, err := reservePlacement(fp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if warn := first.MarkConfirmed(123); warn != "" {
+		t.Fatalf("confirm warned: %s", warn)
+	}
+	first.Release()
+	if err := writeFileDurable(pendingPlaceRecordPath(), pendingPlace{RequestID: "other-order", CartFingerprint: fp, At: time.Now()}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := reservePlacementAcknowledging(fp, 123); err == nil || !strings.Contains(err.Error(), "do not match") {
+		t.Fatalf("mismatched pending checkout was cleared: %v", err)
 	}
 }
 
@@ -184,15 +212,7 @@ func TestPendingCheckoutPrecedesTokenRefresh(t *testing.T) {
 	checkoutTestHome(t)
 	t.Setenv("PRINTING_PRESS_VERIFY", "")
 	t.Setenv("ORDERTOGO_CONFIG", "")
-	configPath := filepath.Join(t.TempDir(), "config.toml")
-	configText := "stripe_customer_id = \"cus_test\"\nstripe_default_card = \"card_test\"\ncustomer_firstname = \"Test\"\ncustomer_lastname = \"User\"\ncustomer_phone = \"2025550147\"\n"
-	if err := os.WriteFile(configPath, []byte(configText), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	cartPath := filepath.Join(t.TempDir(), "cart.json")
-	if err := os.WriteFile(cartPath, []byte(`{"items":[{"id":7,"price":12.5}],"subtotal":12.5}`), 0o600); err != nil {
-		t.Fatal(err)
-	}
+	configPath, cartPath := checkoutCommandFixture(t)
 
 	called := false
 	previous := refreshCheckoutToken
@@ -234,5 +254,108 @@ func TestPendingCheckoutPrecedesTokenRefresh(t *testing.T) {
 	}
 	if called {
 		t.Fatal("token refresh ran despite an unknown checkout outcome")
+	}
+}
+
+func checkoutCommandFixture(t *testing.T) (string, string) {
+	t.Helper()
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	configText := "stripe_customer_id = \"cus_test\"\nstripe_default_card = \"card_test\"\ncustomer_firstname = \"Test\"\ncustomer_lastname = \"User\"\ncustomer_phone = \"2025550147\"\n"
+	if err := os.WriteFile(configPath, []byte(configText), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cartPath := filepath.Join(t.TempDir(), "cart.json")
+	if err := os.WriteFile(cartPath, []byte(`{"items":[{"id":7,"price":12.5}],"subtotal":12.5}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return configPath, cartPath
+}
+
+func TestOrdersPlaceDryRunRedactsWithoutReservation(t *testing.T) {
+	checkoutTestHome(t)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("ORDERTOGO_BASE_URL", "http://127.0.0.1:1")
+	configPath, cartPath := checkoutCommandFixture(t)
+	called := false
+	previous := refreshCheckoutToken
+	refreshCheckoutToken = func(_ *config.Config) (string, error) {
+		called = true
+		return "", errors.New("token refresh must not run in dry-run")
+	}
+	t.Cleanup(func() { refreshCheckoutToken = previous })
+	flags := &rootFlags{configPath: configPath}
+	cmd := newRootCmd(flags)
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"--config", configPath, "--dry-run", "orders", "place", "--cart-file", cartPath, "--restaurant", "test-restaurant", "--restid", "42", "--confirm", "--max", "100"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("dry-run checkout: %v", err)
+	}
+	if called {
+		t.Fatal("dry-run refreshed a payment token")
+	}
+	if !strings.Contains(stdout.String(), `"dry_run": true`) || !strings.Contains(stdout.String(), `"status": "would_post"`) {
+		t.Fatalf("dry-run did not report a preview: %s", stdout.String())
+	}
+	for _, value := range []string{"cus_test", "card_test", "2025550147"} {
+		if strings.Contains(stdout.String(), value) || strings.Contains(stderr.String(), value) {
+			t.Fatalf("dry-run leaked a configured payment value")
+		}
+	}
+	if _, err := os.Stat(pendingPlaceRecordPath()); !os.IsNotExist(err) {
+		t.Fatalf("dry-run created a pending checkout record: %v", err)
+	}
+	if _, err := os.Stat(placeAttemptPath()); !os.IsNotExist(err) {
+		t.Fatalf("dry-run stamped checkout cooldown: %v", err)
+	}
+}
+
+type checkoutOutputFailure struct{}
+
+func (checkoutOutputFailure) Write([]byte) (int, error) {
+	return 0, errors.New("synthetic output failure")
+}
+
+func TestConfirmedReceiptSurvivesOutputFailure(t *testing.T) {
+	checkoutTestHome(t)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	configPath, cartPath := checkoutCommandFixture(t)
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if r.Method != http.MethodPost || r.URL.Path != "/m/api/postmicmeshorder" {
+			t.Errorf("unexpected mock request %s %s", r.Method, r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{"transaction":{"orderid":42,"amount":12.34},"order":{"orderToken":"test_42"}}`)
+	}))
+	defer server.Close()
+	t.Setenv("ORDERTOGO_BASE_URL", server.URL)
+	previous := refreshCheckoutToken
+	refreshCheckoutToken = func(_ *config.Config) (string, error) { return "", nil }
+	t.Cleanup(func() { refreshCheckoutToken = previous })
+	run := func(output io.Writer) error {
+		cmd := newOrdersPlaceCmd(&rootFlags{configPath: configPath})
+		cmd.SetOut(output)
+		cmd.SetErr(&bytes.Buffer{})
+		cmd.SetArgs([]string{"--cart-file", cartPath, "--restaurant", "test-restaurant", "--restid", "42", "--confirm", "--max", "100", "--force"})
+		return cmd.Execute()
+	}
+	if err := run(checkoutOutputFailure{}); err == nil || !strings.Contains(err.Error(), "synthetic output failure") {
+		t.Fatalf("mock checkout output failure = %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("mock checkout POSTs = %d, want one", calls)
+	}
+	receipt, exists, err := loadPlacementRecord(confirmedPlaceRecordPath())
+	if err != nil || !exists || receipt.ConfirmedOrderID != 42 {
+		t.Fatalf("confirmed receipt after output failure = %#v, exists=%v, err=%v", receipt, exists, err)
+	}
+	if err := run(&bytes.Buffer{}); err == nil || !strings.Contains(err.Error(), "order 42") {
+		t.Fatalf("retry after output failure = %v, want confirmed-order block", err)
+	}
+	if calls != 1 {
+		t.Fatalf("retry sent a second mock checkout POST: calls=%d", calls)
 	}
 }

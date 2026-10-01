@@ -5,20 +5,30 @@
 package cli
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"syscall"
 )
 
-func checkPlacementDurability() error { return nil }
-
-// lockPlacementFile takes the exclusive, non-blocking advisory lock that
-// serializes one checkout attempt per cart fingerprint.
-func lockPlacementFile(f *os.File) error {
-	return syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
-}
-
-func unlockPlacementFile(f *os.File) {
-	_ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+// acquirePlacementLock takes an exclusive, non-blocking advisory lock that
+// serializes every checkout attempt for this CLI installation.
+func acquirePlacementLock(recordPath string) (func(), error) {
+	if err := os.MkdirAll(filepath.Dir(recordPath), 0o700); err != nil {
+		return nil, err
+	}
+	f, err := os.OpenFile(recordPath+".lock", os.O_CREATE|os.O_RDWR, 0o600)
+	if err != nil {
+		return nil, err
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		_ = f.Close()
+		return nil, fmt.Errorf("another checkout is already in progress (checkout lock held); wait for it to finish: %w", err)
+	}
+	return func() {
+		_ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+		_ = f.Close()
+	}, nil
 }
 
 // syncDir fsyncs a directory so a just-renamed or just-removed record entry

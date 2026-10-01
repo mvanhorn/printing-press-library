@@ -182,8 +182,8 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	// Keep authentication and rate-limit recovery available; only ambiguous
-	// transport/server failures must not replay an unprotected write.
+	// Retry reads only. A rate-limit or server response can still follow a
+	// committed write, so no write is replayed automatically.
 	canRetryAmbiguousFailure := method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
 
 	targetURL := c.BaseURL + path
@@ -316,14 +316,17 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Body:       truncateBody(respBody),
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		// Rate limits can arrive after a write committed remotely. Adjust the
+		// limiter, but replay only methods known to be safe to repeat.
+		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
-			lastErr = apiErr
-			continue
+			if attempt < maxRetries && canRetryAmbiguousFailure {
+				wait := cliutil.RetryAfter(resp)
+				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				time.Sleep(wait)
+				lastErr = apiErr
+				continue
+			}
 		}
 
 		// Server error - retry with backoff, EXCEPT for the order placement

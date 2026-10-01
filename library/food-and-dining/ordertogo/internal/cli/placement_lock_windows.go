@@ -5,24 +5,59 @@
 package cli
 
 import (
-	"os"
+	"fmt"
+	"runtime"
+	"sync/atomic"
 
 	"golang.org/x/sys/windows"
 )
 
-func checkPlacementDurability() error { return nil }
+var placementInProcess atomic.Bool
 
-// lockPlacementFile takes the exclusive, non-blocking lock that serializes
-// one checkout attempt per installation. LockFileEx is Windows' analogue
-// of flock; FAIL_IMMEDIATELY mirrors LOCK_NB.
-func lockPlacementFile(f *os.File) error {
-	overlapped := new(windows.Overlapped)
-	return windows.LockFileEx(windows.Handle(f.Fd()),
-		windows.LOCKFILE_EXCLUSIVE_LOCK|windows.LOCKFILE_FAIL_IMMEDIATELY,
-		0, 1, 0, overlapped)
-}
-
-func unlockPlacementFile(f *os.File) {
-	overlapped := new(windows.Overlapped)
-	_ = windows.UnlockFileEx(windows.Handle(f.Fd()), 0, 1, 0, overlapped)
+// A global named mutex has the same scope as the HKCU registry reservation.
+// USERPROFILE can differ between processes under one account, so a lock file
+// beneath that directory would allow concurrent paid POSTs.
+func acquirePlacementLock(string) (func(), error) {
+	// Windows mutexes are recursive for the owning thread. The process guard
+	// also rejects a second checkout from the same process.
+	if !placementInProcess.CompareAndSwap(false, true) {
+		return nil, fmt.Errorf("another checkout is already in progress (checkout mutex held); wait for it to finish")
+	}
+	user, err := windows.GetCurrentProcessToken().GetTokenUser()
+	if err != nil {
+		placementInProcess.Store(false)
+		return nil, err
+	}
+	name, err := windows.UTF16PtrFromString(`Global\PrintingPress.OrderToGo.Checkout.` + user.User.Sid.String())
+	if err != nil {
+		placementInProcess.Store(false)
+		return nil, err
+	}
+	handle, err := windows.CreateMutex(nil, false, name)
+	if err != nil {
+		placementInProcess.Store(false)
+		return nil, err
+	}
+	// A Windows mutex is owned by an OS thread. Keep this goroutine on that
+	// thread until ReleaseMutex, including while the provider POST is in flight.
+	runtime.LockOSThread()
+	state, err := windows.WaitForSingleObject(handle, 0)
+	if err != nil {
+		_ = windows.CloseHandle(handle)
+		runtime.UnlockOSThread()
+		placementInProcess.Store(false)
+		return nil, err
+	}
+	if state != windows.WAIT_OBJECT_0 && state != windows.WAIT_ABANDONED {
+		_ = windows.CloseHandle(handle)
+		runtime.UnlockOSThread()
+		placementInProcess.Store(false)
+		return nil, fmt.Errorf("another checkout is already in progress (checkout mutex held); wait for it to finish")
+	}
+	return func() {
+		_ = windows.ReleaseMutex(handle)
+		_ = windows.CloseHandle(handle)
+		runtime.UnlockOSThread()
+		placementInProcess.Store(false)
+	}, nil
 }

@@ -21,7 +21,7 @@ func TestAmbiguousWritesNeverReplay(t *testing.T) {
 	paths := []string{"/m/api/orders/braintreeCheckout", "/api/markPromotionUsed", "/m/api/postmicmeshorder"}
 	for _, path := range paths {
 		for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete} {
-			for _, status := range []int{0, 500, 503} {
+			for _, status := range []int{0, 429, 500, 503} {
 				t.Run(path+"/"+method+"/"+http.StatusText(status), func(t *testing.T) {
 					c := New(&config.Config{BaseURL: "http://fixture.invalid", AuthHeaderVal: "fixture-token"}, time.Second, 0)
 					c.cacheDir = t.TempDir()
@@ -43,7 +43,7 @@ func TestAmbiguousWritesNeverReplay(t *testing.T) {
 	}
 }
 
-func TestWriteRateLimitRecoveryRemainsBounded(t *testing.T) {
+func TestReadRateLimitRecoveryRemainsBounded(t *testing.T) {
 	t.Setenv("PRINTING_PRESS_VERIFY", "")
 	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
 	for _, exhausted := range []bool{false, true} {
@@ -64,7 +64,7 @@ func TestWriteRateLimitRecoveryRemainsBounded(t *testing.T) {
 			}
 			return &http.Response{StatusCode: status, Header: http.Header{"Retry-After": []string{"1"}}, Body: io.NopCloser(strings.NewReader(`{"ok":true}`)), Request: req}, nil
 		})
-		_, _, err := c.do(http.MethodPost, "/m/api/orders/braintreeCheckout", nil, map[string]any{"value": "once"}, map[string]string{"Authorization": "fixture-token"})
+		_, _, err := c.do(http.MethodGet, "/m/api/orders", nil, nil, map[string]string{"Authorization": "fixture-token"})
 		wantCalls := 2
 		if exhausted {
 			wantCalls = 4

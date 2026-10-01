@@ -128,7 +128,7 @@ These capabilities aren't available in any other tool for this API.
 - `ordertogo-pp-cli orders track` — HTML order tracking page (received → preparing → ready → picked up). Parsed for status by `order track`.
 - `ordertogo-pp-cli orders validate` — Pre-validate a cart - returns an order token plus tax computation, used by `order plan` before any payment surface opens
 
-`orders place` refuses another checkout after an uncertain result. Inspect recent orders before clearing the reservation named in its error. On Windows, the reservation is the `PendingPlace` registry value under `HKEY_CURRENT_USER\Software\PrintingPress\OrderToGo\Checkout`.
+`orders place` refuses another checkout after an uncertain result. Inspect recent orders before clearing the reservation named in its error. After a confirmed order, inspect the order and pass `--ack-last-order <order ID>` before another checkout. On Windows, the reservation and confirmed receipt are `PendingPlace` and `ConfirmedPlace` registry values under `HKEY_CURRENT_USER\Software\PrintingPress\OrderToGo\Checkout`.
 
 **payment** — Braintree client token for payment-method nonce generation (used internally by chromedp headless flow)
 

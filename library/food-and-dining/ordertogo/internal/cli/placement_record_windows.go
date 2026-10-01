@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"syscall"
 
 	"golang.org/x/sys/windows"
@@ -16,6 +17,7 @@ import (
 )
 
 const windowsPlacementValue = "PendingPlace"
+const windowsConfirmedValue = "ConfirmedPlace"
 
 // Tests replace this with an isolated key. Production keeps one reservation
 // per Windows user regardless of the CLI config file in use.
@@ -23,11 +25,18 @@ var windowsPlacementRegistryPath = `Software\PrintingPress\OrderToGo\Checkout`
 
 var regFlushKeyProc = windows.NewLazySystemDLL("advapi32.dll").NewProc("RegFlushKey")
 
-func pendingPlacementLocation(string) string {
-	return `HKEY_CURRENT_USER\` + windowsPlacementRegistryPath + `\` + windowsPlacementValue
+func placementRegistryValue(path string) string {
+	if filepath.Base(path) == "confirmed-place.json" {
+		return windowsConfirmedValue
+	}
+	return windowsPlacementValue
 }
 
-func readPendingPlacement(string) ([]byte, error) {
+func pendingPlacementLocation(path string) string {
+	return `HKEY_CURRENT_USER\` + windowsPlacementRegistryPath + `\` + placementRegistryValue(path)
+}
+
+func readPendingPlacement(path string) ([]byte, error) {
 	key, err := registry.OpenKey(registry.CURRENT_USER, windowsPlacementRegistryPath, registry.QUERY_VALUE)
 	if errors.Is(err, registry.ErrNotExist) {
 		return nil, os.ErrNotExist
@@ -36,7 +45,7 @@ func readPendingPlacement(string) ([]byte, error) {
 		return nil, err
 	}
 	defer key.Close()
-	data, _, err := key.GetBinaryValue(windowsPlacementValue)
+	data, _, err := key.GetBinaryValue(placementRegistryValue(path))
 	if errors.Is(err, registry.ErrNotExist) {
 		return nil, os.ErrNotExist
 	}
@@ -53,7 +62,7 @@ var flushPlacementKey = func(key registry.Key) error {
 	return nil
 }
 
-func writePendingPlacement(_ string, record pendingPlace) error {
+func writePendingPlacement(path string, record pendingPlace) error {
 	data, err := json.Marshal(record)
 	if err != nil {
 		return err
@@ -63,24 +72,24 @@ func writePendingPlacement(_ string, record pendingPlace) error {
 		return err
 	}
 	defer key.Close()
-	if err := key.SetBinaryValue(windowsPlacementValue, data); err != nil {
+	if err := key.SetBinaryValue(placementRegistryValue(path), data); err != nil {
 		return err
 	}
 	if err := flushPlacementKey(key); err != nil {
 		return fmt.Errorf("flushing checkout reservation registry key: %w", err)
 	}
-	readBack, _, err := key.GetBinaryValue(windowsPlacementValue)
+	readBack, _, err := key.GetBinaryValue(placementRegistryValue(path))
 	if err != nil {
 		return fmt.Errorf("verifying checkout reservation registry value: %w", err)
 	}
 	var verify pendingPlace
-	if json.Unmarshal(readBack, &verify) != nil || verify.RequestID != record.RequestID || verify.CartFingerprint != record.CartFingerprint {
+	if json.Unmarshal(readBack, &verify) != nil || verify.RequestID != record.RequestID || verify.CartFingerprint != record.CartFingerprint || verify.ConfirmedOrderID != record.ConfirmedOrderID {
 		return fmt.Errorf("written checkout reservation did not read back intact")
 	}
 	return nil
 }
 
-func clearPendingPlacement(string) error {
+func clearPendingPlacement(path string) error {
 	key, err := registry.OpenKey(registry.CURRENT_USER, windowsPlacementRegistryPath, registry.QUERY_VALUE|registry.SET_VALUE)
 	if errors.Is(err, registry.ErrNotExist) {
 		return nil
@@ -89,7 +98,7 @@ func clearPendingPlacement(string) error {
 		return err
 	}
 	defer key.Close()
-	if err := key.DeleteValue(windowsPlacementValue); err != nil && !errors.Is(err, registry.ErrNotExist) {
+	if err := key.DeleteValue(placementRegistryValue(path)); err != nil && !errors.Is(err, registry.ErrNotExist) {
 		return err
 	}
 	if err := flushPlacementKey(key); err != nil {
