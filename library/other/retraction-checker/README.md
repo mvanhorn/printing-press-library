@@ -7,6 +7,7 @@ Retraction Checker turns Crossref's embedded Retraction Watch data into a one-sh
 Learn more at [Retraction Checker](https://api.crossref.org/swagger-ui/index.html).
 
 Created by [@laci141](https://github.com/laci141) (laci141).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -117,6 +118,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```
 
 </details>
+
+For local HTTP MCP, use `retraction-checker-pp-mcp --transport http`. It binds to `127.0.0.1:7777` by default. Other bind addresses must also be literal loopback addresses because this server has no remote HTTP authentication.
 
 ## Quick Start
 

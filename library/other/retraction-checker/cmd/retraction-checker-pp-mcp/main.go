@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
@@ -20,7 +21,7 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -46,6 +47,10 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		if !isLoopbackBind(*addr) {
+			fmt.Fprintf(os.Stderr, "refusing non-loopback HTTP bind %q: remote HTTP transport is unsupported without authentication\n", *addr)
+			os.Exit(2)
+		}
 		httpSrv := server.NewStreamableHTTPServer(s)
 		fmt.Fprintf(os.Stderr, "retraction-checker-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
 		if err := httpSrv.Start(*addr); err != nil {
@@ -56,6 +61,19 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func isLoopbackBind(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	host = strings.TrimSuffix(strings.ToLower(host), ".")
+	if host == "localhost" {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back
