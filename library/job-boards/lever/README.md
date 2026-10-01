@@ -1,6 +1,8 @@
 # Lever CLI
 
-Contributor: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Created by [@veltri-23](https://github.com/veltri-23) (Hunter Veltri).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 Public Lever postings API (https://api.lever.co/v0/postings). Every Lever
 customer exposes an open job board at api.lever.co/v0/postings/{company}
