@@ -1114,7 +1114,9 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 // List returns resources of the given type. A positive limit caps the result
 // count; zero or negative means no limit.
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
-	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`
+	// The timestamp has second precision. Row insertion order breaks ties so
+	// successive saved snapshots remain in order even within one second.
+	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC, rowid DESC`
 	args := []any{resourceType}
 	if limit > 0 {
 		query += ` LIMIT ?`

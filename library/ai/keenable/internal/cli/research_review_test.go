@@ -16,7 +16,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/ai/keenable/internal/store"
 )
 
-func TestLoadPreviousResearchSnapshotSelectsChronologicalPredecessor(t *testing.T) {
+func TestLoadPreviousResearchSnapshotUsesSaveOrderWithLegacyTimestamps(t *testing.T) {
 	s, err := store.Open(filepath.Join(t.TempDir(), "research.db"))
 	if err != nil {
 		t.Fatal(err)
@@ -24,9 +24,9 @@ func TestLoadPreviousResearchSnapshotSelectsChronologicalPredecessor(t *testing.
 	defer s.Close()
 
 	snapshots := []researchSnapshot{
-		{ID: "oldest", CreatedAt: "2026-08-24T10:00:00Z"},
-		{ID: "middle", CreatedAt: "2026-08-25T10:00:00Z"},
-		{ID: "newest", CreatedAt: "2026-08-26T10:00:00Z"},
+		{ID: "z-oldest", CreatedAt: "now"},
+		{ID: "m-middle", CreatedAt: "now"},
+		{ID: "a-newest", CreatedAt: "now"},
 	}
 	for _, snap := range snapshots {
 		if err := persistResearchSnapshot(s, snap, nil, nil); err != nil {
@@ -34,14 +34,22 @@ func TestLoadPreviousResearchSnapshotSelectsChronologicalPredecessor(t *testing.
 		}
 	}
 
-	got, err := loadPreviousResearchSnapshot(s, "newest")
+	latest, err := loadResearchSnapshot(s, "latest")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.ID != "middle" {
-		t.Fatalf("previous ID = %q, want middle", got.ID)
+	if latest.ID != "a-newest" {
+		t.Fatalf("latest ID = %q, want a-newest", latest.ID)
 	}
-	if _, err := loadPreviousResearchSnapshot(s, "oldest"); err == nil || !strings.Contains(err.Error(), "no earlier snapshot") {
+
+	got, err := loadPreviousResearchSnapshot(s, "a-newest")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.ID != "m-middle" {
+		t.Fatalf("previous ID = %q, want m-middle", got.ID)
+	}
+	if _, err := loadPreviousResearchSnapshot(s, "z-oldest"); err == nil || !strings.Contains(err.Error(), "no earlier snapshot") {
 		t.Fatalf("oldest snapshot error = %v, want no-earlier-snapshot error", err)
 	}
 }

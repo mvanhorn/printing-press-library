@@ -228,28 +228,22 @@ func loadPreviousResearchSnapshot(s *store.Store, afterID string) (researchSnaps
 	if err != nil {
 		return researchSnapshot{}, err
 	}
-	snapshots := make([]researchSnapshot, 0, len(items))
-	for _, item := range items {
+	for i, item := range items {
 		var snap researchSnapshot
 		if err := json.Unmarshal(item, &snap); err != nil {
 			return researchSnapshot{}, fmt.Errorf("decode saved research snapshot: %w", err)
 		}
-		snapshots = append(snapshots, snap)
-	}
-	sort.Slice(snapshots, func(i, j int) bool {
-		if snapshots[i].CreatedAt == snapshots[j].CreatedAt {
-			return snapshots[i].ID < snapshots[j].ID
-		}
-		return snapshots[i].CreatedAt < snapshots[j].CreatedAt
-	})
-	for i, snap := range snapshots {
 		if snap.ID != afterID {
 			continue
 		}
-		if i == 0 {
+		if i+1 == len(items) {
 			return researchSnapshot{}, fmt.Errorf("snapshot %q has no earlier snapshot to compare", afterID)
 		}
-		return snapshots[i-1], nil
+		var previous researchSnapshot
+		if err := json.Unmarshal(items[i+1], &previous); err != nil {
+			return researchSnapshot{}, fmt.Errorf("decode earlier research snapshot: %w", err)
+		}
+		return previous, nil
 	}
 	return researchSnapshot{}, fmt.Errorf("snapshot %q not found while selecting its predecessor", afterID)
 }

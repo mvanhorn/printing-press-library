@@ -5,6 +5,7 @@ package cli
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -38,7 +39,7 @@ func newNovelResearchFetchManyCmd(flags *rootFlags) *cobra.Command {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			pages, failures := fetchMany(ctx, flags, clean, maxChars, concurrency, live, authenticated)
-			snap := researchSnapshot{ID: newResearchSnapshotID(strings.Join(clean, "\n")), Query: "fetch-many", CreatedAt: "now", AuthMode: map[bool]string{true: "authenticated", false: "public"}[authenticated], FetchedCount: len(pages)}
+			snap := researchSnapshot{ID: newResearchSnapshotID(strings.Join(clean, "\n")), Query: "fetch-many", CreatedAt: time.Now().UTC().Format(time.RFC3339Nano), AuthMode: map[bool]string{true: "authenticated", false: "public"}[authenticated], FetchedCount: len(pages)}
 			s, err := openResearchStore(ctx)
 			if err != nil {
 				return fmt.Errorf("open research store: %w", err)
