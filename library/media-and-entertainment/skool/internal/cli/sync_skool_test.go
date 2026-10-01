@@ -226,6 +226,11 @@ func TestSyncSkoolCommunityResourceMembersPagination(t *testing.T) {
 	if _, err := db.Get("members", "u3"); err != nil {
 		t.Fatalf("last member not stored: %v", err)
 	}
+	capped := &pagedSkoolClient{lastPage: 3, members: true}
+	res = syncSkoolCommunityResource(capped, db, "members", "community", 2, false)
+	if res.Err != nil || res.Count != 2 || res.Notice == nil || len(capped.requests) != 2 {
+		t.Fatalf("capped member sync = %+v, requests=%v", res, capped.requests)
+	}
 }
 
 func TestSyncSkoolCommunityResourcePersistsEarlierPagesOnLaterFailure(t *testing.T) {
