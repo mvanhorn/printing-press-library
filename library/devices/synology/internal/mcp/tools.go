@@ -101,9 +101,9 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("files_download",
-			mcplib.WithDescription("Download a file or folder. Required: path. Optional: mode."),
+			mcplib.WithDescription("Download a file or folder as complete base64. Required: path. Only mode=download is supported."),
 			mcplib.WithString("path", mcplib.Required(), mcplib.Description("JSON array of absolute paths to download")),
-			mcplib.WithString("mode", mcplib.Description("Transfer mode, download (default) to attach or open to stream inline")),
+			mcplib.WithString("mode", mcplib.Description("Optional; only download is supported so DSM marks file bytes as an attachment")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -712,7 +712,10 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		}
 		// Synology documents an attachment header for download mode. It lets
 		// the client distinguish a JSON file from DSM's JSON error envelope.
-		if strings.Contains(pathTemplate, "api=SYNO.FileStation.Download&method=download&") && params["mode"] == "" {
+		if strings.Contains(pathTemplate, "api=SYNO.FileStation.Download&method=download&") {
+			if params["mode"] != "" && params["mode"] != "download" {
+				return mcpToolError("files_download requires mode=download for exact bytes; omit mode or set it to download"), nil
+			}
 			params["mode"] = "download"
 		}
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
@@ -151,6 +152,26 @@ func TestDSMDownloadRPCErrorWithoutAttachmentStillFails(t *testing.T) {
 	result, err := s.GetTool("files_download").Handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "files_download", Arguments: map[string]any{"path": `["/missing.json"]`}}})
 	if err != nil || !result.IsError {
 		t.Fatalf("DSM JSON error should not become file bytes: %#v %v", result, err)
+	}
+}
+
+func TestDSMDownloadRejectsInlineModeBeforeRequest(t *testing.T) {
+	resetMCPPathEnv(t)
+	var called atomic.Bool
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called.Store(true)
+		_, _ = w.Write([]byte(`{"success":true}`))
+	}))
+	defer fixture.Close()
+	t.Setenv("SYNOLOGY_BASE_URL", fixture.URL)
+	s := server.NewMCPServer("test", "test")
+	RegisterTools(s)
+	result, err := s.GetTool("files_download").Handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "files_download", Arguments: map[string]any{"path": `["/file.json"]`, "mode": "open"}}})
+	if err != nil || !result.IsError || called.Load() {
+		t.Fatalf("inline mode must fail before request: result=%#v err=%v called=%v", result, err, called.Load())
+	}
+	if !strings.Contains(mcpTextContent(t, result), "mode=download") {
+		t.Fatal("inline-mode error should explain the safe mode")
 	}
 }
 
