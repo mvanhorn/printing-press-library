@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
+	"github.com/spf13/cobra"
 )
 
 func newPlanCmd(flags *rootFlags) *cobra.Command {

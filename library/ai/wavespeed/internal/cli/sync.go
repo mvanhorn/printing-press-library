@@ -10,6 +10,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/store"
 	"github.com/spf13/cobra"
 	"io"
 	"os"
@@ -20,11 +25,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/learn/lookups"
-	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/store"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path

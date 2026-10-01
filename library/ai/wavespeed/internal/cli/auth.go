@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/ai/wavespeed/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
