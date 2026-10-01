@@ -43,6 +43,20 @@ func coerceBoolFlag(raw string) (any, error) {
 	}
 }
 
+func parseContentsOptions(raw string) (any, error) {
+	var parsed any
+	if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
+		return nil, fmt.Errorf("parsing --contents JSON: %w", err)
+	}
+	if parsed == nil {
+		return nil, nil
+	}
+	if _, ok := parsed.(map[string]any); !ok {
+		return nil, fmt.Errorf("--contents must be a JSON object or null")
+	}
+	return parsed, nil
+}
+
 func newWebsearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyAdditionalQueries string
 	var bodyCategory string
@@ -123,15 +137,11 @@ func newWebsearchPromotedCmd(flags *rootFlags) *cobra.Command {
 				bodyMap["compliance"] = bodyCompliance
 			}
 			if cmd.Flags().Changed("contents") || bodyContents != "" {
-				if looksLikeJSONComposite(bodyContents) {
-					var parsedContents any
-					if err := json.Unmarshal([]byte(bodyContents), &parsedContents); err != nil {
-						return fmt.Errorf("parsing --contents JSON: %w", err)
-					}
-					bodyMap["contents"] = parsedContents
-				} else {
-					bodyMap["contents"] = bodyContents
+				parsedContents, err := parseContentsOptions(bodyContents)
+				if err != nil {
+					return err
 				}
+				bodyMap["contents"] = parsedContents
 			}
 			if cmd.Flags().Changed("context") || bodyContext != "" {
 				if looksLikeJSONComposite(bodyContext) {
