@@ -9,7 +9,7 @@ Learn more at [SEEK](https://au.seek.com).
 Created by [@polsiola-dot](https://github.com/polsiola-dot) (Paul Siola).
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Account imports require explicit confirmation: use `import me --input data.jsonl --yes` for a live import, or `--dry-run` to preview it. Agent mode does not supply confirmation.
+Account imports require explicit confirmation on each invocation: use `import me --input data.jsonl --yes` for a live import, or `--dry-run` to preview it. A saved run profile cannot supply confirmation. Agent mode does not supply confirmation.
 
 ## Install
 

@@ -4,7 +4,7 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260908-143250-21abe609",
   "base_printing_press_version": "4.32.0",
-  "summary": "Live account imports require explicit --yes confirmation before any POST.",
+  "summary": "Live account imports require --yes on the current invocation before any POST; saved run profiles cannot confirm.",
   "reason": "JSONL imports can mutate the signed-in account; dry runs remain available without approval.",
   "files": ["internal/cli/import.go", "internal/cli/import_confirmation_test.go"]
 }

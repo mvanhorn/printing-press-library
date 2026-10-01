@@ -41,7 +41,9 @@ but do not stop the import.`,
 			if err != nil {
 				return usageErr(err)
 			}
-			if !dryRun && !flags.yes {
+			// A saved run profile may set yes=true. Live imports still need
+			// confirmation on this invocation, before opening the input file.
+			if !dryRun && (!flags.yes || !cmd.InheritedFlags().Changed("yes")) {
 				return usageErr(fmt.Errorf("import %s mutates the signed-in account; pass --yes to confirm or --dry-run to preview", resource))
 			}
 			c, err := flags.newClient()
