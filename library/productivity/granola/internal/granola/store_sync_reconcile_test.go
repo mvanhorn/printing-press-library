@@ -33,3 +33,23 @@ func TestReconcileMissingAPINotesRemovesOnlyAPIDependents(t *testing.T) {
 	assertCount(t, db, `SELECT COUNT(*) FROM meetings WHERE id='kept' AND deleted_at IS NULL`, 1, "seen meeting was deleted")
 	assertCount(t, db, `SELECT COUNT(*) FROM transcript_segments WHERE meeting_id='kept'`, 1, "seen meeting transcript was deleted")
 }
+
+func TestReconcileMissingAPINotesRollsBackDependentFailure(t *testing.T) {
+	db := openTestDB(t)
+	for _, statement := range []string{
+		`INSERT INTO meetings(id, row_source) VALUES ('missing', 'api')`,
+		`INSERT INTO transcript_segments(meeting_id, idx, row_source) VALUES ('missing', 0, 'api')`,
+		`INSERT INTO attendees(meeting_id, email, row_source) VALUES ('missing', 'api@invalid.test', 'api')`,
+		`CREATE TRIGGER fail_api_attendee_delete BEFORE DELETE ON attendees WHEN OLD.row_source='api' BEGIN SELECT RAISE(ABORT, 'synthetic failure'); END`,
+	} {
+		if _, err := db.Exec(statement); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := ReconcileMissingAPINotes(context.Background(), db, map[string]struct{}{}); err == nil {
+		t.Fatal("expected dependent-row deletion to fail")
+	}
+	assertCount(t, db, `SELECT COUNT(*) FROM meetings WHERE id='missing' AND COALESCE(deleted_at, '')=''`, 1, "meeting tombstone was not rolled back")
+	assertCount(t, db, `SELECT COUNT(*) FROM transcript_segments WHERE meeting_id='missing' AND row_source='api'`, 1, "transcript deletion was not rolled back")
+	assertCount(t, db, `SELECT COUNT(*) FROM attendees WHERE meeting_id='missing' AND row_source='api'`, 1, "attendee deletion was not rolled back")
+}

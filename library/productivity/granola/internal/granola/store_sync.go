@@ -1108,7 +1108,12 @@ func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]s
 	if err := EnsureSchema(ctx, db); err != nil {
 		return 0, err
 	}
-	rows, err := db.QueryContext(ctx, `SELECT id FROM meetings WHERE row_source='api' AND COALESCE(deleted_at, '')=''`)
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.QueryContext(ctx, `SELECT id FROM meetings WHERE row_source='api' AND COALESCE(deleted_at, '')=''`)
 	if err != nil {
 		return 0, fmt.Errorf("list API-owned meetings for reconciliation: %w", err)
 	}
@@ -1123,17 +1128,16 @@ func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]s
 			missing = append(missing, id)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return 0, fmt.Errorf("read API-owned meetings for reconciliation: %w", err)
+	}
 	if err := rows.Close(); err != nil {
 		return 0, err
 	}
 	if len(missing) == 0 {
 		return 0, nil
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return 0, err
-	}
-	defer tx.Rollback()
 	deletedAt := time.Now().UTC().Format(time.RFC3339Nano)
 	for _, id := range missing {
 		if _, err := tx.ExecContext(ctx, `UPDATE meetings SET deleted_at=? WHERE id=? AND row_source='api'`, deletedAt, id); err != nil {

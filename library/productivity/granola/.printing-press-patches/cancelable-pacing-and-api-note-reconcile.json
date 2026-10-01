@@ -15,5 +15,5 @@
     "internal/granola/store_sync.go",
     "internal/granola/store_sync_reconcile_test.go"
   ],
-  "validated_outcome": "Synthetic tests cover cancellation, concurrent pacing, date-only audit boundaries, and deletion of only API-owned dependent rows after complete reconciliation."
+  "validated_outcome": "Synthetic tests cover cancellation, concurrent pacing, date-only audit boundaries, deletion of only API-owned dependent rows after complete reconciliation, and rollback when a dependent-row deletion fails. Candidate selection and deletion now share one transaction."
 }
