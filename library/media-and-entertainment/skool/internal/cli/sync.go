@@ -34,6 +34,7 @@ type syncResult struct {
 	Count    int
 	Err      error
 	Warn     error
+	Notice   error
 	Duration time.Duration
 }
 
@@ -211,7 +212,7 @@ Exit codes & warnings:
 						// cannot unwrap. See sync_skool.go.
 						var res syncResult
 						if isSkoolCommunityResource(resource) {
-							res = syncSkoolCommunityResource(c, db, resource, activeCommunity, maxPages)
+							res = syncSkoolCommunityResource(c, db, resource, activeCommunity, maxPages, effectiveLatestOnly)
 						} else {
 							res = syncResource(c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams)
 						}
@@ -236,6 +237,7 @@ Exit codes & warnings:
 			var errCount int
 			var criticalErrCount int
 			var warnCount int
+			var noticeCount int
 			var successCount int
 			for res := range results {
 				if res.Err != nil {
@@ -257,6 +259,12 @@ Exit codes & warnings:
 					}
 					warnCount++
 				} else {
+					if res.Notice != nil {
+						if humanFriendly {
+							fmt.Fprintf(os.Stderr, "  %s: warning: %v\n", res.Resource, res.Notice)
+						}
+						noticeCount++
+					}
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: %d synced (done)\n", res.Resource, res.Count)
 					}
@@ -268,16 +276,16 @@ Exit codes & warnings:
 			elapsed := time.Since(started)
 			totalResources := successCount + warnCount + errCount
 			if humanFriendly {
-				if warnCount > 0 {
-					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
-						totalSynced, totalResources, warnCount, elapsed.Seconds())
+				if warnCount > 0 || noticeCount > 0 {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %d notices, %.1fs)\n",
+						totalSynced, totalResources, warnCount, noticeCount, elapsed.Seconds())
 				} else {
 					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
 						totalSynced, totalResources, elapsed.Seconds())
 				}
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
-					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
+				fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"notices":%d,"errored":%d,"duration_ms":%d}`+"\n",
+					totalSynced, totalResources, successCount, warnCount, noticeCount, errCount, elapsed.Milliseconds())
 			}
 
 			// Exit-code policy:

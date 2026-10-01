@@ -38,7 +38,7 @@ func isSkoolCommunityResource(resource string) bool {
 // the sync command (--community, SKOOL_COMMUNITY, or template_vars.community).
 func syncSkoolCommunityResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
-}, db *store.Store, resource, community string, maxPages int) syncResult {
+}, db *store.Store, resource, community string, maxPages int, latestOnly bool) syncResult {
 	started := time.Now()
 
 	if !humanFriendly {
@@ -55,15 +55,12 @@ func syncSkoolCommunityResource(c interface {
 	path := "/_next/data/{buildId}/{community}.json"
 	path = replacePathParam(path, "community", community)
 
-	if maxPages <= 0 || maxPages > 100 {
-		maxPages = 100
-	}
-
 	seen := map[string]struct{}{}
 	var collected []json.RawMessage
 	var lastKeys []string
+	pageLimitHit := false
 
-	for page := 1; page <= maxPages; page++ {
+	for page := 1; maxPages <= 0 || page <= maxPages; page++ {
 		params := map[string]string{"g": community}
 		if resource == "members" {
 			params["t"] = "members"
@@ -101,6 +98,9 @@ func syncSkoolCommunityResource(c interface {
 		if added == 0 {
 			break
 		}
+		if maxPages > 0 && page == maxPages {
+			pageLimitHit = true
+		}
 	}
 
 	if len(collected) == 0 {
@@ -125,7 +125,14 @@ func syncSkoolCommunityResource(c interface {
 	if !humanFriendly {
 		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d}`+"\n", resource, stored)
 	}
-	return syncResult{Resource: resource, Count: stored, Duration: time.Since(started)}
+	result := syncResult{Resource: resource, Count: stored, Duration: time.Since(started)}
+	if pageLimitHit && !latestOnly {
+		result.Notice = fmt.Errorf("reached --max-pages cap of %d; data may be truncated", maxPages)
+		if !humanFriendly {
+			fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":%q}`+"\n", resource, result.Notice.Error())
+		}
+	}
+	return result
 }
 
 // extractSkoolPageRecords unwraps the records for `resource` out of a Next.js

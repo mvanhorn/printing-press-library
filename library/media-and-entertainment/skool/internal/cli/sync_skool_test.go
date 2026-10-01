@@ -6,10 +6,31 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/internal/store"
 )
+
+type pagedSkoolClient struct {
+	requests []int
+	lastPage int
+}
+
+func (c *pagedSkoolClient) Get(_ string, params map[string]string) (json.RawMessage, error) {
+	page := 1
+	if raw := params["p"]; raw != "" {
+		page, _ = strconv.Atoi(raw)
+	}
+	c.requests = append(c.requests, page)
+	if page > c.lastPage {
+		return json.RawMessage(`{"pageProps":{"postTrees":[]}}`), nil
+	}
+	return json.RawMessage(fmt.Sprintf(`{"pageProps":{"postTrees":[{"post":{"id":"p%d"}}]}}`, page)), nil
+}
 
 func TestExtractSkoolPageRecordsPosts(t *testing.T) {
 	page := json.RawMessage(`{"pageProps":{"total":2,"postTrees":[
@@ -91,7 +112,7 @@ func TestSyncSkoolCommunityResourceDoesNotEmitSyncError(t *testing.T) {
 		t.Fatalf("creating pipe: %v", err)
 	}
 	os.Stdout = w
-	res := syncSkoolCommunityResource(nil, nil, "posts", "", 1)
+	res := syncSkoolCommunityResource(nil, nil, "posts", "", 1, false)
 	w.Close()
 	os.Stdout = prevStdout
 
@@ -109,5 +130,56 @@ func TestSyncSkoolCommunityResourceDoesNotEmitSyncError(t *testing.T) {
 	}
 	if !strings.Contains(out, `"event":"sync_start"`) {
 		t.Fatalf("want the sync_start event preserved, got: %s", out)
+	}
+}
+
+func TestSyncSkoolCommunityResourceHonorsRequestedPageLimit(t *testing.T) {
+	prevHuman := humanFriendly
+	humanFriendly = true
+	defer func() { humanFriendly = prevHuman }()
+
+	db, err := store.Open(t.TempDir() + "/skool.db")
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	client := &pagedSkoolClient{lastPage: 101}
+	res := syncSkoolCommunityResource(client, db, "posts", "community", 101, false)
+	if res.Err != nil {
+		t.Fatalf("sync: %v", res.Err)
+	}
+	if len(client.requests) != 101 || client.requests[100] != 101 {
+		t.Fatalf("requested %d pages, want pages 1 through 101", len(client.requests))
+	}
+	if res.Count != 101 {
+		t.Fatalf("stored %d records, want 101", res.Count)
+	}
+	if res.Warn != nil || res.Notice == nil || !strings.Contains(res.Notice.Error(), "max-pages cap of 101") {
+		t.Fatalf("want successful sync with a page-limit notice, got %+v", res)
+	}
+
+	unlimited := &pagedSkoolClient{lastPage: 101}
+	res = syncSkoolCommunityResource(unlimited, db, "posts", "community", 0, false)
+	if res.Err != nil || res.Notice != nil || res.Count != 101 || len(unlimited.requests) != 102 {
+		t.Fatalf("unlimited sync = %+v with %d requests, want 101 rows and no cap notice", res, len(unlimited.requests))
+	}
+}
+
+func TestSyncSkoolCommunityResourceLatestOnlyDoesNotReportTruncation(t *testing.T) {
+	prevHuman := humanFriendly
+	humanFriendly = true
+	defer func() { humanFriendly = prevHuman }()
+
+	db, err := store.Open(t.TempDir() + "/skool.db")
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	client := &pagedSkoolClient{lastPage: 2}
+	res := syncSkoolCommunityResource(client, db, "posts", "community", 1, true)
+	if res.Err != nil || res.Notice != nil || res.Count != 1 || len(client.requests) != 1 {
+		t.Fatalf("latest-only sync = %+v with %d requests, want one page and no notice", res, len(client.requests))
 	}
 }
