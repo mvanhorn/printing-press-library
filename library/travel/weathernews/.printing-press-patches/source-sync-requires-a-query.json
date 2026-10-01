@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "source-sync-requires-a-query",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020510-488a6a84",
+  "base_printing_press_version": "4.32.5",
+  "summary": "MCP recovery text for local search and SQL shows a query-scoped source sync.",
+  "reason": "The source resource is a location search that requires query. sync --resources source without that parameter is skipped and leaves the store empty.",
+  "files": [
+    "internal/mcp/tools.go"
+  ]
+}

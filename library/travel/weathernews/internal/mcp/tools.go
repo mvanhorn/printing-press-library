@@ -482,13 +482,17 @@ func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
 	}
 	db, err := store.OpenReadOnly(path)
 	if err != nil {
-		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run weathernews-pp-cli sync --resources source to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run %s to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err, mcpSourceSyncExample))
 	}
 	return db, nil
 }
 
+// mcpSourceSyncExample is a source sync that supplies the required query.
+// Bare `sync --resources source` is skipped and leaves the store empty.
+const mcpSourceSyncExample = "weathernews-pp-cli sync --resources source --resource-param source:query=京都"
+
 func mcpMissingStoreMessage(path string) string {
-	return fmt.Sprintf("No local data store found at %s. Run weathernews-pp-cli sync --resources source before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+	return fmt.Sprintf("No local data store found at %s. Run %s before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path, mcpSourceSyncExample)
 }
 
 func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
@@ -526,11 +530,11 @@ func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
 }
 
 func mcpEmptyStoreNextStep() string {
-	return "Run weathernews-pp-cli sync --resources source to populate the local SQLite store before using MCP search/sql."
+	return fmt.Sprintf("Run %s to populate the local SQLite store before using MCP search/sql.", mcpSourceSyncExample)
 }
 
 func mcpPartialStoreNextStep() string {
-	return "The latest sync attempt is incomplete. Resume or rerun weathernews-pp-cli sync --resources source before treating local search/sql results as a complete snapshot."
+	return fmt.Sprintf("The latest sync attempt is incomplete. Resume or rerun %s before treating local search/sql results as a complete snapshot.", mcpSourceSyncExample)
 }
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -844,7 +848,7 @@ func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStor
 		if storeStatus == mcpStoreStatusEmpty {
 			out["next_step"] = mcpEmptyStoreNextStep()
 		} else {
-			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run weathernews-pp-cli sync --resources source again if data may be stale."
+			out["next_step"] = fmt.Sprintf("The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run %s again if data may be stale.", mcpSourceSyncExample)
 		}
 	}
 	return out

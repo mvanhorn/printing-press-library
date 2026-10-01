@@ -235,7 +235,7 @@ func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}
 	}
-	for _, want := range []string{"Run", "sync"} {
+	for _, want := range []string{"Run", "sync", "--resource-param source:query="} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}
@@ -311,7 +311,7 @@ func TestMCPSQLMissingStoreIsActionable(t *testing.T) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}
 	}
-	for _, want := range []string{"Run", "sync"} {
+	for _, want := range []string{"Run", "sync", "--resource-param source:query="} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}

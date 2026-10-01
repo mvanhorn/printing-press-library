@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20261001-020510-488a6a84",
   "base_printing_press_version": "4.32.5",
-  "summary": "workflow archive fails when weathernews has no bulk-list resources, and status must not tell users to migrate by running it.",
-  "reason": "Public lookups are query-scoped. An empty resource list must not exit 0, and archive cannot upgrade a stale local store. Recovery is deleting the store file or running sync, which applies the schema upgrade without fetching bulk data.",
+  "summary": "workflow archive fails when weathernews has no bulk-list resources, and status tells users to upgrade the schema by running sync.",
+  "reason": "Public lookups are query-scoped. An empty resource list must not exit 0. Bare sync opens the store and applies the schema upgrade in place, which keeps existing learnings and playbooks.",
   "files": [
     "internal/cli/channel_workflow.go"
   ]
