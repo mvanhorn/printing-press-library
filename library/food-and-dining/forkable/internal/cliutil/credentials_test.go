@@ -322,6 +322,56 @@ func TestMalformedLegacyJSONFailsRatherThanUsingDefaults(t *testing.T) {
 	}
 }
 
+func TestMalformedCoexistingJSONFailsBeforeAuthStateChanges(t *testing.T) {
+	for _, action := range []string{"set-token", "logout"} {
+		t.Run(action, func(t *testing.T) {
+			_, configPath := resetCredentialEnv(t)
+			if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
+				t.Fatal(err)
+			}
+			activeData := []byte("base_url = \"https://current.example\"\n")
+			if err := os.WriteFile(configPath, activeData, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			legacyJSONPath := filepath.Join(filepath.Dir(configPath), "config.json")
+			if err := os.WriteFile(legacyJSONPath, []byte(`{"access_token":`), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if action == "logout" {
+				if err := cliutil.SaveCredentials(testCredentials("old-synthetic-token")); err != nil {
+					t.Fatal(err)
+				}
+			}
+			cfg, err := config.Load("")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if action == "set-token" {
+				err = saveConfigCredential(cfg, "new-synthetic-token")
+			} else {
+				err = cfg.ClearTokens()
+			}
+			if err == nil || !strings.Contains(err.Error(), legacyJSONPath) {
+				t.Fatalf("%s should reject malformed legacy JSON before changing auth state: %v", action, err)
+			}
+			gotActive, err := os.ReadFile(configPath)
+			if err != nil || !bytes.Equal(gotActive, activeData) {
+				t.Fatalf("%s changed active config after preflight failed: %v", action, err)
+			}
+			creds, ok, err := cliutil.LoadCredentials()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if action == "set-token" && ok {
+				t.Fatal("set-token changed credentials after preflight failed")
+			}
+			if action == "logout" && (!ok || credentialValue(creds) != "old-synthetic-token" || cfg.AccessToken != "old-synthetic-token") {
+				t.Fatal("logout cleared credentials after preflight failed")
+			}
+		})
+	}
+}
+
 func TestExtensionlessExplicitJSONStaysJSONAfterSave(t *testing.T) {
 	resetCredentialEnv(t)
 	configPath := filepath.Join(t.TempDir(), "forkable-settings")

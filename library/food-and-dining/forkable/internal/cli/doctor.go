@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/forkable/internal/client"
@@ -447,19 +446,10 @@ func legacyCredentialProbePaths(cfg *config.Config) []string {
 		seen[path] = true
 		paths = append(paths, path)
 	}
-	if cfg != nil && cfg.Path != "" {
-		// The sibling JSON file is app-owned only when the active file uses
-		// the standard config.toml name. Explicit paths may share a folder.
-		add(cfg.Path)
-		if filepath.Base(cfg.Path) == "config.toml" {
-			add(filepath.Join(filepath.Dir(cfg.Path), "config.json"))
-		}
-	}
-	if legacyPath, err := config.LegacyConfigPath(); err == nil {
-		add(legacyPath)
-	}
-	if legacyJSONPath, err := config.LegacyJSONConfigPath(); err == nil {
-		add(legacyJSONPath)
+	// Match the files an auth write would actually scrub. An explicit config
+	// file may share its directory with unrelated JSON settings.
+	for _, path := range cfg.CredentialProbePaths() {
+		add(path)
 	}
 	return paths
 }

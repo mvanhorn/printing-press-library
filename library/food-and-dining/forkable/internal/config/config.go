@@ -337,6 +337,9 @@ func (c *Config) saveCredentialsFirst() error {
 }
 
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+	if err := c.preflightLegacyCredentialScrub(); err != nil {
+		return err
+	}
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
 	c.AccessToken = accessToken
@@ -359,6 +362,9 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
+	if err := c.preflightLegacyCredentialScrub(); err != nil {
+		return err
+	}
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
 	// zeroing every emitted credential field, not just the OAuth trio.
@@ -489,8 +495,47 @@ func (c *Config) scrubLegacyCredentials() error {
 	if c.AgentcookieManagedByExternalStore() {
 		return nil
 	}
+	files, err := c.prepareLegacyCredentialScrubs()
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		if err := cliutil.AtomicWritePrivateFile(file.path, file.data, 0o600, 0o700); err != nil {
+			return fmt.Errorf("scrubbing legacy config %s: %w", file.path, err)
+		}
+	}
+	return nil
+}
+
+type legacyCredentialScrub struct {
+	path string
+	data []byte
+}
+
+// CredentialProbePaths names only settings files this config owns or would
+// scrub. An explicit --config path does not confer ownership of its siblings.
+func (c *Config) CredentialProbePaths() []string {
+	if c == nil {
+		return nil
+	}
+	return append(append([]string{c.Path}, c.legacyConfigPaths...), c.legacySourcePath)
+}
+
+// Check legacy files before changing the credentials store or active config.
+// A malformed coexisting JSON file must not make auth report failure after
+// the new credential has already taken effect.
+func (c *Config) preflightLegacyCredentialScrub() error {
+	if c.AgentcookieManagedByExternalStore() {
+		return nil
+	}
+	_, err := c.prepareLegacyCredentialScrubs()
+	return err
+}
+
+func (c *Config) prepareLegacyCredentialScrubs() ([]legacyCredentialScrub, error) {
 	seen := map[string]bool{}
-	for _, legacyPath := range append(c.legacyConfigPaths, c.legacySourcePath) {
+	var files []legacyCredentialScrub
+	for _, legacyPath := range c.CredentialProbePaths() {
 		if legacyPath == "" || legacyPath == c.Path || seen[legacyPath] {
 			continue
 		}
@@ -500,11 +545,11 @@ func (c *Config) scrubLegacyCredentials() error {
 			continue
 		}
 		if err != nil {
-			return fmt.Errorf("reading legacy config %s: %w", legacyPath, err)
+			return nil, fmt.Errorf("reading legacy config %s: %w", legacyPath, err)
 		}
 		var legacy Config
 		if err := parseConfigData(data, &legacy, legacyPath, "legacy config path"); err != nil {
-			return err
+			return nil, err
 		}
 		if !legacy.hasCredentialFields() {
 			continue
@@ -512,13 +557,11 @@ func (c *Config) scrubLegacyCredentials() error {
 		legacy.clearCredentialFields()
 		scrubbedData, err := marshalConfigData(legacy.persisted(), legacyPath)
 		if err != nil {
-			return fmt.Errorf("marshaling legacy config %s: %w", legacyPath, err)
+			return nil, fmt.Errorf("marshaling legacy config %s: %w", legacyPath, err)
 		}
-		if err := cliutil.AtomicWritePrivateFile(legacyPath, scrubbedData, 0o600, 0o700); err != nil {
-			return fmt.Errorf("scrubbing legacy config %s: %w", legacyPath, err)
-		}
+		files = append(files, legacyCredentialScrub{path: legacyPath, data: scrubbedData})
 	}
-	return nil
+	return files, nil
 }
 
 type persistedConfig struct {

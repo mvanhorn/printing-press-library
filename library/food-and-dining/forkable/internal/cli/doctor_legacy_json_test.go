@@ -29,8 +29,12 @@ func TestDoctorFindsCoexistingLegacyJSONCredentials(t *testing.T) {
 	if err := os.WriteFile(oldJSONPath, []byte(`{"access_token":"synthetic-secret"}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
 	report := map[string]any{}
-	collectCredentialsLocationReport(report, &config.Config{Path: activePath, CredentialSource: "config-kind path"})
+	collectCredentialsLocationReport(report, cfg)
 	locations, ok := report["credentials_locations"].([]string)
 	if !ok || len(locations) != 1 || locations[0] != oldJSONPath {
 		t.Fatalf("legacy JSON was not reported: %v", report["credentials_locations"])
@@ -38,5 +42,41 @@ func TestDoctorFindsCoexistingLegacyJSONCredentials(t *testing.T) {
 	warning, _ := report["credentials_location_warning"].(string)
 	if !strings.Contains(warning, oldJSONPath) {
 		t.Fatalf("legacy JSON secret warning missing: %q", warning)
+	}
+}
+
+func TestDoctorDoesNotClaimUnrelatedSiblingJSONForExplicitConfig(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("FORKABLE_HOME", "")
+	t.Setenv("FORKABLE_CONFIG", "")
+	t.Setenv("XDG_CONFIG_HOME", "")
+	sharedDir := filepath.Join(home, "shared")
+	if err := os.MkdirAll(sharedDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	activePath := filepath.Join(sharedDir, "config.toml")
+	if err := os.WriteFile(activePath, []byte("base_url = \"https://current.example\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	unrelatedPath := filepath.Join(sharedDir, "config.json")
+	if err := os.WriteFile(unrelatedPath, []byte(`{"access_token":"synthetic-other-app-value"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := config.Load(activePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	report := map[string]any{}
+	collectCredentialsLocationReport(report, cfg)
+	if locations, ok := report["credentials_locations"].([]string); ok {
+		for _, location := range locations {
+			if location == unrelatedPath {
+				t.Fatalf("doctor claimed unrelated config: %v", locations)
+			}
+		}
+	}
+	if warning, ok := report["credentials_location_warning"].(string); ok && strings.Contains(warning, unrelatedPath) {
+		t.Fatalf("doctor suggested scrubbing unrelated config: %q", warning)
 	}
 }
