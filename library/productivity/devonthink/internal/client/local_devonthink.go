@@ -72,7 +72,11 @@ func (c *Client) doLocalDEVONthink(ctx context.Context, method, path string, par
 	case path == "/databases":
 		return localJSON(c.localDatabases(ctx))
 	case path == "/records/search":
-		return localJSON(c.localRecordSearch(ctx, params))
+		records, err := c.localRecordSearchStrict(ctx, params)
+		if err != nil {
+			return nil, 0, err
+		}
+		return localJSON(records)
 	case path == "/records/lookup":
 		return localJSON(c.localRecordLookup(ctx, params))
 	case path == "/records/create" || path == "/records/update" || path == "/records/move":
@@ -196,6 +200,17 @@ func (c *Client) localDatabases(ctx context.Context) []map[string]any {
 }
 
 func (c *Client) localRecordSearch(ctx context.Context, params map[string]string) []map[string]any {
+	records, err := c.localRecordSearchStrict(ctx, params)
+	if err != nil {
+		return []map[string]any{}
+	}
+	return records
+}
+
+// The direct search route must report an MCP failure to its caller. Other
+// aggregate local views use localRecordSearch as an optional best-effort
+// enrichment and retain their empty-on-unavailable behavior.
+func (c *Client) localRecordSearchStrict(ctx context.Context, params map[string]string) ([]map[string]any, error) {
 	query := firstNonEmpty(params["query"], "kind:document")
 	args := map[string]any{"query": query}
 	if limit, ok := intParam(params, "limit"); ok {
@@ -213,19 +228,24 @@ func (c *Client) localRecordSearch(ctx context.Context, params map[string]string
 	if group := strings.TrimSpace(params["group"]); group != "" {
 		args["group_uuid"] = group
 	}
-	if raw, ok, err := c.localMCPToolJSON(ctx, "search_records", args); err == nil && ok {
-		var envelope struct {
-			Results []map[string]any `json:"results"`
-		}
-		if json.Unmarshal(raw, &envelope) == nil {
-			return envelope.Results
-		}
-		var direct []map[string]any
-		if json.Unmarshal(raw, &direct) == nil {
-			return direct
-		}
+	raw, ok, err := c.localMCPToolJSON(ctx, "search_records", args)
+	if err != nil {
+		return nil, err
 	}
-	return []map[string]any{}
+	if !ok {
+		return nil, fmt.Errorf("DEVONthink MCP search_records is unavailable")
+	}
+	var envelope struct {
+		Results []map[string]any `json:"results"`
+	}
+	if json.Unmarshal(raw, &envelope) == nil && envelope.Results != nil {
+		return envelope.Results, nil
+	}
+	var direct []map[string]any
+	if err := json.Unmarshal(raw, &direct); err != nil || direct == nil {
+		return nil, fmt.Errorf("DEVONthink MCP search_records returned an invalid record list")
+	}
+	return direct, nil
 }
 
 func (c *Client) localRecordLookup(ctx context.Context, params map[string]string) map[string]any {

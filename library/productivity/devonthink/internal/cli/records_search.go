@@ -64,6 +64,11 @@ func newRecordsSearchCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if scope != nil {
+				// A failed dynamic scope must not fall back to unscoped rows,
+				// but a successful scoped read still feeds offline record search.
+				if !flags.dryRun {
+					writeThroughCache(cmd.Context(), "records", data)
+				}
 				prov.Scope = scope
 			}
 			// Honor --limit when the API accepts but ignores ?limit=N.
