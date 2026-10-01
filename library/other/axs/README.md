@@ -4,6 +4,8 @@ SRAM AXS CLI for bikes, components, registrations, ride activities, and synced c
 
 Created by [@stellato](https://github.com/stellato) (Greg Stellato).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `axs-pp-cli` binary and the `pp-axs` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -117,6 +119,16 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```
 
 </details>
+
+## HTTP MCP access
+
+The MCP server uses stdio by default. For HTTP, set a dedicated `PP_MCP_HTTP_TOKEN` and bind to a loopback address:
+
+```bash
+PP_MCP_HTTP_TOKEN="<your-separate-random-token>" axs-pp-mcp --transport http --addr 127.0.0.1:7777
+```
+
+Every HTTP request must send that token as a bearer token in its `Authorization` header. The HTTP server rejects public bind addresses; use an authenticated TLS proxy or tunnel if a remote client needs access. Keep `PP_MCP_HTTP_TOKEN` separate from `SRAM_AXS_TOKEN`, which authenticates requests to the AXS service. Stdio use does not require the HTTP token.
 
 ## Authentication
 
