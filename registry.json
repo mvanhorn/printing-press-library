@@ -5013,9 +5013,9 @@
       "path": "library/cloud/cloudflare",
       "release": {
         "cli_name": "cloudflare-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T02:58:45Z",
-        "source_commit": "b9919bcc7c214bad576f361557ba39739090f277"
+        "version": "2026.10.2",
+        "released_at": "2026-10-01T22:09:24Z",
+        "source_commit": "802b7744c60606bb83945cedecadf8121d92fcd2"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
@@ -7620,9 +7620,9 @@
       "path": "library/ai/elevenlabs",
       "release": {
         "cli_name": "elevenlabs-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T02:58:45Z",
-        "source_commit": "b9919bcc7c214bad576f361557ba39739090f277"
+        "version": "2026.10.2",
+        "released_at": "2026-10-01T22:07:06Z",
+        "source_commit": "6a0986ee96fae7da43148e2606670a0294d19c5b"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
@@ -9125,9 +9125,9 @@
       "path": "library/ai/fish-audio",
       "release": {
         "cli_name": "fish-audio-pp-cli",
-        "version": "2026.10.4",
-        "released_at": "2026-10-01T21:40:43Z",
-        "source_commit": "ede3e87e30f119031c872986033e5d9b7d3e31b2"
+        "version": "2026.10.5",
+        "released_at": "2026-10-01T21:50:39Z",
+        "source_commit": "33f732fef8aff4b50856a7dcb0cf3b30c90b3e48"
       },
       "printer": "jongouveia",
       "printer_name": "Jon Gouveia",
@@ -9186,9 +9186,9 @@
       "path": "library/travel/flight-goat",
       "release": {
         "cli_name": "flight-goat-pp-cli",
-        "version": "2026.9.4",
-        "released_at": "2026-09-30T08:53:43Z",
-        "source_commit": "314c143ac10b850ba6dd13d3b5492ffc44ef1368"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:49:09Z",
+        "source_commit": "653e24fa44b47dea577b74d0a29d913036ce6707"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -11598,9 +11598,9 @@
       "path": "library/productivity/granola",
       "release": {
         "cli_name": "granola-pp-cli",
-        "version": "2026.9.3",
-        "released_at": "2026-09-21T00:23:16Z",
-        "source_commit": "7f8548e7329a9a1732fcd075b64e5e0d1d14c799"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:59:12Z",
+        "source_commit": "ca3ca3412fe6c03df3513dc66adacf20e8f8f4c6"
       },
       "printer": "dstevens",
       "printer_name": "Damien Stevens",
@@ -11620,6 +11620,10 @@
         {
           "handle": "giuseppebisemi",
           "name": "Giuseppe Bisemi"
+        },
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
         }
       ],
       "mcp": {
@@ -22688,9 +22692,9 @@
       "path": "library/other/retraction-checker",
       "release": {
         "cli_name": "retraction-checker-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T21:37:53Z",
-        "source_commit": "21a2eb5e6935267857fcba73f243c7abb0a8b58a"
+        "version": "2026.10.2",
+        "released_at": "2026-10-01T22:05:26Z",
+        "source_commit": "5bc491139a7940c81cd4d564f048d5e58d1ae836"
       },
       "printer": "laci141",
       "printer_name": "laci141",
@@ -25004,9 +25008,9 @@
       "path": "library/media-and-entertainment/skool",
       "release": {
         "cli_name": "skool-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:56:03Z",
+        "source_commit": "42929c8eb99b103a83acfb74078c53ad71316e35"
       },
       "printer": "quoxientzero",
       "printer_name": "Zain Haseeb",
@@ -25018,6 +25022,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
         }
       ],
       "mcp": {
@@ -25066,9 +25074,9 @@
       "path": "library/productivity/slack",
       "release": {
         "cli_name": "slack-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T22:10:34Z",
+        "source_commit": "e42e4e1415c9f41a013f780ca2c4bdfddbd378fd"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -25080,6 +25088,10 @@
         {
           "handle": "ChrisGutierrezNet",
           "name": "Chris G. | AI Automation"
+        },
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
         }
       ],
       "mcp": {
@@ -25992,9 +26004,9 @@
       "path": "library/payments/stripe",
       "release": {
         "cli_name": "stripe-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T22:00:45Z",
+        "source_commit": "57d26520af98a82407865a6c09925db76d216652"
       },
       "printer": "crodorg",
       "printer_name": "Chris Rodriguez",
@@ -28837,6 +28849,12 @@
         "handle": "phoenix-server",
         "name": "Ricardo Cabral"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "unifi-pp-mcp",
         "transports": [
@@ -30751,9 +30769,9 @@
       "path": "library/social-and-messaging/x-twitter",
       "release": {
         "cli_name": "x-twitter-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T22:03:40Z",
+        "source_commit": "e1a6190c03782765f4a03cf2b436eb1cf096077e"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",

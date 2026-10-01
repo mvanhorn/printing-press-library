@@ -6,6 +6,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -19,11 +20,46 @@ import (
 var doiInBibRe = regexp.MustCompile(`(?i)10\.\d{4,9}/[-._;()/:a-z0-9]+`)
 
 type scanResult struct {
-	File            string              `json:"file"`
-	Total           int                 `json:"total"`
-	RetractedCount  int                 `json:"retracted_count"`
-	FailureCount    int                 `json:"failure_count"`
-	Entries         []retractionVerdict `json:"entries"`
+	File           string              `json:"file"`
+	Total          int                 `json:"total"`
+	RetractedCount int                 `json:"retracted_count"`
+	ConcernCount   int                 `json:"concern_count"`
+	FailureCount   int                 `json:"failure_count"`
+	Entries        []retractionVerdict `json:"entries"`
+}
+
+func summarizeScan(path string, verdicts []retractionVerdict) scanResult {
+	res := scanResult{File: path, Total: len(verdicts), Entries: verdicts}
+	for _, verdict := range verdicts {
+		if verdict.Retracted {
+			res.RetractedCount++
+		}
+		if verdict.ExpressionOfConcern {
+			res.ConcernCount++
+		}
+		if verdict.Error != "" {
+			res.FailureCount++
+		}
+	}
+	return res
+}
+
+func writeHumanScanResult(w io.Writer, res scanResult) {
+	fmt.Fprintf(w, "Scanned %d entries from %s: %d retracted, %d editorial concerns, %d errors\n\n", res.Total, res.File, res.RetractedCount, res.ConcernCount, res.FailureCount)
+	for _, verdict := range res.Entries {
+		switch {
+		case verdict.Error != "":
+			fmt.Fprintf(w, "  ?  %s (%s)\n", verdict.Input, verdict.Error)
+		case verdict.Retracted && verdict.ExpressionOfConcern:
+			fmt.Fprintf(w, "  X! RETRACTED + EDITORIAL CONCERN  %s  %s\n", verdict.DOI, verdict.Date)
+		case verdict.Retracted:
+			fmt.Fprintf(w, "  X  RETRACTED  %s  %s\n", verdict.DOI, verdict.Date)
+		case verdict.ExpressionOfConcern:
+			fmt.Fprintf(w, "  !  EDITORIAL CONCERN  %s  %s\n", verdict.DOI, verdict.Date)
+		default:
+			fmt.Fprintf(w, "  ok            %s\n", verdict.DOI)
+		}
+	}
 }
 
 // parseIdentifiers extracts one DOI/PMID per meaningful line. For .bib content
@@ -122,32 +158,14 @@ func newNovelScanCmd(flags *rootFlags) *cobra.Command {
 			}
 			wg.Wait()
 
-			res := scanResult{File: path, Total: len(ids), Entries: verdicts}
-			for _, v := range verdicts {
-				if v.Retracted {
-					res.RetractedCount++
-				}
-				if v.Error != "" {
-					res.FailureCount++
-				}
-			}
+			res := summarizeScan(path, verdicts)
 			if res.FailureCount > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d entries could not be checked\n", res.FailureCount, res.Total)
 			}
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), res, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Scanned %d entries from %s: %d retracted, %d errors\n\n", res.Total, path, res.RetractedCount, res.FailureCount)
-			for _, v := range verdicts {
-				switch {
-				case v.Error != "":
-					fmt.Fprintf(cmd.OutOrStdout(), "  ?  %s (%s)\n", v.Input, v.Error)
-				case v.Retracted:
-					fmt.Fprintf(cmd.OutOrStdout(), "  X  RETRACTED  %s  %s\n", v.DOI, v.Date)
-				default:
-					fmt.Fprintf(cmd.OutOrStdout(), "  ok            %s\n", v.DOI)
-				}
-			}
+			writeHumanScanResult(cmd.OutOrStdout(), res)
 			return nil
 		},
 	}

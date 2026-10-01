@@ -45,6 +45,8 @@ type rootFlags struct {
 	// non-stdout sink. Flushed to the sink after Execute returns.
 	deliverBuf  *bytes.Buffer
 	deliverSink DeliverSink
+	// A checked DOI can produce a valid JSON error verdict and a failing exit.
+	deliverOnError bool
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -77,7 +79,7 @@ func Execute() error {
 			}
 		}
 	}
-	if err == nil && flags.deliverBuf != nil {
+	if flags.deliverBuf != nil && (err == nil || flags.deliverOnError) {
 		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr

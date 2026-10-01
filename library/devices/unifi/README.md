@@ -4,6 +4,10 @@
 
 unifi-pp-cli wraps the full local Network integration API (devices, clients, firewall, ACL, networks, VPN, switching) with a local SQLite mirror. That mirror is what lets it answer questions the live API can't: what changed since yesterday, what device just joined, and which firewall rule would match a given packet.
 
+Created by [@phoenix-server](https://github.com/phoenix-server) (Ricardo Cabral).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `unifi-pp-cli` binary and the `pp-unifi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

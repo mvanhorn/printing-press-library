@@ -16,6 +16,7 @@ func newUsersLookupByEmailCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "lookup-by-email",
+		Aliases:     []string{"lookup_by_email"},
 		Short:       "Find a user by their email address",
 		Example:     "  slack-pp-cli users lookup-by-email --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "users.lookup_by_email", "pp:method": "GET", "pp:path": "/users.lookupByEmail", "mcp:read-only": "true"},

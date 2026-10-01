@@ -3,13 +3,101 @@
 package cli
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/config"
 )
+
+func TestPostCanvasReportsVerifyMutationAsNoop(t *testing.T) {
+	profileDir := t.TempDir()
+	t.Setenv("HOME", profileDir)
+	t.Setenv("USERPROFILE", profileDir)
+	t.Setenv("XDG_CONFIG_HOME", profileDir)
+	t.Setenv("SLACK_BASE_URL", "http://127.0.0.1:1")
+	t.Setenv("SLACK_BOT_TOKEN", "xoxb-test-placeholder")
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+
+	flags := &rootFlags{asJSON: true, noCache: true}
+	cmd := newCanvasesCreateCmd(flags)
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"--title", "Verify-only canvas"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute canvases create in verify mode: %v", err)
+	}
+	var output struct {
+		Success    bool `json:"success"`
+		VerifyNoop bool `json:"verify_noop"`
+		Data       struct {
+			Synthetic bool   `json:"__pp_verify_synthetic__"`
+			Status    string `json:"status"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &output); err != nil {
+		t.Fatalf("decode canvas output: %v\n%s", err, stdout.String())
+	}
+	if output.Success {
+		t.Fatal("verify-mode canvas mutation reported success")
+	}
+	if !output.VerifyNoop || !output.Data.Synthetic || output.Data.Status != "noop" {
+		t.Fatalf("verify-mode output = %#v, want an explicit synthetic no-op", output)
+	}
+}
+
+func TestPostCanvasReportsVerifyNoopAfterOutputFilters(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		flags rootFlags
+	}{
+		{"select", rootFlags{asJSON: true, noCache: true, selectFields: "status"}},
+		{"compact", rootFlags{asJSON: true, noCache: true, compact: true}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			profileDir := t.TempDir()
+			t.Setenv("HOME", profileDir)
+			t.Setenv("USERPROFILE", profileDir)
+			t.Setenv("XDG_CONFIG_HOME", profileDir)
+			t.Setenv("SLACK_BASE_URL", "http://127.0.0.1:1")
+			t.Setenv("SLACK_BOT_TOKEN", "xoxb-test-placeholder")
+			t.Setenv("PRINTING_PRESS_VERIFY", "1")
+			t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+
+			flags := &tc.flags
+			cmd := newCanvasesCreateCmd(flags)
+			var stdout bytes.Buffer
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&bytes.Buffer{})
+			cmd.SetArgs([]string{"--title", "Verify-only canvas"})
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("execute canvases create in verify mode: %v", err)
+			}
+			var output struct {
+				Success    bool           `json:"success"`
+				VerifyNoop bool           `json:"verify_noop"`
+				Data       map[string]any `json:"data"`
+			}
+			if err := json.Unmarshal(stdout.Bytes(), &output); err != nil {
+				t.Fatalf("decode canvas output: %v\n%s", err, stdout.String())
+			}
+			if output.Success || !output.VerifyNoop {
+				t.Fatalf("filtered verify-mode output = %#v, want success=false and verify_noop=true", output)
+			}
+			if tc.name == "select" {
+				if _, ok := output.Data["__pp_verify_synthetic__"]; ok {
+					t.Fatalf("select output retained synthetic marker: %#v", output.Data)
+				}
+			}
+		})
+	}
+}
 
 // Canvas bodies come back as the HTML Slack serves from url_private_download.
 // --format text only needs to be greppable, but it must not drop visible text or

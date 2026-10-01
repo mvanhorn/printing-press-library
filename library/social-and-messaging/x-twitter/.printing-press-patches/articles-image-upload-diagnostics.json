@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "articles-image-upload-diagnostics",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "When an article image reads successfully but is not a supported raster type, UploadArticleImage returns an actionable error (resolved path, byte size, detected type, and Git LFS pointer detection) rather than a bare MIME string.",
+  "reason": "A successful read that yields text/plain almost always means the path points at the wrong file — most often an unresolved Git LFS pointer or an SVG/text file with an image extension. The original 'unsupported image type \"text/plain; charset=utf-8\"' error gave no path or cause and led to repeated publish retries.",
+  "files": [
+    "internal/client/article_media_upload.go",
+    "internal/client/article_media_upload_test.go"
+  ],
+  "validated_outcome": "Synthetic tests assert the absolute path, byte count, and detected MIME type for both an unresolved Git LFS pointer and a non-image text file; neither reaches an upload request.",
+  "upstream_issue": ""
+}

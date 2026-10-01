@@ -23,7 +23,7 @@ func (c *Client) UploadArticleImage(ctx context.Context, path string) (string, e
 	}
 	mediaType := http.DetectContentType(data)
 	if mediaType != "image/png" && mediaType != "image/jpeg" && mediaType != "image/gif" && mediaType != "image/webp" {
-		return "", fmt.Errorf("unsupported image type %q", mediaType)
+		return "", unsupportedArticleImageError(path, data, mediaType)
 	}
 	mediaID, err := c.initArticleMediaUpload(ctx, len(data), mediaType)
 	if err != nil {
@@ -36,6 +36,23 @@ func (c *Client) UploadArticleImage(ctx context.Context, path string) (string, e
 		return "", err
 	}
 	return mediaID, nil
+}
+
+// unsupportedArticleImageError builds an actionable error when a referenced
+// article image does not read as a supported raster type. A successful read
+// that yields a non-image content type almost always means the path points at
+// the wrong file — most commonly an unresolved Git LFS pointer (a small text
+// stub) or an SVG/text file with a misleading extension — so the message names
+// the resolved path, size, and likely cause instead of just the MIME type.
+func unsupportedArticleImageError(path string, data []byte, mediaType string) error {
+	resolved := path
+	if abs, err := filepath.Abs(path); err == nil {
+		resolved = abs
+	}
+	if bytes.HasPrefix(data, []byte("version https://git-lfs.github.com/spec/")) {
+		return fmt.Errorf("%s is an unresolved Git LFS pointer (%d bytes, detected %s), not image data; run `git lfs pull` to fetch the real file, then retry", resolved, len(data), mediaType)
+	}
+	return fmt.Errorf("read %d bytes from %s but it is %s, not a supported image (X Articles accept PNG, JPEG, GIF, or WebP); verify the path points at the actual image and not an SVG or text file", len(data), resolved, mediaType)
 }
 
 func (c *Client) initArticleMediaUpload(ctx context.Context, totalBytes int, mediaType string) (string, error) {

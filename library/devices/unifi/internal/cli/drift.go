@@ -2,7 +2,7 @@
 // Novel command: see .printing-press-patches/ for context. Hand-authored, not
 // generator output — regen-merge preserves this file.
 
-// pp:data-source computed
+// pp:data-source local
 
 package cli
 
@@ -66,6 +66,9 @@ func newNovelDriftCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
+			}
+			if err := validateDataSourceStrategy(flags, "local"); err != nil {
+				return err
 			}
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "drift")

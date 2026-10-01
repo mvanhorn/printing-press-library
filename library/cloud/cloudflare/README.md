@@ -148,6 +148,8 @@ cloudflare-pp-cli doctor
 
 This checks your configuration and credentials.
 
+For an agent to check whether credentials are present without making an API call, use `cloudflare-pp-cli auth status --agent`. It returns one JSON object with `authenticated` and `blocked` fields; missing credentials include a setup hint.
+
 ### 4. Try Your First Command
 
 ```bash

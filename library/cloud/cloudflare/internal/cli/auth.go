@@ -135,14 +135,22 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if flags.asJSON {
 				out := map[string]any{
 					"authenticated": authed,
+					"blocked":       !authed,
 					"verified":      false,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
+				}
+				if !authed {
+					out["error"] = "no credentials configured"
+					out["hint"] = "Run 'cloudflare-pp-cli auth setup' for credential setup steps, then provide CLOUDFLARE_API_TOKEN or save a token with auth set-token."
 				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
 					return printErr
 				}
 				if !authed {
+					if flags.agent {
+						return nil
+					}
 					return authErr(fmt.Errorf("no credentials configured"))
 				}
 				return nil

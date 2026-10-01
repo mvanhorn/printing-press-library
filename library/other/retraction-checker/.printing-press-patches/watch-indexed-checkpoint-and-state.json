@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "watch-indexed-checkpoint-and-state",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260702-090842-5bac53b7",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Start watch without claiming historical coverage, page through a bounded Crossref index-date window on later runs, and save private watch state atomically in the shared state directory with legacy fallback.",
+  "reason": "A one-page watch silently missed notices, treating the initial page as new misreported history, and from-update-date can miss Retraction Watch records indexed by an outside source. A failed or corrupt checkpoint must not silently acknowledge or lose an alert.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/watch_test.go"
+  ],
+  "validated_outcome": "Synthetic tests check complete cursor pagination beyond 100 pages, two command runs that import a legacy checkpoint under a state override, corruption rejection, and private file permissions."
+}

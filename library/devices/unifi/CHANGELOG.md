@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.10.1 - 2026-10-01
+
+- fix(unifi): declare drift as local data source (#2142).
+
 ## 2026.9.2 - 2026-09-16
 
 - fix(unifi): report a console page as a base-URL problem, not a bad credential (#2004).

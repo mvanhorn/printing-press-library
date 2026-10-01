@@ -68,7 +68,7 @@ func TestAuditListRejectsInvalidTimeBeforeRequest(t *testing.T) {
 }
 
 func TestNormalizeAuditTimestampEnforcesOneYearRetentionBoundary(t *testing.T) {
-	now := time.Date(2026, time.September, 20, 0, 0, 0, 0, time.UTC)
+	now := time.Date(2026, time.September, 20, 15, 30, 0, 0, time.UTC)
 	got, err := normalizeAuditTimestampAt("occurred-after", "2025-09-20", now)
 	if err != nil {
 		t.Fatalf("boundary timestamp rejected: %v", err)
@@ -78,6 +78,9 @@ func TestNormalizeAuditTimestampEnforcesOneYearRetentionBoundary(t *testing.T) {
 	}
 	if _, err := normalizeAuditTimestampAt("occurred-after", "2025-09-19T23:59:59Z", now); err == nil {
 		t.Fatal("expected timestamp outside one-year retention window to fail")
+	}
+	if _, err := normalizeAuditTimestampAt("occurred-after", "2025-09-20T15:29:59Z", now); err == nil {
+		t.Fatal("expected RFC3339 timestamp before the precise retention cutoff to fail")
 	}
 }
 

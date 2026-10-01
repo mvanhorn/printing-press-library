@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "sync-channel-scope-and-canvas-verify",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Default conversation sync to public and private channels, and report verifier-mode canvas mutations as no-ops even when output fields are filtered.",
+  "reason": "A default request for DM and group-DM scopes can fail for a bot token and skip useful channel mirroring. A synthetic verifier response must not be presented as a completed canvas write.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_slack_defaults_test.go",
+    "internal/cli/canvases.go",
+    "internal/cli/canvases_amend_test.go"
+  ],
+  "validated_outcome": "Synthetic tests check the channel-type default, other-resource isolation, and verifier no-op reporting for canvas writes. Request-level sync tests confirm explicit --param and --resource-param values override the default. Canvas command tests confirm --select and --compact preserve success=false and verify_noop=true after filtering. The full module test suite, go vet, and go build pass without provider HTTP."
+}

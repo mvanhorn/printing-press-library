@@ -21,6 +21,8 @@ metadata:
 Created by [@laci141](https://github.com/laci141) (laci141).
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
+`check` and `scan` report expressions of concern separately from retractions. A failed `check --json` lookup returns a nonzero status after printing its error verdict.
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `retraction-checker-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
@@ -87,6 +89,8 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   retraction-checker-pp-cli watch "machine learning" --json
   ```
+
+  The first run saves a checkpoint without fetching historical notices. Later runs check newly indexed records, including Retraction Watch additions. Existing config-directory checkpoints are imported into the current state path, including when a state override is set.
 
 ## Command Reference
 

@@ -70,7 +70,7 @@ func newWorksSearchCmd(flags *rootFlags) *cobra.Command {
 				"offset": formatCLIParamValue(flagOffset),
 				"select": formatCLIParamValue(flagSelect),
 				"mailto": formatCLIParamValue(flagMailto),
-			}, nil, flagAll, "offset", "offset", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "offset", "offset", "rows", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

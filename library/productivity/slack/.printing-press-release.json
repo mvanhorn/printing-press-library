@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "slack",
   "cli_name": "slack-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.10.2",
+  "released_at": "2026-10-01T22:13:58Z",
+  "source_commit": "d8b29fa048f63a29c9d6cfa5ced80bf4d8ea123d",
   "printing_press_version": "4.29.0",
   "run_id": "20260801-150754-271fdf29",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "Scope Slack sync and report verifier canvas no-ops",
+      "pr": 2156,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2156",
+      "commit": "d8b29fa048f63a29c9d6cfa5ced80bf4d8ea123d"
     }
   ]
 }

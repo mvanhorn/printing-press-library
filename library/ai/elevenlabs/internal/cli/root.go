@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.10.1"
+var version = "2026.10.2"
 
 type rootFlags struct {
 	asJSON        bool
@@ -241,6 +241,7 @@ Run 'elevenlabs-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newExportCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newVoiceBudgetCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))

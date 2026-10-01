@@ -4,7 +4,14 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -22,28 +29,103 @@ func TestNovelCheckHelpWires(t *testing.T) {
 	}
 }
 
-// TestNovelCheckBehavior is the placeholder for table-driven tests of
-// the check command's actual behavior. Replace the t.Skip with
-// real cases — reviewers will flag a shipped t.Skip.
-//
-// Suggested shape:
-//
-//	func TestNovelCheckBehavior(t *testing.T) {
-//	    cases := []struct {
-//	        name  string
-//	        input ...
-//	        want  ...
-//	    }{
-//	        // {name: "...", input: ..., want: ...},
-//	    }
-//	    for _, tc := range cases {
-//	        tc := tc
-//	        t.Run(tc.name, func(t *testing.T) {
-//	            t.Parallel()
-//	            // assertions here
-//	        })
-//	    }
-//	}
 func TestNovelCheckBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for check")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "backend unavailable", http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+	t.Setenv("RETRACTION_CHECKER_BASE_URL", srv.URL)
+	t.Setenv("RETRACTION_CHECKER_CONFIG_DIR", t.TempDir())
+	t.Setenv("RETRACTION_CHECKER_CACHE_DIR", t.TempDir())
+
+	cmd := RootCmd()
+	var out, errout bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errout)
+	cmd.SetArgs([]string{"check", "10.1000/failure", "--json", "--no-cache"})
+	err := cmd.Execute()
+	if err == nil || ExitCode(err) == 0 {
+		t.Fatalf("check error = %v, want nonzero failure", err)
+	}
+	if !json.Valid(out.Bytes()) || !strings.Contains(out.String(), `"error"`) {
+		t.Fatalf("structured failure output = %q, want valid JSON error verdict", out.String())
+	}
+}
+
+func TestHumanCheckShowsExpressionOfConcern(t *testing.T) {
+	var out bytes.Buffer
+	writeHumanCheckResult(&out, retractionVerdict{
+		DOI:                 "10.1000/concerned",
+		Title:               "Paper under review",
+		ExpressionOfConcern: true,
+		UpdateType:          "expression_of_concern",
+		Date:                "2026-09-01",
+		Source:              "publisher",
+		NoticeURL:           "https://doi.org/10.5555/notice",
+	})
+	for _, want := range []string{"EDITORIAL CONCERN", "expression_of_concern", "2026-09-01", "https://doi.org/10.5555/notice"} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("human check output = %q, want %q", out.String(), want)
+		}
+	}
+	if strings.Contains(out.String(), "NOT retracted") {
+		t.Fatalf("human check output hid the concern as clean: %q", out.String())
+	}
+}
+
+func TestHumanCheckKeepsRetractionAndConcernDetailsSeparate(t *testing.T) {
+	var out bytes.Buffer
+	writeHumanCheckResult(&out, retractionVerdict{
+		DOI: "10.1000/mixed", Retracted: true, ExpressionOfConcern: true,
+		UpdateType: "retraction", ConcernDate: "2026-09-01",
+		ConcernNoticeURL: "https://doi.org/10.5555/concern",
+	})
+	for _, want := range []string{"RETRACTED + EDITORIAL CONCERN", "Concern date:   2026-09-01", "Concern notice: https://doi.org/10.5555/concern"} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("mixed verdict output = %q, want %q", out.String(), want)
+		}
+	}
+}
+
+func TestNovelCheckErrorVerdictDelivered(t *testing.T) {
+	lookup := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "backend unavailable", http.StatusBadRequest)
+	}))
+	defer lookup.Close()
+	t.Setenv("RETRACTION_CHECKER_BASE_URL", lookup.URL)
+	t.Setenv("RETRACTION_CHECKER_CONFIG_DIR", t.TempDir())
+	t.Setenv("RETRACTION_CHECKER_CACHE_DIR", t.TempDir())
+	var webhookBody []byte
+	webhook := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var err error
+		webhookBody, err = io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("read webhook body: %v", err)
+		}
+	}))
+	defer webhook.Close()
+	file := filepath.Join(t.TempDir(), "verdict.json")
+	for _, sink := range []string{"file:" + file, "webhook:" + webhook.URL} {
+		t.Run(strings.SplitN(sink, ":", 2)[0], func(t *testing.T) {
+			previousArgs := os.Args
+			os.Args = []string{"retraction-checker-pp-cli", "check", "10.1000/failure", "--json", "--no-cache", "--deliver", sink}
+			defer func() { os.Args = previousArgs }()
+			if err := Execute(); err == nil || ExitCode(err) == 0 {
+				t.Fatalf("failed lookup must return nonzero, got %v", err)
+			}
+			var body []byte
+			if strings.HasPrefix(sink, "file:") {
+				var err error
+				body, err = os.ReadFile(file)
+				if err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				body = webhookBody
+			}
+			if !json.Valid(body) || !bytes.Contains(body, []byte(`"error"`)) {
+				t.Fatalf("delivered verdict must be valid JSON with an error, got %q", body)
+			}
+		})
+	}
 }

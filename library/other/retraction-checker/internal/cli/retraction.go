@@ -16,28 +16,33 @@ import (
 )
 
 // retractionTypes are the Crossref update-to/updated-by types that indicate a
-// paper has been retracted or otherwise flagged.
+// paper has been retracted. An expression of concern is tracked separately;
+// it warns about a paper but does not assert that the paper was retracted.
 var retractionTypes = map[string]bool{
-	"retraction":            true,
-	"withdrawal":            true,
-	"removal":               true,
-	"expression_of_concern": true,
+	"retraction": true,
+	"withdrawal": true,
+	"removal":    true,
 }
 
 // retractionVerdict is the structured result of a single retraction check.
 type retractionVerdict struct {
-	Input      string   `json:"input"`
-	DOI        string   `json:"doi,omitempty"`
-	Title      string   `json:"title,omitempty"`
-	Retracted  bool     `json:"retracted"`
-	UpdateType string   `json:"update_type,omitempty"`
-	Date       string   `json:"date,omitempty"`
-	Source     string   `json:"source,omitempty"`
-	NoticeDOI  string   `json:"notice_doi,omitempty"`
-	NoticeURL  string   `json:"notice_url,omitempty"`
-	Published  string   `json:"published,omitempty"`
-	Signals    []string `json:"signals,omitempty"`
-	Error      string   `json:"error,omitempty"`
+	Input               string   `json:"input"`
+	DOI                 string   `json:"doi,omitempty"`
+	Title               string   `json:"title,omitempty"`
+	Retracted           bool     `json:"retracted"`
+	ExpressionOfConcern bool     `json:"expression_of_concern,omitempty"`
+	UpdateType          string   `json:"update_type,omitempty"`
+	Date                string   `json:"date,omitempty"`
+	Source              string   `json:"source,omitempty"`
+	NoticeDOI           string   `json:"notice_doi,omitempty"`
+	NoticeURL           string   `json:"notice_url,omitempty"`
+	ConcernDate         string   `json:"concern_date,omitempty"`
+	ConcernSource       string   `json:"concern_source,omitempty"`
+	ConcernNoticeDOI    string   `json:"concern_notice_doi,omitempty"`
+	ConcernNoticeURL    string   `json:"concern_notice_url,omitempty"`
+	Published           string   `json:"published,omitempty"`
+	Signals             []string `json:"signals,omitempty"`
+	Error               string   `json:"error,omitempty"`
 }
 
 // crossrefUpdate mirrors an entry of message.update-to / message.updated-by.
@@ -200,22 +205,37 @@ func checkDOI(ctx context.Context, c crossrefGetter, mailto, doi string) (retrac
 		v.Published = m.Issued.iso()
 	}
 
-	// Signal 1: updated-by records pointing at this work (retraction notices).
-	// Signal 2: update-to records of type retraction on this record itself.
-	updates := append([]crossrefUpdate{}, m.UpdateBy...)
-	updates = append(updates, m.UpdateTo...)
-	for _, u := range updates {
-		if retractionTypes[strings.ToLower(u.Type)] {
+	// Only updated-by proves that another record updated the checked work.
+	// update-to describes the opposite direction (the checked record updates
+	// some other work), so treating it as evidence would mark notices and
+	// corrections themselves as retracted.
+	for _, u := range m.UpdateBy {
+		updateType := strings.ToLower(u.Type)
+		if updateType == "expression_of_concern" {
+			v.ExpressionOfConcern = true
+			v.Signals = append(v.Signals, "crossref-update:"+u.Type)
+			if v.ConcernNoticeDOI == "" {
+				v.ConcernDate = u.Updated.iso()
+				v.ConcernSource = u.Source
+				v.ConcernNoticeDOI = u.DOI
+				if u.DOI != "" {
+					v.ConcernNoticeURL = "https://doi.org/" + u.DOI
+				}
+			}
+			continue
+		}
+		if retractionTypes[updateType] {
 			v.Retracted = true
-			v.UpdateType = u.Type
-			v.Date = u.Updated.iso()
-			v.Source = u.Source
-			v.NoticeDOI = u.DOI
-			if u.DOI != "" {
-				v.NoticeURL = "https://doi.org/" + u.DOI
+			if v.UpdateType == "" {
+				v.UpdateType = u.Type
+				v.Date = u.Updated.iso()
+				v.Source = u.Source
+				v.NoticeDOI = u.DOI
+				if u.DOI != "" {
+					v.NoticeURL = "https://doi.org/" + u.DOI
+				}
 			}
 			v.Signals = append(v.Signals, "crossref-update:"+u.Type)
-			break
 		}
 	}
 
@@ -227,6 +247,13 @@ func checkDOI(ctx context.Context, c crossrefGetter, mailto, doi string) (retrac
 		if v.UpdateType == "" {
 			v.UpdateType = "retraction"
 		}
+	}
+	if v.ExpressionOfConcern && !v.Retracted {
+		v.UpdateType = "expression_of_concern"
+		v.Date = v.ConcernDate
+		v.Source = v.ConcernSource
+		v.NoticeDOI = v.ConcernNoticeDOI
+		v.NoticeURL = v.ConcernNoticeURL
 	}
 	return v, nil
 }

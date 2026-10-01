@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "elevenlabs",
   "cli_name": "elevenlabs-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T02:58:45Z",
-  "source_commit": "b9919bcc7c214bad576f361557ba39739090f277",
+  "version": "2026.10.2",
+  "released_at": "2026-10-01T22:07:06Z",
+  "source_commit": "6a0986ee96fae7da43148e2606670a0294d19c5b",
   "printing_press_version": "4.5.2",
   "run_id": "20260513T152516Z-e836a3fe",
   "changes": [
     {
-      "title": "fix(library): send numeric and boolean request-body fields with their declared JSON type",
-      "pr": 2106,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2106",
-      "commit": "b9919bcc7c214bad576f361557ba39739090f277"
+      "title": "feat(elevenlabs): add accurate voice budget readout",
+      "pr": 2148,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2148",
+      "commit": "6a0986ee96fae7da43148e2606670a0294d19c5b"
     }
   ]
 }

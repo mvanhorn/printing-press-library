@@ -4,6 +4,9 @@
 
 Slack hides messages past the free-plan retention window and gates export behind admin. This CLI syncs conversations, users, files, and reactions into a local SQLite database with full-text search, so `archive recall` finds decisions Slack itself will no longer serve you. On top of the mirror it computes things no endpoint returns: `catchup` for what is still waiting on you, `threads stale` for unanswered threads, and `health` for which channels are dying.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@ChrisGutierrezNet](https://github.com/ChrisGutierrezNet) (Chris G. | AI Automation), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `slack-pp-cli` binary and the `pp-slack` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -144,6 +147,8 @@ slack-pp-cli archive recall "deploy" --agent
 slack-pp-cli catchup --since 24h
 
 ```
+
+The conversation sync defaults to public and private channels, which avoids asking a bot token for DM scopes it may lack. An explicit sync parameter can change the channel types.
 
 ## Unique Features
 
@@ -335,6 +340,7 @@ Create, edit, share, and delete Slack canvases
 
 Requires the `canvases:write` and `canvases:read` scopes, plus `files:read` for
 `canvases read`.
+Verifier-mode canvas writes report a no-op rather than a successful change.
 
 Slack publishes no get-canvas-content endpoint, so `read` resolves the canvas's
 backing file through `files.info` and downloads `url_private_download`. Content
@@ -375,7 +381,7 @@ Read channel history, list channels, manage channel membership
 - **`slack-pp-cli conversations archive`** - Archive a channel
 - **`slack-pp-cli conversations create`** - Create a new channel
 - **`slack-pp-cli conversations get`** - Get information about a channel
-- **`slack-pp-cli conversations history`** - Fetch message history for a channel
+- **`slack-pp-cli conversations history`** - Fetch channel history with `--channel ID`, or read an existing DM with `--user USER_ID` and `SLACK_USER_TOKEN`. DM lookup does not create a conversation. A bot token reads an accessible D-prefixed channel first; a user token retries if the bot cannot find the channel or lacks its history scope. DM lookup needs live access, so `--data-source local` is rejected.
 - **`slack-pp-cli conversations invite`** - Invite users to a channel
 - **`slack-pp-cli conversations list`** - List all channels in the workspace
 - **`slack-pp-cli conversations mark`** - Mark a channel as read up to a specific message
@@ -515,7 +521,7 @@ Send, read, update, and delete messages in channels and DMs
 - **`slack-pp-cli messages delete-message`** - Delete a message
 - **`slack-pp-cli messages get-permalink`** - Get a permalink URL for a message
 - **`slack-pp-cli messages list-scheduled`** - List scheduled messages
-- **`slack-pp-cli messages post-message`** - Send a message to a channel, DM, or thread
+- **`slack-pp-cli messages post-message`** - Send a message to a channel, DM, or thread. The older `post_message` spelling remains an alias.
 - **`slack-pp-cli messages schedule-message`** - Schedule a message for later delivery
 - **`slack-pp-cli messages update-message`** - Update an existing message
 

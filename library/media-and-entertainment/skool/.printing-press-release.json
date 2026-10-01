@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "skool",
   "cli_name": "skool-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T21:56:03Z",
+  "source_commit": "42929c8eb99b103a83acfb74078c53ad71316e35",
   "printing_press_version": "4.0.6",
   "run_id": "20260510-114931",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(skool): honor community sync page limits",
+      "pr": 2144,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2144",
+      "commit": "42929c8eb99b103a83acfb74078c53ad71316e35"
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "mcp-live-write-confirmation",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260509-093200",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Require explicit confirmation for live CLI and MCP writes using the credential actually sent, while allowing request-free CLI previews.",
+  "reason": "Stripe live mutations affect real accounts. The guard recognizes secret and restricted live keys, including encoded Basic and Bearer headers, without treating unused credentials or request-free previews as live requests.",
+  "files": [
+    "internal/config/live_mode.go",
+    "internal/cli/live_mode_guard.go",
+    "internal/cli/live_mode_dry_run_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/live_mode_guard.go",
+    "internal/mcp/live_mode_guard_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Synthetic tests block unconfirmed live writes before HTTP, preserve CLI dry-run previews, require top-level boolean MCP confirmation, and strip nested confirmation controls from Stripe request bodies for live and test credentials."
+}

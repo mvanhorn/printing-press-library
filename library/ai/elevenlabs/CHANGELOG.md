@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.10.2 - 2026-10-01
+
+- feat(elevenlabs): add accurate voice budget readout (#2148).
+
 ## 2026.10.1 - 2026-10-01
 
 - fix(library): send numeric and boolean request-body fields with their declared JSON type (#2106).

@@ -10,6 +10,9 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	sqlite "modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 // granolaSchemaSQL is the set of CREATE TABLE statements added on top of
@@ -1105,10 +1108,51 @@ func upsertAPINote(ctx context.Context, tx *sql.Tx, n *APINote, res *APISyncResu
 // complete unfiltered list. Incremental/windowed syncs must never call this:
 // absence from a partial response says nothing about upstream existence.
 func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]struct{}) (int, error) {
+	return reconcileMissingAPINotes(ctx, db, seen, nil)
+}
+
+func reconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]struct{}, afterScan func()) (int, error) {
 	if err := EnsureSchema(ctx, db); err != nil {
 		return 0, err
 	}
-	rows, err := db.QueryContext(ctx, `SELECT id FROM meetings WHERE row_source='api' AND COALESCE(deleted_at, '')=''`)
+	// A peer can commit to the WAL between our read snapshot and first write.
+	// SQLite then refuses that snapshot's write upgrade; restart the complete
+	// selection and deletion transaction rather than leaving notes stale.
+	for attempt := 0; ; attempt++ {
+		deleted, err := reconcileMissingAPINotesOnce(ctx, db, seen, afterScan)
+		if err == nil || !isReconcileSQLiteBusy(err) || attempt >= 4 {
+			return deleted, err
+		}
+		wait := time.NewTimer(time.Duration(25<<attempt) * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			wait.Stop()
+			return 0, ctx.Err()
+		case <-wait.C:
+		}
+	}
+}
+
+func isReconcileSQLiteBusy(err error) bool {
+	var sqliteErr *sqlite.Error
+	if !errors.As(err, &sqliteErr) {
+		return false
+	}
+	switch sqliteErr.Code() & 0xff {
+	case sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED:
+		return true
+	default:
+		return false
+	}
+}
+
+func reconcileMissingAPINotesOnce(ctx context.Context, db *sql.DB, seen map[string]struct{}, afterScan func()) (int, error) {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.QueryContext(ctx, `SELECT id FROM meetings WHERE row_source='api' AND COALESCE(deleted_at, '')=''`)
 	if err != nil {
 		return 0, fmt.Errorf("list API-owned meetings for reconciliation: %w", err)
 	}
@@ -1123,21 +1167,36 @@ func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]s
 			missing = append(missing, id)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return 0, fmt.Errorf("read API-owned meetings for reconciliation: %w", err)
+	}
 	if err := rows.Close(); err != nil {
 		return 0, err
 	}
 	if len(missing) == 0 {
 		return 0, nil
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return 0, err
+	if afterScan != nil {
+		afterScan()
 	}
-	defer tx.Rollback()
 	deletedAt := time.Now().UTC().Format(time.RFC3339Nano)
 	for _, id := range missing {
 		if _, err := tx.ExecContext(ctx, `UPDATE meetings SET deleted_at=? WHERE id=? AND row_source='api'`, deletedAt, id); err != nil {
 			return 0, fmt.Errorf("mark missing API note %s deleted: %w", id, err)
+		}
+		// API-owned dependent rows must disappear with the upstream note or
+		// direct transcript/attendee/membership reads can bypass the tombstone.
+		// Cache-owned rows are intentionally retained: a later cache sync owns
+		// their lifecycle independently of the public API list.
+		if _, err := tx.ExecContext(ctx, `DELETE FROM transcript_segments WHERE meeting_id=? AND row_source=?`, id, RowSourceAPI); err != nil {
+			return 0, fmt.Errorf("remove transcript for missing API note %s: %w", id, err)
+		}
+		if _, err := tx.ExecContext(ctx, `DELETE FROM attendees WHERE meeting_id=? AND row_source=?`, id, RowSourceAPI); err != nil {
+			return 0, fmt.Errorf("remove attendees for missing API note %s: %w", id, err)
+		}
+		if _, err := tx.ExecContext(ctx, `DELETE FROM folder_memberships WHERE meeting_id=? AND row_source=?`, id, RowSourceAPI); err != nil {
+			return 0, fmt.Errorf("remove folder memberships for missing API note %s: %w", id, err)
 		}
 	}
 	if err := tx.Commit(); err != nil {

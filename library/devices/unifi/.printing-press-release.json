@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "unifi",
   "cli_name": "unifi-pp-cli",
-  "version": "2026.9.2",
-  "released_at": "2026-09-16T09:10:37Z",
-  "source_commit": "fe77f6282b234da51fff26dec5ae56c6d5fb9d0e",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T22:11:32Z",
+  "source_commit": "c998371972d55a52b32964beac8e53d6257e35c6",
   "printing_press_version": "4.30.1",
   "run_id": "20260812-163238-8a1e9cdb",
   "changes": [
     {
-      "title": "fix(unifi): report a console page as a base-URL problem, not a bad credential",
-      "pr": 2004,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2004",
-      "commit": "fe77f6282b234da51fff26dec5ae56c6d5fb9d0e"
+      "title": "fix(unifi): declare drift as local data source",
+      "pr": 2142,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2142",
+      "commit": "c998371972d55a52b32964beac8e53d6257e35c6"
     }
   ]
 }

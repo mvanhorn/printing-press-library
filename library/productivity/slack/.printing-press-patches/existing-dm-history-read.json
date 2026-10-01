@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "existing-dm-history-read",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Read an existing Slack DM by user ID or D-prefixed channel ID with a user token, while retaining the bot-token read path for accessible DMs.",
+  "reason": "A raw DM channel ID can return channel_not_found until the DM is resolved for the user. The history command must not create a new conversation or require a user token when the bot can already read the DM.",
+  "files": [
+    "internal/cli/conversations_history.go",
+    "internal/cli/conversations_history_dm_test.go",
+    "internal/cli/slack_dm_helpers.go"
+  ],
+  "validated_outcome": "Synthetic tests check existing-DM lookup with prevent_creation, bot-token-first reads, user-token fallback, local-source rejection, retry errors, mutually exclusive flags, and dry-run filters without a request."
+}

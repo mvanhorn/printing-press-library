@@ -230,7 +230,9 @@ func (c *Client) doContext(ctx context.Context, method, path string, params map[
 			return nil, 0, err
 		}
 		// Proactive rate limiting — wait before sending
-		c.limiter.Wait()
+		if err := c.limiter.WaitContext(ctx); err != nil {
+			return nil, 0, err
+		}
 		var bodyReader io.Reader
 		if bodyBytes != nil {
 			bodyReader = strings.NewReader(string(bodyBytes))

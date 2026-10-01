@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "retraction-checker",
   "cli_name": "retraction-checker-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T21:37:53Z",
-  "source_commit": "21a2eb5e6935267857fcba73f243c7abb0a8b58a",
+  "version": "2026.10.4",
+  "released_at": "2026-10-01T22:18:13Z",
+  "source_commit": "3dd5f1439f6ff106ef5dfd96fdf0fe6524d3c480",
   "printing_press_version": "4.25.0",
   "run_id": "20260702-090842-5bac53b7",
   "changes": [
     {
-      "title": "fix(retraction-checker): keep unauthenticated MCP HTTP local",
-      "pr": 2151,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2151",
-      "commit": "21a2eb5e6935267857fcba73f243c7abb0a8b58a"
+      "title": "Fix Retraction Checker watch checkpoint and pagination",
+      "pr": 2152,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2152",
+      "commit": "3dd5f1439f6ff106ef5dfd96fdf0fe6524d3c480"
     }
   ]
 }

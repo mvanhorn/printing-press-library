@@ -23,6 +23,9 @@ metadata:
 
 # Slack — Printing Press CLI
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@ChrisGutierrezNet](https://github.com/ChrisGutierrezNet) (Chris G. | AI Automation), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `slack-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
@@ -266,7 +269,7 @@ content they cover.
 - `slack-pp-cli messages delete-message` — Delete a message
 - `slack-pp-cli messages get-permalink` — Get a permalink URL for a message
 - `slack-pp-cli messages list-scheduled` — List scheduled messages
-- `slack-pp-cli messages post-message` — Send a message to a channel, DM, or thread
+- `slack-pp-cli messages post-message` — Send a message to a channel, DM, or thread. The older `post_message` spelling remains an alias.
 - `slack-pp-cli messages schedule-message` — Schedule a message for later delivery
 - `slack-pp-cli messages update-message` — Update an existing message
 

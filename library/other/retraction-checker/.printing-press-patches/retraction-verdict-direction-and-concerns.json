@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "retraction-verdict-direction-and-concerns",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260702-090842-5bac53b7",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Use Crossref updated-by for retraction evidence, preserve separate retraction and concern notices, and deliver a structured lookup error while returning a failing status.",
+  "reason": "Crossref update-to points from a notice toward the work it updates, so treating it as evidence that the notice itself was retracted creates a false verdict. A work can carry both an expression of concern and retraction evidence, and failed JSON verdicts must reach requested delivery sinks without exiting successfully.",
+  "files": [
+    "internal/cli/check.go",
+    "internal/cli/check_test.go",
+    "internal/cli/retraction.go",
+    "internal/cli/retraction_test.go",
+    "internal/cli/scan.go",
+    "internal/cli/scan_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Synthetic tests cover Crossref update direction, mixed retraction and concern notices, separate scan counts and labels, and nonzero exit status with parseable JSON delivered to file and local webhook sinks on a failed check."
+}

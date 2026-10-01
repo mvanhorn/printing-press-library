@@ -38,7 +38,7 @@ func isSkoolCommunityResource(resource string) bool {
 // the sync command (--community, SKOOL_COMMUNITY, or template_vars.community).
 func syncSkoolCommunityResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
-}, db *store.Store, resource, community string, maxPages int) syncResult {
+}, db *store.Store, resource, community string, maxPages int, latestOnly bool) syncResult {
 	started := time.Now()
 
 	if !humanFriendly {
@@ -51,19 +51,19 @@ func syncSkoolCommunityResource(c interface {
 		err := fmt.Errorf("syncing %s needs a community: pass --community <slug>, set SKOOL_COMMUNITY, or set template_vars.community in the config", resource)
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
+	if maxPages < 0 {
+		return syncResult{Resource: resource, Err: fmt.Errorf("--max-pages must be zero (unlimited) or a positive number"), Duration: time.Since(started)}
+	}
 
 	path := "/_next/data/{buildId}/{community}.json"
 	path = replacePathParam(path, "community", community)
 
-	if maxPages <= 0 || maxPages > 100 {
-		maxPages = 100
-	}
-
 	seen := map[string]struct{}{}
-	var collected []json.RawMessage
 	var lastKeys []string
+	pageLimitHit := false
+	storedTotal := 0
 
-	for page := 1; page <= maxPages; page++ {
+	for page := 1; maxPages <= 0 || page <= maxPages; page++ {
 		params := map[string]string{"g": community}
 		if resource == "members" {
 			params["t"] = "members"
@@ -78,14 +78,15 @@ func syncSkoolCommunityResource(c interface {
 				if !humanFriendly {
 					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s"}`+"\n", resource, w.Status, w.Reason)
 				}
-				return syncResult{Resource: resource, Count: len(collected), Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
+				return syncResult{Resource: resource, Count: storedTotal, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
-			return syncResult{Resource: resource, Count: len(collected), Err: fmt.Errorf("fetching %s page %d: %w", resource, page, err), Duration: time.Since(started)}
+			return syncResult{Resource: resource, Count: storedTotal, Err: fmt.Errorf("fetching %s page %d: %w", resource, page, err), Duration: time.Since(started)}
 		}
 
 		items, keys := extractSkoolPageRecords(data, resource)
 		lastKeys = keys
 		added := 0
+		batch := make([]json.RawMessage, 0, len(items))
 		for _, item := range items {
 			id := recordIdentity(item)
 			if id == "" {
@@ -95,15 +96,23 @@ func syncSkoolCommunityResource(c interface {
 				continue
 			}
 			seen[id] = struct{}{}
-			collected = append(collected, item)
+			batch = append(batch, item)
 			added++
 		}
 		if added == 0 {
 			break
 		}
+		stored, _, err := db.UpsertBatch(resource, batch)
+		if err != nil {
+			return syncResult{Resource: resource, Count: storedTotal, Err: err, Duration: time.Since(started)}
+		}
+		storedTotal += stored
+		if maxPages > 0 && page == maxPages {
+			pageLimitHit = true
+		}
 	}
 
-	if len(collected) == 0 {
+	if storedTotal == 0 {
 		// No records and no transport error: the envelope key we expect is
 		// absent. Name the keys that were present (names only, never values)
 		// so the shape drift is diagnosable without a debugger.
@@ -116,16 +125,19 @@ func syncSkoolCommunityResource(c interface {
 		return syncResult{Resource: resource, Warn: warn, Duration: time.Since(started)}
 	}
 
-	stored, _, err := db.UpsertBatch(resource, collected)
-	if err != nil {
-		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
-	}
-	_ = db.SaveSyncState(resource, "", stored)
+	_ = db.SaveSyncState(resource, "", storedTotal)
 
-	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d}`+"\n", resource, stored)
+	result := syncResult{Resource: resource, Count: storedTotal, Duration: time.Since(started)}
+	if pageLimitHit && !latestOnly {
+		result.Notice = fmt.Errorf("reached --max-pages cap of %d; data may be truncated", maxPages)
+		if !humanFriendly {
+			fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":%q}`+"\n", resource, result.Notice.Error())
+		}
 	}
-	return syncResult{Resource: resource, Count: stored, Duration: time.Since(started)}
+	if !humanFriendly {
+		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d}`+"\n", resource, storedTotal)
+	}
+	return result
 }
 
 // extractSkoolPageRecords unwraps the records for `resource` out of a Next.js

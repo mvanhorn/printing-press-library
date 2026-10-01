@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "cloudflare",
   "cli_name": "cloudflare-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T02:58:45Z",
-  "source_commit": "b9919bcc7c214bad576f361557ba39739090f277",
+  "version": "2026.10.2",
+  "released_at": "2026-10-01T22:09:24Z",
+  "source_commit": "802b7744c60606bb83945cedecadf8121d92fcd2",
   "printing_press_version": "4.24.0",
   "run_id": "20260608-223004",
   "changes": [
     {
-      "title": "fix(library): send numeric and boolean request-body fields with their declared JSON type",
-      "pr": 2106,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2106",
-      "commit": "b9919bcc7c214bad576f361557ba39739090f277"
+      "title": "fix(cloudflare): report blocked agent auth status as JSON",
+      "pr": 2161,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2161",
+      "commit": "802b7744c60606bb83945cedecadf8121d92fcd2"
     }
   ]
 }

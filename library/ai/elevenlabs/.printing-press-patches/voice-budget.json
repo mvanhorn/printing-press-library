@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "voice-budget",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260513T152516Z-e836a3fe",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Add a top-level voice-budget command that reports remaining character credits, tier limits, reset timing, and voice-slot headroom.",
+  "reason": "The subscription response provides character usage, reset timing, and the authoritative voice_slots_used count. Counting the first page of GET /v2/voices would understate usage and include voices that do not consume paid slots. This command uses one read-only GET and derives the remaining balances locally.",
+  "files": [
+    "internal/cli/voice_budget.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/root.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Synthetic tests check required subscription counters, balance calculations, terminal reset and slot details, and fresh subscription reads without a voice-list request."
+}

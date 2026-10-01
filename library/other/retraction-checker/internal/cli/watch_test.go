@@ -4,8 +4,22 @@
 package cli
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
 	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/other/retraction-checker/internal/cliutil"
 )
 
 // TestNovelWatchHelpWires smoke-tests that the watch command
@@ -22,28 +36,262 @@ func TestNovelWatchHelpWires(t *testing.T) {
 	}
 }
 
-// TestNovelWatchBehavior is the placeholder for table-driven tests of
-// the watch command's actual behavior. Replace the t.Skip with
-// real cases — reviewers will flag a shipped t.Skip.
-//
-// Suggested shape:
-//
-//	func TestNovelWatchBehavior(t *testing.T) {
-//	    cases := []struct {
-//	        name  string
-//	        input ...
-//	        want  ...
-//	    }{
-//	        // {name: "...", input: ..., want: ...},
-//	    }
-//	    for _, tc := range cases {
-//	        tc := tc
-//	        t.Run(tc.name, func(t *testing.T) {
-//	            t.Parallel()
-//	            // assertions here
-//	        })
-//	    }
-//	}
 func TestNovelWatchBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for watch")
+	baseline := map[string]struct{}{"10.1000/known": {}}
+	notices := []watchNotice{{DOI: "10.1000/known"}, {DOI: "10.1000/new"}, {DOI: "10.1000/new"}}
+
+	if got := unseenWatchNotices(true, baseline, notices); len(got) != 0 {
+		t.Fatalf("first-run notices = %#v, want none", got)
+	}
+	if got := unseenWatchNotices(false, baseline, notices); !reflect.DeepEqual(got, []watchNotice{{DOI: "10.1000/new"}}) {
+		t.Fatalf("subsequent notices = %#v, want only the unseen DOI", got)
+	}
+}
+
+func TestWatchPathUsesSharedStateDirectory(t *testing.T) {
+	stateDir := t.TempDir()
+	t.Setenv("RETRACTION_CHECKER_STATE_DIR", stateDir)
+	restore, err := cliutil.SetHomeOverride("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+
+	got, err := watchPath("machine learning")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantDir := filepath.Join(stateDir, "watch")
+	if filepath.Dir(got) != wantDir {
+		t.Fatalf("watch path dir = %q, want %q", filepath.Dir(got), wantDir)
+	}
+}
+
+type scriptedCrossref struct {
+	responses []string
+	params    []map[string]string
+}
+
+func (s *scriptedCrossref) Get(_ context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	if path != "/works" {
+		return nil, io.ErrUnexpectedEOF
+	}
+	copied := make(map[string]string, len(params))
+	for key, value := range params {
+		copied[key] = value
+	}
+	s.params = append(s.params, copied)
+	if len(s.responses) == 0 {
+		return nil, io.ErrUnexpectedEOF
+	}
+	response := s.responses[0]
+	s.responses = s.responses[1:]
+	return json.RawMessage(response), nil
+}
+
+func TestFetchRetractionNoticesPaginatesFromBaseline(t *testing.T) {
+	client := &scriptedCrossref{responses: []string{
+		`{"message":{"items":[{"DOI":"10.1000/newest","title":["Newest"]}],"next-cursor":"page-2"}}`,
+		`{"message":{"items":[{"DOI":"10.1000/older","title":["Older"]}],"next-cursor":""}}`,
+	}}
+
+	since := time.Date(2026, 9, 5, 12, 34, 56, 0, time.UTC)
+	until := since.Add(15 * time.Minute)
+	got, err := fetchRetractionNoticesFrom(context.Background(), client, "bot@example.com", "topic", 1, since, until)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || got[0].DOI != "10.1000/newest" || got[1].DOI != "10.1000/older" {
+		t.Fatalf("notices = %#v, want both pages", got)
+	}
+	if len(client.params) != 2 {
+		t.Fatalf("requests = %d, want 2", len(client.params))
+	}
+	if gotFilter := client.params[0]["filter"]; !strings.Contains(gotFilter, "from-index-date:2026-09-05T12:34:56") || !strings.Contains(gotFilter, "until-index-date:2026-09-05T12:49:56") {
+		t.Fatalf("filter = %q, want bounded index-date window", gotFilter)
+	}
+	if client.params[0]["filter"] != client.params[1]["filter"] {
+		t.Fatalf("pagination changed filter window: %#v", client.params)
+	}
+	if client.params[0]["cursor"] != "*" || client.params[1]["cursor"] != "page-2" {
+		t.Fatalf("cursors = %q then %q, want * then page-2", client.params[0]["cursor"], client.params[1]["cursor"])
+	}
+}
+
+func TestFetchRetractionNoticesBeyondFormerPageLimit(t *testing.T) {
+	responses := make([]string, 101)
+	for i := range responses {
+		next := ""
+		if i < len(responses)-1 {
+			next = fmt.Sprintf("page-%d", i+2)
+		}
+		responses[i] = fmt.Sprintf(`{"message":{"items":[{"DOI":"10.1000/%d"}],"next-cursor":%q}}`, i+1, next)
+	}
+	client := &scriptedCrossref{responses: responses}
+	since := time.Now().UTC().Add(-time.Hour)
+	got, err := fetchRetractionNoticesFrom(context.Background(), client, "", "topic", 1, since, time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	lastDOI := ""
+	if len(got) > 0 {
+		lastDOI = got[len(got)-1].DOI
+	}
+	if len(got) != 101 || len(client.params) != 101 || lastDOI != "10.1000/101" {
+		t.Fatalf("notices = %d, requests = %d, final DOI = %q; want complete 101-page window", len(got), len(client.params), lastDOI)
+	}
+}
+
+func TestLegacyWatchPathAvailableWithHomeOverride(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	restore, err := cliutil.SetHomeOverride(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+	legacy, err := legacyWatchPath("topic")
+	if err != nil || legacy == "" {
+		t.Fatalf("legacy path with --home: %q, %v", legacy, err)
+	}
+}
+
+func TestWatchImportsLegacyCheckpointAndPollsOnLaterRuns(t *testing.T) {
+	home := t.TempDir()
+	stateDir := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("RETRACTION_CHECKER_STATE_DIR", stateDir)
+	restore, err := cliutil.SetHomeOverride("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+	topic := "topic"
+	legacy, err := legacyWatchPath(topic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(legacy), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	checkpoint := fmt.Sprintf(`{"query":"topic","updated_at":%q,"seen":["10.1000/known"]}`, time.Now().UTC().Add(-time.Hour).Format(time.RFC3339))
+	if err := os.WriteFile(legacy, []byte(checkpoint), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		if r.Method != http.MethodGet || r.URL.Path != "/works" || !strings.Contains(r.URL.Query().Get("filter"), "from-index-date:") {
+			t.Errorf("unexpected watch request %s %s", r.Method, r.URL.String())
+			http.Error(w, "unexpected request", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"message":{"items":[{"DOI":"10.1000/known"},{"DOI":"10.1000/new"}],"next-cursor":""}}`))
+	}))
+	defer server.Close()
+	t.Setenv("RETRACTION_CHECKER_BASE_URL", server.URL)
+
+	run := func() watchOutput {
+		cmd := RootCmd()
+		var out, stderr bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetErr(&stderr)
+		cmd.SetArgs([]string{"--config", filepath.Join(home, "missing.toml"), "--no-cache", "watch", topic, "--rows", "2", "--json"})
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("watch command: %v; stderr %s", err, stderr.String())
+		}
+		var result watchOutput
+		if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+			t.Fatalf("watch JSON %q: %v", out.String(), err)
+		}
+		return result
+	}
+	first, second := run(), run()
+	if first.FirstRun || first.NewCount != 1 || len(first.New) != 1 || first.New[0].DOI != "10.1000/new" {
+		t.Fatalf("first poll from legacy checkpoint = %+v", first)
+	}
+	if second.FirstRun || second.NewCount != 0 || requests.Load() != 2 {
+		t.Fatalf("second poll = %+v, requests = %d; want no duplicate alert after two fetches", second, requests.Load())
+	}
+	current, err := watchPath(topic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	base, err := loadWatchBaseline(current, "", watchTTLDays)
+	if err != nil || base.UpdatedAt == "" || len(base.Seen) != 2 {
+		t.Fatalf("new watch checkpoint = %+v, %v", base, err)
+	}
+}
+
+func TestWatchFirstRunStartsCheckpointWithoutHistoryFetch(t *testing.T) {
+	requests := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		http.Error(w, "unexpected history fetch", http.StatusInternalServerError)
+	}))
+	defer srv.Close()
+	stateDir := t.TempDir()
+	t.Setenv("RETRACTION_CHECKER_STATE_DIR", stateDir)
+	t.Setenv("RETRACTION_CHECKER_BASE_URL", srv.URL)
+	restore, err := cliutil.SetHomeOverride("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(restore)
+
+	cmd := RootCmd()
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(io.Discard)
+	cmd.SetArgs([]string{"watch", "topic", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if requests != 0 {
+		t.Fatalf("first run made %d API requests", requests)
+	}
+	var result watchOutput
+	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+		t.Fatalf("watch JSON = %q: %v", out.String(), err)
+	}
+	if !result.FirstRun || result.NewCount != 0 || result.TrackedTotal != 0 {
+		t.Fatalf("first run claimed historical coverage: %+v", result)
+	}
+	watchFile, err := watchPath("topic")
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkpoint, err := loadWatchBaseline(watchFile, "", watchTTLDays)
+	if err != nil || checkpoint.UpdatedAt == "" {
+		t.Fatalf("watch checkpoint = %+v, %v", checkpoint, err)
+	}
+	info, err := os.Stat(watchFile)
+	if err != nil || info.Mode().Perm() != 0o600 {
+		t.Fatalf("watch state permissions: info=%v err=%v", info, err)
+	}
+}
+
+func TestWatchBaselineLegacyFallbackAndCorruption(t *testing.T) {
+	current := filepath.Join(t.TempDir(), "watch.json")
+	legacy := filepath.Join(t.TempDir(), "old.json")
+	if err := os.WriteFile(legacy, []byte(`{"query":"topic","updated_at":"2026-09-05T12:34:56Z","seen":[]}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	base, err := loadWatchBaseline(current, legacy, watchTTLDays)
+	if err != nil || base.UpdatedAt != "2026-09-05T12:34:56Z" {
+		t.Fatalf("legacy baseline = %+v, %v", base, err)
+	}
+	if err := os.WriteFile(current, []byte(`{bad`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := loadWatchBaseline(current, legacy, watchTTLDays); err == nil {
+		t.Fatal("corrupt current checkpoint was treated as a fresh baseline")
+	}
+	if err := os.WriteFile(current, []byte(`{"query":"topic","seen":[]}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := loadWatchBaseline(current, legacy, watchTTLDays); err == nil {
+		t.Fatal("checkpoint without a time was treated as a fresh baseline")
+	}
 }

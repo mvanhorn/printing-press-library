@@ -126,7 +126,9 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. Test-mode keys (`sk_test_...`) and live-mode keys (`sk_live_...`) are accepted. Mutating commands against a live key are blocked by default; pass `--confirm-live` (or set `STRIPE_CONFIRM_LIVE=1`) once you have audited the invocation.
+Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. Test-mode keys (`sk_test_...`) and live-mode keys (`sk_live_...`) are accepted. CLI endpoint mutations against live secret or restricted keys require `--confirm-live` (or `STRIPE_CONFIRM_LIVE=1`) once you have audited the invocation. CLI `--dry-run` previews send no request and do not need live confirmation. The guard also recognizes live keys in Bearer and HTTP Basic authorization headers.
+
+MCP `stripe_execute` requires the top-level boolean `confirm_live: true` for live-mode mutations unless `STRIPE_CONFIRM_LIVE=1` is set. This control is separate from endpoint `params`; a nested `params.confirm_live` value does not authorize a write. Live reads and test-key requests do not require confirmation. MCP endpoint execution has no dry-run option; use the CLI for request previews.
 
 ## Known Gaps (v1)
 
@@ -1296,7 +1298,7 @@ Environment variables:
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `stripe-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $STRIPE_SECRET_KEY`
+- Verify the environment variable is set without displaying its value: `stripe-pp-cli doctor`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
@@ -1306,7 +1308,7 @@ Environment variables:
 - **Auth errors after `auth login` succeeded** — Check active profile with `stripe-pp-cli auth status`; switch with `stripe-pp-cli profile use <name>`
 - **Rate limit (429) errors on sync** — Test-mode caps at 25 r/s; sync auto-throttles, but reduce `--page-size` if hitting it persistently
 - **`sql` command shows empty tables** — Run `stripe-pp-cli sync --full` — local store starts empty until first sync
-- **Live-mode key detected** — v1 of stripe-pp-cli does not enforce a live-mode write guard. Audit every command before running with sk_live_... ; prefer sk_test_... for development.
+- **Live-mode write refused** — Audit the endpoint mutation, then provide CLI `--confirm-live`, MCP top-level `confirm_live: true`, or `STRIPE_CONFIRM_LIVE=1`. Prefer a test-mode key for development and CLI `--dry-run` for request-free previews.
 
 ---
 

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "crossref-message-items-and-doi-identity",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260702-090842-5bac53b7",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Extract Crossref search and sync rows from message.items and retain uppercase DOI as the stable work identity.",
+  "reason": "Crossref list responses wrap rows under message.items and use an uppercase DOI key. Ignoring the envelope yields an empty search or sync, and a missing DOI identity prevents stable local upserts.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/cli/sync.go",
+    "internal/cli/helpers.go",
+    "internal/cli/works_search.go",
+    "internal/cli/crossref_response_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "Synthetic Crossref tests confirm generic search and paginated works search extract message.items, all pages are fetched, and sync stores works under their uppercase DOI identity."
+}

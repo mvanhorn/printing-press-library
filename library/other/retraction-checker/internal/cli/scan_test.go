@@ -4,7 +4,10 @@
 package cli
 
 import (
+	"bytes"
 	"io"
+	"os"
+	"strings"
 	"testing"
 )
 
@@ -22,28 +25,38 @@ func TestNovelScanHelpWires(t *testing.T) {
 	}
 }
 
-// TestNovelScanBehavior is the placeholder for table-driven tests of
-// the scan command's actual behavior. Replace the t.Skip with
-// real cases — reviewers will flag a shipped t.Skip.
-//
-// Suggested shape:
-//
-//	func TestNovelScanBehavior(t *testing.T) {
-//	    cases := []struct {
-//	        name  string
-//	        input ...
-//	        want  ...
-//	    }{
-//	        // {name: "...", input: ..., want: ...},
-//	    }
-//	    for _, tc := range cases {
-//	        tc := tc
-//	        t.Run(tc.name, func(t *testing.T) {
-//	            t.Parallel()
-//	            // assertions here
-//	        })
-//	    }
-//	}
 func TestNovelScanBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for scan")
+	path := t.TempDir() + "/empty.txt"
+	if err := os.WriteFile(path, []byte("# no identifiers\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cmd := RootCmd()
+	var out, errout bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errout)
+	cmd.SetArgs([]string{"scan", path})
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "no DOIs or PMIDs") {
+		t.Fatalf("scan error = %v, want empty-input rejection", err)
+	}
+}
+
+func TestScanResultCountsExpressionOfConcernSeparately(t *testing.T) {
+	verdicts := []retractionVerdict{
+		{Input: "10.1/retracted", DOI: "10.1/retracted", Retracted: true},
+		{Input: "10.1/concern", DOI: "10.1/concern", ExpressionOfConcern: true, Date: "2026-09-01"},
+		{Input: "10.1/both", DOI: "10.1/both", Retracted: true, ExpressionOfConcern: true, Date: "2026-08-01"},
+		{Input: "10.1/failure", Error: "lookup failed"},
+	}
+	res := summarizeScan("refs.txt", verdicts)
+	if res.RetractedCount != 2 || res.ConcernCount != 2 || res.FailureCount != 1 {
+		t.Fatalf("scan counts = retracted:%d concerns:%d failures:%d, want 2/2/1", res.RetractedCount, res.ConcernCount, res.FailureCount)
+	}
+	var out bytes.Buffer
+	writeHumanScanResult(&out, res)
+	for _, want := range []string{"2 editorial concerns", "EDITORIAL CONCERN", "10.1/concern", "2026-09-01", "RETRACTED + EDITORIAL CONCERN  10.1/both"} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("human scan output = %q, want %q", out.String(), want)
+		}
+	}
 }

@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/mvanhorn/printing-press-library/library/other/retraction-checker/internal/cliutil"
 	"github.com/spf13/cobra"
@@ -43,7 +44,14 @@ func newNovelCheckCmd(flags *rootFlags) *cobra.Command {
 			// JSON/agent output serializes the full verdict, including any
 			// error field, so structured consumers already see failures.
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return printJSONFiltered(cmd.OutOrStdout(), v, flags)
+				if err := printJSONFiltered(cmd.OutOrStdout(), v, flags); err != nil {
+					return err
+				}
+				if v.Error != "" {
+					flags.deliverOnError = true
+					return fmt.Errorf("%s", v.Error)
+				}
+				return nil
 			}
 			// Human-readable path: surface any check failure instead of
 			// silently printing "NOT retracted". checkDOI sets v.DOI before
@@ -52,32 +60,49 @@ func newNovelCheckCmd(flags *rootFlags) *cobra.Command {
 			if v.Error != "" {
 				return fmt.Errorf("%s", v.Error)
 			}
-			status := "NOT retracted"
-			if v.Retracted {
-				status = "RETRACTED"
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%s\n", status)
-			fmt.Fprintf(cmd.OutOrStdout(), "  DOI:    %s\n", v.DOI)
-			if v.Title != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "  Title:  %s\n", v.Title)
-			}
-			if v.Retracted {
-				if v.UpdateType != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "  Type:   %s\n", v.UpdateType)
-				}
-				if v.Date != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "  Date:   %s\n", v.Date)
-				}
-				if v.Source != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "  Source: %s\n", v.Source)
-				}
-				if v.NoticeURL != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), "  Notice: %s\n", v.NoticeURL)
-				}
-			}
+			writeHumanCheckResult(cmd.OutOrStdout(), v)
 			return nil
 		},
 	}
 	cmd.Flags().StringVar(&mailto, "mailto", "", "Contact email for the Crossref polite pool (better rate limits)")
 	return cmd
+}
+
+func writeHumanCheckResult(w io.Writer, v retractionVerdict) {
+	status := "NOT retracted"
+	switch {
+	case v.Retracted && v.ExpressionOfConcern:
+		status = "RETRACTED + EDITORIAL CONCERN"
+	case v.Retracted:
+		status = "RETRACTED"
+	case v.ExpressionOfConcern:
+		status = "EDITORIAL CONCERN"
+	}
+	fmt.Fprintf(w, "%s\n", status)
+	fmt.Fprintf(w, "  DOI:    %s\n", v.DOI)
+	if v.Title != "" {
+		fmt.Fprintf(w, "  Title:  %s\n", v.Title)
+	}
+	if v.Retracted || v.ExpressionOfConcern {
+		if v.UpdateType != "" {
+			fmt.Fprintf(w, "  Type:   %s\n", v.UpdateType)
+		}
+		if v.Date != "" {
+			fmt.Fprintf(w, "  Date:   %s\n", v.Date)
+		}
+		if v.Source != "" {
+			fmt.Fprintf(w, "  Source: %s\n", v.Source)
+		}
+		if v.NoticeURL != "" {
+			fmt.Fprintf(w, "  Notice: %s\n", v.NoticeURL)
+		}
+	}
+	if v.Retracted && v.ExpressionOfConcern {
+		if v.ConcernDate != "" {
+			fmt.Fprintf(w, "  Concern date:   %s\n", v.ConcernDate)
+		}
+		if v.ConcernNoticeURL != "" {
+			fmt.Fprintf(w, "  Concern notice: %s\n", v.ConcernNoticeURL)
+		}
+	}
 }

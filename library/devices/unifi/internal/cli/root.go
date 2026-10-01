@@ -303,6 +303,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 				return err
 			}
 		}
+		// Drift only reads local snapshots. Reject a live-only request before
+		// platform setup and learning initialization can create local state.
+		if cmd.Name() == "drift" && flags.dataSource == "live" {
+			flags.noLearn = true // Also skip the post-execution journal for this rejection.
+			return validateDataSourceStrategy(flags, "local")
+		}
 		if platformCommandNeedsGate(cmd) {
 			if err := preparePlatformSession(flags); err != nil {
 				return err

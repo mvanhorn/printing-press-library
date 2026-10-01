@@ -1451,7 +1451,9 @@ func syncResourcePath(resource string) (string, error) {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	"works": "DOI",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -1470,7 +1472,7 @@ var pageItemKeys = []string{
 	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features",
 }
 
-var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
+var dataEnvelopeKeys = []string{"data", "Data", "result", "Result", "message", "Message"}
 
 var pageMetadataArrayKeys = map[string]bool{
 	"errors": true, "Errors": true,

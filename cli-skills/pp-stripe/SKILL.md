@@ -836,7 +836,7 @@ Use --select to project deeply-nested fields; saves tokens vs full dossier.
 
 ## Auth Setup
 
-Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. Test-mode keys (`sk_test_...`) and live-mode keys (`sk_live_...`) are accepted; this v1 does NOT yet enforce a live-mode write guard, so audit any live invocation before running mutating commands.
+Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. CLI endpoint writes with a live secret or restricted key require `--confirm-live` or `STRIPE_CONFIRM_LIVE=1`. CLI `--dry-run` previews make no request. MCP `stripe_execute` requires top-level `confirm_live: true` or `STRIPE_CONFIRM_LIVE=1` for live writes; confirmation inside `params` does not count. Reads and test-key requests do not need confirmation.
 
 Run `stripe-pp-cli doctor` to verify setup.
 

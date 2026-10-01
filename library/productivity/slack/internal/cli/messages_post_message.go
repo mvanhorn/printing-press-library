@@ -20,8 +20,9 @@ func newMessagesPostMessageCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "post-message",
-		Short: "Send a message to a channel, DM, or thread",
+		Use:     "post-message",
+		Aliases: []string{"post_message"},
+		Short:   "Send a message to a channel, DM, or thread",
 		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  slack-pp-cli messages post-message --channel example-value",
 		Annotations: map[string]string{"pp:endpoint": "messages.post_message", "pp:method": "POST", "pp:path": "/chat.postMessage"},
