@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "contract-external-stable-rows",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260905-000548-4451d26d",
+  "base_printing_press_version": "4.31.7",
+  "summary": "Skip external resources in NCCPL contract checks and keep refreshed row IDs stable across source ordering changes.",
+  "reason": "The external flows resource has no NCCPL contract endpoint, and ordinal or partial-field keys can change when otherwise identical source rows move. Full row hashes distinguish them while the date snapshot refresh removes old keys.",
+  "files": [
+    ".printing-press.json",
+    "NOTICE",
+    "README.md",
+    "internal/cli/nccpl_contractcheck.go",
+    "internal/cli/nccpl_resources.go",
+    "internal/cli/nccpl_logic_test.go"
+  ],
+  "validated_outcome": "Offline Go tests, vet, build, skill verification, and diff check pass."
+}

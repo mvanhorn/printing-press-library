@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/nccpl/internal/store"
@@ -89,19 +90,30 @@ func TestNCCPLSessionDatesSkipsWeekends(t *testing.T) {
 func TestNCCPLRowKeyStableAndCollisionSafe(t *testing.T) {
 	r, _ := nccplResourceByName("fipi")
 	seen := map[string]bool{}
-	k1 := nccplRowKey(r, map[string]any{"client_type": "FI", "segment": "EQUITY"}, 0, seen)
-	if k1 != "FI|EQUITY" {
-		t.Errorf("key = %q, want FI|EQUITY", k1)
+	rowA := map[string]any{"client_type": "FI", "segment": "EQUITY", "value": 1}
+	rowB := map[string]any{"client_type": "FI", "segment": "EQUITY", "value": 2}
+	k1 := nccplRowKey(r, rowA, 0, seen)
+	if !strings.HasPrefix(k1, "FI|EQUITY#") {
+		t.Errorf("key = %q, want readable prefix plus row hash", k1)
 	}
-	// Identical row later in the payload must not overwrite the first.
-	k2 := nccplRowKey(r, map[string]any{"client_type": "FI", "segment": "EQUITY"}, 3, seen)
+	k2 := nccplRowKey(r, rowB, 1, seen)
 	if k2 == k1 {
-		t.Errorf("duplicate key %q must be disambiguated", k2)
+		t.Errorf("rows sharing declared key fields must have distinct keys")
 	}
-	// No key fields at all falls back to the ordinal rather than colliding on "".
+	reordered := map[string]bool{}
+	if got := nccplRowKey(r, rowB, 0, reordered); got != k2 {
+		t.Errorf("row B key changed after reorder: %q != %q", got, k2)
+	}
+	if got := nccplRowKey(r, rowA, 1, reordered); got != k1 {
+		t.Errorf("row A key changed after reorder: %q != %q", got, k1)
+	}
+	duplicate := nccplRowKey(r, rowA, 2, seen)
+	if duplicate == k1 {
+		t.Error("exact duplicate row must not overwrite its sibling")
+	}
 	k3 := nccplRowKey(r, map[string]any{"unrelated": 1}, 7, seen)
-	if k3 != "#7" {
-		t.Errorf("fallback key = %q, want #7", k3)
+	if !strings.HasPrefix(k3, "row#") {
+		t.Errorf("fallback key = %q, want row hash", k3)
 	}
 }
 
@@ -216,6 +228,9 @@ func TestNCCPLRepresentativeResourcesCoverEveryContract(t *testing.T) {
 	allModes := map[nccplDateMode]bool{}
 	allEnvs := map[string]bool{}
 	for _, r := range nccplResources {
+		if r.External {
+			continue
+		}
 		allModes[r.Mode] = true
 		allEnvs[r.Envelope] = true
 	}
@@ -224,5 +239,28 @@ func TestNCCPLRepresentativeResourcesCoverEveryContract(t *testing.T) {
 	}
 	if len(envs) != len(allEnvs) {
 		t.Errorf("representative set covers %d envelopes, want %d", len(envs), len(allEnvs))
+	}
+}
+
+func TestNCCPLContractResourcesExcludeExternalOrigins(t *testing.T) {
+	internal, ok := nccplResourceByName("fipi")
+	if !ok {
+		t.Fatal("missing fipi resource")
+	}
+	external, ok := nccplResourceByName("flows")
+	if !ok || !external.External {
+		t.Fatal("missing external flows resource")
+	}
+	selected, err := nccplContractResources([]nccplResource{internal, external}, false)
+	if err != nil || len(selected) != 1 || selected[0].Name != "fipi" {
+		t.Fatalf("default contract resources = %v, %v", selected, err)
+	}
+	if _, err := nccplContractResources([]nccplResource{external}, true); err == nil || !strings.Contains(err.Error(), "external") {
+		t.Fatalf("explicit external resource should fail clearly: %v", err)
+	}
+	for _, r := range nccplRepresentativeResources() {
+		if r.External {
+			t.Fatalf("dogfood contract includes external origin %q", r.Name)
+		}
 	}
 }

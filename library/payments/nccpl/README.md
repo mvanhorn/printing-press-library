@@ -8,6 +8,10 @@ Learn more at [NCCPL](https://www.nccpl.com.pk).
 
 Created by [@qazmataz](https://github.com/qazmataz) (qazmataz).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+`contract-check` checks NCCPL endpoints only. The external `flows` resource is skipped by default and rejected if selected explicitly. Refreshed date snapshots keep row identities stable when the source changes row order.
+
 ## Install
 
 The recommended path installs both the `nccpl-pp-cli` binary and the `pp-nccpl` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

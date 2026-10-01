@@ -60,6 +60,7 @@ zero rows here is unambiguously a defect: an expired session, a changed request
 contract, or envelope drift.
 
 Run this when results look empty, before blaming the data.
+The external flows resource has no NCCPL contract endpoint and is excluded.
 `, "\n"),
 		Example: strings.Trim(`
   nccpl-pp-cli contract-check
@@ -81,6 +82,10 @@ Run this when results look empty, before blaming the data.
 			selected, err := nccplSelectResources(resourcesCSV)
 			if err != nil {
 				_ = cmd.Usage()
+				return usageErr(err)
+			}
+			selected, err = nccplContractResources(selected, resourcesCSV != "")
+			if err != nil {
 				return usageErr(err)
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -179,6 +184,9 @@ func nccplRepresentativeResources() []nccplResource {
 	seen := map[string]bool{}
 	out := make([]nccplResource, 0)
 	for _, r := range nccplResources {
+		if r.External {
+			continue
+		}
 		k := fmt.Sprintf("%d|%s", r.Mode, r.Envelope)
 		if seen[k] {
 			continue
@@ -187,4 +195,18 @@ func nccplRepresentativeResources() []nccplResource {
 		out = append(out, r)
 	}
 	return out
+}
+
+func nccplContractResources(selected []nccplResource, explicit bool) ([]nccplResource, error) {
+	out := make([]nccplResource, 0, len(selected))
+	for _, r := range selected {
+		if r.External {
+			if explicit {
+				return nil, fmt.Errorf("resource %q is external and has no NCCPL contract endpoint", r.Name)
+			}
+			continue
+		}
+		out = append(out, r)
+	}
+	return out, nil
 }

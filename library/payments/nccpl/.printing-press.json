@@ -7,6 +7,12 @@
   "cli_name": "nccpl-pp-cli",
   "printer": "qazmataz",
   "printer_name": "qazmataz",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_path": "spec.yaml",
   "run_id": "20260905-000548-4451d26d",
   "category": "payments",
