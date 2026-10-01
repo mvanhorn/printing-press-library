@@ -52,6 +52,52 @@ func newClientWithRecorder(t *testing.T) (*Client, *recordingRoundTripper) {
 	return c, rec
 }
 
+func TestClient_VerifyShortCircuit_NoCredentialSkipsOAuth(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+
+	// Keep both possible request paths in memory. A future change that
+	// resolves auth before the verify gate must fail this test without
+	// contacting the real OAuth endpoint.
+	rec := &recordingRoundTripper{}
+	previousOAuthClient := oauthHTTPClient
+	oauthHTTPClient = &http.Client{Transport: rec}
+	cachedToken.mu.Lock()
+	previousToken := cachedToken.value
+	previousExpiry := cachedToken.expiresAt
+	cachedToken.value = ""
+	cachedToken.expiresAt = time.Time{}
+	cachedToken.mu.Unlock()
+	t.Cleanup(func() {
+		oauthHTTPClient = previousOAuthClient
+		cachedToken.mu.Lock()
+		cachedToken.value = previousToken
+		cachedToken.expiresAt = previousExpiry
+		cachedToken.mu.Unlock()
+	})
+
+	c := New(&config.Config{BaseURL: "http://example.test"}, time.Second, 0)
+	c.HTTPClient = &http.Client{Transport: rec}
+	c.NoCache = true
+	body, status, err := c.do(context.Background(), http.MethodPost, "/test", nil, nil, nil)
+	if err != nil {
+		t.Fatalf("no-credential verify write returned error: %v", err)
+	}
+	if status != http.StatusOK {
+		t.Fatalf("status = %d, want %d", status, http.StatusOK)
+	}
+	if rec.calls != 0 {
+		t.Fatalf("verify write attempted %d HTTP calls; want zero", rec.calls)
+	}
+	var envelope map[string]any
+	if err := json.Unmarshal(body, &envelope); err != nil {
+		t.Fatalf("verify response is not JSON: %v", err)
+	}
+	if synthetic, _ := envelope["__pp_verify_synthetic__"].(bool); !synthetic {
+		t.Fatalf("verify response lacks synthetic marker: %v", envelope)
+	}
+}
+
 // TestClient_VerifyShortCircuit_MutatingVerbs pins the transport-layer
 // short-circuit emitted by client.go.tmpl. Under PRINTING_PRESS_VERIFY=1
 // with no LIVE_HTTP opt-in, every mutating verb (DELETE/POST/PUT/PATCH)
