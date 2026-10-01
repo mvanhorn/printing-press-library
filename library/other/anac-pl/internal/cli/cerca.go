@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/other/anac-pl/internal/client"
-
 	"github.com/spf13/cobra"
 )
 
@@ -19,14 +17,27 @@ import (
 // direzionePaginazione=AVANTI + tokenPaginazione=<lastPaginationToken>, in
 // modalita' estesa come in esatta. Gli avvisi tornano deduplicati per idAvviso,
 // insieme al `count` dichiarato dal servizio.
-func fetchFullText(ctx context.Context, c *client.Client, base map[string]string, pages int) ([]json.RawMessage, int64, int, error) {
+type fullTextGetter interface {
+	GetWithHeaders(context.Context, string, map[string]string, map[string]string) (json.RawMessage, error)
+}
+
+func fetchFullText(ctx context.Context, c fullTextGetter, base map[string]string, pages int) ([]json.RawMessage, int64, int, error) {
+	return fetchFullTextWithHeaders(ctx, c, base, pages, nil)
+}
+
+// pages == 0 follows all continuation tokens for avvisi search --all.
+func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[string]string, pages int, headers map[string]string) ([]json.RawMessage, int64, int, error) {
 	size, _ := strconv.Atoi(base["size"])
 	var out []json.RawMessage
 	var total int64
 	fetched := 0
 	seen := map[string]bool{}
 	token := ""
-	for p := 0; p < pages; p++ {
+	seenTokens := map[string]bool{}
+	for p := 0; pages == 0 || p < pages; p++ {
+		if pages == 0 && p >= paginatedGetMaxPages {
+			return out, total, fetched, fmt.Errorf("ricerca incompleta: raggiunto il limite di %d pagine", paginatedGetMaxPages)
+		}
 		params := map[string]string{}
 		for k, v := range base {
 			params[k] = v
@@ -35,7 +46,7 @@ func fetchFullText(ctx context.Context, c *client.Client, base map[string]string
 			params["direzionePaginazione"] = "AVANTI"
 			params["tokenPaginazione"] = token
 		}
-		data, err := c.Get(ctx, "/avvisi-full-text", params)
+		data, err := c.GetWithHeaders(ctx, "/avvisi-full-text", params, headers)
 		if err != nil {
 			return out, total, fetched, err
 		}
@@ -48,6 +59,9 @@ func fetchFullText(ctx context.Context, c *client.Client, base map[string]string
 			return out, total, fetched, fmt.Errorf("risposta di /avvisi-full-text non decodificabile: %w", err)
 		}
 		if len(env.Content) == 0 {
+			if pages == 0 && env.LastPaginationToken != "" {
+				return out, total, fetched, fmt.Errorf("ricerca incompleta: pagina vuota con token di continuazione")
+			}
 			break
 		}
 		fetched++
@@ -67,10 +81,14 @@ func fetchFullText(ctx context.Context, c *client.Client, base map[string]string
 			out = append(out, raw)
 			added++
 		}
-		if added == 0 || env.LastPaginationToken == "" || (size > 0 && len(env.Content) < size) {
+		if env.LastPaginationToken == "" || (pages > 0 && (added == 0 || (size > 0 && len(env.Content) < size))) {
 			break
 		}
+		if pages == 0 && (added == 0 || seenTokens[env.LastPaginationToken]) {
+			return out, total, fetched, fmt.Errorf("ricerca incompleta: la paginazione ANAC non avanza")
+		}
 		token = env.LastPaginationToken
+		seenTokens[token] = true
 	}
 	return out, total, fetched, nil
 }

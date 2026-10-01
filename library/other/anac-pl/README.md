@@ -6,6 +6,8 @@ anac-pl espone l'API pubblica della Piattaforma di Pubblicità a Valore Legale d
 
 Printed by [@aborruso](https://github.com/aborruso) (aborruso).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 La CLI è costruita con [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), che a partire da un'API genera una CLI in Go pronta sia per le persone sia per gli agenti, con server MCP, skill e store locale già inclusi, e la pubblica in un catalogo comune. È un prodotto molto comodo e lo consiglio a chi vuole fare lo stesso con altre API.
 
 ## Install
@@ -202,7 +204,7 @@ La conseguenza pratica è che le scansioni lunghe sono lente per costruzione: `s
 
 ## Quattro avvertenze sui dati
 
-Il servizio pagina a token, non per numero di pagina: `page` veniva accettato e ignorato, restituendo sempre la prima pagina. `cerca --pages N` e `affidamenti --pages N` scorrono le pagine seguendo il token e uniscono i risultati, deduplicati per `idAvviso`. Su `avvisi search`, che espone una pagina sola, per averne di più si alza `--size`.
+Il servizio pagina a token, non per numero di pagina: `page` veniva accettato e ignorato, restituendo sempre la prima pagina. `cerca --pages N` e `affidamenti --pages N` scorrono le pagine seguendo il token e uniscono i risultati, deduplicati per `idAvviso`. Su `avvisi search`, `--all` segue tutti i token di continuazione; senza `--all`, `--size` regola la prima pagina.
 
 Il campo CPV di `cerca` non è un filtro sul codice ma un match testuale: restituisce anche avvisi con CPV estranei. Per selezionare davvero per codice serve `cerca-avanzata`, che usa l'endpoint della ricerca avanzata rilasciata in beta a luglio 2026. La CLI lo segnala su stderr quando usi `cerca --cpv`.
 

@@ -4,12 +4,12 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/other/anac-pl/internal/client"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/anac-pl/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -427,6 +427,19 @@ func paginatedGet(ctx context.Context, c interface {
 		}
 		emitTruncationWarning(data, nextCursorPath, hasMoreField, paginationType)
 		return data, nil
+	}
+	// ANAC full-text search advances with a direction and continuation token,
+	// not an offset. Keep the normal data-source resolver and provenance while
+	// using the endpoint-specific paginator shared with cerca.
+	if path == "/avvisi-full-text" {
+		items, _, _, err := fetchFullTextWithHeaders(ctx, c, clean, 0, headers)
+		if err != nil {
+			return nil, err
+		}
+		if items == nil {
+			items = []json.RawMessage{}
+		}
+		return json.Marshal(items)
 	}
 
 	// Fetch all pages

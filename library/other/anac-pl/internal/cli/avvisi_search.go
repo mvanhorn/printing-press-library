@@ -76,7 +76,7 @@ func newAvvisiSearchCmd(flags *rootFlags) *cobra.Command {
 				"sortDirection":           fmt.Sprintf("%v", flagSortDirection),
 				"atlasFuzzySearchEnabled": fmt.Sprintf("%v", flagAtlasFuzzySearchEnabled),
 				"size":                    fmt.Sprintf("%v", flagSize),
-			}, nil, flagAll, "", "offset", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "tokenPaginazione", "cursor", "size", "lastPaginationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
