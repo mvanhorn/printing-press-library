@@ -35,8 +35,10 @@ func TestNovelCompareHelpWires(t *testing.T) {
 }
 
 func TestCompareNormalizesAndValidatesBenchmarkIdentity(t *testing.T) {
-	if err := validateBenchmarkIdentity("1150", "Nifty 50 TRI", "nifty 50"); err != nil {
-		t.Fatalf("equivalent benchmark rejected: %v", err)
+	for _, benchmark := range []string{"Nifty 50 TRI", "Nifty50TRI", "Nifty-50 (TRI)", "Nifty 50 Total Return Index", "Nifty 50 Index"} {
+		if err := validateBenchmarkIdentity("1150", benchmark, "nifty 50"); err != nil {
+			t.Fatalf("equivalent benchmark %q rejected: %v", benchmark, err)
+		}
 	}
 	if err := validateBenchmarkIdentity("1150", "Nifty 50 TRI", "NIFTY BANK"); err == nil {
 		t.Fatal("mismatched benchmark was accepted")
@@ -46,6 +48,24 @@ func TestCompareNormalizesAndValidatesBenchmarkIdentity(t *testing.T) {
 	got := findLiveQuote(quotes, "nifty bank")
 	if got == nil || got.Last != 42 {
 		t.Fatalf("case-insensitive live quote lookup = %#v, want NIFTY BANK", got)
+	}
+}
+
+func TestComparePrefersExactQuoteAndUsesItForConstituents(t *testing.T) {
+	quotes := []niftyindices.LiveQuote{
+		{IndexName: "NIFTY 50", Last: 100},
+		{IndexName: "NIFTY 50 TRI", Last: 120},
+	}
+	tri := findLiveQuote(quotes, "nifty 50 tri")
+	if tri == nil || tri.IndexName != "NIFTY 50 TRI" {
+		t.Fatalf("exact TRI quote was not preferred: %#v", tri)
+	}
+	base := findLiveQuote(quotes[:1], "nifty50tri")
+	if base == nil || base.IndexName != "NIFTY 50" {
+		t.Fatalf("equivalent live quote not found: %#v", base)
+	}
+	if got := constituentSlug("nifty50tri", base); got != "nifty50" {
+		t.Fatalf("constituent slug = %q, want matched quote slug", got)
 	}
 }
 

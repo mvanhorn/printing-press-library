@@ -18,8 +18,8 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "compare <schemeId> <index>",
-		Short:       "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.",
-		Long:        "Use for a single fund vs. an index side-by-side. If the fund reports a benchmark, it must match the requested index. For tracking funds ranked by disclosed expense ratio, use 'index tracking'; for plain membership, use 'index funds'.",
+		Short:       "See a fund's NAV/AUM/expense next to a requested index's level and top constituents.",
+		Long:        "Use for a single fund vs. an index side-by-side. If the fund reports a benchmark, it must match the requested index; otherwise the result marks benchmark validation unavailable. For tracking funds ranked by disclosed expense ratio, use 'index tracking'; for plain membership, use 'index funds'.",
 		Example:     "  passive-indices-pp-cli compare 1150 \"NIFTY 50\" --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -41,9 +41,14 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 
 			fundClient := newIndiaPassiveFundsClient(flags)
 			fd, fundErr := fundClient.FundDetail(ctx, schemeID)
+			benchmarkValidation := "fund_unavailable"
 			if fundErr == nil {
 				if err := validateBenchmarkIdentity(schemeID, fd.BenchmarkText, indexName); err != nil {
 					return usageErr(err)
+				}
+				benchmarkValidation = "matched"
+				if strings.TrimSpace(fd.BenchmarkText) == "" {
+					benchmarkValidation = "not_reported"
 				}
 			}
 
@@ -54,7 +59,7 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("fetching fund: %w; fetching index: %v", fundErr, indexErr)
 			}
 
-			out := map[string]any{"scheme_id": schemeID, "index": indexName}
+			out := map[string]any{"scheme_id": schemeID, "index": indexName, "benchmark_validation": benchmarkValidation}
 			var fetchFailures []map[string]string
 
 			if fundErr != nil {
@@ -66,15 +71,14 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 			if indexErr != nil {
 				fetchFailures = append(fetchFailures, map[string]string{"source": "index", "error": indexErr.Error()})
 			} else {
-				var matchedQuote *niftyindices.LiveQuote
-				matchedQuote = findLiveQuote(quotes, indexName)
+				matchedQuote := findLiveQuote(quotes, indexName)
 				if matchedQuote != nil {
 					out["index_quote"] = matchedQuote
 				} else {
 					fetchFailures = append(fetchFailures, map[string]string{"source": "index", "error": fmt.Sprintf("no live quote found for index name %q", indexName)})
 				}
 
-				slug := niftyindices.Slugify(indexName)
+				slug := constituentSlug(indexName, matchedQuote)
 				constituents, err := niftyClient.Constituents(ctx, slug)
 				fetchFailures = addConstituentResult(out, fetchFailures, constituents, err, topN)
 			}
@@ -93,10 +97,14 @@ var indexIdentityBoundaryRE = regexp.MustCompile(`([a-z])(\d)|(\d)([a-z])`)
 
 func canonicalIndexIdentity(name string) string {
 	name = strings.ToLower(strings.TrimSpace(name))
-	name = strings.TrimSuffix(name, " total return index")
-	name = strings.TrimSuffix(name, " tri")
+	name = strings.NewReplacer("-", " ", "_", " ", "(", " ", ")", " ").Replace(name)
 	name = indexIdentityBoundaryRE.ReplaceAllString(name, "$1$3 $2$4")
-	return strings.Join(strings.Fields(name), " ")
+	name = strings.Join(strings.Fields(name), " ")
+	name = strings.TrimSuffix(name, " total return index")
+	name = strings.TrimSuffix(name, " total return")
+	name = strings.TrimSuffix(name, " tri")
+	name = strings.TrimSuffix(name, " index")
+	return strings.TrimSpace(name)
 }
 
 func validateBenchmarkIdentity(schemeID, benchmark, requested string) error {
@@ -107,6 +115,11 @@ func validateBenchmarkIdentity(schemeID, benchmark, requested string) error {
 }
 
 func findLiveQuote(quotes []niftyindices.LiveQuote, requested string) *niftyindices.LiveQuote {
+	for i := range quotes {
+		if strings.EqualFold(strings.TrimSpace(quotes[i].IndexName), strings.TrimSpace(requested)) {
+			return &quotes[i]
+		}
+	}
 	target := canonicalIndexIdentity(requested)
 	for i := range quotes {
 		if canonicalIndexIdentity(quotes[i].IndexName) == target {
@@ -114,6 +127,13 @@ func findLiveQuote(quotes []niftyindices.LiveQuote, requested string) *niftyindi
 		}
 	}
 	return nil
+}
+
+func constituentSlug(requested string, matched *niftyindices.LiveQuote) string {
+	if matched != nil {
+		return niftyindices.Slugify(matched.IndexName)
+	}
+	return niftyindices.Slugify(requested)
 }
 
 func addConstituentResult(out map[string]any, failures []map[string]string, constituents []niftyindices.ConstituentRow, err error, topN int) []map[string]string {

@@ -44,7 +44,7 @@ niftyindices.com publishes index levels and constituents; indiapassivefunds.com 
 
 ## When to Use This CLI
 
-Use this CLI for anything that requires knowing both an NSE index's current or historical state (level, TRI, valuation, constituents) and the ETFs/index funds that track it — fund selection, cost comparison, tracking-fidelity checks, or sector concentration analysis for passive Indian equity investing.
+Use this CLI for anything that requires knowing both an NSE index's current or historical state (level, TRI, valuation, constituents) and the ETFs/index funds that track it — fund selection, cost comparison, reviewing provider-reported tracking metrics, or sector concentration analysis for passive Indian equity investing.
 
 ## Anti-triggers
 
@@ -86,9 +86,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli fund nfo tracking "NIFTY Next 50" --json
   ```
-- **`compare <schemeId> <index>`** — See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.
+- **`compare <schemeId> <index>`** — See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status.
 
-  _When the fund reports a benchmark, it must match the requested index; use index tracking for ranking multiple funds by disclosed expense ratio._
+  _When the fund reports a benchmark, it must match the requested index. A missing benchmark is marked `not_reported`; use index tracking for ranking multiple funds by disclosed expense ratio._
 
   ```bash
   passive-indices-pp-cli compare 12345 "NIFTY 50" --json
@@ -171,13 +171,13 @@ passive-indices-pp-cli index sectors "NIFTY 50" --json
 
 Aggregates constituent counts by sector to flag concentration risk.
 
-### Compare a held fund against its benchmark
+### Compare a held fund with a requested index
 
 ```bash
 passive-indices-pp-cli compare 12345 "NIFTY 50"
 ```
 
-Side-by-side view of a fund's NAV/AUM/expense against its underlying index's level and top constituents.
+Side-by-side view of a fund's NAV/AUM/expense and the requested index's level and top constituents. Check `benchmark_validation` before treating the two as linked.
 
 ## Auth Setup
 

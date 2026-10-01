@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260709-233621-d673b83a",
   "base_printing_press_version": "4.28.0",
-  "summary": "Validate a fund's declared benchmark before comparing it with an index, match quote names canonically, label failed constituent fetches, and describe tracking as an expense-ratio ranking with provider-reported metrics.",
-  "reason": "A mismatched fund and index could be displayed side by side as though related, unavailable constituent data was silently omitted, and the tracking command claimed NAV fidelity that it does not calculate.",
+  "summary": "Validate a fund's declared benchmark before comparing it with an index, mark missing benchmarks, match live quote names and constituent slugs, report failed constituent fetches, and describe tracking as an expense-ratio ranking.",
+  "reason": "A mismatched fund and index could be displayed as related, alternate quote spellings could fetch the wrong constituent CSV, missing benchmark or constituent data was unclear, and some command descriptions claimed NAV fidelity that the CLI does not calculate.",
   "files": [
     ".printing-press.json",
     "internal/cli/compare.go",
@@ -13,7 +13,11 @@
     "internal/cli/index_funds.go",
     "internal/cli/index_tracking.go",
     "internal/cli/index_tracking_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "README.md",
+    "SKILL.md",
     "internal/mcp/tools.go"
   ],
-  "validated_outcome": "Unit tests cover equivalent and mismatched benchmarks, case-insensitive quote matching, labeled constituent failures, and expense-ratio ordering with undisclosed costs last."
+  "validated_outcome": "Unit tests cover equivalent and mismatched benchmarks, exact quote preference, canonical quote to constituent slug mapping, labeled constituent failures, and expense-ratio ordering with undisclosed costs last."
 }
