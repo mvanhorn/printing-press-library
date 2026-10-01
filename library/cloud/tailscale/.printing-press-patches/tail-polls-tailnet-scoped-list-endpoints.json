@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "id": "tail-polls-tailnet-scoped-list-endpoints",
+  "summary": "`tail` must expose the tailnet-scoped list endpoints (devices, users, keys, and the rest of the sync resource set) and derive its advertised resource list from the same map.",
+  "reason": "Every Tailscale list path carries the env-backed {tailnet} template var, which the client resolves per request, but the generator leaves templated paths out of resourceReadPaths. That left tail with zero resources: every invocation failed as an unknown resource, its examples named resources this API does not have, and verify scored resource-path:tail as a critical failure.",
+  "files": [
+    "internal/cli/resource_paths.go",
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "verify resource-path:tail passes; live `tail <resource> --follow=false` exits 0 for all ten resources."
+}

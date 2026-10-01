@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "id": "stamp-tailnet-scope-on-synced-rows",
+  "summary": "Sync stamps the resolved tailnet onto rows from /tailnet/{tailnet}/... lists so typed tables accept them.",
+  "reason": "{tailnet} is env-backed (TAILSCALE_TAILNET, default '-'), which gives typed tables a NOT NULL tailnet_id scope column, but devices/keys/webhooks objects carry no tailnet field, so every typed insert failed and sync exited non-zero.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/tailscale_sync.go"
+  ],
+  "validated_outcome": "Live sync of devices stored 8 typed rows (was 8/8 typed failures)."
+}

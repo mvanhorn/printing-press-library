@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-remote-writes-need-explicit-confirm",
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "summary": "No MCP tool may change tailnet state without an explicit confirmation: tailscale_execute returns the planned request for every state-changing endpoint unless called with confirm=true (only policy validate, policy preview, and AWS external-id validate are exempt POSTs), and import is hidden from the Cobra mirror.",
+  "reason": "execute reaches the whole-set route replace (POST /device/{id}/routes) and the whole-policy write (POST /tailnet/{tailnet}/acl), which drop routes or comments when an agent sends a partial object, and the Cobra mirror shells out without --agent, so the mirrored import would POST every record unconfirmed; the CLI already requires --yes for these writes.",
+  "files": [
+    "internal/mcp/code_orch.go",
+    "internal/mcp/tailscale_execute_confirm.go",
+    "internal/cli/tailscale_safety.go"
+  ],
+  "validated_outcome": "tailscale_execute_confirm_test.go: unconfirmed device.routes.set and device.delete send nothing and return a plan without credentials; confirm=true sends exactly one request; reads and acl validate need no confirm; TestMCPWriteSurfaceIsGatedOrLocal fails if import or any other non-read-only tool outside the local-store and confirm-gated set is registered."
+}

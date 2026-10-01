@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "id": "aws-external-id-post-is-create-or-get-mutation",
+  "summary": "POST /tailnet/{tailnet}/aws-external-id is a create-or-get mutation (command `tailnet aws-external-id create-or-get`), never a read.",
+  "reason": "The generator inferred read-only from operationId getAwsExternalId and doctor suggested it as a credential check, which would create an AWS external ID.",
+  "files": [
+    "spec.yaml"
+  ]
+}

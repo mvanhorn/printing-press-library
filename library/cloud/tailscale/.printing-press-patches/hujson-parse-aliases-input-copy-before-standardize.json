@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "id": "hujson-parse-aliases-input-copy-before-standardize",
+  "summary": "Every hujson.Parse in policy code parses a private copy; Standardize and Format rewrite the parsed buffer in place.",
+  "reason": "Validating a candidate policy standardized the same buffer that was then written, which would have blanked every comment in the live policy file on policy add-entry --yes.",
+  "files": [
+    "internal/tsadmin/policy.go"
+  ],
+  "validated_outcome": "TestPolicyHelpersNeverMutateInput and TestPolicyAddEntryWritesWithIfMatchAndBackup (written policy keeps all comments)."
+}

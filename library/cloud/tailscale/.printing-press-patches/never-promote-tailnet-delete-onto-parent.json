@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "id": "never-promote-tailnet-delete-onto-parent",
+  "summary": "DELETE /tailnet/{tailnet} is omitted from the spec so a bare `tailscale-pp-cli tailnet` can never delete a tailnet.",
+  "reason": "The generator promotes a single-endpoint resource's only operation onto the resource command regardless of method, so the tailnet group command itself became DELETE /tailnet/- (and live dogfood's happy path would run it).",
+  "files": [
+    "spec.yaml"
+  ]
+}

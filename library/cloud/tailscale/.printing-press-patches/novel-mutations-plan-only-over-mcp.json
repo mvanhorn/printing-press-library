@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "novel-mutations-plan-only-over-mcp",
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "summary": "routes approve/unapprove, shares revoke, policy add-entry/restore block --yes over MCP (mcp:write-flags=yes), so as MCP tools they only plan and carry an accurate read-only hint.",
+  "reason": "These commands write only with --yes; without it they print a plan from live reads. Blocking --yes on the MCP surface keeps agent writes behind the CLI's --yes (or tailscale_execute with confirm=true) and lets live dogfood exercise the real plan path instead of a dry-run stub.",
+  "files": [
+    "internal/cli/routes_approve.go",
+    "internal/cli/routes_unapprove.go",
+    "internal/cli/shares_revoke.go",
+    "internal/cli/policy_add_entry.go",
+    "internal/cli/policy_restore.go"
+  ],
+  "validated_outcome": "TestNovelMutationsArePlanOnlyOverMCP asserts cobratree.DestinationFlagBlocked(cmd, \"yes\") for all five."
+}

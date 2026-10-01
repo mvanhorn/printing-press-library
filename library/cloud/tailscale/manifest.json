@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "tailscale-pp-mcp",
+  "display_name": "Tailscale",
+  "version": "4.32.6",
+  "description": "Tailscale admin from the terminal, with safe route and policy edits an agent can plan before it writes.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tailscale-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tailscale-pp-mcp",
+      "args": [],
+      "env": {
+        "TAILSCALE_API_KEY": "${user_config.tailscale_api_key}",
+        "TAILSCALE_TAILNET": "${user_config.tailscale_tailnet}"
+      }
+    }
+  },
+  "user_config": {
+    "tailscale_api_key": {
+      "type": "string",
+      "title": "Tailscale API access token",
+      "description": "API access token (tskey-api-...) from the admin console Keys page, or set TAILSCALE_OAUTH_CLIENT_ID and TAILSCALE_OAUTH_CLIENT_SECRET for a scoped OAuth client.",
+      "sensitive": true,
+      "required": true
+    },
+    "tailscale_tailnet": {
+      "type": "string",
+      "title": "TAILSCALE_TAILNET",
+      "description": "Sets TAILSCALE_TAILNET for the endpoint template variable {tailnet}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

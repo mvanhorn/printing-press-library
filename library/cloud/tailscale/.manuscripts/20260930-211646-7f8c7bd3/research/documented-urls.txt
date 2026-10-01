@@ -1,0 +1,6 @@
+https://api.tailscale.com/api/v2
+https://api.tailscale.com/api/v2?outputOpenapiSchema=true
+https://api.tailscale.com/api/v2/oauth/token
+https://login.tailscale.com/admin/settings/keys
+https://tailscale.com/api
+https://tailscale.com/docs/reference/trust-credentials

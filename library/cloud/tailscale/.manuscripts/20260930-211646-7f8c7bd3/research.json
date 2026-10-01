@@ -1,0 +1,350 @@
+{
+  "api_name": "tailscale",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "tailscale-mcp (YawLabs)",
+      "url": "https://github.com/YawLabs/tailscale-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 97,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tscli",
+      "url": "https://github.com/jaxxstorm/tscli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 82,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scurgery",
+      "url": "https://github.com/nopoz/scurgery",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tailscale-skill",
+      "url": "https://github.com/tailscale/tailscale-skill",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tailscale-superpowers",
+      "url": "https://github.com/cathrynlavery/tailscale-superpowers",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-01T02:25:30Z",
+  "novel_features": [
+    {
+      "name": "Route approval that keeps other routes",
+      "command": "routes approve",
+      "description": "Approve a subnet route or exit node on one device without dropping the routes it already has.",
+      "rationale": "The API replaces the whole enabled set on every write, so this reads current routes, merges, re-checks, and verifies instead of sending a blind replacement.",
+      "example": "tailscale-pp-cli routes approve self --all-advertised",
+      "why_it_matters": "Reach for this instead of the raw routes endpoint whenever an agent is asked to enable an exit node or subnet route.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Route unapproval that keeps other routes",
+      "command": "routes unapprove",
+      "description": "Remove approval for one route or the exit-node pair while leaving every other approved route in place.",
+      "rationale": "Sends the current enabled set minus the requested routes, read fresh from the device, because the API has no remove-one-route call.",
+      "example": "tailscale-pp-cli routes unapprove self --exit-node",
+      "why_it_matters": "Use it to turn off an exit node without breaking the subnet routes on the same machine.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Safe policy entry insert",
+      "command": "policy add-entry",
+      "description": "Append one nodeAttrs, grants, acls, or ssh entry to the policy file with comments preserved, a local backup, validation, a diff, and a concurrency check.",
+      "rationale": "Combines the HuJSON read, ETag, comment-preserving patch, validate call, and If-Match write that no single endpoint provides.",
+      "example": "tailscale-pp-cli policy add-entry nodeAttrs --entry '{\"target\":[\"autogroup:member\"],\"attr\":[\"drive:access\"]}' --dry-run",
+      "why_it_matters": "Use it whenever an agent needs to add Taildrive, Funnel, or access grants without rewriting the whole policy file.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Policy rollback",
+      "command": "policy restore",
+      "description": "Roll the policy file back to a local backup after validating it and showing the diff.",
+      "rationale": "Backups live on disk next to the CLI; the restore re-validates and writes with the live ETag so a concurrent change is never overwritten.",
+      "example": "tailscale-pp-cli policy restore --list",
+      "why_it_matters": "This is the undo for every policy write the CLI makes.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Tailnet route board",
+      "command": "routes overview",
+      "description": "See approved, pending, and stale routes and exit-node state for every device in one table.",
+      "rationale": "Computes advertised-minus-enabled and enabled-minus-advertised across all devices, which the API only exposes one device at a time.",
+      "example": "tailscale-pp-cli routes overview --pending",
+      "why_it_matters": "Run it before approving anything to see what is actually waiting.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Fleet key-expiry report",
+      "command": "devices expiry",
+      "description": "List every device by days until its key expires and flag the ones inside a window.",
+      "rationale": "Covers every device in the tailnet from the admin API, not only peers visible from the current machine, and --fail-on-flagged turns it into a cron or CI gate.",
+      "example": "tailscale-pp-cli devices expiry --within 14",
+      "why_it_matters": "Use it as a weekly check or a CI gate so nobody gets logged out by surprise.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Machine share audit",
+      "command": "shares audit",
+      "description": "List every machine-share invite across the tailnet with who accepted it and which invites are still redeemable.",
+      "rationale": "The API lists invites per device only; this fans out across all devices and joins the results.",
+      "example": "tailscale-pp-cli shares audit --pending",
+      "why_it_matters": "Answer who has access to a shared machine in one call.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Machine share revoke",
+      "command": "shares revoke",
+      "description": "Revoke machine-share invites by ID or by device and acceptor, with a plan before any delete.",
+      "rationale": "Resolves filters to invite IDs from the cross-device share audit, then deletes only those.",
+      "example": "tailscale-pp-cli shares revoke --device self --pending",
+      "why_it_matters": "Use it to revoke a contractor's share invites without hunting IDs device by device, then confirm in the admin console that an accepted share is gone.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Reachability preview",
+      "command": "access check",
+      "description": "Show which policy rules let a user reach a device and port, against the live policy or a candidate file.",
+      "rationale": "Resolves the device to its IP, supplies the policy body the preview endpoint needs, and intersects user and ip:port matches.",
+      "example": "tailscale-pp-cli access check --to self:22",
+      "why_it_matters": "Check access before and after a policy change without guessing at rule evaluation.",
+      "group": "Agent-native networking"
+    },
+    {
+      "name": "Device dossier",
+      "command": "devices inspect",
+      "description": "Get one device's identity, routes, key expiry, shares, and recent changes in a single record.",
+      "rationale": "Joins the local tailscale status ID with the API device, its invites, and the audit log so an agent has full context before acting.",
+      "example": "tailscale-pp-cli devices inspect self --agent",
+      "why_it_matters": "Make this the first call in any task about a specific machine.",
+      "group": "Agent-native networking"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Route approval that keeps other routes",
+      "command": "routes approve",
+      "description": "Approve a subnet route or exit node on one device without dropping the routes it already has.",
+      "rationale": "The API replaces the whole enabled set on every write, so this reads current routes, merges, re-checks, and verifies instead of sending a blind replacement.",
+      "example": "tailscale-pp-cli routes approve self --all-advertised",
+      "why_it_matters": "Reach for this instead of the raw routes endpoint whenever an agent is asked to enable an exit node or subnet route.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Route unapproval that keeps other routes",
+      "command": "routes unapprove",
+      "description": "Remove approval for one route or the exit-node pair while leaving every other approved route in place.",
+      "rationale": "Sends the current enabled set minus the requested routes, read fresh from the device, because the API has no remove-one-route call.",
+      "example": "tailscale-pp-cli routes unapprove self --exit-node",
+      "why_it_matters": "Use it to turn off an exit node without breaking the subnet routes on the same machine.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Safe policy entry insert",
+      "command": "policy add-entry",
+      "description": "Append one nodeAttrs, grants, acls, or ssh entry to the policy file with comments preserved, a local backup, validation, a diff, and a concurrency check.",
+      "rationale": "Combines the HuJSON read, ETag, comment-preserving patch, validate call, and If-Match write that no single endpoint provides.",
+      "example": "tailscale-pp-cli policy add-entry nodeAttrs --entry '{\"target\":[\"autogroup:member\"],\"attr\":[\"drive:access\"]}' --dry-run",
+      "why_it_matters": "Use it whenever an agent needs to add Taildrive, Funnel, or access grants without rewriting the whole policy file.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Policy rollback",
+      "command": "policy restore",
+      "description": "Roll the policy file back to a local backup after validating it and showing the diff.",
+      "rationale": "Backups live on disk next to the CLI; the restore re-validates and writes with the live ETag so a concurrent change is never overwritten.",
+      "example": "tailscale-pp-cli policy restore --list",
+      "why_it_matters": "This is the undo for every policy write the CLI makes.",
+      "group": "Safe writes to whole-object endpoints"
+    },
+    {
+      "name": "Tailnet route board",
+      "command": "routes overview",
+      "description": "See approved, pending, and stale routes and exit-node state for every device in one table.",
+      "rationale": "Computes advertised-minus-enabled and enabled-minus-advertised across all devices, which the API only exposes one device at a time.",
+      "example": "tailscale-pp-cli routes overview --pending",
+      "why_it_matters": "Run it before approving anything to see what is actually waiting.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Fleet key-expiry report",
+      "command": "devices expiry",
+      "description": "List every device by days until its key expires and flag the ones inside a window.",
+      "rationale": "Covers every device in the tailnet from the admin API, not only peers visible from the current machine, and --fail-on-flagged turns it into a cron or CI gate.",
+      "example": "tailscale-pp-cli devices expiry --within 14",
+      "why_it_matters": "Use it as a weekly check or a CI gate so nobody gets logged out by surprise.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Machine share audit",
+      "command": "shares audit",
+      "description": "List every machine-share invite across the tailnet with who accepted it and which invites are still redeemable.",
+      "rationale": "The API lists invites per device only; this fans out across all devices and joins the results.",
+      "example": "tailscale-pp-cli shares audit --pending",
+      "why_it_matters": "Answer who has access to a shared machine in one call.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Machine share revoke",
+      "command": "shares revoke",
+      "description": "Revoke machine-share invites by ID or by device and acceptor, with a plan before any delete.",
+      "rationale": "Resolves filters to invite IDs from the cross-device share audit, then deletes only those.",
+      "example": "tailscale-pp-cli shares revoke --device self --pending",
+      "why_it_matters": "Use it to revoke a contractor's share invites without hunting IDs device by device, then confirm in the admin console that an accepted share is gone.",
+      "group": "Tailnet state an agent can reason about"
+    },
+    {
+      "name": "Reachability preview",
+      "command": "access check",
+      "description": "Show which policy rules let a user reach a device and port, against the live policy or a candidate file.",
+      "rationale": "Resolves the device to its IP, supplies the policy body the preview endpoint needs, and intersects user and ip:port matches.",
+      "example": "tailscale-pp-cli access check --to self:22",
+      "why_it_matters": "Check access before and after a policy change without guessing at rule evaluation.",
+      "group": "Agent-native networking"
+    },
+    {
+      "name": "Device dossier",
+      "command": "devices inspect",
+      "description": "Get one device's identity, routes, key expiry, shares, and recent changes in a single record.",
+      "rationale": "Joins the local tailscale status ID with the API device, its invites, and the audit log so an agent has full context before acting.",
+      "example": "tailscale-pp-cli devices inspect self --agent",
+      "why_it_matters": "Make this the first call in any task about a specific machine.",
+      "group": "Agent-native networking"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TAILSCALE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Tailscale",
+    "headline": "Tailscale admin from the terminal, with safe route and policy edits an agent can plan before it writes.",
+    "value_prop": "Nearly every Tailscale admin API endpoint (tailnet deletion is deliberately left out), plus commands that make the two dangerous whole-object writes safe: routes approve keeps the routes a device already has, and policy add-entry keeps comments, backs up, validates, diffs, and writes with an ETag check. Those safe-write commands (routes approve and unapprove, shares revoke, policy add-entry and restore) write only with --yes and are plan-only as MCP tools; in --agent mode every other mutation is a dry run unless --yes. devices expiry, routes overview, and shares audit answer fleet questions the admin console shows one machine at a time, and access check and devices inspect give an agent one target's full picture before it acts.",
+    "auth_narrative": "Create an API access token on the admin console Keys page (https://login.tailscale.com/admin/settings/keys) and export TAILSCALE_API_KEY, or set TAILSCALE_OAUTH_CLIENT_ID and TAILSCALE_OAUTH_CLIENT_SECRET to use a scoped OAuth client; the CLI exchanges the client for a short-lived token. The tailnet defaults to '-', meaning the token's own tailnet. Set TAILSCALE_TAILNET only to target a different one.",
+    "quickstart": [
+      {
+        "command": "tailscale-pp-cli doctor",
+        "comment": "Check config, auth, and API reachability (read-only)"
+      },
+      {
+        "command": "tailscale-pp-cli devices expiry --within 14",
+        "comment": "See which device keys expire in the next two weeks"
+      },
+      {
+        "command": "tailscale-pp-cli routes overview --pending",
+        "comment": "Find routes and exit nodes waiting for approval"
+      },
+      {
+        "command": "tailscale-pp-cli routes approve home-mac --exit-node --dry-run",
+        "comment": "Plan an exit-node approval that keeps the device's other routes"
+      },
+      {
+        "command": "tailscale-pp-cli shares audit --pending",
+        "comment": "List share invites anyone could still redeem"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 on routes approve or policy add-entry",
+        "fix": "The token or OAuth client lacks write scope; use an admin token or add devices:routes / policy_file scopes to the OAuth client"
+      },
+      {
+        "symptom": "policy write fails with 412 precondition failed",
+        "fix": "Someone changed the policy since it was read; rerun tailscale-pp-cli policy add-entry to diff against the new version"
+      },
+      {
+        "symptom": "routes approve refuses a CIDR as not advertised",
+        "fix": "Advertise it on the device first with tailscale set --advertise-routes, then rerun"
+      },
+      {
+        "symptom": "devices inspect self cannot find this machine",
+        "fix": "Install the tailscale command or pass the device hostname or nodeId instead of self"
+      },
+      {
+        "symptom": "doctor says auth is not configured but commands work",
+        "fix": "Expected with only TAILSCALE_OAUTH_CLIENT_ID/SECRET set; the token is minted per command. Run tailscale-pp-cli routes overview to confirm"
+      },
+      {
+        "symptom": "sync prints sync_warning or sync_error for acl or user-invites",
+        "fix": "Non-critical: the policy file is a single document and user-invites returns null when empty; sync still exits 0 and stores devices and users"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs to administer a tailnet: approve routes and exit nodes, edit the policy file, audit or revoke machine shares, check key expiry, or ask which rules allow a connection. It is the right choice when a change must not clobber existing routes or policy content. The device selector self means this machine and needs the local tailscale command; otherwise pass a hostname, MagicDNS name, Tailscale IP, or nodeId.",
+    "anti_triggers": [
+      "Connecting this machine to a tailnet or changing its local settings; use the local tailscale command (tailscale up, tailscale set)",
+      "Sending files with Taildrop or serving a local port; use tailscale file and tailscale serve",
+      "Managing Headscale or other self-hosted control servers",
+      "Deleting a tailnet; that endpoint is deliberately left out, so use the admin console or the API directly",
+      "Live free-text search; search only reads data stored locally by sync"
+    ],
+    "recipes": [
+      {
+        "title": "Turn a Mac into an exit node safely",
+        "command": "tailscale-pp-cli routes approve home-mac --exit-node --dry-run",
+        "explanation": "Prints the before and after enabled routes; rerun with --yes to apply."
+      },
+      {
+        "title": "Give members Taildrive access",
+        "command": "tailscale-pp-cli policy add-entry nodeAttrs --entry '{\"target\":[\"autogroup:member\"],\"attr\":[\"drive:access\"]}' --dry-run",
+        "explanation": "Shows the diff and validation result; rerun with --yes to write with the ETag check."
+      },
+      {
+        "title": "Expiry report for agents",
+        "command": "tailscale-pp-cli devices expiry --within 30 --agent --select items.machine,items.days_left,items.flagged",
+        "explanation": "Narrows the report to the three fields an agent needs."
+      },
+      {
+        "title": "Who can reach the NAS over SMB",
+        "command": "tailscale-pp-cli access check --to nas:445",
+        "explanation": "Lists the policy rules that grant access to that device and port."
+      },
+      {
+        "title": "Roll back the last policy change",
+        "command": "tailscale-pp-cli policy restore latest",
+        "explanation": "Shows the diff and validation for restoring the newest local backup; add --yes to restore it, or use --list to pick an older one."
+      }
+    ],
+    "trigger_phrases": [
+      "approve the exit node",
+      "check tailscale key expiry",
+      "add a tailscale policy entry",
+      "who has this machine shared",
+      "who can reach the nas on port 445",
+      "use tailscale",
+      "run tailscale-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,2532 @@
+{
+  "api_name": "tailscale",
+  "base_url": "https://api.tailscale.com/api/v2",
+  "description": "Tailscale admin from the terminal, with safe route and policy edits an agent can plan before it writes.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "TAILSCALE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TAILSCALE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Tailscale API access token (tskey-api-...). Alternatively set TAILSCALE_OAUTH_CLIENT_ID + TAILSCALE_OAUTH_CLIENT_SECRET."
+      }
+    ],
+    "key_url": "https://login.tailscale.com/admin/settings/keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "device_delete",
+      "description": "Deletes the device from its tailnet. The device must belong to the requesting user's tailnet. Deleting devices shared with the tailnet is not supported. OAuth Scope: `devices:core`. Required: deviceId. Destructive.",
+      "method": "DELETE",
+      "path": "/device/{deviceId}",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_get",
+      "description": "Retrieve the details for the specified device. OAuth Scope: `devices:core:read`. Required: deviceId. Optional: fields. Returns the Device.",
+      "method": "GET",
+      "path": "/device/{deviceId}",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally controls whether the response returns **all** fields or only a predefined subset of fields. Currently, there are two supported options: - **`all`:** return all fields in the response - **`default`:** return the following fields - `addresses` - `id` - `nodeId` - `user` - `name` - `hostname` - `clientVersion` - `updateAvailable` - `os` - `created` - `connectedToControl` - `lastSeen` - `keyExpiryDisabled` - `expires` - `authorized` - `isExternal` - `machineKey` - `nodeKey` - `blocksIncomingConnections` - `tailnetLockKey` - `tailnetLockError` - `tags` - `isEphemeral` If the `fields` parameter is not supplied, then the default (limited fields) option is used."
+        }
+      ]
+    },
+    {
+      "name": "device_attributes_delete",
+      "description": "Delete a posture attribute from the specified device. This is only applicable to user-managed posture attributes in the custom namespace, which is indicated by prefixing the attribute key with `custom:`. OAuth Scope: `devices:posture_attributes`. Required: deviceId, attributeKey. Destructive.",
+      "method": "DELETE",
+      "path": "/device/{deviceId}/attributes/{attributeKey}",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "attributeKey",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the posture attribute to set. This must be prefixed with `custom`: Keys have a maximum length of 128 characters including the namespace, and can only contain letters, numbers, underscores, and colon. Keys are case-sensitive. Keys must be unique, but are checked for uniqueness in a case-insensitive manner. For example, `custom:MyAttribute` and `custom:myattribute` cannot both be set within a single tailnet. All values for a given key need to be of the same type, which is determined when the first value is written for a given key. For example, `custom:myattribute` cannot have a numeric value (`87`) for one node and a string value (`'78'`) for another node within the same tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_attributes_list",
+      "description": "Retrieve all posture attributes for the specified device. This returns a JSON object of all the key-value pairs of posture attributes for the device. OAuth Scope: `devices:posture_attributes:read`. Required: deviceId.",
+      "method": "GET",
+      "path": "/device/{deviceId}/attributes",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_attributes_set",
+      "description": "Create or update a custom posture attribute on the specified device. User-managed attributes must be in the custom namespace, which is indicated by prefixing the attribute key with `custom:`. OAuth Scope: `devices:posture_attributes`. Required: deviceId, attributeKey. Optional: comment, expiry, value. Returns the new DevicePostureAttributes.",
+      "method": "POST",
+      "path": "/device/{deviceId}/attributes/{attributeKey}",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "attributeKey",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the posture attribute to set. This must be prefixed with `custom`: Keys have a maximum length of 128 characters including the namespace, and can only contain letters, numbers, underscores, and colon. Keys are case-sensitive. Keys must be unique, but are checked for uniqueness in a case-insensitive manner. For example, `custom:MyAttribute` and `custom:myattribute` cannot both be set within a single tailnet. All values for a given key need to be of the same type, which is determined when the first value is written for a given key. For example, `custom:myattribute` cannot have a numeric value (`87`) for one node and a string value (`'78'`) for another node within the same tailnet.",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "An optional comment indicating a reason why an attribute is set, which will be added to the audit log."
+        },
+        {
+          "name": "expiry",
+          "type": "string",
+          "location": "body",
+          "description": "An optional expiry time for a given posture attribute. If set, Tailscale will automatically remove the attribute within a few minutes after the specified time."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "A value can be either a string, number or boolean. A string value can have a maximum length of 50 characters, and can only contain letters, numbers, underscores, and periods. A number value is an integer and must be a JSON safe number (up to 2^53 - 1)."
+        }
+      ]
+    },
+    {
+      "name": "device_authorized_set",
+      "description": "This call marks a device as authorized or revokes its authorization for tailnets where device authorization is required, according to the authorized field in the payload. OAuth Scope: `devices:core`. Required: deviceId, authorized.",
+      "method": "POST",
+      "path": "/device/{deviceId}/authorized",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "authorized",
+          "type": "bool",
+          "location": "body",
+          "description": "- If `true`, authorize a new device or re-authorize a previously deauthorized device. - If `false`, deauthorize an authorized device.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_device-invites_create",
+      "description": "Create new share invites for a device. Note that device invites cannot be created using an API access token generated from an OAuth client as the shared device is scoped to a user. Required: deviceId. Returns array of DeviceInvite.",
+      "method": "POST",
+      "path": "/device/{deviceId}/device-invites",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_device-invites_list",
+      "description": "List all share invites for a device. OAuth Scope: `device_invites:read`. Required: deviceId. Returns array of DeviceInvite.",
+      "method": "GET",
+      "path": "/device/{deviceId}/device-invites",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_expire_key",
+      "description": "Mark a device's node key as expired. This will require the device to re-authenticate in order to connect to the tailnet. The device must belong to the requesting user's tailnet. OAuth Scope: `devices:core`. Required: deviceId.",
+      "method": "POST",
+      "path": "/device/{deviceId}/expire",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_ip_set",
+      "description": "When a device is added to a tailnet, its Tailscale IPv4 address is set at random either from the CGNAT range, or a subset of the CGNAT range specified by an [ip pool](https://tailscale.com/docs/reference/ip-pool). This endpoint can be used to replace the existing IPv4 address with a specific value. This action will break any existing connections to this machine. You will need to reconnect to this machine using the new IP address. You may also need to flush your DNS cache. OAuth Scope: `devices:core`. Required: deviceId, ipv4.",
+      "method": "POST",
+      "path": "/device/{deviceId}/ip",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "ipv4",
+          "type": "string",
+          "location": "body",
+          "description": "The new IPv4 address for the device.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_key_set",
+      "description": "When a device is added to a tailnet, its key expiry is set according to the tailnet's key expiry setting. If the key is not refreshed and expires, the device can no longer communicate with other devices in the tailnet. OAuth Scope: `devices:core`. Required: deviceId, keyExpiryDisabled.",
+      "method": "POST",
+      "path": "/device/{deviceId}/key",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "keyExpiryDisabled",
+          "type": "bool",
+          "location": "body",
+          "description": "- If `true`, disable the device's key expiry. The original key expiry time is still maintained. Upon re-enabling, the key will expire at that original time. - If `false`, enable the device's key expiry. Sets the key to expire at the original expiry time prior to disabling. The key may already have expired. In that case, the device must be re-authenticated.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_name_set",
+      "description": "When a device is added to a tailnet, its Tailscale [device name](https://tailscale.com/docs/concepts/machine-names) (also sometimes referred to as machine name) is generated from its OS hostname. The device name is the canonical name for the device on your tailnet. Device name changes immediately get propogated through your tailnet, so be aware that any existing [Magic DNS](https://tailscale.com/docs/features/magicdns) URLs using the old name will no longer work. OAuth Scope: `devices:core`. Required: deviceId, name.",
+      "method": "POST",
+      "path": "/device/{deviceId}/name",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The new name for the device. This can be provided as either the fully qualified domain name for the device (e.g. 'nodename.your-domain.ts.net') or just the base name (e.g. 'nodename'). If `name` is unset or provided empty, the device's name is reset to be generated from its OS hostname.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_routes_list",
+      "description": "Retrieve the list of subnet routes that a device is advertising, as well as those that are enabled for it. Routes must be both advertised and enabled for a device to act as a subnet router or exit node. If a device has advertised routes, they are not exposed to traffic until they are enabled. Conversely, if routes are enabled before they are advertised, they are not available for routing until the device in question has advertised them. Learn more about [subnet routers](/docs/features/subnet-routers) and [exit nodes](/docs/features/exit-nodes). OAuth Scope: `devices:routes:read`. Required: deviceId. Returns the DeviceRoutes.",
+      "method": "GET",
+      "path": "/device/{deviceId}/routes",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_routes_set",
+      "description": "Set a device's enabled subnet routes by replacing the existing list of subnet routes with the supplied parameters. [Advertised routes](/docs/features/subnet-routers#advertise-subnet-routes) cannot be set through the API, since they must be set directly on the device. Routes must be both advertised and enabled for a device to act as a subnet router or exit node. If a device has advertised routes, they are not exposed to traffic until they are enabled. Conversely, if routes are enabled before they are advertised, they are not available for routing until the device in question has advertised them. Learn more about [subnet routers](/docs/features/subnet-routers) and [exit nodes](/docs/features/exit-nodes). OAuth Scope: `devices:routes`. Required: deviceId. Optional: routes. Returns the new DeviceRoutes.",
+      "method": "POST",
+      "path": "/device/{deviceId}/routes",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "routes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The new list of enabled subnet routes."
+        }
+      ]
+    },
+    {
+      "name": "device_tags_set",
+      "description": "Tags let you assign an identity to a device that is separate from human users, and use that identity as part of an ACL to restrict access. Tags are similar to role accounts, but more flexible. Tags are created in the tailnet policy file by defining the tag and an owner of the tag. Once a device is tagged, the tag is the owner of that device. A single node can have multiple tags assigned. Consult the policy file for your tailnet in the [admin console](https://login.tailscale.com/admin/acls) for the list of tags that have been created for your tailnet. Learn more about [tags](https://tailscale.com/docs/features/tags). OAuth Scope: `devices:core`. Required: deviceId. Optional: tags.",
+      "method": "POST",
+      "path": "/device/{deviceId}/tags",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The new list of tags for the device."
+        }
+      ]
+    },
+    {
+      "name": "device-invites_accept",
+      "description": "Accepts the invitation to share a device into the requesting user's tailnet. Note that device invites cannot be accepted using an API access token generated from an OAuth client as the shared device is scoped to a user. Required: invite. Returns the new DeviceInvitesAcceptResponse.",
+      "method": "POST",
+      "path": "/device-invites/-/accept",
+      "params": [
+        {
+          "name": "invite",
+          "type": "string",
+          "location": "body",
+          "description": "The URL of the invite (in the form `https://login.tailscale.com/admin/invite/{code}`) or the `{code}` component of the URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device-invites_delete",
+      "description": "Delete a specific device invite. OAuth Scope: `device_invites`. Required: deviceInviteId. Destructive.",
+      "method": "DELETE",
+      "path": "/device-invites/{deviceInviteId}",
+      "params": [
+        {
+          "name": "deviceInviteId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device invite.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device-invites_get",
+      "description": "Retrieve a specific device invite. OAuth Scope: `device_invites:read`. Required: deviceInviteId. Returns the DeviceInvite.",
+      "method": "GET",
+      "path": "/device-invites/{deviceInviteId}",
+      "params": [
+        {
+          "name": "deviceInviteId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device invite.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device-invites_resend_device-invite",
+      "description": "Resend a device invite by email. You can only use this if the specified invite was originally created with an email specified. Refer to [creating device invites for a device](#tag/deviceinvites/post/device/{deviceId}/device-invites). Note: Invite resends are rate limited to one per minute. Note that device invites cannot be resent using an API access token generated from an OAuth client as the shared device is scoped to a user. Required: deviceInviteId.",
+      "method": "POST",
+      "path": "/device-invites/{deviceInviteId}/resend",
+      "params": [
+        {
+          "name": "deviceInviteId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device invite.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_tailnets_create",
+      "description": "Create an [API-only tailnet](https://tailscale.com/docs/features/tailnet-creation-api) in the organization. API-only tailnets have no human users and do not appear in the admin console. Use them for applications and infrastructure that manage tailnets entirely through the API. All plans can create a maximum of 10 tailnets, including their original tailnet. If your use case requires more than 10 tailnets, [contact sales](https://tailscale.com/contact/sales). The response includes an OAuth client for the new tailnet. The client secret is returned only in this response and cannot be retrieved later, so be sure to record it. OAuth Scope: `tailnets`. Required: organization, displayName. Returns the new CreateOrganizationTailnetResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization}/tailnets",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "path",
+          "description": "The organization identifier. Use a dash (`-`) to reference the organization of the access token being used to make the API call.",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "A custom name for the tailnet. It can contain letters, numbers, spaces, apostrophes, and hyphens, and must be unique within the organization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_tailnets_list",
+      "description": "List all tailnets in the organization, including the original tailnet and any [API-only tailnets](https://tailscale.com/docs/features/tailnet-creation-api) created with the tailnet creation API. OAuth Scope: `tailnets:read`. Required: organization. Optional: limit (default: 100), cursor. Returns array of OrganizationTailnet.",
+      "method": "GET",
+      "path": "/organizations/{organization}/tailnets",
+      "params": [
+        {
+          "name": "organization",
+          "type": "string",
+          "location": "path",
+          "description": "The organization identifier. Use a dash (`-`) to reference the organization of the access token being used to make the API call.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of tailnets to return per page; defaults to the maximum of 100."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor from a previous response."
+        }
+      ]
+    },
+    {
+      "name": "posture_delete",
+      "description": "Delete a specific posture integration. OAuth Scope: `feature_settings`. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/posture/integrations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a posture integration.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posture_get",
+      "description": "Gets the posture integration identified by `{id}`. OAuth Scope: `feature_settings:read`. Required: id. Returns the PostureIntegration.",
+      "method": "GET",
+      "path": "/posture/integrations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a posture integration.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posture_update",
+      "description": "Updates the posture integration identified by `{id}`. You may omit the `clientSecret` from your request to retain the previously configured `clientSecret`. OAuth Scope: `feature_settings`. Required: id. Optional: clientId, clientSecret, cloudId (plus 5 more). Returns the updated PostureIntegration.",
+      "method": "PATCH",
+      "path": "/posture/integrations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier for a posture integration.",
+          "required": true
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for your client. - For Microsoft Intune, it will be your application's UUID. - For CrowdStrike Falcon and Jamf Pro, it will be your client id. - For Kandji, Kolide and Sentinel One, this is left blank."
+        },
+        {
+          "name": "clientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "The secret (auth key, token, etc.) used to authenticate with the provider. Required when creating a new integration, may be omitted when updating an existing integration, in which case we retain the existing password."
+        },
+        {
+          "name": "cloudId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies which of the provider's clouds to integrate with. - For CrowdStrike Falcon, it will be one of `us-1`, `us-2`, `eu-1` or `us-gov`. - For Microsoft Intune, it will be one of `global` or `us-gov`. - For Jamf Pro, Kandji and Sentinel One, it is the FQDN of your subdomain, for example `mydomain.sentinelone.net`. - For Kolide, this is left blank."
+        },
+        {
+          "name": "configUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the last time this configuration was updated, in RFC 3339 format."
+        },
+        {
+          "name": "id-2",
+          "wire_name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier for the integration (generated by the system)."
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "The device posture provider. Required on POST requests, ignored on PATCH requests."
+        },
+        {
+          "name": "status-error",
+          "wire_name": "status.error",
+          "type": "string",
+          "location": "body",
+          "description": "If the last synchronization failed, this shows the error message associated with the failed synchronization."
+        },
+        {
+          "name": "status-last-sync",
+          "wire_name": "status.lastSync",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the last synchronization with the device posture provider, in RFC 3339 format."
+        },
+        {
+          "name": "status-matched-count",
+          "wire_name": "status.matchedCount",
+          "type": "int",
+          "location": "body",
+          "description": "The number of Tailscale nodes that were matched with provider."
+        },
+        {
+          "name": "status-possible-matched-count",
+          "wire_name": "status.possibleMatchedCount",
+          "type": "int",
+          "location": "body",
+          "description": "The number of Tailscale nodes with identifiers for matching."
+        },
+        {
+          "name": "status-provider-host-count",
+          "wire_name": "status.providerHostCount",
+          "type": "int",
+          "location": "body",
+          "description": "The number of devices known to the provider."
+        },
+        {
+          "name": "tenantId",
+          "type": "string",
+          "location": "body",
+          "description": "The Microsoft Intune directory (tenant) ID. For other providers, this is left blank."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_acl_get",
+      "description": "Retrieves the current policy file for the given tailnet; this includes the ACL along with the rules and tests that have been defined. This method can return the policy file as JSON or HuJSON, depending on the Accept header. The response also includes an `ETag` header, which can be optionally included when [setting the policy file](#tag/policyfile/post/tailnet/{tailnet}/acl) to avoid missed updates. Learn more about [policy file ACL syntax](https://tailscale.com/docs/reference/syntax/policy-file). OAuth Scope: `policy_file:read`. Required: tailnet (default: -). Optional: Accept, details. Returns the AclGetResponse.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/acl",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "Accept",
+          "type": "string",
+          "location": "query",
+          "description": "Response is encoded as JSON if `application/json` is requested, otherwise HuJSON will be returned."
+        },
+        {
+          "name": "details",
+          "type": "bool",
+          "location": "query",
+          "description": "Request a detailed description of the tailnet policy file by providing `details=true` in the URL query string. Supplying any other value for `details`, or not sending the param, is treated as sending `details=false`. If using this, do not supply an `Accept` parameter in the header. The response will contain a JSON object with the fields: - `acl`: a base64-encoded string representation of the huJSON format. - `warnings`: array of strings for syntactically valid but nonsensical entries. - `errors`: an array of strings for parsing failures."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_acl_preview",
+      "description": "When given a user or IP port to match against, returns the tailnet policy rules that apply to that resource, without saving the policy file to the server. Required: tailnet (default: -), type, previewFor.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/acl/preview",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Specify for which type of resource (user or IP port) matching rules are to be fetched. Read about [previewing changes in the admin console](https://tailscale.com/docs/features/tailnet-policy-file/manage-tailnet-policies#preview-changes). OAuth Scope: `policy_file:read`.",
+          "required": true
+        },
+        {
+          "name": "previewFor",
+          "type": "string",
+          "location": "query",
+          "description": "- If `type` is `user`, provide the email of a valid user with registered machines. - If `type` is `ipport`, provide an IP address + port: `10.0.0.1:80`. The supplied policy file is queried with this parameter to determine which rules match.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_acl_set",
+      "description": "Sets the ACL for the given tailnet. HuJSON and JSON are both accepted inputs. An `If-Match` header can be set to avoid missed updates. On success, returns the updated ACL in JSON or HuJSON according to the `Accept` header. Otherwise, errors are returned for incorrectly defined ACLs, ACLs with failing tests on attempted updates, and mismatched `If-Match` header and `ETag`. Learn more about [policy file ACL syntax](https://tailscale.com/docs/reference/syntax/policy-file). OAuth Scope: `policy_file`. Required: tailnet (default: -). Optional: Accept, If-Match.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/acl",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "Accept",
+          "type": "string",
+          "location": "query",
+          "description": "Response is encoded as JSON if `application/json` is requested, otherwise HuJSON will be returned."
+        },
+        {
+          "name": "If-Match",
+          "type": "string",
+          "location": "query",
+          "description": "This is a safety mechanism to avoid overwriting other users' updates to the tailnet policy file. - Set the `If-Match` value to that of the `ETag` header returned in a `GET` request to `/api/v2/tailnet/{tailnet}/acl`. Tailscale compares the `ETag` value in your request to that of the current tailnet file and only replaces the file if there's a match. (A mismatch indicates that another update has been made to the file.) For example: `-H 'If-Match: 'e0b2816b418''`. - Alternately, set the `If-Match` value to `ts-default` to ensure that the policy file is replaced *only if the current policy file is still the untouched default created automatically* for each tailnet. For example: `-H 'If-Match: 'ts-default''`."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_acl_validate",
+      "description": "This endpoint works in one of two modes, neither of which modifies your current tailnet policy file: - Run ACL tests: When the request body contains ACL tests as a JSON array, Tailscale runs ACL tests against the tailnet's current policy file. Learn more about [ACL tests](https://tailscale.com/docs/reference/syntax/policy-file#tests). - Validate a new policy file: When the request body is a JSON object, Tailscale interprets the body as a hypothetical new tailnet policy file with new ACLs, including any new rules and tests. It validates that the policy file is parsable and runs tests to validate the existing rules. In either case, this method does not modify the tailnet policy file in any way. OAuth Scope: `policy_file:read`. Required: tailnet (default: -). Returns array of AclValidateItem.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/acl/validate",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_aws-external-id_create-or-get",
+      "description": "Get an AWS external id to use for streaming tailnet logs to S3 using role-based authentication, creating a new one for this tailnet when necessary. OAuth Scope: `log_streaming`. Required: tailnet (default: -). Optional: reusable. Returns the new AwsExternalId.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/aws-external-id",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "reusable",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, this same AWS external id will be returned on future calls to this endpoint, if and only if those calls also mark `reusable` as true, and the ID has not yet been linked with an AWS account."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_aws-external-id_validate",
+      "description": "Validate that Tailscale can assume your IAM role with (and only with) this external ID. OAuth Scope: `log_streaming`. Required: tailnet (default: -), id. Optional: roleArn.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/aws-external-id/{id}/validate-aws-trust-policy",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The AWS external ID to validate.",
+          "required": true
+        },
+        {
+          "name": "roleArn",
+          "type": "string",
+          "location": "body",
+          "description": "ARN of the AWS IAM role to validate with this external ID."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_contacts_get",
+      "description": "Retrieve the tailnet's current contacts. OAuth Scope: `account_settings:read`. Required: tailnet (default: -). Returns the ContactsGetResponse.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/contacts",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_contacts_resend-verification-email",
+      "description": "Resends the verification email for this contact, if and only if verification is still pending. OAuth Scope: `account_settings`. Required: tailnet (default: -), contactType (default: account).",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/contacts/{contactType}/resend-verification-email",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "contactType",
+          "type": "string",
+          "location": "path",
+          "description": "Type of contact.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_contacts_update",
+      "description": "Update the preferences for this type of contact. If the email address has changed, the system will send a verification email to confirm the change. OAuth Scope: `account_settings`. Required: tailnet (default: -), contactType (default: account), email. Partial update.",
+      "method": "PATCH",
+      "path": "/tailnet/{tailnet}/contacts/{contactType}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "contactType",
+          "type": "string",
+          "location": "path",
+          "description": "Type of contact.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_device-attributes_batch-update",
+      "description": "Batch updates posture attributes across devices in a tailnet. This endpoint uses [JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7396) semantics. Specifying `null` for an attribute will delete that attribute. Attributes must be in the `custom:` namespace. OAuth Scope: `devices:posture_attributes`. Required: tailnet (default: -). Optional: comment, nodes. Partial update.",
+      "method": "PATCH",
+      "path": "/tailnet/{tailnet}/device-attributes",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "An optional comment indicating why attributes are being set, which will be added to the audit log."
+        },
+        {
+          "name": "nodes",
+          "type": "object",
+          "location": "body",
+          "description": "A mapping of deviceId → posture attributes."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_devices_list",
+      "description": "Lists the devices in a tailnet. OAuth Scope: `devices:core:read`. Required: tailnet (default: -). Optional: fields, hostname, os (plus 6 more). Returns array of Device.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/devices",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally controls whether the response returns **all** fields or only a predefined subset of fields. Currently, there are two supported options: - **`all`:** return all fields in the response - **`default`:** return the following fields - `addresses` - `id` - `nodeId` - `user` - `name` - `hostname` - `clientVersion` - `updateAvailable` - `os` - `created` - `connectedToControl` - `lastSeen` - `keyExpiryDisabled` - `expires` - `authorized` - `isExternal` - `machineKey` - `nodeKey` - `blocksIncomingConnections` - `tailnetLockKey` - `tailnetLockError` - `tags` - `isEphemeral` If the `fields` parameter is not supplied, then the default (limited fields) option is used."
+        },
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side exact-match filter on the device machine name."
+        },
+        {
+          "name": "os",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side exact-match filter on operating system (linux, macOS, windows, iOS, android)."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side exact-match filter on the login of the user who registered the device."
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side filter: devices whose tags contain this tag (for example tag:server)."
+        },
+        {
+          "name": "isEphemeral",
+          "type": "bool",
+          "location": "query",
+          "description": "Server-side filter on ephemeral devices."
+        },
+        {
+          "name": "updateAvailable",
+          "type": "bool",
+          "location": "query",
+          "description": "Server-side filter on devices with a client update available."
+        },
+        {
+          "name": "authorized",
+          "type": "bool",
+          "location": "query",
+          "description": "Server-side filter on device authorization state."
+        },
+        {
+          "name": "keyExpiryDisabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Server-side filter on devices with key expiry disabled."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_get-configuration",
+      "description": "Retrieves the full DNS configuration for a tailnet, including global nameservers, split DNS routes, search paths, and MagicDNS configuration. Required: tailnet (default: -). Returns the DnsConfiguration.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/dns/configuration",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_get-preferences",
+      "description": "Retrieves the DNS preferences that are currently set for the given tailnet. Required: tailnet (default: -). Returns the DnsPreferences.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/dns/preferences",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_get-split",
+      "description": "Retrieves the split DNS settings, which is a map from domains to lists of nameservers, that is currently set for the given tailnet. Required: tailnet (default: -). Returns the SplitDns.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/dns/split-dns",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_list-nameservers",
+      "description": "Lists the global DNS nameservers for a tailnet. Required: tailnet (default: -). Returns array of string.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/dns/nameservers",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_list-search-paths",
+      "description": "Retrieves the list of search paths, also referred to as *search domains*, that is currently set for the given tailnet. Required: tailnet (default: -). Returns array of string.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/dns/searchpaths",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_set-configuration",
+      "description": "Replaces the DNS configuration for the given tailnet. - `nameservers` defines the global resolvers to use when `preferences.overrideLocalDNS` is true. - `splitDNS` maps DNS name suffixes (domains) to lists of resolvers for Split DNS. - `searchPaths` sets custom DNS search domain paths. - `preferences.overrideLocalDNS` controls whether resolvers in `nameservers` override the local OS configuration (true) or are used or local resolvers are used (false). Defaults to false. - `preferences.magicDNS` enables MagicDNS. Defaults to false. Required: tailnet (default: -). Optional: nameservers, preferences, searchPaths (plus 1 more). Returns the new DnsConfiguration.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/dns/configuration",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "nameservers",
+          "type": "array",
+          "location": "body",
+          "description": "Global DNS resolvers to use. If `preferences.overrideLocalDNS` is true, these override the local OS configuration; otherwise they are used as fallback resolvers."
+        },
+        {
+          "name": "preferences-magic-dns",
+          "wire_name": "preferences.magicDNS",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether MagicDNS is enabled for this tailnet."
+        },
+        {
+          "name": "preferences-override-local-dns",
+          "wire_name": "preferences.overrideLocalDNS",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, resolvers in `nameservers` override the local OS DNS configuration; if false, local resolvers are used."
+        },
+        {
+          "name": "searchPaths",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Search domain paths to apply."
+        },
+        {
+          "name": "splitDNS",
+          "type": "object",
+          "location": "body",
+          "description": "Map of DNS name suffixes (domains) to lists of resolvers for Split DNS and advanced routing overlays."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_set-nameservers",
+      "description": "Replaces the list of global DNS nameservers for the given tailnet with the list supplied in the request. Note that changing the list of DNS nameservers may also affect the status of MagicDNS (if MagicDNS is on; learn about [MagicDNS](https://tailscale.com/docs/features/magicdns)). If all nameservers have been removed, MagicDNS will be automatically disabled (until explicitly turned back on by the user). Required: tailnet (default: -). Optional: dns. Returns array of string.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/dns/nameservers",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "dns",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "DNS nameservers."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_set-preferences",
+      "description": "Set the DNS preferences for a tailnet; specifically, the MagicDNS setting. Note that MagicDNS is dependent on DNS servers. Learn about [MagicDNS](https://tailscale.com/docs/features/magicdns). If there is at least one DNS server, then MagicDNS can be enabled. Otherwise, it returns an error. Note that removing all nameservers will turn off MagicDNS. To reenable it, nameservers must be added back, and MagicDNS must be explicitly turned on. Required: tailnet (default: -), magicDNS.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/dns/preferences",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "magicDNS",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether MagicDNS is active for this tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_set-search-paths",
+      "description": "Replaces the list of search paths for the given tailnet. Required: tailnet (default: -), searchPaths. Returns array of string.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/dns/searchpaths",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "searchPaths",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The search domains for the given tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_set-split",
+      "description": "Replaces the split DNS settings for a given tailnet. Setting the value of a mapping to `null` clears the nameservers for that domain. Sending an empty object clears nameservers for all domains. Required: tailnet (default: -). Returns the updated SplitDns.",
+      "method": "PUT",
+      "path": "/tailnet/{tailnet}/dns/split-dns",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_dns_update-split",
+      "description": "Performs partial updates of the split DNS settings for a given tailnet. Only domains specified in the request map will be modified. Setting the value of a mapping to `null` clears the nameservers for that domain. Required: tailnet (default: -). Returns the updated SplitDns.",
+      "method": "PATCH",
+      "path": "/tailnet/{tailnet}/dns/split-dns",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_keys_create",
+      "description": "Creates a new [auth key](https://tailscale.com/docs/features/access-control/auth-keys), or [trust credential](https://tailscale.com/docs/reference/trust-credentials) in the specified tailnet. Trust credentials include [OAuth clients](https://tailscale.com/docs/features/oauth-clients) and [federated identities](https://tailscale.com/docs/features/workload-identity-federation). The key will be associated with the user who owns the API access token used to make this call, or, if the call is made with an access token derived from an OAuth client or federated identity, the key will be owned by the tailnet. Returns a JSON object with the generated key. The key should be recorded and kept safe and secure because it wields the capabilities or scopes specified in the request. The identity of the key is embedded in the key itself and can be used to perform operations on the key (e.g., revoking it or retrieving information about it). The full key can no longer be retrieved after the initial response. OAuth Scope: `auth_keys` grants access to create machine auth keys. OAuth Scope: `oauth_keys` grants access to create OAuth clients. OAuth Scope: `federated_keys` grants access to created federated identities. Required: tailnet (default: -). Optional: audience, capabilities, customClaimRules (plus 7 more).",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/keys",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "audience",
+          "type": "string",
+          "location": "body",
+          "description": "The value used when matching against the `aud` claim from an OIDC identity token. Specifying the audience is optional as Tailscale will generate a secure audience at creation time by default. It is recommended to let Tailscale generate the audience unless the identity provider you are integrating with requires a specific audience format. Only applies to federated identities."
+        },
+        {
+          "name": "capabilities-devices-create",
+          "wire_name": "capabilities.devices.create",
+          "type": "object",
+          "location": "body",
+          "description": "`create` specifies the key's permissions when creating devices."
+        },
+        {
+          "name": "customClaimRules",
+          "type": "object",
+          "location": "body",
+          "description": "A map of claim names to pattern strings used to match against arbitrary claims in the OIDC identity token. Patterns can include `*` characters to match against any character. Only applies to federated identities."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A short string specifying the purpose of the key. Can be a maximum of 50 alphanumeric characters. Hyphens and spaces are also allowed."
+        },
+        {
+          "name": "expirySeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the duration in seconds until the key expires. Defaults to 90 days if not supplied. Only applies to auth keys."
+        },
+        {
+          "name": "issuer",
+          "type": "string",
+          "location": "body",
+          "description": "The issuer of the OIDC identity token used in the token exchange. Must be a valid and publicly reachable https:// URL. Only applies to federated identities."
+        },
+        {
+          "name": "keyType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of key to create. Defaults to 'auth' if omitted."
+        },
+        {
+          "name": "scopes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of scopes to grant to the key. At least one scope is required for OAuth clients and federated identities. See [trust credentials scopes](https://tailscale.com/docs/reference/trust-credentials#scopes) for a list of available scopes. Only applies to OAuth clients and federated identities."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The pattern used when matching against the `sub` claim from an OIDC identity token. Patterns can include `*` characters to match against any character. Only applies to federated identities."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of tags associated to the trust credential. Auth keys created with this credential must have these exact tags, or tags owned by the credential's tags. Mandatory if the scopes include 'devices:core' or 'auth_keys'. Only applies to OAuth clients and federated identities."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_keys_delete",
+      "description": "Deletes a specific api access token or auth key. OAuth Scope: `api_access_tokens` grants access to personal API access tokens. OAuth Scope: `auth_keys` grants access to machine auth keys. OAuth Scope: `oauth_keys` grants access to OAuth clients and OAuth tokens. OAuth Scope: `federated_keys` grants access to federated identities. Required: tailnet (default: -), keyId. Destructive.",
+      "method": "DELETE",
+      "path": "/tailnet/{tailnet}/keys/{keyId}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the key. The key ID can be found in the [admin...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_keys_get",
+      "description": "Returns a JSON object with information about a specific api access token, OAuth client, federated identity, or auth key, such as its creation and expiration dates and its capabilities. OAuth Scope: `api_access_tokens:read` grants access to personal API access tokens. OAuth Scope: `auth_keys:read` grants access to machine auth keys. OAuth Scope: `oauth_keys:read` grants access to OAuth clients and OAuth tokens. OAuth Scope: `federated_keys:read` grants access to federated identities. Required: tailnet (default: -), keyId.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/keys/{keyId}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the key. The key ID can be found in the [admin...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_keys_list",
+      "description": "Returns a list of active auth keys, API access tokens and trust credentials. If the parameter {all} was not specified, the set of keys returned depends on the access token used to make the request: - If the API call is made with a user-owned API access token, this returns only the keys owned by that user. - If the API call is made with an access token derived from an OAuth client, this returns all OAuth clients for the tailnet. - If the API call is made with an access token derived from a federated identity, this returns all federated identities for the tailnet. OAuth Scope: `api_access_tokens:read` grants access to personal API access tokens. OAuth Scope: `auth_keys:read` grants access to machine auth keys. OAuth Scope: `oauth_keys:read` grants access to OAuth clients and OAuth tokens. OAuth Scope: `federated_keys:read` grants access to federated identities. Required: tailnet (default: -), all.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/keys",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "all",
+          "type": "bool",
+          "location": "query",
+          "description": "If set to true, this will return all auth keys, API access tokens and OAuth clients for the tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_keys_set",
+      "description": "Set the configuration for an existing OAuth client or federated identity. OAuth Scope: `oauth_keys` grants access to OAuth clients. OAuth Scope: `federated_keys` grants access to federated identities. Required: tailnet (default: -), keyId. Optional: audience, customClaimRules, description (plus 5 more). Returns the updated Key.",
+      "method": "PUT",
+      "path": "/tailnet/{tailnet}/keys/{keyId}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the key. The key ID can be found in the [admin...",
+          "required": true
+        },
+        {
+          "name": "audience",
+          "type": "string",
+          "location": "body",
+          "description": "The value used when matching against the `aud` claim from an OIDC identity token. Only applies to federated identities."
+        },
+        {
+          "name": "customClaimRules",
+          "type": "object",
+          "location": "body",
+          "description": "A map of claim names to pattern strings used to match against arbitrary claims in the OIDC identity token. Patterns can include `*` characters to match against any character. Only applies to federated identities."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A short string specifying the purpose of the key. Can be a maximum of 50 alphanumeric characters. Hyphens and spaces are also allowed."
+        },
+        {
+          "name": "issuer",
+          "type": "string",
+          "location": "body",
+          "description": "The issuer of the OIDC identity token used in the token exchange. Must be a valid https:// URL. Only applies to federated identities."
+        },
+        {
+          "name": "keyType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of the key being updated."
+        },
+        {
+          "name": "scopes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of scopes to grant to the key. At least one scope is required. See [trust credentials scopes](https://tailscale.com/docs/reference/trust-credentials#scopes) for a list of available scopes."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The pattern used when matching against the `sub` claim from an OIDC identity token. Patterns can include `*` characters to match against any character. Only applies to federated identities."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of tags associated to the trust credential. Auth keys created with this credential must have these exact tags, or tags owned by the credential's tags. Mandatory if the scopes include 'devices:core' or 'auth_keys'."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_logging_disable-log-streaming",
+      "description": "Delete the log streaming configuration for the provided log type. OAuth Scope: `log_streaming`. Required: tailnet (default: -), logType (default: configuration). Destructive.",
+      "method": "DELETE",
+      "path": "/tailnet/{tailnet}/logging/{logType}/stream",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "logType",
+          "type": "string",
+          "location": "path",
+          "description": "The type of log.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_logging_get-log-streaming-configuration",
+      "description": "Retrieve the log streaming configuration for the provided log type. OAuth Scope: `log_streaming:read`. Required: tailnet (default: -), logType (default: configuration). Returns array of string.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/logging/{logType}/stream",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "logType",
+          "type": "string",
+          "location": "path",
+          "description": "The type of log.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_logging_get-log-streaming-status",
+      "description": "Retrieve the log streaming status for the provided log type. OAuth Scope: `log_streaming:read`. Required: tailnet (default: -), logType (default: configuration). Returns the LogstreamEndpointPublishingStatus.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/logging/{logType}/stream/status",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "logType",
+          "type": "string",
+          "location": "path",
+          "description": "The type of log.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_logging_list-configuration-audit-logs",
+      "description": "List all configuration audit logs for a tailnet. OAuth Scope: `logs:configuration:read`. Required: tailnet (default: -), start, end. Optional: actor, target, event. Returns array of ConfigurationAuditLog.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/logging/configuration",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The start of the time window for which to retrieve logs, in RFC 3339 format.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The end of the time window for which to retrieve logs, in RFC 3339 format.",
+          "required": true
+        },
+        {
+          "name": "actor",
+          "type": "array",
+          "location": "query",
+          "description": "List of filters on actors, either exact actor IDs or a wildcard search on login name or display name indicated as `~search`."
+        },
+        {
+          "name": "target",
+          "type": "array",
+          "location": "query",
+          "description": "List of target elements for which to filter, attempts to match any part of any of the targets to any of the given strings."
+        },
+        {
+          "name": "event",
+          "type": "array",
+          "location": "query",
+          "description": "List of events for which to filter."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_logging_list-network-flow-logs",
+      "description": "List all network flow logs for a tailnet. OAuth Scope: `logs:network:read`. Required: tailnet (default: -), start, end. Returns array of NetworkFlowLog.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/logging/network",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The start of the time window for which to retrieve logs, in RFC 3339 format.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The end of the time window for which to retrieve logs, in RFC 3339 format.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_logging_set-log-streaming-configuration",
+      "description": "Set the log streaming configuration for the provided log type. OAuth Scope: `log_streaming`. `device_invites` and `policy_file` are also required if streaming to a [private endpoint](https://tailscale.com/docs/features/logging/log-streaming#private-endpoints). Required: tailnet (default: -), logType (default: configuration). Optional: compressionFormat, destinationType, gcsBucket (plus 16 more).",
+      "method": "PUT",
+      "path": "/tailnet/{tailnet}/logging/{logType}/stream",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "logType",
+          "type": "string",
+          "location": "path",
+          "description": "The type of log.",
+          "required": true
+        },
+        {
+          "name": "compressionFormat",
+          "type": "string",
+          "location": "body",
+          "description": "The compression algorithm with which to compress logs. `none` disables compression. Defaults to `none`."
+        },
+        {
+          "name": "destinationType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of system to which logs are being streamed."
+        },
+        {
+          "name": "gcsBucket",
+          "type": "string",
+          "location": "body",
+          "description": "The GCS bucket name. Required if the destinationType is `gcs`."
+        },
+        {
+          "name": "gcsCredentials",
+          "type": "string",
+          "location": "body",
+          "description": "The JSON workload identity credentials from GCS needed for accessing the GCS account."
+        },
+        {
+          "name": "gcsKeyPrefix",
+          "type": "string",
+          "location": "body",
+          "description": "An optional GCS key prefix to append to the GCS bucket name."
+        },
+        {
+          "name": "gcsScopes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The GCS scopes needed to be able to write to the GCS bucket."
+        },
+        {
+          "name": "logType-2",
+          "wire_name": "logType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of log that is streamed to this endpoint."
+        },
+        {
+          "name": "s3AccessKeyId",
+          "type": "string",
+          "location": "body",
+          "description": "The S3 access key ID. Required if the destinationType is `s3` and `authenticationType` is `accesskey`."
+        },
+        {
+          "name": "s3AuthenticationType",
+          "type": "string",
+          "location": "body",
+          "description": "What type of authentication to use for S3. Required if the destinationType is `s3`. Tailscale recommends using `rolearn`. See [Amazon documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html)."
+        },
+        {
+          "name": "s3Bucket",
+          "type": "string",
+          "location": "body",
+          "description": "The S3 bucket name. Required if the destinationType is `s3`."
+        },
+        {
+          "name": "s3ExternalId",
+          "type": "string",
+          "location": "body",
+          "description": "The AWS external id that Tailscale supplies when authenticating using role-based authentication. Populated if the destinationType is `s3` and `authenticationType` is `rolearn`. This corresponds to the `externalId` field obtained from [tailnet/{tailnet}/aws-external-id](#tag/logging/POST/tailnet/{tailnet}/aws-external-id)."
+        },
+        {
+          "name": "s3KeyPrefix",
+          "type": "string",
+          "location": "body",
+          "description": "An optional S3 key prefix to prepend to the auto-generated S3 key name."
+        },
+        {
+          "name": "s3Region",
+          "type": "string",
+          "location": "body",
+          "description": "The region in which the S3 bucket is located. Required if the destinationType is `s3`."
+        },
+        {
+          "name": "s3RoleArn",
+          "type": "string",
+          "location": "body",
+          "description": "The Role ARN that Tailscale should supply to AWS when authenticating using role-based authentication. Required if the destinationType is `s3` and `authenticationType` is `rolearn`."
+        },
+        {
+          "name": "s3SecretAccessKey",
+          "type": "string",
+          "location": "body",
+          "description": "The S3 secret access key. Required if the destinationType is `s3` and `authenticationType` is `accesskey`."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "The token/password with which log streams to this endpoint should be authenticated."
+        },
+        {
+          "name": "uploadPeriodMinutes",
+          "type": "int",
+          "location": "body",
+          "description": "An optional number of minutes to wait in between uploading new logs. If the quantity of logs does not fit within a single upload, multiple uploads will be made."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL to which log streams are being posted. If the DestinationType is `s3`, the URL may be (and often is) empty to use the official Amazon S3 endpoint."
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "The username with which log streams to this endpoint are authenticated."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_oauth-apps_create",
+      "description": "Create an OAuth app within a tailnet. The generated client secret is returned only in this response and cannot be retrieved later, so be sure to record it. OAuth Scope: `oauth_apps`. If you include `allowedNodeAttributes` in the request body, you must also have `devices:posture_attributes`. Required: tailnet (default: -), name, redirectURIs, scopes. Optional: allowedNodeAttributes, description. Returns the new OauthApp.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/oauth-apps",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "allowedNodeAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of custom device attributes that the OAuth app is allowed to set."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A human-readable description of the OAuth app. Must be at most 300 characters."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the OAuth app. Must be between 3 and 50 characters and contain only alphanumeric characters, dashes, periods, and underscores.",
+          "required": true
+        },
+        {
+          "name": "redirectURIs",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of permitted redirect URIs for the OAuth authorization code flow. At least one redirect URI is required. Each URI must use the `https` scheme, except for `localhost`, `127.0.0.1`, and `::1`, which may use any scheme. Raw IP address hosts are not permitted.",
+          "required": true
+        },
+        {
+          "name": "scopes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of OAuth scopes granted to the app. Must be non-empty. Learn more about [OAuth clients and scopes](/docs/features/oauth-clients).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_oauth-apps_delete",
+      "description": "Delete a specific OAuth app. OAuth Scope: `oauth_apps`. Required: tailnet (default: -), appId. Destructive.",
+      "method": "DELETE",
+      "path": "/tailnet/{tailnet}/oauth-apps/{appId}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the OAuth app.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_oauth-apps_get",
+      "description": "Retrieve a specific OAuth app. OAuth Scope: `oauth_apps:read`. Required: tailnet (default: -), appId. Returns the OauthApp.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/oauth-apps/{appId}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the OAuth app.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_oauth-apps_list",
+      "description": "List all OAuth apps for a tailnet. OAuth Scope: `oauth_apps:read`. Required: tailnet (default: -). Returns array of OauthApp.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/oauth-apps",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_oauth-apps_update",
+      "description": "Update a specific OAuth app. The client secret is not regenerated and is not returned in this response. OAuth Scope: `oauth_apps`. Required: tailnet (default: -), appId, name, redirectURIs, scopes. Optional: allowedNodeAttributes, description. Returns the updated OauthApp.",
+      "method": "PUT",
+      "path": "/tailnet/{tailnet}/oauth-apps/{appId}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "appId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the OAuth app.",
+          "required": true
+        },
+        {
+          "name": "allowedNodeAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of custom device attributes that the OAuth app is allowed to set."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A human-readable description of the OAuth app. Must be at most 300 characters."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the OAuth app. Must be between 3 and 50 characters and contain only alphanumeric characters, dashes, periods, and underscores.",
+          "required": true
+        },
+        {
+          "name": "redirectURIs",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of permitted redirect URIs for the OAuth authorization code flow. At least one redirect URI is required. Each URI must use the `https` scheme, except for `localhost`, `127.0.0.1`, and `::1`, which may use any scheme. Raw IP address hosts are not permitted.",
+          "required": true
+        },
+        {
+          "name": "scopes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of OAuth scopes granted to the app. Must be non-empty. Learn more about [OAuth clients and scopes](/docs/features/oauth-clients).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_posture_create",
+      "description": "Create a posture integration, returning the resulting [PostureIntegration](#model/postureintegration). Must include `provider` and `clientSecret`. Currently, only one integration for each provider is supported. OAuth Scope: `feature_settings`. Required: tailnet (default: -). Optional: clientId, clientSecret, cloudId (plus 5 more). Returns the new PostureIntegration.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/posture/integrations",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for your client. - For Microsoft Intune, it will be your application's UUID. - For CrowdStrike Falcon and Jamf Pro, it will be your client id. - For Kandji, Kolide and Sentinel One, this is left blank."
+        },
+        {
+          "name": "clientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "The secret (auth key, token, etc.) used to authenticate with the provider. Required when creating a new integration, may be omitted when updating an existing integration, in which case we retain the existing password."
+        },
+        {
+          "name": "cloudId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies which of the provider's clouds to integrate with. - For CrowdStrike Falcon, it will be one of `us-1`, `us-2`, `eu-1` or `us-gov`. - For Microsoft Intune, it will be one of `global` or `us-gov`. - For Jamf Pro, Kandji and Sentinel One, it is the FQDN of your subdomain, for example `mydomain.sentinelone.net`. - For Kolide, this is left blank."
+        },
+        {
+          "name": "configUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the last time this configuration was updated, in RFC 3339 format."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A unique identifier for the integration (generated by the system)."
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "The device posture provider. Required on POST requests, ignored on PATCH requests."
+        },
+        {
+          "name": "status-error",
+          "wire_name": "status.error",
+          "type": "string",
+          "location": "body",
+          "description": "If the last synchronization failed, this shows the error message associated with the failed synchronization."
+        },
+        {
+          "name": "status-last-sync",
+          "wire_name": "status.lastSync",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp of the last synchronization with the device posture provider, in RFC 3339 format."
+        },
+        {
+          "name": "status-matched-count",
+          "wire_name": "status.matchedCount",
+          "type": "int",
+          "location": "body",
+          "description": "The number of Tailscale nodes that were matched with provider."
+        },
+        {
+          "name": "status-possible-matched-count",
+          "wire_name": "status.possibleMatchedCount",
+          "type": "int",
+          "location": "body",
+          "description": "The number of Tailscale nodes with identifiers for matching."
+        },
+        {
+          "name": "status-provider-host-count",
+          "wire_name": "status.providerHostCount",
+          "type": "int",
+          "location": "body",
+          "description": "The number of devices known to the provider."
+        },
+        {
+          "name": "tenantId",
+          "type": "string",
+          "location": "body",
+          "description": "The Microsoft Intune directory (tenant) ID. For other providers, this is left blank."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_posture_list",
+      "description": "List all of the posture integrations for a tailnet. OAuth Scope: `feature_settings:read`. Required: tailnet (default: -). Returns array of PostureIntegration.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/posture/integrations",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_delete",
+      "description": "Delete the specified Service from the tailnet. OAuth Scope: `services`. Required: tailnet (default: -), serviceName. Destructive.",
+      "method": "DELETE",
+      "path": "/tailnet/{tailnet}/services/{serviceName}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "serviceName",
+          "type": "string",
+          "location": "path",
+          "description": "The unique name of a Service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_get",
+      "description": "Retrieve the details for the specified Service. OAuth Scope: `services:read`. Required: tailnet (default: -), serviceName. Returns the VipserviceInfo.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/services/{serviceName}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "serviceName",
+          "type": "string",
+          "location": "path",
+          "description": "The unique name of a Service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_get-device-approval",
+      "description": "Retrieve the approval status of the specified Service on a specific device. OAuth Scope: `services`, `devices:core`. Required: tailnet (default: -), serviceName, deviceId. Returns the VipserviceApproval.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/services/{serviceName}/device/{deviceId}/approved",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "serviceName",
+          "type": "string",
+          "location": "path",
+          "description": "The unique name of a Service.",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_list",
+      "description": "List all Services configured for the tailnet. This includes all Services in the 'advertised' tab of the Services page in the Tailscale admin console. OAuth Scope: `services:read`. Required: tailnet (default: -). Returns array of VipserviceInfo.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/services",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_list-hosts",
+      "description": "List all devices that are hosting the specified Service. OAuth Scope: `services`, `devices:core`. Required: tailnet (default: -), serviceName. Returns array of ServiceHostInfo.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/services/{serviceName}/devices",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "serviceName",
+          "type": "string",
+          "location": "path",
+          "description": "The unique name of a Service.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_update",
+      "description": "Update or create the specified Service. If the Service does not exist, it will create a Service with the provided details. When creating a new Service, the name in the request body must match the serviceName path parameter. When updating an existing Service, the path parameter is the current name of the Service, and the name in the request body can be used to rename the Service. OAuth Scope: `services`. Required: tailnet (default: -), serviceName. Optional: addrs, comment, displayName (plus 3 more). Returns the updated VipserviceInfo.",
+      "method": "PUT",
+      "path": "/tailnet/{tailnet}/services/{serviceName}",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "serviceName",
+          "type": "string",
+          "location": "path",
+          "description": "The unique name of a Service.",
+          "required": true
+        },
+        {
+          "name": "addrs",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The IP addresses assigned to the Service: the IPv4 followed by the IPv6."
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "An optional comment for the Service."
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "An optional human-readable label for the Service, shown in the Tailscale admin console and to clients with access to the Service. Must be 64 characters or fewer."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The unique name of the Service."
+        },
+        {
+          "name": "ports",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of protocol:port pairs to be exposed by the Service. The only supported protocol is 'tcp' at this time. 'do-not-validate' can be used to skip validation."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of optional tags associated with the Service."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_services_update-device-approval",
+      "description": "Update the approval status of the specified Service on a specific device. OAuth Scope: `services`, `devices:core`. Required: tailnet (default: -), serviceName, deviceId. Optional: approved. Returns the new VipserviceApproval.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/services/{serviceName}/device/{deviceId}/approved",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "serviceName",
+          "type": "string",
+          "location": "path",
+          "description": "The unique name of a Service.",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the device. Using the device's `nodeId` is preferred, but its numeric `id` value can...",
+          "required": true
+        },
+        {
+          "name": "approved",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether to approve or revoke approval for the Service on the device."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_settings_get",
+      "description": "Retrieve the settings for a specific tailnet. OAuth Scope: `feature_settings:read` - required to view all settings except those governed by the below scopes. OAuth Scope: `logs:network:read` - required to view the `networkFlowLoggingOn` setting. OAuth Scope: `networking_settings:read` - required to view the `httpsCertificates` setting. OAuth Scope: `policy_file:read` - required to view the `aclsExternallyManagedOn` \u0026 `aclsExternalLink` settings. Required: tailnet (default: -). Returns the TailnetSettings.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/settings",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_settings_update",
+      "description": "Update the settings for a specific tailnet. OAuth Scope: `feature_settings` - required to update all settings except those governed by the below scopes. OAuth Scope: `logs:network` - required to update the `networkFlowLoggingOn` setting. OAuth Scope: `networking_settings` - required to update the `httpsCertificates` setting. OAuth Scope: `policy_file` - required to update the `aclsExternallyManagedOn` \u0026 `aclsExternalLink` settings. Required: tailnet (default: -). Optional: aclsExternalLink, aclsExternallyManagedOn, devicesApprovalOn (plus 8 more). Returns the updated TailnetSettings.",
+      "method": "PATCH",
+      "path": "/tailnet/{tailnet}/settings",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "aclsExternalLink",
+          "type": "string",
+          "location": "body",
+          "description": "Link to the external tailnet policy definition or management solution for this tailnet."
+        },
+        {
+          "name": "aclsExternallyManagedOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Prevents users from editing policies in the admin console to avoid conflicts with external management workflows like GitOps or Terraform."
+        },
+        {
+          "name": "devicesApprovalOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether [device approval](/docs/features/access-control/device-management/device-approval) is enabled for the tailnet."
+        },
+        {
+          "name": "devicesAutoUpdatesOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether [auto updates](/docs/features/client/update#auto-updates) are enabled for devices that belong to this tailnet."
+        },
+        {
+          "name": "devicesKeyDurationDays",
+          "type": "int",
+          "location": "body",
+          "description": "The [key expiry](/docs/features/access-control/key-expiry) duration for devices on this tailnet."
+        },
+        {
+          "name": "httpsEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether provisioning of [HTTPS certificates](/docs/how-to/set-up-https-certificates) is enabled for this tailnet."
+        },
+        {
+          "name": "networkFlowLoggingOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether [network flog logs](/docs/features/logging/network-flow-logs) are enabled for the tailnet."
+        },
+        {
+          "name": "postureIdentityCollectionOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether [identity collection](/docs/features/access-control/device-management/how-to/manage-identity) is enabled for [device posture](/docs/features/device-posture) integrations for the tailnet."
+        },
+        {
+          "name": "regionalRoutingOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether [regional routing](/docs/how-to/set-up-high-availability#regional-routing) is enabled for the tailnet."
+        },
+        {
+          "name": "usersApprovalOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether [user approval](/docs/features/access-control/user-approval) is enabled for this tailnet."
+        },
+        {
+          "name": "usersRoleAllowedToJoinExternalTailnets",
+          "type": "string",
+          "location": "body",
+          "description": "Which user roles are allowed to [join external tailnets](/docs/features/sharing/how-to/invite-any-user)."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_user-invites_create",
+      "description": "Create, and optionally email out, new user invites to join the tailnet. \u003e ⓘ Only permitted for user-owned keys, because invites require an inviting user. Required: tailnet (default: -). Returns array of UserInvite.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/user-invites",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_user-invites_list",
+      "description": "List all open (not yet accepted) user invites to the tailnet. Required: tailnet (default: -). Returns array of UserInvite.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/user-invites",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_users_list",
+      "description": "List all users of a tailnet. OAuth Scope: `users:read`. Required: tailnet (default: -). Optional: type (default: member), role (default: all). Returns array of User.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/users",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Allows for filtering the output by user type."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "query",
+          "description": "Allows for filtering the output by user role. Learn more about [user roles](/docs/reference/user-roles)."
+        }
+      ]
+    },
+    {
+      "name": "tailnet_webhooks_create",
+      "description": "Create a webhook within a tailnet. OAuth Scope: `webhooks`. Required: tailnet (default: -), endpointUrl, subscriptions. Optional: providerType. Returns array of string.",
+      "method": "POST",
+      "path": "/tailnet/{tailnet}/webhooks",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        },
+        {
+          "name": "endpointUrl",
+          "type": "string",
+          "location": "body",
+          "description": "The endpoint that events are sent to from Tailscale via POST requests.",
+          "required": true
+        },
+        {
+          "name": "providerType",
+          "type": "string",
+          "location": "body",
+          "description": "The provider type for the webhook destination, or an empty string if none are applicable. Outgoing webhook events are sent in the format expected by the provider type if non-empty."
+        },
+        {
+          "name": "subscriptions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of subscribed events that trigger POST requests to the configured endpoint URL. Learn more about [webhook events](/docs/features/webhooks#events).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tailnet_webhooks_list",
+      "description": "List all webhooks for a tailnet. OAuth Scope: `webhooks:read`. Required: tailnet (default: -). Returns array of Webhook.",
+      "method": "GET",
+      "path": "/tailnet/{tailnet}/webhooks",
+      "params": [
+        {
+          "name": "tailnet",
+          "type": "string",
+          "location": "path",
+          "description": "The tailnet ID. Use '-' (the default) for the access token's own tailnet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user-invites_delete",
+      "description": "Deletes a specific user invite. \u003e ⓘ Only permitted for user-owned keys, because invites require an inviting user. Required: userInviteId. Destructive.",
+      "method": "DELETE",
+      "path": "/user-invites/{userInviteId}",
+      "params": [
+        {
+          "name": "userInviteId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user invite.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user-invites_get",
+      "description": "Retrieve a specific user invite. Required: userInviteId. Returns the UserInvite.",
+      "method": "GET",
+      "path": "/user-invites/{userInviteId}",
+      "params": [
+        {
+          "name": "userInviteId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user invite.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user-invites_resend_user-invite",
+      "description": "Resend a user invite by email. You can only use this if the specified invite was originally created with an email specified. Refer to [creating user invites for a tailnet](#tag/userinvites/post/tailnet/{tailnet}/user-invites). Note: Invite resends are rate limited to one per minute. \u003e ⓘ Only permitted for user-owned keys, because invites require an inviting user. Required: userInviteId.",
+      "method": "POST",
+      "path": "/user-invites/{userInviteId}/resend",
+      "params": [
+        {
+          "name": "userInviteId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user invite.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Retrieve details about the specified user. OAuth Scope: `users:read`. Required: userId. Returns the User.",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_approve_user",
+      "description": "Approve a pending user's access to the tailnet. This is a no-op if user approval has not been enabled for the tailnet, or if the user is already approved. User approval can be managed using the [tailnet settings endpoints](#tag/tailnetsettings). Learn more about [user approval](/docs/features/access-control/user-approval) and [enabling user approval for your network](/docs/features/access-control/user-approval#enable-user-approval-for-your-network). OAuth Scope: `users`. \u003e ⓘ User-based access tokens cannot approve their own user. Required: userId.",
+      "method": "POST",
+      "path": "/users/{userId}/approve",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_delete_user",
+      "description": "Delete a user from their tailnet. Learn more about [deleting users](/docs/features/sharing/how-to/remove-team-members#deleting-users). OAuth Scope: `users`. \u003e ⓘ User-based access tokens cannot delete their own user. Required: userId.",
+      "method": "POST",
+      "path": "/users/{userId}/delete",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_restore_user",
+      "description": "Restores a suspended user's access to their tailnet. Learn more about [restoring users](/docs/features/sharing/how-to/remove-team-members#restoring-users). OAuth Scope: `users`. \u003e ⓘ User-based access tokens cannot restore their own user. Required: userId.",
+      "method": "POST",
+      "path": "/users/{userId}/restore",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_role_set",
+      "description": "Update the role for the specified user. Learn more about [user roles](/docs/reference/user-roles). OAuth Scope: `users`. \u003e ⓘ User-based access tokens cannot update their own user's role. Required: userId. Optional: role.",
+      "method": "POST",
+      "path": "/users/{userId}/role",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user.",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "The role of the user. Learn more about [user roles](/docs/reference/user-roles)."
+        }
+      ]
+    },
+    {
+      "name": "users_suspend_user",
+      "description": "Suspends a user from their tailnet. Learn more about [suspending users](/docs/features/sharing/how-to/remove-team-members#suspending-users). OAuth Scope: `users`. \u003e ⓘ User-based access tokens cannot suspend their own user. Required: userId.",
+      "method": "POST",
+      "path": "/users/{userId}/suspend",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a specific webhook. OAuth Scope: `webhooks`. Required: endpointId. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{endpointId}",
+      "params": [
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID for the webhook endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Retrieve a specific webhook. OAuth Scope: `webhooks:read`. Required: endpointId. Returns array of string.",
+      "method": "GET",
+      "path": "/webhooks/{endpointId}",
+      "params": [
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID for the webhook endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update a specific webhook. OAuth Scope: `webhooks`. Required: endpointId. Optional: subscriptions. Returns array of string.",
+      "method": "PATCH",
+      "path": "/webhooks/{endpointId}",
+      "params": [
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID for the webhook endpoint.",
+          "required": true
+        },
+        {
+          "name": "subscriptions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The list of subscribed events that trigger POST requests to the configured endpoint URL. Learn more about [webhook events](/docs/features/webhooks#events)."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_rotate_webhook-secret",
+      "description": "Rotate and generate a new secret for a specific webhook. This secret is used for generating the `Tailscale-Webhook-Signature` header in requests sent to the endpoint URL. Learn more about [verifying webhook event signatures](/docs/features/webhooks#verifying-an-event-signature). OAuth Scope: `webhooks`. Required: endpointId. Returns array of string.",
+      "method": "POST",
+      "path": "/webhooks/{endpointId}/rotate",
+      "params": [
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID for the webhook endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_test_webhook",
+      "description": "Test a specific webhook by sending out a test event to the endpoint URL. This endpoint queues the event which is sent out asynchronously. If your webhook is configured correctly, within a few seconds your webhook endpoint should receive an event with type of 'test'. OAuth Scope: `webhooks`. Required: endpointId.",
+      "method": "POST",
+      "path": "/webhooks/{endpointId}/test",
+      "params": [
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "ID for the webhook endpoint.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Route approval that keeps other routes",
+      "command": "routes approve",
+      "description": "Approve a subnet route or exit node on one device without dropping the routes it already has."
+    },
+    {
+      "name": "Route unapproval that keeps other routes",
+      "command": "routes unapprove",
+      "description": "Remove approval for one route or the exit-node pair while leaving every other approved route in place."
+    },
+    {
+      "name": "Safe policy entry insert",
+      "command": "policy add-entry",
+      "description": "Append one nodeAttrs, grants, acls, or ssh entry to the policy file with comments preserved, a local backup, validation, a diff, and a concurrency check."
+    },
+    {
+      "name": "Policy rollback",
+      "command": "policy restore",
+      "description": "Roll the policy file back to a local backup after validating it and showing the diff."
+    },
+    {
+      "name": "Tailnet route board",
+      "command": "routes overview",
+      "description": "See approved, pending, and stale routes and exit-node state for every device in one table."
+    },
+    {
+      "name": "Fleet key-expiry report",
+      "command": "devices expiry",
+      "description": "List every device by days until its key expires and flag the ones inside a window."
+    },
+    {
+      "name": "Machine share audit",
+      "command": "shares audit",
+      "description": "List every machine-share invite across the tailnet with who accepted it and which invites are still redeemable."
+    },
+    {
+      "name": "Machine share revoke",
+      "command": "shares revoke",
+      "description": "Revoke machine-share invites by ID or by device and acceptor, with a plan before any delete."
+    },
+    {
+      "name": "Reachability preview",
+      "command": "access check",
+      "description": "Show which policy rules let a user reach a device and port, against the live policy or a candidate file."
+    },
+    {
+      "name": "Device dossier",
+      "command": "devices inspect",
+      "description": "Get one device's identity, routes, key expiry, shares, and recent changes in a single record."
+    }
+  ]
+}

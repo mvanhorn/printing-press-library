@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/tailscale-pp-cli
+/tailscale-pp-cli.exe
+/tailscale-pp-mcp
+/tailscale-pp-mcp.exe
+/bin/
+/build/
+/dist/

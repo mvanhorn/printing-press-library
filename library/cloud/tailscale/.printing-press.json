@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T04:35:52.387973Z",
+  "printing_press_version": "4.32.6",
+  "api_name": "tailscale",
+  "display_name": "Tailscale",
+  "cli_name": "tailscale-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "tailscale-spec-enriched.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:7bc55d1d7eb5b1d78063c0dae0ae3c7f6bc7ff8acd4757d8f795cc381cdfbf3d",
+  "run_id": "20260930-211646-7f8c7bd3",
+  "category": "cloud",
+  "description": "Tailscale admin from the terminal, with safe route and policy edits an agent can plan before it writes.",
+  "mcp_binary": "tailscale-pp-mcp",
+  "mcp_tool_count": 92,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "TAILSCALE_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TAILSCALE_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Tailscale API access token (tskey-api-...). Alternatively set TAILSCALE_OAUTH_CLIENT_ID + TAILSCALE_OAUTH_CLIENT_SECRET."
+    }
+  ],
+  "endpoint_template_vars": [
+    "tailnet"
+  ],
+  "endpoint_template_env_overrides": {
+    "tailnet": "TAILSCALE_TAILNET"
+  },
+  "auth_key_url": "https://login.tailscale.com/admin/settings/keys",
+  "auth_title": "Tailscale API access token",
+  "auth_description": "API access token (tskey-api-...) from the admin console Keys page, or set TAILSCALE_OAUTH_CLIENT_ID and TAILSCALE_OAUTH_CLIENT_SECRET for a scoped OAuth client.",
+  "novel_features": [
+    {
+      "name": "Route approval that keeps other routes",
+      "command": "routes approve",
+      "description": "Approve a subnet route or exit node on one device without dropping the routes it already has."
+    },
+    {
+      "name": "Route unapproval that keeps other routes",
+      "command": "routes unapprove",
+      "description": "Remove approval for one route or the exit-node pair while leaving every other approved route in place."
+    },
+    {
+      "name": "Safe policy entry insert",
+      "command": "policy add-entry",
+      "description": "Append one nodeAttrs, grants, acls, or ssh entry to the policy file with comments preserved, a local backup, validation, a diff, and a concurrency check."
+    },
+    {
+      "name": "Policy rollback",
+      "command": "policy restore",
+      "description": "Roll the policy file back to a local backup after validating it and showing the diff."
+    },
+    {
+      "name": "Tailnet route board",
+      "command": "routes overview",
+      "description": "See approved, pending, and stale routes and exit-node state for every device in one table."
+    },
+    {
+      "name": "Fleet key-expiry report",
+      "command": "devices expiry",
+      "description": "List every device by days until its key expires and flag the ones inside a window."
+    },
+    {
+      "name": "Machine share audit",
+      "command": "shares audit",
+      "description": "List every machine-share invite across the tailnet with who accepted it and which invites are still redeemable."
+    },
+    {
+      "name": "Machine share revoke",
+      "command": "shares revoke",
+      "description": "Revoke machine-share invites by ID or by device and acceptor, with a plan before any delete."
+    },
+    {
+      "name": "Reachability preview",
+      "command": "access check",
+      "description": "Show which policy rules let a user reach a device and port, against the live policy or a candidate file."
+    },
+    {
+      "name": "Device dossier",
+      "command": "devices inspect",
+      "description": "Get one device's identity, routes, key expiry, shares, and recent changes in a single record."
+    }
+  ]
+}

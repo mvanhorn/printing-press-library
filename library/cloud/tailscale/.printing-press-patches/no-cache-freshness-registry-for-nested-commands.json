@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-30",
+  "base_run_id": "20260930-211646-7f8c7bd3",
+  "base_printing_press_version": "4.32.6",
+  "id": "no-cache-freshness-registry-for-nested-commands",
+  "summary": "The spec omits x-cache, so no freshness registry or auto-refresh hook is generated.",
+  "reason": "The generated registry keyed covered commands by sync resource names (devices, acl, keys) that do not exist as commands here (they live under `tailnet <group>`), so docs listed ~48 phantom paths and the hook never fired. Novel commands read live; local data comes from explicit `sync`.",
+  "files": [
+    "spec.yaml"
+  ]
+}
