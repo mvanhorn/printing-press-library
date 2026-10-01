@@ -115,7 +115,8 @@ s2-family capability; --model s1 is rejected before any call is made.
 and exits 5 without rendering anything when the estimate exceeds the balance.
 
 Batch execution preserves successful lines when another line fails. The command
-exits 6, but its summary remains the recovery manifest: "renders" includes every
+exits 6 (or 7 when a line is rate limited), but its summary remains the recovery
+manifest: "renders" includes every
 successful file and render-log row ID, while "failed" identifies the input lines
 to retry. Failed lines are excluded from persisted-file and output-byte totals.
 A synthesis that completes before local persistence fails remains in API-call
