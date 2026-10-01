@@ -102,8 +102,17 @@ func init() {
 					return err
 				}
 			}
-			if flags.agent && !flags.yes && !flags.dryRun && tsIsMutatingCommand(cmd) {
+			// Some generated commands (import) declare their own --dry-run,
+			// which shadows the root flag and is what they read. Force that
+			// one too, or the command sends live writes while the agent is
+			// told it ran a dry run.
+			local := cmd.Flags().Lookup("dry-run")
+			alreadyDry := flags.dryRun || (local != nil && local.Value.String() == "true")
+			if flags.agent && !flags.yes && !alreadyDry && tsIsMutatingCommand(cmd) {
 				flags.dryRun = true
+				if local != nil {
+					_ = local.Value.Set("true")
+				}
 				fmt.Fprintf(cmd.ErrOrStderr(), "agent mode: %q changes the tailnet, so this run is a dry run. Re-run with --yes to apply.\n", cmd.CommandPath())
 			}
 			return nil

@@ -335,6 +335,8 @@ Global format flags share one contract on promoted, novel, sync, and `--deliver`
 
 ### Response envelope
 
+The local store is kept per credential: each API key or OAuth client gets its own database file under the data directory, so two tailnets never share synced data, search results, or learnings.
+
 Commands that read from the local store or the API wrap output in a provenance envelope:
 
 ```json

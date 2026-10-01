@@ -4133,7 +4133,10 @@ func configureDefaultDBScope(configPath string) {
 		setDefaultDBScopeCredential("")
 		return
 	}
-	setDefaultDBScopeCredential(cfg.StoreScopeCredential())
+	// PATCH(per-credential-local-store): key by the credential a run actually
+	// sends, OAuth clients included. This runs before the learn store is
+	// initialized, so nothing touches another credential's database first.
+	setDefaultDBScopeCredential(tsStoreScopeCredential(cfg))
 }
 
 func setDefaultDBScopeCredential(credential string) {
@@ -4172,14 +4175,9 @@ func defaultDBPath(name string) string {
 func defaultDBPathInDir(dir string) string {
 	unscoped := filepath.Join(dir, "data.db")
 	if scopeHash := currentDefaultDBScopeHash(); scopeHash != "" {
-		scoped := filepath.Join(dir, "data-"+scopeHash+".db")
-		if _, err := os.Stat(scoped); err == nil {
-			return scoped
-		}
-		if _, err := os.Stat(unscoped); err == nil || !os.IsNotExist(err) {
-			return unscoped
-		}
-		return scoped
+		// PATCH(per-credential-local-store): never fall back to the shared
+		// data.db; a store one credential filled must not serve another.
+		return filepath.Join(dir, "data-"+scopeHash+".db")
 	}
 	return unscoped
 }

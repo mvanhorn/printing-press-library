@@ -456,6 +456,8 @@ This CLI caches per-question discovery so repeat queries skip the walk and struc
 
 Pass `--no-learn` or set `TAILSCALE_NO_LEARN=true` to disable the loop for deterministic flows.
 
+The local store is kept per credential: each API key or OAuth client gets its own database file under the data directory, so two tailnets never share synced data, search results, or learnings.
+
 The local store's schema version stamp is one-way: once this version of `tailscale-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats

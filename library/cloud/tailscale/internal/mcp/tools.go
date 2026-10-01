@@ -12,7 +12,6 @@ import (
 	"math"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -597,11 +596,12 @@ func newMCPClientFromConfig(ctx context.Context, cfg *config.Config) (*client.Cl
 }
 
 func mcpDBPath() (string, error) {
-	dir, err := cliutil.DataDir()
-	if err != nil {
+	// PATCH(per-credential-local-store): read the same per-credential
+	// database the CLI writes, not a shared data.db.
+	if _, err := cliutil.DataDir(); err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "data.db"), nil
+	return cli.ScopedDBPath(), nil
 }
 
 type mcpStoreStatusKind string

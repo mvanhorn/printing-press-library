@@ -245,23 +245,30 @@ func policyBackupScope(c *client.Client, tailnet string) (string, error) {
 // tsCredentialFingerprint is a short digest of the API base URL plus the
 // credential requests are actually sent with, following the same precedence
 // as Config.AuthHeader. A minted OAuth token changes every run, so OAuth uses
-// the client ID and a digest of its secret instead. It never contains the
+// the client ID and a digest of its secret instead; that also gives the same
+// value before and after the token is minted. It never contains the
 // credential itself.
 func tsCredentialFingerprint(cfg *config.Config) string {
 	if cfg == nil {
 		return ""
 	}
 	header := strings.TrimSpace(cfg.AuthHeader())
-	if header == "" {
-		return ""
-	}
 	base := strings.TrimRight(strings.TrimSpace(cfg.BaseURL), "/")
-	material := "auth-header\x00" + base + "\x00" + header
-	if strings.HasPrefix(cfg.AuthSource, "oauth:") && strings.TrimSpace(cfg.AuthHeaderVal) == "" && strings.TrimSpace(cfg.TailscaleApiKey) == "" {
-		if id, secret := tsOAuthCredentials(); id != "" {
+	material := ""
+	if header != "" {
+		material = "auth-header\x00" + base + "\x00" + header
+	}
+	// OAuth applies when nothing stronger is configured and the header is
+	// either not minted yet or was minted from the OAuth client.
+	if strings.TrimSpace(cfg.AuthHeaderVal) == "" && strings.TrimSpace(cfg.TailscaleApiKey) == "" &&
+		(header == "" || strings.HasPrefix(cfg.AuthSource, "oauth:")) {
+		if id, secret := tsOAuthCredentials(); id != "" && secret != "" {
 			sec := sha256.Sum256([]byte(secret))
 			material = "oauth-client\x00" + base + "\x00" + id + "\x00" + hex.EncodeToString(sec[:])
 		}
+	}
+	if material == "" {
+		return ""
 	}
 	sum := sha256.Sum256([]byte(material))
 	return hex.EncodeToString(sum[:8])

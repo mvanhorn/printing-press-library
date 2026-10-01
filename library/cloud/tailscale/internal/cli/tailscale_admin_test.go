@@ -14,6 +14,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/cloud/tailscale/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/cloud/tailscale/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/cloud/tailscale/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/cloud/tailscale/internal/mcp/cobratree"
@@ -838,5 +839,148 @@ func TestPolicyBackupsNeverCrossCredentials(t *testing.T) {
 	}
 	if back := listBackups(t, srv, nil); len(back.Items) != 1 {
 		t.Fatalf("the original credential should still see its backup, got %+v", back.Items)
+	}
+}
+
+// import declares its own --dry-run; agent mode must force that one too, or
+// it accepts device invites while reporting a dry run.
+func TestAgentModeImportSendsNoWrites(t *testing.T) {
+	m, _ := newMockServer(t)
+	var mu sync.Mutex
+	writes := 0
+	counting := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			mu.Lock()
+			writes++
+			mu.Unlock()
+		}
+		m.handler(t).ServeHTTP(w, r)
+	}))
+	t.Cleanup(counting.Close)
+	input := filepath.Join(t.TempDir(), "invites.jsonl")
+	if err := os.WriteFile(input, []byte(`{"invite":"x"}`+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, stderr, _ := runTS(t, counting, nil, "import", "device-invites", "--input", input, "--agent")
+	if writes != 0 {
+		t.Fatalf("agent-mode import sent %d writes without --yes", writes)
+	}
+	if !strings.Contains(stderr, "dry run") {
+		t.Fatalf("agent mode should say the import ran as a dry run, stderr:\n%s", stderr)
+	}
+	// Control: with --yes the same import does send its write.
+	_, _, _ = runTS(t, counting, nil, "import", "device-invites", "--input", input, "--agent", "--yes")
+	if writes == 0 {
+		t.Fatal("control failed: import with --yes sent nothing, so the dry-run check proves nothing")
+	}
+}
+
+func TestOAuthFingerprintIsStableAcrossMinting(t *testing.T) {
+	t.Setenv("TAILSCALE_OAUTH_CLIENT_ID", "client")
+	t.Setenv("TAILSCALE_OAUTH_CLIENT_SECRET", "secret")
+	unminted := tsCredentialFingerprint(&config.Config{BaseURL: "https://api.tailscale.com/api/v2"})
+	minted := tsCredentialFingerprint(&config.Config{BaseURL: "https://api.tailscale.com/api/v2", AccessToken: "minted-token", AuthSource: "oauth:TAILSCALE_OAUTH_CLIENT_ID"})
+	if unminted == "" || unminted != minted {
+		t.Fatalf("OAuth fingerprint changed with minting: %q vs %q", unminted, minted)
+	}
+	stored := tsCredentialFingerprint(&config.Config{BaseURL: "https://api.tailscale.com/api/v2", AccessToken: "stored-token", AuthSource: "config"})
+	if stored == unminted {
+		t.Fatal("a stored access token is sent instead of minting, so it must fingerprint as itself")
+	}
+}
+
+func dataDBFiles(t *testing.T) []string {
+	t.Helper()
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	matches, _ := filepath.Glob(filepath.Join(dir, "data*.db"))
+	return matches
+}
+
+// Each credential syncs into its own database, so two tailnets never share
+// synced rows or search results.
+func TestDefaultStoreIsPerCredential(t *testing.T) {
+	_, srv := newMockServer(t)
+	_, _, _ = runTS(t, srv, nil, "sync", "--resources", "devices")
+	first := dataDBFiles(t)
+	if len(first) != 1 || filepath.Base(first[0]) == "data.db" {
+		t.Fatalf("a credentialed sync should create one per-credential database, got %v", first)
+	}
+	_, _, _ = runTS(t, srv, map[string]string{"TAILSCALE_API_KEY": "a-different-token-0123456789"}, "sync", "--resources", "devices")
+	second := dataDBFiles(t)
+	if len(second) != 2 {
+		t.Fatalf("a second credential should get its own database, got %v", second)
+	}
+}
+
+// A shared data.db left by an older build or an uncredentialed run is never
+// used once a credential is configured.
+func TestSharedDataDBIsNotUsedWithACredential(t *testing.T) {
+	_, srv := newMockServer(t)
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	shared := filepath.Join(dir, "data.db")
+	if err := os.WriteFile(shared, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, _, _ = runTS(t, srv, nil, "sync", "--resources", "devices")
+	if st, err := os.Stat(shared); err != nil || st.Size() != 0 {
+		t.Fatalf("the shared data.db was written to (size %v, err %v)", st.Size(), err)
+	}
+	if files := dataDBFiles(t); len(files) != 2 {
+		t.Fatalf("want data.db plus one per-credential database, got %v", files)
+	}
+}
+
+// The MCP server's direct store tools read the database the CLI wrote.
+func TestScopedDBPathMatchesTheCLIStore(t *testing.T) {
+	_, srv := newMockServer(t)
+	_, _, _ = runTS(t, srv, nil, "sync", "--resources", "devices")
+	files := dataDBFiles(t)
+	if len(files) != 1 {
+		t.Fatalf("setup: want one database, got %v", files)
+	}
+	t.Setenv("TAILSCALE_API_KEY", mockToken)
+	if got := ScopedDBPath(); got != files[0] {
+		t.Fatalf("MCP store path %q, CLI wrote %q", got, files[0])
+	}
+}
+
+// OAuth clients have no Authorization header until a token is minted; each
+// client must still get its own store instead of a shared data.db.
+func TestOAuthClientsGetSeparateStores(t *testing.T) {
+	testenv.Isolate(t)
+	t.Setenv("TAILSCALE_API_KEY", "")
+	pathFor := func(id, secret string) string {
+		t.Helper()
+		t.Setenv("TAILSCALE_OAUTH_CLIENT_ID", id)
+		t.Setenv("TAILSCALE_OAUTH_CLIENT_SECRET", secret)
+		return ScopedDBPath()
+	}
+	a, b := pathFor("client-a", "secret-a"), pathFor("client-b", "secret-b")
+	if a == b || filepath.Base(a) == "data.db" || filepath.Base(b) == "data.db" {
+		t.Fatalf("OAuth clients share a store: %q and %q", a, b)
+	}
+	if again := pathFor("client-a", "secret-a"); again != a {
+		t.Fatalf("one OAuth client must keep one store: %q then %q", a, again)
+	}
+}
+
+// An OAuth-only run is keyed before the learn store initializes, so not even
+// startup touches a shared data.db.
+func TestOAuthRunNeverTouchesSharedDataDB(t *testing.T) {
+	_, srv := newMockServer(t)
+	env := map[string]string{"TAILSCALE_API_KEY": "", "TAILSCALE_OAUTH_CLIENT_ID": "client-id", "TAILSCALE_OAUTH_CLIENT_SECRET": "client-secret"}
+	_, _, _ = runTS(t, srv, env, "sync", "--resources", "devices")
+	files := dataDBFiles(t)
+	if len(files) != 1 || filepath.Base(files[0]) == "data.db" {
+		t.Fatalf("an OAuth run should use only its own database, got %v", files)
 	}
 }
