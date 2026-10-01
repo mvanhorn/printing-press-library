@@ -300,3 +300,29 @@ func TestImportUnsupportedResourceDoesNotSendRequest(t *testing.T) {
 		t.Fatalf("expected actionable unsupported-resource error, got %v", err)
 	}
 }
+
+func TestImportIssuesStopsOnLedgerFailure(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "linear.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if _, err := db.DB().Exec("DROP TABLE pp_created"); err != nil {
+		t.Fatal(err)
+	}
+	calls := 0
+	c := client.New(&config.Config{BaseURL: "https://linear.test"}, 0, 0)
+	c.HTTPClient = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		calls++
+		body := `{"data":{"issueCreate":{"success":true,"issue":{"id":"remote-1","identifier":"ENG-1","title":"created"}}}}`
+		return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(body)), Request: r}, nil
+	})}
+	input := `{"title":"created","teamId":"11111111-1111-1111-1111-111111111111"}`
+	summary, err := importIssues(strings.NewReader(input+"\n"+input), c, db, "strict-session", false, false, io.Discard)
+	if err == nil || !strings.Contains(err.Error(), "remote-1") || !strings.Contains(err.Error(), "ledger write failed") {
+		t.Fatalf("expected recoverable partial-success error, got %v", err)
+	}
+	if summary.Succeeded != 0 || summary.Failed != 1 || calls != 1 {
+		t.Fatalf("untracked issues must stop the import: summary=%+v calls=%d", summary, calls)
+	}
+}

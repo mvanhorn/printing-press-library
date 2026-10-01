@@ -6,7 +6,9 @@ Pulls your workspace into a local SQLite store with FTS5 search and runs compoun
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
-Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@rob-coco](https://github.com/rob-coco) (Rob Coco).
+Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@rob-coco](https://github.com/rob-coco) (Rob Coco), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+If an import creates a remote issue but cannot record it in the cleanup ledger, it stops and reports the issue ID for manual recovery before another import attempt.
 
 ## Install
 

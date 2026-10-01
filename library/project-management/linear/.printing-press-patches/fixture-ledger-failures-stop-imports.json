@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "fixture-ledger-failures-stop-imports",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Stop importing after a remote issue is created but its cleanup-ledger entry fails.",
+  "reason": "Continuing could create more untracked issues, and retrying could duplicate the first one.",
+  "files": ["internal/cli/issues_create.go", "internal/cli/import.go", "internal/cli/import_test.go", "README.md"]
+}

@@ -150,7 +150,7 @@ func createIssueFromInput(c *client.Client, db *store.Store, input map[string]an
 			sess = ppCurrentSession()
 		}
 		if recErr := db.RecordPPFixture(issue.ID, issue.Identifier, issue.Title, sess); recErr != nil {
-			fmt.Fprintf(os.Stderr, "warning: pp_created ledger write failed: %v\n", recErr)
+			return &issue, &fixtureLedgerError{issue: issue, cause: recErr}
 		}
 		wb := map[string]any{
 			"id":          issue.ID,
@@ -540,3 +540,14 @@ func resolveTeam(db *store.Store, keyOrID string) (issueTeamInfo, bool) {
 	}
 	return issueTeamInfo{}, false
 }
+
+// fixtureLedgerError is a partial success: retrying can duplicate the remote issue.
+type fixtureLedgerError struct {
+	issue createdIssue
+	cause error
+}
+
+func (e *fixtureLedgerError) Error() string {
+	return fmt.Sprintf("issue %s (%s) was created remotely, but pp_created ledger write failed; cleanup cannot find it, so recover it manually before retrying: %v", e.issue.Identifier, e.issue.ID, e.cause)
+}
+func (e *fixtureLedgerError) Unwrap() error { return e.cause }

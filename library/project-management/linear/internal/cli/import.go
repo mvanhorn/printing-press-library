@@ -9,6 +9,7 @@ package cli
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -108,6 +109,11 @@ func importIssues(reader io.Reader, c *client.Client, db *store.Store, session s
 
 		issue, err := createIssueFromInput(c, db, input, session)
 		if err != nil {
+			var ledgerErr *fixtureLedgerError
+			if errors.As(err, &ledgerErr) {
+				summary.Failed++
+				return summary, ledgerErr
+			}
 			fmt.Fprintf(stderr, "warning: failed to import record: %v\n", err)
 			summary.Failed++
 			continue
