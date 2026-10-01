@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "evidence-cache-evicts-only-namespaced-entries",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020510-488a6a84",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Focused HTTP cache entries live under CacheDir/weathernews with a wn- prefix, and eviction deletes only those files.",
+  "reason": "A shared --cache-dir can contain other tools' 64-hex JSON files. Scanning the cache root for any hex name deletes files this CLI did not create.",
+  "files": [
+    "internal/evidence/http.go",
+    "internal/evidence/domain_test.go"
+  ]
+}

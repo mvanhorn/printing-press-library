@@ -211,7 +211,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 				}
 				if schemaVersion < store.StoreSchemaVersion {
 
-					return fmt.Errorf("local store schema version %d requires migration to %d; run 'workflow archive' to migrate it", schemaVersion, store.StoreSchemaVersion)
+					return fmt.Errorf("local store schema version %d requires migration to %d; weathernews has no archiveable resources, so 'workflow archive' cannot migrate it. Delete %s to recreate the store, or run 'sync' to apply the schema upgrade without fetching bulk data", schemaVersion, store.StoreSchemaVersion, dbPath)
 
 				}
 				if schemaVersion > store.StoreSchemaVersion {

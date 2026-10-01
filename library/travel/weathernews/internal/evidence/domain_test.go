@@ -97,8 +97,10 @@ func TestFreshOfflineCacheAndOriginBound(t *testing.T) {
 		t.Fatal(f)
 	}
 	// Domain state tests use synthetic data and never count as live verification.
-	digest := sha256.Sum256([]byte(u))
-	p := c.CacheDir + "/" + hex.EncodeToString(digest[:]) + ".json"
+	p := cacheFile(c.CacheDir, u)
+	if e := os.MkdirAll(filepath.Dir(p), 0700); e != nil {
+		t.Fatal(e)
+	}
 	for _, delta := range []time.Duration{-2 * time.Hour, time.Hour, -time.Minute} {
 		v := cacheEntry{u, time.Now().Add(delta), []byte("{}")}
 		b, _ := json.Marshal(v)
@@ -175,8 +177,11 @@ func TestPlacesFirstPartyMountainURL(t *testing.T) {
 			u := "https://weathernews.jp/onebox/api_search.cgi?" + url.Values{"callback": {""}, "query": {"高尾山"}, "lang": {"ja"}}.Encode()
 			body, _ := json.Marshal([]map[string]any{{"loc": "高尾山 (東京都)", "lat": "35.6256", "lon": "139.2439", "url": tc.source}})
 			entry, _ := json.Marshal(cacheEntry{u, time.Now().Add(-time.Minute), body})
-			digest := sha256.Sum256([]byte(u))
-			if e := os.WriteFile(c.CacheDir+"/"+hex.EncodeToString(digest[:])+".json", entry, 0600); e != nil {
+			p := cacheFile(c.CacheDir, u)
+			if e := os.MkdirAll(filepath.Dir(p), 0700); e != nil {
+				t.Fatal(e)
+			}
+			if e := os.WriteFile(p, entry, 0600); e != nil {
 				t.Fatal(e)
 			}
 			got, e := c.Places(context.Background(), "高尾山", 3, 0)
@@ -203,29 +208,48 @@ func TestPlacesFirstPartyMountainURL(t *testing.T) {
 
 func TestCacheEvictionKeepsUnrelatedJSON(t *testing.T) {
 	c := NewClient(t.TempDir(), time.Second)
-	unrelated := filepath.Join(c.CacheDir, "settings.json")
-	if e := os.WriteFile(unrelated, []byte(`{"keep":true}`), 0600); e != nil {
+	old := time.Now().Add(-2 * time.Hour)
+	otherDigest := sha256.Sum256([]byte("other-tool"))
+	otherHex := hex.EncodeToString(otherDigest[:]) + ".json"
+	keepers := []string{
+		filepath.Join(c.CacheDir, "settings.json"),
+		filepath.Join(c.CacheDir, otherHex),
+		filepath.Join(c.CacheDir, "wn-"+otherHex),
+	}
+	ns := filepath.Join(c.CacheDir, cacheNamespace)
+	if e := os.MkdirAll(ns, 0700); e != nil {
 		t.Fatal(e)
 	}
-	old := time.Now().Add(-2 * time.Hour)
-	if e := os.Chtimes(unrelated, old, old); e != nil {
-		t.Fatal(e)
+	keepers = append(keepers, filepath.Join(ns, otherHex))
+	for _, path := range keepers {
+		if e := os.WriteFile(path, []byte(`{"keep":true}`), 0600); e != nil {
+			t.Fatal(e)
+		}
+		if e := os.Chtimes(path, old, old); e != nil {
+			t.Fatal(e)
+		}
 	}
 	for i := 0; i < 130; i++ {
 		u := fmt.Sprintf("https://weathernews.jp/onebox/tenki/test/%d/", i)
-		digest := sha256.Sum256([]byte(u))
-		name := hex.EncodeToString(digest[:]) + ".json"
-		c.writeCache(filepath.Join(c.CacheDir, name), cacheEntry{u, time.Now(), []byte("{}")})
+		c.writeCache(cacheEntry{u, time.Now(), []byte("{}")})
 	}
-	b, e := os.ReadFile(unrelated)
-	if e != nil || string(b) != `{"keep":true}` {
-		t.Fatalf("unrelated file lost or changed: %s %v", b, e)
+	for _, path := range keepers {
+		b, e := os.ReadFile(path)
+		if e != nil || string(b) != `{"keep":true}` {
+			t.Fatalf("unrelated file %s lost or changed: %s %v", path, b, e)
+		}
 	}
-	entries, e := os.ReadDir(c.CacheDir)
+	entries, e := os.ReadDir(ns)
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(entries) != 129 {
-		t.Fatalf("cache entries unbounded: %d", len(entries)-1)
+	owned := 0
+	for _, entry := range entries {
+		if ownedCacheName(entry.Name()) {
+			owned++
+		}
+	}
+	if owned != 128 {
+		t.Fatalf("owned cache entries = %d, want 128", owned)
 	}
 }

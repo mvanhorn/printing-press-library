@@ -95,9 +95,8 @@ func (c *Client) Get(ctx context.Context, raw string, ttl time.Duration) (Fetch,
 	if v, ok := c.seen[raw]; ok {
 		return v, nil
 	}
-	digest := sha256.Sum256([]byte(raw))
-	p := filepath.Join(c.CacheDir, hex.EncodeToString(digest[:])+".json")
-	if !c.Refresh && !c.NoCache {
+	p := cacheFile(c.CacheDir, raw)
+	if c.CacheDir != "" && !c.Refresh && !c.NoCache {
 		if b, e := readCache(p); e == nil {
 			var v cacheEntry
 			if json.Unmarshal(b, &v) == nil && v.URL == raw && len(v.Body) <= maxBody && time.Since(v.At) >= 0 && time.Since(v.At) < ttl {
@@ -180,21 +179,26 @@ func (c *Client) Get(ctx context.Context, raw string, ttl time.Duration) (Fetch,
 		f := Fetch{raw, stamp(at), false, 0, len(b), b}
 		c.seen[raw] = f
 		if !c.NoCache && c.CacheDir != "" {
-			c.writeCache(p, cacheEntry{raw, at, b})
+			c.writeCache(cacheEntry{raw, at, b})
 		}
 		return f, nil
 	}
 	return Fetch{}, fail(5, "Weathernews retry budget exhausted")
 }
-func (c *Client) writeCache(p string, v cacheEntry) {
-	if os.MkdirAll(c.CacheDir, 0700) != nil {
+func (c *Client) writeCache(v cacheEntry) {
+	if c.CacheDir == "" {
+		return
+	}
+	dir := filepath.Join(c.CacheDir, cacheNamespace)
+	p := cacheFile(c.CacheDir, v.URL)
+	if os.MkdirAll(dir, 0700) != nil {
 		return
 	}
 	b, e := json.Marshal(v)
 	if e != nil {
 		return
 	}
-	f, e := os.CreateTemp(c.CacheDir, ".cache-*")
+	f, e := os.CreateTemp(dir, ".cache-*")
 	if e != nil {
 		return
 	}
@@ -210,7 +214,7 @@ func (c *Client) writeCache(p string, v cacheEntry) {
 	if os.Rename(tmp, p) != nil {
 		return
 	}
-	entries, e := os.ReadDir(c.CacheDir)
+	entries, e := os.ReadDir(dir)
 	if e != nil {
 		return
 	}
@@ -222,14 +226,11 @@ func (c *Client) writeCache(p string, v cacheEntry) {
 	var total int64
 	for _, x := range entries {
 		name := x.Name()
-		if len(name) != sha256.Size*2+len(".json") || !strings.HasSuffix(name, ".json") || !x.Type().IsRegular() {
-			continue
-		}
-		if _, e := hex.DecodeString(strings.TrimSuffix(name, ".json")); e != nil {
+		if !x.Type().IsRegular() || !ownedCacheName(name) {
 			continue
 		}
 		if i, e := x.Info(); e == nil {
-			list = append(list, entry{filepath.Join(c.CacheDir, x.Name()), i.ModTime()})
+			list = append(list, entry{filepath.Join(dir, name), i.ModTime()})
 			total += i.Size()
 		}
 	}
@@ -310,6 +311,33 @@ func first(m map[string]any, keys ...string) any {
 		}
 	}
 	return nil
+}
+
+const (
+	cacheNamespace  = "weathernews"
+	cacheNamePrefix = "wn-"
+)
+
+// cacheFile is the only path this package writes. Entries live under
+// CacheDir/weathernews and use a wn- prefix so eviction can ignore every
+// other file in a shared --cache-dir.
+func cacheFile(dir, raw string) string {
+	digest := sha256.Sum256([]byte(raw))
+	name := cacheNamePrefix + hex.EncodeToString(digest[:]) + ".json"
+	return filepath.Join(dir, cacheNamespace, name)
+}
+
+func ownedCacheName(name string) bool {
+	rest, ok := strings.CutPrefix(name, cacheNamePrefix)
+	if !ok || !strings.HasSuffix(rest, ".json") {
+		return false
+	}
+	hexPart := strings.TrimSuffix(rest, ".json")
+	if len(hexPart) != sha256.Size*2 {
+		return false
+	}
+	_, err := hex.DecodeString(hexPart)
+	return err == nil
 }
 
 func readCache(p string) ([]byte, error) {
