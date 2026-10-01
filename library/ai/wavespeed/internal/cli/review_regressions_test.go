@@ -77,23 +77,39 @@ func TestSetTokenAcceptsLegacyPositionalToken(t *testing.T) {
 	}
 }
 
-// Releases before the reprint archived into archive.db; keep using it.
-func TestArchiveDBPathKeepsLegacyArchive(t *testing.T) {
+// Releases before the reprint archived into archive.db while sync wrote
+// data.db. An upgrade with only archive.db must move it to data.db so the
+// archived data stays visible to status, sync and pricing.
+func TestArchiveDBPathMigratesLegacyArchive(t *testing.T) {
 	testenv.Isolate(t)
 	t.Setenv("WAVESPEED_ARCHIVE_DB", "")
 	current := defaultDBPath("wavespeed-pp-cli")
-	if got := archiveDBPath(); got != current {
-		t.Fatalf("no legacy archive: got %q, want %q", got, current)
-	}
 	legacy := filepath.Join(filepath.Dir(current), "archive.db")
 	if err := os.MkdirAll(filepath.Dir(legacy), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(legacy, nil, 0o600); err != nil {
+	if err := os.WriteFile(legacy, []byte("archived"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if got := archiveDBPath(); got != legacy {
-		t.Fatalf("legacy archive present: got %q, want %q", got, legacy)
+	if got := archiveDBPath(); got != current {
+		t.Fatalf("got %q, want %q", got, current)
+	}
+	data, err := os.ReadFile(current)
+	if err != nil || string(data) != "archived" {
+		t.Fatalf("archive.db was not moved to data.db: %q %v", data, err)
+	}
+	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+		t.Fatalf("archive.db still present after migration")
+	}
+	// With both present, data.db wins and archive.db is left alone.
+	if err := os.WriteFile(legacy, []byte("old"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if got := archiveDBPath(); got != current {
+		t.Fatalf("both present: got %q, want %q", got, current)
+	}
+	if data, _ := os.ReadFile(current); string(data) != "archived" {
+		t.Fatalf("data.db was overwritten: %q", data)
 	}
 }
 
@@ -107,5 +123,46 @@ func TestPlanBriefLLMDryRunPreviews(t *testing.T) {
 	}
 	if len(shots) == 0 || !strings.Contains(used, "dry-run") || len(warnings) == 0 {
 		t.Fatalf("unexpected preview: shots=%v used=%q warnings=%v", shots, used, warnings)
+	}
+}
+
+// Logout with an explicit --config must not leave the global credentials file
+// for Load to fall back to.
+func TestLogoutClearsExplicitAndGlobalCredentials(t *testing.T) {
+	testenv.Isolate(t)
+	t.Setenv("WAVESPEED_API_KEY", "")
+	global := RootCmd()
+	global.SetArgs([]string{"auth", "set-token"})
+	global.SetIn(strings.NewReader("global-token\n"))
+	global.SetOut(&bytes.Buffer{})
+	global.SetErr(&bytes.Buffer{})
+	if err := global.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.toml")
+	if err := os.WriteFile(cfgPath, []byte("base_url = \"https://api.wavespeed.ai/api/v3\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(dir, "data"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "data", "credentials.toml"), []byte("api_key = \"local-token\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	logout := RootCmd()
+	logout.SetArgs([]string{"--config", cfgPath, "auth", "logout"})
+	var out bytes.Buffer
+	logout.SetOut(&out)
+	logout.SetErr(&out)
+	if err := logout.Execute(); err != nil {
+		t.Fatalf("logout: %v\n%s", err, out.String())
+	}
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.WavespeedApiKey != "" {
+		t.Fatalf("still authenticated after logout with key %q", cfg.WavespeedApiKey)
 	}
 }

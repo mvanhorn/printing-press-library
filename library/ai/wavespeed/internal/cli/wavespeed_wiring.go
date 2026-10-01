@@ -86,19 +86,33 @@ func init() {
 // archiveDBPath is the generated sync store that workflow archive/status and
 // novel commands (cached pricing) use. WAVESPEED_ARCHIVE_DB overrides it.
 // PATCH(legacy-archive-db): releases before the 4.32.6 reprint archived into
-// archive.db beside data.db. When that file exists, keep using it (as those
-// releases did) so an upgrade never strands archived data; otherwise use the
-// same data.db the generated sync writes.
+// archive.db beside data.db while sync wrote data.db. Everything now shares
+// data.db, the store sync writes. An upgrade with only archive.db moves it
+// (and its WAL/SHM sidecars) to data.db so archived data stays visible. When
+// both exist, data.db wins: archive.db only ever held the re-syncable models
+// catalog, which `workflow archive` rebuilds.
 func archiveDBPath() string {
 	if env := strings.TrimSpace(os.Getenv("WAVESPEED_ARCHIVE_DB")); env != "" {
 		return env
 	}
 	current := defaultDBPath("wavespeed-pp-cli")
-	legacy := filepath.Join(filepath.Dir(current), "archive.db")
-	if info, err := os.Stat(legacy); err == nil && !info.IsDir() {
-		return legacy
-	}
+	migrateLegacyArchiveDB(current)
 	return current
+}
+
+func migrateLegacyArchiveDB(current string) {
+	legacy := filepath.Join(filepath.Dir(current), "archive.db")
+	if _, err := os.Stat(current); !os.IsNotExist(err) {
+		return
+	}
+	if info, err := os.Stat(legacy); err != nil || info.IsDir() {
+		return
+	}
+	// Best effort: a failed rename leaves archive.db in place and the store
+	// opens a fresh data.db, so this never blocks a command.
+	for _, suffix := range []string{"", "-wal", "-shm"} {
+		_ = os.Rename(legacy+suffix, current+suffix)
+	}
 }
 
 // libraryDBFile is the library database file name inside the data dir.

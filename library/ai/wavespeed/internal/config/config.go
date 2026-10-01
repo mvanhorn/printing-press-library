@@ -693,11 +693,16 @@ func (c *Config) ClearTokens() error {
 		// back; returning early would leave the secrets on disk.
 		return c.save()
 	}
+	// Logout must leave nothing Load could fall back to: remove the colocated
+	// credentials file of an explicit --config and the global one.
 	credsPath, err := c.CredentialsFilePath()
 	if err != nil {
 		return err
 	}
 	if err := cliutil.RemoveCredentialsAt(credsPath); err != nil {
+		return err
+	}
+	if err := cliutil.RemoveCredentials(); err != nil {
 		return err
 	}
 	return c.save()
