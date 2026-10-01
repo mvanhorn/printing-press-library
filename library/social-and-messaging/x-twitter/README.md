@@ -183,7 +183,7 @@ x-twitter-pp-cli brief --monitor launch --since 24h --format markdown
 
 ```
 
-`top-posts` makes live timeline reads that X may charge for. `--max-fetch` accepts 1 to 1000 posts and limits page reads; sparse pages can require extra requests, with a small safety budget before the command stops. Supplying `--user-id` uses ID-based post links and avoids a separate username lookup. JSON rows include `score_metric`; when impressions are unavailable for every post, the command labels its engagement fallback. When only some impression counts are missing, those rows have `score: null` and rank after measured counts, including measured zero.
+`top-posts` makes live timeline reads that X may charge for. `--max-fetch` accepts 1 to 1000 posts and limits page reads; sparse pages can require extra requests, with a small safety budget before the command stops. If that budget is reached after posts were fetched, the command returns the partial leaderboard with `truncated: true` in each JSON row. Supplying `--user-id` uses ID-based post links and avoids a separate username lookup. JSON rows include `score_metric`; when impressions are unavailable for every post, the command labels its engagement fallback. When only some impression counts are missing, those rows have `score: null` and rank after measured counts, including measured zero.
 
 ## Unique Features
 

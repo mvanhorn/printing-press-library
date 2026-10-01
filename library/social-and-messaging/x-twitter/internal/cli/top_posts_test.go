@@ -412,3 +412,36 @@ func TestTopPostsStopsLongEmptyPaginationAtPaidReadBudget(t *testing.T) {
 		t.Fatalf("empty pages must stop at four synthetic reads: err=%v requests=%d", err, requests)
 	}
 }
+
+func TestTopPostsKeepsPartialLeaderboardAtPaidReadBudget(t *testing.T) {
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		fmt.Fprintf(w, `{"data":[{"id":%q,"text":"sparse","public_metrics":{"like_count":1}}],"meta":{"next_token":%q}}`, strconv.Itoa(requests), strconv.Itoa(requests))
+	}))
+	defer server.Close()
+	t.Setenv("X_TWITTER_BASE_URL", server.URL)
+	t.Setenv("X_BEARER_TOKEN", "synthetic-app-token")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	t.Setenv("X_TWITTER_CONFIG", t.TempDir()+"/missing-config.toml")
+	cmd := RootCmd()
+	var out, errout bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errout)
+	cmd.SetArgs([]string{"top-posts", "--user-id", "42", "--json", "--no-cache"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("partial leaderboard should succeed with a warning: %v", err)
+	}
+	var posts []rankedPost
+	if err := json.Unmarshal(out.Bytes(), &posts); err != nil || len(posts) != 4 || requests != 4 {
+		t.Fatalf("want four saved rows after four reads: posts=%+v requests=%d err=%v", posts, requests, err)
+	}
+	for _, post := range posts {
+		if !post.Truncated {
+			t.Fatalf("partial row missing truncated marker: %+v", post)
+		}
+	}
+	if !strings.Contains(errout.String(), "truncated") || !strings.Contains(errout.String(), "more may exist") {
+		t.Fatalf("missing accurate warnings for partial ranking: %q", errout.String())
+	}
+}

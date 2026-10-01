@@ -59,6 +59,7 @@ type rankedPost struct {
 	Engagement  int    `json:"engagement"`
 	Score       *int   `json:"score"`
 	ScoreMetric string `json:"score_metric"`
+	Truncated   bool   `json:"truncated,omitempty"`
 }
 
 func newTopPostsCmd(flags *rootFlags) *cobra.Command {
@@ -127,9 +128,12 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 				userID, username = id, uname
 			}
 
-			items, err := fetchUserPosts(ctx, c, flags, userID, flagMaxFetch, flagExclude)
+			items, truncated, err := fetchUserPosts(ctx, c, flags, userID, flagMaxFetch, flagExclude)
 			if err != nil {
 				return err
+			}
+			if truncated {
+				fmt.Fprintln(cmd.ErrOrStderr(), "note: page-read safety budget reached; ranking uses the posts already fetched and is marked truncated.")
 			}
 
 			// Gracefully handle impression ranking on tiers that omit the field.
@@ -145,13 +149,22 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			posts := rankTopPosts(items, username, effectiveMetric, flagLimit)
+			if truncated {
+				for i := range posts {
+					posts[i].Truncated = true
+				}
+			}
 
 			// Surface a shortfall so a caller doesn't read fewer rows than asked
 			// for as if it were the full leaderboard.
 			if len(posts) < flagLimit {
-				fmt.Fprintf(cmd.ErrOrStderr(),
-					"note: returned %d posts (fewer than --limit %d); only %d posts were available within --max-fetch %d.\n",
-					len(posts), flagLimit, len(items), flagMaxFetch)
+				if truncated {
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: returned %d posts (fewer than --limit %d); more may exist beyond the page-read safety budget.\n", len(posts), flagLimit)
+				} else {
+					fmt.Fprintf(cmd.ErrOrStderr(),
+						"note: returned %d posts (fewer than --limit %d); only %d posts were available within --max-fetch %d.\n",
+						len(posts), flagLimit, len(items), flagMaxFetch)
+				}
 			}
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
@@ -377,7 +390,7 @@ func decodeTweetsPage(data json.RawMessage) (items []tweetItem, nextToken string
 
 // fetchUserPosts pages the user timeline until it has gathered maxFetch posts or
 // the timeline is exhausted, reusing the CLI's existing client + error plumbing.
-func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, error) {
+func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, bool, error) {
 	path := "/2/users/" + url.PathEscape(userID) + "/tweets"
 	collected := make([]tweetItem, 0, min(maxFetch, topPostsPageSize))
 	nextToken := ""
@@ -388,7 +401,10 @@ func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, use
 	pagesFetched := 0
 	for len(collected) < maxFetch {
 		if pagesFetched >= pageBudget {
-			return nil, fmt.Errorf("timeline still has pages after %d requests; stopped to limit paid API reads", pageBudget)
+			if len(collected) > 0 {
+				return collected, true, nil
+			}
+			return nil, false, fmt.Errorf("timeline still has pages after %d requests; stopped to limit paid API reads", pageBudget)
 		}
 		pageSize := maxFetch - len(collected)
 		if pageSize > topPostsPageSize {
@@ -410,18 +426,18 @@ func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, use
 		data, err := c.Get(ctx, path, params)
 		pagesFetched++
 		if err != nil {
-			return nil, classifyAPIError(err, flags)
+			return nil, false, classifyAPIError(err, flags)
 		}
 		items, token, derr := decodeTweetsPage(data)
 		if derr != nil {
-			return nil, fmt.Errorf("decoding posts page: %w", derr)
+			return nil, false, fmt.Errorf("decoding posts page: %w", derr)
 		}
 		collected = append(collected, items...)
 		if token == "" {
 			break
 		}
 		if seenTokens[token] {
-			return nil, fmt.Errorf("timeline pagination repeated its next token; stopped to avoid repeating a paid API read")
+			return nil, false, fmt.Errorf("timeline pagination repeated its next token; stopped to avoid repeating a paid API read")
 		}
 		seenTokens[token] = true
 		nextToken = token
@@ -429,5 +445,5 @@ func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, use
 	if len(collected) > maxFetch {
 		collected = collected[:maxFetch]
 	}
-	return collected, nil
+	return collected, false, nil
 }
