@@ -12,6 +12,12 @@
   "owner": "ryangravetteidla",
   "printer": "RyanGravetteIDLA",
   "printer_name": "RyanGravetteIDLA",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_format": "internal",
   "spec_checksum": "sha256:b07c32368833af1c306d77a15b65292c59fa72d8ec0bd6a7d5b9ab1923060d6f",
   "run_id": "20260706-073846-b99ffcfa",

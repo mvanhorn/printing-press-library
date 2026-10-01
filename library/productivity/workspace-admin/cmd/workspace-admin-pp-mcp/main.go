@@ -20,7 +20,7 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -36,7 +36,7 @@ func main() {
 	mcptools.RegisterTools(s)
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
-	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	addr := flag.String("addr", defaultHTTPAddr, "loopback bind address for http transport (IP:port)")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -46,9 +46,14 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		listenAddr, err := loopbackHTTPAddr(*addr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(2)
+		}
 		httpSrv := server.NewStreamableHTTPServer(s)
-		fmt.Fprintf(os.Stderr, "workspace-admin-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		fmt.Fprintf(os.Stderr, "workspace-admin-pp-mcp serving MCP over streamable HTTP at %s\n", listenAddr)
+		if err := httpSrv.Start(listenAddr); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}

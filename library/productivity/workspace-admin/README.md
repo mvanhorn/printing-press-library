@@ -4,6 +4,12 @@
 
 A curated Google Workspace admin and audit tool built on the Admin SDK (Directory, Reports, Alert Center), Drive, and Gmail. Unlike stateless tools, it syncs Workspace metadata into a local SQLite store so audits like audit external-shares, audit app-risk, and audit user360 run offline and join data across APIs. workflow offboard executes a departing user's full lifecycle in one command, and every command is agent-native with --json, --select, --dry-run, and typed exit codes.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+## MCP HTTP access
+
+HTTP transport binds to `127.0.0.1:7777` by default and accepts only loopback listen addresses. Remote clients must connect through a proxy that requires authentication and TLS; direct wildcard and LAN listeners are rejected. Stdio remains the default transport.
+
 ## Install
 
 The recommended path installs both the `workspace-admin-pp-cli` binary and the `pp-workspace-admin` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
