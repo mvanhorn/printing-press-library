@@ -5,6 +5,9 @@ RapidAPI Hub marketplace CLI - search APIs, browse categories & collections, ins
 Learn more at [Rapidapi](https://rapidapi.com).
 
 Created by [@SomSamantray](https://github.com/SomSamantray) (Som Samantray).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+If session-based CSRF setup fails, the CLI stops before sending a GraphQL request.
 
 ## Install
 
