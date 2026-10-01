@@ -16,7 +16,8 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 		return err
 	}
 	type legacyLink struct {
-		id, vin, data, url string
+		id, vin, data string
+		fields        map[string]any
 	}
 	var links []legacyLink
 	for rows.Next() {
@@ -29,7 +30,7 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 		if err != nil || !isLegacyInventoryLinkID(id, obj) {
 			continue
 		}
-		links = append(links, legacyLink{id: id, vin: inventoryLinkVIN(obj), data: data, url: obj["url"].(string)})
+		links = append(links, legacyLink{id: id, vin: inventoryLinkVIN(obj), data: data, fields: obj})
 	}
 	if err := rows.Err(); err != nil {
 		_ = rows.Close()
@@ -40,15 +41,39 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 	}
 
 	for _, link := range links {
+		// An unscoped taught reference cannot be attributed to inventory.
+		// Leave its old row in place rather than strand the learned target.
+		var unscoped int
+		if err := conn.QueryRowContext(ctx,
+			`SELECT COUNT(*) FROM search_learnings WHERE resource_id = ? AND COALESCE(resource_type, '') = ''`,
+			link.id).Scan(&unscoped); err != nil {
+			return fmt.Errorf("checking unscoped learned references: %w", err)
+		}
+		if unscoped > 0 {
+			continue
+		}
+		var crossTypeConflict int
+		if err := conn.QueryRowContext(ctx,
+			`SELECT COUNT(*) FROM search_learnings old
+			 JOIN search_learnings target ON target.query_pattern = old.query_pattern
+			  AND target.action = old.action AND target.resource_id = ?
+			 WHERE old.resource_type = 'inventory' AND old.resource_id = ?
+			  AND COALESCE(target.resource_type, '') != 'inventory'`,
+			link.vin, link.id).Scan(&crossTypeConflict); err != nil {
+			return fmt.Errorf("checking learned-reference collisions: %w", err)
+		}
+		if crossTypeConflict > 0 {
+			continue
+		}
+
 		var targetData string
 		err := conn.QueryRowContext(ctx,
 			`SELECT data FROM resources WHERE resource_type = 'inventory' AND id = ?`, link.vin).Scan(&targetData)
 		switch err {
 		case nil:
-			// A newer VIN-keyed record wins. Add the listing URL to a full
-			// detail record so hydrate can still discover it as a live link.
-			merged, err := mergeLinkURLIntoDetail(link.vin, json.RawMessage(targetData),
-				map[string]any{"url": link.url})
+			// A newer VIN-keyed record wins. Refresh the listing fields on a
+			// full detail record without removing its vehicle fields.
+			merged, err := mergeListingFieldsIntoDetail(link.vin, json.RawMessage(targetData), link.fields)
 			if err != nil {
 				return fmt.Errorf("preserving VIN inventory detail: %w", err)
 			}
@@ -86,6 +111,53 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 			ftsRowID("inventory", link.vin), link.vin, searchableResourceContent(json.RawMessage(targetData))); err != nil {
 			return fmt.Errorf("indexing VIN inventory row: %w", err)
 		}
+		if err := migrateInventoryLearningIDs(ctx, conn, link.id, link.vin); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func migrateInventoryLearningIDs(ctx context.Context, conn *sql.Conn, oldID, vin string) error {
+	// The unique index on (query_pattern, resource_id, action) can already
+	// contain a VIN-keyed learning. Update non-conflicting rows first.
+	if _, err := conn.ExecContext(ctx,
+		`UPDATE OR IGNORE search_learnings SET resource_id = ?
+		 WHERE resource_type = 'inventory' AND resource_id = ?`, vin, oldID); err != nil {
+		return fmt.Errorf("rekeying inventory learnings: %w", err)
+	}
+	rows, err := conn.QueryContext(ctx,
+		`SELECT old.id, target.id FROM search_learnings old
+		 JOIN search_learnings target ON target.query_pattern = old.query_pattern
+		  AND target.action = old.action AND target.resource_id = ?
+		 WHERE old.resource_type = 'inventory' AND old.resource_id = ?`, vin, oldID)
+	if err != nil {
+		return fmt.Errorf("reading duplicate inventory learnings: %w", err)
+	}
+	var duplicates [][2]int64
+	for rows.Next() {
+		var pair [2]int64
+		if err := rows.Scan(&pair[0], &pair[1]); err != nil {
+			_ = rows.Close()
+			return err
+		}
+		duplicates = append(duplicates, pair)
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return err
+	}
+	if err := rows.Close(); err != nil {
+		return err
+	}
+	for _, pair := range duplicates {
+		if _, err := conn.ExecContext(ctx,
+			`UPDATE learn_events SET matched_row_id = ? WHERE matched_row_id = ?`, pair[1], pair[0]); err != nil {
+			return fmt.Errorf("repointing duplicate learning events: %w", err)
+		}
+		if _, err := conn.ExecContext(ctx, `DELETE FROM search_learnings WHERE id = ?`, pair[0]); err != nil {
+			return fmt.Errorf("removing duplicate inventory learning: %w", err)
+		}
 	}
 	return nil
 }
@@ -115,7 +187,7 @@ func isLegacyInventoryLinkID(id string, obj map[string]any) bool {
 }
 
 // A list sync carries only a link. Preserve a full detail response already
-// cached under the same VIN, while recording the listing URL for hydrate.
+// cached under the same VIN while refreshing its current listing fields.
 func mergeInventoryLinkWithDetailTx(tx *sql.Tx, resourceType, id string, incoming map[string]any, item json.RawMessage) (json.RawMessage, error) {
 	if resourceType != "inventory" || inventoryLinkVIN(incoming) != id {
 		return item, nil
@@ -131,10 +203,10 @@ func mergeInventoryLinkWithDetailTx(tx *sql.Tx, resourceType, id string, incomin
 	if err != nil {
 		return nil, err
 	}
-	return mergeLinkURLIntoDetail(id, json.RawMessage(raw), incoming)
+	return mergeListingFieldsIntoDetail(id, json.RawMessage(raw), incoming)
 }
 
-func mergeLinkURLIntoDetail(id string, existing json.RawMessage, link map[string]any) (json.RawMessage, error) {
+func mergeListingFieldsIntoDetail(id string, existing json.RawMessage, link map[string]any) (json.RawMessage, error) {
 	full, err := DecodeJSONObject(existing)
 	if err != nil {
 		return nil, err
@@ -146,10 +218,16 @@ func mergeLinkURLIntoDetail(id string, existing json.RawMessage, link map[string
 	if err := json.Unmarshal(existing, &fields); err != nil {
 		return nil, err
 	}
-	url, err := json.Marshal(link["url"])
-	if err != nil {
-		return nil, err
+	for _, key := range []string{"url", "name", "slug", "text", "image", "rank"} {
+		value, ok := link[key]
+		if !ok {
+			continue
+		}
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return nil, err
+		}
+		fields[key] = raw
 	}
-	fields["url"] = url
 	return json.Marshal(fields)
 }

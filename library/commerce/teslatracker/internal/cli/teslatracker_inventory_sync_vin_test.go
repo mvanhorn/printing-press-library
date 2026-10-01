@@ -10,9 +10,12 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/teslatracker/internal/store"
 )
 
-type inventoryHTMLClient struct{}
+type inventoryHTMLClient struct{ html string }
 
-func (inventoryHTMLClient) Get(context.Context, string, map[string]string) (json.RawMessage, error) {
+func (c inventoryHTMLClient) Get(context.Context, string, map[string]string) (json.RawMessage, error) {
+	if c.html != "" {
+		return json.RawMessage(c.html), nil
+	}
 	return json.RawMessage(`<html><body><a href="/inventory/5YJ3E1EA7KF317000">Model 3</a></body></html>`), nil
 }
 
@@ -47,7 +50,7 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 	if err := db.Upsert("inventory", "5YJ3E1EA7KF317000", full); err != nil {
 		t.Fatal(err)
 	}
-	result = syncResource(context.Background(), inventoryHTMLClient{}, db,
+	result = syncResource(context.Background(), inventoryHTMLClient{html: `<html><body><a href="/inventory/5YJ3E1EA7KF317000">Updated Model 3</a></body></html>`}, db,
 		"inventory", "", true, 1, false, false, nil, io.Discard)
 	if result.Err != nil || result.Count != 1 {
 		t.Fatalf("second sync result: count=%d err=%v", result.Count, result.Err)
@@ -58,11 +61,26 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 	}
 	var detail struct {
 		VIN     string `json:"vin"`
+		Name    string `json:"name"`
 		Mileage int    `json:"mileage"`
 		URL     string `json:"url"`
 	}
-	if err := json.Unmarshal(item, &detail); err != nil || detail.VIN != "5YJ3E1EA7KF317000" || detail.Mileage != 27000 || detail.URL != "https://teslatracker.com/inventory/5YJ3E1EA7KF317000" {
+	if err := json.Unmarshal(item, &detail); err != nil || detail.VIN != "5YJ3E1EA7KF317000" || detail.Name != "Updated Model 3" || detail.Mileage != 27000 || detail.URL != "https://teslatracker.com/inventory/5YJ3E1EA7KF317000" {
 		t.Fatalf("full detail after link sync: %s, %v", item, err)
+	}
+	updatedLink := json.RawMessage(`{"url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000","name":"Newest Model 3","slug":"newest-model-3"}`)
+	if _, _, err := db.UpsertBatch("inventory", []json.RawMessage{updatedLink}); err != nil {
+		t.Fatal(err)
+	}
+	item, err = db.Get("inventory", "5YJ3E1EA7KF317000")
+	var current struct {
+		VIN     string `json:"vin"`
+		Name    string `json:"name"`
+		Slug    string `json:"slug"`
+		Mileage int    `json:"mileage"`
+	}
+	if err != nil || json.Unmarshal(item, &current) != nil || current.VIN != "5YJ3E1EA7KF317000" || current.Name != "Newest Model 3" || current.Slug != "newest-model-3" || current.Mileage != 27000 {
+		t.Fatalf("updated listing metadata with detail preserved: %s, %v", item, err)
 	}
 	vins, err := vinsFromLinks(context.Background(), db.DB())
 	if err != nil || len(vins) != 1 || vins[0] != "5YJ3E1EA7KF317000" {

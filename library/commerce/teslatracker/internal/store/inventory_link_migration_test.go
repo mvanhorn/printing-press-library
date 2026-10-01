@@ -32,6 +32,33 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 			if err := s.Upsert("vehicle", vin, vehicle); err != nil {
 				t.Fatal(err)
 			}
+			result, err := s.DB().Exec(`INSERT INTO search_learnings
+				(query_pattern, resource_type, resource_id, action, source, confidence)
+				VALUES ('find this Model 3', 'inventory', 'Model 3', 'boost', 'taught', 2)`)
+			if err != nil {
+				t.Fatal(err)
+			}
+			oldLearningID, err := result.LastInsertId()
+			if err != nil {
+				t.Fatal(err)
+			}
+			wantLearningID := oldLearningID
+			if fullInventoryTarget {
+				result, err = s.DB().Exec(`INSERT INTO search_learnings
+					(query_pattern, resource_type, resource_id, action, source, confidence)
+					VALUES ('find this Model 3', 'inventory', ?, 'boost', 'taught', 3)`, vin)
+				if err != nil {
+					t.Fatal(err)
+				}
+				wantLearningID, err = result.LastInsertId()
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			if _, err := s.DB().Exec(`INSERT INTO learn_events
+				(ts, event, matched_row_id, surface) VALUES ('2026-10-01', 'recall_hit', ?, 'cli')`, oldLearningID); err != nil {
+				t.Fatal(err)
+			}
 			if _, err := s.DB().Exec(`PRAGMA user_version = 9`); err != nil {
 				t.Fatal(err)
 			}
@@ -79,6 +106,16 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 			var indexed int
 			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources_fts WHERE resource_type = 'inventory'`).Scan(&indexed); err != nil || indexed != 1 {
 				t.Fatalf("inventory search rows after upgrade = %d, %v", indexed, err)
+			}
+			var learningCount, eventLearningID int64
+			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id = ?`, vin).Scan(&learningCount); err != nil || learningCount != 1 {
+				t.Fatalf("VIN-keyed learned lookup count = %d, %v", learningCount, err)
+			}
+			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id = 'Model 3'`).Scan(&learningCount); err != nil || learningCount != 0 {
+				t.Fatalf("legacy learned lookup count = %d, %v", learningCount, err)
+			}
+			if err := s.DB().QueryRow(`SELECT matched_row_id FROM learn_events WHERE event = 'recall_hit'`).Scan(&eventLearningID); err != nil || eventLearningID != wantLearningID {
+				t.Fatalf("learned event row = %d, want %d, err=%v", eventLearningID, wantLearningID, err)
 			}
 		})
 	}
