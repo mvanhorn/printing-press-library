@@ -189,7 +189,7 @@ func newGuildsChannelsCreateGuildCmd(flags *rootFlags) *cobra.Command {
 						}
 						bodyMap["type"] = parsedType
 					} else {
-						if err := setJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
+						if err := setExplicitJSONBodyScalar(bodyMap, "type", "type", "int", bodyType); err != nil {
 							return err
 						}
 					}

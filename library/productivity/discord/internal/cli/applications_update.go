@@ -138,7 +138,7 @@ func newApplicationsUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 						bodyMap["event_webhooks_status"] = parsedEventWebhooksStatus
 					} else {
-						if err := setJSONBodyScalar(bodyMap, "event_webhooks_status", "event-webhooks-status", "int", bodyEventWebhooksStatus); err != nil {
+						if err := setExplicitJSONBodyScalar(bodyMap, "event_webhooks_status", "event-webhooks-status", "int", bodyEventWebhooksStatus); err != nil {
 							return err
 						}
 					}

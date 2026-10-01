@@ -23,10 +23,13 @@ var jsonNumberLiteral = regexp.MustCompile(`^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+
 // nullable; only these accept the literal null to clear a value.
 var jsonBodyNullableKeys = map[string]bool{"help_center_id": true}
 
-// setJSONBodyScalar stores raw in body[key] using the declared JSON kind
-// ("int", "number", or "bool"). An empty value leaves the key unset and the
-// literal null sends JSON null, so nullable fields can still be cleared.
+// setJSONBodyScalar stores an explicitly supplied flag in body[key] using the
+// declared JSON kind ("int", "number", or "bool"). An empty value is an
+// error; the literal null clears only fields declared nullable by the spec.
 func setJSONBodyScalar(body map[string]any, key, flag, kind, raw string) error {
+	if strings.TrimSpace(raw) == "" {
+		return fmt.Errorf("--%s must not be empty", flag)
+	}
 	if strings.TrimSpace(raw) == "null" && !jsonBodyNullableKeys[key] {
 		return fmt.Errorf("--%s cannot be null", flag)
 	}

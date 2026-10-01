@@ -303,3 +303,58 @@ func TestExplicitJSONBodyScalarRejectsEmpty(t *testing.T) {
 		t.Fatalf("valid value rejected: err=%v body=%v", err, body)
 	}
 }
+
+func TestBlankScalarFlagsStopDiscordCommandsBeforeRequest(t *testing.T) {
+	cases := []struct {
+		method, path, flag string
+		extra              []string
+	}{
+		{method: "POST", path: "/guilds/{guild_id}/channels", flag: "type", extra: []string{"--name", "test-channel"}},
+		{method: "PATCH", path: "/applications/@me", flag: "event-webhooks-status"},
+		{method: "PATCH", path: "/applications/{application_id}", flag: "event-webhooks-status"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.path+"/"+tc.flag, func(t *testing.T) {
+			var requests int
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requests++
+				w.WriteHeader(http.StatusOK)
+			}))
+			defer srv.Close()
+
+			home := t.TempDir()
+			t.Setenv("HOME", home)
+			t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+			t.Setenv("XDG_DATA_HOME", filepath.Join(home, ".local", "share"))
+			t.Setenv("XDG_CACHE_HOME", filepath.Join(home, ".cache"))
+			t.Setenv("DISCORD_BASE_URL", srv.URL)
+			t.Setenv("DISCORD_BOT_TOKEN", "test-credential")
+			t.Setenv("DISCORD_CONFIG", filepath.Join(home, "config.toml"))
+
+			root := RootCmd()
+			target := jsonScalarFindCommand(root, tc.method, tc.path)
+			if target == nil {
+				t.Fatalf("no command annotated %s %s", tc.method, tc.path)
+			}
+			args := jsonScalarCommandPath(target)
+			for _, token := range strings.Fields(target.Use)[1:] {
+				if strings.HasPrefix(token, "<") {
+					args = append(args, "1")
+				}
+			}
+			args = append(args, "--"+tc.flag, "")
+			args = append(args, tc.extra...)
+			args = append(args, "--yes")
+			root.SetArgs(args)
+			root.SetOut(io.Discard)
+			root.SetErr(io.Discard)
+			err := root.Execute()
+			if err == nil || !strings.Contains(err.Error(), "--"+tc.flag+" must not be empty") {
+				t.Fatalf("error = %v, want blank %s error", err, tc.flag)
+			}
+			if requests != 0 {
+				t.Fatalf("blank %s caused %d requests", tc.flag, requests)
+			}
+		})
+	}
+}

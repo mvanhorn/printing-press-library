@@ -37,7 +37,7 @@ func TestJSONBodyScalarCoercion(t *testing.T) {
 		{kind: "bool", raw: "true", want: "true"},
 		{kind: "bool", raw: "0", want: "false"},
 		{kind: "bool", raw: "maybe", wantErr: true},
-		{kind: "int", raw: "", omitted: true},
+		{kind: "int", raw: "", wantErr: true},
 		{kind: "int", raw: "null", want: "null"},
 	}
 	for _, tc := range cases {
@@ -303,5 +303,47 @@ func TestJSONBodyScalarNullOnlyForNullableFields(t *testing.T) {
 	}
 	if v, ok := body["help_center_id"]; !ok || v != nil {
 		t.Fatalf("help_center_id = %#v, want JSON null", v)
+	}
+}
+
+func TestJSONBodyScalarRejectsExplicitBlank(t *testing.T) {
+	for _, raw := range []string{"", "  \t "} {
+		body := map[string]any{}
+		if err := setJSONBodyScalar(body, "author_id", "author-id", "int", raw); err == nil {
+			t.Errorf("%q: expected error for blank author ID", raw)
+		}
+		if _, ok := body["author_id"]; ok {
+			t.Errorf("%q: blank author ID was added to body", raw)
+		}
+	}
+}
+
+func TestInternalArticleUpdateRejectsBlankAuthorIDBeforeRequest(t *testing.T) {
+	var requests int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("XDG_DATA_HOME", filepath.Join(home, ".local", "share"))
+	t.Setenv("XDG_CACHE_HOME", filepath.Join(home, ".cache"))
+	t.Setenv("INTERCOM_ACCESS_TOKEN", "test-credential")
+	t.Setenv("INTERCOM_BASE_URL", srv.URL)
+	t.Setenv("INTERCOM_CONFIG", filepath.Join(home, "config.toml"))
+
+	root := RootCmd()
+	root.SetArgs([]string{"internal-articles", "update", "1", "--author-id", "", "--yes"})
+	root.SetOut(io.Discard)
+	root.SetErr(io.Discard)
+	err := root.Execute()
+	if err == nil || !strings.Contains(err.Error(), "--author-id must not be empty") {
+		t.Fatalf("error = %v, want blank author ID error", err)
+	}
+	if requests != 0 {
+		t.Fatalf("blank author ID caused %d requests", requests)
 	}
 }

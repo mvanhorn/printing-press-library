@@ -66,7 +66,7 @@ func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				bodyMap := map[string]any{}
 				body = bodyMap
-				if bodyAuthorId != "" {
+				if cmd.Flags().Changed("author-id") || bodyAuthorId != "" {
 					if err := setJSONBodyScalar(bodyMap, "author_id", "author-id", "int", bodyAuthorId); err != nil {
 						return err
 					}
@@ -74,7 +74,7 @@ func newInternalArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if bodyBody != "" {
 					bodyMap["body"] = bodyBody
 				}
-				if bodyOwnerId != "" {
+				if cmd.Flags().Changed("owner-id") || bodyOwnerId != "" {
 					if err := setJSONBodyScalar(bodyMap, "owner_id", "owner-id", "int", bodyOwnerId); err != nil {
 						return err
 					}
