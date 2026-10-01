@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "download-original-binary-bytes",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260811-213616-3ef4d308",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Document downloads must write the original binary bytes, not the client's JSON transport envelope.",
+  "reason": "A PDF written as encoded JSON is unusable even when the API request succeeds.",
+  "files": ["internal/cli/docs_download.go", "internal/client/binary_decode.go"]
+}

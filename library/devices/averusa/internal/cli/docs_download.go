@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/devices/averusa/internal/client"
+
 	"github.com/spf13/cobra"
 )
 
@@ -61,7 +63,11 @@ func newDocsDownloadCmd(flags *rootFlags) *cobra.Command {
 			if flags.asJSON || flags.csv || flags.compact || flags.plain || flags.selectFields != "" {
 				return fmt.Errorf("binary response cannot be rendered as structured output; redirect stdout or use --deliver file:<path>")
 			}
-			_, err = cmd.OutOrStdout().Write(data)
+			payload, err := client.DecodeBinaryResponse(data)
+			if err != nil {
+				return err
+			}
+			_, err = cmd.OutOrStdout().Write(payload)
 			return err
 		},
 	}

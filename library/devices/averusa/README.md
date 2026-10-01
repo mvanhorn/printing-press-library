@@ -4,6 +4,10 @@
 
 averusa.com hides its manuals, spec sheets, and white papers behind a Salesforce portal maze and per-model PDFs. averusa-pp-cli syncs the whole catalog into a local database, then answers the questions integrators actually ask: which model fits (compare), what are its specs (specs), what docs exist per model (coverage, docs pack), what changed since last sync (whats-new), and which PDF links are dead (doctor).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+`docs download` preserves the original PDF bytes when writing to standard output.
+
 ## Install
 
 The recommended path installs both the `averusa-pp-cli` binary and the `pp-averusa` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
