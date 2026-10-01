@@ -137,6 +137,40 @@ func TestProfileStoreInvalidSelectionNeverFallsBack(t *testing.T) {
 	}
 }
 
+func TestProfileStoreRejectsUnrelatedJSONWithoutChangingIt(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	dir := t.TempDir()
+	for name, original := range map[string]string{
+		"null":              `null`,
+		"empty-object":      `{}`,
+		"unrelated-object":  `{"settings":{"mode":"local"}}`,
+		"null-profiles":     `{"profiles":null}`,
+		"array-profiles":    `{"profiles":[]}`,
+		"additional-fields": `{"profiles":{},"settings":{"mode":"local"}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			selected := filepath.Join(dir, name+".json")
+			if err := os.WriteFile(selected, []byte(original), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			for _, operation := range [][]string{{"profile", "list"}, {"profile", "save", "new", "--quiet"}, {"agent-context"}} {
+				args := append([]string{"--profile-store", selected}, operation...)
+				if _, err := runProfileFixture(t, args...); err == nil {
+					t.Fatalf("invalid store accepted for %v", operation)
+				}
+			}
+			after, err := os.ReadFile(selected)
+			if err != nil || string(after) != original {
+				t.Fatal("invalid store was changed")
+			}
+		})
+	}
+	if _, err := os.Stat(filepath.Join(home, ".x-twitter-pp-cli", "profiles.json")); !os.IsNotExist(err) {
+		t.Fatal("invalid selected store touched the default store")
+	}
+}
+
 func TestProfileStoreRelativePathAndReservedOverlay(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)

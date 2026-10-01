@@ -51,12 +51,17 @@ func loadProfileStore(selected string) (*profileStore, error) {
 		}
 		return nil, fmt.Errorf("reading profiles: %w", err)
 	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return nil, fmt.Errorf("parsing profiles: %w", err)
+	}
+	profiles, ok := fields["profiles"]
+	if len(fields) != 1 || !ok || len(profiles) == 0 || profiles[0] != '{' {
+		return nil, fmt.Errorf("parsing profiles: expected a profile store with a profiles object")
+	}
 	var s profileStore
 	if err := json.Unmarshal(data, &s); err != nil {
 		return nil, fmt.Errorf("parsing profiles: %w", err)
-	}
-	if s.Profiles == nil {
-		s.Profiles = map[string]Profile{}
 	}
 	return &s, nil
 }
