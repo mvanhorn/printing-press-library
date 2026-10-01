@@ -18,6 +18,9 @@ metadata:
 
 # Slack — Printing Press CLI
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@ChrisGutierrezNet](https://github.com/ChrisGutierrezNet) (Chris G. | AI Automation), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `slack-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:

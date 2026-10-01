@@ -4,6 +4,9 @@
 
 Slack hides messages past the free-plan retention window and gates export behind admin. This CLI syncs conversations, users, files, and reactions into a local SQLite database with full-text search, so `archive recall` finds decisions Slack itself will no longer serve you. On top of the mirror it computes things no endpoint returns: `catchup` for what is still waiting on you, `threads stale` for unanswered threads, and `health` for which channels are dying.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@ChrisGutierrezNet](https://github.com/ChrisGutierrezNet) (Chris G. | AI Automation), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `slack-pp-cli` binary and the `pp-slack` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -144,6 +147,8 @@ slack-pp-cli archive recall "deploy" --agent
 slack-pp-cli catchup --since 24h
 
 ```
+
+The conversation sync defaults to public and private channels, which avoids asking a bot token for DM scopes it may lack. An explicit sync parameter can change the channel types.
 
 ## Unique Features
 
@@ -335,6 +340,7 @@ Create, edit, share, and delete Slack canvases
 
 Requires the `canvases:write` and `canvases:read` scopes, plus `files:read` for
 `canvases read`.
+Verifier-mode canvas writes report a no-op rather than a successful change.
 
 Slack publishes no get-canvas-content endpoint, so `read` resolves the canvas's
 backing file through `files.info` and downloads `url_private_download`. Content

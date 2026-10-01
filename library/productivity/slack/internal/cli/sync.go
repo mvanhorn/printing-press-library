@@ -492,6 +492,7 @@ func syncResource(ctx context.Context, c interface {
 
 	for {
 		params := map[string]string{}
+		applySlackSyncDefaults(resource, params)
 
 		if resourceSupportsPagination(resource) {
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
@@ -877,6 +878,12 @@ type paginationDefaults struct {
 	cursorType  string // paginator class: "", "cursor", "page_token", "offset", "page"
 	limitParam  string
 	limit       int
+}
+
+func applySlackSyncDefaults(resource string, params map[string]string) {
+	if resource == "conversations" {
+		params["types"] = "public_channel,private_channel"
+	}
 }
 
 func shortPageEndsPagination(cursorType string, fetched, limit int) bool {

@@ -112,6 +112,18 @@ func postCanvas(cmd *cobra.Command, flags *rootFlags, path string, body map[stri
 			envelope["status"] = 0
 			envelope["success"] = false
 		}
+		// Verify-mode mutations are transport-level no-ops. Inspect the raw
+		// response before --compact/--select can remove the sentinel so a
+		// synthetic HTTP 200 is never reported as a completed canvas write.
+		if len(data) > 0 {
+			var rawParsed map[string]any
+			if err := json.Unmarshal(data, &rawParsed); err == nil {
+				if synthetic, _ := rawParsed["__pp_verify_synthetic__"].(bool); synthetic {
+					envelope["verify_noop"] = true
+					envelope["success"] = false
+				}
+			}
+		}
 		if len(filtered) > 0 {
 			var parsed any
 			if err := json.Unmarshal(filtered, &parsed); err == nil {
