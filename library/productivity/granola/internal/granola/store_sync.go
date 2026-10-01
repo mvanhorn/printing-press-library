@@ -1139,6 +1139,16 @@ func ReconcileMissingAPINotes(ctx context.Context, db *sql.DB, seen map[string]s
 		if _, err := tx.ExecContext(ctx, `UPDATE meetings SET deleted_at=? WHERE id=? AND row_source='api'`, deletedAt, id); err != nil {
 			return 0, fmt.Errorf("mark missing API note %s deleted: %w", id, err)
 		}
+		// API-owned dependent rows must disappear with the upstream note or
+		// direct transcript/attendee reads can bypass the meeting tombstone.
+		// Cache-owned rows are intentionally retained: a later cache sync owns
+		// their lifecycle independently of the public API list.
+		if _, err := tx.ExecContext(ctx, `DELETE FROM transcript_segments WHERE meeting_id=? AND row_source=?`, id, RowSourceAPI); err != nil {
+			return 0, fmt.Errorf("remove transcript for missing API note %s: %w", id, err)
+		}
+		if _, err := tx.ExecContext(ctx, `DELETE FROM attendees WHERE meeting_id=? AND row_source=?`, id, RowSourceAPI); err != nil {
+			return 0, fmt.Errorf("remove attendees for missing API note %s: %w", id, err)
+		}
 	}
 	if err := tx.Commit(); err != nil {
 		return 0, err

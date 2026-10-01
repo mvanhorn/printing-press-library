@@ -121,11 +121,12 @@ func normalizeAuditTimestamp(flagName, value string) (string, error) {
 
 func normalizeAuditTimestampAt(flagName, value string, now time.Time) (string, error) {
 	value = strings.TrimSpace(value)
+	dateOnly := len(value) == len("2006-01-02")
 	var (
 		parsed time.Time
 		err    error
 	)
-	if len(value) == len("2006-01-02") {
+	if dateOnly {
 		parsed, err = time.Parse("2006-01-02", value)
 	} else {
 		parsed, err = time.Parse(time.RFC3339Nano, value)
@@ -134,6 +135,10 @@ func normalizeAuditTimestampAt(flagName, value string, now time.Time) (string, e
 		return "", usageErr(fmt.Errorf("invalid --%s %q: expected YYYY-MM-DD or RFC3339 timestamp", flagName, value))
 	}
 	cutoff := now.UTC().AddDate(-1, 0, 0)
+	if dateOnly {
+		year, month, day := cutoff.Date()
+		cutoff = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	}
 	if parsed.Before(cutoff) {
 		return "", usageErr(fmt.Errorf("invalid --%s %q: Granola audit events are retained for one year; earliest available timestamp is %s", flagName, value, cutoff.Format(time.RFC3339)))
 	}
