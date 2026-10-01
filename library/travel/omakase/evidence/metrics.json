@@ -1,0 +1,189 @@
+{
+  "observed_at": "2026-09-30T19:21:48Z",
+  "live": true,
+  "provider": "OMAKASE public pages",
+  "fixture_inputs": false,
+  "metrics": [
+    {
+      "case": "find",
+      "state": "cold",
+      "output_bytes": 835,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 2496.1,
+      "peak_rss_bytes": 24903680,
+      "response_bytes": 50677
+    },
+    {
+      "case": "find",
+      "state": "warm",
+      "output_bytes": 827,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 19.0,
+      "peak_rss_bytes": 19054592,
+      "response_bytes": 0
+    },
+    {
+      "case": "detail",
+      "state": "cold",
+      "output_bytes": 3232,
+      "requests": 2,
+      "cache_hits": 0,
+      "latency_ms": 1116.2,
+      "peak_rss_bytes": 24936448,
+      "response_bytes": 49609
+    },
+    {
+      "case": "detail",
+      "state": "warm",
+      "output_bytes": 3224,
+      "requests": 0,
+      "cache_hits": 2,
+      "latency_ms": 20.4,
+      "peak_rss_bytes": 19185664,
+      "response_bytes": 0
+    },
+    {
+      "case": "release",
+      "state": "cold",
+      "output_bytes": 837,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 1448.7,
+      "peak_rss_bytes": 24494080,
+      "response_bytes": 33698
+    },
+    {
+      "case": "release",
+      "state": "warm",
+      "output_bytes": 829,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 19.1,
+      "peak_rss_bytes": 19021824,
+      "response_bytes": 0
+    },
+    {
+      "case": "availability",
+      "state": "cold",
+      "output_bytes": 1049,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 1387.7,
+      "peak_rss_bytes": 24559616,
+      "response_bytes": 23558
+    },
+    {
+      "case": "availability",
+      "state": "warm",
+      "output_bytes": 1042,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 19.4,
+      "peak_rss_bytes": 19300352,
+      "response_bytes": 0
+    },
+    {
+      "case": "compare",
+      "state": "cold",
+      "output_bytes": 3184,
+      "requests": 2,
+      "cache_hits": 0,
+      "latency_ms": 1133.9,
+      "peak_rss_bytes": 24625152,
+      "response_bytes": 54019
+    },
+    {
+      "case": "compare",
+      "state": "warm",
+      "output_bytes": 3176,
+      "requests": 0,
+      "cache_hits": 2,
+      "latency_ms": 20.1,
+      "peak_rss_bytes": 19087360,
+      "response_bytes": 0
+    },
+    {
+      "case": "membership",
+      "state": "cold",
+      "output_bytes": 3723,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 1314.0,
+      "peak_rss_bytes": 25034752,
+      "response_bytes": 42035
+    },
+    {
+      "case": "membership",
+      "state": "warm",
+      "output_bytes": 3716,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 18.6,
+      "peak_rss_bytes": 19382272,
+      "response_bytes": 0
+    },
+    {
+      "case": "page2",
+      "state": "cold",
+      "output_bytes": 1107,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 580.3,
+      "peak_rss_bytes": 24674304,
+      "response_bytes": 50570
+    },
+    {
+      "case": "page2",
+      "state": "warm",
+      "output_bytes": 1101,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 19.4,
+      "peak_rss_bytes": 19283968,
+      "response_bytes": 0
+    },
+    {
+      "case": "ja",
+      "state": "cold",
+      "output_bytes": 1646,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 717.9,
+      "peak_rss_bytes": 24608768,
+      "response_bytes": 26051
+    },
+    {
+      "case": "ja",
+      "state": "warm",
+      "output_bytes": 1640,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 19.0,
+      "peak_rss_bytes": 19529728,
+      "response_bytes": 0
+    },
+    {
+      "case": "filters",
+      "state": "cold",
+      "output_bytes": 1887,
+      "requests": 1,
+      "cache_hits": 0,
+      "latency_ms": 583.9,
+      "peak_rss_bytes": 24428544,
+      "response_bytes": 52016
+    },
+    {
+      "case": "filters",
+      "state": "warm",
+      "output_bytes": 1881,
+      "requests": 0,
+      "cache_hits": 1,
+      "latency_ms": 19.3,
+      "peak_rss_bytes": 19070976,
+      "response_bytes": 0
+    }
+  ],
+  "checks_passed": 27
+}

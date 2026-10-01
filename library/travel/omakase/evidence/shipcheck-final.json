@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-09-30T19:18:34Z",
+  "elapsed_ms": 13752,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:34Z",
+      "elapsed_ms": 7013,
+      "command": "<run-state>/tools/cli-printing-press verify --dir <project> --write-manifest <project>/.printing-press.json --spec <run-state>/research/omakase.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:41Z",
+      "elapsed_ms": 107,
+      "command": "<run-state>/tools/cli-printing-press validate-narrative --strict --full-examples --research <run-state>/research.json --binary <project>/build/stage/bin/omakase-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:41Z",
+      "elapsed_ms": 1791,
+      "command": "<run-state>/tools/cli-printing-press dogfood --dir <project> --spec <run-state>/research/omakase.yaml --research-dir <run-state>"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:43Z",
+      "elapsed_ms": 12,
+      "command": "<run-state>/tools/cli-printing-press workflow-verify --dir <project>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:43Z",
+      "elapsed_ms": 39,
+      "command": "<run-state>/tools/cli-printing-press apify-audit --dir <project> --research-dir <run-state>"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:43Z",
+      "elapsed_ms": 1843,
+      "command": "<run-state>/tools/cli-printing-press verify-skill --dir <project>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:18:45Z",
+      "elapsed_ms": 2943,
+      "command": "<run-state>/tools/cli-printing-press scorecard --dir <project> --write-manifest <project>/.printing-press.json --research-dir <run-state> --spec <run-state>/research/omakase.yaml --live-check"
+    }
+  ]
+}

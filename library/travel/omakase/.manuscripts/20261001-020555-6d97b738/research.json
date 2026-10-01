@@ -1,0 +1,154 @@
+{
+  "api_name": "omakase",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [
+    "Exact seat inventory requires account; premium features not accessed"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-30T18:16:31.5045Z",
+  "novel_features": [
+    {
+      "name": "Course price/fee inspection",
+      "command": "courses",
+      "description": "Inspect public course price floors, units, service charges, reservation fee and cancellation caveats.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli courses hc778124 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Release schedule inspection",
+      "command": "release",
+      "description": "Read source release timing in JST; distinguish scheduled, irregular and undetermined releases from seats.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli release jv742052 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Date/party availability boundary",
+      "command": "availability",
+      "description": "Inspect a planning date and party with unknown exact seats and query_evaluated false when public access is gated.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli availability hc778124 --date 2026-11-01 --party 2 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Restaurant comparison",
+      "command": "compare",
+      "description": "Compare public terms for two to five restaurant IDs with explicit per-ID failures.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli compare hc778124 qt951856 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Local summary inventory",
+      "command": "inventory",
+      "description": "Explicitly refresh bounded summary pages and inspect or search local inventory coverage.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli inventory --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Course price/fee inspection",
+      "command": "courses",
+      "description": "Inspect public course price floors, units, service charges, reservation fee and cancellation caveats.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli courses hc778124 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Release schedule inspection",
+      "command": "release",
+      "description": "Read source release timing in JST; distinguish scheduled, irregular and undetermined releases from seats.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli release jv742052 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Date/party availability boundary",
+      "command": "availability",
+      "description": "Inspect a planning date and party with unknown exact seats and query_evaluated false when public access is gated.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli availability hc778124 --date 2026-11-01 --party 2 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Restaurant comparison",
+      "command": "compare",
+      "description": "Compare public terms for two to five restaurant IDs with explicit per-ID failures.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli compare hc778124 qt951856 --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    },
+    {
+      "name": "Local summary inventory",
+      "command": "inventory",
+      "description": "Explicitly refresh bounded summary pages and inspect or search local inventory coverage.",
+      "rationale": "Normalize source planning semantics without claiming inaccessible seat inventory.",
+      "example": "omakase-pp-cli inventory --agent",
+      "why_it_matters": "Inspect source terms before booking by canonical link.",
+      "group": "Restaurant planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "OMAKASE",
+    "headline": "Discover premium Japanese restaurants with source courses, release rules and honest availability states.",
+    "value_prop": "Read-only public OMAKASE planning. Compare courses and cancellation terms, then use canonical booking links.",
+    "auth_narrative": "Public discovery and detail need no account. Exact seats require login; Premium search and calendars remain gated. No paid account required by this CLI.",
+    "quickstart": [
+      {
+        "command": "omakase-pp-cli doctor --dry-run",
+        "comment": "Check local setup"
+      },
+      {
+        "command": "omakase-pp-cli restaurants find --query Sugita --agent",
+        "comment": "Relevant public names"
+      },
+      {
+        "command": "omakase-pp-cli restaurants show hc778124 --agent",
+        "comment": "Inspect source detail"
+      }
+    ],
+    "when_to_use": "Use for OMAKASE restaurant discovery, public course details and release rules, or planning comparison. Exact seats and account eligibility are gated.",
+    "anti_triggers": [
+      "bookings and payments",
+      "other reservation providers"
+    ],
+    "recipes": [
+      {
+        "title": "Compare courses",
+        "command": "omakase-pp-cli compare hc778124 qt951856 --agent --select results.id,results.name,results.courses",
+        "explanation": "Bounded public comparison."
+      },
+      {
+        "title": "Inspect release",
+        "command": "omakase-pp-cli release jv742052 --agent",
+        "explanation": "Release timing is separate from seats."
+      },
+      {
+        "title": "Inspect availability boundary",
+        "command": "omakase-pp-cli availability hc778124 --date 2026-11-01 --party 2 --agent",
+        "explanation": "Report unknown when login is required."
+      }
+    ],
+    "trigger_phrases": [
+      "find restaurants on OMAKASE",
+      "check OMAKASE release",
+      "OMAKASE courses",
+      "use omakase",
+      "run omakase"
+    ]
+  }
+}

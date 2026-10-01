@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-30T19:33:31.383064Z",
+  "cli_dir": "\u003ccli-dir\u003e/omakase-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework command; precise local listing action returns client profile names without required arguments."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework command; precise local listing action returns recorded learning rows without required arguments."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-09-30T19:05:11.633813Z"
+  }
+}

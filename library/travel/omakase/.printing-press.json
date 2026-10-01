@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-30T19:39:45.8561Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "omakase",
+  "display_name": "OMAKASE",
+  "cli_name": "omakase-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:8246cab1a11adc467a8683c196338f2fbfcb9543cc41b22722ca80557f83eae3",
+  "run_id": "20261001-020555-6d97b738",
+  "category": "travel",
+  "description": "Discover premium Japanese restaurants with source courses, release rules and honest availability states.",
+  "mcp_binary": "omakase-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Course price/fee inspection",
+      "command": "courses",
+      "description": "Inspect public course price floors, units, service charges, reservation fee and cancellation caveats."
+    },
+    {
+      "name": "Release schedule inspection",
+      "command": "release",
+      "description": "Read source release timing in JST; distinguish scheduled, irregular and undetermined releases from seats."
+    },
+    {
+      "name": "Date/party availability boundary",
+      "command": "availability",
+      "description": "Inspect a planning date and party with unknown exact seats and query_evaluated false when public access is gated."
+    },
+    {
+      "name": "Restaurant comparison",
+      "command": "compare",
+      "description": "Compare public terms for two to five restaurant IDs with explicit per-ID failures."
+    },
+    {
+      "name": "Local summary inventory",
+      "command": "inventory",
+      "description": "Explicitly refresh bounded summary pages and inspect or search local inventory coverage."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Course price/fee inspection",
+      "command": "courses",
+      "description": "Inspect public course price floors, units, service charges, reservation fee and cancellation caveats."
+    },
+    {
+      "name": "Release schedule inspection",
+      "command": "release",
+      "description": "Read source release timing in JST; distinguish scheduled, irregular and undetermined releases from seats."
+    },
+    {
+      "name": "Date/party availability boundary",
+      "command": "availability",
+      "description": "Inspect a planning date and party with unknown exact seats and query_evaluated false when public access is gated."
+    },
+    {
+      "name": "Restaurant comparison",
+      "command": "compare",
+      "description": "Compare public terms for two to five restaurant IDs with explicit per-ID failures."
+    },
+    {
+      "name": "Local summary inventory",
+      "command": "inventory",
+      "description": "Explicitly refresh bounded summary pages and inspect or search local inventory coverage."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 34,
+    "total": 34,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 82,
+      "grade": "A",
+      "total": 82
+    }
+  }
+}

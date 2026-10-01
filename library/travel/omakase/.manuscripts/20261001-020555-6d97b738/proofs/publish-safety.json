@@ -1,0 +1,7 @@
+{
+  "secret_vendor_prefix": "pass; no tokens detected",
+  "structural": "pass; raw HTML, HAR, runtime caches, session state and local binaries excluded",
+  "pii": "pass; strict Press audit found no pending findings; Tier 2 patterns contain only API vocabulary, public venues, public generator attribution and explicit synthetic tests",
+  "local_paths": "pass; workspace paths removed; C:/Users/example remains a synthetic Windows-path regression fixture",
+  "enrichment": "gitleaks and trufflehog not installed"
+}
