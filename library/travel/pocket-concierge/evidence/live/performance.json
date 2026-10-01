@@ -1,0 +1,32 @@
+[
+  {
+    "case": "uncached",
+    "output_bytes": 1663,
+    "source_requests": 2,
+    "source_response_bytes": 648,
+    "cache_hits": 0,
+    "wall_latency_ms": 824,
+    "peak_rss_bytes": 16498688,
+    "source_elapsed_ms": 816
+  },
+  {
+    "case": "prime",
+    "output_bytes": 1664,
+    "source_requests": 2,
+    "source_response_bytes": 648,
+    "cache_hits": 0,
+    "wall_latency_ms": 777,
+    "peak_rss_bytes": 16842752,
+    "source_elapsed_ms": 768
+  },
+  {
+    "case": "cached",
+    "output_bytes": 1658,
+    "source_requests": 0,
+    "source_response_bytes": 0,
+    "cache_hits": 2,
+    "wall_latency_ms": 8,
+    "peak_rss_bytes": 11976704,
+    "source_elapsed_ms": 0
+  }
+]

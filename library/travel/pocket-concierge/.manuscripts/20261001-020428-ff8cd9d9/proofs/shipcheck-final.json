@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-09-30T19:30:22Z",
+  "elapsed_ms": 9185,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:22Z",
+      "elapsed_ms": 2186,
+      "command": "cli-printing-press verify --dir local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli --write-manifest local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli/.printing-press.json --spec local-runstate/runs/20261001-020428-ff8cd9d9/research/spec.json"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:25Z",
+      "elapsed_ms": 59,
+      "command": "cli-printing-press validate-narrative --strict --full-examples --research local-runstate/runs/20261001-020428-ff8cd9d9/research.json --binary local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli/build/stage/bin/pocket-concierge-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:25Z",
+      "elapsed_ms": 1328,
+      "command": "cli-printing-press dogfood --dir local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli --spec local-runstate/runs/20261001-020428-ff8cd9d9/research/spec.json --research-dir local-runstate/runs/20261001-020428-ff8cd9d9"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:26Z",
+      "elapsed_ms": 4391,
+      "command": "cli-printing-press workflow-verify --dir local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:30Z",
+      "elapsed_ms": 26,
+      "command": "cli-printing-press apify-audit --dir local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli --research-dir local-runstate/runs/20261001-020428-ff8cd9d9"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:30Z",
+      "elapsed_ms": 55,
+      "command": "cli-printing-press verify-skill --dir local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-09-30T19:30:31Z",
+      "elapsed_ms": 1136,
+      "command": "cli-printing-press scorecard --dir local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli --write-manifest local-runstate/runs/20261001-020428-ff8cd9d9/working/pocket-concierge-pp-cli/.printing-press.json --research-dir local-runstate/runs/20261001-020428-ff8cd9d9 --spec local-runstate/runs/20261001-020428-ff8cd9d9/research/spec.json --live-check"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "api_name": "pocket-concierge",
+  "alternatives": [],
+  "novel_features": [
+    {
+      "name": "Bilingual source identity",
+      "command": "restaurants search",
+      "description": "Match first-party English and Japanese restaurant identities by source ID with bounded native filters.",
+      "rationale": "Joins language variants by source ID rather than guessing translations.",
+      "example": "pocket-concierge-pp-cli restaurants search --query Murase --limit 3 --agent",
+      "why_it_matters": "Use when Japanese identity must remain traceable to a public restaurant.",
+      "group": "Source evidence"
+    },
+    {
+      "name": "Fee conflict preservation",
+      "command": "courses list",
+      "description": "Keep per-guest and per-group JPY prices and conflicting course and restaurant fee statements without inventing a payable total.",
+      "rationale": "Keeps both source contexts visible rather than flattening fees into a misleading sum.",
+      "example": "pocket-concierge-pp-cli courses list --id 245672 --agent",
+      "why_it_matters": "Use before comparing budgets when inclusions and policy charges disagree.",
+      "group": "Source evidence"
+    },
+    {
+      "name": "Validated canonical handoff",
+      "command": "booking handoff",
+      "description": "Validate course and session ownership and party bounds before returning the canonical restaurant link.",
+      "rationale": "Combines public course and session identity checks with a read-only first-party handoff.",
+      "example": "pocket-concierge-pp-cli booking handoff --id 245672 --course-id 182402 --agent",
+      "why_it_matters": "Use to hand a verified restaurant choice to a diner without creating a reservation.",
+      "group": "Safe handoff"
+    }
+  ],
+  "narrative": {
+    "display_name": "Pocket Concierge",
+    "headline": "Discover fine dining with sourced courses, session identity and safe booking handoff.",
+    "auth_narrative": "Public discovery needs no account or paid key. Complete any booking on the provider website.",
+    "quickstart": [
+      {
+        "command": "pocket-concierge-pp-cli doctor --dry-run",
+        "comment": "Check setup without a request"
+      },
+      {
+        "command": "pocket-concierge-pp-cli filters",
+        "comment": "Find first-party filter IDs"
+      },
+      {
+        "command": "pocket-concierge-pp-cli restaurants search --query sushi --limit 5",
+        "comment": "Read compact restaurant summaries"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Narrow sushi search",
+        "command": "pocket-concierge-pp-cli restaurants search --query sushi --limit 5 --agent --select items.id,items.name,items.name_ja,items.url",
+        "explanation": "Keep only identity and handoff fields"
+      },
+      {
+        "title": "Inspect courses",
+        "command": "pocket-concierge-pp-cli courses list --id 245672",
+        "explanation": "Keep course and fee terms"
+      },
+      {
+        "title": "Check dates",
+        "command": "pocket-concierge-pp-cli availability dates --id 245672",
+        "explanation": "Separate seats and waitlist dates"
+      }
+    ]
+  },
+  "recommendation": "proceed"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "pocket-concierge-release-version-stamping",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020428-ff8cd9d9",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep the runtime version in a string variable so release automation can stamp both version surfaces.",
+  "reason": "The Go linker and post-merge release ledger cannot stamp a constant; preserve the initial value while leaving release numbering to library automation.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "An isolated -X build reports release-probe through --version and the JSON version command; no release value or changelog was bumped."
+}

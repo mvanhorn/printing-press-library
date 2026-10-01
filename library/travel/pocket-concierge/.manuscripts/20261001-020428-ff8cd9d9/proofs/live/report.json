@@ -1,0 +1,340 @@
+{
+  "status": "PASS",
+  "verified_at": "2026-10-01T02:10:47.104642+00:00",
+  "provider": "Pocket Concierge",
+  "fixture_substitution": false,
+  "rows": [
+    {
+      "label": "filters",
+      "command": [
+        "filters",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 3495,
+      "elapsed_ms": 1034,
+      "requests": 2
+    },
+    {
+      "label": "name-search",
+      "command": [
+        "restaurants",
+        "search",
+        "--query",
+        "Murase",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 1662,
+      "elapsed_ms": 786,
+      "requests": 2
+    },
+    {
+      "label": "mismatch-search",
+      "command": [
+        "restaurants",
+        "search",
+        "--query",
+        "zzzzpocketnonexistent987654",
+        "--limit",
+        "3",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 990,
+      "elapsed_ms": 356,
+      "requests": 1
+    },
+    {
+      "label": "filters-search",
+      "command": [
+        "restaurants",
+        "search",
+        "--area-id",
+        "19",
+        "--cuisine-id",
+        "1",
+        "--service",
+        "DINNER",
+        "--max-price",
+        "30000",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 3144,
+      "elapsed_ms": 849,
+      "requests": 2
+    },
+    {
+      "label": "pagination-1",
+      "command": [
+        "restaurants",
+        "search",
+        "--limit",
+        "2",
+        "--page",
+        "1",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 2391,
+      "elapsed_ms": 817,
+      "requests": 2
+    },
+    {
+      "label": "pagination-2",
+      "command": [
+        "restaurants",
+        "search",
+        "--limit",
+        "2",
+        "--page",
+        "2",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 2520,
+      "elapsed_ms": 829,
+      "requests": 2
+    },
+    {
+      "label": "detail",
+      "command": [
+        "restaurants",
+        "get",
+        "--id",
+        "245672",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 8336,
+      "elapsed_ms": 871,
+      "requests": 2
+    },
+    {
+      "label": "courses",
+      "command": [
+        "courses",
+        "list",
+        "--id",
+        "245672",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 5932,
+      "elapsed_ms": 798,
+      "requests": 2
+    },
+    {
+      "label": "japanese",
+      "command": [
+        "restaurants",
+        "get",
+        "--id",
+        "245672",
+        "--lang",
+        "ja",
+        "--refresh"
+      ],
+      "exit": 0,
+      "bytes": 10476,
+      "elapsed_ms": 353,
+      "requests": 1
+    },
+    {
+      "label": "dates",
+      "command": [
+        "availability",
+        "dates",
+        "--id",
+        "245672",
+        "--limit",
+        "10",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 2542,
+      "elapsed_ms": 795,
+      "requests": 2
+    },
+    {
+      "label": "sessions",
+      "command": [
+        "availability",
+        "slots",
+        "--id",
+        "245672",
+        "--date",
+        "2026-10-05",
+        "--party",
+        "2",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 4025,
+      "elapsed_ms": 791,
+      "requests": 2
+    },
+    {
+      "label": "waitlist",
+      "command": [
+        "availability",
+        "slots",
+        "--id",
+        "245672",
+        "--date",
+        "2026-10-03",
+        "--party",
+        "2",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 4005,
+      "elapsed_ms": 797,
+      "requests": 2
+    },
+    {
+      "label": "request-mode",
+      "command": [
+        "availability",
+        "dates",
+        "--id",
+        "245323",
+        "--limit",
+        "3",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 1852,
+      "elapsed_ms": 818,
+      "requests": 2
+    },
+    {
+      "label": "unavailable-party",
+      "command": [
+        "availability",
+        "slots",
+        "--id",
+        "245672",
+        "--date",
+        "2026-10-05",
+        "--party",
+        "20",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 1514,
+      "elapsed_ms": 790,
+      "requests": 2
+    },
+    {
+      "label": "date-search",
+      "command": [
+        "restaurants",
+        "search",
+        "--date",
+        "2026-10-05",
+        "--party",
+        "2",
+        "--instant",
+        "--limit",
+        "3",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 3030,
+      "elapsed_ms": 1091,
+      "requests": 2
+    },
+    {
+      "label": "handoff",
+      "command": [
+        "booking",
+        "handoff",
+        "--id",
+        "245672",
+        "--course-id",
+        "182402",
+        "--session-id",
+        "6871760",
+        "--date",
+        "2026-10-05",
+        "--party",
+        "2",
+        "--no-cache"
+      ],
+      "exit": 0,
+      "bytes": 8626,
+      "elapsed_ms": 1800,
+      "requests": 4
+    },
+    {
+      "label": "wrong-course",
+      "command": [
+        "booking",
+        "handoff",
+        "--id",
+        "245672",
+        "--course-id",
+        "1",
+        "--no-cache"
+      ],
+      "exit": 3,
+      "bytes": 0,
+      "elapsed_ms": 772,
+      "requests": 0
+    },
+    {
+      "label": "invalid-date",
+      "command": [
+        "availability",
+        "slots",
+        "--id",
+        "245672",
+        "--date",
+        "2026-02-29",
+        "--no-cache"
+      ],
+      "exit": 2,
+      "bytes": 0,
+      "elapsed_ms": 12,
+      "requests": 0
+    },
+    {
+      "label": "missing-id",
+      "command": [
+        "restaurants",
+        "get",
+        "--json"
+      ],
+      "exit": 2,
+      "bytes": 0,
+      "elapsed_ms": 7,
+      "requests": 0
+    },
+    {
+      "label": "projection",
+      "command": [
+        "restaurants",
+        "search",
+        "--query",
+        "Murase",
+        "--limit",
+        "3",
+        "--select",
+        "items.id,items.name_ja"
+      ],
+      "exit": 0,
+      "bytes": 808,
+      "elapsed_ms": 6,
+      "requests": 0
+    }
+  ],
+  "assertions": "query relevance, negative query, source filter IDs, pagination, Japanese identity, fee conflict, course/session source identity, live date/party, waitlist/request/instant distinctions, canonical handoff, ownership errors, projection, cached/uncached metrics",
+  "selected_date": "2026-10-05",
+  "selected_session_id": "6871760"
+}

@@ -1,0 +1,11 @@
+# Independent code and source review
+
+Exactly one fresh-context reviewer: gpt-6.1-sol, xhigh, fork_turns none. No edits, no extra agents. Same reviewer reused after fixes. Baseline: empty project, plus archived generator bootstrap in the isolated run's generated-baseline. Coverage: correctness, security/reliability, public provider contract, identity, prices/policies, availability states, cache/freshness, pagination/projection/errors, help and README/SKILL.
+
+Initial findings (P2): unrelated JSON cache eviction; source-null arrays converted to empty; one known party bound ignored when other null; unknown-bound handoff not marked partial. Builder fixed all and added consequential synthetic regression tests. Reviewer independently reproduced edges with temporary overlays/transports; these were not represented as live verification.
+
+Final reviewer result: PASS — all previously reported issues fixed; no actionable findings remain. Independently confirmed preservation of 128 unrelated JSON files, null vs empty, partial bounds and rejected incompatible handoff, projection dry-run without IO/invented data, positional/zero-price validation and command-tree enumeration. Current go test -count=1 ./..., go vet ./..., go build ./... passed.
+
+Independent live verification: restaurant 244725 Murase identity; venue 245672 Japanese identity; course 182402 JPY 21,000 per guest / fixedPrice null; session 6871760 on 2026-10-05 18:00+09:00 / party 2 matched direct first-party public responses. Conflicting course/restaurant fee statements retained. Fresh search two requests; cached search zero / two cache hits. Reviewed current transport split, command literals, metrics/error output, workflow inputs and staging binary paths. SKILL explicitly identifies unpublished local installation and forbids the future public installer block for this checkout.
+
+Final narrow scan cleanup re-reviewed by the same reviewer: PASS. Cache hits require successful read and close; failures fall through to live. Consumed-response/abandoned-file cleanup errors are explicitly discarded. G304 annotation is narrowly justified by operator cache choice + fixed prefix + SHA-256 key. Reviewer reran go test -count=1 ./internal/client; no new findings, prior PASS remains valid.

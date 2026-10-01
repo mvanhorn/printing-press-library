@@ -1,0 +1,126 @@
+{
+  "platform": "macOS arm64",
+  "live": true,
+  "rows": [
+    {
+      "scenario": "sushi-five",
+      "mode": "uncached",
+      "output_bytes": 4272,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 2666,
+      "wall_latency_ms": 1218,
+      "peak_rss_bytes": 16793600
+    },
+    {
+      "scenario": "sushi-five",
+      "mode": "prime",
+      "output_bytes": 4273,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 2666,
+      "wall_latency_ms": 1200,
+      "peak_rss_bytes": 16695296
+    },
+    {
+      "scenario": "sushi-five",
+      "mode": "cached",
+      "output_bytes": 4265,
+      "requests": 0,
+      "cache_hits": 2,
+      "source_response_bytes": 0,
+      "wall_latency_ms": 15,
+      "peak_rss_bytes": 12255232
+    },
+    {
+      "scenario": "detail",
+      "mode": "uncached",
+      "output_bytes": 8335,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 6604,
+      "wall_latency_ms": 821,
+      "peak_rss_bytes": 16957440
+    },
+    {
+      "scenario": "detail",
+      "mode": "prime",
+      "output_bytes": 8336,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 6604,
+      "wall_latency_ms": 930,
+      "peak_rss_bytes": 16875520
+    },
+    {
+      "scenario": "detail",
+      "mode": "cached",
+      "output_bytes": 8329,
+      "requests": 0,
+      "cache_hits": 2,
+      "source_response_bytes": 0,
+      "wall_latency_ms": 15,
+      "peak_rss_bytes": 12451840
+    },
+    {
+      "scenario": "courses",
+      "mode": "uncached",
+      "output_bytes": 5932,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 4531,
+      "wall_latency_ms": 878,
+      "peak_rss_bytes": 16793600
+    },
+    {
+      "scenario": "courses",
+      "mode": "prime",
+      "output_bytes": 5928,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 4531,
+      "wall_latency_ms": 914,
+      "peak_rss_bytes": 16973824
+    },
+    {
+      "scenario": "courses",
+      "mode": "cached",
+      "output_bytes": 5921,
+      "requests": 0,
+      "cache_hits": 2,
+      "source_response_bytes": 0,
+      "wall_latency_ms": 19,
+      "peak_rss_bytes": 12353536
+    },
+    {
+      "scenario": "slots",
+      "mode": "uncached",
+      "output_bytes": 4023,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 2450,
+      "wall_latency_ms": 846,
+      "peak_rss_bytes": 16678912
+    },
+    {
+      "scenario": "slots",
+      "mode": "prime",
+      "output_bytes": 4026,
+      "requests": 2,
+      "cache_hits": 0,
+      "source_response_bytes": 2450,
+      "wall_latency_ms": 841,
+      "peak_rss_bytes": 17252352
+    },
+    {
+      "scenario": "slots",
+      "mode": "cached",
+      "output_bytes": 4019,
+      "requests": 0,
+      "cache_hits": 2,
+      "source_response_bytes": 0,
+      "wall_latency_ms": 10,
+      "peak_rss_bytes": 12206080
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pocket-concierge-atomic-response-decoding",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020428-ff8cd9d9",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Decode cache and live responses into fresh destinations before publishing any fields.",
+  "reason": "JSON type errors can partially mutate a destination; a cache fallback must never present retained cached fields as fresh source data.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "The malformed-cache regression reproduced stale fields before the fix and passes after it; full Go and live gates were rerun."
+}

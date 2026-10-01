@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/pocket-concierge-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261001-020428-ff8cd9d9",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
