@@ -10,5 +10,5 @@
     "internal/cli/promoted_websearch.go",
     "internal/cli/promoted_websearch_test.go"
   ],
-  "validated_outcome": "Unit tests accept object/null values and reject booleans, arrays, strings, numbers, and invalid JSON before request dispatch."
+  "validated_outcome": "Unit and fake-server command tests verify object/null request bodies and reject invalid values before request dispatch."
 }
