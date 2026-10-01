@@ -105,6 +105,10 @@ func TestMCPReadsLegacyTokenBeforeCLIConfigMigration(t *testing.T) {
 	if err := os.WriteFile(legacyPath, []byte("access_token = 'synthetic-old-token'\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
+	legacyMarker := filepath.Join(filepath.Dir(legacyPath), ".agentcookie-managed")
+	if err := os.WriteFile(legacyMarker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
 	mcpCfg, err := newMCPConfig()
 	if err != nil {
 		t.Fatal(err)
@@ -112,8 +116,27 @@ func TestMCPReadsLegacyTokenBeforeCLIConfigMigration(t *testing.T) {
 	if mcpCfg.AuthHeader() != "Bearer synthetic-old-token" {
 		t.Fatal("MCP skipped the existing CLI token")
 	}
+	if mcpCfg.AuthSource != "agentcookie" {
+		t.Fatalf("legacy marker was ignored: source = %q", mcpCfg.AuthSource)
+	}
 	if mcpCfg.Path == legacyPath {
 		t.Fatal("new saves must use the resolved config path")
+	}
+	if err := os.Remove(legacyMarker); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(mcpCfg.Path), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(filepath.Dir(mcpCfg.Path), ".agentcookie-managed"), nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	withoutLegacyMarker, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if withoutLegacyMarker.AuthSource != "config" {
+		t.Fatalf("empty new-path marker must not claim legacy credentials: source = %q", withoutLegacyMarker.AuthSource)
 	}
 	if err := mcpCfg.SaveTokens("", "", "synthetic-new-token", "", time.Time{}); err != nil {
 		t.Fatal(err)

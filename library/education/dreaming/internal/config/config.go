@@ -106,7 +106,7 @@ func load(configPath string, resolveConfigDir, resolveHome func() (string, error
 	// import, no network, no error. agentcookie itself is never imported
 	// here — the contract is purely on-disk.
 	if cfg.AuthSource == "config" {
-		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		marker := filepath.Join(filepath.Dir(readPath), ".agentcookie-managed")
 		if _, err := os.Stat(marker); err == nil {
 			cfg.AuthSource = "agentcookie"
 		}
