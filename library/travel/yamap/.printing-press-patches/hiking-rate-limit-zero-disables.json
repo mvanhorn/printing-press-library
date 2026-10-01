@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hiking-rate-limit-zero-disables",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020507-6320344e",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Focused hiking commands honor --rate-limit 0 as disabled pacing; the unset auto sentinel still uses the two-request ceiling.",
+  "reason": "The public hiking client clamped every non-positive rate to 2 requests per second, so an explicit zero silently paced requests.",
+  "files": [
+    "internal/hiking/client.go",
+    "internal/hiking/client_test.go"
+  ]
+}

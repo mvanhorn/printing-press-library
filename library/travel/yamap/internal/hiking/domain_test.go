@@ -50,6 +50,17 @@ func TestRecentTripDate(t *testing.T) {
 			t.Fatal(tc)
 		}
 	}
+	recent := now.AddDate(0, 0, -1)
+	for _, unknown := range []Row{
+		{"start_at": float64(recent.Unix())},
+		{"start_at": float64(recent.Unix()), "is_planned": nil},
+		{"start_at": float64(recent.Unix()), "is_planned": "false"},
+		{"start_at": float64(recent.Unix()), "is_planned": float64(0)},
+	} {
+		if Recent(unknown, since, now) {
+			t.Fatalf("unknown is_planned included: %#v", unknown)
+		}
+	}
 	if _, e := Since("2026-99-10", 30, now); e == nil {
 		t.Fatal("invalid date accepted")
 	}

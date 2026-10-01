@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "recent-requires-known-unplanned",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020507-6320344e",
+  "base_printing_press_version": "4.32.5",
+  "summary": "reports recent includes an activity only when is_planned is a known false; a missing or non-bool flag stays unknown and is excluded.",
+  "reason": "Activity summaries sometimes omit is_planned. Treating a missing value as false labels an unknown activity as recorded-trip evidence.",
+  "files": [
+    "internal/hiking/domain.go",
+    "internal/hiking/domain_test.go"
+  ]
+}

@@ -59,7 +59,10 @@ type Client struct {
 }
 
 func NewClient(cacheDir string, rate float64) *Client {
-	if rate <= 0 || rate > 2 {
+	// 0 disables pacing. A negative value is the unset/--rate-limit auto
+	// sentinel; focused hiking reads have no server budget headers, so that
+	// default stays at the two-request ceiling.
+	if rate < 0 || rate > 2 {
 		rate = 2
 	}
 	return &Client{HTTP: &http.Client{Timeout: 15 * time.Second, CheckRedirect: func(r *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }}, CacheDir: cacheDir, TTL: 15 * time.Minute, Base: BaseURL, limiter: cliutil.NewAdaptiveLimiter(rate)}

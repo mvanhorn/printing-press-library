@@ -80,6 +80,17 @@ func TestStaleAndCorruptCache(t *testing.T) {
 		t.Fatal("corrupt cache accepted")
 	}
 }
+func TestRateLimitZeroDisables(t *testing.T) {
+	disabled := NewClient("", 0)
+	if disabled.limiter != nil {
+		t.Fatal("rate 0 still paces")
+	}
+	paced := NewClient("", -1)
+	if paced.limiter == nil || paced.limiter.Rate() != 2 {
+		t.Fatalf("default rate = %v", paced.limiter)
+	}
+}
+
 func TestRateLimitAndFailureAreNotEmpty(t *testing.T) {
 	for _, status := range []int{429, 404, 403, 202, 500} {
 		s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

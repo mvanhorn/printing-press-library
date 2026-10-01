@@ -283,8 +283,8 @@ func Recent(m Row, since, now time.Time) bool {
 		return false
 	}
 	t := time.Unix(int64(n), 0)
-	b, _ := m["is_planned"].(bool)
-	return !b && !t.Before(since) && !t.After(now)
+	b, known := m["is_planned"].(bool)
+	return known && !b && !t.Before(since) && !t.After(now)
 }
 func Since(s string, days int, now time.Time) (time.Time, error) {
 	if s != "" {
