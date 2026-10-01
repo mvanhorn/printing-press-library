@@ -42,4 +42,30 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 	if err := json.Unmarshal(item, &link); err != nil || link.URL != "https://teslatracker.com/inventory/5YJ3E1EA7KF317000" {
 		t.Fatalf("stored link: %s, %v", item, err)
 	}
+
+	full := json.RawMessage(`{"vin":"5YJ3E1EA7KF317000","model":"Model 3","mileage":27000}`)
+	if err := db.Upsert("inventory", "5YJ3E1EA7KF317000", full); err != nil {
+		t.Fatal(err)
+	}
+	result = syncResource(context.Background(), inventoryHTMLClient{}, db,
+		"inventory", "", true, 1, false, false, nil, io.Discard)
+	if result.Err != nil || result.Count != 1 {
+		t.Fatalf("second sync result: count=%d err=%v", result.Count, result.Err)
+	}
+	item, err = db.Get("inventory", "5YJ3E1EA7KF317000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var detail struct {
+		VIN     string `json:"vin"`
+		Mileage int    `json:"mileage"`
+		URL     string `json:"url"`
+	}
+	if err := json.Unmarshal(item, &detail); err != nil || detail.VIN != "5YJ3E1EA7KF317000" || detail.Mileage != 27000 || detail.URL != "https://teslatracker.com/inventory/5YJ3E1EA7KF317000" {
+		t.Fatalf("full detail after link sync: %s, %v", item, err)
+	}
+	vins, err := vinsFromLinks(context.Background(), db.DB())
+	if err != nil || len(vins) != 1 || vins[0] != "5YJ3E1EA7KF317000" {
+		t.Fatalf("VINs for hydrate after detail-preserving sync: %v, %v", vins, err)
+	}
 }

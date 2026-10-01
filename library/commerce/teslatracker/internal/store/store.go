@@ -55,7 +55,7 @@ func IsUUID(s string) bool {
 // hand-authored choreography keyed by query family and the v6 canonical
 // learn-loop tables ported from prediction-goat (including the v3
 // resources_fts rowid rehash and v4 resources_fts content extraction).
-const StoreSchemaVersion = 9
+const StoreSchemaVersion = 10
 
 // resourcesFTSContentSchemaVersion pins the schema bump that rewrote
 // resources_fts content from raw JSON to searchable leaf values. Keep this
@@ -642,6 +642,11 @@ func (s *Store) migrate(ctx context.Context) error {
 		if current < resourcesFTSContentSchemaVersion {
 			if err := s.migrateResourcesFTSContent(ctx, conn); err != nil {
 				return fmt.Errorf("migrating resources FTS content: %w", err)
+			}
+		}
+		if current < 10 {
+			if err := migrateInventoryLinkIDs(ctx, conn); err != nil {
+				return fmt.Errorf("migrating TeslaTracker inventory link IDs: %w", err)
 			}
 		}
 		// Stamp the schema version. On a fresh DB this writes the current
@@ -1627,6 +1632,10 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			continue
 		}
 		storageID := resourceStorageID(resourceType, id, obj)
+		item, err = mergeInventoryLinkWithDetailTx(tx, resourceType, storageID, obj, item)
+		if err != nil {
+			return 0, extractFailures, fmt.Errorf("merging %s/%s before link upsert: %w", resourceType, storageID, err)
+		}
 
 		if err := s.upsertGenericResourceTx(tx, resourceType, storageID, item); err != nil {
 			// A non-nil error aborts this transaction through the deferred
