@@ -4,8 +4,8 @@
   "applied_at": "2026-09-20",
   "base_run_id": "20260824-135140",
   "base_printing_press_version": "4.29.0",
-  "summary": "DSM GET-shaped writes must bypass cache and ambiguous retries; expired sessions must be invalidated without replay; MCP must disclose writes, redact login credentials, and preserve attached downloads byte-for-byte.",
-  "reason": "DSM uses GET for state-changing operations and reports expired sessions inside HTTP 200 JSON; generic GET retry/cache is unsafe, while MCP needs forced byte wrapping without changing CLI text/JSON download output.",
+  "summary": "DSM GET-shaped writes bypass cache and ambiguous retries; expired sessions are invalidated without replay; permission denials retain valid sessions; MCP discloses writes, redacts login credentials, and preserves attached downloads byte-for-byte.",
+  "reason": "DSM uses GET for state-changing operations and reports expired sessions inside HTTP 200 JSON; generic GET retry/cache is unsafe. Session persistence must serialize invalidation with new logins, while HTTP 403 alone is not proof of expiration. MCP needs forced byte wrapping without changing CLI text/JSON download output.",
   "files": [
     "internal/mcp/tools.go",
     "internal/mcp/security_regression_test.go",
@@ -13,9 +13,10 @@
     "internal/client/binary_decode.go",
     "internal/client/client.go",
     "internal/client/session.go",
+    "internal/client/session_concurrency_test.go",
     "internal/client/synology.go",
     "internal/client/synology_mutating_get_test.go",
     "internal/cliutil/credentials_test.go"
   ],
-  "validated_outcome": "Synthetic tests prove an expired write is not replayed, a later call renews the cleared session, CLI JSON keeps its output shape, and MCP preserves original download bytes."
+  "validated_outcome": "Synthetic tests prove an expired write is not replayed, a later call renews the cleared session, concurrent invalidation cannot erase a new session, HTTP 403 preserves a valid session, CLI JSON keeps its output shape, and MCP preserves original download bytes."
 }

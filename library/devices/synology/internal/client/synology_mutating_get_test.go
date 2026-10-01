@@ -147,6 +147,42 @@ func TestDSMMutatingGetInvalidatesExpiredSessionWithoutReplaying(t *testing.T) {
 	}
 }
 
+func TestDSMMutatingGetPermissionDenialKeepsSession(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("SYNOLOGY_DATA_DIR", t.TempDir())
+	t.Setenv("SYNOLOGY_ACCOUNT", "")
+	t.Setenv("SYNOLOGY_PASSWORD", "")
+	var writes atomic.Int32
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writes.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Query().Get("_sid") != "valid-synthetic" {
+			t.Errorf("request lost its existing session")
+		}
+		if writes.Load() == 1 {
+			w.WriteHeader(http.StatusForbidden)
+			_, _ = w.Write([]byte(`{"success":false,"error":{"code":403}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"success":true,"data":{"taskid":"synthetic"}}`))
+	}))
+	defer fixture.Close()
+	c := New(&config.Config{BaseURL: fixture.URL}, time.Second, 0)
+	c.Session.SetSession(dsmLoginResult{SID: "valid-synthetic", SynoToken: "valid-synthetic"})
+	if _, err := c.Get(context.Background(), dsmCopyStartPath, nil); err == nil {
+		t.Fatal("expected permission denial")
+	}
+	if c.Session.Token() != "valid-synthetic" {
+		t.Fatal("permission denial invalidated a valid session")
+	}
+	if _, err := c.Get(context.Background(), dsmCopyStartPath, nil); err != nil {
+		t.Fatalf("subsequent call with the valid session failed: %v", err)
+	}
+	if writes.Load() != 2 {
+		t.Fatalf("permission denial triggered a replay: writes=%d", writes.Load())
+	}
+}
+
 func TestDSMMutatingGetVerifyModeNeverDials(t *testing.T) {
 	t.Setenv("PRINTING_PRESS_VERIFY", "1")
 	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")

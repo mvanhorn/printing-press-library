@@ -48,7 +48,6 @@ var sessionTTL = 1 * time.Hour
 // cleared so the next request re-bootstraps.
 var sessionInvalidationStatuses = map[int]bool{
 	401: true,
-	403: true,
 }
 
 // SessionManager owns the cookie jar + cached token and coordinates the
@@ -183,10 +182,10 @@ func (m *SessionManager) dsmLogin(baseURL string, creds dsmCredentials) (dsmLogi
 // session behind for later commands. HAND-AUTHORED.
 func (m *SessionManager) SetSession(res dsmLoginResult) {
 	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.token = res.SID
 	m.synoToken = res.SynoToken
-	m.mu.Unlock()
-	m.saveToDisk()
+	m.saveToDiskLocked()
 }
 
 // SynoToken returns the cached anti-CSRF token DSM 7.3.2+ requires on calls
@@ -200,9 +199,9 @@ func (m *SessionManager) SynoToken() string {
 // Clear drops the cached session and removes it from disk. HAND-AUTHORED.
 func (m *SessionManager) Clear() {
 	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.token = ""
 	m.synoToken = ""
-	m.mu.Unlock()
 	if path := m.sessionFilePath(); path != "" {
 		_ = os.Remove(path)
 	}
@@ -218,10 +217,10 @@ func (m *SessionManager) ShouldInvalidate(statusCode int) bool {
 // later CLI process cannot reload an expired session from disk.
 func (m *SessionManager) Invalidate() {
 	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.token = ""
 	m.synoToken = ""
-	m.mu.Unlock()
-	m.saveToDisk()
+	m.saveToDiskLocked()
 }
 
 // ImportSession accepts cookies + a token captured from a real browser session
@@ -248,9 +247,9 @@ func (m *SessionManager) ImportSession(cookieDomain string, cookies []*http.Cook
 		m.jar.SetCookies(target, []*http.Cookie{ck})
 	}
 	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.token = token
-	m.mu.Unlock()
-	m.saveToDisk()
+	m.saveToDiskLocked()
 	return nil
 }
 
@@ -321,16 +320,16 @@ func (m *SessionManager) loadFromDisk() {
 	}
 }
 
-func (m *SessionManager) saveToDisk() {
+// saveToDiskLocked is called with m.mu held so an older invalidation cannot
+// overwrite a newly established session after releasing the lock.
+func (m *SessionManager) saveToDiskLocked() {
 	path := m.sessionFilePath()
 	if path == "" || m.jar == nil {
 		return
 	}
-	m.mu.Lock()
 	tok := m.token
 	synoTok := m.synoToken
 	base := m.baseURL
-	m.mu.Unlock()
 
 	// Persist cookies for every host the session interacts with. cookiejar
 	// strips Domain on Cookies(u), so a single-host snapshot drops cookies
