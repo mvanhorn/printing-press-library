@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "actual-budget-pp-mcp",
+  "display_name": "Actual Budget",
+  "version": "26.9.0",
+  "description": "Your Actual Budget ledger in one static binary: search, SQL, reports and cleanup audits on a local copy pulled straight from your own Actual server, no Node required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/actual-budget-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/actual-budget-pp-mcp",
+      "args": [],
+      "env": {
+        "ACTUAL_HTTP_API_KEY": "${user_config.actual_http_api_key}",
+        "ACTUAL_SYNC_ID": "${user_config.actual_sync_id}"
+      }
+    }
+  },
+  "user_config": {
+    "actual_http_api_key": {
+      "type": "string",
+      "title": "actual-http-api key",
+      "description": "Optional. The API_KEY you configured on your actual-http-api sidecar (not your Actual server password).",
+      "sensitive": true
+    },
+    "actual_sync_id": {
+      "type": "string",
+      "title": "ACTUAL_SYNC_ID",
+      "description": "Sets ACTUAL_SYNC_ID for the endpoint template variable {budgetSyncId}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

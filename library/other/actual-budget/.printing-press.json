@@ -1,0 +1,147 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T11:49:02.725575031Z",
+  "printing_press_version": "4.32.6",
+  "api_name": "actual-budget",
+  "display_name": "Actual Budget",
+  "cli_name": "actual-budget-pp-cli",
+  "creator": {
+    "handle": "blujaxfan",
+    "name": "Matt Anderson"
+  },
+  "owner": "blujaxfan",
+  "printer": "blujaxfan",
+  "printer_name": "Matt Anderson",
+  "spec_path": "actual-budget-spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:3d125bf248ed5dda9f0006463ca4ff24d2b485ce5edf0c3b7ea2c21fd5eaccea",
+  "run_id": "20260930-205809-8d89e5b9",
+  "category": "other",
+  "description": "Your Actual Budget ledger in one static binary: search, SQL, reports and cleanup audits on a local copy pulled straight from your own Actual server, no Node required.",
+  "mcp_binary": "actual-budget-pp-mcp",
+  "mcp_tool_count": 82,
+  "mcp_ready": "full",
+  "api_version": "26.9.0",
+  "auth_type": "api_key",
+  "auth_preference": "apiKey",
+  "auth_env_vars": [
+    "ACTUAL_HTTP_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ACTUAL_HTTP_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "The API_KEY you configured on your actual-http-api sidecar (not your Actual server password)."
+    }
+  ],
+  "endpoint_template_vars": [
+    "budgetSyncId"
+  ],
+  "endpoint_template_env_overrides": {
+    "budgetSyncId": "ACTUAL_SYNC_ID"
+  },
+  "auth_title": "actual-http-api key",
+  "auth_optional": true,
+  "novel_features": [
+    {
+      "name": "Duplicate payee audit",
+      "command": "audit payees",
+      "description": "Find payee spelling variants (AMZN Mktp vs Amazon Marketplace) and get a ready-to-run payees merge plan (merging runs through the sidecar)."
+    },
+    {
+      "name": "Duplicate transaction finder",
+      "command": "ledger duplicates",
+      "description": "Catch transactions that were imported or entered twice, ranked by confidence."
+    },
+    {
+      "name": "Categorize from history",
+      "command": "categorize suggest",
+      "description": "Get a category suggestion for every uncategorized transaction based on how you categorized that payee before; categorize apply writes them through the actual-http-api sidecar."
+    },
+    {
+      "name": "Dead rule audit",
+      "command": "audit rules",
+      "description": "Find rules that never match, are shadowed by another rule, or point at deleted payees and categories."
+    },
+    {
+      "name": "Local SQL passthrough",
+      "command": "ledger sql",
+      "description": "Run read-only SQL against your real budget database without Node or a running engine."
+    },
+    {
+      "name": "Stale schedule audit",
+      "command": "audit schedules",
+      "description": "List bills that are overdue with nothing posted and schedules whose amounts drifted."
+    },
+    {
+      "name": "Goal-template status",
+      "command": "templates status",
+      "description": "See which envelopes are under- or over-funded against the #template and #goal targets in category notes."
+    },
+    {
+      "name": "Change log since",
+      "command": "changes since",
+      "description": "See what was edited, deleted, or restored in the budget since a point in time, with names resolved."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Duplicate payee audit",
+      "command": "audit payees",
+      "description": "Find payee spelling variants (AMZN Mktp vs Amazon Marketplace) and get a ready-to-run payees merge plan (merging runs through the sidecar)."
+    },
+    {
+      "name": "Duplicate transaction finder",
+      "command": "ledger duplicates",
+      "description": "Catch transactions that were imported or entered twice, ranked by confidence."
+    },
+    {
+      "name": "Categorize from history",
+      "command": "categorize suggest",
+      "description": "Get a category suggestion for every uncategorized transaction based on how you categorized that payee before; categorize apply writes them through the actual-http-api sidecar."
+    },
+    {
+      "name": "Dead rule audit",
+      "command": "audit rules",
+      "description": "Find rules that never match, are shadowed by another rule, or point at deleted payees and categories."
+    },
+    {
+      "name": "Local SQL passthrough",
+      "command": "ledger sql",
+      "description": "Run read-only SQL against your real budget database without Node or a running engine."
+    },
+    {
+      "name": "Stale schedule audit",
+      "command": "audit schedules",
+      "description": "List bills that are overdue with nothing posted and schedules whose amounts drifted."
+    },
+    {
+      "name": "Goal-template status",
+      "command": "templates status",
+      "description": "See which envelopes are under- or over-funded against the #template and #goal targets in category notes."
+    },
+    {
+      "name": "Change log since",
+      "command": "changes since",
+      "description": "See what was edited, deleted, or restored in the budget since a point in time, with names resolved."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 106,
+    "total": 106,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A",
+      "total": 96
+    }
+  }
+}

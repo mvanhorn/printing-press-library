@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/actual-budget-pp-cli
+/actual-budget-pp-cli.exe
+/actual-budget-pp-mcp
+/actual-budget-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "actual-budget-pp-cli"
+display_name = "Actual Budget"
+description = "Your Actual Budget ledger in one static binary: search, SQL, reports and cleanup audits on a local copy pulled straight from your own Actual server, no Node required."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/actual-budget-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ACTUAL_HTTP_API_KEY = true

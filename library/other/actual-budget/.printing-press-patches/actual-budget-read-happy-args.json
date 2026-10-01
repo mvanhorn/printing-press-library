@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-205809-8d89e5b9",
+  "base_printing_press_version": "4.32.6",
+  "id": "actual-budget-read-happy-args",
+  "summary": "Removed spec-example UUIDs from pp:happy-args on 13 read commands so the runner resolves real ids from list.",
+  "reason": "Fake example ids made live read probes 404; delete commands keep fake ids on purpose.",
+  "files": [
+    "internal/cli/accountgroups_get.go",
+    "internal/cli/accounts_balance_balance.go",
+    "internal/cli/accounts_get.go",
+    "internal/cli/categories_get.go",
+    "internal/cli/notes_get-account.go",
+    "internal/cli/notes_get-category.go",
+    "internal/cli/payees_get.go",
+    "internal/cli/payees_rules_list.go",
+    "internal/cli/rules_get.go",
+    "internal/cli/schedules_get.go",
+    "internal/cli/tags_get.go",
+    "internal/cli/months_categories_get.go",
+    "internal/cli/months_categorygroups_get.go"
+  ],
+  "validated_outcome": "Live get/balance/notes probes pass against a real budget."
+}

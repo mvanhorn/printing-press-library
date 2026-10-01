@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260930-205809-8d89e5b9",
+  "base_printing_press_version": "4.32.6",
+  "id": "actual-budget-run-query-dry-run-envelope",
+  "summary": "run-query --dry-run --json surfaces dry_run/action/resource/path at the top level like the mutation envelope.",
+  "reason": "Promoted POST-as-read used the read envelope, nesting dry_run inside results.",
+  "files": [
+    "internal/cli/promoted_run-query.go"
+  ],
+  "call_sites": [
+    "env[\"dry_run\"] = true"
+  ],
+  "validated_outcome": "Live dry-run JSON check passes; non-dry-run output unchanged."
+}

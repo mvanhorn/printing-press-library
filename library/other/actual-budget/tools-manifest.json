@@ -1,0 +1,2658 @@
+{
+  "api_name": "actual-budget",
+  "base_url": "http://localhost:5007/v1",
+  "description": "Your Actual Budget ledger in one static binary: search, SQL, reports and cleanup audits on a local copy pulled straight from your own Actual server, no Node required.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "ACTUAL_HTTP_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ACTUAL_HTTP_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "The API_KEY you configured on your actual-http-api sidecar (not your Actual server password)."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accountgroups_create",
+      "description": "Creates an account group. Required: account_group. Optional: budget-encryption-password. Returns the new AccountgroupsCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accountgroups",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "account-group-id",
+          "wire_name": "account_group.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "account-group-name",
+          "wire_name": "account_group.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accountgroups_delete",
+      "description": "Deletes an account group. Accounts belonging to the group are kept and become ungrouped. Required: accountGroupId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/accountgroups/{accountGroupId}",
+      "params": [
+        {
+          "name": "accountGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "Account group id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accountgroups_get",
+      "description": "Returns an account group. Required: accountGroupId. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accountgroups/{accountGroupId}",
+      "params": [
+        {
+          "name": "accountGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "Account group id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accountgroups_list",
+      "description": "Returns list of account groups. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accountgroups",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accountgroups_update",
+      "description": "Updates an account group. Required: accountGroupId, account_group. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/accountgroups/{accountGroupId}",
+      "params": [
+        {
+          "name": "accountGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "Account group id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "account-group-id",
+          "wire_name": "account_group.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "account-group-name",
+          "wire_name": "account_group.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_balance-history",
+      "description": "(🔧 Extended) Gets the balance history for an account, from start to end date, with daily granularity. Until date is optional, defaults to today. Required: accountId, since_date. Optional: until_date, budget-encryption-password. Returns the AccountsBalanceHistoryResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/balancehistory",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "Starting date. Example 2023-08-01",
+          "required": true
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date. Example 2023-08-31"
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_bank-sync",
+      "description": "Triggers a bank sync for a specific account. Required: accountId. Optional: budget-encryption-password. Returns the new GeneralResponseMessage.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/banksync",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_bank-sync-all",
+      "description": "Triggers a bank sync. Optional: budget-encryption-password. Returns the new GeneralResponseMessage.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accounts/banksync",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_create",
+      "description": "Creates an account. Required: account. Optional: budget-encryption-password. Returns the new GeneralResponseMessage.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accounts",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "account-initial-balance",
+          "wire_name": "account.initialBalance",
+          "type": "int",
+          "location": "body",
+          "description": "Optional initial balance in integer format (e.g. 10000 = $100.00)"
+        },
+        {
+          "name": "account-name",
+          "wire_name": "account.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "account-offbudget",
+          "wire_name": "account.offbudget",
+          "type": "bool",
+          "location": "body",
+          "description": "Offbudget"
+        }
+      ]
+    },
+    {
+      "name": "accounts_delete",
+      "description": "Deletes an account. Required: accountId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: accountId. Optional: budget-encryption-password. Returns the AccountsGetResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "Returns list of accounts for the budget associated with the sync id specified. Optional: budget-encryption-password, include_balances, exclude_offbudget (plus 1 more).",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accounts",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "include_balances",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes account balances (cleared, uncleared, working) in the response"
+        },
+        {
+          "name": "exclude_offbudget",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, off-budget accounts are excluded"
+        },
+        {
+          "name": "exclude_closed",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, closed accounts are excluded (only used when include_balances is true)"
+        }
+      ]
+    },
+    {
+      "name": "accounts_update",
+      "description": "Updates an account. Required: accountId, account. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "account-id",
+          "wire_name": "account.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "account-name",
+          "wire_name": "account.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "account-offbudget",
+          "wire_name": "account.offbudget",
+          "type": "bool",
+          "location": "body",
+          "description": "Offbudget"
+        }
+      ]
+    },
+    {
+      "name": "accounts_balance_balance",
+      "description": "Gets the balance for an account. If a cutoff is given, it gives the account balance as of that date. If no cutoff is given, it uses the current date as the cutoff. Required: accountId. Optional: cutoff_date, budget-encryption-password. Returns the BalanceBalanceResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/balance",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "cutoff_date",
+          "type": "string",
+          "location": "query",
+          "description": "Account balance cutoff date in YYYY-MM-DD format. Example 2023-08-20"
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_close_close",
+      "description": "transferAccountId and transferCategoryId are optional if the balance of the account is 0, otherwise if the account has a non-zero balance, you need to specify an account with transferAccountId to transfer the money into. If you are transferring from an on-budget account to an off-budget account, you can optionally specify a category with transferCategoryId to categorize the transfer transaction. Required: accountId. Optional: budget-encryption-password, transfer. Returns the updated GeneralResponseMessage.",
+      "method": "PUT",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/close",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "transfer-transfer-account-id",
+          "wire_name": "transfer.transferAccountId",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer account id"
+        },
+        {
+          "name": "transfer-transfer-category-id",
+          "wire_name": "transfer.transferCategoryId",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer category id"
+        }
+      ]
+    },
+    {
+      "name": "accounts_reopen_reopen",
+      "description": "Reopens a closed account. Required: accountId. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PUT",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/reopen",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "accounts_transactions_create",
+      "description": "Actual Budget api says the addTransactions functionality returns a list of ids for the transactions created, but that is not the case, it simply returns the string message 'ok'. Required: accountId, transaction. Optional: budget-encryption-password, learnCategories, runTransfers.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/transactions",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "learnCategories",
+          "type": "bool",
+          "location": "body",
+          "description": "Learn categories"
+        },
+        {
+          "name": "runTransfers",
+          "type": "bool",
+          "location": "body",
+          "description": "Run transfers"
+        },
+        {
+          "name": "transaction-account",
+          "wire_name": "transaction.account",
+          "type": "string",
+          "location": "body",
+          "description": "Account",
+          "required": true
+        },
+        {
+          "name": "transaction-amount",
+          "wire_name": "transaction.amount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount"
+        },
+        {
+          "name": "transaction-category",
+          "wire_name": "transaction.category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "transaction-cleared",
+          "wire_name": "transaction.cleared",
+          "type": "bool",
+          "location": "body",
+          "description": "Cleared"
+        },
+        {
+          "name": "transaction-date",
+          "wire_name": "transaction.date",
+          "type": "string",
+          "location": "body",
+          "description": "Date",
+          "required": true
+        },
+        {
+          "name": "transaction-id",
+          "wire_name": "transaction.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "transaction-imported-id",
+          "wire_name": "transaction.imported_id",
+          "type": "string",
+          "location": "body",
+          "description": "Imported id"
+        },
+        {
+          "name": "transaction-imported-payee",
+          "wire_name": "transaction.imported_payee",
+          "type": "string",
+          "location": "body",
+          "description": "Imported payee"
+        },
+        {
+          "name": "transaction-notes",
+          "wire_name": "transaction.notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "transaction-payee",
+          "wire_name": "transaction.payee",
+          "type": "string",
+          "location": "body",
+          "description": "Payee"
+        },
+        {
+          "name": "transaction-payee-name",
+          "wire_name": "transaction.payee_name",
+          "type": "string",
+          "location": "body",
+          "description": "Only available in a create request"
+        },
+        {
+          "name": "transaction-subtransactions",
+          "wire_name": "transaction.subtransactions",
+          "type": "array",
+          "location": "body",
+          "description": "Only available in a get or create request"
+        },
+        {
+          "name": "transaction-transfer-id",
+          "wire_name": "transaction.transfer_id",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer id"
+        }
+      ]
+    },
+    {
+      "name": "accounts_transactions_create-batch",
+      "description": "Actual Budget api says the addTransactions functionality returns a list of ids for the transactions created, but that is not the case, it simply returns the string message 'ok'. Required: accountId, transactions. Optional: budget-encryption-password, learnCategories, runTransfers.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/transactions/batch",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "learnCategories",
+          "type": "bool",
+          "location": "body",
+          "description": "Learn categories"
+        },
+        {
+          "name": "runTransfers",
+          "type": "bool",
+          "location": "body",
+          "description": "Run transfers"
+        },
+        {
+          "name": "transactions",
+          "type": "array",
+          "location": "body",
+          "description": "Transactions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_transactions_import",
+      "description": "Imports a list of transactions. Required: accountId, transactions. Optional: budget-encryption-password, defaultCleared (default: true), dryRun (default: false) (plus 2 more). Returns the new TransactionsImportResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/transactions/import",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "defaultCleared",
+          "type": "bool",
+          "location": "body",
+          "description": "Default cleared"
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "Dry run"
+        },
+        {
+          "name": "payeeNameNormalization",
+          "type": "string",
+          "location": "body",
+          "description": "How `payee_name` is normalized before import. `title-case` converts it to title case, `original` keeps it exactly as supplied (useful for acronyms such as 'NY' or 'BC')"
+        },
+        {
+          "name": "reimportDeleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Reimport deleted"
+        },
+        {
+          "name": "transactions",
+          "type": "array",
+          "location": "body",
+          "description": "Transactions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_transactions_list",
+      "description": "Returns list of transactions for an account. Required: accountId, since_date. Optional: until_date, page, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/accounts/{accountId}/transactions",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "since_date",
+          "type": "string",
+          "location": "query",
+          "description": "Starting date. Example 2023-08-01",
+          "required": true
+        },
+        {
+          "name": "until_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date. Example 2023-08-31"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number. When limit is set, this parameter is required. Example 2"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Number of rules to return. When page is set, this parameter is required. Example 50"
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "actualhttpapiversion_sidecar-version",
+      "description": "Returns the version of the Actual HTTP API.",
+      "method": "GET",
+      "path": "/actualhttpapiversion",
+      "params": []
+    },
+    {
+      "name": "actualserverversion_server-version",
+      "description": "Returns the version of the Actual server. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/actualserverversion",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "budgets_import",
+      "description": "🔧 Extended: Uses the official importBudget API, returning the sync id of the imported budget. Note that importing a budget that already exists does not restore it in place: the Actual library clears the file's server identity on import, so the budget is uploaded as a new file and receives a NEW sync id. The original budget and its sync id are left untouched. Optional: type (default: actual), filename. Returns the new BudgetsImportResponse.",
+      "method": "POST",
+      "path": "/budgets/import",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The format of the uploaded file"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "query",
+          "description": "Used to derive the budget name when importing YNAB files"
+        }
+      ]
+    },
+    {
+      "name": "budgets_list",
+      "description": "Returns a list of all budget files either locally cached or on the remote server. Remote files have a state field and local files have an id field.",
+      "method": "GET",
+      "path": "/budgets",
+      "params": []
+    },
+    {
+      "name": "budgets_export_export",
+      "description": "🔧 Extended: Uses the official exportBudget API, adding a dated file name derived from the budget name. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/export",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "categories_create",
+      "description": "Creates a category. Required: category. Optional: budget-encryption-password. Returns the new CategoriesCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/categories",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "category-group-id",
+          "wire_name": "category.group_id",
+          "type": "string",
+          "location": "body",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "category-hidden",
+          "wire_name": "category.hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Hidden"
+        },
+        {
+          "name": "category-id",
+          "wire_name": "category.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "category-is-income",
+          "wire_name": "category.is_income",
+          "type": "bool",
+          "location": "body",
+          "description": "Is income"
+        },
+        {
+          "name": "category-name",
+          "wire_name": "category.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_delete",
+      "description": "Deletes a category. Required: categoryId. Optional: budget-encryption-password, transfer_category_id. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/categories/{categoryId}",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "transfer_category_id",
+          "type": "string",
+          "location": "query",
+          "description": "Transfer category id"
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: categoryId. Optional: budget-encryption-password. Returns the CategoriesGetResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/categories/{categoryId}",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Returns list of categories. Optional: budget-encryption-password, hidden.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/categories",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by hidden status. Omit to return all categories."
+        }
+      ]
+    },
+    {
+      "name": "categories_update",
+      "description": "Updates a category. Required: categoryId, category. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/categories/{categoryId}",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "category-group-id",
+          "wire_name": "category.group_id",
+          "type": "string",
+          "location": "body",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "category-hidden",
+          "wire_name": "category.hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Hidden"
+        },
+        {
+          "name": "category-id",
+          "wire_name": "category.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "category-is-income",
+          "wire_name": "category.is_income",
+          "type": "bool",
+          "location": "body",
+          "description": "Is income"
+        },
+        {
+          "name": "category-name",
+          "wire_name": "category.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categorygroups_create",
+      "description": "Creates a category group. Required: category_group. Optional: budget-encryption-password. Returns the new CategorygroupsCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/categorygroups",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "category-group-categories",
+          "wire_name": "category_group.categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories"
+        },
+        {
+          "name": "category-group-hidden",
+          "wire_name": "category_group.hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Hidden"
+        },
+        {
+          "name": "category-group-id",
+          "wire_name": "category_group.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "category-group-is-income",
+          "wire_name": "category_group.is_income",
+          "type": "bool",
+          "location": "body",
+          "description": "Is income"
+        },
+        {
+          "name": "category-group-name",
+          "wire_name": "category_group.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categorygroups_delete",
+      "description": "Deletes a category group. Required: categoryGroupId. Optional: budget-encryption-password, transfer_category_id. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/categorygroups/{categoryGroupId}",
+      "params": [
+        {
+          "name": "categoryGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "Category group id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "transfer_category_id",
+          "type": "string",
+          "location": "query",
+          "description": "Transfer category id"
+        }
+      ]
+    },
+    {
+      "name": "categorygroups_list",
+      "description": "Returns list of category groups. Optional: budget-encryption-password, hidden.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/categorygroups",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by hidden status. Omit to return all category groups."
+        }
+      ]
+    },
+    {
+      "name": "categorygroups_update",
+      "description": "Updates a category group. Required: categoryGroupId, category_group. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/categorygroups/{categoryGroupId}",
+      "params": [
+        {
+          "name": "categoryGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "Category group id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "category-group-group-id",
+          "wire_name": "category_group.group_id",
+          "type": "string",
+          "location": "body",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "category-group-hidden",
+          "wire_name": "category_group.hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Hidden"
+        },
+        {
+          "name": "category-group-id",
+          "wire_name": "category_group.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "category-group-is-income",
+          "wire_name": "category_group.is_income",
+          "type": "bool",
+          "location": "body",
+          "description": "Is income"
+        },
+        {
+          "name": "category-group-name",
+          "wire_name": "category_group.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "id-by-name_id_by_name",
+      "description": "Get the ID of an entity by its name. Required: type, name. Optional: budget-encryption-password. Returns the IdByNameIdByNameResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/id-by-name",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Entity type to look up",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "The name to look up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_get",
+      "description": "Returns the budget information for the month specified. Required: month. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/months/{month}",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "months_hold",
+      "description": "Put a budget amount on hold for next month. Required: month, amount. Optional: budget-encryption-password. Returns the new GeneralResponseMessage.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/months/{month}/nextmonthbudgethold",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "amount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "months_list",
+      "description": "Returns list of months for the budget associated with the sync id specified. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/months",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "months_reset-hold",
+      "description": "Reset budget hold. Required: month. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/months/{month}/nextmonthbudgethold",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "months_transfer",
+      "description": "Moves money from one category to another for one specific month. If the source category is not specified the money will come from available to budget. If the destination is not specified the money will go to available to budget. 🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: month, categorytransfer. Optional: budget-encryption-password. Returns the new GeneralResponseMessage.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/months/{month}/categorytransfers",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "categorytransfer-amount",
+          "wire_name": "categorytransfer.amount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount"
+        },
+        {
+          "name": "categorytransfer-from-category-id",
+          "wire_name": "categorytransfer.fromCategoryId",
+          "type": "string",
+          "location": "body",
+          "description": "From category id"
+        },
+        {
+          "name": "categorytransfer-to-category-id",
+          "wire_name": "categorytransfer.toCategoryId",
+          "type": "string",
+          "location": "body",
+          "description": "To category id"
+        }
+      ]
+    },
+    {
+      "name": "months_categories_get",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: month, categoryId. Optional: budget-encryption-password. Returns the CategoriesGetResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/months/{month}/categories/{categoryId}",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "months_categories_list",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: month. Optional: budget-encryption-password. Returns array of BudgetMonthCategory.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/months/{month}/categories",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "months_categories_update",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: month, categoryId, category. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/months/{month}/categories/{categoryId}",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "category-budgeted",
+          "wire_name": "category.budgeted",
+          "type": "int",
+          "location": "body",
+          "description": "Budgeted"
+        },
+        {
+          "name": "category-carryover",
+          "wire_name": "category.carryover",
+          "type": "bool",
+          "location": "body",
+          "description": "Carryover"
+        }
+      ]
+    },
+    {
+      "name": "months_categorygroups_get",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: month, categoryGroupId. Optional: budget-encryption-password. Returns the CategorygroupsGetResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/months/{month}/categorygroups/{categoryGroupId}",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "categoryGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "Category group id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "months_categorygroups_list",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: month. Optional: budget-encryption-password. Returns array of BudgetMonthCategoryGroup.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/months/{month}/categorygroups",
+      "params": [
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month. Example 2023-08",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_delete-account",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: accountId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/notes/account/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_delete-category",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: categoryId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/notes/category/{categoryId}",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_delete-month",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: budgetMonth. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/notes/budgetmonth/{budgetMonth}",
+      "params": [
+        {
+          "name": "budgetMonth",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month in YYYY-MM format",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_get-account",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: accountId. Optional: budget-encryption-password. Returns the NotesGetAccountResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/notes/account/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_get-category",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: categoryId. Optional: budget-encryption-password. Returns the NotesGetCategoryResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/notes/category/{categoryId}",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_get-month",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: budgetMonth. Optional: budget-encryption-password. Returns the NotesGetMonthResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/notes/budgetmonth/{budgetMonth}",
+      "params": [
+        {
+          "name": "budgetMonth",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month in YYYY-MM format",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "notes_set-account",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: accountId, data. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PUT",
+      "path": "/budgets/{budgetSyncId}/notes/account/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_set-category",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: categoryId, data. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PUT",
+      "path": "/budgets/{budgetSyncId}/notes/category/{categoryId}",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_set-month",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: budgetMonth, data. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PUT",
+      "path": "/budgets/{budgetSyncId}/notes/budgetmonth/{budgetMonth}",
+      "params": [
+        {
+          "name": "budgetMonth",
+          "type": "string",
+          "location": "path",
+          "description": "Budget month in YYYY-MM format",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payees_create",
+      "description": "Creates a payee. Required: payee. Optional: budget-encryption-password. Returns the new PayeesCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/payees",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "payee-category",
+          "wire_name": "payee.category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "payee-id",
+          "wire_name": "payee.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "payee-name",
+          "wire_name": "payee.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "payee-transfer-acct",
+          "wire_name": "payee.transfer_acct",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer acct"
+        }
+      ]
+    },
+    {
+      "name": "payees_delete",
+      "description": "Deletes a payee. Required: payeeId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/payees/{payeeId}",
+      "params": [
+        {
+          "name": "payeeId",
+          "type": "string",
+          "location": "path",
+          "description": "Payee id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "payees_get",
+      "description": "Returns a payee. Required: payeeId. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/payees/{payeeId}",
+      "params": [
+        {
+          "name": "payeeId",
+          "type": "string",
+          "location": "path",
+          "description": "Payee id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "payees_list",
+      "description": "Returns list of payees. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/payees",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "payees_merge",
+      "description": "Merges payees. Required: mergeIds, targetId. Optional: budget-encryption-password. Returns the new GeneralResponseMessage.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/payees/merge",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "mergeIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The ids of the payees to merge into the target",
+          "required": true
+        },
+        {
+          "name": "targetId",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the payee to retain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payees_update",
+      "description": "Updates a payee. Required: payeeId, payee. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/payees/{payeeId}",
+      "params": [
+        {
+          "name": "payeeId",
+          "type": "string",
+          "location": "path",
+          "description": "Payee id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "payee-category",
+          "wire_name": "payee.category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "payee-id",
+          "wire_name": "payee.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "payee-name",
+          "wire_name": "payee.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "payee-transfer-acct",
+          "wire_name": "payee.transfer_acct",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer acct"
+        }
+      ]
+    },
+    {
+      "name": "payees_rules_list",
+      "description": "Returns list of rules for a payee. Required: payeeId. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/payees/{payeeId}/rules",
+      "params": [
+        {
+          "name": "payeeId",
+          "type": "string",
+          "location": "path",
+          "description": "Payee id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "payees-common_common",
+      "description": "Returns common payees that appear frequently in transactions, including transfer payees. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/payees-common",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "preferences_preferences",
+      "description": "Returns the budget's synced preferences, such as its date, number and currency formats. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/preferences",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "rules_create",
+      "description": "Creates a rule. Required: rule. Optional: budget-encryption-password. Returns the new RulesCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/rules",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "rule-actions",
+          "wire_name": "rule.actions",
+          "type": "array",
+          "location": "body",
+          "description": "Actions"
+        },
+        {
+          "name": "rule-conditions",
+          "wire_name": "rule.conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Conditions"
+        },
+        {
+          "name": "rule-conditions-op",
+          "wire_name": "rule.conditionsOp",
+          "type": "string",
+          "location": "body",
+          "description": "Must be one of 'and' or 'or'"
+        },
+        {
+          "name": "rule-stage",
+          "wire_name": "rule.stage",
+          "type": "string",
+          "location": "body",
+          "description": "Must be one of 'pre', 'default', or 'post'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rules_delete",
+      "description": "Deletes a rule. Required: ruleId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/rules/{ruleId}",
+      "params": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "rules_get",
+      "description": "Returns a rule. Required: ruleId. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/rules/{ruleId}",
+      "params": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "rules_list",
+      "description": "Returns list of rules for the budget associated with the sync id specified. Optional: budget-encryption-password, page, limit.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/rules",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number. When limit is set, this parameter is required. Example 2"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Number of rules to return. When page is set, this parameter is required. Example 50"
+        }
+      ]
+    },
+    {
+      "name": "rules_update",
+      "description": "Updates a rule. Required: ruleId, rule. Optional: budget-encryption-password. Returns the updated RulesUpdateResponse.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/rules/{ruleId}",
+      "params": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "rule-actions",
+          "wire_name": "rule.actions",
+          "type": "array",
+          "location": "body",
+          "description": "Actions"
+        },
+        {
+          "name": "rule-conditions",
+          "wire_name": "rule.conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Conditions"
+        },
+        {
+          "name": "rule-conditions-op",
+          "wire_name": "rule.conditionsOp",
+          "type": "string",
+          "location": "body",
+          "description": "Must be one of 'and' or 'or'"
+        },
+        {
+          "name": "rule-id",
+          "wire_name": "rule.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "rule-stage",
+          "wire_name": "rule.stage",
+          "type": "string",
+          "location": "body",
+          "description": "Must be one of 'pre', 'default', or 'post'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "run-query_run_query",
+      "description": "Executes an ActualQL query against the budget data using the aqlQuery method. Note: previously used runQuery which has been deprecated upstream and will be removed in a future release. Required: ActualQLquery. Optional: budget-encryption-password. Returns the new RunQueryRunQueryResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/run-query",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "actual-q-lquery-calculate",
+          "wire_name": "ActualQLquery.calculate",
+          "type": "object",
+          "location": "body",
+          "description": "Calculation expression."
+        },
+        {
+          "name": "actual-q-lquery-filter",
+          "wire_name": "ActualQLquery.filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter criteria."
+        },
+        {
+          "name": "actual-q-lquery-group-by",
+          "wire_name": "ActualQLquery.groupBy",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Fields to group by."
+        },
+        {
+          "name": "actual-q-lquery-limit",
+          "wire_name": "ActualQLquery.limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit the number of results."
+        },
+        {
+          "name": "actual-q-lquery-offset",
+          "wire_name": "ActualQLquery.offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset for results."
+        },
+        {
+          "name": "actual-q-lquery-options",
+          "wire_name": "ActualQLquery.options",
+          "type": "object",
+          "location": "body",
+          "description": "Query options."
+        },
+        {
+          "name": "actual-q-lquery-order-by",
+          "wire_name": "ActualQLquery.orderBy",
+          "type": "array",
+          "location": "body",
+          "description": "Ordering criteria."
+        },
+        {
+          "name": "actual-q-lquery-raw",
+          "wire_name": "ActualQLquery.raw",
+          "type": "bool",
+          "location": "body",
+          "description": "Return raw results."
+        },
+        {
+          "name": "actual-q-lquery-select",
+          "wire_name": "ActualQLquery.select",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Fields to select."
+        },
+        {
+          "name": "actual-q-lquery-table",
+          "wire_name": "ActualQLquery.table",
+          "type": "string",
+          "location": "body",
+          "description": "The table to query (e.g., 'transactions').",
+          "required": true
+        },
+        {
+          "name": "actual-q-lquery-unfilter",
+          "wire_name": "ActualQLquery.unfilter",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of filter keys to remove."
+        },
+        {
+          "name": "actual-q-lquery-with-dead",
+          "wire_name": "ActualQLquery.withDead",
+          "type": "bool",
+          "location": "body",
+          "description": "Include deleted items."
+        },
+        {
+          "name": "actual-q-lquery-without-validated-refs",
+          "wire_name": "ActualQLquery.withoutValidatedRefs",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable reference validation."
+        }
+      ]
+    },
+    {
+      "name": "schedules_create",
+      "description": "Creates a schedule. Required: schedule. Optional: budget-encryption-password. Returns the new SchedulesCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/schedules",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "schedule-account",
+          "wire_name": "schedule.account",
+          "type": "string",
+          "location": "body",
+          "description": "Account ID"
+        },
+        {
+          "name": "schedule-amount",
+          "wire_name": "schedule.amount",
+          "type": "string",
+          "location": "body",
+          "description": "Amount or range for isbetween"
+        },
+        {
+          "name": "schedule-amount-op",
+          "wire_name": "schedule.amountOp",
+          "type": "string",
+          "location": "body",
+          "description": "Controls amount interpretation"
+        },
+        {
+          "name": "schedule-date",
+          "wire_name": "schedule.date",
+          "type": "string",
+          "location": "body",
+          "description": "Single occurrence date or recurring pattern",
+          "required": true
+        },
+        {
+          "name": "schedule-name",
+          "wire_name": "schedule.name",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule name (must be unique)"
+        },
+        {
+          "name": "schedule-payee",
+          "wire_name": "schedule.payee",
+          "type": "string",
+          "location": "body",
+          "description": "Payee ID"
+        },
+        {
+          "name": "schedule-posts-transaction",
+          "wire_name": "schedule.posts_transaction",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto-post transactions (default false)"
+        }
+      ]
+    },
+    {
+      "name": "schedules_delete",
+      "description": "Deletes a schedule. Required: scheduleId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/schedules/{scheduleId}",
+      "params": [
+        {
+          "name": "scheduleId",
+          "type": "string",
+          "location": "path",
+          "description": "Schedule id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "schedules_get",
+      "description": "🔧 Extended: Uses official library APIs with additional business logic or transformations. Required: scheduleId. Optional: budget-encryption-password. Returns the SchedulesGetResponse.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/schedules/{scheduleId}",
+      "params": [
+        {
+          "name": "scheduleId",
+          "type": "string",
+          "location": "path",
+          "description": "Schedule id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "schedules_list",
+      "description": "Returns list of schedules for the budget associated with the sync id specified. Optional: budget-encryption-password, page, limit.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/schedules",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number. When limit is set, this parameter is required. Example 2"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Number of rules to return. When page is set, this parameter is required. Example 50"
+        }
+      ]
+    },
+    {
+      "name": "schedules_update",
+      "description": "Updates a schedule. Required: scheduleId, schedule. Optional: budget-encryption-password, resetNextDate. Returns the updated SchedulesUpdateResponse.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/schedules/{scheduleId}",
+      "params": [
+        {
+          "name": "scheduleId",
+          "type": "string",
+          "location": "path",
+          "description": "Schedule id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "resetNextDate",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, recalculates the next occurrence date"
+        },
+        {
+          "name": "schedule-account",
+          "wire_name": "schedule.account",
+          "type": "string",
+          "location": "body",
+          "description": "Account ID"
+        },
+        {
+          "name": "schedule-amount",
+          "wire_name": "schedule.amount",
+          "type": "string",
+          "location": "body",
+          "description": "Amount or range for isbetween"
+        },
+        {
+          "name": "schedule-amount-op",
+          "wire_name": "schedule.amountOp",
+          "type": "string",
+          "location": "body",
+          "description": "Controls amount interpretation"
+        },
+        {
+          "name": "schedule-date",
+          "wire_name": "schedule.date",
+          "type": "string",
+          "location": "body",
+          "description": "Single occurrence date or recurring pattern",
+          "required": true
+        },
+        {
+          "name": "schedule-name",
+          "wire_name": "schedule.name",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule name (must be unique)"
+        },
+        {
+          "name": "schedule-payee",
+          "wire_name": "schedule.payee",
+          "type": "string",
+          "location": "body",
+          "description": "Payee ID"
+        },
+        {
+          "name": "schedule-posts-transaction",
+          "wire_name": "schedule.posts_transaction",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto-post transactions (default false)"
+        }
+      ]
+    },
+    {
+      "name": "tags_create",
+      "description": "Creates a tag. Required: tag. Optional: budget-encryption-password. Returns the new TagsCreateResponse.",
+      "method": "POST",
+      "path": "/budgets/{budgetSyncId}/tags",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "tag-color",
+          "wire_name": "tag.color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "tag-description",
+          "wire_name": "tag.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "tag-id",
+          "wire_name": "tag.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "tag-tag",
+          "wire_name": "tag.tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Deletes a tag. Required: tagId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/tags/{tagId}",
+      "params": [
+        {
+          "name": "tagId",
+          "type": "string",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "tags_get",
+      "description": "Returns a tag. Required: tagId. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/tags/{tagId}",
+      "params": [
+        {
+          "name": "tagId",
+          "type": "string",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "Returns list of tags. Optional: budget-encryption-password.",
+      "method": "GET",
+      "path": "/budgets/{budgetSyncId}/tags",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "tags_update",
+      "description": "Updates a tag. Required: tagId, tag. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/tags/{tagId}",
+      "params": [
+        {
+          "name": "tagId",
+          "type": "string",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "tag-color",
+          "wire_name": "tag.color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "tag-description",
+          "wire_name": "tag.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "tag-id",
+          "wire_name": "tag.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "tag-tag",
+          "wire_name": "tag.tag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete",
+      "description": "Deletes a transaction. Required: transactionId. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/transactions/{transactionId}",
+      "params": [
+        {
+          "name": "transactionId",
+          "type": "string",
+          "location": "path",
+          "description": "Transaction id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        }
+      ]
+    },
+    {
+      "name": "transactions_delete-batch",
+      "description": "Deletes a set of transactions using the transaction ids. Required: transactionIds. Optional: budget-encryption-password. Returns the GeneralResponseMessage. Destructive.",
+      "method": "DELETE",
+      "path": "/budgets/{budgetSyncId}/transactions/batch",
+      "params": [
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "transactionIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Transaction ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_update",
+      "description": "Updates a transaction. Required: transactionId, transaction. Optional: budget-encryption-password. Returns the updated GeneralResponseMessage.",
+      "method": "PATCH",
+      "path": "/budgets/{budgetSyncId}/transactions/{transactionId}",
+      "params": [
+        {
+          "name": "transactionId",
+          "type": "string",
+          "location": "path",
+          "description": "Transaction id",
+          "required": true
+        },
+        {
+          "name": "budget-encryption-password",
+          "type": "string",
+          "location": "query",
+          "description": "Optional encryption password for end-to-end encrypted budgets."
+        },
+        {
+          "name": "transaction-account",
+          "wire_name": "transaction.account",
+          "type": "string",
+          "location": "body",
+          "description": "Account"
+        },
+        {
+          "name": "transaction-amount",
+          "wire_name": "transaction.amount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount"
+        },
+        {
+          "name": "transaction-category",
+          "wire_name": "transaction.category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "transaction-cleared",
+          "wire_name": "transaction.cleared",
+          "type": "bool",
+          "location": "body",
+          "description": "Cleared"
+        },
+        {
+          "name": "transaction-date",
+          "wire_name": "transaction.date",
+          "type": "string",
+          "location": "body",
+          "description": "Date"
+        },
+        {
+          "name": "transaction-id",
+          "wire_name": "transaction.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "transaction-imported-id",
+          "wire_name": "transaction.imported_id",
+          "type": "string",
+          "location": "body",
+          "description": "Imported id"
+        },
+        {
+          "name": "transaction-imported-payee",
+          "wire_name": "transaction.imported_payee",
+          "type": "string",
+          "location": "body",
+          "description": "Imported payee"
+        },
+        {
+          "name": "transaction-notes",
+          "wire_name": "transaction.notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "transaction-payee",
+          "wire_name": "transaction.payee",
+          "type": "string",
+          "location": "body",
+          "description": "Payee"
+        },
+        {
+          "name": "transaction-transfer-id",
+          "wire_name": "transaction.transfer_id",
+          "type": "string",
+          "location": "body",
+          "description": "Transfer id"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Duplicate payee audit",
+      "command": "audit payees",
+      "description": "Find payee spelling variants (AMZN Mktp vs Amazon Marketplace) and get a ready-to-run payees merge plan (merging runs through the sidecar)."
+    },
+    {
+      "name": "Duplicate transaction finder",
+      "command": "ledger duplicates",
+      "description": "Catch transactions that were imported or entered twice, ranked by confidence."
+    },
+    {
+      "name": "Categorize from history",
+      "command": "categorize suggest",
+      "description": "Get a category suggestion for every uncategorized transaction based on how you categorized that payee before; categorize apply writes them through the actual-http-api sidecar."
+    },
+    {
+      "name": "Dead rule audit",
+      "command": "audit rules",
+      "description": "Find rules that never match, are shadowed by another rule, or point at deleted payees and categories."
+    },
+    {
+      "name": "Local SQL passthrough",
+      "command": "ledger sql",
+      "description": "Run read-only SQL against your real budget database without Node or a running engine."
+    },
+    {
+      "name": "Stale schedule audit",
+      "command": "audit schedules",
+      "description": "List bills that are overdue with nothing posted and schedules whose amounts drifted."
+    },
+    {
+      "name": "Goal-template status",
+      "command": "templates status",
+      "description": "See which envelopes are under- or over-funded against the #template and #goal targets in category notes."
+    },
+    {
+      "name": "Change log since",
+      "command": "changes since",
+      "description": "See what was edited, deleted, or restored in the budget since a point in time, with names resolved."
+    }
+  ]
+}
