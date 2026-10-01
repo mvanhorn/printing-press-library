@@ -62,7 +62,7 @@
     {
       "name": "Fund vs index compare",
       "command": "compare <schemeId> <index>",
-      "description": "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side."
+      "description": "See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status."
     }
   ]
 }

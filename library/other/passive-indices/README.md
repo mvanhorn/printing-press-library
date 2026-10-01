@@ -2,7 +2,7 @@
 
 **Unifies NSE's index data with the ETFs and index funds that track them — a join neither source site offers.**
 
-niftyindices.com publishes index levels and constituents; indiapassivefunds.com publishes the ETFs and index funds that track those indices. Nothing links the two. This CLI joins them locally so you can ask "what tracks NIFTY 50, and how well" in one command — plus offline search, agent-native JSON, and a local SQLite layer for historical constituent diffs.
+niftyindices.com publishes index levels and constituents; indiapassivefunds.com publishes the ETFs and index funds that track those indices. Nothing links the two. This CLI joins them locally so you can ask "what tracks NIFTY 50, and at what disclosed cost" in one command — plus offline search, agent-native JSON, and a local SQLite layer for historical constituent diffs.
 
 Created by [@lavs9](https://github.com/lavs9) (Mayank Lavania).
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
