@@ -44,12 +44,13 @@ func (f compareTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 func TestCompareCommandReportsBenchmarkAndConstituentStatus(t *testing.T) {
 	for _, tc := range []struct {
-		name, benchmark, wantValidation string
-		constituentStatus               int
-		wantFailure                     bool
+		name, benchmark, requested, quoteName, wantValidation string
+		constituentStatus                                     int
+		wantFailure                                           bool
 	}{
-		{"matching TRI index with failed constituents", "Nifty 50 TRI Index", "matched", http.StatusServiceUnavailable, true},
-		{"unreported benchmark with constituents", "", "not_reported", http.StatusOK, false},
+		{"matching TRI index with failed constituents", "Nifty 50 TRI Index", "Nifty-50 Index", "NIFTY 50", "matched", http.StatusServiceUnavailable, true},
+		{"unreported benchmark with constituents", "", "Nifty-50 Index", "NIFTY 50", "not_reported", http.StatusOK, false},
+		{"TRI quote uses base-index constituents", "Nifty 50 TRI Index", "nifty50tri", "NIFTY 50 TRI", "matched", http.StatusOK, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			benchmarkJSON, err := json.Marshal(tc.benchmark)
@@ -67,7 +68,7 @@ func TestCompareCommandReportsBenchmarkAndConstituentStatus(t *testing.T) {
 				case "data.indiapassivefunds.com/api/v1/etf/funddetail":
 					body = fmt.Sprintf(`{"status":true,"response":{"funddescription":{"columns":[{"field":"f_05","displayName":"Benchmark Index"}],"data":[{"f_05":%s}]}}}`, benchmarkJSON)
 				case "www.nseindia.com/api/allIndices":
-					body = `{"timestamp":"2026-10-01","data":[{"index":"NIFTY 50","last":100}]}`
+					body = fmt.Sprintf(`{"timestamp":"2026-10-01","data":[{"index":%q,"last":100}]}`, tc.quoteName)
 				case "www.niftyindices.com/IndexConstituent/ind_nifty50list.csv":
 					status = tc.constituentStatus
 					if status == http.StatusOK {
@@ -84,7 +85,7 @@ func TestCompareCommandReportsBenchmarkAndConstituentStatus(t *testing.T) {
 			t.Cleanup(func() { http.DefaultTransport = originalTransport })
 
 			cmd := RootCmd()
-			cmd.SetArgs([]string{"--home", t.TempDir(), "--no-learn", "--json", "compare", "1150", "Nifty-50 Index"})
+			cmd.SetArgs([]string{"--home", t.TempDir(), "--no-learn", "--json", "compare", "1150", tc.requested})
 			var out bytes.Buffer
 			cmd.SetOut(&out)
 			cmd.SetErr(io.Discard)
@@ -102,6 +103,10 @@ func TestCompareCommandReportsBenchmarkAndConstituentStatus(t *testing.T) {
 			}
 			if result.BenchmarkValidation != tc.wantValidation || len(result.IndexQuote) == 0 {
 				t.Fatalf("comparison validation=%q index quote=%s, want %q and quote", result.BenchmarkValidation, result.IndexQuote, tc.wantValidation)
+			}
+			var quote niftyindices.LiveQuote
+			if err := json.Unmarshal(result.IndexQuote, &quote); err != nil || quote.IndexName != tc.quoteName {
+				t.Fatalf("index quote = %#v, decode error = %v; want %q", quote, err, tc.quoteName)
 			}
 			if tc.wantFailure {
 				if len(result.FetchFailures) != 1 || result.FetchFailures[0]["source"] != "index_constituents" {
@@ -172,8 +177,8 @@ func TestComparePrefersExactQuoteAndUsesItForConstituents(t *testing.T) {
 	if tri == nil || tri.IndexName != "NIFTY 50 TRI" {
 		t.Fatalf("abbreviated TRI request selected wrong quote: %#v", tri)
 	}
-	if got := constituentSlug("nifty50tri", tri); got != "nifty50tri" {
-		t.Fatalf("constituent slug = %q, want matched quote slug", got)
+	if got := constituentSlug("nifty50tri", tri); got != "nifty50" {
+		t.Fatalf("constituent slug = %q, want base-index slug", got)
 	}
 	if got := findLiveQuote(quotes[:1], "nifty50tri"); got != nil {
 		t.Fatalf("TRI request selected price quote: %#v", got)

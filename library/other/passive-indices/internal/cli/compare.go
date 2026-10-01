@@ -159,6 +159,11 @@ func canonicalQuoteIdentity(name string) string {
 
 func constituentSlug(requested string, matched *niftyindices.LiveQuote) string {
 	if matched != nil {
+		// A TRI reports total-return levels for the base index's basket. The
+		// provider normally publishes that basket under the base-index slug.
+		if strings.HasSuffix(canonicalQuoteIdentity(matched.IndexName), " tri") {
+			return niftyindices.Slugify(canonicalIndexIdentity(matched.IndexName))
+		}
 		return niftyindices.Slugify(matched.IndexName)
 	}
 	return niftyindices.Slugify(requested)
