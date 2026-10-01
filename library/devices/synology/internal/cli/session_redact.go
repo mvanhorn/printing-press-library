@@ -22,6 +22,11 @@ var sessionCredentialKeys = []string{"sid", "synotoken"}
 // would miss the credentials one level down. Nesting is walked instead of
 // special-casing "data": the depth is a DSM implementation detail.
 func redactSessionCredentials(data json.RawMessage) json.RawMessage {
+	return RedactSessionCredentials(data)
+}
+
+// RedactSessionCredentials applies the same output policy to CLI and MCP logins.
+func RedactSessionCredentials(data json.RawMessage) json.RawMessage {
 	obj, changed := redactSessionCredentialsIn(data)
 	if !changed {
 		return data

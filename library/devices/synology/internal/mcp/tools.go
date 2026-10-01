@@ -42,11 +42,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("dest_folder_path", mcplib.Required(), mcplib.Description("Absolute destination folder path")),
 			mcplib.WithBoolean("overwrite", mcplib.Description("Overwrite an existing destination entry")),
 			mcplib.WithBoolean("remove_src", mcplib.Description("Remove the source after a successful copy, turning the copy into a move")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=start&version=3", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "dest_folder_path", WireName: "dest_folder_path", Location: "query"}, {PublicName: "overwrite", WireName: "overwrite", Location: "query"}, {PublicName: "remove_src", WireName: "remove_src", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=start&version=3", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "dest_folder_path", WireName: "dest_folder_path", Location: "query"}, {PublicName: "overwrite", WireName: "overwrite", Location: "query"}, {PublicName: "remove_src", WireName: "remove_src", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_copy_status",
@@ -62,22 +62,22 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("files_copy_stop",
 			mcplib.WithDescription("Stop a running copy or move. Required: taskid."),
 			mcplib.WithString("taskid", mcplib.Required(), mcplib.Description("Task id returned by copy_start")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithReadOnlyHintAnnotation(false),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=stop&version=3", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "taskid", WireName: "taskid", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.CopyMove&method=stop&version=3", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "taskid", WireName: "taskid", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_delete_start",
 			mcplib.WithDescription("Start a background delete and return its task id. Required: path. Optional: recursive."),
 			mcplib.WithString("path", mcplib.Required(), mcplib.Description("JSON array of absolute paths to delete")),
 			mcplib.WithBoolean("recursive", mcplib.Description("Delete folder contents as well as the folder itself")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Delete&method=start&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "recursive", WireName: "recursive", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Delete&method=start&version=2", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "recursive", WireName: "recursive", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_delete_status",
@@ -93,11 +93,11 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("files_delete_stop",
 			mcplib.WithDescription("Stop a running background delete task before it finishes. Required: taskid (from files_delete_start). Returns no body on success; use files_delete_stop only to abort, not to check progress - poll files_delete_status for that."),
 			mcplib.WithString("taskid", mcplib.Required(), mcplib.Description("Task id returned by delete_start")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithReadOnlyHintAnnotation(false),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Delete&method=stop&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "taskid", WireName: "taskid", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Delete&method=stop&version=2", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "taskid", WireName: "taskid", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_download",
@@ -108,7 +108,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Download&method=download&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "mode", WireName: "mode", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Download&method=download&version=2", true, true, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "mode", WireName: "mode", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_info",
@@ -142,22 +142,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("folder_path", mcplib.Required(), mcplib.Description("JSON array of parent folder paths")),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("JSON array of folder names to create")),
 			mcplib.WithBoolean("force_parent", mcplib.Description("Create missing parent folders instead of failing")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithReadOnlyHintAnnotation(false),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.CreateFolder&method=create&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "folder_path", WireName: "folder_path", Location: "query"}, {PublicName: "name", WireName: "name", Location: "query"}, {PublicName: "force_parent", WireName: "force_parent", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.CreateFolder&method=create&version=2", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "folder_path", WireName: "folder_path", Location: "query"}, {PublicName: "name", WireName: "name", Location: "query"}, {PublicName: "force_parent", WireName: "force_parent", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_rename",
 			mcplib.WithDescription("Rename a file or folder. Required: path, name."),
 			mcplib.WithString("path", mcplib.Required(), mcplib.Description("JSON array of absolute paths to rename")),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("JSON array of new names")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Rename&method=rename&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "name", WireName: "name", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Rename&method=rename&version=2", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "name", WireName: "name", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_search_results",
@@ -180,21 +180,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("extension", mcplib.Description("File extension filter, for example mkv")),
 			mcplib.WithBoolean("recursive", mcplib.Description("Descend into subfolders")),
 			mcplib.WithString("filetype", mcplib.Description("Restrict results to file, dir or all")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithReadOnlyHintAnnotation(false),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Search&method=start&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "folder_path", WireName: "folder_path", Location: "query"}, {PublicName: "pattern", WireName: "pattern", Location: "query"}, {PublicName: "extension", WireName: "extension", Location: "query"}, {PublicName: "recursive", WireName: "recursive", Location: "query"}, {PublicName: "filetype", WireName: "filetype", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Search&method=start&version=2", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "folder_path", WireName: "folder_path", Location: "query"}, {PublicName: "pattern", WireName: "pattern", Location: "query"}, {PublicName: "extension", WireName: "extension", Location: "query"}, {PublicName: "recursive", WireName: "recursive", Location: "query"}, {PublicName: "filetype", WireName: "filetype", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_search_stop",
 			mcplib.WithDescription("Stop a running search and release its task. Required: taskid."),
 			mcplib.WithString("taskid", mcplib.Required(), mcplib.Description("Task id returned by search_start")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithReadOnlyHintAnnotation(false),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Search&method=stop&version=2", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "taskid", WireName: "taskid", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.FileStation.Search&method=stop&version=2", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "taskid", WireName: "taskid", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_shares",
@@ -335,20 +335,20 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("otp_code", mcplib.Description("Six-digit one-time password, required on the first login of a two-factor account")),
 			mcplib.WithString("device_id", mcplib.Description("Trusted-device token issued by a previous two-factor login, used instead of otp_code")),
 			mcplib.WithString("device_name", mcplib.Description("Label DSM records for the trusted device")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithReadOnlyHintAnnotation(false),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7&format=sid&enable_syno_token=yes", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "account", WireName: "account", Location: "query"}, {PublicName: "passwd", WireName: "passwd", Location: "query"}, {PublicName: "otp_code", WireName: "otp_code", Location: "query"}, {PublicName: "device_id", WireName: "device_id", Location: "query"}, {PublicName: "device_name", WireName: "device_name", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.API.Auth&method=login&version=7&format=sid&enable_syno_token=yes", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "account", WireName: "account", Location: "query"}, {PublicName: "passwd", WireName: "passwd", Location: "query"}, {PublicName: "otp_code", WireName: "otp_code", Location: "query"}, {PublicName: "device_id", WireName: "device_id", Location: "query"}, {PublicName: "device_name", WireName: "device_name", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("session_logout",
 			mcplib.WithDescription("Invalidate the current DSM session id, ending the authenticated session immediately. No parameters, no response body. Call this to explicitly end a session rather than letting it expire; a new session_login is required afterward for further calls."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.API.Auth&method=logout&version=6", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/webapi/entry.cgi?api=SYNO.API.Auth&method=logout&version=6", false, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("storage_disks",
@@ -803,7 +803,15 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		}
 
+		if strings.Contains(pathTemplate, "api=SYNO.API.Auth&method=login&") {
+			data = cli.RedactSessionCredentials(data)
+		}
 		if binaryResponse {
+			payload, decodeErr := client.DecodeBinaryResponse(data)
+			if decodeErr != nil {
+				return mcpToolError(decodeErr.Error()), nil
+			}
+			data = payload
 			encoded := base64.StdEncoding.EncodeToString(data)
 			out, err := json.Marshal(map[string]any{
 				"content_encoding": "base64",
@@ -814,7 +822,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
 			if len(out) > bound.MaxBytes {
-				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI download command to retrieve the complete binary envelope locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
 			}
 			return mcplib.NewToolResultText(string(out)), nil
 		}

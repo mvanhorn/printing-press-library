@@ -61,8 +61,8 @@ func TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets(t *testing.T) {
 		t.Fatalf("Load() error = %v", err)
 	}
 	assertConfigCredential(t, cfg, "data-secret")
-	if got := cfg.AuthHeader(); !strings.Contains(got, "data-secret") || strings.Contains(got, "legacy-secret") {
-		t.Fatalf("AuthHeader() = %q, want credentials-file value and not legacy value", got)
+	if got := cfg.AuthHeader(); got != "" {
+		t.Fatalf("session-handshake auth must not send saved credentials as an Authorization header: %q", got)
 	}
 }
 
@@ -88,8 +88,8 @@ func TestCorruptCredentialsFallsBackToLegacyConfig(t *testing.T) {
 			t.Fatalf("Load() error = %v", err)
 		}
 		assertConfigCredential(t, cfg, "legacy-secret")
-		if got := cfg.AuthHeader(); !strings.Contains(got, "legacy-secret") {
-			t.Fatalf("AuthHeader() = %q, want legacy credential", got)
+		if got := cfg.AuthHeader(); got != "" {
+			t.Fatalf("session-handshake auth must not send saved credentials as an Authorization header: %q", got)
 		}
 	})
 	if !strings.Contains(stderr, credentialsPath) || !strings.Contains(stderr, "parse") {
@@ -118,8 +118,8 @@ func TestEmptyCredentialsFileDoesNotClearLegacyConfig(t *testing.T) {
 		t.Fatalf("Load() error = %v", err)
 	}
 	assertConfigCredential(t, cfg, "legacy-secret")
-	if got := cfg.AuthHeader(); !strings.Contains(got, "legacy-secret") {
-		t.Fatalf("AuthHeader() = %q, want legacy credential", got)
+	if got := cfg.AuthHeader(); got != "" {
+		t.Fatalf("session-handshake auth must not send saved credentials as an Authorization header: %q", got)
 	}
 }
 

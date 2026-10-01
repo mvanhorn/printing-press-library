@@ -4,6 +4,8 @@
 
 DSM's WebAPI is namespaced RPC that answers HTTP 200 even when it fails, and its available namespaces differ per NAS depending on which packages are installed. This CLI handles the dialect for you: expired sessions renew themselves, DSM error codes become actionable messages, and 'session apis' tells you what your own NAS actually exposes. Everything is JSON-first, so '--agent' output pipes straight into jq or an agent's context.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `synology-pp-cli` binary and the `pp-synology` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
