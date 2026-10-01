@@ -16,10 +16,11 @@ const (
 )
 
 func init() {
-	registerClientHook(configureAMCClient)
+	registerClientHook(ConfigureAMCClient)
 }
 
-func configureAMCClient(c *client.Client) error {
+// ConfigureAMCClient applies provider settings consistently to CLI and MCP clients.
+func ConfigureAMCClient(c *client.Client) error {
 	environment := strings.ToLower(strings.TrimSpace(os.Getenv("AMC_THEATRES_ENV")))
 	switch environment {
 	case "", "production":

@@ -9,7 +9,12 @@
     "handle": "Avanderheyde",
     "name": "Alderik"
   },
-  "contributors": [],
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "Avanderheyde",
   "printer": "Avanderheyde",
   "printer_name": "Alderik",

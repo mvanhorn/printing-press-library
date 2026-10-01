@@ -546,3 +546,27 @@ func mcpTextContent(t *testing.T, result *mcplib.CallToolResult) string {
 	}
 	return content.Text
 }
+
+func TestMCPClientAppliesAMCProviderSettings(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("AMC_THEATRES_ENV", "sandbox")
+	t.Setenv("AMC_THEATRES_AUTH_TOKEN", "test-viewer-token")
+	cfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, err := newMCPClientFromConfig(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.BaseURL != "https://api.sandbox-amctheatres.com" {
+		t.Fatalf("wrong environment: %s", c.BaseURL)
+	}
+	if c.Config.Headers["X-AMC-Auth-Token"] != "test-viewer-token" {
+		t.Fatal("missing AMC auth token")
+	}
+	t.Setenv("AMC_THEATRES_ENV", "invalid")
+	if _, err := newMCPClientFromConfig(cfg); err == nil {
+		t.Fatal("invalid environment accepted")
+	}
+}
