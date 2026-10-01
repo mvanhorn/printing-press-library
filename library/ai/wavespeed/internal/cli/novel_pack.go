@@ -485,6 +485,17 @@ func writePlatformManifests(pf packFlags, slug string, shots []Shot, outcomes []
 		byPlatform[p] = append(byPlatform[p], entry{shot: shots[i], oc: oc})
 	}
 
+	// A platform targeted by this run that produced no post-ready shot must
+	// not keep a manifest from an earlier run in the same directory; a
+	// posting tool would treat those old assets as the current pack.
+	for i := range shots {
+		p := shots[i].Platform
+		if _, ready := byPlatform[p]; ready {
+			continue
+		}
+		_ = os.Remove(filepath.Join(pf.outDir, slug, dirSafe(p), "manifest.json"))
+	}
+
 	written := []string{}
 	for _, p := range order {
 		entries := byPlatform[p]

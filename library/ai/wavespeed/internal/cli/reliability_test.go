@@ -419,6 +419,16 @@ func TestPackManifestSkipsShotsWithMissingDownloads(t *testing.T) {
 	if strings.Contains(string(raw), "partial.png") || !strings.Contains(string(raw), "ok.png") {
 		t.Fatalf("manifest must list only fully downloaded shots: %s", raw)
 	}
+
+	// A later run where every shot for the platform misses an output must
+	// remove the earlier manifest instead of leaving it post-ready.
+	outcomes[0].DownloadFailed = true
+	if again := writePlatformManifests(packFlags{outDir: dir}, "slug", shots, outcomes); len(again) != 0 {
+		t.Fatalf("no manifest expected, got %v", again)
+	}
+	if _, err := os.Stat(written[0]); !os.IsNotExist(err) {
+		t.Fatalf("stale manifest left in place: %v", err)
+	}
 }
 
 func TestDoctorVerifiesCredentialsWithBalance(t *testing.T) {
