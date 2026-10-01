@@ -184,20 +184,10 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	return c
 }
 
-// stripCrossOriginRedirectHeaders keeps only headers needed to negotiate a
-// public HTTP response. Custom headers can carry credentials under any name.
+// stripCrossOriginRedirectHeaders removes all caller-supplied headers. Even a
+// normally harmless header may contain a credential supplied by the caller.
 func stripCrossOriginRedirectHeaders(headers http.Header) {
-	safe := map[string]bool{
-		"Accept":          true,
-		"Accept-Encoding": true,
-		"Content-Type":    true,
-		"User-Agent":      true,
-	}
-	for name := range headers {
-		if !safe[http.CanonicalHeaderKey(name)] {
-			headers.Del(name)
-		}
-	}
+	clear(headers)
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.
@@ -663,15 +653,34 @@ func displayBaseHost(base string) string {
 	return base
 }
 
-// sameOrigin compares scheme and host, including the port. Malformed URLs
-// fail closed so they cannot inherit primary-source credentials.
+// sameOrigin compares scheme, hostname, and effective port. Malformed or
+// unsupported URLs fail closed so they cannot inherit primary credentials.
 func sameOrigin(a, b string) bool {
 	ua, errA := url.Parse(a)
 	ub, errB := url.Parse(b)
 	if errA != nil || errB != nil || ua.Scheme == "" || ua.Host == "" || ub.Scheme == "" || ub.Host == "" {
 		return false
 	}
-	return strings.EqualFold(ua.Scheme, ub.Scheme) && strings.EqualFold(ua.Host, ub.Host)
+	if !strings.EqualFold(ua.Scheme, ub.Scheme) || !strings.EqualFold(ua.Hostname(), ub.Hostname()) {
+		return false
+	}
+	var defaultPort string
+	switch strings.ToLower(ua.Scheme) {
+	case "http":
+		defaultPort = "80"
+	case "https":
+		defaultPort = "443"
+	default:
+		return false
+	}
+	portA, portB := ua.Port(), ub.Port()
+	if portA == "" {
+		portA = defaultPort
+	}
+	if portB == "" {
+		portB = defaultPort
+	}
+	return portA == portB
 }
 
 // attempt runs one candidate source through the send/retry cycle. It returns

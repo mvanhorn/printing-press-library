@@ -147,7 +147,13 @@ func TestRedirect_CrossOriginStripsCustomCredentialHeaders(t *testing.T) {
 	c := New(&config.Config{
 		BaseURL:       primary.URL,
 		AuthHeaderVal: "Bearer primary-secret",
-		Headers:       map[string]string{"X-API-Key": "config-secret"},
+		Headers: map[string]string{
+			"X-API-Key":       "config-secret",
+			"Accept":          "accept-secret",
+			"Accept-Encoding": "encoding-secret",
+			"Content-Type":    "content-secret",
+			"User-Agent":      "agent-secret",
+		},
 	}, time.Second, 0)
 	c.NoCache = true
 	_, err := c.GetWithHeaders(context.Background(), "/start", nil, map[string]string{"X-Endpoint-Credential": "endpoint-secret"})
@@ -159,6 +165,35 @@ func TestRedirect_CrossOriginStripsCustomCredentialHeaders(t *testing.T) {
 	for _, name := range []string{"Authorization", "Cookie", "X-API-Key", "X-Endpoint-Credential"} {
 		if got := headers.Get(name); got != "" {
 			t.Fatalf("cross-origin redirect target received %s=%q", name, got)
+		}
+	}
+	for name, secret := range map[string]string{
+		"Accept":          "accept-secret",
+		"Accept-Encoding": "encoding-secret",
+		"Content-Type":    "content-secret",
+		"User-Agent":      "agent-secret",
+	} {
+		if got := headers.Get(name); got == secret {
+			t.Fatalf("cross-origin redirect forwarded caller-configured %s", name)
+		}
+	}
+}
+
+func TestSameOriginNormalizesDefaultPorts(t *testing.T) {
+	for _, tc := range []struct {
+		a, b string
+		want bool
+	}{
+		{"https://example.com", "https://example.com:443", true},
+		{"http://example.com", "http://example.com:80", true},
+		{"https://example.com:8443", "https://EXAMPLE.com:8443", true},
+		{"https://example.com", "https://example.com:8443", false},
+		{"http://example.com", "https://example.com", false},
+		{"https://example.com", "https://other.example.com", false},
+		{"https://example.com", "invalid", false},
+	} {
+		if got := sameOrigin(tc.a, tc.b); got != tc.want {
+			t.Errorf("sameOrigin(%q, %q) = %v, want %v", tc.a, tc.b, got, tc.want)
 		}
 	}
 }
