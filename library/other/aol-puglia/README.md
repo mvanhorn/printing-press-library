@@ -8,6 +8,8 @@ Learn more at [Aol Puglia](https://sanita.puglia.it/aol/).
 
 Created by [@aborruso](https://github.com/aborruso) (aborruso).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `aol-puglia-pp-cli` binary and the `pp-aol-puglia` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

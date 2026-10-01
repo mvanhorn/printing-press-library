@@ -39,7 +39,13 @@ func (r *recordingRoundTripper) RoundTrip(req *http.Request) (*http.Response, er
 func newClientWithRecorder(t *testing.T) (*Client, *recordingRoundTripper) {
 	t.Helper()
 	rec := &recordingRoundTripper{}
-	cfg := &config.Config{BaseURL: "http://example.test"}
+	// AOL Puglia auto-fetches a public OAuth token when no credential is
+	// present. Supply a synthetic cached token so these transport tests reach
+	// the recorder without making a real token request first.
+	cfg := &config.Config{
+		BaseURL:             "http://example.test",
+		AolPugliaBearerAuth: "synthetic-test-token",
+	}
 	c := New(cfg, time.Second, 0)
 	c.HTTPClient = &http.Client{Transport: rec}
 	c.NoCache = true
