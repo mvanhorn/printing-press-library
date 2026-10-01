@@ -1,0 +1,32 @@
+name: eplus
+description: Discovered API spec for eplus
+version: 0.1.0
+base_url: https://eplus.jp
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/eplus-pp-cli/config.toml
+resources:
+    sf:
+        description: Operations on 4592490001-P0030001P021003
+        endpoints:
+            list_4592490001_P0030001P021003:
+                method: GET
+                path: /sf/detail/4592490001-P0030001P021003
+                description: Fetch structured links from /sf/detail/4592490001-P0030001P021003
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

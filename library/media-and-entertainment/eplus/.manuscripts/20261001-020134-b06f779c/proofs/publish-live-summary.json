@@ -1,0 +1,23 @@
+{
+  "executed_at": "2026-10-01T02:11:50.524454+00:00",
+  "exit_code": 0,
+  "test_status_counts": {
+    "pass": 42,
+    "skip": 32
+  },
+  "top_level_fields": [
+    "dir",
+    "binary",
+    "level",
+    "verdict",
+    "matrix_size",
+    "passed",
+    "failed",
+    "skipped",
+    "unverified",
+    "pass_rate",
+    "commands",
+    "tests",
+    "ran_at"
+  ]
+}

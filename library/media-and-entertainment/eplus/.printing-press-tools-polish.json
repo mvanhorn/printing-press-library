@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-01T01:37:12.550042Z",
+  "cli_dir": "\u003ccli-dir\u003e/eplus-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; list client profiles is a precise framework action, not an eplus discovery endpoint; richer generic metadata belongs in the generator."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-10-01T01:34:58.62678Z"
+  }
+}

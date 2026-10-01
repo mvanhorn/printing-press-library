@@ -1,0 +1,16 @@
+workflows:
+  - name: Public Japan event discovery and sale inspection
+    primary: true
+    steps:
+      - command: events search --artist Radiohead --limit 2 --agent
+        mode: live
+        expect_fields: [results, meta]
+      - command: events detail 4592490001-P0030001P021003 --agent
+        mode: live
+        expect_fields: [results, meta]
+      - command: international search --category concert --limit 2 --agent
+        mode: live
+        expect_fields: [results, meta]
+      - command: international detail 7078 --agent
+        mode: live
+        expect_fields: [results, meta]

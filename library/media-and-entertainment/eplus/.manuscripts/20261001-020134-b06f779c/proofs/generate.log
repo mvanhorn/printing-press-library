@@ -1,0 +1,15 @@
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS eplus-pp-cli --help
+PASS eplus-pp-cli version
+PASS eplus-pp-cli doctor
+agentcookie: skipping eplus (cookie-only or no env-var auth)
+Generated eplus at <cli-dir>
+Bundled <cli-dir>/build/eplus-pp-mcp-darwin-arm64.mcpb

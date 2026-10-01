@@ -1,0 +1,6 @@
+{
+  "cli": "eplus-pp-cli",
+  "library_dir": "<local-library>/eplus",
+  "preserved_patches": [],
+  "promoted": true
+}

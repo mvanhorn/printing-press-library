@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/eplus-pp-cli
+/eplus-pp-cli.exe
+/eplus-pp-mcp
+/eplus-pp-mcp.exe
+/bin/
+/build/
+/dist/

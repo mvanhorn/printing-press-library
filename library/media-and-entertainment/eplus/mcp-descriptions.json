@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "events_detail": "Inspect a public domestic event/performance ID or canonical detail URL. Returns separate sessions and sale rounds with JST doors/start, exact sale windows, lottery deadlines, unknown fees/access when absent, and booking handoff URLs. Use this after bounded event search; it never submits applications or purchases.",
+    "events_search": "Search anonymous domestic eplus performances by keyword/artist, JST service-date range, category and region, with bounded local venue/location matching. Returns canonical event/session IDs and separate sale-round summaries, observations and partial coverage; inspect a detail URL for final terms. Supports limit, page/pages and freshness controls."
+  }
+}

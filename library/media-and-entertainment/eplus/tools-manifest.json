@@ -1,0 +1,51 @@
+{
+  "api_name": "eplus",
+  "base_url": "https://eplus.jp",
+  "description": "Discover Japanese performances and plan source-backed ticket sale windows.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "events_detail",
+      "description": "Inspect event and performance details. Required: id.",
+      "method": "GET",
+      "path": "/sf/detail/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Public detail ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_search",
+      "description": "Search domestic performances. Optional: keyword (default: Radiohead).",
+      "method": "GET",
+      "path": "/sf/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Event or artist keyword"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Sale-round planning",
+      "command": "events detail",
+      "description": "Inspect separate performance and sale-round identities, exact JST windows and lottery deadlines while keeping unknown inventory and overseas access explicit."
+    }
+  ]
+}

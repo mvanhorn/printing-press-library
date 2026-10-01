@@ -1,0 +1,51 @@
+{
+  "api_name": "eplus",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "2026-09-30T18:08:24.259112Z",
+  "novel_features": [
+    {
+      "name": "Sale-round planning",
+      "command": "events detail",
+      "description": "Inspect separate performance and sale-round identities, exact JST windows and lottery deadlines while keeping unknown inventory and overseas access explicit.",
+      "rationale": "",
+      "example": "eplus-pp-cli events detail 4592490001-P0030001P021003 --agent",
+      "why_it_matters": "An accepting lottery is an application window, not an available seat; source-specific identities and conditions must survive compact output."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Sale-round planning",
+      "command": "events detail",
+      "description": "Inspect separate performance and sale-round identities, exact JST windows and lottery deadlines while keeping unknown inventory and overseas access explicit.",
+      "rationale": "",
+      "example": "eplus-pp-cli events detail 4592490001-P0030001P021003 --agent",
+      "why_it_matters": "An accepting lottery is an application window, not an available seat; source-specific identities and conditions must survive compact output."
+    }
+  ],
+  "narrative": {
+    "display_name": "eplus",
+    "headline": "Discover Japanese performances and plan source-backed ticket sale windows.",
+    "quickstart": [
+      {
+        "command": "eplus-pp-cli events search --artist Radiohead --limit 3 --agent",
+        "comment": "Discover bounded domestic performances."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Inspect sale rounds",
+        "command": "eplus-pp-cli events detail 4592490001-P0030001P021003 --agent",
+        "explanation": "Keep each performance and lottery deadline separate; available seats remain unknown for lotteries."
+      },
+      {
+        "title": "Check international terms",
+        "command": "eplus-pp-cli international detail 7078 --agent",
+        "explanation": "Inspect the selected product price and event-specific overseas access conditions."
+      }
+    ]
+  }
+}

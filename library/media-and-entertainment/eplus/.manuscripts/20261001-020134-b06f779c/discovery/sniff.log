@@ -1,0 +1,3 @@
+Spec written to <run-dir>/research/eplus-sniff.yaml (1 endpoints across 1 resources)
+Traffic analysis written to <run-dir>/discovery/traffic-analysis.json
+Run 'cli-printing-press generate --spec <run-dir>/research/eplus-sniff.yaml' to build the CLI

@@ -1,0 +1,445 @@
+{
+  "mode": "actual anonymous public network and short-cache observations",
+  "platform": "darwin",
+  "runs": [
+    {
+      "name": "domestic-cold",
+      "args": [
+        "events",
+        "search",
+        "--artist",
+        "Radiohead",
+        "--limit",
+        "2",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 5866,
+      "wall_ms": 619.89,
+      "peak_rss_bytes": 25280512,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 609,
+        "requests": 1,
+        "response_bytes": 124982
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-cached",
+      "args": [
+        "events",
+        "search",
+        "--artist",
+        "Radiohead",
+        "--limit",
+        "2"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 5858,
+      "wall_ms": 11.5,
+      "peak_rss_bytes": 21364736,
+      "stats": {
+        "cache_hits": 1,
+        "latency_ms": 1,
+        "requests": 0,
+        "response_bytes": 0
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-inspect",
+      "args": [
+        "events",
+        "detail",
+        "https://eplus.jp/sf/detail/4592490001-P0030001P021003",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 3309,
+      "wall_ms": 297.2,
+      "peak_rss_bytes": 24723456,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 285,
+        "requests": 1,
+        "response_bytes": 45863
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-compare",
+      "args": [
+        "compare",
+        "https://eplus.jp/sf/detail/4592490001-P0030001P021003",
+        "https://eplus.jp/sf/detail/4592490001-P0030001P021004"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 6323,
+      "wall_ms": 741.54,
+      "peak_rss_bytes": 24936448,
+      "stats": {
+        "cache_hits": 1,
+        "latency_ms": 722,
+        "requests": 1,
+        "response_bytes": 45863
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-date-category",
+      "args": [
+        "events",
+        "search",
+        "--from",
+        "2026-11-01",
+        "--to",
+        "2026-11-07",
+        "--category",
+        "theatre",
+        "--region",
+        "kanto",
+        "--pages",
+        "2",
+        "--limit",
+        "3",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 6464,
+      "wall_ms": 2281.11,
+      "peak_rss_bytes": 26361856,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 2267,
+        "requests": 1,
+        "response_bytes": 157191
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-empty",
+      "args": [
+        "events",
+        "search",
+        "--keyword",
+        "zzppnonexistent20261001zz",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 799,
+      "wall_ms": 821.45,
+      "peak_rss_bytes": 24674304,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 805,
+        "requests": 1,
+        "response_bytes": 110235
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-venue-empty",
+      "args": [
+        "events",
+        "search",
+        "--artist",
+        "Radiohead",
+        "--venue",
+        "zz-impossible-venue"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 875,
+      "wall_ms": 11.1,
+      "peak_rss_bytes": 21233664,
+      "stats": {
+        "cache_hits": 1,
+        "latency_ms": 1,
+        "requests": 0,
+        "response_bytes": 0
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "domestic-pagination",
+      "args": [
+        "events",
+        "search",
+        "--keyword",
+        "東京",
+        "--page",
+        "2",
+        "--limit",
+        "2",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 5072,
+      "wall_ms": 1895.56,
+      "peak_rss_bytes": 27656192,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 1884,
+        "requests": 3,
+        "response_bytes": 218682
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-catalog",
+      "args": [
+        "international",
+        "search",
+        "--category",
+        "concert",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1670,
+      "wall_ms": 851.55,
+      "peak_rss_bytes": 25477120,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 838,
+        "requests": 1,
+        "response_bytes": 77654
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-empty",
+      "args": [
+        "international",
+        "search",
+        "--keyword",
+        "zz-impossible"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 944,
+      "wall_ms": 621.66,
+      "peak_rss_bytes": 25100288,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 601,
+        "requests": 1,
+        "response_bytes": 86742
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-sports",
+      "args": [
+        "international",
+        "search",
+        "--category",
+        "sports",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 956,
+      "wall_ms": 739.1,
+      "peak_rss_bytes": 25001984,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 718,
+        "requests": 1,
+        "response_bytes": 76262
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-date-filter",
+      "args": [
+        "international",
+        "search",
+        "--category",
+        "concert",
+        "--from",
+        "2026-11-07",
+        "--to",
+        "2026-11-07",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2902,
+      "wall_ms": 957.59,
+      "peak_rss_bytes": 25804800,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 937,
+        "requests": 2,
+        "response_bytes": 148030
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-tour",
+      "args": [
+        "international",
+        "detail",
+        "tokinosora-live-st",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 2609,
+      "wall_ms": 638.12,
+      "peak_rss_bytes": 25083904,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 617,
+        "requests": 1,
+        "response_bytes": 70376
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-product-cold",
+      "args": [
+        "international",
+        "detail",
+        "7078",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4854,
+      "wall_ms": 4515.82,
+      "peak_rss_bytes": 25427968,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 4494,
+        "requests": 2,
+        "response_bytes": 66519
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-product-cached",
+      "args": [
+        "international",
+        "detail",
+        "7078"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4845,
+      "wall_ms": 21.72,
+      "peak_rss_bytes": 21053440,
+      "stats": {
+        "cache_hits": 2,
+        "latency_ms": 2,
+        "requests": 0,
+        "response_bytes": 0
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "international-compare",
+      "args": [
+        "compare",
+        "7078",
+        "7079",
+        "--source",
+        "international"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 9312,
+      "wall_ms": 860.48,
+      "peak_rss_bytes": 26394624,
+      "stats": {
+        "cache_hits": 2,
+        "latency_ms": 844,
+        "requests": 2,
+        "response_bytes": 66523
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "policy-current",
+      "args": [
+        "policies",
+        "--fresh"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 1544,
+      "wall_ms": 536.6,
+      "peak_rss_bytes": 24657920,
+      "stats": {
+        "cache_hits": 0,
+        "latency_ms": 515,
+        "requests": 1,
+        "response_bytes": 60865
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "projection",
+      "args": [
+        "events",
+        "search",
+        "--artist",
+        "Radiohead",
+        "--limit",
+        "2",
+        "--select",
+        "id,name,date,sales"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4152,
+      "wall_ms": 20.61,
+      "peak_rss_bytes": 21463040,
+      "stats": {
+        "cache_hits": 1,
+        "latency_ms": 3,
+        "requests": 0,
+        "response_bytes": 0
+      },
+      "assertions": "PASS"
+    },
+    {
+      "name": "invalid-date",
+      "args": [
+        "events",
+        "search",
+        "--from",
+        "2026-02-30"
+      ],
+      "exit_code": 2,
+      "stdout_bytes": 0,
+      "wall_ms": 11.52,
+      "peak_rss_bytes": 18677760,
+      "stats": null,
+      "diagnostics": "Error: date must be YYYY-MM-DD: \"2026-02-30\"",
+      "assertions": "PASS"
+    },
+    {
+      "name": "invalid-local",
+      "args": [
+        "events",
+        "search",
+        "--data-source",
+        "local"
+      ],
+      "exit_code": 2,
+      "stdout_bytes": 0,
+      "wall_ms": 10.13,
+      "peak_rss_bytes": 18235392,
+      "stats": null,
+      "diagnostics": "Error: public discovery supports --data-source auto or live; no offline mirror is shipped",
+      "assertions": "PASS"
+    },
+    {
+      "name": "unsafe-detail",
+      "args": [
+        "international",
+        "detail",
+        "https://evil.example/a"
+      ],
+      "exit_code": 2,
+      "stdout_bytes": 0,
+      "wall_ms": 9.63,
+      "peak_rss_bytes": 18169856,
+      "stats": null,
+      "diagnostics": "Error: use an international product ID, tour slug or https://ib.eplus.jp public detail URL",
+      "assertions": "PASS"
+    }
+  ]
+}
