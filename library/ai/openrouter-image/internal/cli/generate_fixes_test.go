@@ -228,4 +228,25 @@ func TestGenerateReferenceFlagPreservesDataURLCommas(t *testing.T) {
 	if len(got) != 2 || got[0] != first || got[1] != second {
 		t.Fatalf("reference values = %#v, want intact data URLs", got)
 	}
+	expanded := expandReferenceInputs(got)
+	if len(expanded) != 2 || expanded[0] != first || expanded[1] != second {
+		t.Fatalf("expanded references = %#v, want intact data URLs", expanded)
+	}
+}
+
+func TestGenerateReferenceFlagKeepsLegacyCommaSeparatedPaths(t *testing.T) {
+	commaPath := filepath.Join(t.TempDir(), "a,b.jpg")
+	if err := os.WriteFile(commaPath, []byte("synthetic image"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	got := expandReferenceInputs([]string{"a.jpg,b.jpg", "https://example.test/a,b.jpg", commaPath})
+	want := []string{"a.jpg", "b.jpg", "https://example.test/a,b.jpg", commaPath}
+	if len(got) != len(want) {
+		t.Fatalf("references = %#v, want %#v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("reference %d = %q, want %q", i, got[i], want[i])
+		}
+	}
 }
