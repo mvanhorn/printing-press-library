@@ -4,11 +4,13 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260702-090842-5bac53b7",
   "base_printing_press_version": "4.25.0",
-  "summary": "Bind unauthenticated MCP HTTP to loopback by default and reject non-loopback bind addresses.",
-  "reason": "The MCP HTTP server has no remote authentication, so accepting a wildcard or network address would expose its tools beyond the local machine.",
+  "summary": "Bind unauthenticated MCP HTTP to a literal loopback IP by default and reject remote, wildcard, and hostname bind addresses.",
+  "reason": "The MCP HTTP server has no remote authentication, so accepting a wildcard or network address would expose its tools beyond the local machine. Even localhost can resolve to a non-loopback address through local resolver settings.",
   "files": [
     "cmd/retraction-checker-pp-mcp/main.go",
-    "cmd/retraction-checker-pp-mcp/main_test.go"
+    "cmd/retraction-checker-pp-mcp/main_test.go",
+    "README.md",
+    "SKILL.md"
   ],
-  "validated_outcome": "Unit tests accept literal loopback addresses and reject wildcard, remote, and ambiguous hostname binds."
+  "validated_outcome": "Unit tests accept IPv4 and IPv6 literal loopback addresses and reject wildcard, remote, localhost, and other hostname binds."
 }

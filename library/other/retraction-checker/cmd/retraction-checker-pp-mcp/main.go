@@ -15,10 +15,8 @@ import (
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,
-// then the first transport declared in the spec (see MCPConfig.Transport).
-// The flag surface lets one binary serve stdio locally and streamable HTTP
-// when hosted in a container or remote sandbox, matching the Anthropic
-// guidance that production agents need a remote option.
+// then stdio. HTTP has no remote authentication and is restricted to a
+// literal loopback address.
 
 const (
 	defaultHTTPAddr = "127.0.0.1:7777"
@@ -37,7 +35,7 @@ func main() {
 	mcptools.RegisterTools(s)
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
-	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	addr := flag.String("addr", defaultHTTPAddr, "local HTTP bind address (literal loopback IP:port, such as 127.0.0.1:7777)")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -68,10 +66,9 @@ func isLoopbackBind(addr string) bool {
 	if err != nil {
 		return false
 	}
-	host = strings.TrimSuffix(strings.ToLower(host), ".")
-	if host == "localhost" {
-		return true
-	}
+	// Hostnames, including localhost, can resolve to a non-loopback address
+	// through local resolver settings. Keep validation tied to the actual
+	// address passed to the listener.
 	ip := net.ParseIP(host)
 	return ip != nil && ip.IsLoopback()
 }

@@ -272,6 +272,8 @@ Parse `$ARGUMENTS`:
    ```
 3. Verify: `claude mcp list`
 
+The default MCP transport is stdio. For local HTTP, run `retraction-checker-pp-mcp --transport http`; its default bind is `127.0.0.1:7777`. The server refuses hostnames and non-loopback addresses because it has no remote HTTP authentication.
+
 ## Direct Use
 
 1. Check if installed: `which retraction-checker-pp-cli`

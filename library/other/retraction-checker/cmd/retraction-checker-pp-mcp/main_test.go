@@ -10,11 +10,15 @@ func TestIsLoopbackBind(t *testing.T) {
 		want bool
 	}{
 		{addr: "127.0.0.1:7777", want: true},
+		{addr: "127.0.0.2:7777", want: true},
 		{addr: "[::1]:7777", want: true},
-		{addr: "localhost:7777", want: true},
+		{addr: "localhost:7777", want: false},
+		{addr: "LOCALHOST.:7777", want: false},
 		{addr: "api.localhost:7777", want: false},
+		{addr: "127.0.0.1.example:7777", want: false},
 		{addr: ":7777", want: false},
 		{addr: "0.0.0.0:7777", want: false},
+		{addr: "[::]:7777", want: false},
 		{addr: "192.0.2.1:7777", want: false},
 		{addr: "not-an-address", want: false},
 	}
