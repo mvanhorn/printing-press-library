@@ -600,6 +600,10 @@ Access to workspace related endpoints.
 - **`elevenlabs-pp-cli workspace update-member`** - Updates attributes of a workspace member. Apart from the email identifier, all parameters will remain unchanged unless specified. This endpoint may only be called by workspace administrators.
 - **`elevenlabs-pp-cli workspace usage-by-product-over-time`** - Returns credit usage broken down by product type over time. The response is a tabular structure with columns, column_types, column_units, and rows.
 
+### Voice budget
+
+`elevenlabs-pp-cli voice-budget --json` reads the current subscription and reports the character balance, reset time, and voice slots used. The voice-slot count comes from ElevenLabs' subscription counter, which covers the whole account rather than one page of the voice list.
+
 ## Output Formats
 
 ```bash
