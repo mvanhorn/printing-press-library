@@ -4,6 +4,9 @@
 
 goat unifies two human networks behind a common task model: TaskRabbit for in-person local labor and Magic for remote errands. Its headline is hands-off checkout on TaskRabbit against the card on file — searched, ranked by honest all-in price and review quality, and booked with no prompt — made safe by a spend cap and a cancel command that verifies the cancellation actually landed.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `human-goat-pp-cli` binary and the `pp-human-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -27,6 +27,12 @@ type cookieJar struct {
 	mu    sync.Mutex
 }
 
+// cookieFileMu serializes the read-merge-write cycle across every client in
+// this process. MCP requests construct separate clients, so a mutex stored on
+// one cookieJar instance cannot prevent another instance from overwriting a
+// concurrently rotated cookie.
+var cookieFileMu sync.Mutex
+
 type persistedCookie struct {
 	Name    string    `json:"name"`
 	Value   string    `json:"value"`
@@ -200,6 +206,9 @@ func WriteCookieJarFromMap(domain string, cookies map[string]string) error {
 // cookies) and the http.CookieJar interface (server Set-Cookie response
 // headers) so neither write path silently clobbers the other.
 func mergeAndWriteCookieRows(path string, rows []persistedCookie) error {
+	cookieFileMu.Lock()
+	defer cookieFileMu.Unlock()
+
 	existing, _ := os.ReadFile(path)
 	var all []persistedCookie
 	_ = json.Unmarshal(existing, &all)
@@ -233,10 +242,7 @@ func mergeAndWriteCookieRows(path string, rows []persistedCookie) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return err
-	}
-	return os.WriteFile(path, data, 0o600)
+	return cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700)
 }
 
 func shouldReplaceShadowingCookie(existing, incoming persistedCookie) bool {
@@ -252,6 +258,9 @@ func normalizedWWWCookieDomain(domain string) string {
 }
 
 func (j *cookieJar) loadFromDisk() {
+	cookieFileMu.Lock()
+	defer cookieFileMu.Unlock()
+
 	data, err := os.ReadFile(j.path)
 	if err != nil {
 		return

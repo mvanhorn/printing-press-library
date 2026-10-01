@@ -2,7 +2,55 @@
 
 package magic
 
-import "testing"
+import (
+	"context"
+	"errors"
+	"net/http"
+	"sync/atomic"
+	"testing"
+)
+
+type magicRoundTripFunc func(*http.Request) (*http.Response, error)
+
+func (fn magicRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return fn(req)
+}
+
+func TestVerifyModeShortCircuitsMutatingRequests(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+	var transportCalls atomic.Int32
+	var keyCalls atomic.Int32
+	c := &Client{
+		baseURL: "https://example.invalid",
+		httpClient: &http.Client{Transport: magicRoundTripFunc(func(*http.Request) (*http.Response, error) {
+			transportCalls.Add(1)
+			return nil, errors.New("transport must not run")
+		})},
+		keyProvider: func() (string, error) {
+			keyCalls.Add(1)
+			return "", errors.New("key provider must not run")
+		},
+	}
+
+	request, err := c.Send(context.Background(), SendParams{
+		Title:        "verify",
+		Instructions: "do not send",
+		Objective:    "prove the transport is gated",
+	})
+	if err != nil {
+		t.Fatalf("Send() in verify mode: %v", err)
+	}
+	if request == nil {
+		t.Fatal("Send() returned a nil synthetic request")
+	}
+	if got := transportCalls.Load(); got != 0 {
+		t.Fatalf("transport calls = %d, want 0", got)
+	}
+	if got := keyCalls.Load(); got != 0 {
+		t.Fatalf("key-provider calls = %d, want 0", got)
+	}
+}
 
 func TestIsInProgress(t *testing.T) {
 	tests := []struct {

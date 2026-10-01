@@ -255,6 +255,19 @@ func (c *Client) do(ctx context.Context, method, path string, body any) ([]byte,
 	if ctx == nil {
 		ctx = context.Background()
 	}
+	// Magic uses a dedicated transport rather than the generated TaskRabbit
+	// client. Apply the same verifier safety boundary here so dogfood cannot
+	// create requests or conversation replies unless live HTTP is explicitly
+	// enabled.
+	if isMutatingMethod(method) && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
+		return json.Marshal(map[string]any{
+			"__pp_verify_synthetic__": true,
+			"status":                  "noop",
+			"reason":                  "verify_short_circuit",
+			"method":                  method,
+			"path":                    path,
+		})
+	}
 	keyProvider := c.keyProvider
 	if keyProvider == nil {
 		keyProvider = ResolveKey
@@ -335,6 +348,15 @@ func (c *Client) do(ctx context.Context, method, path string, body any) ([]byte,
 		}
 
 		return nil, fmt.Errorf("magic: HTTP %d %s %s: %s", resp.StatusCode, method, path, errorSnippet(respBody))
+	}
+}
+
+func isMutatingMethod(method string) bool {
+	switch strings.ToUpper(strings.TrimSpace(method)) {
+	case http.MethodDelete, http.MethodPatch, http.MethodPost, http.MethodPut:
+		return true
+	default:
+		return false
 	}
 }
 

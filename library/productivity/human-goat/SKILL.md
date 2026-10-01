@@ -18,6 +18,9 @@ metadata:
 
 # Human-Goat — Printing Press CLI
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `human-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
