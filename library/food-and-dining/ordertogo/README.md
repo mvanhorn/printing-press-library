@@ -7,7 +7,7 @@ OrderToGo.com is a multi-tenant pickup ordering platform that powers small chain
 Learn more at [OrderToGo](https://www.ordertogo.com).
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -258,6 +258,8 @@ Order history, detail, validation, and tracking - the core ordering data path
 - **`ordertogo-pp-cli orders validate`** - Pre-validate a cart - returns an order token plus tax computation, used by `order plan` before any payment surface opens
 - **`ordertogo-pp-cli orders plan`** - Reuse a previous order or item list, validate tax and tip, and save the active cart behind a budget gate
 - **`ordertogo-pp-cli orders place`** - Drive Chrome through checkout for the active cart after explicit confirmation and max-budget validation
+
+If checkout loses its response, inspect your recent orders before retrying. An identical cart reuses its saved request ID so the server can recognize the retry; a confirmed order clears that reservation for a future intentional reorder. If the CLI cannot save or lock the reservation, it refuses to submit the order.
 
 ### payment
 

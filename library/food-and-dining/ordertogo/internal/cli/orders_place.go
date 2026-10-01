@@ -202,10 +202,25 @@ strings. Payment uses the Stripe customer + saved card configured via
 			// fetch-metadata, client hints, priority, and a restaurant-page
 			// Referer (the generic "/" referer the client otherwise sends is a
 			// tell). cfg.BaseURL + the restaurant path mirrors the browser.
+			// Reuse the reserved __requestid when retrying the same cart: if a
+			// prior POST reached the server but its response was lost, a fresh
+			// id would place (and charge) the order a second time; the same id
+			// lets the server's dedup absorb the retry. The reservation holds a
+			// per-cart lock through the POST and fails closed on any
+			// persistence error — an order must never fire without a durable
+			// idempotency record.
+			reservation, err := reservePlacement(cartFingerprint(slug, rid, items, subtotal, body.Param.Tax, tip, cfg.StripeCustomerID, cfg.StripeDefaultCard))
+			if err != nil {
+				return &cliError{code: 10, err: err}
+			}
+			defer reservation.Release()
+			if reservation.Reused {
+				fmt.Fprintln(cmd.ErrOrStderr(), "note: retrying the same cart; reusing the previous __requestid so the server dedups instead of double-charging")
+			}
 			headers := map[string]string{
 				"Accept":             "*/*",
 				"X-Requested-With":   "XMLHttpRequest",
-				"__requestid":        newRequestID(),
+				"__requestid":        reservation.RequestID,
 				"Sec-Fetch-Site":     "same-origin",
 				"Sec-Fetch-Mode":     "cors",
 				"Sec-Fetch-Dest":     "empty",
@@ -231,9 +246,12 @@ strings. Payment uses the Stripe customer + saved card configured via
 			if err != nil {
 				return &cliError{code: 5, err: fmt.Errorf("checkout POST returned 200 but response did not contain a valid order: %w. Raw body: %s", err, truncate(string(data), 500))}
 			}
+			if warn := reservation.ConfirmSuccess(); warn != "" {
+				result.Warning = appendWarning(result.Warning, warn)
+			}
 			if result.Total > 0 && result.Total > maxBudget && !confirmOverBudget {
 				// We charged successfully but exceeded budget; surface clearly.
-				result.Warning = fmt.Sprintf("actual total %.2f exceeded --max %.2f", result.Total, maxBudget)
+				result.Warning = appendWarning(result.Warning, fmt.Sprintf("actual total %.2f exceeded --max %.2f", result.Total, maxBudget))
 			}
 			if err := persistPlacedOrder(cmd.Context(), defaultDBPath("ordertogo-pp-cli"), result, items, subtotal, tax, tip, slug, rid); err != nil {
 				result.Warning = appendWarning(result.Warning, fmt.Sprintf("order placed successfully, but saving local history failed: %v", err))
