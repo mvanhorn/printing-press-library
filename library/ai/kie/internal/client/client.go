@@ -829,41 +829,72 @@ type multipartRequestBody struct {
 	FileFields map[string]string
 }
 
-func encodeMultipartBody(body multipartRequestBody) ([]byte, string, error) {
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
-	for fieldName, value := range body.Fields {
-		if err := writer.WriteField(fieldName, value); err != nil {
-			_ = writer.Close()
-			return nil, "", fmt.Errorf("writing multipart field %q: %w", fieldName, err)
-		}
-	}
+func validateMultipartBody(body multipartRequestBody) error {
 	for fieldName, filePath := range body.FileFields {
 		file, err := os.Open(filePath)
 		if err != nil {
-			_ = writer.Close()
-			return nil, "", fmt.Errorf("opening multipart file field %q (%q): %w", fieldName, filePath, err)
+			return fmt.Errorf("opening multipart file field %q (%q): %w", fieldName, filePath, err)
+		}
+		if err := file.Close(); err != nil {
+			return fmt.Errorf("closing multipart file field %q (%q): %w", fieldName, filePath, err)
+		}
+	}
+	return nil
+}
+
+// Stream file uploads through the HTTP request body instead of holding the
+// entire file in memory. Each retry gets a fresh stream and multipart boundary.
+func streamMultipartBody(body multipartRequestBody) (io.ReadCloser, string) {
+	reader, pipeWriter := io.Pipe()
+	writer := multipart.NewWriter(pipeWriter)
+	contentType := writer.FormDataContentType()
+	go func() {
+		err := writeMultipartBody(writer, body)
+		if closeErr := writer.Close(); err == nil {
+			err = closeErr
+		}
+		_ = pipeWriter.CloseWithError(err)
+	}()
+	return reader, contentType
+}
+
+func writeMultipartBody(writer *multipart.Writer, body multipartRequestBody) error {
+	fieldNames := make([]string, 0, len(body.Fields))
+	for fieldName := range body.Fields {
+		fieldNames = append(fieldNames, fieldName)
+	}
+	sort.Strings(fieldNames)
+	for _, fieldName := range fieldNames {
+		value := body.Fields[fieldName]
+		if err := writer.WriteField(fieldName, value); err != nil {
+			return fmt.Errorf("writing multipart field %q: %w", fieldName, err)
+		}
+	}
+	fileFieldNames := make([]string, 0, len(body.FileFields))
+	for fieldName := range body.FileFields {
+		fileFieldNames = append(fileFieldNames, fieldName)
+	}
+	sort.Strings(fileFieldNames)
+	for _, fieldName := range fileFieldNames {
+		filePath := body.FileFields[fieldName]
+		file, err := os.Open(filePath)
+		if err != nil {
+			return fmt.Errorf("opening multipart file field %q (%q): %w", fieldName, filePath, err)
 		}
 		part, err := writer.CreateFormFile(fieldName, filepath.Base(filePath))
 		if err != nil {
 			_ = file.Close()
-			_ = writer.Close()
-			return nil, "", fmt.Errorf("creating multipart file field %q (%q): %w", fieldName, filePath, err)
+			return fmt.Errorf("creating multipart file field %q (%q): %w", fieldName, filePath, err)
 		}
 		if _, err := io.Copy(part, file); err != nil {
 			_ = file.Close()
-			_ = writer.Close()
-			return nil, "", fmt.Errorf("copying multipart file field %q (%q): %w", fieldName, filePath, err)
+			return fmt.Errorf("copying multipart file field %q (%q): %w", fieldName, filePath, err)
 		}
 		if err := file.Close(); err != nil {
-			_ = writer.Close()
-			return nil, "", fmt.Errorf("closing multipart file field %q (%q): %w", fieldName, filePath, err)
+			return fmt.Errorf("closing multipart file field %q (%q): %w", fieldName, filePath, err)
 		}
 	}
-	if err := writer.Close(); err != nil {
-		return nil, "", fmt.Errorf("finalizing multipart body: %w", err)
-	}
-	return buf.Bytes(), writer.FormDataContentType(), nil
+	return nil
 }
 
 // isMutatingVerb reports whether the HTTP method writes server state.
@@ -963,15 +994,14 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
+	var multipartBody *multipartRequestBody
 	var contentType string
 	if body != nil {
-		if multipartBody, ok := body.(multipartRequestBody); ok {
-			b, ct, err := encodeMultipartBody(multipartBody)
-			if err != nil {
+		if value, ok := body.(multipartRequestBody); ok {
+			if err := validateMultipartBody(value); err != nil {
 				return nil, 0, err
 			}
-			bodyBytes = b
-			contentType = ct
+			multipartBody = &value
 		} else {
 			b, err := json.Marshal(body)
 			if err != nil {
@@ -1028,16 +1058,22 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			c.platformSession.RecordRateLimitWait(time.Since(adaptiveStarted))
 		}
 		var bodyReader io.Reader
-		if bodyBytes != nil {
-			bodyReader = strings.NewReader(string(bodyBytes))
+		requestContentType := contentType
+		if multipartBody != nil {
+			bodyReader, requestContentType = streamMultipartBody(*multipartBody)
+		} else if bodyBytes != nil {
+			bodyReader = bytes.NewReader(bodyBytes)
 		}
 
 		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
+			if closer, ok := bodyReader.(io.Closer); ok {
+				_ = closer.Close()
+			}
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
-		if bodyBytes != nil {
-			req.Header.Set("Content-Type", contentType)
+		if bodyReader != nil {
+			req.Header.Set("Content-Type", requestContentType)
 		}
 
 		if params != nil {

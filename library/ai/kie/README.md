@@ -10,6 +10,10 @@ from Kie.ai's published documentation at [docs.kie.ai](https://docs.kie.ai), the
 hand-patched and validated (`go build`, `go test ./...`, `cli-printing-press
 scorecard` — grade A / 88%).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+File uploads stream from disk, so large uploads do not need to fit in memory.
+
 ## What's covered
 
 - **70 endpoints** across the dedicated product APIs: Common (credits, download

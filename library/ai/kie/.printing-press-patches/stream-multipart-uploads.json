@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "stream-multipart-uploads",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260803T075619Z-899a6d3a",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Stream multipart file uploads instead of buffering entire files in memory.",
+  "reason": "Large files exceeded practical process memory when the public client assembled the whole multipart body before sending it. Each attempt now opens a fresh bounded stream while retaining the public request retry policy.",
+  "files": [
+    ".printing-press.json",
+    "NOTICE",
+    "README.md",
+    "internal/client/client.go",
+    "internal/client/multipart_stream_test.go"
+  ],
+  "validated_outcome": "Offline Go tests, vet, build, skill verification, and diff check pass."
+}
