@@ -1,0 +1,24 @@
+{
+  "text_files_scanned": 215,
+  "tier1_patterns_from_secret_protection": 10,
+  "credential_findings": 0,
+  "pending_findings": [],
+  "email_fixture_decisions": [
+    {
+      "file": "internal/learn/recall_test.go",
+      "line": 891,
+      "decision": "static PII-detector test input; no customer/account data"
+    },
+    {
+      "file": "internal/learn/recall_test.go",
+      "line": 895,
+      "decision": "static PII-detector test input; no customer/account data"
+    }
+  ],
+  "capitalized_phrase_candidates_reviewed": 110,
+  "capitalized_phrase_decisions": "API/help vocabulary, source type/comment pairs, static entity-test samples, public sports/place/food names, license vocabulary and public generator-author attribution; no workspace/person record captures included.",
+  "exact_api_key_scan": "not applicable: anonymous API, no key was supplied",
+  "mandatory_package_vendor_prefix_scan": "passed by Printing Press publish package",
+  "external_scanner": "gitleaks and trufflehog not installed",
+  "status": "PASS"
+}

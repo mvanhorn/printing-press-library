@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/yamap-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261001-020507-6320344e",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

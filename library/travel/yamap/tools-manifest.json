@@ -1,0 +1,288 @@
+{
+  "api_name": "yamap",
+  "base_url": "https://api.yamap.com/v6",
+  "description": "Discover Japan hikes with compact source facts and dated contributor evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Accept-Language",
+      "value": "ja"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; YAMAP-CLI/0.1)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "source_activity_detail",
+      "description": "Read exact public source detail. Required: id (default: 51497803). Returns the Envelope.",
+      "method": "GET",
+      "path": "/activities/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Exact first-party source identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_activity_search",
+      "description": "Read one bounded source result page. Optional: keyword (default: 高尾山), page (default: 1), per (default: 5). Returns the Envelope.",
+      "method": "GET",
+      "path": "/activities/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Japanese mountain name or report text search"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "One-based source result page"
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Bounded source page size, maximum twenty"
+        }
+      ]
+    },
+    {
+      "name": "source_course_detail",
+      "description": "Read exact public source detail. Required: id (default: 1771). Returns the Envelope.",
+      "method": "GET",
+      "path": "/model_courses/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Exact first-party source identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_course_search",
+      "description": "Read one bounded source result page. Optional: name (default: 高尾山), page (default: 1), per (default: 5). Returns the Envelope.",
+      "method": "GET",
+      "path": "/model_courses/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Source model-course name substring"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "One-based source result page"
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Bounded source page size, maximum twenty"
+        }
+      ]
+    },
+    {
+      "name": "source_map_detail",
+      "description": "Read exact public source detail. Required: id (default: 77). Returns the Envelope.",
+      "method": "GET",
+      "path": "/maps/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Exact first-party source identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_map_search",
+      "description": "Read one bounded source result page. Optional: keyword (default: 高尾山), page (default: 1), per (default: 5). Returns the Envelope.",
+      "method": "GET",
+      "path": "/maps/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Japanese mountain name or report text search"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "One-based source result page"
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Bounded source page size, maximum twenty"
+        }
+      ]
+    },
+    {
+      "name": "source_mountain_courses",
+      "description": "Read model courses related to a mountain. Required: id (default: 108). Optional: page (default: 1), per (default: 5). Returns the Envelope.",
+      "method": "GET",
+      "path": "/mountains/{id}/model_courses",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Exact first-party source identifier",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "One-based source result page"
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Bounded source page size, maximum twenty"
+        }
+      ]
+    },
+    {
+      "name": "source_mountain_detail",
+      "description": "Read exact public source detail. Required: id (default: 108). Returns the Envelope.",
+      "method": "GET",
+      "path": "/mountains/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Exact first-party source identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_mountain_reports",
+      "description": "Read recorded reports related to a mountain. Required: id (default: 108). Optional: page (default: 1), per (default: 5). Returns the Envelope.",
+      "method": "GET",
+      "path": "/mountains/{id}/activities",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Exact first-party source identifier",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "One-based source result page"
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Bounded source page size, maximum twenty"
+        }
+      ]
+    },
+    {
+      "name": "source_mountain_search",
+      "description": "Read one bounded source result page. Optional: keyword (default: 高尾山), page (default: 1), per (default: 5). Returns the Envelope.",
+      "method": "GET",
+      "path": "/mountains/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Japanese mountain name or report text search"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "One-based source result page"
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Bounded source page size, maximum twenty"
+        }
+      ]
+    },
+    {
+      "name": "source_types_list",
+      "description": "Read source activity-type vocabulary. Returns the Envelope.",
+      "method": "GET",
+      "path": "/activity_types",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Recent reports",
+      "command": "reports recent",
+      "description": "Find recorded activity evidence by trip date in a bounded scan"
+    },
+    {
+      "name": "Contributor observations",
+      "command": "reports observations",
+      "description": "Read bounded contributor observations with trip dates and source links"
+    },
+    {
+      "name": "Route versus trip",
+      "command": "routes compare",
+      "description": "Compare planned metrics with recorded metrics without assuming track equivalence"
+    },
+    {
+      "name": "Map coverage",
+      "command": "maps coverage",
+      "description": "Inspect map area bounds and limits of map coverage"
+    },
+    {
+      "name": "Inventory status",
+      "command": "inventory status",
+      "description": "Inspect cached request inventory and freshness without a crawl"
+    }
+  ]
+}

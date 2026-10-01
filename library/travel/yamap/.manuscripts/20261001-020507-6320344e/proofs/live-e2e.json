@@ -1,0 +1,465 @@
+{
+  "verified_at": "2026-10-01T02:01:00.019023+00:00",
+  "data_kind": "live first-party reads, no fixtures",
+  "passed": 25,
+  "cases": [
+    {
+      "case": "mountains-search",
+      "args": [
+        "mountains",
+        "search",
+        "高尾山",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1931,
+      "latency_ms": 546.36,
+      "peak_memory_bytes": 24887296,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 22035,
+      "returned": 3
+    },
+    {
+      "case": "routes-search",
+      "args": [
+        "routes",
+        "search",
+        "高尾山",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2345,
+      "latency_ms": 214.32,
+      "peak_memory_bytes": 24657920,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 27046,
+      "returned": 3
+    },
+    {
+      "case": "reports-search",
+      "args": [
+        "reports",
+        "search",
+        "高尾山",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 3128,
+      "latency_ms": 1055.02,
+      "peak_memory_bytes": 24838144,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 35001,
+      "returned": 3
+    },
+    {
+      "case": "maps-search",
+      "args": [
+        "maps",
+        "search",
+        "高尾山",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2374,
+      "latency_ms": 226.23,
+      "peak_memory_bytes": 24788992,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 12133,
+      "returned": 3
+    },
+    {
+      "case": "mountains-detail",
+      "args": [
+        "mountains",
+        "get",
+        "108",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2295,
+      "latency_ms": 205.89,
+      "peak_memory_bytes": 25477120,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 43196,
+      "returned": 1
+    },
+    {
+      "case": "routes-detail",
+      "args": [
+        "routes",
+        "get",
+        "1771",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1350,
+      "latency_ms": 535.44,
+      "peak_memory_bytes": 27590656,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 180013,
+      "returned": 1
+    },
+    {
+      "case": "reports-detail",
+      "args": [
+        "reports",
+        "get",
+        "51497803",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1805,
+      "latency_ms": 351.23,
+      "peak_memory_bytes": 24870912,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 48981,
+      "returned": 1
+    },
+    {
+      "case": "maps-detail",
+      "args": [
+        "maps",
+        "get",
+        "77",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2157,
+      "latency_ms": 240.09,
+      "peak_memory_bytes": 25346048,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 90189,
+      "returned": 1
+    },
+    {
+      "case": "mountain-routes",
+      "args": [
+        "mountains",
+        "routes",
+        "108",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2309,
+      "latency_ms": 520.86,
+      "peak_memory_bytes": 24428544,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 21423,
+      "returned": 3
+    },
+    {
+      "case": "mountain-reports",
+      "args": [
+        "mountains",
+        "reports",
+        "108",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 3072,
+      "latency_ms": 261.45,
+      "peak_memory_bytes": 25231360,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 27550,
+      "returned": 3
+    },
+    {
+      "case": "recent",
+      "args": [
+        "reports",
+        "recent",
+        "--mountain-id",
+        "108",
+        "--days",
+        "30",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 3070,
+      "latency_ms": 541.87,
+      "peak_memory_bytes": 27672576,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 219419,
+      "returned": 3
+    },
+    {
+      "case": "observations",
+      "args": [
+        "reports",
+        "observations",
+        "51497803"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1800,
+      "latency_ms": 18.66,
+      "peak_memory_bytes": 19742720,
+      "request_count": 0,
+      "cache_hits": 1,
+      "upstream_bytes": 0,
+      "returned": 1
+    },
+    {
+      "case": "coverage",
+      "args": [
+        "maps",
+        "coverage",
+        "77"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2152,
+      "latency_ms": 14.6,
+      "peak_memory_bytes": 21331968,
+      "request_count": 0,
+      "cache_hits": 1,
+      "upstream_bytes": 0,
+      "returned": 1
+    },
+    {
+      "case": "compare",
+      "args": [
+        "routes",
+        "compare",
+        "1771",
+        "51497803"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2852,
+      "latency_ms": 14.35,
+      "peak_memory_bytes": 21528576,
+      "request_count": 0,
+      "cache_hits": 2,
+      "upstream_bytes": 0,
+      "returned": 1
+    },
+    {
+      "case": "inventory",
+      "args": [
+        "inventory",
+        "status"
+      ],
+      "exit": 0,
+      "stdout_bytes": 927,
+      "latency_ms": 12.23,
+      "peak_memory_bytes": 21659648,
+      "request_count": 0,
+      "cache_hits": 0,
+      "upstream_bytes": 0,
+      "returned": 1
+    },
+    {
+      "case": "unknown-id",
+      "args": [
+        "reports",
+        "get",
+        "999999999999",
+        "--no-cache"
+      ],
+      "exit": 3,
+      "stdout_bytes": 0,
+      "latency_ms": 131.06,
+      "peak_memory_bytes": 23085056,
+      "stderr": [
+        "Error: YAMAP not_found: HTTP 404; public-only command; no authenticated fallback",
+        "        0.12 real         0.00 user         0.00 sys",
+        "            23085056  maximum resident set size"
+      ]
+    },
+    {
+      "case": "bad-limit",
+      "args": [
+        "reports",
+        "search",
+        "高尾山",
+        "--limit",
+        "0"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "latency_ms": 14.09,
+      "peak_memory_bytes": 18644992,
+      "stderr": [
+        "Error: --limit must be 1–20",
+        "        0.01 real         0.00 user         0.00 sys",
+        "            18644992  maximum resident set size"
+      ]
+    },
+    {
+      "case": "wrong-provider",
+      "args": [
+        "reports",
+        "get",
+        "https://example.org/activities/1"
+      ],
+      "exit": 2,
+      "stdout_bytes": 0,
+      "latency_ms": 11.28,
+      "peak_memory_bytes": 18382848,
+      "stderr": [
+        "Error: use a positive source ID or https://yamap.com/activities/ID",
+        "        0.00 real         0.00 user         0.00 sys",
+        "            18382848  maximum resident set size"
+      ]
+    },
+    {
+      "case": "offline-miss",
+      "args": [
+        "reports",
+        "get",
+        "123456789012345",
+        "--data-source",
+        "local"
+      ],
+      "exit": 3,
+      "stdout_bytes": 0,
+      "latency_ms": 10.51,
+      "peak_memory_bytes": 18481152,
+      "stderr": [
+        "Error: YAMAP not_found: exact request absent from cache; run online with the same query/page/limit first",
+        "        0.00 real         0.00 user         0.00 sys",
+        "            18481152  maximum resident set size"
+      ]
+    },
+    {
+      "case": "no-match",
+      "args": [
+        "mountains",
+        "search",
+        "存在しない山XYZ987654321",
+        "--limit",
+        "2",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1084,
+      "latency_ms": 281.75,
+      "peak_memory_bytes": 23330816,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 104,
+      "returned": 0
+    },
+    {
+      "case": "pagination",
+      "args": [
+        "mountains",
+        "search",
+        "高尾山",
+        "--page",
+        "2",
+        "--limit",
+        "3",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1909,
+      "latency_ms": 198.32,
+      "peak_memory_bytes": 25133056,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 16761,
+      "returned": 3
+    },
+    {
+      "case": "benchmark-uncached",
+      "args": [
+        "reports",
+        "search",
+        "高尾山",
+        "--limit",
+        "5",
+        "--refresh"
+      ],
+      "exit": 0,
+      "stdout_bytes": 4416,
+      "latency_ms": 348.85,
+      "peak_memory_bytes": 24788992,
+      "request_count": 1,
+      "cache_hits": 0,
+      "upstream_bytes": 57252,
+      "returned": 5
+    },
+    {
+      "case": "benchmark-cached",
+      "args": [
+        "reports",
+        "search",
+        "高尾山",
+        "--limit",
+        "5"
+      ],
+      "exit": 0,
+      "stdout_bytes": 4411,
+      "latency_ms": 21.22,
+      "peak_memory_bytes": 21037056,
+      "request_count": 0,
+      "cache_hits": 1,
+      "upstream_bytes": 0,
+      "returned": 5
+    },
+    {
+      "case": "benchmark-projected",
+      "args": [
+        "reports",
+        "search",
+        "高尾山",
+        "--limit",
+        "5",
+        "--select",
+        "id,title,url"
+      ],
+      "exit": 0,
+      "stdout_bytes": 1642,
+      "latency_ms": 13.62,
+      "peak_memory_bytes": 19644416,
+      "request_count": 0,
+      "cache_hits": 1,
+      "upstream_bytes": 0,
+      "returned": 5
+    },
+    {
+      "case": "benchmark-offline",
+      "args": [
+        "reports",
+        "search",
+        "高尾山",
+        "--limit",
+        "5",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "stdout_bytes": 4411,
+      "latency_ms": 11.91,
+      "peak_memory_bytes": 20840448,
+      "request_count": 0,
+      "cache_hits": 1,
+      "upstream_bytes": 0,
+      "returned": 5
+    }
+  ]
+}

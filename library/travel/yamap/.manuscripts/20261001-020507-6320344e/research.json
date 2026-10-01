@@ -1,0 +1,168 @@
+{
+  "api_name": "yamap",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "yamap-export",
+      "url": "https://github.com/akiyama709/yamap-export",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-30T18:22:35.690294Z",
+  "novel_features": [
+    {
+      "name": "Recent reports",
+      "command": "reports recent",
+      "description": "Find recorded activity evidence by trip date in a bounded scan",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli reports recent 高尾山 --limit 3 --agent",
+      "why_it_matters": "Find recorded activity evidence by trip date in a bounded scan",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Contributor observations",
+      "command": "reports observations",
+      "description": "Read bounded contributor observations with trip dates and source links",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli reports observations 51497803 --agent",
+      "why_it_matters": "Read bounded contributor observations with trip dates and source links",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Route versus trip",
+      "command": "routes compare",
+      "description": "Compare planned metrics with recorded metrics without assuming track equivalence",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli routes compare 1771 51497803 --agent",
+      "why_it_matters": "Compare planned metrics with recorded metrics without assuming track equivalence",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Map coverage",
+      "command": "maps coverage",
+      "description": "Inspect map area bounds and limits of map coverage",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli maps coverage 77 --agent",
+      "why_it_matters": "Inspect map area bounds and limits of map coverage",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Inventory status",
+      "command": "inventory status",
+      "description": "Inspect cached request inventory and freshness without a crawl",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli inventory status --agent",
+      "why_it_matters": "Inspect cached request inventory and freshness without a crawl",
+      "group": "Hiking evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recent reports",
+      "command": "reports recent",
+      "description": "Find recorded activity evidence by trip date in a bounded scan",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli reports recent 高尾山 --limit 3 --agent",
+      "why_it_matters": "Find recorded activity evidence by trip date in a bounded scan",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Contributor observations",
+      "command": "reports observations",
+      "description": "Read bounded contributor observations with trip dates and source links",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli reports observations 51497803 --agent",
+      "why_it_matters": "Read bounded contributor observations with trip dates and source links",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Route versus trip",
+      "command": "routes compare",
+      "description": "Compare planned metrics with recorded metrics without assuming track equivalence",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli routes compare 1771 51497803 --agent",
+      "why_it_matters": "Compare planned metrics with recorded metrics without assuming track equivalence",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Map coverage",
+      "command": "maps coverage",
+      "description": "Inspect map area bounds and limits of map coverage",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli maps coverage 77 --agent",
+      "why_it_matters": "Inspect map area bounds and limits of map coverage",
+      "group": "Hiking evidence"
+    },
+    {
+      "name": "Inventory status",
+      "command": "inventory status",
+      "description": "Inspect cached request inventory and freshness without a crawl",
+      "rationale": "Domain-specific evidence distinctions over source facts",
+      "example": "yamap-pp-cli inventory status --agent",
+      "why_it_matters": "Inspect cached request inventory and freshness without a crawl",
+      "group": "Hiking evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "YAMAP",
+    "headline": "Discover Japan hikes with compact source facts and dated contributor evidence.",
+    "value_prop": "Search named mountains, planned model courses, recorded trips and map areas. Keep source metrics and contributor observations separate from closure and safety decisions.",
+    "auth_narrative": "Anonymous public first-party JSON reads; no account or paid key. Membership-only GPX and multi-landmark operations excluded.",
+    "quickstart": [
+      {
+        "command": "yamap-pp-cli doctor --dry-run",
+        "comment": "Inspect bounded public access configuration."
+      },
+      {
+        "command": "yamap-pp-cli mountains search 高尾山 --limit 3 --agent",
+        "comment": "Disambiguate same-name mountains by prefecture."
+      },
+      {
+        "command": "yamap-pp-cli routes search 高尾山 --limit 3 --agent",
+        "comment": "Find planned reference routes."
+      },
+      {
+        "command": "yamap-pp-cli reports recent 高尾山 --limit 3 --agent",
+        "comment": "Inspect dated contributor evidence."
+      }
+    ],
+    "when_to_use": "Use for Japan hiking discovery on YAMAP and source report evidence. Resolve source IDs before fetching details.",
+    "anti_triggers": [
+      "Official closure clearance or safety advice",
+      "Paid GPX downloads, accounts, route creation or bookings"
+    ],
+    "recipes": [
+      {
+        "title": "Compact mountain candidates",
+        "command": "yamap-pp-cli mountains search 高尾山 --agent --select id,name,prefectures,url",
+        "explanation": "Keep source IDs and Japanese names."
+      },
+      {
+        "title": "Recent contributor reports",
+        "command": "yamap-pp-cli reports recent 高尾山 --limit 3 --agent",
+        "explanation": "Activity-date filter within bounded candidate coverage."
+      },
+      {
+        "title": "Inspect map coverage",
+        "command": "yamap-pp-cli maps coverage 77 --agent",
+        "explanation": "Area bounds do not establish route safety or offline availability."
+      }
+    ],
+    "trigger_phrases": [
+      "find YAMAP hikes",
+      "recent hiking reports",
+      "YAMAP model courses",
+      "use yamap",
+      "run yamap"
+    ]
+  }
+}
