@@ -39,7 +39,7 @@ var recordMetrics = map[string]struct {
 }{
 	"distance":  {"distance", "km", func(v float64) string { return fmt.Sprintf("%.1f km / %.1f mi", metersToKM(v), metersToMiles(v)) }},
 	"elevation": {"elevation_gain", "m", func(v float64) string { return fmt.Sprintf("%.0f m / %.0f ft", v, v*3.28084) }},
-	"speed":     {"max_speed", "km/h", func(v float64) string { return fmt.Sprintf("%.1f km/h", v) }},
+	"speed":     {"avg_speed", "km/h", func(v float64) string { return fmt.Sprintf("%.1f km/h", v) }},
 	"power":     {"max_watts", "W", func(v float64) string { return fmt.Sprintf("%.0f W", v) }},
 	"duration":  {"COALESCE(moving_time, duration)", "time", func(v float64) string { return secondsToHMS(v) }},
 }
@@ -54,7 +54,7 @@ func newNovelRecordsCmd(flags *rootFlags) *cobra.Command {
 		Short: "All-time best efforts — longest ride, most climbing, fastest average speed, biggest power — from your trip metrics.",
 		Long: `Surface your all-time best single rides from the local trips mirror.
 
-Metrics: distance, elevation, speed (max), power (max watts), duration. Reads the
+Metrics: distance, elevation, speed (average), power (max watts), duration. Reads the
 local SQLite mirror only — run 'ridewithgps-pp-cli sync --resources trips' first.
 
 For period totals and averages use 'stats'; records returns top-N extremes.`,

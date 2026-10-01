@@ -52,7 +52,7 @@
       "description": "List the routes attached to an event (group ride, gran fondo, brevet) and optionally export them straight to files for your bike computer."
     },
     {
-      "name": "Gear mileage \u0026 maintenance",
+      "name": "Gear mileage & maintenance",
       "command": "gear",
       "description": "Per-bike accumulated mileage from your logged rides, plus maintenance-due flags against wear thresholds."
     },
@@ -75,6 +75,12 @@
       "name": "Library audit",
       "command": "audit",
       "description": "Flag routes that are stale, private, or incomplete (missing name, description, or distance) — catalog hygiene across your library."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
     }
   ]
 }

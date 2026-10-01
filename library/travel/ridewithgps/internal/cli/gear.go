@@ -16,9 +16,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/ridewithgps/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/ridewithgps/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type gearTotal struct {
@@ -55,10 +55,11 @@ func newNovelGearCmd(flags *rootFlags) *cobra.Command {
 		Short: "Per-bike accumulated mileage from your logged rides, plus maintenance-due flags against wear thresholds.",
 		Long: `Roll up per-bike mileage from your logged trips.
 
-Gear is attached to the full trip detail (not the summary), so this scans up to
---max-scan-trips synced trips, fetches each detail to read its gear, and sums the
-distance per bike. Pass --due-km to flag bikes past a wear threshold (e.g. a chain
-replacement interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
+Gear is attached to the full trip detail (not the summary), so this scans all
+synced trips by default, fetches each detail to read its gear, and sums the
+distance per bike. Pass --max-scan-trips to request a partial recent-history scan.
+Pass --due-km to flag bikes past a wear threshold (e.g. a chain replacement
+interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 		Example: strings.Trim(`
   ridewithgps-pp-cli gear
   ridewithgps-pp-cli gear --due-km 4000 --json
@@ -76,10 +77,7 @@ replacement interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
-			if maxScanTrips <= 0 {
-				maxScanTrips = 100
-			}
-			if cliutil.IsDogfoodEnv() && maxScanTrips > 3 {
+			if cliutil.IsDogfoodEnv() && (maxScanTrips <= 0 || maxScanTrips > 3) {
 				maxScanTrips = 3
 			}
 
@@ -99,9 +97,8 @@ replacement interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 			}
 			maybeEmitSyncHints(cmd, db, "trips", flags.maxAge)
 
-			rows, err := db.DB().QueryContext(ctx, `SELECT id, COALESCE(distance,0) FROM trips
-				WHERE stationary IS NULL OR stationary = 0
-				ORDER BY departed_at DESC LIMIT ?`, maxScanTrips)
+			query, queryArgs := gearTripsQuery(maxScanTrips)
+			rows, err := db.DB().QueryContext(ctx, query, queryArgs...)
 			if err != nil {
 				_ = db.Close()
 				return fmt.Errorf("listing trips: %w", err)
@@ -227,9 +224,19 @@ replacement interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 	}
 	cmd.Flags().StringVar(&bike, "bike", "", "Filter to bikes whose make/model contains this text")
 	cmd.Flags().Float64Var(&dueKM, "due-km", 0, "Flag bikes at or past this many km (maintenance-due)")
-	cmd.Flags().IntVar(&maxScanTrips, "max-scan-trips", 100, "Max recent trips to scan for gear")
+	cmd.Flags().IntVar(&maxScanTrips, "max-scan-trips", 0, "Max recent trips to scan for gear (0 = all synced trips)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: local mirror)")
 	return cmd
+}
+
+func gearTripsQuery(maxScanTrips int) (string, []any) {
+	query := `SELECT id, COALESCE(distance,0) FROM trips
+		WHERE stationary IS NULL OR stationary = 0
+		ORDER BY departed_at DESC`
+	if maxScanTrips <= 0 {
+		return query, nil
+	}
+	return query + " LIMIT ?", []any{maxScanTrips}
 }
 
 func printJSONOrTableGear(cmd *cobra.Command, view gearView, flags *rootFlags, bike string) error {

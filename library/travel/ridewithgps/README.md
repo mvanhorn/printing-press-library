@@ -7,6 +7,7 @@ A fast, scriptable, agent-native CLI for Ride with GPS with a local SQLite mirro
 Learn more at [Ride with GPS](https://ridewithgps.com/api).
 
 Created by [@stellato](https://github.com/stellato) (Greg Stellato).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

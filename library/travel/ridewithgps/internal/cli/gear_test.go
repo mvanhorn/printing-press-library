@@ -3,8 +3,31 @@
 
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestNovelGearCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for gear")
+}
+
+func TestGearTripsQueryScansCompleteHistoryByDefault(t *testing.T) {
+	query, args := gearTripsQuery(0)
+	if strings.Contains(query, "LIMIT") {
+		t.Fatalf("default gear query unexpectedly capped: %s", query)
+	}
+	if len(args) != 0 {
+		t.Fatalf("default gear query args = %v, want none", args)
+	}
+}
+
+func TestGearTripsQueryHonorsExplicitCap(t *testing.T) {
+	query, args := gearTripsQuery(101)
+	if !strings.Contains(query, "LIMIT ?") {
+		t.Fatalf("capped gear query missing LIMIT: %s", query)
+	}
+	if len(args) != 1 || args[0] != 101 {
+		t.Fatalf("capped gear query args = %v, want [101]", args)
+	}
 }

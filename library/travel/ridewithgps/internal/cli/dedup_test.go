@@ -28,3 +28,28 @@ func TestCanonicalRouteLessSortsUnknownDatesLast(t *testing.T) {
 		t.Fatalf("last route = %q, want unknown-date route", routes[len(routes)-1].ID)
 	}
 }
+
+func TestRoutesWithinDedupThresholdRejectsTransitiveEndpoint(t *testing.T) {
+	canonical := dedupRoute{
+		Distance: 10000, FirstLat: 0, FirstLng: 0,
+		LastLat: 0, LastLng: 0, hasCoords: true,
+	}
+	middle := dedupRoute{
+		Distance: 10050, FirstLat: 0, FirstLng: 0.0007,
+		LastLat: 0, LastLng: 0.0007, hasCoords: true,
+	}
+	transitiveOnly := dedupRoute{
+		Distance: 10100, FirstLat: 0, FirstLng: 0.0014,
+		LastLat: 0, LastLng: 0.0014, hasCoords: true,
+	}
+
+	if !routesWithinDedupThreshold(canonical, middle, 100) {
+		t.Fatal("middle route should be a direct duplicate of the canonical route")
+	}
+	if !routesWithinDedupThreshold(middle, transitiveOnly, 100) {
+		t.Fatal("third route should be a direct duplicate of the middle route")
+	}
+	if routesWithinDedupThreshold(canonical, transitiveOnly, 100) {
+		t.Fatal("transitive-only route must not be deleted relative to the canonical route")
+	}
+}

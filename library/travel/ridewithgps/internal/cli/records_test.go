@@ -8,3 +8,9 @@ import "testing"
 func TestNovelRecordsCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for records")
 }
+
+func TestSpeedRecordsRankAverageSpeed(t *testing.T) {
+	if got := recordMetrics["speed"].column; got != "avg_speed" {
+		t.Fatalf("speed records column = %q, want avg_speed", got)
+	}
+}

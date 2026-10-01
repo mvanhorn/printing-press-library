@@ -185,8 +185,18 @@ For quality issues other than duplication (stale, private) use 'audit'.`,
 				}
 				for _, m := range members[1:] {
 					r := routes[m]
+					// Union-find identifies connected components, so A≈B and B≈C
+					// can place A, B, and C together even when A and C are not
+					// duplicates. Never delete a route unless it independently
+					// satisfies the threshold against the retained canonical route.
+					if !routesWithinDedupThreshold(canonical, r, threshold) {
+						continue
+					}
 					cluster.Duplicates = append(cluster.Duplicates, map[string]any{"id": r.ID, "name": r.Name, "created_at": r.CreatedAt})
 					toDelete = append(toDelete, r)
+				}
+				if len(cluster.Duplicates) == 0 {
+					continue
 				}
 				view.Clusters = append(view.Clusters, cluster)
 			}
@@ -236,6 +246,22 @@ For quality issues other than duplication (stale, private) use 'audit'.`,
 	cmd.Flags().BoolVar(&apply, "apply", false, "Delete duplicate routes (keeps the oldest in each cluster)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: local mirror)")
 	return cmd
+}
+
+func routesWithinDedupThreshold(a, b dedupRoute, threshold float64) bool {
+	if !a.hasCoords || !b.hasCoords || threshold <= 0 {
+		return false
+	}
+	return absFloat(a.Distance-b.Distance) <= threshold &&
+		haversineMeters(a.FirstLat, a.FirstLng, b.FirstLat, b.FirstLng) <= threshold &&
+		haversineMeters(a.LastLat, a.LastLng, b.LastLat, b.LastLng) <= threshold
+}
+
+func absFloat(v float64) float64 {
+	if v < 0 {
+		return -v
+	}
+	return v
 }
 
 func canonicalRouteLess(a, b dedupRoute) bool {
