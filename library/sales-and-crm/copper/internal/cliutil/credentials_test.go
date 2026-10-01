@@ -40,7 +40,7 @@ func resetCredentialEnv(t *testing.T) (home, configPath string) {
 	} else {
 		t.Fatalf("reset home override: %v", err)
 	}
-	return home, filepath.Join(home, ".config", "copper-pp-cli", "config.json")
+	return home, filepath.Join(home, ".config", "copper-pp-cli", "config.toml")
 }
 
 func TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets(t *testing.T) {
@@ -216,7 +216,7 @@ func TestAuthWriteScrubsLegacyConfigWhenRelocated(t *testing.T) {
 	}
 
 	// Active config at relocated path should also be secret-free.
-	activeConfigPath := filepath.Join(newConfigDir, "copper-pp-cli", "config.json")
+	activeConfigPath := filepath.Join(newConfigDir, "copper-pp-cli", "config.toml")
 	activeData, err := os.ReadFile(activeConfigPath)
 	if err != nil {
 		t.Fatalf("read active config: %v", err)
@@ -230,6 +230,98 @@ func TestAuthWriteScrubsLegacyConfigWhenRelocated(t *testing.T) {
 	}
 
 	// Credentials file should exist in the new data dir.
+	credsPath := filepath.Join(newDataDir, "copper-pp-cli", "credentials.toml")
+	if _, err := os.Stat(credsPath); err != nil {
+		t.Fatalf("credentials file not found at relocated data dir: %v", err)
+	}
+}
+
+func TestLegacyJSONConfigMigratesToTOML(t *testing.T) {
+	_, configPath := resetCredentialEnv(t)
+	legacyJSONPath := filepath.Join(filepath.Dir(configPath), "config.json")
+	if err := os.MkdirAll(filepath.Dir(legacyJSONPath), 0o700); err != nil {
+		t.Fatalf("mkdir legacy JSON config: %v", err)
+	}
+	legacyJSON := `{"base_url":"https://legacy.example","api_key":"legacy-secret"}`
+	if err := os.WriteFile(legacyJSONPath, []byte(legacyJSON), 0o600); err != nil {
+		t.Fatalf("write legacy JSON config: %v", err)
+	}
+
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "legacy-secret")
+	writeConfigCredential(t, cfg, "new-secret")
+
+	activeData, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read migrated TOML config: %v", err)
+	}
+	if !strings.Contains(string(activeData), "https://legacy.example") {
+		t.Fatalf("migrated TOML config lost non-secret settings:\n%s", activeData)
+	}
+	legacyData, err := os.ReadFile(legacyJSONPath)
+	if err != nil {
+		t.Fatalf("read scrubbed legacy JSON config: %v", err)
+	}
+	if strings.Contains(string(legacyData), "legacy-secret") || strings.Contains(string(legacyData), legacyCredentialKey()) {
+		t.Fatalf("legacy JSON config still contains credential material:\n%s", legacyData)
+	}
+}
+
+func TestRelocatedLegacyJSONConfigMigratesToTOMLAndScrubsCredential(t *testing.T) {
+	home, _ := resetCredentialEnv(t)
+	newConfigDir := filepath.Join(home, "relocated", "config")
+	newDataDir := filepath.Join(home, "relocated", "data")
+	t.Setenv("XDG_CONFIG_HOME", newConfigDir)
+	t.Setenv("XDG_DATA_HOME", newDataDir)
+
+	activeConfigDir := filepath.Join(newConfigDir, "copper-pp-cli")
+	legacyJSONPath := filepath.Join(activeConfigDir, "config.json")
+	if err := os.MkdirAll(activeConfigDir, 0o700); err != nil {
+		t.Fatalf("mkdir relocated config: %v", err)
+	}
+	legacyJSON := `{"base_url":"https://relocated.example","api_key":"legacy-secret"}`
+	if err := os.WriteFile(legacyJSONPath, []byte(legacyJSON), 0o600); err != nil {
+		t.Fatalf("write relocated legacy JSON config: %v", err)
+	}
+
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	assertConfigCredential(t, cfg, "legacy-secret")
+	if cfg.BaseURL != "https://relocated.example" {
+		t.Fatalf("BaseURL = %q, want relocated JSON setting", cfg.BaseURL)
+	}
+	writeConfigCredential(t, cfg, "new-secret")
+
+	activeTOMLPath := filepath.Join(activeConfigDir, "config.toml")
+	activeData, err := os.ReadFile(activeTOMLPath)
+	if err != nil {
+		t.Fatalf("read relocated TOML config: %v", err)
+	}
+	activeText := string(activeData)
+	if !strings.Contains(activeText, "https://relocated.example") {
+		t.Fatalf("relocated TOML config lost non-secret settings:\n%s", activeText)
+	}
+	if strings.Contains(activeText, "legacy-secret") || strings.Contains(activeText, "new-secret") || strings.Contains(activeText, legacyCredentialKey()) {
+		t.Fatalf("relocated TOML config persisted credential material:\n%s", activeText)
+	}
+
+	legacyData, err := os.ReadFile(legacyJSONPath)
+	if err != nil {
+		t.Fatalf("read scrubbed relocated JSON config: %v", err)
+	}
+	legacyText := string(legacyData)
+	if !strings.Contains(legacyText, "https://relocated.example") {
+		t.Fatalf("relocated JSON config lost non-secret settings:\n%s", legacyText)
+	}
+	if strings.Contains(legacyText, "legacy-secret") || strings.Contains(legacyText, legacyCredentialKey()) {
+		t.Fatalf("relocated JSON config still contains credential material:\n%s", legacyText)
+	}
+
 	credsPath := filepath.Join(newDataDir, "copper-pp-cli", "credentials.toml")
 	if _, err := os.Stat(credsPath); err != nil {
 		t.Fatalf("credentials file not found at relocated data dir: %v", err)

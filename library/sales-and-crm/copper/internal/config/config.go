@@ -6,20 +6,22 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/copper/internal/cliutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/copper/internal/cliutil"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
-	BaseURL            string            `json:"base_url"`
-	AuthHeaderVal      string            `json:"auth_header"`
-	Headers            map[string]string `json:"headers,omitempty"`
-	AuthSource         string            `json:"-"`
-	CredentialSource   string            `json:"-"`
-	AgentcookieManaged bool              `json:"-"`
+	BaseURL            string            `json:"base_url" toml:"base_url"`
+	AuthHeaderVal      string            `json:"auth_header" toml:"auth_header"`
+	Headers            map[string]string `json:"headers,omitempty" toml:"headers,omitempty"`
+	AuthSource         string            `json:"-" toml:"-"`
+	CredentialSource   string            `json:"-" toml:"-"`
+	AgentcookieManaged bool              `json:"-" toml:"-"`
 	// configOwner records which on-disk file parseConfigData populated this
 	// config from ("config-kind path" or "legacy config path") so the
 	// credential-source fallback below reports where config-stored
@@ -29,16 +31,16 @@ type Config struct {
 	// back to it. Used by save() to scrub credential fields from the
 	// old location after relocation. Unexported: never persisted.
 	legacySourcePath string
-	AccessToken      string          `json:"access_token"`
-	RefreshToken     string          `json:"refresh_token"`
-	TokenExpiry      time.Time       `json:"token_expiry"`
-	ClientID         string          `json:"client_id"`
-	ClientSecret     string          `json:"client_secret"`
-	Path             string          `json:"-"`
-	envOverrides     map[string]bool `json:"-"`
-	fileConfig       *Config         `json:"-"`
-	CopperApiKey     string          `json:"api_key"`
-	CopperUserEmail  string          `json:"user_email"`
+	AccessToken      string          `json:"access_token" toml:"access_token"`
+	RefreshToken     string          `json:"refresh_token" toml:"refresh_token"`
+	TokenExpiry      time.Time       `json:"token_expiry" toml:"token_expiry"`
+	ClientID         string          `json:"client_id" toml:"client_id"`
+	ClientSecret     string          `json:"client_secret" toml:"client_secret"`
+	Path             string          `json:"-" toml:"-"`
+	envOverrides     map[string]bool `json:"-" toml:"-"`
+	fileConfig       *Config         `json:"-" toml:"-"`
+	CopperApiKey     string          `json:"api_key" toml:"api_key"`
+	CopperUserEmail  string          `json:"user_email" toml:"user_email"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -62,27 +64,42 @@ func Load(configPath string) (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(path, legacyPath)
+		legacyJSONPath, err := legacyJSONConfigPath()
 		if err != nil {
+			return nil, err
+		}
+		resolvedJSONPath := strings.TrimSuffix(path, filepath.Ext(path)) + ".json"
+		var data []byte
+		var sourcePath string
+		for _, candidate := range []string{path, resolvedJSONPath, legacyPath, legacyJSONPath} {
+			data, err = os.ReadFile(filepath.Clean(candidate)) // #nosec G304 -- app-owned config compatibility paths.
+			if err == nil {
+				sourcePath = candidate
+				break
+			}
 			if !os.IsNotExist(err) {
 				return nil, err
 			}
+		}
+		if err != nil {
+			// No config exists in the resolved TOML/JSON pair or either legacy
+			// home-directory location. Continue with defaults.
 		} else {
 			owner := "config-kind path"
-			if sourcePath == legacyPath {
+			if sourcePath != path {
 				owner = "legacy config path"
 			}
 			parsed := *cfg
 			if err := parseConfigData(data, &parsed, sourcePath, owner); err != nil {
-				if sourcePath == legacyPath {
+				if sourcePath != path && sourcePath != resolvedJSONPath {
 					fmt.Fprintf(os.Stderr, "warning: legacy config parse skipped for %s: %v\n", sourcePath, err)
 				} else {
 					return nil, err
 				}
 			} else {
 				*cfg = parsed
-				if sourcePath == legacyPath {
-					cfg.legacySourcePath = legacyPath
+				if sourcePath != path {
+					cfg.legacySourcePath = sourcePath
 				}
 			}
 		}
@@ -177,13 +194,21 @@ func resolveConfigPath(configPath string) (string, bool, error) {
 	if err != nil {
 		return "", false, err
 	}
-	return filepath.Join(dir, "config.json"), false, nil
+	return filepath.Join(dir, "config.toml"), false, nil
 }
 
 func LegacyConfigPath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolve legacy config path: %w", err)
+	}
+	return filepath.Join(home, ".config", "copper-pp-cli", "config.toml"), nil
+}
+
+func legacyJSONConfigPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolve legacy JSON config path: %w", err)
 	}
 	return filepath.Join(home, ".config", "copper-pp-cli", "config.json"), nil
 }
@@ -197,7 +222,13 @@ func readConfigFile(path string, cfg *Config, owner string) error {
 }
 
 func parseConfigData(data []byte, cfg *Config, path string, owner string) error {
-	if err := json.Unmarshal(data, cfg); err != nil {
+	var err error
+	if strings.EqualFold(filepath.Ext(path), ".json") {
+		err = json.Unmarshal(data, cfg)
+	} else {
+		err = toml.Unmarshal(data, cfg)
+	}
+	if err != nil {
 		return fmt.Errorf("parsing %s %s: %w", owner, path, err)
 	}
 	cfg.configOwner = owner
@@ -501,7 +532,7 @@ func (c *Config) save() error {
 	if !c.AgentcookieManagedByExternalStore() {
 		persist = persisted.persisted()
 	}
-	data, err := json.MarshalIndent(persist, "", "  ")
+	data, err := marshalConfigData(persist, c.Path)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
@@ -536,13 +567,13 @@ func (c *Config) scrubLegacyCredentials() {
 		return
 	}
 	var legacy Config
-	if err := json.Unmarshal(data, &legacy); err != nil {
+	if err := parseConfigData(data, &legacy, c.legacySourcePath, "legacy config path"); err != nil {
 		fmt.Fprintf(os.Stderr, "warning: cannot parse legacy config to scrub credentials: %v\n", err)
 		return
 	}
 	legacy.clearCredentialFields()
 	scrubbed := legacy.persisted()
-	scrubbedData, err := json.MarshalIndent(scrubbed, "", "  ")
+	scrubbedData, err := marshalConfigData(scrubbed, c.legacySourcePath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: cannot marshal scrubbed legacy config: %v\n", err)
 		return
@@ -553,8 +584,15 @@ func (c *Config) scrubLegacyCredentials() {
 }
 
 type persistedConfig struct {
-	BaseURL string            `json:"base_url"`
-	Headers map[string]string `json:"headers,omitempty"`
+	BaseURL string            `json:"base_url" toml:"base_url"`
+	Headers map[string]string `json:"headers,omitempty" toml:"headers,omitempty"`
+}
+
+func marshalConfigData(value any, path string) ([]byte, error) {
+	if strings.EqualFold(filepath.Ext(path), ".json") {
+		return json.MarshalIndent(value, "", "  ")
+	}
+	return toml.Marshal(value)
 }
 
 func (c *Config) persisted() persistedConfig {

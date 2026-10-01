@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "copper-config-format-consistency",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260623-105449-202981ca",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Use config.toml while migrating older config.json files safely.",
+  "reason": "Documentation and credential migration expect TOML, but the published runtime resolved and wrote JSON. Keep the older JSON files readable, move non-secret settings to TOML, scrub old credential fields after the next auth save, and fail clearly if the active JSON file is malformed.",
+  "files": [
+    ".printing-press.json",
+    "NOTICE",
+    "README.md",
+    "internal/config/config.go",
+    "internal/config/config_migration_test.go",
+    "internal/cliutil/credentials_test.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "Offline Go tests, vet, build, skill verification, and diff check pass."
+}

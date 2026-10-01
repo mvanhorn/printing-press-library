@@ -1,5 +1,7 @@
 # Copper CLI
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 **The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide.**
 
 Copper has no CLI, no Go client, and no agent-native tool. This turns a click-heavy web CRM into a scriptable, offline-queryable surface. It mirrors people, companies, leads, opportunities, projects, tasks, and activities into local SQLite, then adds the weighted forecast (forecast), cold-deal sweep (stale), and rate-limit-aware bulk editor (bulk) that the API and web UI leave out.
@@ -285,6 +287,8 @@ Precedence matters in fleets: an ambient per-kind variable such as `COPPER_DATA_
 Relocation is one-way. Unsetting `COPPER_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
 
 Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `copper-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
+
+Installs that used the older `config.json` format are read as a fallback. On the next save, non-secret settings move to `config.toml`, and the old JSON file is scrubbed of credential fields.
 
 ## Commands
 
