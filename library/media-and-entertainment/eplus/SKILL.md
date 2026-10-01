@@ -74,6 +74,8 @@ eplus-pp-cli policies --agent
 
 ## Interpretation
 
+`compare` requires `--limit` to cover at least one session per input ID. Bounded results select sessions round-robin across successful inputs and retain partial coverage metadata.
+
 Read `results` and `meta`. `meta.partial`, scan counts, observations and fetch failures describe coverage and freshness. Narrow fields using `--select id,name,date,sales`; increase `--pages` for domestic scans or `--max-scan` for international tour scans only when needed. Detail is lazy. Use `--fresh` for deadline/inventory checks and state when the data was fetched.
 
 `date` is the source service date, even when 25:30 normalizes to the next calendar day. Times are JST. Keep event, performance and sale-round identities distinct, including source codes and URLs. Search round codes and detail booking selectors occupy different namespaces.

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "eplus-planning-facts-survive-enrichment-and-output-limits",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020134-b06f779c",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Retain known sale windows during variant enrichment, represent every comparison input within bounded output, and expose partial failures in diagnostics.",
+  "reason": "Missing variant fields are unobserved replacements, not evidence that a displayed deadline disappeared. A combined comparison cap must not hide an entire successful input; incomplete reads must remain visible in both metadata and stderr.",
+  "files": ["internal/discovery/international.go", "internal/discovery/discovery_test.go", "internal/cli/eplus_discovery.go", "internal/cli/eplus_discovery_test.go"],
+  "call_sites": ["balancedComparisonRows", "international detail reads failed"],
+  "validated_outcome": "Regression cases cover missing/invalid/one-sided date enrichment, uneven session groups, undersized comparison limits and JSON/stderr partial diagnostics."
+}

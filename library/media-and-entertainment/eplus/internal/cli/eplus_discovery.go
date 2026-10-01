@@ -320,6 +320,9 @@ func newCompare(f *rootFlags) *cobra.Command {
 		if limit < 1 || limit > 100 {
 			return usageErr(fmt.Errorf("--limit must be 1..100"))
 		}
+		if limit < len(a) {
+			return usageErr(fmt.Errorf("--limit must be at least the number of comparison inputs (%d)", len(a)))
+		}
 		for _, id := range a {
 			var e error
 			if source == "domestic" {
@@ -337,7 +340,8 @@ func newCompare(f *rootFlags) *cobra.Command {
 		}
 		ctx, cancel := discoveryContext(c, f)
 		defer cancel()
-		rows := []discovery.Row{}
+		groups := [][]discovery.Row{}
+		partial := false
 		obs := []discovery.Observation{}
 		failures := []discovery.Row{}
 		warnings := []string{}
@@ -359,8 +363,9 @@ func newCompare(f *rootFlags) *cobra.Command {
 			}
 			for _, row := range r.Data {
 				row["input_id"] = id
-				rows = append(rows, row)
 			}
+			groups = append(groups, r.Data)
+			partial = partial || r.Meta["partial"] == true
 			obs = append(obs, r.Meta["observations"].([]discovery.Observation)...)
 			warnings = append(warnings, r.Meta["warnings"].([]string)...)
 		}
@@ -370,12 +375,39 @@ func newCompare(f *rootFlags) *cobra.Command {
 		if len(failures) > 0 {
 			fmt.Fprintf(c.ErrOrStderr(), "warning: %d of %d comparison reads failed; %d succeeded\n", len(failures), len(a), len(a)-len(failures))
 		}
-		return writeDiscovery(c, f, discovery.Result{Data: rows, Meta: discovery.Row{"source": source, "partial": len(failures) > 0, "fetch_failures": failures, "observations": obs, "stats": client.Stats(), "warnings": warnings}}, limit)
+		rows, truncated := balancedComparisonRows(groups, limit)
+		meta := discovery.Row{"source": source, "partial": partial || truncated || len(failures) > 0, "fetch_failures": failures, "observations": obs, "stats": client.Stats(), "warnings": warnings}
+		if truncated {
+			meta["note"] = "comparison session output capped; raise --limit to inspect more performances"
+		}
+		return writeDiscovery(c, f, discovery.Result{Data: rows, Meta: meta}, limit)
 	}}
 	addDiscoveryFlags(c, &d)
 	c.Flags().StringVar(&source, "source", "domestic", "Provider surface to compare: domestic or international")
-	c.Flags().IntVar(&limit, "limit", 20, "Maximum combined performance sessions to return")
+	c.Flags().IntVar(&limit, "limit", 20, "Maximum combined sessions, at least the number of inputs (maximum 100)")
 	return c
+}
+
+// balancedComparisonRows gives each successful input a turn before taking more sessions.
+func balancedComparisonRows(groups [][]discovery.Row, limit int) ([]discovery.Row, bool) {
+	rows := []discovery.Row{}
+	total := 0
+	for _, group := range groups {
+		total += len(group)
+	}
+	for index := 0; len(rows) < limit; index++ {
+		added := false
+		for _, group := range groups {
+			if index < len(group) && len(rows) < limit {
+				rows = append(rows, group[index])
+				added = true
+			}
+		}
+		if !added {
+			break
+		}
+	}
+	return rows, len(rows) < total
 }
 
 func newEventsDetailAdapterCmd(f *rootFlags) *cobra.Command { return newDiscoveryDetail(f, false) }

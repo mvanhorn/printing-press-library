@@ -87,6 +87,7 @@ func (c *Client) InternationalSearch(ctx context.Context, o SearchOptions, maxSc
 	warnings := []string{"international offerings are a separate catalog; absence here says nothing about domestic listings or overseas eligibility"}
 	partial := false
 	scanned := 0
+	detailReads := 0
 	failures := []Row{}
 	for _, r := range catalog {
 		if scanned >= maxScan || len(out) >= o.Limit {
@@ -102,6 +103,7 @@ func (c *Client) InternationalSearch(ctx context.Context, o SearchOptions, maxSc
 			continue
 		}
 		if o.From != "" || o.To != "" || o.Venue != "" || o.Location != "" {
+			detailReads++
 			detail, err := c.InternationalDetail(ctx, str(r["url"]))
 			if err != nil {
 				var rate *cliutil.RateLimitError
@@ -128,6 +130,9 @@ func (c *Client) InternationalSearch(ctx context.Context, o SearchOptions, maxSc
 	}
 	if len(failures) > 0 && len(out) == 0 {
 		return Result{}, fmt.Errorf("all matching international detail reads failed: %s", failures[0]["error"])
+	}
+	if len(failures) > 0 {
+		warnings = append(warnings, fmt.Sprintf("%d of %d international detail reads failed; results are partial", len(failures), detailReads))
 	}
 	r := result(c, out, obs, len(catalog), partial, warnings)
 	r.Meta["source"] = "international"
@@ -379,10 +384,13 @@ func applyTicketData(r Row, b []byte, comb string) error {
 	sale["source_amount"] = d["amount"]
 	// A current selection response is a seat signal only while the round is open.
 	if sale["status"] != "closed" && sale["status"] != "upcoming" {
-		start := sourceDateTime(str(d["start_selling"]))
-		end := sourceDateTime(str(d["end_selling"]))
-		sale["starts_at"] = start
-		sale["ends_at"] = end
+		if start := sourceDateTime(str(d["start_selling"])); start != nil {
+			sale["starts_at"] = start
+		}
+		if end := sourceDateTime(str(d["end_selling"])); end != nil {
+			sale["ends_at"] = end
+		}
+		start, end := sale["starts_at"], sale["ends_at"]
 		switch {
 		case start != nil && timeNow().Before(mustTime(str(start))):
 			sale["status"] = "upcoming"

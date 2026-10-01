@@ -38,6 +38,8 @@ International search reads its own catalog, which may be small or empty for a ca
 
 Detail defaults to 20 performance sessions, maximum 100. `compare` accepts two to four IDs from one surface and returns comparable session records plus each `input_id`. Failed reads appear in `meta.fetch_failures` and stderr; they never become empty phantom performances.
 
+Comparison sessions are selected round-robin across successful inputs within the combined `--limit`. The limit must be at least the number of input IDs; capped or incomplete comparisons remain marked partial.
+
 ## Domain meaning
 
 - `date` is the printed service date; RFC3339 times have `+09:00` and `timezone: Asia/Tokyo`. Explicit 24:xx–47:xx times normalize into the following calendar day while preserving `date`. Missing times stay `null`.

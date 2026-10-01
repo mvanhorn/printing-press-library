@@ -205,6 +205,48 @@ func fakeClient(t *testing.T, fn func(*http.Request) (string, int)) *Client {
 	})
 	return c
 }
+
+func TestVariantDatesPreserveKnownPageWindow(t *testing.T) {
+	start, end := "2026-09-01T10:00:00+09:00", "2026-10-12T23:59:00+09:00"
+	for _, tc := range []struct{ name, fields, wantStart, wantEnd string }{
+		{"missing", "", start, end},
+		{"invalid", `,"start_selling":"unknown","end_selling":""`, start, end},
+		{"one replacement", `,"end_selling":"2026/10/13 23:59:00"`, start, "2026-10-13T23:59:00+09:00"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sale := newSale("product/sale", "sale", "first_come", "unknown", "unknown", start, end, nil)
+			r := Row{"sales": []Row{sale}, "tickets": []Row{}}
+			body := `{"data":{"status":true,"price":"7300","currency_code":"JPY","amount":1` + tc.fields + `}}`
+			if err := applyTicketData(r, []byte(body), "1_2"); err != nil {
+				t.Fatal(err)
+			}
+			if sale["starts_at"] != tc.wantStart || sale["ends_at"] != tc.wantEnd {
+				t.Fatalf("known sale window lost: %v", sale)
+			}
+		})
+	}
+}
+
+func TestInternationalPartialFailuresWarn(t *testing.T) {
+	const catalog = `<div class="top-product-list"><div class="col-product"><a class="ga-product-click" data-name="First" href="https://ib.eplus.jp/first-tour">First</a></div><div class="col-product"><a class="ga-product-click" data-name="Second" href="https://ib.eplus.jp/second-tour">Second</a></div></div>`
+	c := fakeClient(t, func(req *http.Request) (string, int) {
+		switch req.URL.Path {
+		case "/":
+			return catalog, 200
+		case "/first-tour":
+			return "unavailable", 403
+		default:
+			return tourFixture, 200
+		}
+	})
+	r, err := c.InternationalSearch(context.Background(), SearchOptions{Limit: 10, From: "2026-01-01"}, 5)
+	if err != nil || len(r.Data) == 0 || r.Meta["partial"] != true || len(r.Meta["fetch_failures"].([]Row)) != 1 {
+		t.Fatalf("partial results/failures lost: %v, %v", r, err)
+	}
+	if !strings.Contains(strings.Join(r.Meta["warnings"].([]string), " "), "1 of 2 international detail reads failed") {
+		t.Fatalf("partial failure diagnostic missing: %v", r.Meta)
+	}
+}
 func TestFetchCacheRetryAndSafety(t *testing.T) {
 	calls := 0
 	c := fakeClient(t, func(*http.Request) (string, int) { calls++; return "<h1>safe</h1>", 200 })

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eplus/internal/cli"
@@ -81,8 +82,9 @@ func main() {
 		}
 		inner := server.NewStreamableHTTPServer(s)
 		httpSrv := &http.Server{
-			Addr:    bindAddr,
-			Handler: requireBearerAuth(token, inner),
+			Addr:              bindAddr,
+			Handler:           requireBearerAuth(token, inner),
+			ReadHeaderTimeout: 5 * time.Second,
 		}
 		fmt.Fprintf(os.Stderr, "eplus-pp-mcp serving MCP over streamable HTTP at %s (Authorization: Bearer $%s)\n", bindAddr, httpTokenEnvVar)
 		if *tlsCert != "" {

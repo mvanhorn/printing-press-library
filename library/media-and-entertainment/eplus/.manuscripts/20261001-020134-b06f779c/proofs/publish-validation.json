@@ -54,5 +54,5 @@
       "passed": true
     }
   ],
-  "packaged_go_tests": "pass; code unchanged from the tested head"
+  "packaged_go_tests": "PASS; full suite reran after review fixes"
 }
