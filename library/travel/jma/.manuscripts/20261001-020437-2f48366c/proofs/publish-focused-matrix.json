@@ -1,0 +1,203 @@
+{
+  "captured_at": "2026-10-01T01:51:43.110871+00:00",
+  "cases": [
+    {
+      "args": [
+        "inventory",
+        "refresh"
+      ],
+      "exit": 0,
+      "bytes": 1859,
+      "coverage": "inventory refreshed from JMA",
+      "requests": 8,
+      "latency_ms": 2169
+    },
+    {
+      "args": [
+        "forecast",
+        "get",
+        "--area",
+        "130010",
+        "--days",
+        "3"
+      ],
+      "exit": 0,
+      "bytes": 5681,
+      "coverage": "resolved district/station forecast",
+      "requests": 1,
+      "latency_ms": 281
+    },
+    {
+      "args": [
+        "warnings",
+        "get",
+        "--area",
+        "1340100",
+        "--detail"
+      ],
+      "exit": 0,
+      "bytes": 5199,
+      "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
+      "requests": 1,
+      "latency_ms": 269,
+      "state": "active",
+      "products": 5
+    },
+    {
+      "args": [
+        "warnings",
+        "get",
+        "--area",
+        "1310100"
+      ],
+      "exit": 0,
+      "bytes": 3145,
+      "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
+      "requests": 1,
+      "latency_ms": 40,
+      "state": "none_reported",
+      "products": 5
+    },
+    {
+      "args": [
+        "typhoons",
+        "list"
+      ],
+      "exit": 0,
+      "bytes": 1048,
+      "coverage": "active index only; developing tropical depressions included",
+      "requests": 1,
+      "latency_ms": 33
+    },
+    {
+      "args": [
+        "typhoons",
+        "get",
+        "--id",
+        "TC2632",
+        "--detail"
+      ],
+      "exit": 0,
+      "bytes": 5442,
+      "coverage": "coherent current cyclone analysis/forecast documents",
+      "requests": 3,
+      "latency_ms": 818
+    },
+    {
+      "args": [
+        "typhoons",
+        "get",
+        "--id",
+        "TC2633"
+      ],
+      "exit": 0,
+      "bytes": 5865,
+      "coverage": "coherent current cyclone analysis/forecast documents",
+      "requests": 3,
+      "latency_ms": 834
+    },
+    {
+      "args": [
+        "forecast",
+        "get",
+        "--area",
+        "270000",
+        "--period",
+        "week"
+      ],
+      "exit": 0,
+      "bytes": 2895,
+      "coverage": "resolved district/station forecast",
+      "requests": 1,
+      "latency_ms": 271
+    },
+    {
+      "args": [
+        "forecast",
+        "get",
+        "--area",
+        "014030"
+      ],
+      "exit": 0,
+      "bytes": 5951,
+      "coverage": "resolved district/station forecast",
+      "requests": 1,
+      "latency_ms": 292
+    },
+    {
+      "args": [
+        "forecast",
+        "get",
+        "--area",
+        "460040"
+      ],
+      "exit": 0,
+      "bytes": 6749,
+      "coverage": "resolved district/station forecast",
+      "requests": 1,
+      "latency_ms": 428
+    },
+    {
+      "args": [
+        "warnings",
+        "get",
+        "--area",
+        "270000",
+        "--limit",
+        "2"
+      ],
+      "exit": 0,
+      "bytes": 5576,
+      "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
+      "requests": 1,
+      "latency_ms": 280,
+      "state": "none_reported",
+      "products": 5
+    },
+    {
+      "args": [
+        "forecast",
+        "get",
+        "--area",
+        "130020",
+        "--period",
+        "week"
+      ],
+      "exit": 0,
+      "bytes": 2922,
+      "coverage": "resolved district/station forecast",
+      "requests": 1,
+      "latency_ms": 39
+    },
+    {
+      "args": [
+        "warnings",
+        "get",
+        "--area",
+        "1920100"
+      ],
+      "exit": 0,
+      "bytes": 3124,
+      "coverage": "partial: municipality weather warnings only; river flood bulletins and coastal-zone supplements excluded",
+      "requests": 1,
+      "latency_ms": 345,
+      "state": "none_reported",
+      "products": 4
+    },
+    {
+      "args": [
+        "areas",
+        "search",
+        "--query",
+        "nonexistent-source",
+        "--select",
+        "results.id"
+      ],
+      "exit": 0,
+      "bytes": 492,
+      "coverage": "source area inventory",
+      "requests": 0,
+      "latency_ms": 4
+    }
+  ]
+}

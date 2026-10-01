@@ -1,0 +1,458 @@
+{
+  "verified_at": "2026-09-30T19:19:12.041662+00:00",
+  "method": "Real live command outputs compared to captured JMA JSON; no fixture substitution",
+  "checks": [
+    {
+      "check": "Tokyo district/station relevance",
+      "pass": true,
+      "evidence": {
+        "source_url": "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json",
+        "ids": [
+          "130010",
+          "130010",
+          "44132",
+          "130010",
+          "44132"
+        ]
+      }
+    },
+    {
+      "check": "forecast source issue daily_weather",
+      "pass": true,
+      "evidence": "2026-09-30T17:00:00+09:00"
+    },
+    {
+      "check": "weather code 2026-09-30T17:00:00+09:00",
+      "pass": true,
+      "evidence": "200"
+    },
+    {
+      "check": "weather code 2026-10-01T00:00:00+09:00",
+      "pass": true,
+      "evidence": "211"
+    },
+    {
+      "check": "weather code 2026-10-02T00:00:00+09:00",
+      "pass": true,
+      "evidence": "201"
+    },
+    {
+      "check": "forecast source issue precipitation_probability_6h",
+      "pass": true,
+      "evidence": "2026-09-30T17:00:00+09:00"
+    },
+    {
+      "check": "forecast source issue short_temperature",
+      "pass": true,
+      "evidence": "2026-09-30T17:00:00+09:00"
+    },
+    {
+      "check": "temperature 2026-10-01T00:00:00+09:00",
+      "pass": true,
+      "evidence": "18"
+    },
+    {
+      "check": "temperature 2026-10-01T09:00:00+09:00",
+      "pass": true,
+      "evidence": "26"
+    },
+    {
+      "check": "forecast source issue weekly_weather",
+      "pass": true,
+      "evidence": "2026-09-30T17:00:00+09:00"
+    },
+    {
+      "check": "weather code 2026-10-01T00:00:00+09:00",
+      "pass": true,
+      "evidence": "211"
+    },
+    {
+      "check": "weather code 2026-10-02T00:00:00+09:00",
+      "pass": true,
+      "evidence": "201"
+    },
+    {
+      "check": "weather code 2026-10-03T00:00:00+09:00",
+      "pass": true,
+      "evidence": "201"
+    },
+    {
+      "check": "forecast source issue weekly_temperature",
+      "pass": true,
+      "evidence": "2026-09-30T17:00:00+09:00"
+    },
+    {
+      "check": "warning hazard/status VPWW55",
+      "pass": true,
+      "evidence": {
+        "url": "https://www.jma.go.jp/bosai/warning/data/r8/130000.json",
+        "hazard_id": "10",
+        "status_ja": "解除"
+      }
+    },
+    {
+      "check": "warning independent issue VPWW55",
+      "pass": true,
+      "evidence": "2026-10-01T01:16:00+09:00"
+    },
+    {
+      "check": "warning hazard/status VPWW56",
+      "pass": true,
+      "evidence": {
+        "url": "https://www.jma.go.jp/bosai/warning/data/r8/130000.json",
+        "hazard_id": "29",
+        "status_ja": "警報から注意報"
+      }
+    },
+    {
+      "check": "warning independent issue VPWW56",
+      "pass": true,
+      "evidence": "2026-10-01T01:16:00+09:00"
+    },
+    {
+      "check": "warning hazard/status VPWW58",
+      "pass": true,
+      "evidence": {
+        "url": "https://www.jma.go.jp/bosai/warning/data/r8/130000.json",
+        "hazard_id": "15",
+        "status_ja": "継続"
+      }
+    },
+    {
+      "check": "warning independent issue VPWW58",
+      "pass": true,
+      "evidence": "2026-09-30T16:06:00+09:00"
+    },
+    {
+      "check": "warning hazard/status VPWW59",
+      "pass": true,
+      "evidence": {
+        "url": "https://www.jma.go.jp/bosai/warning/data/r8/130000.json",
+        "hazard_id": "16",
+        "status_ja": "継続"
+      }
+    },
+    {
+      "check": "warning independent issue VPWW59",
+      "pass": true,
+      "evidence": "2026-09-30T16:06:00+09:00"
+    },
+    {
+      "check": "warning hazard/status VPWW61",
+      "pass": true,
+      "evidence": {
+        "url": "https://www.jma.go.jp/bosai/warning/data/r8/130000.json",
+        "hazard_id": "14",
+        "status_ja": "継続"
+      }
+    },
+    {
+      "check": "warning independent issue VPWW61",
+      "pass": true,
+      "evidence": "2026-09-30T10:30:00+09:00"
+    },
+    {
+      "check": "active and lifted are distinct",
+      "pass": true,
+      "evidence": [
+        {
+          "additions_ja": null,
+          "hazard": {
+            "alert_level": 2,
+            "name_en": "Heavy Rain Advisory",
+            "name_ja": "レベル２大雨注意報",
+            "severity": "advisory"
+          },
+          "hazard_id": "10",
+          "in_effect": false,
+          "issued_at": "2026-10-01T01:16:00+09:00",
+          "lifecycle": "lifted",
+          "product_id": "VPWW55",
+          "source_properties": null,
+          "status_ja": "解除",
+          "valid_until": null
+        },
+        {
+          "additions_ja": null,
+          "hazard": {
+            "alert_level": 2,
+            "name_en": "Landslide Advisory",
+            "name_ja": "レベル２土砂災害注意報",
+            "severity": "advisory"
+          },
+          "hazard_id": "29",
+          "in_effect": true,
+          "issued_at": "2026-10-01T01:16:00+09:00",
+          "lifecycle": "updated",
+          "product_id": "VPWW56",
+          "source_properties": [
+            {
+              "significancyPart": {
+                "locals": [
+                  {
+                    "code": "21"
+                  }
+                ]
+              },
+              "type": "土砂災害危険度"
+            }
+          ],
+          "status_ja": "警報から注意報",
+          "valid_until": null
+        },
+        {
+          "additions_ja": null,
+          "hazard": {
+            "alert_level": null,
+            "name_en": "Gale Advisory",
+            "name_ja": "強風注意報",
+            "severity": "advisory"
+          },
+          "hazard_id": "15",
+          "in_effect": true,
+          "issued_at": "2026-09-30T16:06:00+09:00",
+          "lifecycle": "continued",
+          "product_id": "VPWW58",
+          "source_properties": [
+            {
+              "significancyPart": {
+                "locals": [
+                  {
+                    "code": "20"
+                  }
+                ]
+              },
+              "type": "風危険度"
+            },
+            {
+              "type": "風"
+            }
+          ],
+          "status_ja": "継続",
+          "valid_until": null
+        },
+        {
+          "additions_ja": [
+            "うねり"
+          ],
+          "hazard": {
+            "alert_level": null,
+            "name_en": "High Wave Advisory",
+            "name_ja": "波浪注意報",
+            "severity": "advisory"
+          },
+          "hazard_id": "16",
+          "in_effect": true,
+          "issued_at": "2026-09-30T16:06:00+09:00",
+          "lifecycle": "continued",
+          "product_id": "VPWW59",
+          "source_properties": [
+            {
+              "significancyPart": {
+                "locals": [
+                  {
+                    "additions": [
+                      "うねり"
+                    ],
+                    "code": "20"
+                  }
+                ]
+              },
+              "type": "波危険度"
+            },
+            {
+              "type": "波"
+            }
+          ],
+          "status_ja": "継続",
+          "valid_until": null
+        },
+        {
+          "additions_ja": [
+            "竜巻"
+          ],
+          "hazard": {
+            "alert_level": null,
+            "name_en": "Thunder Storm Advisory",
+            "name_ja": "雷注意報",
+            "severity": "advisory"
+          },
+          "hazard_id": "14",
+          "in_effect": true,
+          "issued_at": "2026-09-30T10:30:00+09:00",
+          "lifecycle": "continued",
+          "product_id": "VPWW61",
+          "source_properties": [
+            {
+              "significancyPart": {
+                "locals": [
+                  {
+                    "additions": [
+                      "竜巻"
+                    ],
+                    "code": "20"
+                  }
+                ]
+              },
+              "type": "雷危険度"
+            }
+          ],
+          "status_ja": "継続",
+          "valid_until": null
+        }
+      ]
+    },
+    {
+      "check": "inland source applicability",
+      "pass": true,
+      "evidence": {
+        "source_url": "https://www.jma.go.jp/bosai/warning/const/no_wave_tide.json",
+        "area_id": "1920100"
+      }
+    },
+    {
+      "check": "north Izu broader weekly region",
+      "pass": true,
+      "evidence": {
+        "source_url": "https://www.jma.go.jp/bosai/forecast/const/week_area05.json",
+        "series_ids": [
+          "130100",
+          "44263"
+        ]
+      }
+    },
+    {
+      "check": "coherent cyclone issue",
+      "pass": true,
+      "evidence": {
+        "geometry": "https://www.jma.go.jp/bosai/typhoon/data/TC2633/forecast.json",
+        "specifications": "https://www.jma.go.jp/bosai/typhoon/data/TC2633/specifications.json"
+      }
+    },
+    {
+      "check": "cyclone position 2026-10-01T00:00:00+09:00",
+      "pass": true,
+      "evidence": [
+        16.5,
+        150.2
+      ]
+    },
+    {
+      "check": "cyclone pressure hPa 2026-10-01T00:00:00+09:00",
+      "pass": true,
+      "evidence": "1002"
+    },
+    {
+      "check": "cyclone position 2026-10-02T00:00:00+09:00",
+      "pass": true,
+      "evidence": [
+        17.0,
+        146.8
+      ]
+    },
+    {
+      "check": "cyclone pressure hPa 2026-10-02T00:00:00+09:00",
+      "pass": true,
+      "evidence": "998"
+    },
+    {
+      "check": "uncertainty radius units 2026-10-02T00:00:00+09:00",
+      "pass": true,
+      "evidence": {
+        "geometry_m": 129640,
+        "specification_km": 130
+      }
+    },
+    {
+      "check": "cyclone position 2026-10-02T21:00:00+09:00",
+      "pass": true,
+      "evidence": [
+        17.3,
+        145.4
+      ]
+    },
+    {
+      "check": "cyclone pressure hPa 2026-10-02T21:00:00+09:00",
+      "pass": true,
+      "evidence": "992"
+    },
+    {
+      "check": "uncertainty radius units 2026-10-02T21:00:00+09:00",
+      "pass": true,
+      "evidence": {
+        "geometry_m": 203720,
+        "specification_km": 200
+      }
+    },
+    {
+      "check": "cyclone position 2026-10-03T21:00:00+09:00",
+      "pass": true,
+      "evidence": [
+        19.5,
+        147.6
+      ]
+    },
+    {
+      "check": "cyclone pressure hPa 2026-10-03T21:00:00+09:00",
+      "pass": true,
+      "evidence": "980"
+    },
+    {
+      "check": "uncertainty radius units 2026-10-03T21:00:00+09:00",
+      "pass": true,
+      "evidence": {
+        "geometry_m": 259280,
+        "specification_km": 260
+      }
+    },
+    {
+      "check": "cyclone position 2026-10-04T21:00:00+09:00",
+      "pass": true,
+      "evidence": [
+        21.8,
+        147.8
+      ]
+    },
+    {
+      "check": "cyclone pressure hPa 2026-10-04T21:00:00+09:00",
+      "pass": true,
+      "evidence": "970"
+    },
+    {
+      "check": "uncertainty radius units 2026-10-04T21:00:00+09:00",
+      "pass": true,
+      "evidence": {
+        "geometry_m": 333360,
+        "specification_km": 330
+      }
+    },
+    {
+      "check": "cyclone position 2026-10-05T21:00:00+09:00",
+      "pass": true,
+      "evidence": [
+        24.7,
+        146.3
+      ]
+    },
+    {
+      "check": "cyclone pressure hPa 2026-10-05T21:00:00+09:00",
+      "pass": true,
+      "evidence": "965"
+    },
+    {
+      "check": "uncertainty radius units 2026-10-05T21:00:00+09:00",
+      "pass": true,
+      "evidence": {
+        "geometry_m": 444480,
+        "specification_km": 440
+      }
+    },
+    {
+      "check": "default cyclone detail omits historical track",
+      "pass": true,
+      "evidence": {
+        "case": "evidence/live/06.json"
+      }
+    }
+  ]
+}

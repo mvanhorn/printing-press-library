@@ -1,0 +1,18 @@
+workflows:
+  - name: resolve-destination-and-read-official-outlook
+    primary: true
+    steps:
+      - command: areas resolve --area 1310100 --cache-dir .workflow-jma-cache --agent
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+        extract:
+          area: results.id
+      - command: forecast get --area ${area} --days 3 --cache-dir .workflow-jma-cache --agent
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]
+      - command: warnings get --area ${area} --cache-dir .workflow-jma-cache --agent
+        mode: live
+        auth_required: false
+        expect_fields: [meta, results]

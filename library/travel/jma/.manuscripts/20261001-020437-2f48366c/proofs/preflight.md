@@ -1,0 +1,1 @@
+Binary 4.32.5 / skill 3.0.0 compatible; Go 1.27.1. Empty baseline; no competing lock. Global updates skipped under explicit user instruction. Sandbox network requires approved read-only escalation; public HTTPS 200 established.

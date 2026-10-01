@@ -1,0 +1,67 @@
+name: jma
+version: "0.1.0"
+description: "Resolve JMA areas and inspect official forecasts, warnings and uncertain typhoon tracks."
+category: travel
+base_url: https://www.jma.go.jp/bosai
+health_check_path: /typhoon/data/targetTc.json
+auth:
+  type: none
+learn:
+  disabled: true
+# Domain source resolution uses JMA inventory directly; learning aliases cannot establish source equivalence.
+resources:
+  forecast:
+    description: Official short and weekly forecasts
+    endpoints:
+      get:
+        method: GET
+        path: /forecast/data/forecast/{area}.json
+        description: Resolve an area and retrieve its district forecast
+        params:
+          - name: area
+            type: string
+            required: true
+            default: "130000"
+            description: JMA office or resolved district identifier
+        response: {type: array}
+  warnings:
+    description: Current 2026 warnings and advisories
+    endpoints:
+      get:
+        method: GET
+        path: /warning/data/r8/{area}.json
+        description: Current r8 municipality warning product bulletins
+        params:
+          - name: area
+            type: string
+            required: true
+            default: "130000"
+            description: JMA office or resolved municipality identifier
+        response: {type: array}
+  typhoons:
+    description: Tropical cyclone discovery and uncertain forecast tracks
+    endpoints:
+      list:
+        method: GET
+        path: /typhoon/data/targetTc.json
+        description: List active cyclones without detail requests
+        response: {type: array}
+      get:
+        method: GET
+        path: /typhoon/data/{id}/forecast.json
+        description: Coherent cyclone forecast and intensity detail
+        params:
+          - name: id
+            type: string
+            required: true
+            default: TC2632
+            description: JMA tropical cyclone canonical source identifier
+        response: {type: array}
+  areas:
+    description: JMA area source inventory
+    endpoints:
+      search:
+        method: GET
+        path: /common/const/area.json
+        description: Search source names and IDs with bounded local pagination
+        response: {type: object}

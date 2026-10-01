@@ -1,0 +1,6 @@
+{
+  "cli": "jma-pp-cli",
+  "library_dir": "<local-library>",
+  "preserved_patches": [],
+  "promoted": true
+}

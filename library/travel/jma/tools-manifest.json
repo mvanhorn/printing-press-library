@@ -1,0 +1,104 @@
+{
+  "api_name": "jma",
+  "base_url": "https://www.jma.go.jp/bosai",
+  "description": "Resolve JMA areas and inspect official forecasts, warnings and uncertain typhoon tracks.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "areas_search",
+      "description": "Search source names and IDs with bounded local pagination.",
+      "method": "GET",
+      "path": "/common/const/area.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "forecast_get",
+      "description": "Resolve an area and retrieve its district forecast. Required: area (default: 130000). Returns array.",
+      "method": "GET",
+      "path": "/forecast/data/forecast/{area}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "area",
+          "type": "string",
+          "location": "path",
+          "description": "JMA office or resolved district identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "typhoons_get",
+      "description": "Coherent cyclone forecast and intensity detail. Required: id (default: TC2632). Returns array.",
+      "method": "GET",
+      "path": "/typhoon/data/{id}/forecast.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "JMA tropical cyclone canonical source identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "typhoons_list",
+      "description": "List active cyclones without detail requests. Returns array.",
+      "method": "GET",
+      "path": "/typhoon/data/targetTc.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "warnings_get",
+      "description": "Current r8 municipality warning product bulletins. Required: area (default: 130000). Returns array.",
+      "method": "GET",
+      "path": "/warning/data/r8/{area}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "area",
+          "type": "string",
+          "location": "path",
+          "description": "JMA office or resolved municipality identifier",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Explicit source resolution",
+      "command": "areas resolve",
+      "description": "Resolve source IDs and reject ambiguous destination names."
+    },
+    {
+      "name": "Warning completeness",
+      "command": "warnings get",
+      "description": "Separate applicable no-warning, not-applicable, lifted and incomplete source records."
+    },
+    {
+      "name": "Coherent cyclone detail",
+      "command": "typhoons get",
+      "description": "Join matching JMA issued/valid-time geometry and intensity documents."
+    },
+    {
+      "name": "Lazy cyclone discovery",
+      "command": "typhoons list",
+      "description": "Discover current source cyclone IDs without detail requests."
+    },
+    {
+      "name": "Auditable inventory refresh",
+      "command": "inventory refresh",
+      "description": "Validate first-party source catalogs before atomic local replacement."
+    }
+  ]
+}

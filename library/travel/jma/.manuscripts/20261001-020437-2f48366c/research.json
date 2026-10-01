@@ -1,0 +1,142 @@
+{
+  "api_name": "jma",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Explicit source resolution",
+      "command": "areas resolve",
+      "description": "Resolve source IDs and reject ambiguous destination names.",
+      "rationale": "Resolve source IDs and reject ambiguous destination names.",
+      "example": "jma-pp-cli areas resolve --area 1310100 --agent",
+      "why_it_matters": "Resolve source IDs and reject ambiguous destination names.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Warning completeness",
+      "command": "warnings get",
+      "description": "Separate applicable no-warning, not-applicable, lifted and incomplete source records.",
+      "rationale": "Separate applicable no-warning, not-applicable, lifted and incomplete source records.",
+      "example": "jma-pp-cli warnings get --area 1340100 --agent",
+      "why_it_matters": "Separate applicable no-warning, not-applicable, lifted and incomplete source records.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Coherent cyclone detail",
+      "command": "typhoons get",
+      "description": "Join matching JMA issued/valid-time geometry and intensity documents.",
+      "rationale": "Join matching JMA issued/valid-time geometry and intensity documents.",
+      "example": "jma-pp-cli typhoons get --id TC2633 --agent",
+      "why_it_matters": "Join matching JMA issued/valid-time geometry and intensity documents.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Lazy cyclone discovery",
+      "command": "typhoons list",
+      "description": "Discover current source cyclone IDs without detail requests.",
+      "rationale": "Discover current source cyclone IDs without detail requests.",
+      "example": "jma-pp-cli typhoons list --agent",
+      "why_it_matters": "Discover current source cyclone IDs without detail requests.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Auditable inventory refresh",
+      "command": "inventory refresh",
+      "description": "Validate first-party source catalogs before atomic local replacement.",
+      "rationale": "Validate first-party source catalogs before atomic local replacement.",
+      "example": "jma-pp-cli inventory refresh --agent",
+      "why_it_matters": "Validate first-party source catalogs before atomic local replacement.",
+      "group": "Source correctness"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Explicit source resolution",
+      "command": "areas resolve",
+      "description": "Resolve source IDs and reject ambiguous destination names.",
+      "rationale": "Resolve source IDs and reject ambiguous destination names.",
+      "example": "jma-pp-cli areas resolve --area 1310100 --agent",
+      "why_it_matters": "Resolve source IDs and reject ambiguous destination names.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Warning completeness",
+      "command": "warnings get",
+      "description": "Separate applicable no-warning, not-applicable, lifted and incomplete source records.",
+      "rationale": "Separate applicable no-warning, not-applicable, lifted and incomplete source records.",
+      "example": "jma-pp-cli warnings get --area 1340100 --agent",
+      "why_it_matters": "Separate applicable no-warning, not-applicable, lifted and incomplete source records.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Coherent cyclone detail",
+      "command": "typhoons get",
+      "description": "Join matching JMA issued/valid-time geometry and intensity documents.",
+      "rationale": "Join matching JMA issued/valid-time geometry and intensity documents.",
+      "example": "jma-pp-cli typhoons get --id TC2633 --agent",
+      "why_it_matters": "Join matching JMA issued/valid-time geometry and intensity documents.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Lazy cyclone discovery",
+      "command": "typhoons list",
+      "description": "Discover current source cyclone IDs without detail requests.",
+      "rationale": "Discover current source cyclone IDs without detail requests.",
+      "example": "jma-pp-cli typhoons list --agent",
+      "why_it_matters": "Discover current source cyclone IDs without detail requests.",
+      "group": "Source correctness"
+    },
+    {
+      "name": "Auditable inventory refresh",
+      "command": "inventory refresh",
+      "description": "Validate first-party source catalogs before atomic local replacement.",
+      "rationale": "Validate first-party source catalogs before atomic local replacement.",
+      "example": "jma-pp-cli inventory refresh --agent",
+      "why_it_matters": "Validate first-party source catalogs before atomic local replacement.",
+      "group": "Source correctness"
+    }
+  ],
+  "narrative": {
+    "display_name": "Japan Meteorological Agency",
+    "headline": "Resolve JMA areas and inspect official forecasts, warnings and uncertain typhoon tracks.",
+    "auth_narrative": "Public anonymous HTTPS; no credentials or fees.",
+    "quickstart": [
+      {
+        "command": "jma-pp-cli doctor --dry-run",
+        "comment": "Inspect configuration without network"
+      },
+      {
+        "command": "jma-pp-cli areas search --query Kyoto --kind municipality",
+        "comment": "Discover source IDs"
+      },
+      {
+        "command": "jma-pp-cli forecast get --area 130010 --days 3",
+        "comment": "Read Tokyo district forecasts"
+      },
+      {
+        "command": "jma-pp-cli warnings get --area 1310100",
+        "comment": "Read applicable municipality weather products"
+      },
+      {
+        "command": "jma-pp-cli typhoons list",
+        "comment": "Discover current TC IDs before detail"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Tokyo warnings",
+        "command": "jma-pp-cli warnings get --area 1310100 --agent --select results",
+        "explanation": "Municipality-specific source status"
+      },
+      {
+        "title": "Typhoon discovery",
+        "command": "jma-pp-cli typhoons list --agent",
+        "explanation": "Lazy active cyclone inventory"
+      }
+    ]
+  }
+}

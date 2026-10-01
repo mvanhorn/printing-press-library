@@ -1,0 +1,78 @@
+{
+  "captured_at": "2026-09-30T19:50:26.606343+00:00",
+  "method": "macOS /usr/bin/time -l, sequential subprocesses; uncached forces refresh then cached immediately; source request counts from CLI meta; no fixture data",
+  "cases": [
+    {
+      "case": "forecast",
+      "mode": "uncached-forced-refresh",
+      "exit": 0,
+      "output_bytes": 5611,
+      "requests": 1,
+      "latency_ms": 45,
+      "peak_rss_bytes": 25788416
+    },
+    {
+      "case": "forecast",
+      "mode": "cached",
+      "exit": 0,
+      "output_bytes": 5609,
+      "requests": 0,
+      "latency_ms": 3,
+      "peak_rss_bytes": 21348352
+    },
+    {
+      "case": "warnings",
+      "mode": "uncached-forced-refresh",
+      "exit": 0,
+      "output_bytes": 4604,
+      "requests": 1,
+      "latency_ms": 40,
+      "peak_rss_bytes": 27246592
+    },
+    {
+      "case": "warnings",
+      "mode": "cached",
+      "exit": 0,
+      "output_bytes": 4602,
+      "requests": 0,
+      "latency_ms": 3,
+      "peak_rss_bytes": 21692416
+    },
+    {
+      "case": "typhoon",
+      "mode": "uncached-forced-refresh",
+      "exit": 0,
+      "output_bytes": 5855,
+      "requests": 3,
+      "latency_ms": 513,
+      "peak_rss_bytes": 25116672
+    },
+    {
+      "case": "typhoon",
+      "mode": "cached",
+      "exit": 0,
+      "output_bytes": 5850,
+      "requests": 0,
+      "latency_ms": 0,
+      "peak_rss_bytes": 18874368
+    },
+    {
+      "case": "typhoon-list",
+      "mode": "uncached-forced-refresh",
+      "exit": 0,
+      "output_bytes": 1046,
+      "requests": 1,
+      "latency_ms": 34,
+      "peak_rss_bytes": 23117824
+    },
+    {
+      "case": "typhoon-list",
+      "mode": "cached",
+      "exit": 0,
+      "output_bytes": 1044,
+      "requests": 0,
+      "latency_ms": 0,
+      "peak_rss_bytes": 18890752
+    }
+  ]
+}

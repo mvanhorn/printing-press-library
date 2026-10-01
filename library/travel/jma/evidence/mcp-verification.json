@@ -1,0 +1,21 @@
+{
+  "verified_at": "2026-09-30T19:50:25.660410+00:00",
+  "tools": 9,
+  "cases": [
+    {
+      "tool": "areas_resolve",
+      "pass": true,
+      "requests": 0
+    },
+    {
+      "tool": "warnings_get",
+      "pass": true,
+      "requests": 1
+    },
+    {
+      "tool": "typhoons_get",
+      "pass": true,
+      "requests": 3
+    }
+  ]
+}

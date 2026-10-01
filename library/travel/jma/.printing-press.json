@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-30T20:02:32.815403Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "jma",
+  "display_name": "Japan Meteorological Agency",
+  "cli_name": "jma-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_url": "https://www.jma.go.jp/jma/en/Activities/forecast.html",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "docs",
+  "spec_checksum": "sha256:0c69ee121acdd30de708354543252473f563e70cb32ffd8b716332c007080381",
+  "run_id": "20261001-020437-2f48366c",
+  "category": "travel",
+  "description": "Resolve JMA areas and inspect official forecasts, warnings and uncertain typhoon tracks.",
+  "mcp_binary": "jma-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Explicit source resolution",
+      "command": "areas resolve",
+      "description": "Resolve source IDs and reject ambiguous destination names."
+    },
+    {
+      "name": "Warning completeness",
+      "command": "warnings get",
+      "description": "Separate applicable no-warning, not-applicable, lifted and incomplete source records."
+    },
+    {
+      "name": "Coherent cyclone detail",
+      "command": "typhoons get",
+      "description": "Join matching JMA issued/valid-time geometry and intensity documents."
+    },
+    {
+      "name": "Lazy cyclone discovery",
+      "command": "typhoons list",
+      "description": "Discover current source cyclone IDs without detail requests."
+    },
+    {
+      "name": "Auditable inventory refresh",
+      "command": "inventory refresh",
+      "description": "Validate first-party source catalogs before atomic local replacement."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Explicit source resolution",
+      "command": "areas resolve",
+      "description": "Resolve source IDs and reject ambiguous destination names."
+    },
+    {
+      "name": "Warning completeness",
+      "command": "warnings get",
+      "description": "Separate applicable no-warning, not-applicable, lifted and incomplete source records."
+    },
+    {
+      "name": "Coherent cyclone detail",
+      "command": "typhoons get",
+      "description": "Join matching JMA issued/valid-time geometry and intensity documents."
+    },
+    {
+      "name": "Lazy cyclone discovery",
+      "command": "typhoons list",
+      "description": "Discover current source cyclone IDs without detail requests."
+    },
+    {
+      "name": "Auditable inventory refresh",
+      "command": "inventory refresh",
+      "description": "Validate first-party source catalogs before atomic local replacement."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 66.66666666666666,
+    "passed": 6,
+    "total": 9,
+    "failed": 3,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A",
+      "total": 81
+    }
+  }
+}
