@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +31,9 @@ func (f *flexInt64) UnmarshalJSON(b []byte) error {
 	fl, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return fmt.Errorf("flexInt64: cannot parse %q", s)
+	}
+	if math.IsNaN(fl) || math.IsInf(fl, 0) || fl != math.Trunc(fl) || fl < -float64(1<<63) || fl >= float64(1<<63) {
+		return fmt.Errorf("flexInt64: %q is not an integer in range", s)
 	}
 	*f = flexInt64(int64(fl))
 	return nil
@@ -81,32 +85,21 @@ func newVoiceBudgetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			c.NoCache = true // A budget must reflect the current subscription.
 
 			subData, err := c.Get("/v1/user/subscription", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			var sub subscriptionInfo
-			if err := json.Unmarshal(subData, &sub); err != nil {
+			sub, err := decodeVoiceBudgetSubscription(subData)
+			if err != nil {
 				return fmt.Errorf("decoding subscription: %w", err)
 			}
 
 			budget := summarizeVoiceBudget(sub, time.Now().UTC())
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				reset := "n/a"
-				if budget.DaysUntilReset != nil {
-					reset = fmt.Sprintf("%.1f days", *budget.DaysUntilReset)
-				}
-				headers := []string{"TIER", "CHARS USED", "REMAINING", "USED %", "RESET IN", "VOICES"}
-				rows := [][]string{{
-					budget.Tier,
-					strconv.FormatInt(budget.CharactersUsed, 10),
-					strconv.FormatInt(budget.CharactersRemaining, 10),
-					fmt.Sprintf("%.1f%%", budget.PercentUsed),
-					reset,
-					fmt.Sprintf("%d/%d", budget.VoicesUsed, budget.VoiceLimit),
-				}}
+				headers, rows := voiceBudgetTable(budget)
 				return flags.printTable(cmd, headers, rows)
 			}
 
@@ -114,6 +107,46 @@ func newVoiceBudgetCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+func decodeVoiceBudgetSubscription(data []byte) (subscriptionInfo, error) {
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return subscriptionInfo{}, err
+	}
+	for _, name := range []string{"character_count", "character_limit", "voice_slots_used", "voice_limit"} {
+		raw, ok := fields[name]
+		value := strings.TrimSpace(string(raw))
+		if !ok || value == "null" || value == `""` {
+			return subscriptionInfo{}, fmt.Errorf("missing %s counter", name)
+		}
+	}
+	var sub subscriptionInfo
+	if err := json.Unmarshal(data, &sub); err != nil {
+		return subscriptionInfo{}, err
+	}
+	return sub, nil
+}
+
+func voiceBudgetTable(budget voiceBudget) ([]string, [][]string) {
+	resetIn := "n/a"
+	if budget.DaysUntilReset != nil {
+		resetIn = fmt.Sprintf("%.1f days", *budget.DaysUntilReset)
+	}
+	resetUTC := budget.NextResetUTC
+	if resetUTC == "" {
+		resetUTC = "n/a"
+	}
+	return []string{"TIER", "CHARS USED", "REMAINING", "USED %", "RESET IN", "RESET UTC", "VOICES", "SLOTS LEFT"}, [][]string{{
+		budget.Tier,
+		strconv.FormatInt(budget.CharactersUsed, 10),
+		strconv.FormatInt(budget.CharactersRemaining, 10),
+		fmt.Sprintf("%.1f%%", budget.PercentUsed),
+		resetIn,
+		resetUTC,
+		fmt.Sprintf("%d/%d", budget.VoicesUsed, budget.VoiceLimit),
+		strconv.FormatInt(budget.VoiceSlotsRemaining, 10),
+	}}
 }
 
 // summarizeVoiceBudget derives remaining credits, percent used, reset timing,

@@ -602,7 +602,7 @@ Access to workspace related endpoints.
 
 ### Voice budget
 
-`elevenlabs-pp-cli voice-budget --json` reads the current subscription and reports the character balance, reset time, and voice slots used. The voice-slot count comes from ElevenLabs' subscription counter, which covers the whole account rather than one page of the voice list.
+`elevenlabs-pp-cli voice-budget --json` fetches the current subscription without using a cached response. It reports the character balance, reset time, and voice slots used and remaining. The voice-slot count comes from ElevenLabs' subscription counter, which covers the whole account rather than one page of the voice list. The terminal view also shows the exact UTC reset time and remaining voice slots.
 
 ## Output Formats
 

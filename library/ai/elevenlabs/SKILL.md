@@ -433,7 +433,7 @@ These capabilities aren't available in any other tool for this API.
 
 ### Voice budget
 
-Run `elevenlabs-pp-cli voice-budget --json` to see remaining character credits, the next reset, and voice-slot headroom before planning a large render. The command makes one read-only subscription request and uses the provider's `voice_slots_used` counter.
+Run `elevenlabs-pp-cli voice-budget --json` to see remaining character credits, the next reset, and voice-slot headroom before planning a large render. Each run fetches a fresh subscription response and uses the provider's `voice_slots_used` counter. The terminal view includes the exact UTC reset time and remaining voice slots.
 
 ### Finding the right command
 

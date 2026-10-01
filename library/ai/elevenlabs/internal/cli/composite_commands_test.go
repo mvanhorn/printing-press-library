@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -37,6 +38,11 @@ func TestFlexInt64Unmarshal(t *testing.T) {
 	if err := json.Unmarshal([]byte(`"nope"`), &f); err == nil {
 		t.Fatal("expected error for non-numeric string")
 	}
+	for _, raw := range []string{`"12.5"`, `"NaN"`, `"9223372036854775808"`} {
+		if err := json.Unmarshal([]byte(raw), &f); err == nil {
+			t.Fatalf("accepted non-integral or out-of-range counter %s", raw)
+		}
+	}
 }
 
 // Subscription decodes whether reset-unix arrives as a number or a string.
@@ -59,6 +65,35 @@ func TestSubscriptionDecodeShapes(t *testing.T) {
 		if int64(sub.VoiceSlotsUsed) != 12 {
 			t.Fatalf("case %d voice slots wrong: %d", i, int64(sub.VoiceSlotsUsed))
 		}
+	}
+}
+
+func TestVoiceBudgetRejectsMissingSubscriptionCounters(t *testing.T) {
+	for _, raw := range []string{
+		`{"character_limit":100,"voice_slots_used":0,"voice_limit":10}`,
+		`{"character_count":0,"character_limit":null,"voice_slots_used":0,"voice_limit":10}`,
+		`{"character_count":0,"character_limit":100,"voice_limit":10}`,
+		`{"character_count":0,"character_limit":100,"voice_slots_used":"","voice_limit":10}`,
+	} {
+		if _, err := decodeVoiceBudgetSubscription([]byte(raw)); err == nil {
+			t.Fatalf("accepted incomplete subscription %s", raw)
+		}
+	}
+	if _, err := decodeVoiceBudgetSubscription([]byte(`{"character_count":0,"character_limit":100,"voice_slots_used":0,"voice_limit":10}`)); err != nil {
+		t.Fatalf("valid zero counters rejected: %v", err)
+	}
+}
+
+func TestVoiceBudgetTableShowsResetAndRemainingSlots(t *testing.T) {
+	resetIn := 2.5
+	budget := voiceBudget{NextResetUTC: "2026-10-04T00:00:00Z", DaysUntilReset: &resetIn, VoicesUsed: 12, VoiceLimit: 30, VoiceSlotsRemaining: 18}
+	headers, rows := voiceBudgetTable(budget)
+	columns := make(map[string]string, len(headers))
+	for i, header := range headers {
+		columns[header] = rows[0][i]
+	}
+	if columns["RESET UTC"] != budget.NextResetUTC || columns["SLOTS LEFT"] != "18" || columns["RESET IN"] != "2.5 days" {
+		t.Fatalf("human voice budget columns = %v", columns)
 	}
 }
 
@@ -163,7 +198,7 @@ func TestVoiceBudgetReadsSubscriptionCounterOnly(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"tier":"creator","status":"active","character_count":30000,"character_limit":100000,"voice_slots_used":12,"voice_limit":30}`))
+		_, _ = w.Write([]byte(fmt.Sprintf(`{"tier":"creator","status":"active","character_count":30000,"character_limit":100000,"voice_slots_used":%d,"voice_limit":30}`, 11+requests)))
 	}))
 	defer srv.Close()
 
@@ -174,22 +209,26 @@ func TestVoiceBudgetReadsSubscriptionCounterOnly(t *testing.T) {
 	t.Setenv("ELEVENLABS_API_KEY", "test-credential")
 	t.Setenv("ELEVENLABS_BASE_URL", srv.URL)
 
-	root := RootCmd()
-	var out, stderr bytes.Buffer
-	root.SetOut(&out)
-	root.SetErr(&stderr)
-	root.SetArgs([]string{"voice-budget", "--json"})
-	if err := root.Execute(); err != nil {
-		t.Fatalf("voice-budget failed: %v (%s)", err, stderr.String())
+	run := func() voiceBudget {
+		root := RootCmd()
+		var out, stderr bytes.Buffer
+		root.SetOut(&out)
+		root.SetErr(&stderr)
+		root.SetArgs([]string{"voice-budget", "--json"})
+		if err := root.Execute(); err != nil {
+			t.Fatalf("voice-budget failed: %v (%s)", err, stderr.String())
+		}
+		var got voiceBudget
+		if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+			t.Fatalf("decode output: %v (%s)", err, out.String())
+		}
+		return got
 	}
-	if requests != 1 {
-		t.Fatalf("requests = %d, want the subscription GET only", requests)
+	first, second := run(), run()
+	if requests != 2 {
+		t.Fatalf("requests = %d, want one fresh subscription GET per budget read", requests)
 	}
-	var got voiceBudget
-	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
-		t.Fatalf("decode output: %v (%s)", err, out.String())
-	}
-	if got.CharactersRemaining != 70000 || got.VoicesUsed != 12 || got.VoiceSlotsRemaining != 18 {
-		t.Fatalf("unexpected budget: %+v", got)
+	if first.VoicesUsed != 12 || second.VoicesUsed != 13 || second.VoiceSlotsRemaining != 17 || second.CharactersRemaining != 70000 {
+		t.Fatalf("budgets = %+v then %+v; want changed subscription counter without a voice-list request", first, second)
 	}
 }

@@ -13,5 +13,5 @@
     "SKILL.md",
     "README.md"
   ],
-  "validated_outcome": "Synthetic tests check subscription decoding, balance calculations, and that the command does not request a voice-list page."
+  "validated_outcome": "Synthetic tests check required subscription counters, balance calculations, terminal reset and slot details, and fresh subscription reads without a voice-list request."
 }
