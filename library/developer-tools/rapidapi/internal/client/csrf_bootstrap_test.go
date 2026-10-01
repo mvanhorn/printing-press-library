@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,6 +11,30 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/rapidapi/internal/config"
 )
+
+func TestCookieConfiguredHealthProbeReportsServerStatus(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	requests := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		if r.URL.Path != "/gateway/csrf" {
+			t.Errorf("unexpected path %q", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+	c := New(&config.Config{BaseURL: srv.URL, RapidapiCookie: "test-session"}, time.Second, 0)
+	c.NoCache = true
+	c.HTTPClient.Transport = srv.Client().Transport
+	_, err := c.Get(context.Background(), "/gateway/csrf", nil)
+	var apiErr *APIError
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("health probe error = %v, want HTTP 503 APIError", err)
+	}
+	if requests != 1 {
+		t.Fatalf("health probe sent %d requests, want one", requests)
+	}
+}
 
 func TestCookieBootstrapFailureStopsGraphQLRequest(t *testing.T) {
 	for _, tc := range []struct {

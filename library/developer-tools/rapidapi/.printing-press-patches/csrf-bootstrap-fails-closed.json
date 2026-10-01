@@ -6,5 +6,9 @@
   "base_printing_press_version": "4.31.1",
   "summary": "A session-based GraphQL request must stop when CSRF bootstrap fails and must preserve the session token across same-host redirects.",
   "reason": "Sending a request after a failed bootstrap hides the real error; bootstrapping again inside a redirect can recurse or break the session.",
-  "files": ["internal/client/client.go", "internal/client/csrf_bootstrap_test.go"]
+  "files": [
+    "internal/client/client.go",
+    "internal/client/csrf_bootstrap_test.go",
+    "internal/cli/doctor_csrf_probe_test.go"
+  ]
 }

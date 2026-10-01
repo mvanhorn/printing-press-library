@@ -922,13 +922,18 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		bodyBytes = b
 	}
 
-	// Resolve auth material before the dry-run branch so --dry-run can preview
-	// exactly what would be sent. Uses only cached credentials; a token that
-	// requires a network refresh will be re-fetched on the live request path,
-	// not during dry-run.
-	authHeader, err := c.authHeader(ctx)
-	if err != nil {
-		return nil, 0, err
+	// The public CSRF endpoint is also doctor's reachability probe. Do not
+	// bootstrap a session token before probing that same endpoint, since a
+	// bootstrap failure would hide the server's actual HTTP response.
+	authHeader := ""
+	if method != http.MethodGet || path != "/gateway/csrf" {
+		// Resolve auth material before the dry-run branch so --dry-run can
+		// preview exactly what would be sent.
+		var err error
+		authHeader, err = c.authHeader(ctx)
+		if err != nil {
+			return nil, 0, err
+		}
 	}
 
 	// Build the request for dry-run display or actual execution
