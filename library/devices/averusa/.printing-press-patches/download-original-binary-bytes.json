@@ -6,5 +6,10 @@
   "base_printing_press_version": "4.30.1",
   "summary": "Document downloads must write the original binary bytes, not the client's JSON transport envelope.",
   "reason": "A PDF written as encoded JSON is unusable even when the API request succeeds.",
-  "files": ["internal/cli/docs_download.go", "internal/client/binary_decode.go"]
+  "files": [
+    "internal/cli/docs_download.go",
+    "internal/cli/docs_download_binary_test.go",
+    "internal/client/binary_decode.go",
+    "internal/client/binary_decode_test.go"
+  ]
 }
