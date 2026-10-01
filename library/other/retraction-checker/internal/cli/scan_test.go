@@ -45,15 +45,16 @@ func TestScanResultCountsExpressionOfConcernSeparately(t *testing.T) {
 	verdicts := []retractionVerdict{
 		{Input: "10.1/retracted", DOI: "10.1/retracted", Retracted: true},
 		{Input: "10.1/concern", DOI: "10.1/concern", ExpressionOfConcern: true, Date: "2026-09-01"},
+		{Input: "10.1/both", DOI: "10.1/both", Retracted: true, ExpressionOfConcern: true, Date: "2026-08-01"},
 		{Input: "10.1/failure", Error: "lookup failed"},
 	}
 	res := summarizeScan("refs.txt", verdicts)
-	if res.RetractedCount != 1 || res.ConcernCount != 1 || res.FailureCount != 1 {
-		t.Fatalf("scan counts = retracted:%d concerns:%d failures:%d, want 1/1/1", res.RetractedCount, res.ConcernCount, res.FailureCount)
+	if res.RetractedCount != 2 || res.ConcernCount != 2 || res.FailureCount != 1 {
+		t.Fatalf("scan counts = retracted:%d concerns:%d failures:%d, want 2/2/1", res.RetractedCount, res.ConcernCount, res.FailureCount)
 	}
 	var out bytes.Buffer
 	writeHumanScanResult(&out, res)
-	for _, want := range []string{"1 editorial concerns", "EDITORIAL CONCERN", "10.1/concern", "2026-09-01"} {
+	for _, want := range []string{"2 editorial concerns", "EDITORIAL CONCERN", "10.1/concern", "2026-09-01", "RETRACTED + EDITORIAL CONCERN  10.1/both"} {
 		if !strings.Contains(out.String(), want) {
 			t.Fatalf("human scan output = %q, want %q", out.String(), want)
 		}

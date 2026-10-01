@@ -50,6 +50,8 @@ func writeHumanScanResult(w io.Writer, res scanResult) {
 		switch {
 		case verdict.Error != "":
 			fmt.Fprintf(w, "  ?  %s (%s)\n", verdict.Input, verdict.Error)
+		case verdict.Retracted && verdict.ExpressionOfConcern:
+			fmt.Fprintf(w, "  X! RETRACTED + EDITORIAL CONCERN  %s  %s\n", verdict.DOI, verdict.Date)
 		case verdict.Retracted:
 			fmt.Fprintf(w, "  X  RETRACTED  %s  %s\n", verdict.DOI, verdict.Date)
 		case verdict.ExpressionOfConcern:

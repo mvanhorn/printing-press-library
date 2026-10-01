@@ -48,6 +48,7 @@ func newNovelCheckCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				if v.Error != "" {
+					flags.deliverOnError = true
 					return fmt.Errorf("%s", v.Error)
 				}
 				return nil
@@ -70,6 +71,8 @@ func newNovelCheckCmd(flags *rootFlags) *cobra.Command {
 func writeHumanCheckResult(w io.Writer, v retractionVerdict) {
 	status := "NOT retracted"
 	switch {
+	case v.Retracted && v.ExpressionOfConcern:
+		status = "RETRACTED + EDITORIAL CONCERN"
 	case v.Retracted:
 		status = "RETRACTED"
 	case v.ExpressionOfConcern:
@@ -92,6 +95,14 @@ func writeHumanCheckResult(w io.Writer, v retractionVerdict) {
 		}
 		if v.NoticeURL != "" {
 			fmt.Fprintf(w, "  Notice: %s\n", v.NoticeURL)
+		}
+	}
+	if v.Retracted && v.ExpressionOfConcern {
+		if v.ConcernDate != "" {
+			fmt.Fprintf(w, "  Concern date:   %s\n", v.ConcernDate)
+		}
+		if v.ConcernNoticeURL != "" {
+			fmt.Fprintf(w, "  Concern notice: %s\n", v.ConcernNoticeURL)
 		}
 	}
 }

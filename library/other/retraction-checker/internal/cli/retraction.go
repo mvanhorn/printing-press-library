@@ -36,6 +36,10 @@ type retractionVerdict struct {
 	Source              string   `json:"source,omitempty"`
 	NoticeDOI           string   `json:"notice_doi,omitempty"`
 	NoticeURL           string   `json:"notice_url,omitempty"`
+	ConcernDate         string   `json:"concern_date,omitempty"`
+	ConcernSource       string   `json:"concern_source,omitempty"`
+	ConcernNoticeDOI    string   `json:"concern_notice_doi,omitempty"`
+	ConcernNoticeURL    string   `json:"concern_notice_url,omitempty"`
 	Published           string   `json:"published,omitempty"`
 	Signals             []string `json:"signals,omitempty"`
 	Error               string   `json:"error,omitempty"`
@@ -210,6 +214,18 @@ func checkDOI(ctx context.Context, c crossrefGetter, mailto, doi string) (retrac
 		if updateType == "expression_of_concern" {
 			v.ExpressionOfConcern = true
 			v.Signals = append(v.Signals, "crossref-update:"+u.Type)
+			if v.ConcernNoticeDOI == "" {
+				v.ConcernDate = u.Updated.iso()
+				v.ConcernSource = u.Source
+				v.ConcernNoticeDOI = u.DOI
+				if u.DOI != "" {
+					v.ConcernNoticeURL = "https://doi.org/" + u.DOI
+				}
+			}
+			continue
+		}
+		if retractionTypes[updateType] {
+			v.Retracted = true
 			if v.UpdateType == "" {
 				v.UpdateType = u.Type
 				v.Date = u.Updated.iso()
@@ -219,19 +235,7 @@ func checkDOI(ctx context.Context, c crossrefGetter, mailto, doi string) (retrac
 					v.NoticeURL = "https://doi.org/" + u.DOI
 				}
 			}
-			continue
-		}
-		if retractionTypes[updateType] {
-			v.Retracted = true
-			v.UpdateType = u.Type
-			v.Date = u.Updated.iso()
-			v.Source = u.Source
-			v.NoticeDOI = u.DOI
-			if u.DOI != "" {
-				v.NoticeURL = "https://doi.org/" + u.DOI
-			}
 			v.Signals = append(v.Signals, "crossref-update:"+u.Type)
-			break
 		}
 	}
 
@@ -243,6 +247,13 @@ func checkDOI(ctx context.Context, c crossrefGetter, mailto, doi string) (retrac
 		if v.UpdateType == "" {
 			v.UpdateType = "retraction"
 		}
+	}
+	if v.ExpressionOfConcern && !v.Retracted {
+		v.UpdateType = "expression_of_concern"
+		v.Date = v.ConcernDate
+		v.Source = v.ConcernSource
+		v.NoticeDOI = v.ConcernNoticeDOI
+		v.NoticeURL = v.ConcernNoticeURL
 	}
 	return v, nil
 }

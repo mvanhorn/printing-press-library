@@ -25,14 +25,15 @@ func (s stubCrossref) Get(_ context.Context, _ string, _ map[string]string) (jso
 // cases fail loudly if the tags drift.
 func TestCheckDOICrossrefFieldNames(t *testing.T) {
 	cases := []struct {
-		name          string
-		payload       string
-		wantRetracted bool
-		wantConcern   bool
-		wantType      string
-		wantDate      string
-		wantNoticeDOI string
-		wantSignals   []string
+		name                 string
+		payload              string
+		wantRetracted        bool
+		wantConcern          bool
+		wantType             string
+		wantDate             string
+		wantNoticeDOI        string
+		wantConcernNoticeDOI string
+		wantSignals          []string
 	}{
 		{
 			// The regression this test exists for. The field is "updated-by",
@@ -108,12 +109,49 @@ func TestCheckDOICrossrefFieldNames(t *testing.T) {
 					"source":"publisher","updated":{"date-parts":[[2026,9,1]]}
 				}]
 			}}`,
-			wantRetracted: false,
-			wantConcern:   true,
-			wantType:      "expression_of_concern",
-			wantDate:      "2026-09-01",
-			wantNoticeDOI: "10.5555/notice",
-			wantSignals:   []string{"crossref-update:expression_of_concern"},
+			wantRetracted:        false,
+			wantConcern:          true,
+			wantType:             "expression_of_concern",
+			wantDate:             "2026-09-01",
+			wantNoticeDOI:        "10.5555/notice",
+			wantConcernNoticeDOI: "10.5555/notice",
+			wantSignals:          []string{"crossref-update:expression_of_concern"},
+		},
+		{
+			name: "title retraction and concern keep distinct notices",
+			payload: `{"message":{
+				"DOI":"10.1000/mixed-title",
+				"title":["RETRACTED: Paper under review"],
+				"updated-by":[{
+					"DOI":"10.5555/concern","type":"expression_of_concern",
+					"source":"publisher","updated":{"date-parts":[[2026,9,1]]}
+				}]
+			}}`,
+			wantRetracted:        true,
+			wantConcern:          true,
+			wantType:             "retraction",
+			wantDate:             "",
+			wantNoticeDOI:        "",
+			wantConcernNoticeDOI: "10.5555/concern",
+			wantSignals:          []string{"crossref-update:expression_of_concern", "title-prefix"},
+		},
+		{
+			name: "retraction followed by concern retains both signals",
+			payload: `{"message":{
+				"DOI":"10.1000/mixed-updates",
+				"title":["Paper under review"],
+				"updated-by":[
+					{"DOI":"10.5555/retraction","type":"retraction","updated":{"date-parts":[[2026,8,1]]}},
+					{"DOI":"10.5555/concern","type":"expression_of_concern","updated":{"date-parts":[[2026,9,1]]}}
+				]
+			}}`,
+			wantRetracted:        true,
+			wantConcern:          true,
+			wantType:             "retraction",
+			wantDate:             "2026-08-01",
+			wantNoticeDOI:        "10.5555/retraction",
+			wantConcernNoticeDOI: "10.5555/concern",
+			wantSignals:          []string{"crossref-update:retraction", "crossref-update:expression_of_concern"},
 		},
 		{
 			// No update record at all: the title prefix still flags it, but
@@ -167,6 +205,9 @@ func TestCheckDOICrossrefFieldNames(t *testing.T) {
 			}
 			if v.NoticeDOI != tc.wantNoticeDOI {
 				t.Errorf("NoticeDOI = %q, want %q", v.NoticeDOI, tc.wantNoticeDOI)
+			}
+			if v.ConcernNoticeDOI != tc.wantConcernNoticeDOI {
+				t.Errorf("ConcernNoticeDOI = %q, want %q", v.ConcernNoticeDOI, tc.wantConcernNoticeDOI)
 			}
 			if len(v.Signals) != len(tc.wantSignals) {
 				t.Fatalf("Signals = %v, want %v", v.Signals, tc.wantSignals)
