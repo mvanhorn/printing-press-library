@@ -12,5 +12,5 @@
     "internal/cli/canvases.go",
     "internal/cli/canvases_amend_test.go"
   ],
-  "validated_outcome": "Synthetic tests check the channel-type default, other-resource isolation, and verifier no-op reporting for canvas writes."
+  "validated_outcome": "Synthetic tests check the channel-type default, other-resource isolation, and verifier no-op reporting for canvas writes. Request-level sync tests confirm explicit --param and --resource-param values override the default. Canvas command tests confirm --select and --compact preserve success=false and verify_noop=true after filtering. The full module test suite, go vet, and go build pass without provider HTTP."
 }
