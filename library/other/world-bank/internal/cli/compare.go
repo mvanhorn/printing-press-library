@@ -52,12 +52,13 @@ func buildCompareView(indicator, countries string, obs []wbObservation) (wbCompa
 			if seen[code] {
 				continue
 			}
-			var sample wbObservation
+			matchesRequested := strings.EqualFold(code, requestedCode)
 			for _, candidate := range byCountry[code] {
-				sample = candidate
-				break
+				if strings.EqualFold(candidate.Country.ID, requestedCode) {
+					matchesRequested = true
+				}
 			}
-			if strings.EqualFold(code, requestedCode) || strings.EqualFold(sample.Country.ID, requestedCode) {
+			if matchesRequested {
 				orderedCodes = append(orderedCodes, code)
 				seen[code] = true
 				matched = true

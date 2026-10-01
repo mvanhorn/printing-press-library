@@ -46,3 +46,20 @@ func TestBuildCompareViewRejectsMissingRequestedCountry(t *testing.T) {
 		t.Fatal("buildCompareView() succeeded without observations for Canada")
 	}
 }
+
+func TestBuildCompareViewMatchesAliasAcrossAllObservationYears(t *testing.T) {
+	obs := []wbObservation{
+		{CountryISO3Code: "USA", Country: wbCodeValue{ID: "US", Value: "United States"}, Date: "2023", Value: float64Ptr(100)},
+		{CountryISO3Code: "USA", Country: wbCodeValue{Value: "United States"}, Date: "2024", Value: float64Ptr(120)},
+		{CountryISO3Code: "CAN", Country: wbCodeValue{ID: "CA", Value: "Canada"}, Date: "2024", Value: float64Ptr(80)},
+	}
+	for i := 0; i < 20; i++ {
+		view, err := buildCompareView("GDP", "US;CA", obs)
+		if err != nil {
+			t.Fatalf("iteration %d: buildCompareView: %v", i, err)
+		}
+		if len(view.Rows) != 2 || view.Date != "2024" {
+			t.Fatalf("iteration %d: %+v", i, view)
+		}
+	}
+}
