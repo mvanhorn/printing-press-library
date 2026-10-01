@@ -167,6 +167,7 @@ func TestJSONBodyScalarsSentWithDeclaredType(t *testing.T) {
 	}
 	cases := []tcase{
 		{method: "POST", path: "/ai/external_pages", flag: "source-id", value: "7", keyPath: []string{"source_id"}, kind: "int", extra: []string{}, dryRun: false},
+		{method: "POST", path: "/articles", flag: "translated-content-ar-author-id", value: "7", keyPath: []string{"translated_content", "ar", "author_id"}, kind: "int", extra: []string{}, dryRun: false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.flag, func(t *testing.T) {

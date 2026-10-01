@@ -168,6 +168,7 @@ func TestJSONBodyScalarsSentWithDeclaredType(t *testing.T) {
 	cases := []tcase{
 		{method: "POST", path: "/v11/projects", flag: "serverless-function-zero-config-failover", value: "true", keyPath: []string{"serverlessFunctionZeroConfigFailover"}, kind: "bool", extra: []string{}, dryRun: false},
 		{method: "POST", path: "/v2/sandboxes/sessions/{sessionId}/snapshot", flag: "expiration", value: "7", keyPath: []string{"expiration"}, kind: "int", extra: []string{}, dryRun: false},
+		{method: "POST", path: "/v11/projects", flag: "resource-config-function-zero-config-failover", value: "true", keyPath: []string{"resourceConfig", "functionZeroConfigFailover"}, kind: "bool", extra: []string{}, dryRun: false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.flag, func(t *testing.T) {

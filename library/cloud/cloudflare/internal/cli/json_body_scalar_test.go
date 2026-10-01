@@ -168,6 +168,7 @@ func TestJSONBodyScalarsSentWithDeclaredType(t *testing.T) {
 	cases := []tcase{
 		{method: "POST", path: "/accounts/{account_id}/ai-search/instances", flag: "cache-ttl", value: "0.5", keyPath: []string{"cache_ttl"}, kind: "number", extra: []string{}, dryRun: false},
 		{method: "PATCH", path: "/accounts/{account_id}/brand-protection/queries", flag: "id", value: "7", keyPath: []string{"id"}, kind: "int", extra: []string{}, dryRun: false},
+		{method: "POST", path: "/accounts/{account_id}/cloudforce-one/v2/brand-protection/letter/generate", flag: "notice-params-query-id", value: "7", keyPath: []string{"noticeParams", "queryId"}, kind: "int", extra: []string{}, dryRun: false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.flag, func(t *testing.T) {

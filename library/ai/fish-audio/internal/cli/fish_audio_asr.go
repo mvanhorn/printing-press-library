@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/fish-audio/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/ai/fish-audio/internal/fishaudio"
@@ -50,14 +49,10 @@ type transcribeManifest struct {
 	Segments        []asrSegment `json:"segments"`
 }
 
-// asrRetryWait is the backoff before the single 503 retry. The vendor's ASR
-// endpoint returns intermittent 503s under load; one paced retry clears most
-// of them without turning a transient blip into a retry storm.
-const asrRetryWait = 2 * time.Second
-
-// transcribeFile posts one audio file to /v1/asr and decodes the response. A
-// 503 is retried once after a pause, because that status is a known transient
-// on this endpoint rather than a real failure.
+// transcribeFile posts one audio file to /v1/asr and decodes the response.
+// PATCH(paid-raw-posts-never-replayed): transcription is billed per second of
+// audio and a 503 can arrive after the server accepted the upload, so a
+// failed request is reported, never replayed automatically.
 func transcribeFile(ctx context.Context, c *client.Client, path, language string, timestamps bool) (asrResponse, error) {
 	audio, err := readUploadFile(path)
 	if err != nil {
@@ -81,36 +76,23 @@ func transcribeFile(ctx context.Context, c *client.Client, path, language string
 		return asrResponse{}, err
 	}
 
-	var lastErr error
-	for attempt := 0; attempt < 2; attempt++ {
-		data, _, postErr := c.PostRaw(ctx, fishASRPath, body, map[string]string{"Content-Type": contentType})
-		if postErr == nil {
-			var resp asrResponse
-			if len(data) == 0 {
-				return asrResponse{}, nil
-			}
-			if err := json.Unmarshal(data, &resp); err != nil {
-				return asrResponse{}, fmt.Errorf("parsing the %s response: %w", fishASRPath, err)
-			}
-			return resp, nil
-		}
-		lastErr = postErr
-		var upstream *client.APIError
-		if !As(postErr, &upstream) || upstream.StatusCode != 503 || attempt == 1 {
-			break
-		}
-		select {
-		case <-ctx.Done():
-			return asrResponse{}, ctx.Err()
-		case <-time.After(asrRetryWait):
-		}
+	data, _, err := c.PostRaw(ctx, fishASRPath, body, map[string]string{"Content-Type": contentType})
+	if err != nil {
+		return asrResponse{}, err
 	}
-	return asrResponse{}, lastErr
+	var resp asrResponse
+	if len(data) == 0 {
+		return asrResponse{}, nil
+	}
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return asrResponse{}, fmt.Errorf("parsing the %s response: %w", fishASRPath, err)
+	}
+	return resp, nil
 }
 
 // newFishAsrTranscribeCmd builds `asr transcribe`, the named form of the
 // generated bare `asr` endpoint command plus the cost the vendor does not
-// return and the 503 retry the endpoint needs.
+// return.
 func newFishAsrTranscribeCmd(flags *rootFlags) *cobra.Command {
 	var (
 		flagAudio      string
@@ -130,8 +112,9 @@ defaults to timestamps OFF. Pass it to get per-segment start and end times.
 Cost is $0.36 per hour of audio, billed on the duration rounded to the nearest
 second, computed from the duration the API returns.
 
-The endpoint returns intermittent 503s under load. This command retries once
-after a short pause before reporting a failure.`,
+The endpoint returns intermittent 503s under load. A failed request is not
+retried automatically, because the upload may already have been billed; check
+your usage before rerunning.`,
 		Example: strings.Trim(`
   fish-audio-pp-cli asr transcribe --audio interview.wav
   fish-audio-pp-cli asr transcribe --audio interview.wav --language en --timestamps --json

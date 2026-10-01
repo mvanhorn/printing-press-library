@@ -168,6 +168,7 @@ func TestJSONBodyScalarsSentWithDeclaredType(t *testing.T) {
 	cases := []tcase{
 		{method: "POST", path: "/v1/convai/mcp-servers/{mcp_server_id}/tool-configs", flag: "disable-interruptions", value: "true", keyPath: []string{"disable_interruptions"}, kind: "bool", extra: []string{}, dryRun: false},
 		{method: "POST", path: "/v1/convai/mcp-servers/{mcp_server_id}/tool-configs", flag: "response-timeout-secs", value: "7", keyPath: []string{"response_timeout_secs"}, kind: "int", extra: []string{}, dryRun: false},
+		{method: "PATCH", path: "/v1/convai/settings", flag: "webhooks-send-audio", value: "true", keyPath: []string{"webhooks", "send_audio"}, kind: "bool", extra: []string{}, dryRun: false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.flag, func(t *testing.T) {
