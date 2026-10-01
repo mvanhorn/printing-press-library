@@ -6,5 +6,9 @@
   "base_printing_press_version": "4.14.0",
   "summary": "Repository deletion must require an explicit yes in non-interactive use and must otherwise prompt on a terminal.",
   "reason": "A missing terminal must not silently skip confirmation and send a destructive DELETE request.",
-  "files": ["internal/cli/novel_repo.go"]
+  "files": [
+    "go.mod",
+    "internal/cli/novel_repo.go",
+    "internal/cli/novel_repo_test.go"
+  ]
 }
