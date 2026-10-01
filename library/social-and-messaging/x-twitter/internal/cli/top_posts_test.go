@@ -5,6 +5,10 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -81,8 +85,8 @@ func TestRankTopPostsOrdersByMetricAndLimits(t *testing.T) {
 	if posts[0].Rank != 1 || posts[1].Rank != 2 {
 		t.Fatalf("ranks not assigned: %d,%d", posts[0].Rank, posts[1].Rank)
 	}
-	if posts[0].Score != 50 {
-		t.Fatalf("score = %d, want 50", posts[0].Score)
+	if posts[0].Score == nil || *posts[0].Score != 50 || posts[0].ScoreMetric != "likes" {
+		t.Fatalf("score = %+v, want 50 likes", posts[0])
 	}
 	if posts[0].URL != "https://x.com/acme/status/2" {
 		t.Fatalf("url = %q", posts[0].URL)
@@ -246,16 +250,165 @@ func TestMissingImpressionsCount(t *testing.T) {
 	}
 }
 
-func TestRankTopPostsPartialImpressionsNilScoresZero(t *testing.T) {
+func TestRankTopPostsPartialImpressionsKeepUnknownSeparateFromZero(t *testing.T) {
 	items := []tweetItem{
-		{ID: "1", PublicMetrics: publicMetrics{ImpressionCount: intPtr(5)}},
+		{ID: "1", PublicMetrics: publicMetrics{ImpressionCount: intPtr(0)}},
 		{ID: "2", PublicMetrics: publicMetrics{LikeCount: 99}},
 	}
 	posts := rankTopPosts(items, "", "impressions", 2)
-	if posts[0].ID != "1" || posts[0].Score != 5 {
-		t.Fatalf("impression-backed post should rank first with score 5, got %+v", posts[0])
+	if posts[0].ID != "1" || posts[0].Score == nil || *posts[0].Score != 0 {
+		t.Fatalf("measured zero must rank before unknown impressions, got %+v", posts[0])
 	}
-	if posts[1].ID != "2" || posts[1].Score != 0 || posts[1].Impressions != nil {
-		t.Fatalf("missing impression post should remain visible with score 0/nil impressions, got %+v", posts[1])
+	if posts[1].ID != "2" || posts[1].Score != nil || posts[1].Impressions != nil || posts[1].ScoreMetric != "impressions" {
+		t.Fatalf("unknown impressions must have null score, got %+v", posts[1])
+	}
+}
+
+func TestTopPostsRejectsExcessiveFetchBeforeAnyRequest(t *testing.T) {
+	cmd := newTopPostsCmd(&rootFlags{dryRun: true})
+	cmd.SetArgs([]string{"--max-fetch", "1001"})
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "at most 1000") {
+		t.Fatalf("excessive fetch must be rejected before a request, got %v", err)
+	}
+}
+
+func TestTopPostsPagesThroughEmptyIntermediatePageWithoutExtraUserLookup(t *testing.T) {
+	var calls []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls = append(calls, r.URL.String())
+		if r.URL.Path != "/2/users/42/tweets" || r.URL.Query().Get("tweet.fields") != "public_metrics,created_at" || r.URL.Query().Get("max_results") != "100" {
+			t.Errorf("unexpected request: %s", r.URL.String())
+		}
+		switch r.URL.Query().Get("pagination_token") {
+		case "":
+			fmt.Fprint(w, `{"data":[{"id":"1","text":"first","public_metrics":{"like_count":2}}],"meta":{"next_token":"A"}}`)
+		case "A":
+			fmt.Fprint(w, `{"data":[],"meta":{"next_token":"B"}}`)
+		case "B":
+			fmt.Fprint(w, `{"data":[{"id":"2","text":"second","public_metrics":{"like_count":5}}]}`)
+		default:
+			t.Errorf("unexpected pagination token")
+		}
+	}))
+	defer server.Close()
+	t.Setenv("X_TWITTER_BASE_URL", server.URL)
+	t.Setenv("X_BEARER_TOKEN", "synthetic-app-token")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	t.Setenv("X_TWITTER_CONFIG", t.TempDir()+"/missing-config.toml")
+	cmd := RootCmd()
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"top-posts", "--user-id", "42", "--max-fetch", "200", "--metric", "likes", "--json", "--no-cache"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("synthetic timeline: %v", err)
+	}
+	if len(calls) != 3 {
+		t.Fatalf("requests = %v, want three timeline pages and no user lookup", calls)
+	}
+	var posts []rankedPost
+	if err := json.Unmarshal(out.Bytes(), &posts); err != nil {
+		t.Fatalf("decode ranked posts: %v; output=%q", err, out.String())
+	}
+	if len(posts) != 2 || posts[0].ID != "2" || posts[0].ScoreMetric != "likes" || posts[0].URL != "https://x.com/i/web/status/2" {
+		t.Fatalf("ranked posts = %+v", posts)
+	}
+}
+
+func TestTopPostsRejectsRepeatedPaginationTokenBeforeAnotherPaidRead(t *testing.T) {
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		fmt.Fprint(w, `{"data":[],"meta":{"next_token":"AGAIN"}}`)
+	}))
+	defer server.Close()
+	t.Setenv("X_TWITTER_BASE_URL", server.URL)
+	t.Setenv("X_BEARER_TOKEN", "synthetic-app-token")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	t.Setenv("X_TWITTER_CONFIG", t.TempDir()+"/missing-config.toml")
+	cmd := RootCmd()
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"top-posts", "--user-id", "42", "--json", "--no-cache"})
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "repeated") || requests != 2 {
+		t.Fatalf("repeated token must stop after two reads: err=%v requests=%d", err, requests)
+	}
+}
+
+func TestTopPostsFallbackMetricIsVisibleInJSON(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"data":[{"id":"1","text":"first","public_metrics":{"like_count":2}}]}`)
+	}))
+	defer server.Close()
+	t.Setenv("X_TWITTER_BASE_URL", server.URL)
+	t.Setenv("X_BEARER_TOKEN", "synthetic-app-token")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	t.Setenv("X_TWITTER_CONFIG", t.TempDir()+"/missing-config.toml")
+	cmd := RootCmd()
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"top-posts", "--user-id", "42", "--metric", "impressions", "--json", "--no-cache"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("synthetic timeline: %v", err)
+	}
+	var posts []rankedPost
+	if err := json.Unmarshal(out.Bytes(), &posts); err != nil || len(posts) != 1 || posts[0].ScoreMetric != "engagement" {
+		t.Fatalf("fallback metric must be visible in JSON: posts=%+v err=%v", posts, err)
+	}
+}
+
+func TestTopPostsResolvesAuthenticatedUserThenReadsTimeline(t *testing.T) {
+	var calls []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls = append(calls, r.URL.Path)
+		switch r.URL.Path {
+		case "/2/users/me":
+			fmt.Fprint(w, `{"data":{"id":"42","username":"fixture-user"}}`)
+		case "/2/users/42/tweets":
+			fmt.Fprint(w, `{"data":[{"id":"1","text":"first","public_metrics":{"like_count":2}}]}`)
+		default:
+			t.Errorf("unexpected request: %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("X_TWITTER_BASE_URL", server.URL)
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "synthetic-user-token")
+	t.Setenv("X_TWITTER_CONFIG", t.TempDir()+"/missing-config.toml")
+	cmd := RootCmd()
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"top-posts", "--json", "--no-cache"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("synthetic authenticated timeline: %v", err)
+	}
+	if len(calls) != 2 || calls[0] != "/2/users/me" || calls[1] != "/2/users/42/tweets" {
+		t.Fatalf("calls = %v, want identity lookup then timeline", calls)
+	}
+	var posts []rankedPost
+	if err := json.Unmarshal(out.Bytes(), &posts); err != nil || len(posts) != 1 || posts[0].URL != "https://x.com/fixture-user/status/1" {
+		t.Fatalf("ranked posts = %+v, error=%v", posts, err)
+	}
+}
+
+func TestTopPostsStopsLongEmptyPaginationAtPaidReadBudget(t *testing.T) {
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		fmt.Fprintf(w, `{"data":[],"meta":{"next_token":%q}}`, strconv.Itoa(requests))
+	}))
+	defer server.Close()
+	t.Setenv("X_TWITTER_BASE_URL", server.URL)
+	t.Setenv("X_BEARER_TOKEN", "synthetic-app-token")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	t.Setenv("X_TWITTER_CONFIG", t.TempDir()+"/missing-config.toml")
+	cmd := RootCmd()
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"top-posts", "--user-id", "42", "--json", "--no-cache"})
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "limit paid API reads") || requests != 4 {
+		t.Fatalf("empty pages must stop at four synthetic reads: err=%v requests=%d", err, requests)
 	}
 }

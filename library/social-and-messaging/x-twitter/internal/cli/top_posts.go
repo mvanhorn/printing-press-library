@@ -20,6 +20,7 @@ var topPostsMetrics = []string{"engagement", "likes", "retweets", "replies", "qu
 
 // topPostsPageSize is the maximum posts the X timeline endpoint returns per page.
 const topPostsPageSize = 100
+const topPostsMaxFetch = 1000
 
 // publicMetrics is the subset of a Tweet's public_metrics that top-posts ranks
 // on. impression_count is only populated for the authenticated user's own posts
@@ -56,7 +57,8 @@ type rankedPost struct {
 	Bookmarks   int    `json:"bookmarks"`
 	Impressions *int   `json:"impressions,omitempty"`
 	Engagement  int    `json:"engagement"`
-	Score       int    `json:"score"`
+	Score       *int   `json:"score"`
+	ScoreMetric string `json:"score_metric"`
 }
 
 func newTopPostsCmd(flags *rootFlags) *cobra.Command {
@@ -83,6 +85,9 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flagMaxFetch < 1 {
 				return fmt.Errorf("--max-fetch must be at least 1")
+			}
+			if flagMaxFetch > topPostsMaxFetch {
+				return fmt.Errorf("--max-fetch must be at most %d to limit memory and paid page reads", topPostsMaxFetch)
 			}
 			for _, digit := range strings.TrimSpace(flagUserID) {
 				if digit < '0' || digit > '9' {
@@ -120,12 +125,6 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("could not resolve authenticated user id from /2/users/me")
 				}
 				userID, username = id, uname
-			} else {
-				// Look up the username so post URLs are canonical; tolerate a
-				// lookup failure by falling back to the id-based URL form.
-				if uData, uerr := c.Get(ctx, "/2/users/"+url.PathEscape(userID), nil); uerr == nil {
-					_, username, _ = decodeUserEnvelope(uData)
-				}
 			}
 
 			items, err := fetchUserPosts(ctx, c, flags, userID, flagMaxFetch, flagExclude)
@@ -135,13 +134,13 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 
 			// Gracefully handle impression ranking on tiers that omit the field.
 			effectiveMetric := metric
-			if metric == "impressions" {
+			if metric == "impressions" && len(items) > 0 {
 				missingImpressions := missingImpressionsCount(items)
 				if missingImpressions == len(items) {
 					fmt.Fprintln(cmd.ErrOrStderr(), "note: impression_count is unavailable on this access tier; ranking by engagement instead.")
 					effectiveMetric = "engagement"
 				} else if missingImpressions > 0 {
-					fmt.Fprintf(cmd.ErrOrStderr(), "note: impression_count is missing on %d of %d posts; missing values rank as 0 impressions.\n", missingImpressions, len(items))
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: impression_count is missing on %d of %d posts; unknown scores rank after measured impressions and display as n/a.\n", missingImpressions, len(items))
 				}
 			}
 
@@ -161,13 +160,17 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 				headers := []string{"#", "SCORE(" + effectiveMetric + ")", "LIKES", "RTS", "REPLIES", "QUOTES", "BOOKMARKS", "IMPRESSIONS", "TEXT", "URL"}
 				rows := make([][]string, 0, len(posts))
 				for _, p := range posts {
+					score := "n/a"
+					if p.Score != nil {
+						score = strconv.Itoa(*p.Score)
+					}
 					impr := "n/a"
 					if p.Impressions != nil {
 						impr = strconv.Itoa(*p.Impressions)
 					}
 					rows = append(rows, []string{
 						strconv.Itoa(p.Rank),
-						strconv.Itoa(p.Score),
+						score,
 						strconv.Itoa(p.Likes),
 						strconv.Itoa(p.Retweets),
 						strconv.Itoa(p.Replies),
@@ -255,8 +258,11 @@ func rankTopPosts(items []tweetItem, username, metric string, limit int) []ranke
 	ordered := make([]tweetItem, len(items))
 	copy(ordered, items)
 	sort.SliceStable(ordered, func(i, j int) bool {
-		si, _ := metricScore(ordered[i].PublicMetrics, metric)
-		sj, _ := metricScore(ordered[j].PublicMetrics, metric)
+		si, ai := metricScore(ordered[i].PublicMetrics, metric)
+		sj, aj := metricScore(ordered[j].PublicMetrics, metric)
+		if ai != aj {
+			return ai
+		}
 		if si != sj {
 			return si > sj
 		}
@@ -272,7 +278,11 @@ func rankTopPosts(items []tweetItem, username, metric string, limit int) []ranke
 	posts := make([]rankedPost, 0, len(ordered))
 	for i, it := range ordered {
 		pm := it.PublicMetrics
-		score, _ := metricScore(pm, metric)
+		score, available := metricScore(pm, metric)
+		var scoreValue *int
+		if available {
+			scoreValue = &score
+		}
 		posts = append(posts, rankedPost{
 			Rank:        i + 1,
 			ID:          it.ID,
@@ -286,7 +296,8 @@ func rankTopPosts(items []tweetItem, username, metric string, limit int) []ranke
 			Bookmarks:   pm.BookmarkCount,
 			Impressions: pm.ImpressionCount,
 			Engagement:  engagementOf(pm),
-			Score:       score,
+			Score:       scoreValue,
+			ScoreMetric: metric,
 		})
 	}
 	return posts
@@ -368,10 +379,17 @@ func decodeTweetsPage(data json.RawMessage) (items []tweetItem, nextToken string
 // the timeline is exhausted, reusing the CLI's existing client + error plumbing.
 func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, userID string, maxFetch int, exclude string) ([]tweetItem, error) {
 	path := "/2/users/" + url.PathEscape(userID) + "/tweets"
-	collected := make([]tweetItem, 0, maxFetch)
+	collected := make([]tweetItem, 0, min(maxFetch, topPostsPageSize))
 	nextToken := ""
 	seenTokens := make(map[string]bool)
+	// Allow a few sparse or empty pages beyond the normal one-page-per-100
+	// budget, but never let a stream of fresh tokens trigger unlimited paid reads.
+	pageBudget := (maxFetch+topPostsPageSize-1)/topPostsPageSize + 3
+	pagesFetched := 0
 	for len(collected) < maxFetch {
+		if pagesFetched >= pageBudget {
+			return nil, fmt.Errorf("timeline still has pages after %d requests; stopped to limit paid API reads", pageBudget)
+		}
 		pageSize := maxFetch - len(collected)
 		if pageSize > topPostsPageSize {
 			pageSize = topPostsPageSize
@@ -390,6 +408,7 @@ func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, use
 			params["pagination_token"] = nextToken
 		}
 		data, err := c.Get(ctx, path, params)
+		pagesFetched++
 		if err != nil {
 			return nil, classifyAPIError(err, flags)
 		}
@@ -398,7 +417,7 @@ func fetchUserPosts(ctx context.Context, c *client.Client, flags *rootFlags, use
 			return nil, fmt.Errorf("decoding posts page: %w", derr)
 		}
 		collected = append(collected, items...)
-		if token == "" || len(items) == 0 {
+		if token == "" {
 			break
 		}
 		if seenTokens[token] {
