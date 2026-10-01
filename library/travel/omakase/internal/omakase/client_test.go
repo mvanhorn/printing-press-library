@@ -144,7 +144,7 @@ func TestOldParserCacheIsRejected(t *testing.T) {
 	calls := 0
 	c := testClient(t, func(r *http.Request) (*http.Response, error) { calls++; return response(200, detailHTML), nil })
 	raw := Origin + "/en/r/hc778124"
-	old := cacheEntry{Version: 1, URL: raw, FetchedAt: time.Now().UTC(), Data: json.RawMessage(`{"id":"hc778124","name":"pre-fix normalized result"}`)}
+	old := cacheEntry{Version: documentCacheVersion - 1, URL: raw, FetchedAt: time.Now().UTC(), Data: json.RawMessage(`{"id":"hc778124","name":"pre-fix normalized result"}`)}
 	b, _ := json.Marshal(old)
 	if e := atomicWrite(c.key(raw), b); e != nil {
 		t.Fatal(e)
@@ -163,5 +163,32 @@ func TestOldParserCacheIsRejected(t *testing.T) {
 	_ = json.Unmarshal(fresh, &ce)
 	if ce.Version != documentCacheVersion {
 		t.Fatal("wrote legacy parser cache")
+	}
+}
+
+func TestZeroMaxAgeReusesOldCacheAndHonorsRefresh(t *testing.T) {
+	calls := 0
+	c := testClient(t, func(r *http.Request) (*http.Response, error) {
+		calls++
+		return response(200, detailHTML), nil
+	})
+	raw := Origin + "/en/r/hc778124"
+	entry := cacheEntry{Version: documentCacheVersion, URL: raw, FetchedAt: time.Now().Add(-48 * time.Hour), Data: json.RawMessage(`{"id":"hc778124","name":"cached source"}`)}
+	b, err := json.Marshal(entry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := atomicWrite(c.key(raw), b); err != nil {
+		t.Fatal(err)
+	}
+	c.MaxAge = 0
+	d, err := c.Restaurant(context.Background(), "hc778124", "en")
+	if err != nil || calls != 0 || d.Name != "cached source" || !d.Evidence[0].Cached || d.Evidence[0].Stale {
+		t.Fatalf("zero age limit should reuse old cache: %+v err=%v requests=%d", d, err, calls)
+	}
+	c.Refresh = true
+	d, err = c.Restaurant(context.Background(), "hc778124", "en")
+	if err != nil || calls != 1 || d.Name != "Test Sushi" || d.Evidence[0].Cached {
+		t.Fatalf("explicit refresh should still fetch: %+v err=%v requests=%d", d, err, calls)
 	}
 }

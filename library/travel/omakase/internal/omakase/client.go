@@ -22,7 +22,7 @@ const maxBody = 2 << 20
 const maxCacheEntries = 128
 
 // Bump when normalized parser semantics change; old cache must not preserve corrected financial states.
-const documentCacheVersion = 2
+const documentCacheVersion = 3
 
 type HTTPError struct {
 	Status int
@@ -169,7 +169,7 @@ func (c *Client) load(ctx context.Context, raw string, out any, parse func([]byt
 			var ce cacheEntry
 			if json.Unmarshal(b, &ce) == nil && ce.Version == documentCacheVersion && ce.URL == raw && !ce.FetchedAt.IsZero() {
 				age := time.Since(ce.FetchedAt)
-				stale := age < 0 || age > c.MaxAge
+				stale := age < 0 || (c.MaxAge > 0 && age > c.MaxAge)
 				if (c.Offline || !stale) && json.Unmarshal(ce.Data, out) == nil {
 					c.Stats.CacheHits++
 					ev.FetchedAt = ce.FetchedAt

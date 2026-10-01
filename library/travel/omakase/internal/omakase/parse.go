@@ -278,7 +278,7 @@ func ParsePrice(raw string) Price {
 		v := false
 		p.ServiceChargeIncluded = &v
 	}
-	p.Minimum = strings.Contains(raw, "～") || strings.Contains(raw, "〜") || strings.Contains(low, "from ")
+	p.Minimum = p.MaximumAmount != nil || strings.Contains(raw, "～") || strings.Contains(raw, "〜") || strings.Contains(low, "from ")
 	p.Variable = p.Minimum || p.MaximumAmount != nil || strings.Contains(low, "market") || strings.Contains(low, "vary") || strings.Contains(raw, "時価")
 	return p
 }

@@ -50,10 +50,10 @@ func newPlanningSession(f *rootFlags, o planningOptions) (*planningSession, erro
 	c.Refresh = o.refresh || f.dataSource == "live"
 	c.Offline = o.offline || f.dataSource == "local"
 	c.NoCache = f.noCache
-	if f.maxAge > 0 {
-		c.MaxAge = f.maxAge
-	}
-	if f.rateLimit > 0 {
+	c.MaxAge = f.maxAge
+	if f.rateLimit == 0 {
+		c.Pace = 0
+	} else if f.rateLimit > 0 {
 		c.Pace = time.Duration(float64(time.Second) / f.rateLimit)
 		if c.Pace < 250*time.Millisecond {
 			c.Pace = 250 * time.Millisecond

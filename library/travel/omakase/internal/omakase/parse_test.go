@@ -124,7 +124,7 @@ func TestObservedFinancialLanguageVariants(t *testing.T) {
 		t.Fatalf("variable note lost: %+v %v", d, e)
 	}
 	p := ParsePrice("JPY20,000 - JPY30,000 (Tax included) /guest(s)")
-	if p.MaximumAmount == nil || *p.MaximumAmount != 30000 || !p.Variable {
+	if p.Amount == nil || *p.Amount != 20000 || p.MaximumAmount == nil || *p.MaximumAmount != 30000 || !p.Minimum || !p.Variable {
 		t.Fatalf("range lost %+v", p)
 	}
 }

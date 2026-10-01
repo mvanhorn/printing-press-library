@@ -5,7 +5,30 @@ import (
 	"encoding/json"
 	"github.com/mvanhorn/printing-press-library/library/travel/omakase/internal/cliutil/testenv"
 	"testing"
+	"time"
 )
+
+func TestPlanningZeroFlagsAndAutomaticDefaults(t *testing.T) {
+	for _, tc := range []struct {
+		name         string
+		flags        rootFlags
+		maxAge, pace time.Duration
+	}{
+		{"zero disables", rootFlags{maxAge: 0, rateLimit: 0}, 0, 0},
+		{"automatic defaults", rootFlags{maxAge: 30 * time.Minute, rateLimit: -1}, 30 * time.Minute, 500 * time.Millisecond},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testenv.Isolate(t)
+			s, err := newPlanningSession(&tc.flags, planningOptions{lang: "en"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if s.client.MaxAge != tc.maxAge || s.client.Pace != tc.pace {
+				t.Fatalf("max age=%s pace=%s; want %s and %s", s.client.MaxAge, s.client.Pace, tc.maxAge, tc.pace)
+			}
+		})
+	}
+}
 
 func TestPlanningInputAndOfflineBoundaries(t *testing.T) {
 	for _, args := range [][]string{{"restaurants", "find", "--limit", "0"}, {"restaurants", "show", "../bad"}, {"availability", "hc778124", "--date", "2026-02-30", "--party", "2"}, {"availability", "hc778124", "--party", "2"}, {"compare", "hc778124", "hc778124"}, {"courses", "hc778124", "--offline", "--refresh"}, {"restaurants", "find", "--offline", "--no-cache"}} {
