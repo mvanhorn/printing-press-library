@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -21,6 +22,21 @@ func fetchOpenPostingsSnapshot(ctx context.Context, c *client.Client, flags *roo
 	if err := validateDataSourceStrategy(flags, "live"); err != nil {
 		return nil, err
 	}
+	first, err := fetchOpenPostingsScan(ctx, c, path)
+	if err != nil {
+		return nil, err
+	}
+	second, err := fetchOpenPostingsScan(ctx, c, path)
+	if err != nil {
+		return nil, err
+	}
+	if err := comparePostingIDs(first, second); err != nil {
+		return nil, fmt.Errorf("postings changed during pagination; local snapshot was not changed: %w", err)
+	}
+	return second, nil
+}
+
+func fetchOpenPostingsScan(ctx context.Context, c *client.Client, path string) ([]json.RawMessage, error) {
 	const pageSize = 100
 	items := make([]json.RawMessage, 0)
 	for page := 0; page < paginatedGetMaxPages; page++ {
@@ -46,6 +62,42 @@ func fetchOpenPostingsSnapshot(ctx context.Context, c *client.Client, flags *roo
 		}
 	}
 	return nil, fmt.Errorf("postings exceed the %d-page safety limit; local snapshot was not changed", paginatedGetMaxPages)
+}
+
+func comparePostingIDs(first, second []json.RawMessage) error {
+	collect := func(items []json.RawMessage) (map[string]struct{}, error) {
+		ids := make(map[string]struct{}, len(items))
+		for i, raw := range items {
+			var item struct {
+				ID string `json:"id"`
+			}
+			if err := json.Unmarshal(raw, &item); err != nil || strings.TrimSpace(item.ID) == "" {
+				return nil, fmt.Errorf("posting %d has no valid ID", i+1)
+			}
+			if _, exists := ids[item.ID]; exists {
+				return nil, fmt.Errorf("posting ID appears twice")
+			}
+			ids[item.ID] = struct{}{}
+		}
+		return ids, nil
+	}
+	firstIDs, err := collect(first)
+	if err != nil {
+		return err
+	}
+	secondIDs, err := collect(second)
+	if err != nil {
+		return err
+	}
+	if len(firstIDs) != len(secondIDs) {
+		return fmt.Errorf("the two scans have different posting counts")
+	}
+	for id := range firstIDs {
+		if _, ok := secondIDs[id]; !ok {
+			return fmt.Errorf("the two scans have different posting IDs")
+		}
+	}
+	return nil
 }
 
 // newSyncCmd fetches every open posting for a company and persists it to
