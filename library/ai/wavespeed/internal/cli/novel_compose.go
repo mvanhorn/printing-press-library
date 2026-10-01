@@ -110,6 +110,7 @@ func newComposeCmd(flags *rootFlags) *cobra.Command {
 					if len(oc.Files) > 0 {
 						g.Path = oc.Files[0]
 					}
+					g.Data = oc.recoveryData()
 					if rerr := recordGeneration(g); rerr != nil {
 						env.LibraryRecordErrors = append(env.LibraryRecordErrors, rerr.Error())
 					}

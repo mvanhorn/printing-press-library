@@ -397,6 +397,10 @@ func TestNoteDownloadFailureIsWarningNotError(t *testing.T) {
 	if oc.Err != "" || !oc.DownloadFailed || !strings.Contains(oc.Warning, "dims mismatch; ") || !strings.Contains(oc.Warning, "p9") {
 		t.Fatalf("unexpected outcome: %+v", oc)
 	}
+	data := string(oc.recoveryData())
+	if !strings.Contains(data, `"prediction_id":"p9"`) || !strings.Contains(data, "https://cdn.example/o.png") {
+		t.Fatalf("library record must keep recovery details: %s", data)
+	}
 }
 
 // A shot whose outputs did not all download is excluded from the post-ready
@@ -427,7 +431,11 @@ func TestPackManifestSkipsShotsWithMissingDownloads(t *testing.T) {
 		t.Fatalf("no manifest expected, got %v", again)
 	}
 	if _, err := os.Stat(written[0]); !os.IsNotExist(err) {
-		t.Fatalf("stale manifest left in place: %v", err)
+		t.Fatalf("stale manifest left under the post-ready name: %v", err)
+	}
+	kept, _ := filepath.Glob(filepath.Join(filepath.Dir(written[0]), "manifest.superseded-*.json"))
+	if len(kept) != 1 {
+		t.Fatalf("earlier manifest must be kept recoverable, found %v", kept)
 	}
 }
 
