@@ -110,6 +110,8 @@ func newAspectsCmd(flags *rootFlags) *cobra.Command {
 				env.CostSpent += oc.Cost
 				if oc.DownloadFailed {
 					env.Warnings = append(env.Warnings, oc.Warning)
+				}
+				if oc.DownloadFailed || oc.Err != "" {
 					env.PartialFailure = true
 				}
 				env.Results = append(env.Results, map[string]any{"target": i, "aspect_ratio": aspect, "mode": outpaintMode(useOutpaint), "outcome": oc})
@@ -122,6 +124,11 @@ func newAspectsCmd(flags *rootFlags) *cobra.Command {
 						env.LibraryRecordErrors = append(env.LibraryRecordErrors, rerr.Error())
 					}
 				}
+			}
+			if env.PartialFailure {
+				env.RecommendedAction = "one or more aspects failed or were not saved locally; recover outputs from warnings or with prediction-results <id>"
+				_ = emitEnvelope(cmd.OutOrStdout(), env)
+				return partialFailureErr(fmt.Errorf("aspects incomplete: one or more targets failed or were not downloaded"))
 			}
 			env.RecommendedAction = "review re-framed assets; pack them for posting"
 			return emitEnvelope(cmd.OutOrStdout(), env)

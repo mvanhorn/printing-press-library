@@ -399,6 +399,28 @@ func TestNoteDownloadFailureIsWarningNotError(t *testing.T) {
 	}
 }
 
+// A shot whose outputs did not all download is excluded from the post-ready
+// platform manifest.
+func TestPackManifestSkipsShotsWithMissingDownloads(t *testing.T) {
+	dir := t.TempDir()
+	shots := []Shot{{Platform: "instagram", Format: "square"}, {Platform: "instagram", Format: "square"}}
+	outcomes := []shotOutcome{
+		{Files: []string{filepath.Join(dir, "ok.png")}},
+		{Files: []string{filepath.Join(dir, "partial.png")}, DownloadFailed: true, Warning: "prediction p completed but download failed"},
+	}
+	written := writePlatformManifests(packFlags{outDir: dir}, "slug", shots, outcomes)
+	if len(written) != 1 {
+		t.Fatalf("manifests written = %v", written)
+	}
+	raw, err := os.ReadFile(written[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), "partial.png") || !strings.Contains(string(raw), "ok.png") {
+		t.Fatalf("manifest must list only fully downloaded shots: %s", raw)
+	}
+}
+
 func TestDoctorVerifiesCredentialsWithBalance(t *testing.T) {
 	for _, tc := range []struct {
 		name   string

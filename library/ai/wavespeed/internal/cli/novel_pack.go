@@ -473,7 +473,9 @@ func writePlatformManifests(pf packFlags, slug string, shots []Shot, outcomes []
 	order := []string{}
 	for i := range outcomes {
 		oc := outcomes[i]
-		if oc.Skipped || oc.Err != "" || len(oc.Files) == 0 {
+		// A shot with any missing output is not post-ready, even if some of
+		// its files downloaded; its URLs stay in the envelope warnings.
+		if oc.Skipped || oc.Err != "" || oc.DownloadFailed || len(oc.Files) == 0 {
 			continue
 		}
 		p := shots[i].Platform
