@@ -1,0 +1,9 @@
+{
+  "endpoint": "GET /api/cda/published/spaces/j05yk38inose/environments/master/entries",
+  "method": "GET",
+  "raw_url": "https://cdn.prod.tabdev.net/api/cda/published/spaces/j05yk38inose/environments/master/entries?content_type=event&locale=%2A&skip=0&limit=10&fields.scheduleEndsOn%5Bgte%5D=2026-10-01&select=sys.id%2Csys.createdAt%2Csys.updatedAt%2Cfields.slug%2Cfields.venue%2Cfields.eventName%2Cfields.imageposter%2Cfields.scheduleStartsOn%2Cfields.scheduleEndsOn%2Cfields.categories%2Cfields.reservation%2Cfields.coupon%2Cfields.permanentShow%2Cfields.scheduleEndDateUnfix%2Cfields.hideClosedDays%2Cfields.closedDays&include=2&sys.id%5Bin%5D=993b31e1-4ce9-4660-8eda-f15e6079f29b%2C2PIXCSKAtS8ng8W330d4Zo%2C214add6e-0e21-4782-911b-aa5ae3c3a58f%2C33ms4QD1MObQUFwJv0X6D5%2CkNSCyPUddSuNcaPCBuqre%2C47f269c5-1634-4db3-a861-89048fe5f9f5%2C5YRDwEdvg3IpNwc241WEm9%2CCVUyMNXXgpWCsOD72CRbz%2Cccaf5b09-2fc8-4b47-a605-3c9599e29917%2C5dZnJpOj8Ih0nQIhZIKGi4&order=-sys.createdAt&access_token=%5BREDACTED%5D",
+  "status": 0,
+  "request_body": null,
+  "response_body": null,
+  "response_body_known": false
+}

@@ -1,0 +1,29 @@
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted
+
+goroutine 1 [running]:
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewServer({0x10537b4d8, 0x4d883189e240})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:267 +0x28
+github.com/mvanhorn/cli-printing-press/v4/internal/pipeline.startMockServer(0x4d8831867188)
+	<local-path> +0x9c
+github.com/mvanhorn/cli-printing-press/v4/internal/pipeline.RunVerify({{0x16d835f14, 0xa1}, {0x16d835fbd, 0x96}, {0x0, 0x0}, {0x0, 0x0}, 0x50, 0x0, ...})
+	<local-path> +0x558
+github.com/mvanhorn/cli-printing-press/v4/internal/cli.newVerifyCmdWithOptions.func1(0x4d883183b508, {0x1037a4d5d?, 0x4?, 0x1037a4e41?})
+	<local-path> +0x1a4
+github.com/spf13/cobra.(*Command).execute(0x4d883183b508, {0x4d8831a5ddc0, 0x7, 0x7})
+	<local-path> +0x82c
+github.com/spf13/cobra.(*Command).ExecuteC(0x4d883183a308)
+	<local-path> +0x340
+github.com/spf13/cobra.(*Command).Execute(...)
+	<local-path>
+github.com/spf13/cobra.(*Command).ExecuteContext(...)
+	<local-path>
+github.com/mvanhorn/cli-printing-press/v4/internal/cli.ExecuteWithName({0x1037c9e3a, 0x12})
+	<local-path> +0xf4
+github.com/mvanhorn/cli-printing-press/v4/internal/cli.Execute(...)
+	<local-path>
+main.main()
+	<local-path> +0x28

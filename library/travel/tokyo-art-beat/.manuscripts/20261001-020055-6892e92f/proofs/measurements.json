@@ -1,0 +1,710 @@
+{
+  "timestamp_utc": "2026-10-01T01:37:29Z",
+  "platform": "macOS arm64; /usr/bin/time -l per process",
+  "scenarios": [
+    {
+      "scenario": "trip-uncached",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent",
+        "--fresh"
+      ],
+      "exit": 0,
+      "latency_ms": 7354,
+      "output_bytes": 7733,
+      "peak_rss_bytes": 25133056,
+      "stats": {
+        "requests": 4,
+        "wire_requests": 8,
+        "cache_hits": 0,
+        "response_bytes": 16317,
+        "elapsed_ms": 7338
+      },
+      "source": "live",
+      "partial": false
+    },
+    {
+      "scenario": "trip-cached",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 21,
+      "output_bytes": 7723,
+      "peak_rss_bytes": 19152896,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "trip-offline",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent",
+        "--offline"
+      ],
+      "exit": 0,
+      "latency_ms": 13,
+      "output_bytes": 7723,
+      "peak_rss_bytes": 18989056,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "pagination",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent",
+        "--offset",
+        "3"
+      ],
+      "exit": 0,
+      "latency_ms": 11,
+      "output_bytes": 8096,
+      "peak_rss_bytes": 18841600,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "starts",
+      "args": [
+        "events",
+        "search",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--relation",
+        "starts",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 10,
+      "output_bytes": 6834,
+      "peak_rss_bytes": 19267584,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "ends",
+      "args": [
+        "events",
+        "search",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--relation",
+        "ends",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 10,
+      "output_bytes": 7266,
+      "peak_rss_bytes": 19169280,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "artist",
+      "args": [
+        "events",
+        "search",
+        "--artist",
+        "Udomsak",
+        "--status",
+        "all",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 9,
+      "output_bytes": 8146,
+      "peak_rss_bytes": 18989056,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": true
+    },
+    {
+      "scenario": "no-artist",
+      "args": [
+        "events",
+        "search",
+        "--artist",
+        "zzztabnomatch739xyz",
+        "--limit",
+        "2",
+        "--max-scan-pages",
+        "1",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 1987,
+      "peak_rss_bytes": 19283968,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 1,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "category",
+      "args": [
+        "events",
+        "search",
+        "--category",
+        "Painting",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 9,
+      "output_bytes": 9274,
+      "peak_rss_bytes": 19349504,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "archive",
+      "args": [
+        "events",
+        "detail",
+        "import_event_record__2004_41B6",
+        "--on",
+        "2026-10-01",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 9,
+      "output_bytes": 9423,
+      "peak_rss_bytes": 19038208,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "edition-url",
+      "args": [
+        "events",
+        "detail",
+        "https://www.tokyoartbeat.com/events/-/2004/41B6",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 9297,
+      "peak_rss_bytes": 19070976,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "venue",
+      "args": [
+        "venues",
+        "detail",
+        "import_venue_record__61183FDF",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 4836,
+      "peak_rss_bytes": 18792448,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 1,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "venue-events",
+      "args": [
+        "venues",
+        "events",
+        "import_venue_record__61183FDF",
+        "--status",
+        "all",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 7282,
+      "peak_rss_bytes": 18972672,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "nearby",
+      "args": [
+        "nearby",
+        "--lat",
+        "35.6605",
+        "--lon",
+        "139.7292",
+        "--area",
+        "Roppongi",
+        "--radius-km",
+        "2",
+        "--candidates",
+        "100",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 10,
+      "output_bytes": 11365,
+      "peak_rss_bytes": 20987904,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 5,
+        "response_bytes": 0,
+        "elapsed_ms": 2
+      },
+      "source": "cache",
+      "partial": true
+    },
+    {
+      "scenario": "compare",
+      "args": [
+        "compare",
+        "2ccd6619-6e5e-410c-851a-56bf5d4662dc",
+        "import_event_record__2004_41B6",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 9,
+      "output_bytes": 19099,
+      "peak_rss_bytes": 19693568,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 6,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "compare-partial",
+      "args": [
+        "compare",
+        "import_event_record__2004_41B6",
+        "nonexistent-tab-fixture",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 10156,
+      "peak_rss_bytes": 19005440,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": true
+    },
+    {
+      "scenario": "fields",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent",
+        "--fields",
+        "id,name"
+      ],
+      "exit": 0,
+      "latency_ms": 9,
+      "output_bytes": 3568,
+      "peak_rss_bytes": 18907136,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 4,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "bad-date",
+      "args": [
+        "events",
+        "search",
+        "--from",
+        "10-01",
+        "--agent"
+      ],
+      "exit": 2,
+      "latency_ms": 8,
+      "output_bytes": 99,
+      "peak_rss_bytes": 18743296,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "missing",
+      "args": [
+        "events",
+        "detail",
+        "nonexistent-tab-fixture",
+        "--agent"
+      ],
+      "exit": 4,
+      "latency_ms": 8,
+      "output_bytes": 88,
+      "peak_rss_bytes": 18546688,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "offline-miss",
+      "args": [
+        "events",
+        "search",
+        "--query",
+        "uncached-fixture-739",
+        "--offline",
+        "--agent"
+      ],
+      "exit": 5,
+      "latency_ms": 8,
+      "output_bytes": 123,
+      "peak_rss_bytes": 18726912,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "archive-edition-year",
+      "args": [
+        "events",
+        "detail",
+        "import_event_record__2004_B7AE",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 5557,
+      "peak_rss_bytes": 18776064,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "permanent-missing-date",
+      "args": [
+        "events",
+        "detail",
+        "import_event_record__2004_1872",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 8,
+      "output_bytes": 8740,
+      "peak_rss_bytes": 18825216,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 3,
+        "response_bytes": 0,
+        "elapsed_ms": 0
+      },
+      "source": "cache",
+      "partial": false
+    },
+    {
+      "scenario": "nearby-artist",
+      "args": [
+        "nearby",
+        "--lat",
+        "35.6605",
+        "--lon",
+        "139.7292",
+        "--area",
+        "Roppongi",
+        "--radius-km",
+        "2",
+        "--artist",
+        "Udomsak",
+        "--status",
+        "all",
+        "--candidates",
+        "100",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit": 0,
+      "latency_ms": 10,
+      "output_bytes": 11107,
+      "peak_rss_bytes": 20692992,
+      "stats": {
+        "requests": 0,
+        "wire_requests": 0,
+        "cache_hits": 5,
+        "response_bytes": 0,
+        "elapsed_ms": 1
+      },
+      "source": "cache",
+      "partial": true
+    },
+    {
+      "scenario": "invalid-flag",
+      "args": [
+        "events",
+        "search",
+        "--limit",
+        "abc",
+        "--agent"
+      ],
+      "exit": 2,
+      "latency_ms": 8,
+      "output_bytes": 197,
+      "peak_rss_bytes": 18530304,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "unknown-flag",
+      "args": [
+        "events",
+        "search",
+        "--unknown-flag",
+        "--agent"
+      ],
+      "exit": 2,
+      "latency_ms": 8,
+      "output_bytes": 129,
+      "peak_rss_bytes": 18317312,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "compare-invalid",
+      "args": [
+        "compare",
+        "https://example.com/events/-/x",
+        "https://invalid.example/events/-/y",
+        "--agent"
+      ],
+      "exit": 2,
+      "latency_ms": 8,
+      "output_bytes": 405,
+      "peak_rss_bytes": 18710528,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "compare-missing",
+      "args": [
+        "compare",
+        "missing-one",
+        "missing-two",
+        "--agent"
+      ],
+      "exit": 4,
+      "latency_ms": 8,
+      "output_bytes": 353,
+      "peak_rss_bytes": 18874368,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "select",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent",
+        "--select",
+        "results.id"
+      ],
+      "exit": 0,
+      "latency_ms": 9,
+      "output_bytes": 109,
+      "peak_rss_bytes": 19005440,
+      "stats": null,
+      "source": null,
+      "partial": null
+    },
+    {
+      "scenario": "select-miss",
+      "args": [
+        "events",
+        "search",
+        "--area",
+        "Roppongi",
+        "--from",
+        "2026-10-01",
+        "--to",
+        "2026-10-07",
+        "--limit",
+        "3",
+        "--agent",
+        "--select",
+        "not_a_field"
+      ],
+      "exit": 2,
+      "latency_ms": 9,
+      "output_bytes": 88,
+      "peak_rss_bytes": 20578304,
+      "stats": null,
+      "source": null,
+      "partial": null
+    }
+  ]
+}

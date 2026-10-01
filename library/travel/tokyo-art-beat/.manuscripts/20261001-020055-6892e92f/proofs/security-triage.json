@@ -1,0 +1,153 @@
+{
+  "raw_findings": 21,
+  "unresolved_hand_authored": 0,
+  "generated_scaffold_findings": [
+    {
+      "file": "internal/client/client.go",
+      "line": "445",
+      "rule": "G119",
+      "detail": "Sensitive headers should not be re-added in redirect policy callbacks",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule": "G101",
+      "detail": "Potential hardcoded credentials",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3298-3301",
+      "rule": "G201",
+      "detail": "SQL string formatting",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2995-2998",
+      "rule": "G201",
+      "detail": "SQL string formatting",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1037",
+      "rule": "G201",
+      "detail": "SQL string formatting",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1013",
+      "rule": "G201",
+      "detail": "SQL string formatting",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule": "G202",
+      "detail": "SQL string concatenation",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "249",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "104",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/cli/export.go",
+      "line": "213",
+      "rule": "G304",
+      "detail": "Potential file inclusion via variable",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule": "G302",
+      "detail": "Expect file permissions to be 0600 or less",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule": "G302",
+      "detail": "Expect file permissions to be 0600 or less",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule": "G302",
+      "detail": "Expect file permissions to be 0600 or less",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "788",
+      "rule": "G302",
+      "detail": "Expect file permissions to be 0600 or less",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3086",
+      "rule": "G104",
+      "detail": "Errors unhandled",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2829",
+      "rule": "G104",
+      "detail": "Errors unhandled",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1463",
+      "rule": "G104",
+      "detail": "Errors unhandled",
+      "disposition": "Generated scaffold or reserved framework finding; no source scanner findings remain in hand-authored discovery/MCP code. Preserve as retro candidate; no upstream issue/PR opened."
+    }
+  ]
+}

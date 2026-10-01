@@ -1,0 +1,4 @@
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+warning: pagination_undeterminable: resource "source" declares page-size parameter "limit" without a cursor, page, or offset parameter; sync cannot page beyond the first request
+agentcookie: skipping tokyo-art-beat (cookie-only or no env-var auth)
+Generated tokyo-art-beat at <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/provenance-repair

@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/tokyo-art-beat-pp-cli
+/tokyo-art-beat-pp-cli.exe
+/tokyo-art-beat-pp-mcp
+/tokyo-art-beat-pp-mcp.exe
+/bin/
+/build/
+/dist/

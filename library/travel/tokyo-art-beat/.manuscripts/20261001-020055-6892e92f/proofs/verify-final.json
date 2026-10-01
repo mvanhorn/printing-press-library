@@ -1,0 +1,116 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "critical": 0,
+    "pass_rate": 91.66666666666666,
+    "data_pipeline": true,
+    "data_pipeline_detail": "SKIP (CLI has no sync command)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "resource-path:export",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "agent-context",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "catalogs",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "compare",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "events",
+        "kind": "read",
+        "help": true,
+        "dry_run": false,
+        "execute": false,
+        "score": 1
+      },
+      {
+        "command": "nearby",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "venues",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "events detail",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "venues detail",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "venues events",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "<workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/tokyo-art-beat-pp-cli"
+  }
+}

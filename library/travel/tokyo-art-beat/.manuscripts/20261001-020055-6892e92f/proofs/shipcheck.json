@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-01T01:36:54Z",
+  "elapsed_ms": 21778,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:36:54Z",
+      "elapsed_ms": 7478,
+      "command": "<local-path> verify --dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli --write-manifest <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/.printing-press.json --spec <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:37:01Z",
+      "elapsed_ms": 546,
+      "command": "<local-path> validate-narrative --strict --full-examples --research <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research.json --binary <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/build/stage/bin/tokyo-art-beat-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:37:02Z",
+      "elapsed_ms": 2052,
+      "command": "<local-path> dogfood --dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli --spec <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/spec.yaml --research-dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:37:04Z",
+      "elapsed_ms": 6936,
+      "command": "<local-path> workflow-verify --dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:37:11Z",
+      "elapsed_ms": 484,
+      "command": "<local-path> apify-audit --dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli --research-dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:37:11Z",
+      "elapsed_ms": 880,
+      "command": "<local-path> verify-skill --dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T01:37:12Z",
+      "elapsed_ms": 3397,
+      "command": "<local-path> scorecard --dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli --write-manifest <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/.printing-press.json --research-dir <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f --spec <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/spec.yaml --live-check"
+    }
+  ]
+}

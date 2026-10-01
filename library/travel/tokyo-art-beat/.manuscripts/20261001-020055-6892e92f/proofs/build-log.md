@@ -1,0 +1,7 @@
+Manifest transcendence rows: 5 planned, 0 built. Phase 3 will not pass until all 5 ship.
+
+Resumed 2026-10-01 after supported stale-lock recovery. Manifest coverage: 5/5 absorbed and 5/5 transcendence rows built and resolved as actual leaves. Preserved generated source; added durable bilingual event/venue/catalog/search/detail/nearby/compare wiring, bounded read-through caching and domain tests. All Go package tests and vet passed. Live E2E: 20/20 assertions passed, including archive timestamps, current dates, relevance and cache behavior.
+
+Live operators corrected: artist [match], geo [within]/[near] and multi-key order were silently ignored. Artist/distance predicates now filter bounded candidates locally; single-key order and per-page ID tiebreak are explicit. No paid/authenticated endpoints, bulk mirror, account changes or ticket availability claims.
+
+The original generation stopped at network-restricted go mod tidy before writing provenance. Repaired only the missing provenance manifest using Press generation into an isolated sibling directory with validate=false; copied no regenerated source over the working CLI. Actual checks own the verify/scorecard fields. Removed unused runtime registrations from generated root while preserving their implementation files and prior root snapshot. This allows the canonical stateless/no-sync verify branch to reflect the actual product tree.

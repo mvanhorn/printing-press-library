@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-01T01:46:36.301359Z",
+  "cli_dir": "\u003ccli-dir\u003e/tokyo-art-beat-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform-only command; no platform source is registered, so this leaf is absent from the actual CLI/MCP tree. Runtime tools/list proves its exclusion."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-01T01:34:36.62427Z"
+  }
+}

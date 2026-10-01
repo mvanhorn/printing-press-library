@@ -1,0 +1,9 @@
+dogfood: using spec <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/spec.yaml (--spec)
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal/cli/which.go (whichIndex) from novel_features_built
+dogfood: synced README.md (Value Proposition) from research.json narrative
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+dogfood: synced internal/cli/root.go (Highlights) from novel_features_built

@@ -1,0 +1,48 @@
+name: tokyo-art-beat
+version: "0.1.0"
+description: "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty."
+cli_description: "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty."
+category: travel
+base_url: https://cdn.prod.tabdev.net/api/cda/published/spaces/j05yk38inose/environments/master
+http_transport: standard
+health_check_path: /entries?content_type=event&limit=1&include=0
+learn:
+  disabled: true
+# Focused read-through response caching is hand-authored, not a bulk local mirror.
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+resources:
+  source:
+    description: "Public published feed transport"
+    endpoints:
+      list:
+        method: GET
+        path: /entries
+        description: "Read a bounded source feed page"
+        happy_args: "--limit 2"
+        params:
+          - name: content_type
+            type: string
+            default: event
+          - name: limit
+            type: int
+            default: 2
+          - name: include
+            type: int
+            default: 0
+        response:
+          type: object
+          item: Feed
+types:
+  Feed:
+    fields:
+      - name: total
+        type: int
+      - name: skip
+        type: int
+      - name: limit
+        type: int
+      - name: items
+        type: object

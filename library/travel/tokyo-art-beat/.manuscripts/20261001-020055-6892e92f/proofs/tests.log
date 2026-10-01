@@ -1,0 +1,15 @@
+?   	tokyo-art-beat-pp-cli/cmd/tokyo-art-beat-pp-cli	[no test files]
+?   	tokyo-art-beat-pp-cli/cmd/tokyo-art-beat-pp-mcp	[no test files]
+?   	tokyo-art-beat-pp-cli/internal/cache	[no test files]
+ok  	tokyo-art-beat-pp-cli/internal/cli	1.109s
+ok  	tokyo-art-beat-pp-cli/internal/client	1.570s
+ok  	tokyo-art-beat-pp-cli/internal/cliutil	13.777s
+?   	tokyo-art-beat-pp-cli/internal/cliutil/testenv	[no test files]
+?   	tokyo-art-beat-pp-cli/internal/config	[no test files]
+ok  	tokyo-art-beat-pp-cli/internal/mcp	1.511s
+ok  	tokyo-art-beat-pp-cli/internal/mcp/bound	2.254s
+ok  	tokyo-art-beat-pp-cli/internal/mcp/cobratree	6.865s
+ok  	tokyo-art-beat-pp-cli/internal/platform	2.779s
+ok  	tokyo-art-beat-pp-cli/internal/store	3.965s
+ok  	tokyo-art-beat-pp-cli/internal/tab	4.375s
+?   	tokyo-art-beat-pp-cli/internal/types	[no test files]

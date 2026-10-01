@@ -1,0 +1,26 @@
+--- FAIL: TestQueryCacheAndOffline (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 36 [running]:
+testing.tRunner.func1.2({0x102fe5348, 0x299ae451a690})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x102fe5348?, 0x299ae451a690?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewServer({0x103038fe0, 0x299ae451a650})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:267 +0x28
+tokyo-art-beat-pp-cli/internal/tab.fixtureClient(0x299ae4560488, 0x299ae451a650, {{0x0, 0x0}, 0x0, 0x0, 0x0, 0x0, 0x0})
+	<workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/internal/tab/client_test.go:19 +0x4c
+tokyo-art-beat-pp-cli/internal/tab.TestQueryCacheAndOffline(0x299ae4560488)
+	<workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/internal/tab/client_test.go:34 +0xa0
+testing.tRunner(0x299ae4560488, 0x10303d3c8)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	tokyo-art-beat-pp-cli/internal/tab	0.482s
+FAIL

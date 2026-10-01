@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "tokyo-art-beat-pp-mcp",
+  "display_name": "Tokyo Art Beat",
+  "version": "0.1.0",
+  "description": "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tokyo-art-beat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tokyo-art-beat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

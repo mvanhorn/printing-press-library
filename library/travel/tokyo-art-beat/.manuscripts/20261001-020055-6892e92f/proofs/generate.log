@@ -1,0 +1,33 @@
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+warning: pagination_undeterminable: resource "source" declares page-size parameter "limit" without a cursor, page, or offset parameter; sync cannot page beyond the first request
+FAIL go mod tidy
+Error: validating generated project: gate "go mod tidy" failed: exit status 1
+go: downloading golang.org/x/tools v0.31.0
+go: downloading golang.org/x/mod v0.24.0
+go: tokyo-art-beat-pp-cli/internal/mcp imports
+	modernc.org/sqlite imports
+	modernc.org/libc tested by
+	modernc.org/libc.test imports
+	modernc.org/ccgo/v4/lib imports
+	golang.org/x/mod/semver: golang.org/x/mod@v0.24.0: Get "https://proxy.golang.org/golang.org/x/mod/@v/v0.24.0.zip": dial tcp: lookup proxy.golang.org: no such host
+go: tokyo-art-beat-pp-cli/internal/mcp imports
+	modernc.org/sqlite imports
+	modernc.org/libc tested by
+	modernc.org/libc.test imports
+	modernc.org/ccgo/v4/lib imports
+	golang.org/x/tools/go/packages: golang.org/x/tools@v0.31.0: Get "https://proxy.golang.org/golang.org/x/tools/@v/v0.31.0.zip": dial tcp: lookup proxy.golang.org: no such host
+validating generated project: gate "go mod tidy" failed: exit status 1
+go: downloading golang.org/x/tools v0.31.0
+go: downloading golang.org/x/mod v0.24.0
+go: tokyo-art-beat-pp-cli/internal/mcp imports
+	modernc.org/sqlite imports
+	modernc.org/libc tested by
+	modernc.org/libc.test imports
+	modernc.org/ccgo/v4/lib imports
+	golang.org/x/mod/semver: golang.org/x/mod@v0.24.0: Get "https://proxy.golang.org/golang.org/x/mod/@v/v0.24.0.zip": dial tcp: lookup proxy.golang.org: no such host
+go: tokyo-art-beat-pp-cli/internal/mcp imports
+	modernc.org/sqlite imports
+	modernc.org/libc tested by
+	modernc.org/libc.test imports
+	modernc.org/ccgo/v4/lib imports
+	golang.org/x/tools/go/packages: golang.org/x/tools@v0.31.0: Get "https://proxy.golang.org/golang.org/x/tools/@v/v0.31.0.zip": dial tcp: lookup proxy.golang.org: no such host

@@ -1,0 +1,110 @@
+{
+  "api_name": "tokyo-art-beat",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "trip-window",
+      "command": "events search",
+      "description": "Filter inclusive date spans; closures require detail.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events search --from 2026-10-01 --to 2026-10-07 --limit 2 --agent",
+      "why_it_matters": "Filter inclusive date spans; closures require detail."
+    },
+    {
+      "name": "starting-ending",
+      "command": "events search",
+      "description": "Filter exhibition starts or ends within trip dates.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events search --from 2026-10-01 --to 2026-10-07 --relation starts --limit 2 --agent",
+      "why_it_matters": "Filter exhibition starts or ends within trip dates."
+    },
+    {
+      "name": "day-assessment",
+      "command": "events detail",
+      "description": "Assess a full-year date, preserving schedule uncertainty.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events detail 2ccd6619-6e5e-410c-851a-56bf5d4662dc --on 2027-05-03 --agent",
+      "why_it_matters": "Assess a full-year date, preserving schedule uncertainty."
+    },
+    {
+      "name": "nearby",
+      "command": "nearby",
+      "description": "Rank bounded candidates by straight-line public venue distance.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli nearby --lat 35.6605 --lon 139.7292 --area Roppongi --candidates 100 --limit 2 --agent",
+      "why_it_matters": "Rank bounded candidates by straight-line public venue distance."
+    },
+    {
+      "name": "compact-fresh",
+      "command": "events search",
+      "description": "Project fields and expose cache/source freshness.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events search --from 2026-10-01 --to 2026-10-07 --fields id,name,starts,ends --limit 2 --agent",
+      "why_it_matters": "Project fields and expose cache/source freshness."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "trip-window",
+      "command": "events search",
+      "description": "Filter inclusive date spans; closures require detail.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events search --from 2026-10-01 --to 2026-10-07 --limit 2 --agent",
+      "why_it_matters": "Filter inclusive date spans; closures require detail."
+    },
+    {
+      "name": "starting-ending",
+      "command": "events search",
+      "description": "Filter exhibition starts or ends within trip dates.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events search --from 2026-10-01 --to 2026-10-07 --relation starts --limit 2 --agent",
+      "why_it_matters": "Filter exhibition starts or ends within trip dates."
+    },
+    {
+      "name": "day-assessment",
+      "command": "events detail",
+      "description": "Assess a full-year date, preserving schedule uncertainty.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events detail 2ccd6619-6e5e-410c-851a-56bf5d4662dc --on 2027-05-03 --agent",
+      "why_it_matters": "Assess a full-year date, preserving schedule uncertainty."
+    },
+    {
+      "name": "nearby",
+      "command": "nearby",
+      "description": "Rank bounded candidates by straight-line public venue distance.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli nearby --lat 35.6605 --lon 139.7292 --area Roppongi --candidates 100 --limit 2 --agent",
+      "why_it_matters": "Rank bounded candidates by straight-line public venue distance."
+    },
+    {
+      "name": "compact-fresh",
+      "command": "events search",
+      "description": "Project fields and expose cache/source freshness.",
+      "rationale": "",
+      "example": "tokyo-art-beat-pp-cli events search --from 2026-10-01 --to 2026-10-07 --fields id,name,starts,ends --limit 2 --agent",
+      "why_it_matters": "Project fields and expose cache/source freshness."
+    }
+  ],
+  "narrative": {
+    "display_name": "Tokyo Art Beat",
+    "headline": "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty.",
+    "quickstart": [
+      {
+        "command": "tokyo-art-beat-pp-cli doctor --dry-run",
+        "comment": "Check runtime prerequisites without network."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Trip exhibition search",
+        "command": "tokyo-art-beat-pp-cli events search --area Roppongi --from 2026-10-01 --to 2026-10-07 --limit 2 --agent",
+        "explanation": "Filter source date spans, preserving bilingual identities."
+      }
+    ]
+  }
+}

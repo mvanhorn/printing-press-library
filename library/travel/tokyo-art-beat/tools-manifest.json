@@ -1,0 +1,64 @@
+{
+  "api_name": "tokyo-art-beat",
+  "base_url": "https://cdn.prod.tabdev.net/api/cda/published/spaces/j05yk38inose/environments/master",
+  "description": "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_list",
+      "description": "Read a bounded source feed page. Optional: content_type (default: event), limit (default: 2), include (default: 0). Returns the Feed.",
+      "method": "GET",
+      "path": "/entries",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "include",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "trip-window",
+      "command": "events search",
+      "description": "Filter inclusive date spans; closures require detail."
+    },
+    {
+      "name": "starting-ending",
+      "command": "events search",
+      "description": "Filter exhibition starts or ends within trip dates."
+    },
+    {
+      "name": "day-assessment",
+      "command": "events detail",
+      "description": "Assess a full-year date, preserving schedule uncertainty."
+    },
+    {
+      "name": "nearby",
+      "command": "nearby",
+      "description": "Rank bounded candidates by straight-line public venue distance."
+    },
+    {
+      "name": "compact-fresh",
+      "command": "events search",
+      "description": "Project fields and expose cache/source freshness."
+    }
+  ]
+}

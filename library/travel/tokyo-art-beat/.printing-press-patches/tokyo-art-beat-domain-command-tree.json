@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "tokyo-art-beat-domain-command-tree",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20261001-020055-6892e92f",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Declare focused command factories and root attachments explicitly so nested discovery leaves resolve independently from preserved scaffold leaf names.",
+  "reason": "The shipped read-only tree contains events search without a positional query; documentation and source traversal must resolve its own flags and argument contract.",
+  "files": [
+    "internal/cli/tab_commands.go"
+  ],
+  "validated_outcome": "Library verify-skill and full live command matrix validate the focused command tree."
+}

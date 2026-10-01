@@ -1,0 +1,100 @@
+{
+  "original_evidence": "unabridged originals retained locally",
+  "source_code_changed": false,
+  "provider_facts": "exhibition/venue identity, schedule uncertainty and source references retained",
+  "changes": [
+    {
+      "file": "research/mori.json",
+      "omitted_supplemental_image_assets": 1,
+      "reason": "numeric asset filename triggered postal-code detector"
+    },
+    {
+      "file": "research/resume-mori-full.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/workflow.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/verify.stderr",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/gosec-after.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/skill-verify.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/live-dogfood.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/shipcheck.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/gosec.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/gosec-after.log",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/browser-sniff.log",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/provenance-repair.stderr",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/FINAL.md",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/promotion.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/structural-dogfood.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/domain-tests.log",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/structural-dogfood.stderr",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/provenance-repair.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/output-review-samples.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/verify-final.json",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/gosec.log",
+      "redacted": "public contact email or local host path"
+    },
+    {
+      "file": "proofs/live-dogfood.json",
+      "omitted": "raw transcript; acceptance and verification summaries retained"
+    },
+    {
+      "file": "proofs/structural-dogfood.json",
+      "omitted": "raw transcript; acceptance and verification summaries retained"
+    }
+  ]
+}

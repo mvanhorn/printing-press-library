@@ -1,0 +1,31 @@
+{
+  "cli_dir": "<workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli",
+  "skill_path": "<workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/working/tokyo-art-beat-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 13,
+  "findings": [
+    {
+      "check": "positional-args",
+      "severity": "warning",
+      "command": "tokyo-art-beat-pp-cli events",
+      "detail": "got 2 positional args; Use: \"events [source-id-or-name]\" expects 0–1",
+      "evidence": "SKILL.md: detail 2ccd6619-6e5e-410c-851a-56bf5d4662dc",
+      "likely_false_positive": true
+    },
+    {
+      "check": "positional-args",
+      "severity": "warning",
+      "command": "tokyo-art-beat-pp-cli events",
+      "detail": "got 2 positional args; Use: \"events [source-id-or-name]\" expects 0–1",
+      "evidence": "README.md: detail 2ccd6619-6e5e-410c-851a-56bf5d4662dc",
+      "likely_false_positive": true
+    }
+  ]
+}

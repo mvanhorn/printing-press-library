@@ -1,0 +1,4 @@
+Spec written to <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/sniff-spec.yaml (2 endpoints across 2 resources)
+Traffic analysis written to <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/discovery/traffic-analysis.json
+Samples written to <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/sniff-spec-samples (2 endpoints)
+Run 'cli-printing-press generate --spec <workspace>/.press/.runstate/tokyo-art-beat-cli-b3ad2de2/runs/20261001-020055-6892e92f/research/sniff-spec.yaml' to build the CLI

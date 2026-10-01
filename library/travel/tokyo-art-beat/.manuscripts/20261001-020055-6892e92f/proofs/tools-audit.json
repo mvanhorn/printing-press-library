@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "search",
+    "file": "tab_commands.go",
+    "line": 167,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "search",
+    "file": "tab_commands.go",
+    "line": 193,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  }
+]

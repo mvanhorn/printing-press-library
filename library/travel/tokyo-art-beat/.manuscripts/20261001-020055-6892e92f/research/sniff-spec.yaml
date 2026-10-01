@@ -1,0 +1,148 @@
+name: tokyo-art-beat
+description: Discovered API spec for cdn-prod-tabdev
+version: 0.1.0
+base_url: https://cdn.prod.tabdev.net
+spec_source: sniffed
+auth:
+    type: api_key
+    header: access_token
+    format: ""
+    env_vars:
+        - CDN_PROD_TABDEV_API_KEY
+    env_var_specs:
+        - name: CDN_PROD_TABDEV_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: query
+auth_warnings:
+    - 'rejected auth candidate "limit" from query: search input'
+config:
+    format: toml
+    path: ~/.config/tokyo-art-beat-pp-cli/config.toml
+resources:
+    cache_files:
+        description: Operations on 8a914ed29a8c0d6259363ffe93803d6df1fbe28d044c737f1f803f1301db59b5.json
+        endpoints:
+            list_8a914ed29a8c0d6259363ffe93803d6df1fbe28d044c737f1f803f1301db59b5.json:
+                method: GET
+                path: /cache_files/response_caches/delivery/published/v1/8a914ed29a8c0d6259363ffe93803d6df1fbe28d044c737f1f803f1301db59b5.json
+                description: GET /cache_files/response_caches/delivery/published/v1/8a914ed29a8c0d6259363ffe93803d6df1fbe28d044c737f1f803f1301db59b5.json
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: T8a914ed29a8c0d6259363ffe93803d6df1fbe28d044c737f1f803f1301db59b5JsonItem
+                pagination: null
+                response_path: items
+    cda:
+        description: Operations on entries
+        endpoints:
+            list_entries:
+                method: GET
+                path: /api/cda/published/spaces/j05yk38inose/environments/master/entries
+                description: GET /api/cda/published/spaces/j05yk38inose/environments/master/entries
+                params:
+                    - name: content_type
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fields.scheduleEndsOn[gte]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: include
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: order
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: select
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: skip
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sys.id[in]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: entries
+                pagination: null
+types:
+    Fields:
+        fields:
+            - name: categories
+              type: object
+            - name: eventName
+              type: object
+            - name: imageposter
+              type: object
+            - name: scheduleEndsOn
+              type: object
+            - name: scheduleStartsOn
+              type: object
+            - name: slug
+              type: object
+            - name: venue
+              type: object
+    Sys:
+        fields:
+            - name: createdAt
+              type: string
+              format: date-time
+            - name: id
+              type: string
+              format: uuid
+            - name: updatedAt
+              type: string
+              format: date-time
+    T8a914ed29a8c0d6259363ffe93803d6df1fbe28d044c737f1f803f1301db59b5JsonItem:
+        fields:
+            - name: fields
+              type: ref:Fields
+            - name: sys
+              type: ref:Sys

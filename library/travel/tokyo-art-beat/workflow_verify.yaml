@@ -1,0 +1,13 @@
+workflows:
+  - name: Public exhibition discovery and source inspection
+    primary: true
+    steps:
+      - command: catalogs areas --limit 5 --agent
+        mode: live
+        expect_fields: [meta, results, errors]
+      - command: events search --area Roppongi --from 2026-10-01 --to 2026-10-07 --limit 2 --agent
+        mode: live
+        expect_fields: [meta, results, errors]
+      - command: events detail 2ccd6619-6e5e-410c-851a-56bf5d4662dc --agent
+        mode: live
+        expect_fields: [meta, results, errors]
