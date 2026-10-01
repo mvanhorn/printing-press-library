@@ -3,7 +3,8 @@ Copyright 2026 laci141 and contributors
 
 Created by laci141 (@laci141).
 
-Contributor: Cathryn Lavery (@cathrynlavery)
+Contributors:
+  - Cathryn Lavery (@cathrynlavery)
 
 This CLI queries the public, keyless Grants.gov Search2, NIH RePORTER, and
 NSF Awards APIs. It is built with the Go standard library only and follows

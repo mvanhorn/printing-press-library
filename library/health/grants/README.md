@@ -4,7 +4,7 @@
 
 Created by [@laci141](https://github.com/laci141) (laci141).
 
-Contributor: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 | Source | What it gives |
 |---|---|
