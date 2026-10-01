@@ -9,8 +9,10 @@
   "files": [
     "cmd/retraction-checker-pp-mcp/main.go",
     "cmd/retraction-checker-pp-mcp/main_test.go",
+    ".printing-press.json",
     "README.md",
-    "SKILL.md"
+    "SKILL.md",
+    "NOTICE"
   ],
   "validated_outcome": "Unit tests accept IPv4 and IPv6 literal loopback addresses and reject wildcard, remote, localhost, and other hostname binds."
 }
