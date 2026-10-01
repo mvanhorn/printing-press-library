@@ -9,6 +9,12 @@
     "handle": "phoenix-server",
     "name": "Ricardo Cabral"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "phoenix-server",
   "printer": "phoenix-server",
   "printer_name": "Ricardo Cabral",

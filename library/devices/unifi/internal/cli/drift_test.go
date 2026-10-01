@@ -30,3 +30,14 @@ func TestNovelDriftHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestDriftRejectsLiveDataSource(t *testing.T) {
+	cmd := newNovelDriftCmd(&rootFlags{dataSource: "live"})
+	cmd.SetArgs([]string{"--site", "default"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "no live equivalent") {
+		t.Fatalf("drift with live source must fail before reading or advancing snapshots, got %v", err)
+	}
+}
