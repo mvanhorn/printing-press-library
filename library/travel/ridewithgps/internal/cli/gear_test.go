@@ -93,7 +93,7 @@ func TestGearFetchFailureDoesNotEmitPartialMileage(t *testing.T) {
 	cmd.SetOut(&output)
 	cmd.SetArgs([]string{"--db", dbPath})
 	err = cmd.Execute()
-	if err == nil || !strings.Contains(err.Error(), "no totals emitted") {
+	if err == nil || !strings.Contains(err.Error(), "failed trip IDs: \"1\"") || !strings.Contains(err.Error(), "no totals emitted") {
 		t.Fatalf("gear error = %v, want failed detail fetch", err)
 	}
 	if output.Len() != 0 {

@@ -62,6 +62,7 @@ Gear is attached to the full trip detail (not the summary), so the default
 scans the 100 most recent synced trips and fetches each detail. Results say
 when that limit leaves older trips out. Pass --max-scan-trips=0 for a complete
 scan, which can make many live API requests for a large trip history.
+Cached trip details may be reused; add --no-cache when fresh detail is required.
 Pass --due-km to flag bikes past a wear threshold (e.g. a chain replacement
 interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 		Example: strings.Trim(`
@@ -217,7 +218,19 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 				gt.distanceM += r.distM
 			}
 			if len(view.FetchFailures) > 0 {
-				return fmt.Errorf("gear mileage could not be completed: %d of %d trip detail fetches failed; no totals emitted", len(view.FetchFailures), len(trips))
+				sort.Slice(view.FetchFailures, func(i, j int) bool { return view.FetchFailures[i].TripID < view.FetchFailures[j].TripID })
+				failedIDs := make([]string, 0, len(view.FetchFailures))
+				for _, failure := range view.FetchFailures {
+					failedIDs = append(failedIDs, fmt.Sprintf("%q", truncate(failure.TripID, 40)))
+					if len(failedIDs) == 10 {
+						break
+					}
+				}
+				remaining := ""
+				if len(view.FetchFailures) > len(failedIDs) {
+					remaining = fmt.Sprintf(" (and %d more)", len(view.FetchFailures)-len(failedIDs))
+				}
+				return fmt.Errorf("gear mileage could not be completed: %d of %d trip detail fetches failed; failed trip IDs: %s%s; no totals emitted", len(view.FetchFailures), len(trips), strings.Join(failedIDs, ", "), remaining)
 			}
 
 			for _, gt := range totals {

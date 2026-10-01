@@ -76,7 +76,7 @@ These capabilities aren't available in any other tool for this API.
 
   _Reach for this to answer 'how many miles since my last chain swap' or 'which bike needs service' without a spreadsheet._
 
-  The default scans the 100 most recent synced trips and labels totals as partial when older trips remain. Use `--max-scan-trips=0` for a complete scan; it fetches live detail for every synced trip.
+  The default scans the 100 most recent synced trips and labels totals as partial when older trips remain. Use `--max-scan-trips=0` for a complete scan; it reads detail for every synced trip, using cached responses where available. Add `--no-cache` when fresh detail is required.
 
   ```bash
   ridewithgps-pp-cli gear --due-km 4000 --agent
