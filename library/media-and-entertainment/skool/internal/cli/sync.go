@@ -243,6 +243,9 @@ Exit codes & warnings:
 			var noticeCount int
 			var successCount int
 			for res := range results {
+				// Community sync persists each page. Include rows saved before a
+				// later fetch fails, while still reporting that resource as errored.
+				totalSynced += res.Count
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
@@ -271,7 +274,6 @@ Exit codes & warnings:
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: %d synced (done)\n", res.Resource, res.Count)
 					}
-					totalSynced += res.Count
 					successCount++
 				}
 			}
