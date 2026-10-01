@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -160,6 +161,7 @@ func TestCallTool_NilLimiter_NoPanic(t *testing.T) {
 func TestCallToolRetriesAfterTransientInitializedNotificationFailure(t *testing.T) {
 	var mu sync.Mutex
 	var initializeCount, notificationCount, cleanupCount, toolCount int
+	cleanupDone := make(chan struct{}, 1)
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			mu.Lock()
@@ -169,6 +171,7 @@ func TestCallToolRetriesAfterTransientInitializedNotificationFailure(t *testing.
 				t.Errorf("cleanup session = %q, want session-1", got)
 			}
 			w.WriteHeader(http.StatusNoContent)
+			cleanupDone <- struct{}{}
 			return
 		}
 		var req rpcRequest
@@ -228,6 +231,11 @@ func TestCallToolRetriesAfterTransientInitializedNotificationFailure(t *testing.
 	if _, err := c.callTool(context.Background(), "noop", map[string]any{}); err != nil {
 		t.Fatalf("second call did not recover: %v", err)
 	}
+	select {
+	case <-cleanupDone:
+	case <-time.After(time.Second):
+		t.Fatal("failed session was not cleaned up")
+	}
 
 	mu.Lock()
 	defer mu.Unlock()
@@ -238,14 +246,19 @@ func TestCallToolRetriesAfterTransientInitializedNotificationFailure(t *testing.
 }
 
 func TestCallToolRejectsNotificationRPCErrorAndCleansSession(t *testing.T) {
+	var mu sync.Mutex
 	var cleanupCount, toolCount int
+	cleanupDone := make(chan struct{}, 1)
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
+			mu.Lock()
 			cleanupCount++
+			mu.Unlock()
 			if got := r.Header.Get("Mcp-Session-Id"); got != "rejected-session" {
 				t.Errorf("cleanup session = %q", got)
 			}
 			w.WriteHeader(http.StatusNoContent)
+			cleanupDone <- struct{}{}
 			return
 		}
 		var req rpcRequest
@@ -261,7 +274,9 @@ func TestCallToolRejectsNotificationRPCErrorAndCleansSession(t *testing.T) {
 			w.Header().Set("Content-Type", "application/json")
 			fmt.Fprint(w, `{"jsonrpc":"2.0","error":{"code":-32603,"message":"notification rejected"}}`)
 		case "tools/call":
+			mu.Lock()
 			toolCount++
+			mu.Unlock()
 		default:
 			t.Errorf("unexpected method %q", req.Method)
 		}
@@ -273,8 +288,70 @@ func TestCallToolRejectsNotificationRPCErrorAndCleansSession(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "notification rejected") {
 		t.Fatalf("callTool error = %v, want notification error", err)
 	}
+	select {
+	case <-cleanupDone:
+	case <-time.After(time.Second):
+		t.Fatal("rejected session was not cleaned up")
+	}
+	mu.Lock()
+	defer mu.Unlock()
 	if c.initialized || c.sessionID != "" || cleanupCount != 1 || toolCount != 0 {
 		t.Fatalf("failed handshake published session or skipped cleanup: initialized=%t cleanup=%d tools=%d", c.initialized, cleanupCount, toolCount)
+	}
+}
+
+func TestEnsureInitDoesNotWaitForSlowSessionCleanup(t *testing.T) {
+	cleanupStarted := make(chan struct{}, 1)
+	releaseCleanup := make(chan struct{})
+	var notifications atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodDelete {
+			cleanupStarted <- struct{}{}
+			<-releaseCleanup
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		var req rpcRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request: %v", err)
+			return
+		}
+		switch req.Method {
+		case "initialize":
+			w.Header().Set("Mcp-Session-Id", fmt.Sprintf("session-%d", req.ID))
+			fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"result":{"protocolVersion":"2024-11-05","capabilities":{},"serverInfo":{"name":"test","version":"1"}}}`, req.ID)
+		case "notifications/initialized":
+			if notifications.Add(1) == 1 {
+				w.WriteHeader(http.StatusServiceUnavailable)
+				return
+			}
+			w.WriteHeader(http.StatusNoContent)
+		case "tools/call":
+			fmt.Fprintf(w, `{"jsonrpc":"2.0","id":%d,"result":{"ok":true}}`, req.ID)
+		default:
+			t.Errorf("unexpected method %q", req.Method)
+		}
+	}))
+	defer srv.Close()
+	defer close(releaseCleanup)
+
+	c := &Client{HTTPClient: srv.Client(), Endpoint: srv.URL}
+	start := time.Now()
+	if _, err := c.callTool(context.Background(), "noop", nil); err == nil {
+		t.Fatal("first handshake unexpectedly succeeded")
+	}
+	if elapsed := time.Since(start); elapsed > time.Second {
+		t.Fatalf("failed handshake waited %v for cleanup", elapsed)
+	}
+	select {
+	case <-cleanupStarted:
+	case <-time.After(time.Second):
+		t.Fatal("cleanup request did not start")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	if _, err := c.callTool(ctx, "noop", nil); err != nil {
+		t.Fatalf("retry blocked behind cleanup: %v", err)
 	}
 }
 

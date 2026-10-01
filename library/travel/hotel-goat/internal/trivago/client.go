@@ -212,7 +212,8 @@ func (c *Client) ensureInit(ctx context.Context) error {
 	sessionReady := false
 	defer func() {
 		if !sessionReady {
-			c.closeFailedSession(sessionID)
+			// A slow DELETE must not delay cancellation or hold the init gate.
+			go c.closeFailedSession(sessionID)
 		}
 	}()
 
