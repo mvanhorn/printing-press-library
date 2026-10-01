@@ -6,8 +6,11 @@ package cli
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/devices/unifi/internal/cliutil"
 )
 
 // TestNovelDriftHelpWires smoke-tests that the drift command
@@ -39,5 +42,28 @@ func TestDriftRejectsLiveDataSource(t *testing.T) {
 	cmd.SetErr(&out)
 	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "no live equivalent") {
 		t.Fatalf("drift with live source must fail before reading or advancing snapshots, got %v", err)
+	}
+}
+
+func TestDriftRejectsLiveBeforeRootCreatesLocalState(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride("")
+	if err != nil {
+		t.Fatalf("resetting home override: %v", err)
+	}
+	t.Cleanup(restore)
+	priorArgs := os.Args
+	os.Args = []string{"unifi-pp-cli", "drift", "--site", "default", "--data-source", "live", "--home", home}
+	t.Cleanup(func() { os.Args = priorArgs })
+
+	if err := Execute(); err == nil || !strings.Contains(err.Error(), "no live equivalent") {
+		t.Fatalf("live-only drift error = %v, want unsupported data-source error", err)
+	}
+	entries, err := os.ReadDir(home)
+	if err != nil {
+		t.Fatalf("reading isolated home: %v", err)
+	}
+	if len(entries) != 0 {
+		t.Fatalf("rejected live-only drift created local state: %v", entries)
 	}
 }

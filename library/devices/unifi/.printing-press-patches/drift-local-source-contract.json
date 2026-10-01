@@ -6,6 +6,6 @@
   "base_printing_press_version": "4.30.1",
   "summary": "Drift declares its local mirror and snapshot dependency and rejects live-only requests before touching local state.",
   "reason": "Drift reads SQLite state and advances on-disk snapshots; labelling it computed or accepting a live-only source misstates its operating contract.",
-  "files": ["internal/cli/drift.go", "internal/cli/drift_test.go"],
-  "validated_outcome": "The drift help wiring and live-source rejection regression pass."
+  "files": ["internal/cli/drift.go", "internal/cli/drift_test.go", "internal/cli/root.go"],
+  "validated_outcome": "The full CLI rejects live-only drift before learning, platform setup, or post-execution journaling can create local state."
 }
