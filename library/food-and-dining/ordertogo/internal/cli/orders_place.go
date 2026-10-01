@@ -202,6 +202,12 @@ strings. Payment uses the Stripe customer + saved card configured via
 			// fetch-metadata, client hints, priority, and a restaurant-page
 			// Referer (the generic "/" referer the client otherwise sends is a
 			// tell). cfg.BaseURL + the restaurant path mirrors the browser.
+			// Resolve authentication before reserving checkout. A token refresh
+			// failure cannot have submitted an order and must not strand one.
+			token, err := firebaseAuthToken(cfg)
+			if err != nil {
+				return usageErr(err)
+			}
 			// Persist __requestid before the POST. A lost response leaves a
 			// reservation that blocks any further checkout until the customer
 			// inspects recent orders. Provider deduplication may expire, so the
@@ -230,9 +236,7 @@ strings. Payment uses the Stripe customer + saved card configured via
 				"Accept-Language":    "en-US,en;q=0.9",
 				"Referer":            strings.TrimRight(cfg.BaseURL, "/") + "/restaurants/" + slug + "/mesh",
 			}
-			if token, terr := firebaseAuthToken(cfg); terr != nil {
-				return usageErr(terr)
-			} else if token != "" {
+			if token != "" {
 				headers["Authorization"] = token
 			}
 			recordPlaceAttempt() // stamp before the POST so the cooldown covers failed attempts too
