@@ -4,21 +4,34 @@
 package cli
 
 import (
+	"bytes"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/ridewithgps/internal/store"
 )
 
 func TestNovelGearCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for gear")
 }
 
-func TestGearTripsQueryScansCompleteHistoryByDefault(t *testing.T) {
+func TestGearTripsQueryScansCompleteHistoryWhenRequested(t *testing.T) {
 	query, args := gearTripsQuery(0)
 	if strings.Contains(query, "LIMIT") {
-		t.Fatalf("default gear query unexpectedly capped: %s", query)
+		t.Fatalf("complete gear query unexpectedly capped: %s", query)
 	}
 	if len(args) != 0 {
-		t.Fatalf("default gear query args = %v, want none", args)
+		t.Fatalf("complete gear query args = %v, want none", args)
+	}
+}
+
+func TestGearCommandDefaultsToBoundedScan(t *testing.T) {
+	cmd := newNovelGearCmd(&rootFlags{})
+	if got := cmd.Flags().Lookup("max-scan-trips").DefValue; got != "100" {
+		t.Fatalf("default max-scan-trips = %q, want 100", got)
 	}
 }
 
@@ -29,5 +42,61 @@ func TestGearTripsQueryHonorsExplicitCap(t *testing.T) {
 	}
 	if len(args) != 1 || args[0] != 101 {
 		t.Fatalf("capped gear query args = %v, want [101]", args)
+	}
+}
+
+func TestGearDueStatusMarksPartialUnderThresholdUnknown(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		miles       float64
+		partial     bool
+		wantDue     bool
+		wantUnknown bool
+	}{
+		{"complete under threshold", 50, false, false, false},
+		{"partial under threshold", 50, true, false, true},
+		{"partial over threshold", 150, true, true, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			due, unknown := gearDueStatus(tc.miles, 100, tc.partial)
+			if due != tc.wantDue || unknown != tc.wantUnknown {
+				t.Fatalf("due=%t unknown=%t, want %t %t", due, unknown, tc.wantDue, tc.wantUnknown)
+			}
+		})
+	}
+}
+
+func TestGearFetchFailureDoesNotEmitPartialMileage(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "trips.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.DB().Exec(`INSERT INTO trips (id, data, distance, departed_at) VALUES ('1', '{}', 10000, '2026-01-01')`); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "not found", http.StatusNotFound)
+	}))
+	defer api.Close()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("RIDEWITHGPS_BASE_URL", api.URL)
+	t.Setenv("RIDEWITHGPS_API_KEY", "synthetic-test-key")
+
+	cmd := newNovelGearCmd(&rootFlags{asJSON: true})
+	cmd.SilenceUsage = true
+	cmd.SilenceErrors = true
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetArgs([]string{"--db", dbPath})
+	err = cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "no totals emitted") {
+		t.Fatalf("gear error = %v, want failed detail fetch", err)
+	}
+	if output.Len() != 0 {
+		t.Fatalf("gear emitted mileage after a failed detail fetch: %q", output.String())
 	}
 }

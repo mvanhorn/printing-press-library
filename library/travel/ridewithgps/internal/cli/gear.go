@@ -28,6 +28,7 @@ type gearTotal struct {
 	DistanceKM float64 `json:"distance_km"`
 	DistanceMI float64 `json:"distance_mi"`
 	Due        bool    `json:"due,omitempty"`
+	DueUnknown bool    `json:"due_unknown,omitempty"`
 	distanceM  float64
 }
 
@@ -38,6 +39,8 @@ type gearFetchFailure struct {
 
 type gearView struct {
 	ScannedTrips   int                `json:"scanned_trips"`
+	TotalTrips     int                `json:"total_trips"`
+	Partial        bool               `json:"partial"`
 	DueThresholdKM float64            `json:"due_threshold_km,omitempty"`
 	Gear           []gearTotal        `json:"gear"`
 	FetchFailures  []gearFetchFailure `json:"fetch_failures"`
@@ -55,13 +58,15 @@ func newNovelGearCmd(flags *rootFlags) *cobra.Command {
 		Short: "Per-bike accumulated mileage from your logged rides, plus maintenance-due flags against wear thresholds.",
 		Long: `Roll up per-bike mileage from your logged trips.
 
-Gear is attached to the full trip detail (not the summary), so this scans all
-synced trips by default, fetches each detail to read its gear, and sums the
-distance per bike. Pass --max-scan-trips to request a partial recent-history scan.
+Gear is attached to the full trip detail (not the summary), so the default
+scans the 100 most recent synced trips and fetches each detail. Results say
+when that limit leaves older trips out. Pass --max-scan-trips=0 for a complete
+scan, which can make many live API requests for a large trip history.
 Pass --due-km to flag bikes past a wear threshold (e.g. a chain replacement
 interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 		Example: strings.Trim(`
   ridewithgps-pp-cli gear
+  ridewithgps-pp-cli gear --max-scan-trips=0 --due-km 4000 --json
   ridewithgps-pp-cli gear --due-km 4000 --json
   ridewithgps-pp-cli gear --bike "Allied" --agent
 `, "\n"),
@@ -73,6 +78,9 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 			}
 			if err := validateDataSourceStrategy(flags, "live"); err != nil {
 				return err
+			}
+			if maxScanTrips < 0 {
+				return usageErr(fmt.Errorf("--max-scan-trips must be zero or greater"))
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -96,6 +104,11 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 				return fmt.Errorf("opening local database: %w", err)
 			}
 			maybeEmitSyncHints(cmd, db, "trips", flags.maxAge)
+			var totalTrips int
+			if err := db.DB().QueryRowContext(ctx, `SELECT COUNT(*) FROM trips WHERE stationary IS NULL OR stationary = 0`).Scan(&totalTrips); err != nil {
+				_ = db.Close()
+				return fmt.Errorf("counting trips: %w", err)
+			}
 
 			query, queryArgs := gearTripsQuery(maxScanTrips)
 			rows, err := db.DB().QueryContext(ctx, query, queryArgs...)
@@ -111,7 +124,12 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 			for rows.Next() {
 				var id sql.NullString
 				var dist sql.NullFloat64
-				if err := rows.Scan(&id, &dist); err == nil && id.String != "" {
+				if err := rows.Scan(&id, &dist); err != nil {
+					_ = rows.Close()
+					_ = db.Close()
+					return fmt.Errorf("reading trip row: %w", err)
+				}
+				if id.String != "" {
 					trips = append(trips, tripRow{id: id.String, distM: dist.Float64})
 				}
 			}
@@ -122,7 +140,7 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 				return fmt.Errorf("reading trips: %w", rowsErr)
 			}
 
-			view := gearView{ScannedTrips: len(trips), DueThresholdKM: dueKM, Gear: make([]gearTotal, 0), FetchFailures: make([]gearFetchFailure, 0)}
+			view := gearView{ScannedTrips: len(trips), TotalTrips: totalTrips, Partial: len(trips) < totalTrips, DueThresholdKM: dueKM, Gear: make([]gearTotal, 0), FetchFailures: make([]gearFetchFailure, 0)}
 			if len(trips) == 0 {
 				view.Note = "no trips in the local mirror; run 'ridewithgps-pp-cli sync --resources trips'"
 				return printJSONOrTableGear(cmd, view, flags, bike)
@@ -198,13 +216,14 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 				gt.Rides++
 				gt.distanceM += r.distM
 			}
+			if len(view.FetchFailures) > 0 {
+				return fmt.Errorf("gear mileage could not be completed: %d of %d trip detail fetches failed; no totals emitted", len(view.FetchFailures), len(trips))
+			}
 
 			for _, gt := range totals {
 				gt.DistanceKM = roundN(metersToKM(gt.distanceM), 1)
 				gt.DistanceMI = roundN(metersToMiles(gt.distanceM), 1)
-				if dueKM > 0 && gt.DistanceKM >= dueKM {
-					gt.Due = true
-				}
+				gt.Due, gt.DueUnknown = gearDueStatus(gt.DistanceKM, dueKM, view.Partial)
 				if bike != "" && !strings.Contains(strings.ToLower(gt.Name), strings.ToLower(bike)) {
 					continue
 				}
@@ -212,9 +231,8 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 			}
 			sort.Slice(view.Gear, func(i, j int) bool { return view.Gear[i].distanceM > view.Gear[j].distanceM })
 
-			if len(view.FetchFailures) > 0 {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d trip detail fetches failed; mileage computed over the remaining %d\n",
-					len(view.FetchFailures), len(trips), len(trips)-len(view.FetchFailures))
+			if view.Partial {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: gear mileage is partial: scanned %d of %d synced trips; use --max-scan-trips=0 for all\n", view.ScannedTrips, view.TotalTrips)
 			}
 			if len(view.Gear) == 0 && view.Note == "" {
 				view.Note = "no gear found across the scanned trips"
@@ -224,7 +242,7 @@ interval). Run 'ridewithgps-pp-cli sync --resources trips' first.`,
 	}
 	cmd.Flags().StringVar(&bike, "bike", "", "Filter to bikes whose make/model contains this text")
 	cmd.Flags().Float64Var(&dueKM, "due-km", 0, "Flag bikes at or past this many km (maintenance-due)")
-	cmd.Flags().IntVar(&maxScanTrips, "max-scan-trips", 0, "Max recent trips to scan for gear (0 = all synced trips)")
+	cmd.Flags().IntVar(&maxScanTrips, "max-scan-trips", 100, "Max recent trips to scan for gear (0 = all synced trips)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: local mirror)")
 	return cmd
 }
@@ -237,6 +255,16 @@ func gearTripsQuery(maxScanTrips int) (string, []any) {
 		return query, nil
 	}
 	return query + " LIMIT ?", []any{maxScanTrips}
+}
+
+func gearDueStatus(distanceKM, thresholdKM float64, partial bool) (due, unknown bool) {
+	if thresholdKM <= 0 {
+		return false, false
+	}
+	if distanceKM >= thresholdKM {
+		return true, false
+	}
+	return false, partial
 }
 
 func printJSONOrTableGear(cmd *cobra.Command, view gearView, flags *rootFlags, bike string) error {
@@ -256,11 +284,17 @@ func printJSONOrTableGear(cmd *cobra.Command, view gearView, flags *rootFlags, b
 		due := ""
 		if g.Due {
 			due = "DUE"
+		} else if g.DueUnknown {
+			due = "UNKNOWN"
 		}
 		fmt.Fprintf(tw, "%s\t%d\t%.0f km / %.0f mi\t%s\n", truncate(g.Name, 40), g.Rides, g.DistanceKM, g.DistanceMI, due)
 	}
 	_ = tw.Flush()
-	fmt.Fprintf(cmd.OutOrStdout(), "\nScanned %d trips.\n", view.ScannedTrips)
+	if view.Partial {
+		fmt.Fprintf(cmd.OutOrStdout(), "\nScanned %d of %d trips (partial).\n", view.ScannedTrips, view.TotalTrips)
+	} else {
+		fmt.Fprintf(cmd.OutOrStdout(), "\nScanned %d trips.\n", view.ScannedTrips)
+	}
 	return nil
 }
 

@@ -4,8 +4,17 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/ridewithgps/internal/store"
 )
 
 func TestNovelDedupCommandTODO(t *testing.T) {
@@ -51,5 +60,86 @@ func TestRoutesWithinDedupThresholdRejectsTransitiveEndpoint(t *testing.T) {
 	}
 	if routesWithinDedupThreshold(canonical, transitiveOnly, 100) {
 		t.Fatal("transitive-only route must not be deleted relative to the canonical route")
+	}
+}
+
+func TestDedupPreviewAndApplyPreserveEachRetainedRoute(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "routes.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, id := range []string{"A", "B", "C", "D"} {
+		lng := float64(i) * 0.0007 // Adjacent endpoints are close; A-C and B-D are not.
+		_, err := db.DB().Exec(`INSERT INTO routes (id, data, name, distance, first_lat, first_lng, last_lat, last_lng, created_at)
+			VALUES (?, '{}', ?, ?, 0, ?, 0, ?, ?)`, id, id, 10000+float64(i)*50, lng, lng, fmt.Sprintf("2026-01-%02dT00:00:00Z", i+1))
+		if err != nil {
+			t.Fatalf("seed route %s: %v", id, err)
+		}
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	var deleted []string
+	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete {
+			t.Errorf("unexpected method %s", r.Method)
+			http.Error(w, "unexpected method", http.StatusMethodNotAllowed)
+			return
+		}
+		deleted = append(deleted, r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer api.Close()
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("RIDEWITHGPS_BASE_URL", api.URL)
+	t.Setenv("RIDEWITHGPS_API_KEY", "synthetic-test-key")
+
+	run := func(apply bool) dedupView {
+		t.Helper()
+		flags := &rootFlags{asJSON: true}
+		cmd := newNovelDedupCmd(flags)
+		var output, stderr bytes.Buffer
+		cmd.SetOut(&output)
+		cmd.SetErr(&stderr)
+		args := []string{"--db", dbPath, "--threshold", "100"}
+		if apply {
+			args = append(args, "--apply")
+		}
+		cmd.SetArgs(args)
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("dedup --apply=%t: %v, stderr=%s", apply, err, stderr.String())
+		}
+		var view dedupView
+		if err := json.Unmarshal(output.Bytes(), &view); err != nil {
+			t.Fatalf("decode dedup output %q: %v", output.String(), err)
+		}
+		return view
+	}
+
+	preview := run(false)
+	if len(deleted) != 0 || preview.Applied != 0 {
+		t.Fatalf("preview deleted routes: %v, applied %d", deleted, preview.Applied)
+	}
+	if len(preview.Clusters) != 2 {
+		t.Fatalf("preview clusters = %+v, want two retained routes", preview.Clusters)
+	}
+	if preview.Clusters[0].Canonical["id"] != "A" || preview.Clusters[1].Canonical["id"] != "C" {
+		t.Fatalf("canonical routes = %+v, want A and C", preview.Clusters)
+	}
+	if preview.Clusters[0].Duplicates[0]["id"] != "B" || preview.Clusters[1].Duplicates[0]["id"] != "D" {
+		t.Fatalf("duplicates = %+v, want B and D", preview.Clusters)
+	}
+
+	applied := run(true)
+	if applied.Applied != 2 || len(deleted) != 2 {
+		t.Fatalf("applied = %d, deleted = %v; want B and D", applied.Applied, deleted)
+	}
+	for _, path := range deleted {
+		if !strings.Contains(path, "/routes/B.json") && !strings.Contains(path, "/routes/D.json") {
+			t.Fatalf("retained route reached delete API: %s", path)
+		}
 	}
 }

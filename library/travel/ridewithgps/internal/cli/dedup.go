@@ -109,7 +109,7 @@ For quality issues other than duplication (stale, private) use 'audit'.`,
 				var id, name, created sql.NullString
 				var dist, fLat, fLng, lLat, lLng sql.NullFloat64
 				if err := rows.Scan(&id, &name, &dist, &fLat, &fLng, &lLat, &lLng, &created); err != nil {
-					continue
+					return fmt.Errorf("reading route row: %w", err)
 				}
 				routes = append(routes, dedupRoute{
 					ID: id.String, Name: name.String, Distance: dist.Float64,
@@ -177,29 +177,35 @@ For quality issues other than duplication (stale, private) use 'audit'.`,
 				sort.Slice(members, func(a, b int) bool {
 					return canonicalRouteLess(routes[members[a]], routes[members[b]])
 				})
-				canonical := routes[members[0]]
-				cluster := dedupClusterView{
-					Canonical:  map[string]any{"id": canonical.ID, "name": canonical.Name, "created_at": canonical.CreatedAt},
-					DistanceKM: roundN(metersToKM(canonical.Distance), 1),
-					Duplicates: make([]map[string]any, 0, len(members)-1),
-				}
-				for _, m := range members[1:] {
-					r := routes[m]
-					// Union-find identifies connected components, so A≈B and B≈C
-					// can place A, B, and C together even when A and C are not
-					// duplicates. Never delete a route unless it independently
-					// satisfies the threshold against the retained canonical route.
-					if !routesWithinDedupThreshold(canonical, r, threshold) {
-						continue
+				for len(members) > 1 {
+					canonical := routes[members[0]]
+					cluster := dedupClusterView{
+						Canonical:  map[string]any{"id": canonical.ID, "name": canonical.Name, "created_at": canonical.CreatedAt},
+						DistanceKM: roundN(metersToKM(canonical.Distance), 1),
+						Duplicates: make([]map[string]any, 0, len(members)-1),
 					}
-					cluster.Duplicates = append(cluster.Duplicates, map[string]any{"id": r.ID, "name": r.Name, "created_at": r.CreatedAt})
-					toDelete = append(toDelete, r)
+					remaining := make([]int, 0, len(members)-1)
+					for _, m := range members[1:] {
+						r := routes[m]
+						// A connected component can contain a chain of matches.
+						// Only delete routes directly matching a retained route.
+						if !routesWithinDedupThreshold(canonical, r, threshold) {
+							remaining = append(remaining, m)
+							continue
+						}
+						cluster.Duplicates = append(cluster.Duplicates, map[string]any{"id": r.ID, "name": r.Name, "created_at": r.CreatedAt})
+						toDelete = append(toDelete, r)
+					}
+					if len(cluster.Duplicates) > 0 {
+						view.Clusters = append(view.Clusters, cluster)
+					}
+					members = remaining
 				}
-				if len(cluster.Duplicates) == 0 {
-					continue
-				}
-				view.Clusters = append(view.Clusters, cluster)
 			}
+			sort.Slice(view.Clusters, func(i, j int) bool {
+				return view.Clusters[i].Canonical["id"].(string) < view.Clusters[j].Canonical["id"].(string)
+			})
+			sort.Slice(toDelete, func(i, j int) bool { return toDelete[i].ID < toDelete[j].ID })
 
 			if apply && len(toDelete) > 0 {
 				c, err := flags.newClient()
