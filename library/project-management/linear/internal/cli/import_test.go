@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -324,5 +325,72 @@ func TestImportIssuesStopsOnLedgerFailure(t *testing.T) {
 	}
 	if summary.Succeeded != 0 || summary.Failed != 1 || calls != 1 {
 		t.Fatalf("untracked issues must stop the import: summary=%+v calls=%d", summary, calls)
+	}
+}
+
+func TestImportReportsCountsWhenLaterLedgerWriteFails(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "linear.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	var calls atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		call := calls.Add(1)
+		if call == 2 {
+			ledger, openErr := store.Open(dbPath)
+			if openErr != nil {
+				t.Errorf("opening ledger for simulated failure: %v", openErr)
+			} else {
+				if _, dropErr := ledger.DB().Exec("DROP TABLE pp_created"); dropErr != nil {
+					t.Errorf("dropping ledger table: %v", dropErr)
+				}
+				_ = ledger.Close()
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = fmt.Fprintf(w, `{"data":{"issueCreate":{"success":true,"issue":{"id":"remote-%d","identifier":"ENG-%d","title":"created"}}}}`, call, call)
+	}))
+	defer srv.Close()
+
+	t.Setenv("HOME", dir)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(dir, "config"))
+	t.Setenv("XDG_DATA_HOME", filepath.Join(dir, "data"))
+	t.Setenv("XDG_CACHE_HOME", filepath.Join(dir, "cache"))
+	t.Setenv("LINEAR_BASE_URL", srv.URL)
+	t.Setenv("LINEAR_API_KEY", "synthetic-test-token")
+	inputPath := filepath.Join(dir, "issues.jsonl")
+	input := strings.Join([]string{
+		`{"title":"first","teamId":"11111111-1111-1111-1111-111111111111"}`,
+		`{"title":"second","teamId":"11111111-1111-1111-1111-111111111111"}`,
+		`{"title":"third","teamId":"11111111-1111-1111-1111-111111111111"}`,
+	}, "\n") + "\n"
+	if err := os.WriteFile(inputPath, []byte(input), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := executeRootForTest("import", "issues", "--input", inputPath, "--db", dbPath, "--json")
+	if err == nil || !strings.Contains(err.Error(), "import stopped after 1 succeeded, 1 failed, 0 skipped") || !strings.Contains(err.Error(), "remote-2") {
+		t.Fatalf("error = %v, want counts and untracked issue ID", err)
+	}
+	if got := calls.Load(); got != 2 {
+		t.Fatalf("remote create calls = %d, want 2", got)
+	}
+	var report struct {
+		Succeeded int    `json:"succeeded"`
+		Failed    int    `json:"failed"`
+		Skipped   int    `json:"skipped"`
+		Error     string `json:"error"`
+	}
+	if err := json.Unmarshal([]byte(out), &report); err != nil {
+		t.Fatalf("partial JSON summary = %q: %v", out, err)
+	}
+	if report.Succeeded != 1 || report.Failed != 1 || report.Skipped != 0 || !strings.Contains(report.Error, "remote-2") {
+		t.Fatalf("partial JSON summary = %+v", report)
 	}
 }

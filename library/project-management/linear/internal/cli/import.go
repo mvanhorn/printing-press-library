@@ -146,7 +146,9 @@ Each created issue is recorded in the local pp_created ledger.
 Only issues are importable. Linear has no REST create endpoint, so resources
 without a GraphQL import adapter must use their typed create command. Blank
 lines and lines beginning with '#' are skipped. Failed records are logged and
-counted without stopping later records.`,
+counted without stopping later records. If a remote issue is created but its
+cleanup-ledger write fails, the import stops and reports the partial counts and
+issue ID so it can be recovered before another attempt.`,
 		Example: `  # Bulk-create issues from a JSONL file
   linear-pp-cli import issues --input issues.jsonl
 
@@ -208,7 +210,23 @@ counted without stopping later records.`,
 
 			summary, err := importIssues(reader, c, db, sess, flags.dryRun, !flags.asJSON, os.Stderr)
 			if err != nil {
-				return err
+				stopped := fmt.Errorf("import stopped after %d succeeded, %d failed, %d skipped: %w", summary.Succeeded, summary.Failed, summary.Skipped, err)
+				if flags.asJSON {
+					code := ExitCode(stopped)
+					if encodeErr := json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+						"succeeded": summary.Succeeded,
+						"failed":    summary.Failed,
+						"skipped":   summary.Skipped,
+						"dry_run":   flags.dryRun,
+						"error":     err.Error(),
+						"code":      code,
+						"type":      cliErrorType(code),
+					}); encodeErr != nil {
+						return fmt.Errorf("%w; writing partial summary: %v", stopped, encodeErr)
+					}
+					flags.errorWritten = true
+				}
+				return stopped
 			}
 
 			// JSON envelope: {succeeded, failed, skipped, dry_run}.
