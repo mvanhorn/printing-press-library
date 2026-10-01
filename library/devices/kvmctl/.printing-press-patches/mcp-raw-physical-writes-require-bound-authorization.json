@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260831-161927",
   "base_printing_press_version": "4.31.3",
-  "summary": "Direct physical MCP writes without target- and operation-bound authorization must be disabled across typed, semantic, and Cobra mirrored tools.",
-  "reason": "Raw device endpoints and the semantic and Cobra command mirrors bypass the one-time plan authorization used by the CLI workflow executor. Keep them closed until they share that protocol; do not infer approval from an unbound token or host write flag.",
+  "summary": "Direct physical MCP writes without target- and operation-bound authorization must be disabled across typed, semantic, and Cobra mirrored tools, with honest descriptions of blocked operations.",
+  "reason": "Raw device endpoints and the semantic and Cobra command mirrors bypass the one-time plan authorization used by the CLI workflow executor. Keep them closed until they share that protocol; do not infer approval from an unbound token or host write flag. MCP tool descriptions must state that direct calls are disabled and point to authorized sequences or workflows where supported.",
   "files": [
     "internal/mcp/tools.go",
     "internal/mcp/physical_write_gate.go",

@@ -51,7 +51,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("hid_reset",
-			mcplib.WithDescription("Reset."),
+			mcplib.WithDescription("Disabled: raw HID reset lacks target- and operation-bound authorization. No authorized MCP alternative exists."),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -59,7 +59,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("hid_send-key",
-			mcplib.WithDescription("Send key. Required: key. Optional: state, finish. Returns the new JsonResult."),
+			mcplib.WithDescription("Disabled: direct key sending lacks target- and operation-bound authorization. Use an authorized sequence or workflow for supported keyboard actions."),
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("Key")),
 			mcplib.WithBoolean("state", mcplib.Description("State")),
 			mcplib.WithBoolean("finish", mcplib.Description("Finish")),
@@ -70,7 +70,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("hid_send-mouse-button",
-			mcplib.WithDescription("Send mouse button. Required: button, state."),
+			mcplib.WithDescription("Disabled: direct mouse button input lacks target- and operation-bound authorization. Use an authorized sequence or workflow for supported mouse actions."),
 			mcplib.WithString("button", mcplib.Required(), mcplib.Description("Button")),
 			mcplib.WithBoolean("state", mcplib.Required(), mcplib.Description("State")),
 			mcplib.WithDestructiveHintAnnotation(true),
@@ -80,7 +80,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("hid_send-mouse-move",
-			mcplib.WithDescription("Send mouse move. Required: x, y."),
+			mcplib.WithDescription("Disabled: direct mouse movement lacks target- and operation-bound authorization. Use an authorized sequence or workflow for supported mouse actions."),
 			mcplib.WithNumber("x", mcplib.Required(), mcplib.Description("X")),
 			mcplib.WithNumber("y", mcplib.Required(), mcplib.Description("Y")),
 			mcplib.WithDestructiveHintAnnotation(true),
@@ -90,7 +90,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("hid_send-mouse-wheel",
-			mcplib.WithDescription("Send mouse wheel. Required: delta."),
+			mcplib.WithDescription("Disabled: direct mouse wheel input lacks target- and operation-bound authorization. Use an authorized sequence or workflow for supported mouse actions."),
 			mcplib.WithNumber("delta", mcplib.Required(), mcplib.Description("Delta")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -99,7 +99,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("hid_send-shortcut",
-			mcplib.WithDescription("Send shortcut. Required: keys. Returns the new JsonResult."),
+			mcplib.WithDescription("Disabled: direct keyboard shortcuts lack target- and operation-bound authorization. Use an authorized sequence or workflow for supported keyboard actions."),
 			mcplib.WithString("keys", mcplib.Required(), mcplib.Description("Keys")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -157,7 +157,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("streamer_set-params",
-			mcplib.WithDescription("Set params. Optional: desired_fps, quality."),
+			mcplib.WithDescription("Disabled: changing streamer parameters lacks target- and operation-bound authorization. No authorized MCP alternative exists."),
 			mcplib.WithNumber("desired_fps", mcplib.Description("Desired fps")),
 			mcplib.WithNumber("quality", mcplib.Description("Quality")),
 			mcplib.WithDestructiveHintAnnotation(true),
@@ -167,7 +167,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("system_set-otg-functions",
-			mcplib.WithDescription("Set otg functions. Required: start_cdrom, start_flash."),
+			mcplib.WithDescription("Disabled: changing OTG functions lacks target- and operation-bound authorization. No authorized MCP alternative exists."),
 			mcplib.WithBoolean("start_cdrom", mcplib.Required(), mcplib.Description("Start cdrom")),
 			mcplib.WithBoolean("start_flash", mcplib.Required(), mcplib.Description("Start flash")),
 			mcplib.WithDestructiveHintAnnotation(true),

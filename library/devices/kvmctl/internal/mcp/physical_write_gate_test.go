@@ -29,6 +29,17 @@ func TestRawPhysicalWritesNeverReachDevice(t *testing.T) {
 	for _, name := range []string{"hid_reset", "hid_send-key", "hid_send-mouse-button", "hid_send-mouse-move", "hid_send-mouse-wheel", "hid_send-shortcut", "streamer_set-params", "system_set-otg-functions"} {
 		t.Run(name, func(t *testing.T) {
 			entry := s.GetTool(name)
+			description := entry.Tool.Description
+			if !strings.Contains(description, "Disabled:") || !strings.Contains(description, "target- and operation-bound authorization") {
+				t.Fatalf("blocked tool description implies direct access: %q", description)
+			}
+			if strings.HasPrefix(name, "hid_send-") {
+				if !strings.Contains(description, "authorized sequence or workflow") {
+					t.Fatalf("missing supported alternative: %q", description)
+				}
+			} else if !strings.Contains(description, "No authorized MCP alternative exists") {
+				t.Fatalf("missing unsupported operation guidance: %q", description)
+			}
 			if entry.Tool.Annotations.DestructiveHint == nil || !*entry.Tool.Annotations.DestructiveHint {
 				t.Fatal("missing physical mutation hint")
 			}
