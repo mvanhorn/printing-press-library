@@ -4,7 +4,12 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -22,28 +27,46 @@ func TestNovelCheckHelpWires(t *testing.T) {
 	}
 }
 
-// TestNovelCheckBehavior is the placeholder for table-driven tests of
-// the check command's actual behavior. Replace the t.Skip with
-// real cases — reviewers will flag a shipped t.Skip.
-//
-// Suggested shape:
-//
-//	func TestNovelCheckBehavior(t *testing.T) {
-//	    cases := []struct {
-//	        name  string
-//	        input ...
-//	        want  ...
-//	    }{
-//	        // {name: "...", input: ..., want: ...},
-//	    }
-//	    for _, tc := range cases {
-//	        tc := tc
-//	        t.Run(tc.name, func(t *testing.T) {
-//	            t.Parallel()
-//	            // assertions here
-//	        })
-//	    }
-//	}
 func TestNovelCheckBehavior(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for check")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "backend unavailable", http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+	t.Setenv("RETRACTION_CHECKER_BASE_URL", srv.URL)
+	t.Setenv("RETRACTION_CHECKER_CONFIG_DIR", t.TempDir())
+	t.Setenv("RETRACTION_CHECKER_CACHE_DIR", t.TempDir())
+
+	cmd := RootCmd()
+	var out, errout bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errout)
+	cmd.SetArgs([]string{"check", "10.1000/failure", "--json", "--no-cache"})
+	err := cmd.Execute()
+	if err == nil || ExitCode(err) == 0 {
+		t.Fatalf("check error = %v, want nonzero failure", err)
+	}
+	if !json.Valid(out.Bytes()) || !strings.Contains(out.String(), `"error"`) {
+		t.Fatalf("structured failure output = %q, want valid JSON error verdict", out.String())
+	}
+}
+
+func TestHumanCheckShowsExpressionOfConcern(t *testing.T) {
+	var out bytes.Buffer
+	writeHumanCheckResult(&out, retractionVerdict{
+		DOI:                 "10.1000/concerned",
+		Title:               "Paper under review",
+		ExpressionOfConcern: true,
+		UpdateType:          "expression_of_concern",
+		Date:                "2026-09-01",
+		Source:              "publisher",
+		NoticeURL:           "https://doi.org/10.5555/notice",
+	})
+	for _, want := range []string{"EDITORIAL CONCERN", "expression_of_concern", "2026-09-01", "https://doi.org/10.5555/notice"} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("human check output = %q, want %q", out.String(), want)
+		}
+	}
+	if strings.Contains(out.String(), "NOT retracted") {
+		t.Fatalf("human check output hid the concern as clean: %q", out.String())
+	}
 }

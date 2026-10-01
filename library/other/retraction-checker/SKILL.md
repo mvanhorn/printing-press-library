@@ -18,6 +18,11 @@ metadata:
 
 # Retraction Checker — Printing Press CLI
 
+Created by [@laci141](https://github.com/laci141) (laci141).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+`check` and `scan` report expressions of concern separately from retractions. A failed `check --json` lookup returns a nonzero status after printing its error verdict.
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `retraction-checker-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:

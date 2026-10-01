@@ -28,6 +28,7 @@ func TestCheckDOICrossrefFieldNames(t *testing.T) {
 		name          string
 		payload       string
 		wantRetracted bool
+		wantConcern   bool
 		wantType      string
 		wantDate      string
 		wantNoticeDOI string
@@ -76,8 +77,9 @@ func TestCheckDOICrossrefFieldNames(t *testing.T) {
 			wantSignals:   []string{"crossref-update:retraction", "title-prefix"},
 		},
 		{
-			// update-to on the record itself is the second supported shape.
-			name: "update-to retraction on the record",
+			// update-to means this checked record updates another work. It
+			// does not prove the checked record itself was retracted.
+			name: "update-to retraction points away from checked record",
 			payload: `{"message":{
 				"DOI":"10.1007/s11277-021-09072-0",
 				"title":["Deep Reinforcement Learning-Based Smart Manufacturing Plants"],
@@ -90,11 +92,28 @@ func TestCheckDOICrossrefFieldNames(t *testing.T) {
 					"updated":{"date-parts":[[2022,12,6]]}
 				}]
 			}}`,
-			wantRetracted: true,
-			wantType:      "retraction",
-			wantDate:      "2022-12-06",
-			wantNoticeDOI: "10.1007/s11277-021-09072-0",
-			wantSignals:   []string{"crossref-update:retraction"},
+			wantRetracted: false,
+			wantType:      "",
+			wantDate:      "",
+			wantNoticeDOI: "",
+			wantSignals:   nil,
+		},
+		{
+			name: "expression of concern is not a retraction",
+			payload: `{"message":{
+				"DOI":"10.1000/concerned",
+				"title":["Paper under review"],
+				"updated-by":[{
+					"DOI":"10.5555/notice","type":"expression_of_concern",
+					"source":"publisher","updated":{"date-parts":[[2026,9,1]]}
+				}]
+			}}`,
+			wantRetracted: false,
+			wantConcern:   true,
+			wantType:      "expression_of_concern",
+			wantDate:      "2026-09-01",
+			wantNoticeDOI: "10.5555/notice",
+			wantSignals:   []string{"crossref-update:expression_of_concern"},
 		},
 		{
 			// No update record at all: the title prefix still flags it, but
@@ -136,6 +155,9 @@ func TestCheckDOICrossrefFieldNames(t *testing.T) {
 			}
 			if v.Retracted != tc.wantRetracted {
 				t.Errorf("Retracted = %v, want %v", v.Retracted, tc.wantRetracted)
+			}
+			if v.ExpressionOfConcern != tc.wantConcern {
+				t.Errorf("ExpressionOfConcern = %v, want %v", v.ExpressionOfConcern, tc.wantConcern)
 			}
 			if v.UpdateType != tc.wantType {
 				t.Errorf("UpdateType = %q, want %q", v.UpdateType, tc.wantType)
