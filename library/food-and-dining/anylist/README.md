@@ -5,6 +5,7 @@
 The CLI syncs your shopping lists, recipes, and meal plan to a local SQLite database, then lets you query and automate everything from the shell. Search recipes by ingredient, split shopping lists by store, and build this week's grocery list from your meal plan — all scriptable, JSON-outputting, and safe to run on a schedule.
 
 Created by [@jeeves](https://github.com/jeeves) (Jeeves).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

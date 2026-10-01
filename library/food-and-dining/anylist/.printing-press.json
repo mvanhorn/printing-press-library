@@ -9,6 +9,12 @@
     "handle": "jeeves",
     "name": "Jeeves"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "user",
   "printer": "jeeves",
   "printer_name": "Jeeves",

@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "ambiguous-write-no-replay",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Writes must be sent once after ambiguous transport or server failures; reads may retry.",
+  "reason": "An import can complete remotely even when its response is lost, so retrying the write can duplicate the action.",
+  "files": ["internal/client/transport_request.go"]
+}

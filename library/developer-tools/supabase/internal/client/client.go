@@ -443,6 +443,10 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 				return nil, 0, errors.New("redirect into protected auth-config endpoint refused")
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			// A write may have committed before the connection failed.
+			if !canRetryAmbiguousFailure {
+				return nil, 0, lastErr
+			}
 			continue
 		}
 
