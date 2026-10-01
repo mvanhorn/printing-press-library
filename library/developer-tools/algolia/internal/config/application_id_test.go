@@ -13,6 +13,7 @@ func TestApplicationIDResolvesEndpointFromEffectiveConfig(t *testing.T) {
 		{"saved credentials", "application_id = \"SAVEDAPP\"\napi_key = \"test-key\"\n", "", "SAVEDAPP"},
 		{"environment wins", "application_id = \"SAVEDAPP\"\napi_key = \"test-key\"\n", "ENVAPP", "ENVAPP"},
 		{"saved template", "[template_vars]\nappId = \"TEMPLATEAPP\"\n", "", "TEMPLATEAPP"},
+		{"saved template beats legacy credential placeholder", "application_id = \"ALGOLIA_APPLICATION_ID\"\n[template_vars]\nappId = \"TEMPLATEAPP\"\n", "", "TEMPLATEAPP"},
 		{"legacy placeholder", "[template_vars]\nappId = \"ALGOLIA_APPLICATION_ID\"\n", "", ""},
 		{"missing remains unresolved", "", "", ""},
 	} {
@@ -42,6 +43,7 @@ func TestApplicationIDLoadsFromSiblingCredentialsWhenConfigHasAPIKey(t *testing.
 	for _, tc := range []struct{ name, config string }{
 		{"missing ID", "api_key = \"test-key\"\n"},
 		{"legacy placeholder", "api_key = \"test-key\"\n[template_vars]\nappId = \"ALGOLIA_APPLICATION_ID\"\n"},
+		{"legacy credential placeholder", "api_key = \"test-key\"\napplication_id = \"ALGOLIA_APPLICATION_ID\"\n"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			clearCredEnv(t)
@@ -70,5 +72,41 @@ func TestApplicationIDLoadsFromSiblingCredentialsWhenConfigHasAPIKey(t *testing.
 				t.Fatalf("separate application ID was not paired with the saved API key: app=%q endpoint=%q", cfg.AlgoliaApplicationId, cfg.TemplateVars["appId"])
 			}
 		})
+	}
+}
+
+func TestApplicationIDLoadsFromGlobalCredentialsWithDefaultConfig(t *testing.T) {
+	clearCredEnv(t)
+	t.Setenv("ALGOLIA_CONFIG", "")
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	configDir, err := cliutil.ConfigDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(configDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	configFile := filepath.Join(configDir, "config.toml")
+	if err := os.WriteFile(configFile, []byte("api_key = \"test-key\"\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	lockOwnerOnly(t, configFile)
+	credentialsFile, err := cliutil.CredentialsFilePath()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(credentialsFile), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(credentialsFile, []byte("application_id = \"GLOBALAPP\"\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	lockOwnerOnly(t, credentialsFile)
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.AlgoliaApplicationId != "GLOBALAPP" || cfg.TemplateVars["appId"] != "GLOBALAPP" || cfg.AlgoliaApiKey != "test-key" {
+		t.Fatalf("global application ID was not paired with the default config API key: app=%q endpoint=%q", cfg.AlgoliaApplicationId, cfg.TemplateVars["appId"])
 	}
 }

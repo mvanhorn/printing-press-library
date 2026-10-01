@@ -270,8 +270,8 @@ func TestCorruptCredentialsDoesNotOverrideLegacyConfig(t *testing.T) {
 			t.Fatalf("AuthHeader() = %q, want legacy credential", got)
 		}
 	})
-	if strings.Contains(stderr, credentialsPath) {
-		t.Fatalf("config credentials should avoid reading the corrupt global file, stderr=%q", stderr)
+	if !strings.Contains(stderr, credentialsPath) {
+		t.Fatalf("missing application ID should surface the corrupt global credentials file, stderr=%q", stderr)
 	}
 }
 func TestCorruptCredentialsFallsBackToEnvCredential(t *testing.T) {

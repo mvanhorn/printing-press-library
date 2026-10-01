@@ -124,12 +124,7 @@ func Load(configPath string) (*Config, error) {
 					return nil, err
 				}
 			}
-			// A legacy config that already carries its API key should not
-			// inspect the unrelated global credentials file just because its
-			// application ID is absent. Explicit config homes can still use
-			// their sibling file and the existing fallback path.
-			needGlobalCredentials := explicitConfigFile || (cfg.AuthHeaderVal == "" && cfg.AlgoliaApiKey == "")
-			if (!ok || creds == nil || !creds.HasValues()) && needGlobalCredentials {
+			if !ok || creds == nil || !creds.HasValues() {
 				creds, ok, err = cliutil.LoadCredentials()
 				if err != nil {
 					return nil, err
@@ -219,11 +214,11 @@ func Load(configPath string) (*Config, error) {
 		cfg.TemplateVars = map[string]string{}
 	}
 	applicationID := strings.TrimSpace(cfg.AlgoliaApplicationId)
-	if applicationID == "" {
+	if !usableApplicationID(applicationID) {
 		applicationID = strings.TrimSpace(cfg.TemplateVars["appId"])
 	}
 	// Older saves could persist this literal placeholder as if it were an ID.
-	if applicationID == "ALGOLIA_APPLICATION_ID" {
+	if !usableApplicationID(applicationID) {
 		applicationID = ""
 	}
 	if applicationID != "" {
@@ -378,12 +373,13 @@ func (c *Config) hasCredentialFields() bool {
 
 func (c *Config) hasCompleteCredentialFields() bool {
 	hasAPIKey := c.AuthHeaderVal != "" || c.AlgoliaApiKey != ""
-	applicationID := strings.TrimSpace(c.AlgoliaApplicationId)
-	if applicationID == "" {
-		applicationID = strings.TrimSpace(c.TemplateVars["appId"])
-	}
-	hasApplicationID := applicationID != "" && applicationID != "ALGOLIA_APPLICATION_ID"
+	hasApplicationID := usableApplicationID(c.AlgoliaApplicationId) || usableApplicationID(c.TemplateVars["appId"])
 	return hasAPIKey && hasApplicationID
+}
+
+func usableApplicationID(value string) bool {
+	value = strings.TrimSpace(value)
+	return value != "" && value != "ALGOLIA_APPLICATION_ID"
 }
 
 func (c *Config) clearCredentialFields() {
@@ -435,7 +431,7 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	if c.AlgoliaApiKey == "" {
 		c.AlgoliaApiKey = creds.AlgoliaApiKey
 	}
-	if c.AlgoliaApplicationId == "" {
+	if !usableApplicationID(c.AlgoliaApplicationId) {
 		c.AlgoliaApplicationId = creds.AlgoliaApplicationId
 	}
 }
