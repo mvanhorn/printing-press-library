@@ -1,0 +1,10 @@
+{
+  "vendor_anchored_matches": [],
+  "structural_credential_candidates": [],
+  "private_operator_paths": 0,
+  "raw_files_removed": 53,
+  "private_path_files_scrubbed": 25,
+  "tier2_disposition": "Technical/help/license vocabulary, public generator attribution and synthetic test inputs only; no private workspace PII.",
+  "pii_strict_findings": 0,
+  "mandatory_publish_package_token_scan": "PASS"
+}

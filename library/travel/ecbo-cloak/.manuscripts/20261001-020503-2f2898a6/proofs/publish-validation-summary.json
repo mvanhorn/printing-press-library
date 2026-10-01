@@ -1,0 +1,66 @@
+{
+  "live_gate": {
+    "level": "full",
+    "verdict": "PASS",
+    "matrix_size": 53,
+    "passed": 53,
+    "failed": 0,
+    "skipped": 14,
+    "unverified": 14,
+    "pass_rate": 100,
+    "ran_at": "2026-10-01T02:11:47.226237Z",
+    "failures": []
+  },
+  "source_tests": "go test -count=1 ./... passed",
+  "source_vet": "go vet ./... passed",
+  "source_validate": true,
+  "pii_source_findings": 0,
+  "raw_transcript": "Deleted after summary and runner-written acceptance were retained.",
+  "independent_source_e2e": {
+    "status": "pass",
+    "cases": 23,
+    "source_comparisons": {
+      "price": {
+        "price": 1300,
+        "currency": "JPY",
+        "has_duplicated_reservations": false
+      },
+      "validation": {
+        "valid": true
+      }
+    },
+    "observed_at": "2026-10-01T02:13:21.055162+00:00"
+  },
+  "stdin_live_checks": [
+    {
+      "command": "source price --stdin --agent",
+      "result": "PASS",
+      "price": 1300
+    },
+    {
+      "command": "source validate --stdin --agent",
+      "result": "PASS",
+      "valid": true
+    }
+  ],
+  "review_fixes": {
+    "invalid_projection": "Validated before discovery or snapshot writes; prior inventory preserved.",
+    "focused_output": "CSV/plain/quiet/explicit compact return usage exit 2; --agent defaults supported.",
+    "stdin": "Live raw price/validate and previews share the 2 MiB bound and JSON object validation.",
+    "regressions": "PASS; all original review issues reproduced before their fixes."
+  },
+  "packaged_module": "github.com/mvanhorn/printing-press-library/library/travel/ecbo-cloak",
+  "packaged_build": "PASS",
+  "packaged_tests": "go test -count=1 ./... PASS after all review fixes",
+  "packaged_vet": "go vet ./... PASS",
+  "packaged_govulncheck": "No vulnerabilities found. Reachable-symbol mode, this module only.",
+  "catalog_guards": {
+    "verify_skill": "PASS",
+    "publish_package": "PASS",
+    "release_ledger": "PASS",
+    "binary_payload": "PASS",
+    "attribution": "PASS",
+    "supply_chain": "PASS",
+    "press_version": "PASS"
+  }
+}

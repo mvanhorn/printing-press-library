@@ -1,0 +1,59 @@
+?   	ecbo-cloak-pp-cli/cmd/ecbo-cloak-pp-cli	[no test files]
+?   	ecbo-cloak-pp-cli/cmd/ecbo-cloak-pp-mcp	[no test files]
+?   	ecbo-cloak-pp-cli/internal/cache	[no test files]
+ok  	ecbo-cloak-pp-cli/internal/cli	1.640s
+--- FAIL: TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 71 [running]:
+testing.tRunner.func1.2({0x1011491c0, 0x26257019b8d0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x1011491c0?, 0x26257019b8d0?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewTLSServer({0x1011a1398, 0x26257019b890})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:459 +0x28
+ecbo-cloak-pp-cli/internal/client.TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata(0x2625700ff688)
+	<project-dir>/internal/client/platform_rate_limit_test.go:21 +0x8c
+testing.tRunner(0x2625700ff688, 0x1011a5b58)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	ecbo-cloak-pp-cli/internal/client	0.544s
+--- FAIL: TestProbeReachable_200 (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 98 [running]:
+testing.tRunner.func1.2({0x104a1a740, 0x123a5b892250})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x104a1a740?, 0x123a5b892250?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewServer({0x104a6fd40, 0x104a745e0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:267 +0x28
+ecbo-cloak-pp-cli/internal/cliutil.TestProbeReachable_200(0x123a5b8acd88)
+	<project-dir>/internal/cliutil/cliutil_test.go:469 +0x3c
+testing.tRunner(0x123a5b8acd88, 0x104a743d0)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	ecbo-cloak-pp-cli/internal/cliutil	1.352s
+?   	ecbo-cloak-pp-cli/internal/cliutil/testenv	[no test files]
+?   	ecbo-cloak-pp-cli/internal/config	[no test files]
+ok  	ecbo-cloak-pp-cli/internal/ecbo	1.951s
+ok  	ecbo-cloak-pp-cli/internal/mcp	4.000s
+ok  	ecbo-cloak-pp-cli/internal/mcp/bound	3.532s
+ok  	ecbo-cloak-pp-cli/internal/mcp/cobratree	8.617s
+ok  	ecbo-cloak-pp-cli/internal/platform	2.395s
+?   	ecbo-cloak-pp-cli/internal/types	[no test files]
+FAIL

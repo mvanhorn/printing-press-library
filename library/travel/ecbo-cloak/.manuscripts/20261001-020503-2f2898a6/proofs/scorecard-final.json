@@ -1,0 +1,108 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Nearby discovery",
+        "command": "facilities near",
+        "example": "ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent --select id,name,name_ja,booking_url",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"cache_hits\":0,\"coverage\":\"At most 50 nearby provider hits; local pagination/filtering; listed facility differs from available capacity\",\"elapsed_ms\":848,\"observations\":[{\"cache_hit\":false,\"observed_at\":\"2026-09-30T19:00:19Z\",\"source_url\":\"https://search.ecbo.io/api/v1/spaces?latitude=35.6812\u0026locale=en\u0026longitude=139.7671\u0026time_zone=Asia%2FTokyo\"}],\"partial_coverage\":true,\"provider\":\"ecbo cloak\",\"requests\":1},\"pagination\":{\"limit\":3,\"matched_in_window\":50,\"next_offset\":3,\"offset\":0,\"origin\":{\"latitude\":35.6812,\"longitude\":139.7671},\"query_scope\":\"local name filter within source nearest window; not nationwide text search\",\"radius_km\":5,\"requested_from\":null,\"requested_to\":null,\"source_total\":199,\"source_window_limit\":50,\"source_window_size\":50},\"results\":[{\"booking_url\":\"https://cloak.ecbo.io/en/space/GBy4uBrI\",\"id\":\"GBy4uBrI\",\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[JR改札内] 新幹線南のりかえ口改札前 手荷物預かり所\"},{\"booking_url\":\"https://cloak.ecbo.io/en/space/GSywhkyZ\",\"id\":\"GSywhkyZ\",\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[改札内・地下] グランスタ内クロークサービス\"},{\"booking_url\":\"https://cloak.ecbo.io/en/space/FpzvdnBz\",\"id\":\"FpzvdnBz\",\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[グランスタ地下北口改札内]BAGGAGE STORAGE＋\"}]}"
+      },
+      {
+        "name": "Facility identity/hours/restrictions",
+        "command": "facilities get",
+        "example": "ecbo-cloak-pp-cli facilities get GBy4uBrI --agent",
+        "status": "pass",
+        "output_sample": "{\"acceptance_cutoff\":null,\"address\":\"\u003credacted\u003e\",\"bag_dimensions\":[{\"height\":null,\"length\":null,\"size\":\"small\",\"width\":null},{\"height\":null,\"length\":null,\"size\":\"large\",\"width\":null}],\"booking_url\":\"https://cloak.ecbo.io/en/spaces/31736291-0f63-437c-8e27-64f698c6d539\",\"business_hours\":[{\"close_at\":\"21:00\",\"day_of_week\":0,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"},{\"close_at\":\"21:00\",\"day_of_week\":1,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"},{\"close_at\":\"21:00\",\"day_of_week\":2,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"},{\"close_at\":\"21:00\",\"day_of_week\":3,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"},{\"close_at\":\"21:00\",\"day_of_week\":4,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"},{\"close_at\":\"21:00\",\"day_of_week\":5,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"},{\"close_at\":\"21:00\",\"day_of_week\":6,\"is_24_hours\":false,\"is_open\":true,\"open_at\":\"09:00\"}],\"capacity_observation\":{\"meaning\":\"Uninterpreted source ratio; not remaining item count or guaranteed capacity\",\"raw_ratios\":[{\"date\":\"2026-10-01\",\"day_of_week\":4,\"day_of_week_label\":\"木\",\"is_holiday\":false,\"ratio\":108},{\"date\":\"2026-10-02\",\"day_of_week\":5,\"day_of_week_label\":\"金\",\"is_holiday\":false,\"ratio\":58},{\"date\":\"2026-10-03\",\"day_of_week\":6,\"day_of_week_label\":\"土\",\"is_holiday\":false,\"ratio\":125},{\"date\":\"2026-10-04\",\"day_of_week\":0,\"day_of_week_label\":\"日\",\"is_holiday\":false,\"ratio\":75},{\"date\":\"2026-10-05\",\"day_of_week\":1,\"day_of_week_label\":\"月\",\"is_holiday\":false,\"ratio\":25},{\"date\":\"2026-10-06\",\"day_of_week\":2,\"day_of_week_label\":\"火\",\"is_holiday\":false,\"ratio\":33},{\"date\":\"2026-10-07\",\"day_of_week\":3,\"day_of_week_label\":\"水\",\"is_holiday\":false,\"ratio\":16}],\"source_updated_at\":\"2026-10-01T03:01:30+09:00\"},\"confirmed_available_capacity\":null,\"cutoff_note\":\"Source exposes business hours; separate acceptance/pickup cutoffs are not published in structured data. Read restrictions and exact source validation.\",\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"day_definition\":\"source quote determines interval total; business/calendar-day wording differs across provider pages\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"day_definition\":\"source quote determines interval total; business/calendar-day wording differs across provider pages\",\"size\":\"large\"}],\"facility_type\":\"jr_east\",\"features\":{\"accept_on_site_payment\":false,\"english_supported\":true,\"has_charge_spot\":false,\"has_elevator\":false,\"has_wifi\":false,\"no_smoking\":true},\"holiday_booking_allowed\":true,\"holiday_business_hours\":{\"close_at\":null,\"is_24_hours\":false,\"is_open\":false,\"open_at\":null},\"id\":\"31736291-0f63-437c-8e27-64f698c6d539\",\"latitude\":35.68101,\"listed\":true,\"listed_maximum_items\":[{\"quantity\":0,\"size\":\"small\"},{\"quantity\":12,\"size\":\"large\"}],\"longitude\":139.766779,\"meta\":{\"cache_hits\":0,\"coverage\":\"Public facility listing; capacity ratios and maximum counts are not remaining inventory\",\"elapsed_ms\":5645,\"observations\":[{\"cache_hit\":false,\"observed_at\":\"2026-09-30T19:00:22Z\",\"source_url\":\"https://cloak.ecbo.io/en/spaces/31736291-0f63-437c-8e27-64f698c6d539\"},{\"cache_hit\":false,\"observed_at\":\"2026-09-30T19:00:23Z\",\"source_url\":\"https://api.ecbo.io/api/web/spaces/31736291-0f63-437c-8e27-64f698c6d539\"},{\"cache_hit\":false,\"observed_at\":\"2026-09-30T19:00:24Z\",\"source_url\":\"https://api.ecbo.io/api/web/spaces/31736291-0f63-437c-8e27-64f698c6d539\"}],\"partial_coverage\":true,\"provider\":\"ecbo cloak\",\"requests\":4},\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[JR改札内] 新幹線南のりかえ口改札前 手荷物預かり所\",\"nearby_stations\":[{\"distance\":0,\"exit\":null,\"station_name\":\"Tokyo\"}],\"overnight_allowed\":true,\"pickup_cutoff\":null,\"policy\":{\"count_rule\":\"Each separate piece counts; facility-specific rules may require multiple slots for one long item\",\"exact_45cm\":\"First-party language variants disagree; confirm category at facility booking page\",\"large\":\"suitcase size; generally longest side 45 cm or over\",\"max_weight_kg\":20,\"overnight_rule\":\"General stores count beyond closing as anot…[truncated]"
+      },
+      {
+        "name": "Source date/time/count price and validity",
+        "command": "offer inspect",
+        "example": "ecbo-cloak-pp-cli offer inspect 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026-10-03T19:00 --to 2026-10-03T21:00 --small 1 --large 1 --agent --select quote,validation,availability,booking_url",
+        "status": "pass",
+        "output_sample": "{\"availability\":\"source_validated_at_observation\",\"booking_url\":\"https://cloak.ecbo.io/en/spaces/0c3fb1e9-ad5a-42de-bfda-3027ebe4921e\",\"meta\":{\"provider\":\"ecbo cloak\",\"requests\":4,\"cache_hits\":0,\"elapsed_ms\":1185,\"partial_coverage\":true,\"coverage\":\"Source quote and validation observed for exact interval and bag counts; remaining capacity count undisclosed; no reservation created\",\"observations\":[{\"observed_at\":\"2026-09-30T19:00:18Z\",\"cache_hit\":false,\"source_url\":\"https://api.ecbo.io/api/web/spaces/0c3fb1e9-ad5a-42de-bfda-3027ebe4921e\"},{\"observed_at\":\"2026-09-30T19:00:18Z\",\"cache_hit\":false,\"source_url\":\"https://api.ecbo.io/api/web/spaces/0c3fb1e9-ad5a-42de-bfda-3027ebe4921e\"},{\"observed_at\":\"2026-09-30T19:00:19Z\",\"cache_hit\":false,\"source_url\":\"https://api.ecbo.io/api/web/reservations/price\"},{\"observed_at\":\"2026-09-30T19:00:19Z\",\"cache_hit\":false,\"source_url\":\"https://api.ecbo.io/api/web/reservations/validate\"}]},\"quote\":{\"currency\":\"JPY\",\"has_duplicated_reservations\":false,\"price\":1300},\"validation\":{\"valid\":true}}\n"
+      },
+      {
+        "name": "Explicit bounded inventory refresh",
+        "command": "inventory refresh",
+        "example": "ecbo-cloak-pp-cli inventory refresh --lat 35.6812 --lon 139.7671 --limit 3 --agent",
+        "status": "pass",
+        "output_sample": "{\"inventory_saved\":true,\"meta\":{\"cache_hits\":0,\"coverage\":\"At most 50 nearby provider hits; local pagination/filtering; listed facility differs from available capacity\",\"elapsed_ms\":562,\"observations\":[{\"cache_hit\":false,\"observed_at\":\"2026-09-30T19:00:19Z\",\"source_url\":\"https://search.ecbo.io/api/v1/spaces?latitude=35.6812\u0026locale=en\u0026longitude=139.7671\u0026time_zone=Asia%2FTokyo\"}],\"partial_coverage\":true,\"provider\":\"ecbo cloak\",\"requests\":1},\"pagination\":{\"limit\":3,\"matched_in_window\":50,\"next_offset\":3,\"offset\":0,\"origin\":{\"latitude\":35.6812,\"longitude\":139.7671},\"query_scope\":\"local name filter within source nearest window; not nationwide text search\",\"radius_km\":5,\"requested_from\":null,\"requested_to\":null,\"source_total\":199,\"source_window_limit\":50,\"source_window_size\":50},\"results\":[{\"acceptance_cutoff\":null,\"availability\":\"listed_only\",\"booking_url\":\"https://cloak.ecbo.io/en/space/GBy4uBrI\",\"canonical_uuid\":null,\"confirmed_available_capacity\":null,\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"large\"}],\"distance_km\":0.036,\"id\":\"GBy4uBrI\",\"latitude\":35.68100998643786,\"listed\":true,\"listed_hours\":{\"from\":\"09:00\",\"is_24_hours\":false,\"to\":\"21:00\"},\"longitude\":139.76677894592285,\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[JR改札内] 新幹線南のりかえ口改札前 手荷物預かり所\",\"pickup_cutoff\":null,\"source_item_counts\":{\"large\":12,\"meaning\":\"raw search values; not confirmed remaining capacity\",\"small\":0},\"url_note\":\"First-party legacy booking URL redirects to canonical UUID page; fetch facilities get to resolve lazily\"},{\"acceptance_cutoff\":null,\"availability\":\"listed_only\",\"booking_url\":\"https://cloak.ecbo.io/en/space/GSywhkyZ\",\"canonical_uuid\":null,\"confirmed_available_capacity\":null,\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"large\"}],\"distance_km\":0.054,\"id\":\"GSywhkyZ\",\"latitude\":35.6816879985854,\"listed\":true,\"listed_hours\":{\"from\":\"08:30\",\"is_24_hours\":false,\"to\":\"20:30\"},\"longitude\":139.76711397059262,\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[改札内・地下] グランスタ内クロークサービス\",\"pickup_cutoff\":null,\"source_item_counts\":{\"large\":50,\"meaning\":\"raw search values; not confirmed remaining capacity\",\"small\":0},\"url_note\":\"First-party legacy booking URL redirects to canonical UUID page; fetch facilities get to resolve lazily\"},{\"acceptance_cutoff\":null,\"availability\":\"listed_only\",\"booking_url\":\"https://cloak.ecbo.io/en/space/FpzvdnBz\",\"canonical_uuid\":null,\"confirmed_available_capacity\":null,\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"large\"}],\"distance_km\":0.076,\"id\":\"FpzvdnBz\",\"latitude\":35.68186397664249,\"listed\":true,\"listed_hours\":{\"from\":\"09:30\",\"is_24_hours\":false,\"to\":\"20:00\"},\"longitude\":139.76691196672618,\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[グランスタ地下北口改札内]BAGGAGE STORAGE＋\",\"pickup_cutoff\":null,\"source_item_counts\":{\"large\":20,\"meaning\":\"raw search values; not confirmed remaining capacity\",\"small\":0},\"url_note\":\"First-party legacy booking URL redirects to canonical UUID page; fetch facilities get to resolve lazily\"}]}"
+      },
+      {
+        "name": "Offline inventory/query",
+        "command": "inventory list",
+        "example": "ecbo-cloak-pp-cli inventory list --limit 3 --agent",
+        "status": "pass",
+        "output_sample": "{\"freshness_note\":\"Explicit snapshot; never auto-refreshed, never current capacity\",\"meta\":{\"cache_hits\":0,\"coverage\":\"Last bounded inventory snapshot, explicit refresh only\",\"elapsed_ms\":0,\"observations\":[],\"partial_coverage\":true,\"provider\":\"ecbo cloak\",\"requests\":0},\"observations\":[{\"cache_hit\":false,\"observed_at\":\"2026-09-30T19:00:19Z\",\"source_url\":\"https://search.ecbo.io/api/v1/spaces?latitude=35.6812\u0026locale=en\u0026longitude=139.7671\u0026time_zone=Asia%2FTokyo\"}],\"pagination\":{\"limit\":3,\"matched_in_window\":50,\"next_offset\":3,\"offset\":0,\"scope\":{\"limit\":50,\"matched_in_window\":50,\"next_offset\":null,\"offset\":0,\"origin\":{\"latitude\":35.6812,\"longitude\":139.7671},\"query_scope\":\"local name filter within source nearest window; not nationwide text search\",\"radius_km\":5,\"requested_from\":null,\"requested_to\":null,\"source_total\":199,\"source_window_limit\":50,\"source_window_size\":50}},\"refreshed_at\":\"2026-09-30T19:00:19Z\",\"results\":[{\"acceptance_cutoff\":null,\"availability\":\"listed_only\",\"booking_url\":\"https://cloak.ecbo.io/en/space/GBy4uBrI\",\"canonical_uuid\":null,\"confirmed_available_capacity\":null,\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"large\"}],\"distance_km\":0.036,\"id\":\"GBy4uBrI\",\"latitude\":35.68100998643786,\"listed\":true,\"listed_hours\":{\"from\":\"09:00\",\"is_24_hours\":false,\"to\":\"21:00\"},\"longitude\":139.76677894592285,\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[JR改札内] 新幹線南のりかえ口改札前 手荷物預かり所\",\"pickup_cutoff\":null,\"source_item_counts\":{\"large\":12,\"meaning\":\"raw search values; not confirmed remaining capacity\",\"small\":0},\"url_note\":\"First-party legacy booking URL redirects to canonical UUID page; fetch facilities get to resolve lazily\"},{\"acceptance_cutoff\":null,\"availability\":\"listed_only\",\"booking_url\":\"https://cloak.ecbo.io/en/space/GSywhkyZ\",\"canonical_uuid\":null,\"confirmed_available_capacity\":null,\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"large\"}],\"distance_km\":0.054,\"id\":\"GSywhkyZ\",\"latitude\":35.6816879985854,\"listed\":true,\"listed_hours\":{\"from\":\"08:30\",\"is_24_hours\":false,\"to\":\"20:30\"},\"longitude\":139.76711397059262,\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[改札内・地下] グランスタ内クロークサービス\",\"pickup_cutoff\":null,\"source_item_counts\":{\"large\":50,\"meaning\":\"raw search values; not confirmed remaining capacity\",\"small\":0},\"url_note\":\"First-party legacy booking URL redirects to canonical UUID page; fetch facilities get to resolve lazily\"},{\"acceptance_cutoff\":null,\"availability\":\"listed_only\",\"booking_url\":\"https://cloak.ecbo.io/en/space/FpzvdnBz\",\"canonical_uuid\":null,\"confirmed_available_capacity\":null,\"daily_prices\":[{\"amount\":700,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"small\"},{\"amount\":1400,\"basis\":\"per_item_per_storage_day\",\"currency\":\"JPY\",\"size\":\"large\"}],\"distance_km\":0.076,\"id\":\"FpzvdnBz\",\"latitude\":35.68186397664249,\"listed\":true,\"listed_hours\":{\"from\":\"09:30\",\"is_24_hours\":false,\"to\":\"20:00\"},\"longitude\":139.76691196672618,\"name\":\"\u003credacted\u003e\",\"name_ja\":\"[グランスタ地下北口改札内]BAGGAGE STORAGE＋\",\"pickup_cutoff\":null,\"source_item_counts\":{\"large\":20,\"meaning\":\"raw search values; not confirmed remaining capacity\",\"small\":0},\"url_note\":\"First-party legacy booking URL redirects to canonical UUID page; fetch facilities get to resolve lazily\"}]}"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/build/stage/bin/ecbo-cloak-pp-cli",
+      "binary_path": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/build/stage/bin/ecbo-cloak-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-09-30T19:00:17.751157Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 5,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "ecbo-cloak",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 0,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 0,
+      "breadth": 7,
+      "vision": 0,
+      "workflows": 2,
+      "insight": 6,
+      "agent_workflow_readiness": 9,
+      "path_validity": 7,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 0,
+      "sync_correctness": 0,
+      "type_fidelity": 0,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 63,
+      "percentage": 63
+    },
+    "competitor_scores": null,
+    "overall_grade": "C",
+    "gap_report": [
+      "vision scored 0/10 - needs improvement",
+      "workflows scored 2/10 - needs improvement",
+      "dead_code scored 0/5 - needs improvement",
+      "MCP: 4 tools (4 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_remote_transport",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "cache_freshness",
+      "auth_protocol",
+      "data_pipeline_integrity",
+      "sync_correctness",
+      "type_fidelity",
+      "live_api_verification"
+    ]
+  }
+}

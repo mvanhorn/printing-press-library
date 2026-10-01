@@ -1,0 +1,13 @@
+workflows:
+  - name: Discover luggage storage and inspect exact source offer
+    primary: true
+    steps:
+      - command: facilities near --lat 35.6812 --lon 139.7671 --limit 3 --agent
+        mode: live
+        expect_fields: [results, pagination, meta]
+      - command: facilities get --id 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --agent
+        mode: live
+        expect_fields: [id, name_ja, business_hours, restrictions, booking_url]
+      - command: offer inspect --id 0c3fb1e9-ad5a-42de-bfda-3027ebe4921e --from 2026-10-03T19:00 --to 2026-10-03T21:00 --small 1 --large 1 --agent
+        mode: live
+        expect_fields: [quote, validation, availability]

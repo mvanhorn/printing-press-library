@@ -1,0 +1,14 @@
+?   	ecbo-cloak-pp-cli/cmd/ecbo-cloak-pp-cli	[no test files]
+?   	ecbo-cloak-pp-cli/cmd/ecbo-cloak-pp-mcp	[no test files]
+?   	ecbo-cloak-pp-cli/internal/cache	[no test files]
+ok  	ecbo-cloak-pp-cli/internal/cli	0.996s
+ok  	ecbo-cloak-pp-cli/internal/client	2.363s
+ok  	ecbo-cloak-pp-cli/internal/cliutil	13.659s
+?   	ecbo-cloak-pp-cli/internal/cliutil/testenv	[no test files]
+?   	ecbo-cloak-pp-cli/internal/config	[no test files]
+ok  	ecbo-cloak-pp-cli/internal/ecbo	1.449s
+ok  	ecbo-cloak-pp-cli/internal/mcp	2.153s
+ok  	ecbo-cloak-pp-cli/internal/mcp/bound	3.349s
+ok  	ecbo-cloak-pp-cli/internal/mcp/cobratree	6.241s
+ok  	ecbo-cloak-pp-cli/internal/platform	3.110s
+?   	ecbo-cloak-pp-cli/internal/types	[no test files]

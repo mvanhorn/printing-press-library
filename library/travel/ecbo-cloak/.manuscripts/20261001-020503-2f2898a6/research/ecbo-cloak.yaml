@@ -1,0 +1,115 @@
+name: ecbo-cloak
+description: Discover Japan luggage storage and inspect read-only source offers.
+version: 0.1.0
+category: travel
+base_url: https://api.ecbo.io
+health_check_path: /api/web/spaces/0c3fb1e9-ad5a-42de-bfda-3027ebe4921e
+auth:
+  type: none
+learn:
+  disabled: true
+resources:
+  source:
+    description: Read-only first-party source primitives; prefer focused facilities and offer commands.
+    endpoints:
+      detail:
+        method: GET
+        path: /api/web/spaces/{id}
+        description: Fetch a public facility by UUID.
+        happy_args: '--id=0c3fb1e9-ad5a-42de-bfda-3027ebe4921e'
+        params:
+          - name: id
+            type: string
+            required: true
+        response:
+          type: object
+          item: Facility
+      nearby:
+        method: GET
+        base_url: https://search.ecbo.io
+        path: /api/v1/spaces
+        description: Public nearest source window, at most 50 hits.
+        happy_args: '--latitude=35.6812;--longitude=139.7671'
+        params:
+          - name: latitude
+            type: float
+            required: true
+          - name: longitude
+            type: float
+            required: true
+        response:
+          type: object
+          item: Search
+      price:
+        method: POST
+        mutation: false
+        path: /api/web/reservations/price
+        description: Read-only price calculation; creates no reservation.
+        body:
+          - name: space_id
+            type: string
+            required: true
+          - name: from
+            type: string
+            required: true
+          - name: to
+            type: string
+            required: true
+          - name: reservation_items
+            type: object
+            required: true
+            fields:
+              - name: small
+                type: int
+              - name: large
+                type: int
+        response:
+          type: object
+          item: Quote
+      validate:
+        method: POST
+        mutation: false
+        path: /api/web/reservations/validate
+        description: Read-only offer validation; creates no reservation.
+        body:
+          - name: space_id
+            type: string
+            required: true
+          - name: from
+            type: string
+            required: true
+          - name: to
+            type: string
+            required: true
+          - name: reservation_items
+            type: object
+            required: true
+            fields:
+              - name: small
+                type: int
+              - name: large
+                type: int
+        response:
+          type: object
+          item: Validation
+types:
+  Facility:
+    fields:
+      - name: space_id
+        type: string
+      - name: name
+        type: string
+  Search:
+    fields:
+      - name: took
+        type: int
+  Quote:
+    fields:
+      - name: price
+        type: int
+      - name: currency
+        type: string
+  Validation:
+    fields:
+      - name: valid
+        type: bool

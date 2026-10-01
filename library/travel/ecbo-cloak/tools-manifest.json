@@ -1,0 +1,154 @@
+{
+  "api_name": "ecbo-cloak",
+  "base_url": "https://api.ecbo.io",
+  "description": "Discover Japan luggage storage and inspect read-only source offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_detail",
+      "description": "Fetch a public facility by UUID. Required: id. Returns the Facility.",
+      "method": "GET",
+      "path": "/api/web/spaces/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_nearby",
+      "description": "Public nearest source window, at most 50 hits. Required: latitude, longitude. Returns the Search.",
+      "method": "GET",
+      "path": "/api/v1/spaces",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_price",
+      "description": "Read-only price calculation; creates no reservation. Required: space_id, from, to, reservation_items. Returns the new Quote.",
+      "method": "POST",
+      "path": "/api/web/reservations/price",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "space_id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "reservation-items-small",
+          "wire_name": "reservation_items.small",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "reservation-items-large",
+          "wire_name": "reservation_items.large",
+          "type": "int",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "source_validate",
+      "description": "Read-only offer validation; creates no reservation. Required: space_id, from, to, reservation_items. Returns the new Validation.",
+      "method": "POST",
+      "path": "/api/web/reservations/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "space_id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "reservation-items-small",
+          "wire_name": "reservation_items.small",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "reservation-items-large",
+          "wire_name": "reservation_items.large",
+          "type": "int",
+          "location": "body"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Nearby discovery",
+      "command": "facilities near",
+      "description": "Nearby discovery"
+    },
+    {
+      "name": "Facility identity/hours/restrictions",
+      "command": "facilities get",
+      "description": "Facility identity/hours/restrictions"
+    },
+    {
+      "name": "Source date/time/count price and validity",
+      "command": "offer inspect",
+      "description": "Source date/time/count price and validity"
+    },
+    {
+      "name": "Explicit bounded inventory refresh",
+      "command": "inventory refresh",
+      "description": "Explicit bounded inventory refresh"
+    },
+    {
+      "name": "Offline inventory/query",
+      "command": "inventory list",
+      "description": "Offline inventory/query"
+    }
+  ]
+}

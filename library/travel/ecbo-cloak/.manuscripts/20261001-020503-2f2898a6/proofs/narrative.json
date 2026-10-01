@@ -1,0 +1,1 @@
+{"walked":2,"missing":0,"empty":0,"results":[{"section":"quickstart","command":"ecbo-cloak-pp-cli doctor --dry-run","words":"doctor","status":"ok"},{"section":"recipes","command":"ecbo-cloak-pp-cli facilities near --lat 35.6812 --lon 139.7671 --agent --select id,name,name_ja,booking_url","words":"facilities near","status":"ok"}],"full_examples":true}

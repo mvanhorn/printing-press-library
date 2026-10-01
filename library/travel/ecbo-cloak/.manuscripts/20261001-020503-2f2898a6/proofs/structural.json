@@ -1,0 +1,153 @@
+{
+  "dir": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli",
+  "spec_path": "<press-home>/.runstate/ecbo-cloak-cli-70fcbbc6/runs/20261001-020503-2f2898a6/working/ecbo-cloak-pp-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 21,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 101,
+    "dead": 7,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "isDryRunResponseForClient",
+      "paginatedGetWithResponsePath",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found"
+  },
+  "example_check": {
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "could not build CLI binary: exit status 1"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 38,
+      "registered": 38
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 3,
+    "missing": [
+      "facilities near",
+      "inventory refresh"
+    ],
+    "depth_mismatches": [
+      {
+        "command": "inventory list",
+        "advertised": "inventory list",
+        "actual": "feedback list, profile list"
+      }
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 3,
+    "exempted_via_store": 0,
+    "missing_data_source_strategy": [
+      {
+        "command": "facilities get",
+        "file": "ecbo_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "offer inspect",
+        "file": "ecbo_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "inventory list",
+        "file": "ecbo_commands.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Discover Japan luggage storage and inspect read-only source offers."
+  },
+  "source_client_check": {
+    "checked": 13,
+    "findings": [
+      {
+        "package": "ecbo",
+        "file": "internal/ecbo/resolve.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 28
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 28
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "7 dead helper functions found",
+    "sync uses generic Upsert only",
+    "example check skipped: could not build CLI binary: exit status 1",
+    "2/5 novel features missing: facilities near, inventory refresh",
+    "1 novel feature command-depth mismatches: inventory list advertised as inventory list but registered as feedback list, profile list",
+    "3/3 novel features missing data-source strategy: facilities get (ecbo_commands.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; offer inspect (ecbo_commands.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; inventory list (ecbo_commands.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation",
+    "1 source client file(s) without rate-limit handling: internal/ecbo/resolve.go — outbound HTTP without rate limiter or typed 429 handling"
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 53,
+  "passed": 53,
+  "failed": 0,
+  "skipped": 14,
+  "unverified": 14,
+  "pass_rate": 100,
+  "ran_at": "2026-09-30T20:03:04.24346Z",
+  "tests": [
+    {
+      "command": "doctor",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "doctor",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "facilities",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "facilities",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "facilities",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "facilities",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "facilities",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "facilities get",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "facilities get",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "facilities get",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "facilities get",
+      "kind": "error_path",
+      "status": "pass",
+      "exit_code": 3
+    },
+    {
+      "command": "facilities get",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "facilities near",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "facilities near",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "facilities near",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "facilities near",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "facilities near",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "inventory",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "inventory",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "inventory",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "inventory",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "inventory",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "inventory list",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "inventory list",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "inventory list",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "inventory list",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "inventory list",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "inventory refresh",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "inventory refresh",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "inventory refresh",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "inventory refresh",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "inventory refresh",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "offer",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "offer",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "offer",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "offer",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "offer",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "offer inspect",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "offer inspect",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "offer inspect",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "offer inspect",
+      "kind": "error_path",
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "offer inspect",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "source",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "source detail",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "source detail",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "source detail",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "source detail",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "source detail",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "source nearby",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "source nearby",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "source nearby",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "source nearby",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "source nearby",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "source price",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "source price",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "source price",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "source price",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "source price",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "source validate",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "source validate",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "source validate",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "source validate",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "source validate",
+      "kind": "dry_run_json",
+      "status": "pass"
+    }
+  ]
+}

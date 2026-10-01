@@ -1,0 +1,1 @@
+First-party anonymous HTTP/SSR and served JavaScript inspection. No browser session/auth used. Replay verified with direct HTTP. Discovered GET search and UUID detail plus POST price/validate; all four read-only. No resident browser runtime. Source bundled credentials were neither used nor retained.

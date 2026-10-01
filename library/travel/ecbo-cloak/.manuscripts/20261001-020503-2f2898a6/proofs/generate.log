@@ -1,0 +1,14 @@
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+FAIL go mod tidy
+Error: validating generated project: gate "go mod tidy" failed: exit status 1
+go: finding module for package modernc.org/sqlite
+go: ecbo-cloak-pp-cli/cmd: open <operator-home>/.cache/printing-press/go-build/78/7881dafae11e36918d4362edc0b6becce8a306600a2f40097e55b2a6d82b3ed6-a: operation not permitted
+go: ecbo-cloak-pp-cli/internal: open <operator-home>/.cache/printing-press/go-build/0f/0f9fdb7ef79ea1612543d116431a6a0b6faafee9dfa82933687154ae57d282e9-a: operation not permitted
+go: ecbo-cloak-pp-cli/internal/platform imports
+	modernc.org/sqlite: module modernc.org/sqlite: Get "https://proxy.golang.org/modernc.org/sqlite/@v/list": dial tcp: lookup proxy.golang.org: no such host
+validating generated project: gate "go mod tidy" failed: exit status 1
+go: finding module for package modernc.org/sqlite
+go: ecbo-cloak-pp-cli/cmd: open <operator-home>/.cache/printing-press/go-build/78/7881dafae11e36918d4362edc0b6becce8a306600a2f40097e55b2a6d82b3ed6-a: operation not permitted
+go: ecbo-cloak-pp-cli/internal: open <operator-home>/.cache/printing-press/go-build/0f/0f9fdb7ef79ea1612543d116431a6a0b6faafee9dfa82933687154ae57d282e9-a: operation not permitted
+go: ecbo-cloak-pp-cli/internal/platform imports
+	modernc.org/sqlite: module modernc.org/sqlite: Get "https://proxy.golang.org/modernc.org/sqlite/@v/list": dial tcp: lookup proxy.golang.org: no such host

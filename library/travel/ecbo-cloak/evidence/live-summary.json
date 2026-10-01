@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "cases": 23,
+  "source_comparisons": {
+    "price": {
+      "price": 1300,
+      "currency": "JPY",
+      "has_duplicated_reservations": false
+    },
+    "validation": {
+      "valid": true
+    }
+  },
+  "observed_at": "2026-10-01T02:13:21.055162+00:00"
+}
