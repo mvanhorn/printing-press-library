@@ -76,7 +76,7 @@ func researchHash(value string) string {
 
 func newResearchSnapshotID(query string) string {
 	now := time.Now().UTC()
-	return now.Format("20060102T150405Z") + "-" + researchHash(query+now.String())[:10]
+	return now.Format("20060102T150405Z") + "-" + researchHash(query + now.String())[:10]
 }
 
 func searchBody(req researchSearchRequest) map[string]any {
@@ -223,6 +223,37 @@ func loadResearchSnapshot(s *store.Store, id string) (researchSnapshot, error) {
 	return snap, nil
 }
 
+func loadPreviousResearchSnapshot(s *store.Store, afterID string) (researchSnapshot, error) {
+	items, err := s.List("research_snapshots", 0)
+	if err != nil {
+		return researchSnapshot{}, err
+	}
+	snapshots := make([]researchSnapshot, 0, len(items))
+	for _, item := range items {
+		var snap researchSnapshot
+		if err := json.Unmarshal(item, &snap); err != nil {
+			return researchSnapshot{}, fmt.Errorf("decode saved research snapshot: %w", err)
+		}
+		snapshots = append(snapshots, snap)
+	}
+	sort.Slice(snapshots, func(i, j int) bool {
+		if snapshots[i].CreatedAt == snapshots[j].CreatedAt {
+			return snapshots[i].ID < snapshots[j].ID
+		}
+		return snapshots[i].CreatedAt < snapshots[j].CreatedAt
+	})
+	for i, snap := range snapshots {
+		if snap.ID != afterID {
+			continue
+		}
+		if i == 0 {
+			return researchSnapshot{}, fmt.Errorf("snapshot %q has no earlier snapshot to compare", afterID)
+		}
+		return snapshots[i-1], nil
+	}
+	return researchSnapshot{}, fmt.Errorf("snapshot %q not found while selecting its predecessor", afterID)
+}
+
 func loadSnapshotResults(s *store.Store, id string) ([]researchResult, error) {
 	items, err := s.List("research_results", 0)
 	if err != nil {
@@ -275,7 +306,7 @@ func saveLiveSnapshot(ctx context.Context, flags *rootFlags, req researchSearchR
 	for _, result := range results[:fetchTop] {
 		page, fetchErr := researchFetch(ctx, flags, result.URL, maxChars, live, prompt, req.Authenticated)
 		if fetchErr != nil {
-			continue
+			return researchSnapshot{}, nil, nil, fmt.Errorf("fetching selected snapshot page %q: %w", result.URL, fetchErr)
 		}
 		pages = append(pages, page)
 	}

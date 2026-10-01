@@ -81,7 +81,7 @@ These capabilities aren't available in any other tool for this API.
   _Choose this to detect changing sources before an agent relies on stale research._
 
   ```bash
-  keenable-pp-cli research diff --before latest --after latest --agent
+  keenable-pp-cli research diff --after latest --agent
   ```
 
 ### Agent-ready evidence
@@ -159,7 +159,7 @@ Search the local corpus without claiming fresh upstream data.
 ### Compare research drift
 
 ```bash
-keenable-pp-cli research diff --before latest --after latest --agent
+keenable-pp-cli research diff --after latest --agent
 ```
 
 Inspect changed sources and content between two saved runs.

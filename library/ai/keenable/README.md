@@ -2,6 +2,9 @@
 
 **Keenable web search with reproducible research, citations, and a local evidence trail.**
 
+Created by [@SomSamantray](https://github.com/SomSamantray) (Som Samantray).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 Search current web knowledge and fetch clean Markdown through the documented Keenable API, then preserve the evidence locally so agents can replay, compare, and cite prior research instead of starting from a blank response.
 
 ## Install
@@ -167,7 +170,7 @@ These capabilities aren't available in any other tool for this API.
   _Choose this to detect changing sources before an agent relies on stale research._
 
   ```bash
-  keenable-pp-cli research diff --before latest --after latest --agent
+  keenable-pp-cli research diff --after latest --agent
   ```
 
 ### Agent-ready evidence
@@ -222,7 +225,7 @@ Search the local corpus without claiming fresh upstream data.
 ### Compare research drift
 
 ```bash
-keenable-pp-cli research diff --before latest --after latest --agent
+keenable-pp-cli research diff --after latest --agent
 ```
 
 Inspect changed sources and content between two saved runs.

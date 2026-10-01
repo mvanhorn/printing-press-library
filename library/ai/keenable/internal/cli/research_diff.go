@@ -13,7 +13,7 @@ func newNovelResearchDiffCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "diff",
 		Short:       "Compare saved runs for URL changes, rank movement, metadata edits, and content-hash drift.",
-		Example:     "  keenable-pp-cli research diff --before latest --after latest --agent",
+		Example:     "  keenable-pp-cli research diff --before 20260825T120000Z-old --after latest --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -29,13 +29,21 @@ func newNovelResearchDiffCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("opening local research store: %w", err)
 			}
 			defer s.Close()
-			before, err := loadResearchSnapshot(s, beforeID)
-			if err != nil {
-				return err
-			}
 			after, err := loadResearchSnapshot(s, afterID)
 			if err != nil {
 				return err
+			}
+			var before researchSnapshot
+			if beforeID == "" {
+				before, err = loadPreviousResearchSnapshot(s, after.ID)
+			} else {
+				before, err = loadResearchSnapshot(s, beforeID)
+			}
+			if err != nil {
+				return err
+			}
+			if before.ID == after.ID {
+				return fmt.Errorf("--before and --after resolve to the same snapshot %q; select two distinct snapshots", after.ID)
 			}
 			beforeResults, err := loadSnapshotResults(s, before.ID)
 			if err != nil {
@@ -70,8 +78,14 @@ func newNovelResearchDiffCmd(flags *rootFlags) *cobra.Command {
 					removed = append(removed, item)
 				}
 			}
-			beforePages, _ := loadSnapshotPages(s, before.ID)
-			afterPages, _ := loadSnapshotPages(s, after.ID)
+			beforePages, err := loadSnapshotPages(s, before.ID)
+			if err != nil {
+				return fmt.Errorf("loading pages for earlier snapshot %q: %w", before.ID, err)
+			}
+			afterPages, err := loadSnapshotPages(s, after.ID)
+			if err != nil {
+				return fmt.Errorf("loading pages for later snapshot %q: %w", after.ID, err)
+			}
 			beforeHashes, afterHashes := map[string]string{}, map[string]string{}
 			for _, p := range beforePages {
 				beforeHashes[p.URL] = p.ContentHash
@@ -93,7 +107,7 @@ func newNovelResearchDiffCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&beforeID, "before", "", "Earlier snapshot ID")
+	cmd.Flags().StringVar(&beforeID, "before", "", "Earlier snapshot ID (defaults to the snapshot immediately before --after)")
 	cmd.Flags().StringVar(&afterID, "after", "latest", "Later snapshot ID or latest")
 	return cmd
 }
