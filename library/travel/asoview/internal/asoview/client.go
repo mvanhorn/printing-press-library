@@ -44,10 +44,11 @@ type Source struct {
 	TTLSeconds int64  `json:"ttl_seconds"`
 }
 type Stats struct {
-	Requests        int   `json:"network_requests"`
-	CacheHits       int   `json:"cache_hits"`
-	DownloadedBytes int64 `json:"downloaded_bytes"`
-	ElapsedMS       int64 `json:"elapsed_ms"`
+	Requests           int   `json:"network_requests"`
+	CacheHits          int   `json:"cache_hits"`
+	CacheWriteFailures int   `json:"cache_write_failures"`
+	DownloadedBytes    int64 `json:"downloaded_bytes"`
+	ElapsedMS          int64 `json:"elapsed_ms"`
 }
 type Client struct {
 	HTTP        *http.Client
@@ -243,7 +244,9 @@ func (c *Client) Get(ctx context.Context, path string, q url.Values, ttl time.Du
 	c.Sources = append(c.Sources, Source{u.String(), at.Format(time.RFC3339), false, int64(ttl.Seconds())})
 	if !c.NoCache && c.CacheDir != "" {
 		if e := c.saveCache(cacheFile, cacheEntry{u.String(), at, body}); e != nil {
-			return nil, fail(10, "cache write failed: %v; use --no-cache to bypass", e)
+			// Persistence is optional for a successful live read. Keep provenance
+			// and expose the failure count without leaking local paths.
+			c.Stats.CacheWriteFailures++
 		}
 	}
 	return body, nil

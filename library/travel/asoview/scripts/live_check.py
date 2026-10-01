@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import tempfile
 import urllib.parse
 import urllib.request
 
@@ -130,6 +131,33 @@ source_bands = json.loads(body)
 assert [b['name_ja'] for b in j['results']['options']] == [b['feeLabel'] for b in source_bands]
 assert j['results']['product_age_band']['text'] == a['ageLimit']
 passed('dated activity bands preserve source label and product age separately')
+
+u, body = fetch('/stocks/courses', {'planCode': 'pln3000044589', 'date': DATE})
+activity_slots = json.loads(body)
+j = cli('activity-stock-status', 'availability', 'pln3000044589', '--date', DATE, '--no-cache')
+assert len(j['results']['slots']) == len(activity_slots)
+for normalized, raw in zip(j['results']['slots'], activity_slots):
+    assert normalized['id'] == str(raw['id'])
+    if raw.get('isClosed'):
+        assert normalized['status'] == 'closed'
+all_closed = bool(activity_slots) and all(s.get('isClosed') for s in activity_slots)
+if all_closed:
+    assert j['results']['status'] == 'closed'
+passed('activity closed slot and headline status match live source', all_closed=all_closed, headline=j['results']['status'])
+
+with tempfile.TemporaryDirectory(prefix='asoview-cache-failure-') as temporary:
+    blocked = Path(temporary) / 'not-a-directory'
+    blocked.write_text('synthetic cache storage failure')
+    original_cache = ENV['ASOVIEW_CACHE_DIR']
+    try:
+        ENV['ASOVIEW_CACHE_DIR'] = str(blocked)
+        j = cli('cache-write-failure-live', 'product', 'ticket0000049223', '--refresh')
+    finally:
+        ENV['ASOVIEW_CACHE_DIR'] = original_cache
+    assert j['results']['id'] == 'ticket0000049223' and j['meta']['source'] == 'live'
+    assert j['meta']['metrics']['cache_write_failures'] == 1
+    assert j['meta']['sources'] and all(s['cached'] is False for s in j['meta']['sources'])
+passed('successful live product survives a synthetic optional cache storage failure')
 
 j = cli('timed-stock', 'availability', 'ticket0000012832', '--date', DATE, '--no-cache')
 assert j['results']['slots'] and all(s['time_meaning'] in ('reserved_entry_window', 'source_time_window_unclassified') for s in j['results']['slots'])

@@ -69,6 +69,31 @@ func slotStatus(s Object, quantity int) string {
 	}
 	return "unknown"
 }
+
+func aggregateSlotStatus(slots []Object) string {
+	status := "unknown"
+	requestOnly, unknown := false, false
+	for i, slot := range slots {
+		st := text(slot["status"])
+		if st == "available" {
+			return st
+		}
+		if i == 0 {
+			status = st
+		} else if status != st {
+			status = "unavailable"
+		}
+		requestOnly = requestOnly || st == "request_only"
+		unknown = unknown || st == "unknown"
+	}
+	if requestOnly {
+		return "request_only"
+	}
+	if unknown {
+		return "unknown"
+	}
+	return status
+}
 func timeMeaning(p Object, slot Object) string {
 	if p["kind"] == "activity" {
 		return "experience_start"
@@ -243,20 +268,7 @@ func (c *Client) Availability(ctx context.Context, input, date, month string, qu
 		if dateEligibility(p, date) == "not_usable" {
 			header["status"] = "not_usable"
 		} else if len(slots) > 0 {
-			status := "unavailable"
-			for _, slot := range slots {
-				st := text(slot["status"])
-				if st == "available" {
-					status = st
-					break
-				}
-				if st == "request_only" {
-					status = st
-				} else if st == "unknown" && status == "unavailable" {
-					status = "unknown"
-				}
-			}
-			header["status"] = status
+			header["status"] = aggregateSlotStatus(slots)
 		}
 	}
 	return header, nil

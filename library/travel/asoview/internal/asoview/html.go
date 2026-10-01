@@ -331,6 +331,8 @@ func parseCards(doc *html.Node, ds Object, page int) ([]Object, bool) {
 		}
 	}
 	rows := []Object{}
+	matchedBases := map[string]bool{}
+	unknownBase := false
 	next := false
 	walk(doc, func(n *html.Node) {
 		if n.Type != html.ElementNode {
@@ -360,6 +362,11 @@ func parseCards(doc *html.Node, ds Object, page int) ([]Object, bool) {
 				if name == "" {
 					return
 				}
+				if baseID != "" {
+					matchedBases[baseID] = true
+				} else {
+					unknownBase = true
+				}
 				rows = append(rows, Object{"id": id, "kind": kind, "name_ja": name, "booking_url": BookingURL(id), "base": Object{"id": strptr(baseID), "name_ja": strptr(classText(n, "search-result-list__base-name"))}, "location": Object{"prefecture_ja": strptr(classText(n, "search-result-list__prefecture")), "area_ja": strptr(classText(n, "search-result-list__small-area"))}, "category": Object{"name_ja": strptr(classText(child, "search-result-list__plan-genre"))}, "age_band": AgeBand(classText(child, "search-result-list__plan-target-age")), "advertised_price": price(pm["sellingPrice"], nil, "advertised_search_from", nil), "date_party_total": nil})
 			})
 		}
@@ -374,7 +381,13 @@ func parseCards(doc *html.Node, ds Object, page int) ([]Object, bool) {
 		}
 	})
 	total := integer(strings.ReplaceAll(text(ds["displayFilterTotalCount"]), ",", ""))
-	if len(list(ds["raiseBasePlanPriceList"])) > 0 || (total != nil && *total <= int64(len(rows))) {
+	// The total counts venues, while rows count products. Recommendation
+	// cards neither establish exhaustion nor invalidate an explicit next link.
+	minimumVenues := len(matchedBases)
+	if unknownBase && minimumVenues == 0 {
+		minimumVenues = 1
+	}
+	if total != nil && *total <= int64(minimumVenues) {
 		next = false
 	}
 	return rows, next

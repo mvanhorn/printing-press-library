@@ -33,6 +33,8 @@ Business commands emit compact JSON by default. `--agent` enables the framework'
 
 Every business response includes `meta.sources` with source URLs, fetch times, cache status and TTL, plus request counts, bytes and latency. Missing/unsupported values are `null`, empty arrays or an explicit coverage reason. JSON stdout contains data; diagnostics use stderr. Explicit projection can omit metadata, so retain `meta` when freshness matters. Currency is JPY; units are the source's Japanese units (`枚`, `名`, etc.) or `null` when absent.
 
+Optional response-cache write failures preserve successful live results and increment `meta.metrics.cache_write_failures`. Explicit inventory refresh still requires its reference inventory to be persisted successfully.
+
 ## Commands and coverage
 
 | Command | Behavior |

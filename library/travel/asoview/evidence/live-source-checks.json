@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checked_at": "2026-09-30T20:02:11.736961+00:00",
+  "checked_at": "2026-10-01T02:09:32.485835+00:00",
   "requested_date": "2026-10-02",
   "fixture_use": false,
   "sample_redaction": "Stored samples replace the published provider email with PII_EMAIL_EXAMPLE; runtime comparisons use unredacted live data.",
@@ -45,6 +45,16 @@
     },
     {
       "check": "dated activity bands preserve source label and product age separately",
+      "status": "pass"
+    },
+    {
+      "check": "activity closed slot and headline status match live source",
+      "status": "pass",
+      "all_closed": true,
+      "headline": "closed"
+    },
+    {
+      "check": "successful live product survives a synthetic optional cache storage failure",
       "status": "pass"
     },
     {

@@ -11,17 +11,18 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "d8fbf1d3c6d12a25fe085af5c2c9759a91b2541c0853a868dbfe17114a67cf8b",
+  "source_fingerprint": "96e4651533bc35aeffd79ceb373ed45b3d6b5a2bea08922236e79417e26c0a2c",
   "source_files": {
     "cmd/asoview-pp-cli/main.go": "a7b61c08484476440c02632eb481bb38e3f6260308b205414f3d760c62424ef0",
     "cmd/asoview-pp-mcp/main.go": "bd788832b29bfb6702f96b5e838cee8a15364612a1eadbee18be77c1dcc97879",
     "go.mod": "cf615287d6515a7d8529f94d918cf8903600eddf53d291b87adbd2e6418c8de9",
     "go.sum": "60f22f1bdcbfee46666324e3e28275169d31775db9b352ad1acdb070ff4d22f3",
-    "internal/asoview/availability.go": "f542108c1b65e1d876e8b9081dfeaaa78176e4e9f7c10abd547e2b90c6e458e8",
-    "internal/asoview/client.go": "f683afbca4c2d01a910e7517e1ba092de86f42b2a0570eb07ee6701567f10c92",
+    "internal/asoview/availability.go": "29b9588d0ddfeed4a667f3e8c6efcb4ee9b775607767b060a1b4876f16908aec",
+    "internal/asoview/client.go": "42ec699b5836e8caecff3cd9981200efba3202e23ed71f8881ed4cdbb7fb8da8",
     "internal/asoview/domain_test.go": "5743a5ec377b2439bb331ac7a4fc6710d6e09336967d965ca19afcac16c80cd1",
-    "internal/asoview/html.go": "139ade94db28149216203b0d34ec78b42edf6b2c0b282ebe8b7e0e5857ef2f66",
+    "internal/asoview/html.go": "fc0e91f9d44fe21c3ea6923ec589286b4b9ae8d481e05b243ea66a3b63ade318",
     "internal/asoview/model.go": "3793d6d7ce631bd0ca9911bf0a10aab532adc1f974d2cb03b7b65cd40523d834",
+    "internal/asoview/publish_review_test.go": "85311a69f6fe30d43e1d4cdc6b3c37b00e0a08eb74d81a9a98a1abf3976dad43",
     "internal/cache/cache.go": "3bc84bdc4a56f2093b015fb7dd2153b6a3cc803f029d89d1157b4f5975fe26b6",
     "internal/cli/agent_context.go": "3940a5a0fc0c684796ab070c75637d4fbdb677796713347c1673b0e4cbfb2e3d",
     "internal/cli/api_discovery.go": "2cd500fe051f94394ec4187dd73e2048b0c6793263da618db1d970fd82b5c1ff",

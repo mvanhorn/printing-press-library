@@ -1,9 +1,10 @@
 {
-  "checked_at": "2026-10-01T01:53:55.748964+00:00",
+  "checked_at": "2026-10-01T02:13:54.456255+00:00",
   "status": "pass",
   "mandatory_package_vendor_scan": "pass",
   "tier1_secret_findings": 0,
   "structural_auth_files": [],
+  "final_tracked_binary_payloads": 0,
   "raw_reports_removed": [
     "evidence/dogfood-results.json",
     ".manuscripts/20261001-020600-ab3a746a/proofs/dogfood-results.json"
@@ -26,8 +27,6 @@
     "evidence/FINAL.md",
     "evidence/gosec.log"
   ],
-  "tier2_review": "All name/email hits are technical vocabulary, public generator attribution, synthetic framework fixtures, an image URL test, or the literal public contact redaction target in the semantic runner; no workspace/customer PII or bearer values were present.",
-  "extra_secret_tools": "Neither gitleaks nor trufflehog is installed.",
-  "final_tracked_binary_payloads": 0,
-  "package_artifact_note": "A temporary executable produced by relative-directory validation was removed before push; final public-tree checks use absolute CLI paths."
+  "tier2_review": "All hits are technical/source vocabulary, public generator attribution, synthetic framework fixtures, an image URL test or the public-contact redaction target in the semantic runner. No workspace/customer PII or bearer values are present.",
+  "extra_secret_tools": "Neither gitleaks nor trufflehog is installed."
 }
