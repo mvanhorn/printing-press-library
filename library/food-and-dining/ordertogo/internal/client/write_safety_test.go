@@ -155,3 +155,35 @@ func TestReadRateLimitRecoveryRemainsBounded(t *testing.T) {
 		}
 	}
 }
+
+func TestReadOnlyPostRateLimitRecovery(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+	for _, path := range []string{"/api/getRestmeshUser", "/api/getUserOrderHistoryByUserid", "/m/api/getmicmeshorders"} {
+		t.Run(path, func(t *testing.T) {
+			c := New(&config.Config{BaseURL: "http://fixture.invalid", AuthHeaderVal: "fixture-token"}, time.Second, 0)
+			c.cacheDir = t.TempDir()
+			calls := 0
+			c.HTTPClient.Transport = writeSafetyTransport(func(req *http.Request) (*http.Response, error) {
+				calls++
+				status := http.StatusOK
+				if calls == 1 {
+					status = http.StatusTooManyRequests
+				}
+				return &http.Response{
+					StatusCode: status,
+					Header:     http.Header{"Retry-After": []string{"1"}},
+					Body:       io.NopCloser(strings.NewReader(`{"ok":true}`)),
+					Request:    req,
+				}, nil
+			})
+			_, _, err := c.do(http.MethodPost, path, nil, map[string]any{"userid": 42}, nil)
+			if err != nil || calls != 2 {
+				t.Fatalf("read-only POST err=%v calls=%d; want one bounded 429 retry", err, calls)
+			}
+		})
+	}
+	if readOnlyPostPath("/m/api/postmicmeshorder") || readOnlyPostPath("/api/getUserOrderHistoryByUserid/extra") {
+		t.Fatal("read-only POST allowlist matched an unsafe or non-exact endpoint")
+	}
+}

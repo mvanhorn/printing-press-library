@@ -179,12 +179,24 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 	return c.do("PATCH", path, nil, body, headers)
 }
 
+// readOnlyPostPath names the provider's POST-shaped lookups. Only these may
+// retry a 429; paid and other write endpoints must not be replayed.
+func readOnlyPostPath(path string) bool {
+	switch path {
+	case "/api/getRestmeshUser", "/api/getUserOrderHistoryByUserid", "/m/api/getmicmeshorders":
+		return true
+	default:
+		return false
+	}
+}
+
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	// Retry reads only. A rate-limit or server response can still follow a
-	// committed write, so no write is replayed automatically.
+	// Retry safe HTTP methods after ambiguous failures. A 429 also permits a
+	// bounded retry for the exact read-only POST endpoints listed above.
 	canRetryAmbiguousFailure := method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
+	canRetryRateLimit := canRetryAmbiguousFailure || (method == http.MethodPost && readOnlyPostPath(path))
 	httpClient := c.HTTPClient
 	if !canRetryAmbiguousFailure {
 		// Go's default redirect policy can replay a POST body on 307/308.
@@ -340,7 +352,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// limiter, but replay only methods known to be safe to repeat.
 		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
-			if attempt < maxRetries && canRetryAmbiguousFailure {
+			if attempt < maxRetries && canRetryRateLimit {
 				wait := cliutil.RetryAfter(resp)
 				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
 				time.Sleep(wait)
