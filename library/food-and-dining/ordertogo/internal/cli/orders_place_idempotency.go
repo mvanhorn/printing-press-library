@@ -161,7 +161,13 @@ func reservePlacementWithAckAndWriter(fingerprint string, acknowledgedOrderID in
 	id := newRequestID()
 	now := time.Now()
 	if err := writeRecord(recordPath, pendingPlace{RequestID: id, CartFingerprint: fingerprint, At: now}); err != nil {
+		// The POST has not started, so a partially written reservation is safe
+		// to remove. If cleanup also fails, checkout still stays blocked.
+		cleanupErr := clearPendingPlacement(recordPath)
 		res.Release()
+		if cleanupErr != nil {
+			return nil, fmt.Errorf("cannot durably record the checkout idempotency id; refusing to place the order: %w; removing the unsubmitted reservation also failed: %v", err, cleanupErr)
+		}
 		return nil, fmt.Errorf("cannot durably record the checkout idempotency id; refusing to place the order (a lost response could otherwise be charged twice): %w", err)
 	}
 	res.RequestID = id

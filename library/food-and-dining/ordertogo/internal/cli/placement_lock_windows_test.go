@@ -106,4 +106,7 @@ func TestWindowsCheckoutRegistryFlushFailureBlocksPOST(t *testing.T) {
 	if _, err := reservePlacement("fingerprint"); err == nil || !strings.Contains(err.Error(), "refusing to place the order") {
 		t.Fatalf("flush failure did not stop checkout: %v", err)
 	}
+	if _, err := readPendingPlacement(pendingPlaceRecordPath()); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("flush failure left a reservation for an order that never posted: %v", err)
+	}
 }

@@ -185,6 +185,17 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	// Retry reads only. A rate-limit or server response can still follow a
 	// committed write, so no write is replayed automatically.
 	canRetryAmbiguousFailure := method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
+	httpClient := c.HTTPClient
+	if !canRetryAmbiguousFailure {
+		// Go's default redirect policy can replay a POST body on 307/308.
+		// Keep writes on their original endpoint, even when a custom HTTP
+		// client was injected by a caller.
+		withoutWriteRedirects := *c.HTTPClient
+		withoutWriteRedirects.CheckRedirect = func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+		httpClient = &withoutWriteRedirects
+	}
 
 	targetURL := c.BaseURL + path
 
@@ -284,7 +295,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set("__requestid", requestID)
 		}
 
-		resp, err := c.HTTPClient.Do(req)
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
 			if !canRetryAmbiguousFailure {
@@ -299,6 +310,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			return nil, 0, fmt.Errorf("reading response: %w", err)
 		}
 		respBody = sanitizeJSONResponse(respBody)
+		if resp.StatusCode >= 300 && resp.StatusCode < 400 && !canRetryAmbiguousFailure {
+			return nil, resp.StatusCode, &APIError{Method: method, Path: path, StatusCode: resp.StatusCode, Body: truncateBody(respBody)}
+		}
 
 		// Success
 		if resp.StatusCode < 400 {

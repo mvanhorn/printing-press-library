@@ -43,6 +43,31 @@ func TestAmbiguousWritesNeverReplay(t *testing.T) {
 	}
 }
 
+func TestWriteRedirectNeverReplaysPaymentBody(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+	for _, status := range []int{http.StatusMovedPermanently, http.StatusFound, http.StatusSeeOther, http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			c := New(&config.Config{BaseURL: "http://fixture.invalid", AuthHeaderVal: "fixture-token"}, time.Second, 0)
+			c.cacheDir = t.TempDir()
+			calls := 0
+			c.HTTPClient.Transport = writeSafetyTransport(func(req *http.Request) (*http.Response, error) {
+				calls++
+				return &http.Response{
+					StatusCode: status,
+					Header:     http.Header{"Location": []string{"http://fixture.invalid/redirected-checkout"}},
+					Body:       io.NopCloser(strings.NewReader(`{"error":"redirect"}`)),
+					Request:    req,
+				}, nil
+			})
+			_, _, err := c.do(http.MethodPost, "/m/api/postmicmeshorder", nil, map[string]any{"value": "once"}, map[string]string{"Authorization": "fixture-token"})
+			if err == nil || calls != 1 {
+				t.Fatalf("redirect error=%v calls=%d; want error and exactly one POST", err, calls)
+			}
+		})
+	}
+}
+
 func TestReadRateLimitRecoveryRemainsBounded(t *testing.T) {
 	t.Setenv("PRINTING_PRESS_VERIFY", "")
 	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")

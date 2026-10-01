@@ -166,9 +166,17 @@ func TestReservationBlocksConcurrentSameCartPlacement(t *testing.T) {
 func TestReservationFailsClosedWhenRecordCannotPersist(t *testing.T) {
 	checkoutTestHome(t)
 	fp := testFingerprint(t, 7, 12.5)
-	writeFailure := func(string, pendingPlace) error { return errors.New("simulated disk failure") }
+	writeFailure := func(path string, record pendingPlace) error {
+		if err := writeFileDurable(path, record); err != nil {
+			return err
+		}
+		return errors.New("simulated disk failure after a partial write")
+	}
 	if _, err := reservePlacementWithWriter(fp, writeFailure); err == nil || !strings.Contains(err.Error(), "refusing to place the order") {
 		t.Fatalf("persistence failure got err %v, want fail-closed refusal", err)
+	}
+	if _, err := os.Stat(pendingPlaceRecordPath()); !os.IsNotExist(err) {
+		t.Fatalf("failed pre-POST reservation left a stale record: %v", err)
 	}
 }
 
