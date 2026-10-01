@@ -5,7 +5,6 @@ package cli
 
 import (
 	"encoding/json"
-	"os"
 	"sort"
 	"strings"
 
@@ -91,8 +90,13 @@ func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := buildAgentContext(rootCmd)
-			enc := json.NewEncoder(os.Stdout)
+			selected, _ := rootCmd.PersistentFlags().GetString("profile-store")
+			profiles, err := listProfileNames(selected)
+			if err != nil {
+				return err
+			}
+			ctx := buildAgentContext(rootCmd, profiles)
+			enc := json.NewEncoder(cmd.OutOrStdout())
 			if pretty {
 				enc.SetIndent("", "  ")
 			}
@@ -103,7 +107,7 @@ reading source. Schema is versioned via schema_version.`,
 	return cmd
 }
 
-func buildAgentContext(rootCmd *cobra.Command) agentContext {
+func buildAgentContext(rootCmd *cobra.Command, profiles []string) agentContext {
 	envVars := []agentContextAuthEnvVar{
 		{
 			Name:        "X_BEARER_TOKEN",
@@ -124,7 +128,6 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	if authMode == "" {
 		authMode = "none"
 	}
-	profiles := ListProfileNames()
 	if profiles == nil {
 		profiles = []string{}
 	}

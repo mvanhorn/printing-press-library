@@ -39,6 +39,7 @@ type rootFlags struct {
 	allowPartialFailure bool
 	selectFields        string
 	configPath          string
+	profileStore        string
 	profileName         string
 	deliverSpec         string
 	timeout             time.Duration
@@ -191,10 +192,14 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'x-twitter-pp-cli profile list')")
+	rootCmd.PersistentFlags().StringVar(&flags.profileStore, "profile-store", "", "Saved-profile JSON file (default ~/.x-twitter-pp-cli/profiles.json; independent of --config)")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if cmd.Flags().Changed("profile-store") && strings.TrimSpace(flags.profileStore) == "" {
+			return fmt.Errorf("--profile-store requires a non-empty file path")
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -207,12 +212,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 			}
 		}
 		if flags.profileName != "" {
-			profile, err := GetProfile(flags.profileName)
+			profile, err := getProfile(flags.profileName, flags.profileStore)
 			if err != nil {
 				return err
 			}
 			if profile == nil {
-				available := ListProfileNames()
+				available, _ := listProfileNames(flags.profileStore)
 				if len(available) == 0 {
 					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
 				}

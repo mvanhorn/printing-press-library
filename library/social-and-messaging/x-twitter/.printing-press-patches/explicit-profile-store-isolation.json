@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "explicit-profile-store-isolation",
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Allow explicit per-invocation saved-profile stores while preserving the legacy default and keeping credential configuration separate.",
+  "reason": "Different automation contexts may select different credential files but must not silently share or overwrite named flag presets. Every profile read, write, application, and discovery must honor the explicit store without fallback or migration. Atomic saves must use private temporary files that cannot redirect writes through a pre-existing neighboring symlink.",
+  "files": [
+    "internal/cli/profile.go",
+    "internal/cli/root.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/profile_store_test.go",
+    "internal/cli/which_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Synthetic stores keep identical profile names independent across save, application, overwrite, deletion, and discovery; missing or invalid selections never access the default, and stored values cannot redirect the selector. A neighboring temporary-name symlink leaves its target unchanged; failed replacement cleans up the newly created temporary file."
+}

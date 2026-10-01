@@ -146,6 +146,13 @@ Setup sequence:
 
 A Development project does not limit the account; capability is set by app permissions and the account API tier. As of Feb 2026 X bills reads/writes per-use and restricts programmatic replies/quotes/@mentions; self-reply threads (`thread compose`) still work.
 
+Saved command profiles normally live in `~/.x-twitter-pp-cli/profiles.json`, independently of `--config`. Use `--profile-store <path>` on profile commands, `--profile` calls, and `agent-context` to keep another set of saved flag presets separate. A missing selected file starts empty; invalid files fail without falling back to the default. This flag does not change credentials or the local SQLite store.
+
+```bash
+x-twitter-pp-cli --profile-store ./automation/profiles.json profile save briefing --json
+x-twitter-pp-cli --profile-store ./automation/profiles.json profile list --json
+```
+
 ## Quick Start
 
 ```bash

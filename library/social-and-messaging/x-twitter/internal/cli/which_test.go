@@ -121,7 +121,7 @@ func TestWhichIndexRoutesPRDQueries(t *testing.T) {
 }
 
 func TestAgentContextAnnotatesPublicMutationAuthLane(t *testing.T) {
-	ctx := buildAgentContext(RootCmd())
+	ctx := buildAgentContext(RootCmd(), nil)
 	entry := findAgentCommand(ctx.Commands, "tweets", "create-posts")
 	if entry == nil {
 		t.Fatal("agent-context missing tweets create-posts")

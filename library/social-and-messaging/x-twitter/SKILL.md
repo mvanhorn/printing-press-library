@@ -479,7 +479,7 @@ x-twitter-pp-cli profile show briefing
 x-twitter-pp-cli profile delete briefing --yes
 ```
 
-Explicit flags always win over profile values; profile values win over defaults. `agent-context` lists all available profiles under `available_profiles` so introspecting agents discover them at runtime.
+Explicit flags always win over profile values; profile values win over defaults. `agent-context` lists the selected store's profiles under `available_profiles`. By default, saved profiles live in `~/.x-twitter-pp-cli/profiles.json` even when `--config` selects a different credential file. Pass `--profile-store <path>` consistently when saving, listing, applying, or discovering a separate set of flag presets. The selector cannot be stored in a profile and does not change credentials or the SQLite store.
 
 ## Async Jobs
 

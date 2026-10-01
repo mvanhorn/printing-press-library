@@ -28,20 +28,19 @@ type profileStore struct {
 	Profiles map[string]Profile `json:"profiles"`
 }
 
-func profileStorePath() (string, error) {
+func profileStorePath(selected string) (string, error) {
+	if selected != "" {
+		return selected, nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
-	dir := filepath.Join(home, ".x-twitter-pp-cli")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return "", fmt.Errorf("creating state dir: %w", err)
-	}
-	return filepath.Join(dir, "profiles.json"), nil
+	return filepath.Join(home, ".x-twitter-pp-cli", "profiles.json"), nil
 }
 
-func loadProfileStore() (*profileStore, error) {
-	p, err := profileStorePath()
+func loadProfileStore(selected string) (*profileStore, error) {
+	p, err := profileStorePath(selected)
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +61,8 @@ func loadProfileStore() (*profileStore, error) {
 	return &s, nil
 }
 
-func saveProfileStore(s *profileStore) error {
-	p, err := profileStorePath()
+func saveProfileStore(s *profileStore, selected string) error {
+	p, err := profileStorePath(selected)
 	if err != nil {
 		return err
 	}
@@ -71,16 +70,34 @@ func saveProfileStore(s *profileStore) error {
 	if err != nil {
 		return fmt.Errorf("marshaling profiles: %w", err)
 	}
-	tmp := p + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+	if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
+		return fmt.Errorf("creating profile store directory: %w", err)
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(p), ".profiles-*.tmp")
+	if err != nil {
+		return fmt.Errorf("creating profile store temporary file: %w", err)
+	}
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
 		return fmt.Errorf("writing profiles: %w", err)
 	}
-	return os.Rename(tmp, p)
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("closing profiles: %w", err)
+	}
+	if err := os.Rename(tmp.Name(), p); err != nil {
+		return fmt.Errorf("replacing profile store: %w", err)
+	}
+	return nil
 }
 
-// GetProfile returns a profile by name, or (nil, nil) if not found.
+// GetProfile reads the default store by name, or returns (nil, nil) if not found.
 func GetProfile(name string) (*Profile, error) {
-	s, err := loadProfileStore()
+	return getProfile(name, "")
+}
+
+func getProfile(name, selected string) (*Profile, error) {
+	s, err := loadProfileStore(selected)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +117,7 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 	// Reserved flags that never come from a profile - they control profile
 	// resolution itself or are dangerous to overlay.
 	reserved := map[string]bool{
-		"profile": true, "config": true, "help": true,
+		"profile": true, "profile-store": true, "config": true, "help": true,
 	}
 	for name, value := range profile.Values {
 		if reserved[name] {
@@ -123,19 +140,23 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 	return nil
 }
 
-// ListProfileNames returns profile names sorted alphabetically. Used by the
-// agent-context subcommand to expose available_profiles at runtime.
+// ListProfileNames returns sorted names from the default profile store.
 func ListProfileNames() []string {
-	s, err := loadProfileStore()
+	names, _ := listProfileNames("")
+	return names
+}
+
+func listProfileNames(selected string) ([]string, error) {
+	s, err := loadProfileStore(selected)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	names := make([]string, 0, len(s.Profiles))
 	for name := range s.Profiles {
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	return names
+	return names, nil
 }
 
 func newProfileCmd(flags *rootFlags) *cobra.Command {
@@ -152,7 +173,12 @@ agent can invoke the same command with the same configuration each run.
   profile delete <name>       removes a profile
 
 Use --profile <name> on any command to apply that profile's values.
-Explicit flags override profile values.`,
+Explicit flags override profile values.
+
+By default, profiles live in ~/.x-twitter-pp-cli/profiles.json, independently
+of --config. Use --profile-store <path> to select another JSON file for all
+profile commands, --profile, and agent-context. Relative paths use the current
+directory. A missing selected file starts empty; profiles are never migrated.`,
 		RunE: parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newProfileSaveCmd(flags))
@@ -173,7 +199,7 @@ them under <name>. To update an existing profile, run save again; the
 entry is replaced.
 
 To avoid creating empty profiles, at least one non-default flag must be
-present (other than --profile and --config).`,
+present (other than --profile, --profile-store, and --config).`,
 		Example: `  x-twitter-pp-cli profile save my-defaults --json --compact
   x-twitter-pp-cli profile save tonight-defaults --region US`,
 		Args: cobra.ExactArgs(1),
@@ -184,7 +210,7 @@ present (other than --profile and --config).`,
 			}
 			values := map[string]string{}
 			// Walk inherited + local flags, capture only those the user set.
-			skip := map[string]bool{"profile": true, "config": true, "help": true, "description": true}
+			skip := map[string]bool{"profile": true, "profile-store": true, "config": true, "help": true, "description": true}
 			visit := func(fl *pflag.Flag) {
 				if fl.Changed && !skip[fl.Name] {
 					values[fl.Name] = fl.Value.String()
@@ -195,12 +221,12 @@ present (other than --profile and --config).`,
 			if len(values) == 0 {
 				return fmt.Errorf("no non-default flags set - pass at least one flag to save into %q", name)
 			}
-			s, err := loadProfileStore()
+			s, err := loadProfileStore(flags.profileStore)
 			if err != nil {
 				return err
 			}
 			s.Profiles[name] = Profile{Name: name, Description: description, Values: values}
-			if err := saveProfileStore(s); err != nil {
+			if err := saveProfileStore(s, flags.profileStore); err != nil {
 				return err
 			}
 			if flags.asJSON {
@@ -222,7 +248,7 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
   x-twitter-pp-cli profile use tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			p, err := GetProfile(args[0])
+			p, err := getProfile(args[0], flags.profileStore)
 			if err != nil {
 				return err
 			}
@@ -256,7 +282,7 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 		Example: `  x-twitter-pp-cli profile list
   x-twitter-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			s, err := loadProfileStore()
+			s, err := loadProfileStore(flags.profileStore)
 			if err != nil {
 				return err
 			}
@@ -296,7 +322,7 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
   x-twitter-pp-cli profile show tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			p, err := GetProfile(args[0])
+			p, err := getProfile(args[0], flags.profileStore)
 			if err != nil {
 				return err
 			}
@@ -317,7 +343,7 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
-			s, err := loadProfileStore()
+			s, err := loadProfileStore(flags.profileStore)
 			if err != nil {
 				return err
 			}
@@ -329,7 +355,7 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("confirmation required: pass --yes")
 			}
 			delete(s.Profiles, name)
-			if err := saveProfileStore(s); err != nil {
+			if err := saveProfileStore(s, flags.profileStore); err != nil {
 				return err
 			}
 			// JSON envelope: {deleted: name}.
