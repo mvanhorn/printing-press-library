@@ -4461,6 +4461,8 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err := checkMCPLiveModeGuard(c, ep.Method, args); err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
+	// Confirmation is a tool control, never a Stripe endpoint parameter.
+	delete(params, "confirm_live")
 
 	path := ep.Path
 	for _, p := range ep.Positional {

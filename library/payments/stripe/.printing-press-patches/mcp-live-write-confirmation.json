@@ -17,5 +17,5 @@
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "Synthetic tests block unconfirmed live writes before HTTP, preserve CLI dry-run previews, require top-level boolean MCP confirmation, and keep confirmation controls out of Stripe request bodies."
+  "validated_outcome": "Synthetic tests block unconfirmed live writes before HTTP, preserve CLI dry-run previews, require top-level boolean MCP confirmation, and strip nested confirmation controls from Stripe request bodies for live and test credentials."
 }
