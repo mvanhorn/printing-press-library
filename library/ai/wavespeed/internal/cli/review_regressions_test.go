@@ -227,6 +227,39 @@ func TestLegacyArchiveURIEscapesPathSyntax(t *testing.T) {
 	}
 }
 
+// workflow status must flag a legacy archive whose only missing rows are in
+// a typed table (here model_pricing), not just generic resources.
+func TestLegacyArchivePendingCoversTypedTables(t *testing.T) {
+	testenv.Isolate(t)
+	t.Setenv("WAVESPEED_ARCHIVE_DB", "")
+	current := defaultDBPath("wavespeed-pp-cli")
+	legacy := filepath.Join(filepath.Dir(current), "archive.db")
+	for _, path := range []string{current, legacy} {
+		s, err := store.Open(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := s.Upsert("models", "m", json.RawMessage(`{"id":"m"}`)); err != nil {
+			t.Fatal(err)
+		}
+		if path == legacy {
+			if _, err := s.DB().Exec(`INSERT INTO model_pricing (id, data) VALUES ('model_pricing:x', '{}')`); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if err := s.Close(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !legacyArchivePending(context.Background()) {
+		t.Fatalf("missing legacy pricing row not reported")
+	}
+	archiveDBPathForWrite(context.Background())
+	if legacyArchivePending(context.Background()) {
+		t.Fatalf("still pending after merge")
+	}
+}
+
 // An LLM-planner dry run must not try to parse a prediction it never made.
 func TestPlanBriefLLMDryRunPreviews(t *testing.T) {
 	testenv.Isolate(t)

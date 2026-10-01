@@ -117,7 +117,7 @@ func archiveDBPathForWrite(ctx context.Context) string {
 }
 
 // legacyArchivePending reports whether an archive.db from an earlier release
-// holds resources that data.db lacks, so read-only commands can say a writer
+// holds rows (resources, models, pricing...) that data.db lacks by key, so read-only commands can say a writer
 // run is needed. It compares rows read-only rather than trusting a marker, so
 // a commit an older binary makes after a merge is still reported.
 func legacyArchivePending(ctx context.Context) bool {
@@ -146,10 +146,60 @@ func legacyArchivePending(ctx context.Context) bool {
 		return false
 	}
 	defer func() { _, _ = conn.ExecContext(context.Background(), `DETACH DATABASE legacy`) }()
-	var missing bool
-	err = conn.QueryRowContext(ctx, `SELECT EXISTS (SELECT 1 FROM legacy.resources l
-		WHERE NOT EXISTS (SELECT 1 FROM main.resources m WHERE m.resource_type = l.resource_type AND m.id = l.id))`).Scan(&missing)
-	return err == nil && missing
+	tables, err := sqliteTables(ctx, conn, "legacy")
+	if err != nil {
+		return false
+	}
+	for _, table := range tables {
+		keys, err := sharedPrimaryKey(ctx, conn, table)
+		if err != nil || len(keys) == 0 {
+			continue
+		}
+		match := make([]string, len(keys))
+		for i, k := range keys {
+			match[i] = fmt.Sprintf(`m."%s" IS l."%s"`, k, k)
+		}
+		var missing bool
+		q := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM legacy."%s" l WHERE NOT EXISTS (SELECT 1 FROM main."%s" m WHERE %s))`, table, table, strings.Join(match, " AND "))
+		if err := conn.QueryRowContext(ctx, q).Scan(&missing); err == nil && missing {
+			return true
+		}
+	}
+	return false
+}
+
+// sharedPrimaryKey returns the primary-key columns of table when main and
+// legacy declare the same key, so a pending check can match rows by key the
+// way INSERT OR IGNORE does. Tables without a usable shared key are skipped.
+func sharedPrimaryKey(ctx context.Context, conn *sql.Conn, table string) ([]string, error) {
+	pk := func(schema string) ([]string, error) {
+		rows, err := conn.QueryContext(ctx, fmt.Sprintf(`SELECT name FROM pragma_table_info('%s', '%s') WHERE pk > 0 ORDER BY pk`, table, schema))
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		var cols []string
+		for rows.Next() {
+			var name string
+			if err := rows.Scan(&name); err != nil {
+				return nil, err
+			}
+			if strings.ContainsRune(name, '"') {
+				return nil, nil
+			}
+			cols = append(cols, name)
+		}
+		return cols, rows.Err()
+	}
+	legacyKey, err := pk("legacy")
+	if err != nil {
+		return nil, err
+	}
+	mainKey, err := pk("main")
+	if err != nil || strings.Join(legacyKey, "\x00") != strings.Join(mainKey, "\x00") {
+		return nil, err
+	}
+	return legacyKey, nil
 }
 
 // migrateLegacyArchiveDB copies rows of a legacy archive.db into data.db with
