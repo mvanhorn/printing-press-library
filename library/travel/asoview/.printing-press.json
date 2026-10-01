@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-30T20:13:37.291122Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "asoview",
+  "display_name": "Asoview",
+  "cli_name": "asoview-pp-cli",
+  "creator": {
+    "handle": "zjsng-trav",
+    "name": "zjsng"
+  },
+  "owner": "zjsng-trav",
+  "printer": "zjsng-trav",
+  "printer_name": "zjsng",
+  "spec_path": "asoview.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:2f6205dafc7aa2738e157859f0e695ca499c5bfc90f7737d89272bbed5a17978",
+  "run_id": "20261001-020600-ab3a746a",
+  "category": "travel",
+  "description": "Discover and compare Japan leisure tickets with explicit price units, terms and public dated availability.",
+  "mcp_binary": "asoview-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Compare terms",
+      "command": "compare",
+      "description": "Compare a bounded shortlist and preserve missing values."
+    },
+    {
+      "name": "Bounded relevance",
+      "command": "discover",
+      "description": "Filter Japanese names without claiming a global keyword index."
+    },
+    {
+      "name": "Dated stock",
+      "command": "availability",
+      "description": "Inspect public stock for a date and quantity."
+    },
+    {
+      "name": "Dated bands",
+      "command": "options",
+      "description": "Read exact date-specific price units and age labels."
+    },
+    {
+      "name": "Reference inventory",
+      "command": "inventory",
+      "description": "Resolve region/category IDs with explicit refresh control."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compare terms",
+      "command": "compare",
+      "description": "Compare a bounded shortlist and preserve missing values."
+    },
+    {
+      "name": "Bounded relevance",
+      "command": "discover",
+      "description": "Filter Japanese names without claiming a global keyword index."
+    },
+    {
+      "name": "Dated stock",
+      "command": "availability",
+      "description": "Inspect public stock for a date and quantity."
+    },
+    {
+      "name": "Dated bands",
+      "command": "options",
+      "description": "Read exact date-specific price units and age labels."
+    },
+    {
+      "name": "Reference inventory",
+      "command": "inventory",
+      "description": "Resolve region/category IDs with explicit refresh control."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 20,
+    "total": 20,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

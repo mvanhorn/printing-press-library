@@ -1,0 +1,107 @@
+{
+  "measured_at": "2026-09-30T20:02:16.319151+00:00",
+  "source": "live anonymous Asoview CLI calls; cached outputs use explicitly primed fresh responses",
+  "peak_memory_method": "per-process /usr/bin/time -l maximum resident set size bytes (macOS)",
+  "rows": [
+    {
+      "command": "discovery",
+      "mode": "uncached",
+      "output_bytes": 4082,
+      "network_requests": 1,
+      "cache_hits": 0,
+      "wall_latency_ms": 42.048,
+      "cli_latency_ms": 32,
+      "peak_memory_bytes": 28016640
+    },
+    {
+      "command": "discovery",
+      "mode": "cached",
+      "output_bytes": 4076,
+      "network_requests": 0,
+      "cache_hits": 1,
+      "wall_latency_ms": 13.857,
+      "cli_latency_ms": 3,
+      "peak_memory_bytes": 23347200
+    },
+    {
+      "command": "product",
+      "mode": "uncached",
+      "output_bytes": 7180,
+      "network_requests": 1,
+      "cache_hits": 0,
+      "wall_latency_ms": 41.977,
+      "cli_latency_ms": 31,
+      "peak_memory_bytes": 25247744
+    },
+    {
+      "command": "product",
+      "mode": "cached",
+      "output_bytes": 7175,
+      "network_requests": 0,
+      "cache_hits": 1,
+      "wall_latency_ms": 11.551,
+      "cli_latency_ms": 1,
+      "peak_memory_bytes": 21397504
+    },
+    {
+      "command": "availability",
+      "mode": "uncached",
+      "output_bytes": 3699,
+      "network_requests": 3,
+      "cache_hits": 0,
+      "wall_latency_ms": 912.829,
+      "cli_latency_ms": 889,
+      "peak_memory_bytes": 25247744
+    },
+    {
+      "command": "availability",
+      "mode": "cached",
+      "output_bytes": 3691,
+      "network_requests": 0,
+      "cache_hits": 3,
+      "wall_latency_ms": 22.652,
+      "cli_latency_ms": 2,
+      "peak_memory_bytes": 21168128
+    },
+    {
+      "command": "dated_options",
+      "mode": "uncached",
+      "output_bytes": 3783,
+      "network_requests": 3,
+      "cache_hits": 0,
+      "wall_latency_ms": 872.958,
+      "cli_latency_ms": 848,
+      "peak_memory_bytes": 25133056
+    },
+    {
+      "command": "dated_options",
+      "mode": "cached",
+      "output_bytes": 3775,
+      "network_requests": 0,
+      "cache_hits": 3,
+      "wall_latency_ms": 22.71,
+      "cli_latency_ms": 2,
+      "peak_memory_bytes": 21463040
+    },
+    {
+      "command": "comparison",
+      "mode": "uncached",
+      "output_bytes": 11913,
+      "network_requests": 2,
+      "cache_hits": 0,
+      "wall_latency_ms": 338.02,
+      "cli_latency_ms": 316,
+      "peak_memory_bytes": 25837568
+    },
+    {
+      "command": "comparison",
+      "mode": "cached",
+      "output_bytes": 11905,
+      "network_requests": 0,
+      "cache_hits": 2,
+      "wall_latency_ms": 23.073,
+      "cli_latency_ms": 3,
+      "peak_memory_bytes": 22036480
+    }
+  ]
+}

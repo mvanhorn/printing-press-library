@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "source_index",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Inspect first-party public discovery page metadata."
+  }
+]

@@ -1,0 +1,24 @@
+workflows:
+  - name: public leisure discovery and source terms
+    primary: true
+    steps:
+      - command: discover --region prf130000 --category 192 --limit 3 --agent
+        mode: live
+        args:
+          region: prf130000
+          category: "192"
+          limit: "3"
+          agent: "true"
+        expect_fields: [meta, results, coverage]
+      - command: product ticket0000049223 --agent
+        mode: live
+        args:
+          agent: "true"
+        expect_fields: [meta, results]
+      - command: inventory --kind categories --query 水族館 --agent
+        mode: local
+        args:
+          kind: categories
+          query: 水族館
+          agent: "true"
+        expect_fields: [meta, results, inventory]

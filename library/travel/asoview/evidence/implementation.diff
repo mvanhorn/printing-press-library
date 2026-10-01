@@ -1,0 +1,2950 @@
+--- generated/internal/asoview/domain_test.go
++++ project/internal/asoview/domain_test.go
+@@ -0,0 +1,143 @@
++package asoview
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"net/http"
++	"net/url"
++	"strings"
++	"testing"
++	"time"
++)
++
++func TestSourceIdentityAndReadOnlyPaths(t *testing.T) {
++	for _, s := range []string{"ticket0000049223", "pln3000044589", Origin + "/item/ticket/ticket0000049223/"} {
++		if _, _, err := ParseID(s); err != nil {
++			t.Fatal(s, err)
++		}
++	}
++	for _, s := range []string{"ticket1", Origin + "/item/activity/ticket0000049223/", "https://evil.example/item/ticket/ticket0000049223/", Origin + "/item/ticket/ticket0000049223/?x=1"} {
++		if _, _, err := ParseID(s); err == nil {
++			t.Fatalf("accepted %s", s)
++		}
++	}
++	for _, s := range []string{"https://www.asoview.com.evil.example/search/", Origin + "/purchase/", Origin + "/book/ticket/ticket0000049223/select", Origin + "/api/member", Origin + "/item/ticket/../../purchase/", "http://www.asoview.com/search/"} {
++		u, _ := url.Parse(s)
++		if err := validateURL(u); err == nil {
++			t.Fatalf("unsafe source path %s", s)
++		}
++	}
++}
++func TestAgeEvidence(t *testing.T) {
++	cases := []struct {
++		label    string
++		min, max any
++	}{{"参加者 10〜85歳", 10, 85}, {"10歳〜80歳", 10, 80}, {"65歳以上 ※証明必要", 65, nil}, {"4歳から", 4, nil}, {"3歳以下", nil, 3}, {"中学生 ※都内在学は無料", nil, nil}, {"", nil, nil}}
++	for _, c := range cases {
++		a := AgeBand(c.label)
++		if a["minimum_years"] != c.min || a["maximum_years"] != c.max {
++			t.Errorf("%s: %v", c.label, a)
++		}
++	}
++}
++func TestCalendarAndSlotStates(t *testing.T) {
++	if s := calendarStatus(Object{"isRemaining": true, "stockStatus": "NOT_OPEN"}); s != "available" {
++		t.Fatal("calendar boolean must override legacy raw status", s)
++	}
++	if s := calendarStatus(Object{"isRemaining": true, "isOutOfPeriod": true}); s != "outside_sales_or_operation_period" {
++		t.Fatal(s)
++	}
++	cases := []struct {
++		s    Object
++		q    int
++		want string
++	}{{Object{"isClosed": true, "remainReserveNumber": json.Number("100")}, 1, "closed"}, {Object{"remainReserveNumber": json.Number("0"), "isRequest": true}, 1, "request_only"}, {Object{"remainReserveNumber": json.Number("0")}, 1, "sold_out"}, {Object{"remainReserveNumber": json.Number("1")}, 2, "insufficient_quantity"}, {Object{"remainReserveNumber": json.Number("50"), "maximumReservableQuantity": json.Number("5")}, 6, "party_outside_limits"}, {Object{"remainReserveNumber": json.Number("0"), "canRequestAfterFull": true}, 2, "request_only"}, {Object{}, 1, "unknown"}}
++	for _, c := range cases {
++		if s := slotStatus(c.s, c.q); s != c.want {
++			t.Errorf("%v: got %s want %s", c.s, s, c.want)
++		}
++	}
++	p := Object{"kind": "ticket", "name_ja": "日付指定WEBチケット"}
++	if timeMeaning(p) != "admission_window_on_selected_date" {
++		t.Fatal("opening hours became reserved entry time")
++	}
++	p["name_ja"] = "日時指定チケット"
++	if timeMeaning(p) != "reserved_entry_window" {
++		t.Fatal("timed ticket classification lost")
++	}
++}
++func TestDatedSubtotalNotQuote(t *testing.T) {
++	rows := []any{Object{"basicFeeNumber": json.Number("12"), "feeLabel": "一般", "sellingFee": json.Number("700"), "unit": "枚", "allocation": json.Number("1")}, Object{"basicFeeNumber": json.Number("13"), "feeLabel": "中学生", "sellingFee": json.Number("250"), "unit": "枚", "allocation": json.Number("1")}}
++	bands := optionsFrom(rows, true, "2026-10-02")
++	out, err := PartySubtotal(bands, "12:2,13:1")
++	if err != nil || out["amount"] != int64(1650) || out["quote_confirmed"] != false {
++		t.Fatal(out, err)
++	}
++	for _, bad := range []string{"12:2,12:1", "999:1", "12:0", "12:51", "12:50,13:1"} {
++		if _, err = PartySubtotal(bands, bad); err == nil {
++			t.Fatalf("accepted invalid party %s", bad)
++		}
++	}
++	bands[0]["allocation"] = nil
++	object(bands[0]["price"])["unit"] = nil
++	if _, err = PartySubtotal(bands, "12:1"); err == nil {
++		t.Fatal("guessed missing unit")
++	}
++}
++
++// These responses are deterministic test doubles, never live source proof.
++type roundTripFunc func(*http.Request) (*http.Response, error)
++
++func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
++func fakeResponse(status int, body string) *http.Response {
++	return &http.Response{StatusCode: status, Header: http.Header{"Content-Type": []string{"application/json"}}, Body: io.NopCloser(strings.NewReader(body))}
++}
++func TestCacheTTLAndNoStaleFallback(t *testing.T) {
++	calls := 0
++	c := NewClient(t.TempDir(), time.Second, false, false, false)
++	c.HTTP.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) { calls++; return fakeResponse(200, `{"ok":true}`), nil })
++	ctx := context.Background()
++	if _, err := c.Get(ctx, "/search/", nil, time.Hour); err != nil {
++		t.Fatal(err)
++	}
++	if _, err := c.Get(ctx, "/search/", nil, time.Hour); err != nil {
++		t.Fatal(err)
++	}
++	if calls != 1 || c.Stats.CacheHits != 1 {
++		t.Fatal(calls, c.Stats)
++	}
++	c.Offline = true
++	if _, err := c.Get(ctx, "/search/", nil, -time.Second); err == nil {
++		t.Fatal("stale cache served without warning")
++	}
++	if calls != 1 {
++		t.Fatal("offline requested network")
++	}
++}
++func TestTypedRateLimitAndBoundedRetry(t *testing.T) {
++	calls := 0
++	c := NewClient("", time.Second, true, false, false)
++	c.HTTP.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) {
++		calls++
++		response := fakeResponse(429, `{"error":"slow"}`)
++		response.Header.Set("Retry-After", "0")
++		return response, nil
++	})
++	_, err := c.Get(context.Background(), "/search/", nil, 0)
++	var e *Error
++	if !errors.As(err, &e) || e.Code != 7 || calls != 2 {
++		t.Fatal(calls, err)
++	}
++}
++func TestProjectionSourceParsing(t *testing.T) {
++	raw := []byte(`<html><script>var ASOVIEW_DATASOURCE = {"ticketType":{"code":"ticket0000049223","title":"日付指定"}};</script></html>`)
++	ds, _, err := datasource(raw)
++	if err != nil || text(object(ds["ticketType"])["code"]) != "ticket0000049223" {
++		t.Fatal(ds, err)
++	}
++	if _, _, err = datasource([]byte(`<html>Login challenge</html>`)); err == nil {
++		t.Fatal("shell accepted as data")
++	}
++}
+--- generated/internal/asoview/html.go
++++ project/internal/asoview/html.go
+@@ -0,0 +1,522 @@
++package asoview
++
++import (
++	"bytes"
++	"context"
++	_ "embed"
++	"encoding/json"
++	"net/url"
++	"os"
++	"path/filepath"
++	"regexp"
++	"sort"
++	"strconv"
++	"strings"
++	"time"
++
++	"golang.org/x/net/html"
++)
++
++//go:embed inventory.json
++var bundledInventory []byte
++
++func walk(n *html.Node, fn func(*html.Node)) {
++	fn(n)
++	for c := n.FirstChild; c != nil; c = c.NextSibling {
++		walk(c, fn)
++	}
++}
++func attr(n *html.Node, key string) string {
++	for _, a := range n.Attr {
++		if a.Key == key {
++			return a.Val
++		}
++	}
++	return ""
++}
++func hasClass(n *html.Node, class string) bool {
++	for _, c := range strings.Fields(attr(n, "class")) {
++		if c == class {
++			return true
++		}
++	}
++	return false
++}
++func nodeText(n *html.Node) string {
++	var b strings.Builder
++	walk(n, func(n *html.Node) {
++		if n.Type == html.TextNode {
++			b.WriteString(n.Data)
++			b.WriteByte(' ')
++		}
++	})
++	return strings.Join(strings.Fields(b.String()), " ")
++}
++func classText(n *html.Node, class string) string {
++	out := ""
++	walk(n, func(n *html.Node) {
++		if out == "" && hasClass(n, class) {
++			out = nodeText(n)
++		}
++	})
++	return out
++}
++func datasource(raw []byte) (Object, *html.Node, error) {
++	doc, err := html.Parse(bytes.NewReader(raw))
++	if err != nil {
++		return nil, nil, fail(5, "parsing source HTML: %v", err)
++	}
++	var data Object
++	walk(doc, func(n *html.Node) {
++		if data != nil || n.Type != html.ElementNode || n.Data != "script" || n.FirstChild == nil {
++			return
++		}
++		s := n.FirstChild.Data
++		i := strings.Index(s, "ASOVIEW_DATASOURCE = ")
++		if i < 0 {
++			return
++		}
++		tail := s[i+len("ASOVIEW_DATASOURCE = "):]
++		d := json.NewDecoder(strings.NewReader(tail))
++		d.UseNumber()
++		_ = d.Decode(&data)
++	})
++	if data == nil {
++		return nil, nil, fail(5, "Asoview HTML has no usable public datasource (layout changed or access shell)")
++	}
++	return data, doc, nil
++}
++
++func (c *Client) Product(ctx context.Context, input string, full bool) (Object, error) {
++	kind, id, err := ParseID(input)
++	if err != nil {
++		return nil, err
++	}
++	raw, err := c.Get(ctx, "/item/"+kind+"/"+id+"/", url.Values{}, 24*time.Hour)
++	if err != nil {
++		return nil, err
++	}
++	ds, _, err := datasource(raw)
++	if err != nil {
++		return nil, err
++	}
++	p := object(ds["plan"])
++	if kind == "ticket" {
++		p = object(ds["ticketType"])
++	}
++	sourceID := text(p["planCode"])
++	if kind == "ticket" {
++		sourceID = text(p["code"])
++	}
++	if sourceID != id || text(p["title"]) == "" {
++		return nil, fail(5, "Asoview product identity/schema mismatch for %s", id)
++	}
++	opts := []Object{}
++	advertised := price(p["sellingPrice"], nil, "advertised_from", nil)
++	validity := Object{"type": "experience_date_required", "start_text": nil, "end_text": nil, "end_date": nil, "relative_period": nil, "usable_days_text": nil, "sales_period": nil, "unavailable_periods": []any{}}
++	entry := Object{"selection": "experience_start_required", "reserved_slot": nil, "timezone": "Asia/Tokyo"}
++	inclusions := nullable(p["priceIncluded"])
++	conditions := any(nil)
++	cancellation := any(p["cancelPolicies"])
++	age := AgeBand(text(p["ageLimit"]))
++	participants := nullable(p["reservableParticipant"])
++	state := nullable(ds["planSummaryReservableType"])
++	notAvailable := nullable(ds["notReservableMessage"])
++	if kind == "ticket" {
++		opts = optionsFrom(list(p["tickets"]), false, nil)
++		var minimum *int64
++		for _, o := range opts {
++			v, _ := object(o["price"])["amount"].(*int64)
++			if v != nil && (minimum == nil || *v < *minimum) {
++				x := *v
++				minimum = &x
++			}
++		}
++		advertised = price(nil, nil, "advertised_minimum_across_bands", nil)
++		advertised["amount"] = minimum
++		ov := object(p["overview"])
++		vp := object(p["validityPeriod"])
++		scheduled := flag(ds["isScheduledTicket"])
++		vtype := "general_admission_validity"
++		sel := "no_reserved_slot_in_product"
++		if scheduled {
++			vtype = "selected_date_required"
++			sel = "date_or_time_selection_required"
++		}
++		validity = Object{"type": vtype, "start_text": nullable(ov["effectivePeriodFromText"]), "end_text": nullable(ov["effectivePeriodToText"]), "end_date": nullable(vp["endDate"]), "relative_period": nil, "usable_days_text": nullable(ov["displayAvailableDayText"]), "sales_period": nullable(ov["salesPeriod"]), "unavailable_periods": list(p["unablePeriods"])}
++		if flag(vp["isTermPeriod"]) {
++			validity["relative_period"] = Object{"value": integer(vp["termPeriod"]), "unit": nullable(vp["termPeriodLabel"]), "source_text": nullable(ov["effectivePeriodToText"])}
++		}
++		entry = Object{"selection": sel, "reserved_slot": nil, "timezone": "Asia/Tokyo"}
++		inclusions = nullable(ov["description"])
++		conditions = nullable(p["usingCondition"])
++		cancellation = p["cancellationPolicy"]
++		age = AgeBand("")
++		participants = nil
++		state = nullable(p["ticketTypePurchasableType"])
++		notAvailable = nullable(p["notPurchasableMessage"])
++	}
++	related := []Object{}
++	for _, v := range list(ds["planList"]) {
++		m := object(v)
++		rid := text(m["goodsId"])
++		if rid == id {
++			continue
++		}
++		if BookingURL(rid) != "" && len(related) < 20 {
++			related = append(related, Object{"id": rid, "name_ja": nullable(m["title"]), "booking_url": BookingURL(rid)})
++		}
++	}
++	out := Object{"id": id, "kind": kind, "name_ja": p["title"], "booking_url": BookingURL(id), "base": Object{"id": idString(ds["baseNumber"]), "name_ja": nullable(ds["baseName"])}, "location": Object{"prefecture_id": nullable(ds["prefectureCode"]), "prefecture_ja": nullable(p["prefectureName"]), "region_id": nullable(ds["regionCode"]), "area_id": nullable(ds["areaCode"]), "area_ja": nullable(p["areaName"]), "latitude": ds["baseLatitude"], "longitude": ds["baseLongitude"]}, "category": Object{"id": nullable(ds["categoryCode"]), "genre_id": nullable(ds["genreCode"]), "name_ja": nullable(p["mainGenreName"])}, "advertised_price": advertised, "options": opts, "age_band": age, "participants_text": participants, "inclusions": inclusions, "conditions": conditions, "cancellation": cancellation, "validity": validity, "entry": entry, "duration_text": nullable(p["experienceTime"]), "state": state, "not_available_message": notAvailable, "related_products": related, "date_party_total": nil, "language": "ja"}
++	if full {
++		out["description"] = nullable(p["description"])
++		out["introductions"] = list(p["introductions"])
++		out["user_manual"] = nullable(p["userManual"])
++		out["additional_fees"] = list(p["additionalFees"])
++		out["user_charges"] = list(p["userCharges"])
++	}
++	return out, nil
++}
++
++type SearchParams struct {
++	Region, Category, Query, Date, Cursor, Kind  string
++	Page, Offset, Pages, Limit, Adults, Children int
++}
++
++func (c *Client) Discover(ctx context.Context, p SearchParams) (Object, error) {
++	if err := validLimit(p.Limit, 50); err != nil {
++		return nil, err
++	}
++	if p.Pages < 1 || p.Pages > 5 {
++		return nil, fail(2, "--pages must be 1..5")
++	}
++	if p.Page < 1 || p.Page > 200 {
++		return nil, fail(2, "--page must be 1..200")
++	}
++	if p.Adults < 0 || p.Children < 0 || p.Adults+p.Children < 1 || p.Adults+p.Children > 50 {
++		return nil, fail(2, "--adults + --children must be 1..50")
++	}
++	if len(p.Query) > 300 {
++		return nil, fail(2, "--query exceeds 300 bytes")
++	}
++	if p.Date != "" {
++		if _, err := ParseDate(p.Date); err != nil {
++			return nil, err
++		}
++	}
++	if p.Kind != "" && p.Kind != "ticket" && p.Kind != "activity" {
++		return nil, fail(2, "--kind must be ticket or activity")
++	}
++	if p.Cursor != "" {
++		parts := strings.Split(p.Cursor, ":")
++		if len(parts) != 2 {
++			return nil, fail(2, "invalid --cursor; use the returned page:offset value")
++		}
++		var e error
++		p.Page, e = strconv.Atoi(parts[0])
++		if e != nil || p.Page < 1 || p.Page > 200 {
++			return nil, fail(2, "invalid --cursor page")
++		}
++		p.Offset, e = strconv.Atoi(parts[1])
++		if e != nil || p.Offset < 0 || p.Offset > 100 {
++			return nil, fail(2, "invalid --cursor offset")
++		}
++	}
++	q := url.Values{"adultQuantity": {strconv.Itoa(p.Adults)}, "childQuantity": {strconv.Itoa(p.Children)}, "sort": {"asoview"}}
++	if p.Region != "" {
++		r, err := c.resolveInventory("regions", p.Region)
++		if err != nil {
++			return nil, err
++		}
++		q.Set("destinationType", text(r["type"]))
++		q.Set("destinationId", text(r["id"]))
++	}
++	if p.Category != "" {
++		r, err := c.resolveInventory("categories", p.Category)
++		if err != nil {
++			return nil, err
++		}
++		t := text(r["type"])
++		if t == "category-group" {
++			t = "categoryGroup"
++		}
++		q.Set("leisureType", t)
++		q.Set("leisureId", text(r["id"]))
++	}
++	if p.Date != "" {
++		q.Set("experienceDate", p.Date)
++	}
++	results := []Object{}
++	seen := map[string]bool{}
++	scanned := 0
++	pagesRead := 0
++	var total any
++	var next any
++	for n := 0; n < p.Pages; n++ {
++		page := p.Page + n
++		q.Set("page", strconv.Itoa(page))
++		raw, err := c.Get(ctx, "/search/", q, 5*time.Minute)
++		if err != nil {
++			return nil, err
++		}
++		ds, doc, err := datasource(raw)
++		if err != nil {
++			return nil, err
++		}
++		pagesRead++
++		// Echo checks catch ignored upstream filter vocabulary instead of returning unrelated cards.
++		query := object(ds["query"])
++		for _, key := range []string{"destinationType", "destinationId", "leisureType", "leisureId", "experienceDate", "adultQuantity", "childQuantity", "page"} {
++			if q.Get(key) != "" && text(query[key]) != q.Get(key) && !(key == "childQuantity" && q.Get(key) == "0" && query[key] == nil) {
++				return nil, fail(5, "Asoview did not acknowledge search filter %s=%s", key, q.Get(key))
++			}
++		}
++		total = nullable(ds["displayFilterTotalCount"])
++		cards, hasNext := parseCards(doc, ds, page)
++		offset := 0
++		if n == 0 {
++			offset = p.Offset
++		}
++		if offset > len(cards) {
++			return nil, fail(2, "--cursor offset exceeds this source page")
++		}
++		next = nil
++		for i := offset; i < len(cards); i++ {
++			row := cards[i]
++			scanned++
++			id := text(row["id"])
++			if seen[id] {
++				continue
++			}
++			seen[id] = true
++			if p.Kind != "" && row["kind"] != p.Kind {
++				continue
++			}
++			hay := strings.ToLower(text(row["name_ja"]) + " " + text(object(row["base"])["name_ja"]) + " " + text(object(row["category"])["name_ja"]))
++			if !strings.Contains(hay, strings.ToLower(strings.TrimSpace(p.Query))) {
++				continue
++			}
++			results = append(results, row)
++			if len(results) >= p.Limit {
++				if i+1 < len(cards) {
++					next = strconv.Itoa(page) + ":" + strconv.Itoa(i+1)
++				} else if hasNext {
++					next = strconv.Itoa(page+1) + ":0"
++				}
++				break
++			}
++		}
++		if len(results) >= p.Limit {
++			break
++		}
++		if !hasNext {
++			break
++		}
++		next = strconv.Itoa(page+1) + ":0"
++	}
++	return Object{"results": results, "coverage": Object{"source_total_venues_text": total, "scanned_cards": scanned, "pages_read": pagesRead, "next_cursor": next, "partial": next != nil, "keyword_scope": "local_substring_over_scanned_cards", "requested_date": strptr(p.Date), "requested_party": Object{"adults": p.Adults, "children": p.Children}, "date_stock_confirmed": false}, "query": Object{"region": strptr(p.Region), "category": strptr(p.Category), "text": strptr(p.Query), "kind": strptr(p.Kind)}}, nil
++}
++func parseCards(doc *html.Node, ds Object, page int) ([]Object, bool) {
++	prices := map[string]Object{}
++	for _, k := range []string{"caughtBasePlanPriceList", "raiseBasePlanPriceList"} {
++		for _, v := range list(ds[k]) {
++			m := object(v)
++			prices[text(m["goodsId"])] = m
++		}
++	}
++	rows := []Object{}
++	next := false
++	walk(doc, func(n *html.Node) {
++		if n.Type != html.ElementNode {
++			return
++		}
++		if hasClass(n, "search-result-list__item") {
++			baseID := ""
++			walk(n, func(child *html.Node) {
++				if hasClass(child, "search-result-list__image-link") {
++					baseID = strings.Trim(strings.TrimPrefix(attr(child, "href"), "/base/"), "/")
++				}
++			})
++			walk(n, func(child *html.Node) {
++				if !hasClass(child, "search-result-list__plan-link") {
++					return
++				}
++				href := attr(child, "href")
++				kind, id, err := ParseID(Origin + href)
++				if err != nil {
++					return
++				}
++				pm := prices[id]
++				name := classText(child, "search-result-list__plan-name")
++				if name == "" {
++					return
++				}
++				rows = append(rows, Object{"id": id, "kind": kind, "name_ja": name, "booking_url": BookingURL(id), "base": Object{"id": strptr(baseID), "name_ja": strptr(classText(n, "search-result-list__base-name"))}, "location": Object{"prefecture_ja": strptr(classText(n, "search-result-list__prefecture")), "area_ja": strptr(classText(n, "search-result-list__small-area"))}, "category": Object{"name_ja": strptr(classText(child, "search-result-list__plan-genre"))}, "age_band": AgeBand(classText(child, "search-result-list__plan-target-age")), "advertised_price": price(pm["sellingPrice"], nil, "advertised_search_from", nil), "date_party_total": nil})
++			})
++		}
++		if n.Data == "a" {
++			u, e := url.Parse(attr(n, "href"))
++			if e == nil && u.Path == "/search/" {
++				v, _ := strconv.Atoi(u.Query().Get("page"))
++				if v == page+1 {
++					next = true
++				}
++			}
++		}
++	})
++	return rows, next
++}
++
++func (c *Client) resolveInventory(kind, input string) (Object, error) {
++	inv, _, err := c.loadInventory(kind)
++	if err != nil {
++		return nil, err
++	}
++	for _, v := range list(inv[kind]) {
++		r := object(v)
++		if input == text(r["id"]) || input == text(r["name_ja"]) {
++			return r, nil
++		}
++	}
++	return nil, fail(2, "unknown %s %q; use inventory --kind %s --query NAME to find the source ID", kind, input, kind)
++}
++func (c *Client) Inventory(ctx context.Context, kind, query string, limit int, refresh bool) (Object, error) {
++	if kind != "regions" && kind != "categories" {
++		return nil, fail(2, "--kind must be regions or categories")
++	}
++	if err := validLimit(limit, 100); err != nil {
++		return nil, err
++	}
++	inv, basis, err := c.loadInventory(kind)
++	if err != nil {
++		return nil, err
++	}
++	fetched := inv["fetched_at"]
++	if refresh {
++		if c.Offline {
++			return nil, fail(2, "--refresh-inventory requires online source access")
++		}
++		path := "/location/"
++		if kind == "categories" {
++			path = "/leisure/"
++		}
++		original := c.Refresh
++		c.Refresh = true
++		raw, err := c.Get(ctx, path, url.Values{}, time.Hour)
++		c.Refresh = original
++		if err != nil {
++			return nil, err
++		}
++		doc, e := html.Parse(bytes.NewReader(raw))
++		if e != nil {
++			return nil, e
++		}
++		items := []any{}
++		seen := map[string]bool{}
++		walk(doc, func(n *html.Node) {
++			if n.Type != html.ElementNode || n.Data != "a" {
++				return
++			}
++			href := attr(n, "href")
++			parts := strings.Split(strings.Trim(href, "/"), "/")
++			if len(parts) != 2 {
++				return
++			}
++			id := parts[1]
++			typeName := ""
++			label := nodeText(n)
++			if kind == "regions" && parts[0] == "location" {
++				if regexp.MustCompile(`^prf(0[1-9]|[1-3][0-9]|4[0-7])0000$`).MatchString(id) {
++					typeName = "prefecture"
++				} else if regexp.MustCompile(`^rgn(01|02|04|05|06|07|08|09|10|11|12)$`).MatchString(id) && label != "台湾" {
++					typeName = "region"
++				}
++			}
++			if kind == "categories" && parts[0] == "leisure" {
++				if regexp.MustCompile(`^[0-9]+$`).MatchString(id) {
++					typeName = "category"
++				} else if strings.HasPrefix(id, "act") {
++					typeName = "genre"
++				} else if strings.HasPrefix(id, "grp") {
++					typeName = "category-group"
++				}
++				label = strings.TrimSuffix(label, "の一覧から探す")
++			}
++			if typeName != "" && label != "" && !seen[id] {
++				seen[id] = true
++				items = append(items, Object{"id": id, "name_ja": label, "type": typeName, "url": Origin + href})
++			}
++		})
++		if len(items) == 0 {
++			return nil, fail(5, "Asoview inventory layout changed; no usable taxonomy")
++		}
++		inv[kind] = items
++		fetched = c.Sources[len(c.Sources)-1].FetchedAt
++		basis = "explicit_live_inventory_refresh"
++		if !c.NoCache {
++			if err = c.persistInventory(kind, Object{kind: items, "fetched_at": fetched}); err != nil {
++				return nil, fail(10, "inventory cache write: %v", err)
++			}
++		}
++	}
++	items := []Object{}
++	matches := 0
++	for _, v := range list(inv[kind]) {
++		r := object(v)
++		if !strings.Contains(strings.ToLower(text(r["name_ja"])+" "+text(r["id"])), strings.ToLower(strings.TrimSpace(query))) {
++			continue
++		}
++		matches++
++		if len(items) < limit {
++			items = append(items, r)
++		}
++	}
++	sort.Slice(items, func(i, j int) bool { return text(items[i]["id"]) < text(items[j]["id"]) })
++	return Object{"results": items, "inventory": Object{"kind": kind, "basis": basis, "fetched_at": fetched, "matching_count": matches, "returned_count": len(items), "partial": matches > len(items), "refresh_is_explicit": true}}, nil
++}
++
++func (c *Client) loadInventory(kind string) (Object, string, error) {
++	var inv Object
++	path := filepath.Join(c.CacheDir, "taxonomy-"+kind+".json")
++	if !c.NoCache {
++		if info, err := os.Stat(path); err == nil && info.Size() <= 2<<20 {
++			raw, err := os.ReadFile(path)
++			if err == nil && json.Unmarshal(raw, &inv) == nil && len(list(inv[kind])) > 0 && inv["fetched_at"] != nil {
++				return inv, "locally_refreshed_first_party_inventory", nil
++			}
++		}
++	}
++	if err := decodeJSON(bundledInventory, &inv); err != nil {
++		return nil, "", err
++	}
++	return inv, "bundled_first_party_inventory", nil
++}
++func (c *Client) persistInventory(kind string, inv Object) error {
++	if err := os.MkdirAll(c.CacheDir, 0700); err != nil {
++		return err
++	}
++	raw, err := json.Marshal(inv)
++	if err != nil {
++		return err
++	}
++	if len(raw) > 2<<20 {
++		return fail(5, "taxonomy snapshot exceeds 2 MiB")
++	}
++	f, err := os.CreateTemp(c.CacheDir, ".taxonomy-*")
++	if err != nil {
++		return err
++	}
++	tmp := f.Name()
++	defer os.Remove(tmp)
++	if _, err = f.Write(raw); err != nil {
++		_ = f.Close()
++		return err
++	}
++	if err = f.Close(); err != nil {
++		return err
++	}
++	if err = os.Rename(tmp, filepath.Join(c.CacheDir, "taxonomy-"+kind+".json")); err != nil {
++		return err
++	}
++	return pruneCache(c.CacheDir)
++}
+--- generated/internal/asoview/client.go
++++ project/internal/asoview/client.go
+@@ -0,0 +1,312 @@
++// Package asoview implements bounded anonymous first-party GETs and source parsing.
++package asoview
++
++import (
++	"context"
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"io"
++	"net/http"
++	"net/url"
++	"os"
++	"path/filepath"
++	"sort"
++	"strings"
++	"time"
++)
++
++const Origin = "https://www.asoview.com"
++const maxBody = 4 << 20
++const cacheMaxBytes = 32 << 20
++const cacheMaxEntries = 128
++
++type Error struct {
++	Code    int
++	Message string
++}
++
++func (e *Error) Error() string { return e.Message }
++func fail(code int, format string, args ...any) error {
++	return &Error{code, fmt.Sprintf(format, args...)}
++}
++
++type Source struct {
++	URL        string `json:"url"`
++	FetchedAt  string `json:"fetched_at"`
++	Cached     bool   `json:"cached"`
++	TTLSeconds int64  `json:"ttl_seconds"`
++}
++type Stats struct {
++	Requests        int   `json:"network_requests"`
++	CacheHits       int   `json:"cache_hits"`
++	DownloadedBytes int64 `json:"downloaded_bytes"`
++	ElapsedMS       int64 `json:"elapsed_ms"`
++}
++type Client struct {
++	HTTP        *http.Client
++	CacheDir    string
++	NoCache     bool
++	Refresh     bool
++	Offline     bool
++	Sources     []Source
++	Stats       Stats
++	started     time.Time
++	lastRequest time.Time
++}
++type cacheEntry struct {
++	URL  string    `json:"url"`
++	At   time.Time `json:"at"`
++	Body []byte    `json:"body"`
++}
++
++func NewClient(cacheDir string, timeout time.Duration, noCache, refresh, offline bool) *Client {
++	tr := http.DefaultTransport.(*http.Transport).Clone()
++	tr.MaxIdleConnsPerHost = 2
++	tr.ResponseHeaderTimeout = timeout
++	return &Client{HTTP: &http.Client{Timeout: timeout, Transport: tr, CheckRedirect: func(req *http.Request, via []*http.Request) error {
++		if len(via) >= 3 {
++			return fail(5, "redirect limit exceeded")
++		}
++		return validateURL(req.URL)
++	}}, CacheDir: cacheDir, NoCache: noCache, Refresh: refresh, Offline: offline, started: time.Now(), Sources: []Source{}}
++}
++
++func validateURL(u *url.URL) error {
++	if u.Scheme != "https" || u.Host != "www.asoview.com" || u.User != nil || u.Fragment != "" {
++		return fail(2, "only anonymous HTTPS www.asoview.com source URLs are supported")
++	}
++	p := u.Path
++	allowed := p == "/search/" || p == "/location/" || p == "/leisure/" || p == "/item/category-sales-situations/" || p == "/stocks/calendars" || p == "/stocks/courses" || p == "/stocks/ticket/calendars" || p == "/stocks/ticket/courses"
++	if strings.HasPrefix(p, "/item/ticket/") || strings.HasPrefix(p, "/item/activity/") {
++		parts := strings.Split(strings.Trim(p, "/"), "/")
++		if len(parts) == 3 {
++			kind, _, err := ParseID(parts[2])
++			allowed = err == nil && parts[1] == kind
++		}
++	}
++	if strings.HasPrefix(p, "/reservations/plans/") {
++		parts := strings.Split(strings.Trim(p, "/"), "/")
++		if len(parts) == 6 && parts[3] == "dates" && parts[5] == "basicfees" {
++			kind, _, err := ParseID(parts[2])
++			_, de := ParseDate(parts[4])
++			allowed = err == nil && de == nil && kind == "activity"
++		}
++	}
++	if !allowed {
++		return fail(2, "source path %q is outside the read-only allowlist", p)
++	}
++	return nil
++}
++
++// ReadOnlyTransport also guards generator-owned raw source commands.
++type ReadOnlyTransport struct{ Base http.RoundTripper }
++
++func (t ReadOnlyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
++	if r.Method != http.MethodGet && r.Method != http.MethodHead {
++		return nil, fail(2, "Asoview supports read-only GET/HEAD only")
++	}
++	if err := validateURL(r.URL); err != nil {
++		return nil, err
++	}
++	r = r.Clone(r.Context())
++	r.Header.Del("Cookie")
++	r.Header.Del("Authorization")
++	return t.Base.RoundTrip(r)
++}
++
++func (c *Client) Get(ctx context.Context, path string, q url.Values, ttl time.Duration) ([]byte, error) {
++	u, err := url.Parse(Origin + path)
++	if err != nil {
++		return nil, err
++	}
++	u.RawQuery = q.Encode()
++	if err = validateURL(u); err != nil {
++		return nil, err
++	}
++	key := sha256.Sum256([]byte(u.String()))
++	cacheFile := filepath.Join(c.CacheDir, hex.EncodeToString(key[:])+".json")
++	if !c.NoCache && !c.Refresh {
++		if info, e := os.Stat(cacheFile); e == nil && info.Size() <= maxBody*2 {
++			raw, e := os.ReadFile(cacheFile)
++			var entry cacheEntry
++			if e == nil && json.Unmarshal(raw, &entry) == nil && entry.URL == u.String() && len(entry.Body) <= maxBody && time.Since(entry.At) >= 0 && time.Since(entry.At) < ttl {
++				c.Stats.CacheHits++
++				c.Sources = append(c.Sources, Source{u.String(), entry.At.UTC().Format(time.RFC3339), true, int64(ttl.Seconds())})
++				return entry.Body, nil
++			}
++		}
++	}
++	if c.Offline {
++		return nil, fail(5, "no fresh cached response for %s; run without --data-source local or refresh online", path)
++	}
++	var body []byte
++	for attempt := 0; attempt < 2; attempt++ {
++		if c.Stats.Requests >= 20 {
++			return nil, fail(5, "request budget exceeded (20 attempts per command)")
++		}
++		if wait := 300*time.Millisecond - time.Since(c.lastRequest); wait > 0 {
++			if err = waitContext(ctx, wait); err != nil {
++				return nil, fail(5, "request deadline: %v", err)
++			}
++		}
++		req, e := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
++		if e != nil {
++			return nil, e
++		}
++		req.Header.Set("User-Agent", "asoview-pp-cli/0.1 (read-only leisure discovery)")
++		req.Header.Set("Accept", "application/json,text/html;q=0.9")
++		c.lastRequest = time.Now()
++		c.Stats.Requests++
++		resp, e := c.HTTP.Do(req)
++		if e != nil {
++			return nil, fail(5, "Asoview GET %s failed: %v", path, e)
++		}
++		body, e = io.ReadAll(io.LimitReader(resp.Body, maxBody+1))
++		closeErr := resp.Body.Close()
++		if e != nil {
++			return nil, fail(5, "reading Asoview response: %v", e)
++		}
++		if closeErr != nil {
++			return nil, fail(5, "closing Asoview response: %v", closeErr)
++		}
++		c.Stats.DownloadedBytes += int64(len(body))
++		if len(body) > maxBody {
++			return nil, fail(5, "Asoview response exceeds 4 MiB limit")
++		}
++		if resp.StatusCode == 429 || resp.StatusCode == 502 || resp.StatusCode == 503 || resp.StatusCode == 504 {
++			if attempt == 0 {
++				delay := time.Second
++				if ra := resp.Header.Get("Retry-After"); ra != "" {
++					if seconds, e := time.ParseDuration(ra + "s"); e == nil && seconds >= 0 {
++						delay = seconds
++					} else if dt, e := http.ParseTime(ra); e == nil {
++						delay = time.Until(dt)
++					}
++				}
++				if delay < 0 {
++					delay = 0
++				}
++				if delay > 5*time.Second {
++					if resp.StatusCode == 429 {
++						return nil, fail(7, "Asoview rate limited; Retry-After exceeds bounded retry budget; retry later")
++					}
++					return nil, fail(5, "Asoview unavailable; retry later")
++				}
++				if err = waitContext(ctx, delay); err != nil {
++					return nil, fail(5, "retry deadline: %v", err)
++				}
++				continue
++			}
++			if resp.StatusCode == 429 {
++				return nil, fail(7, "Asoview rate limited after one retry; retry later")
++			}
++		}
++		if resp.StatusCode == 404 {
++			return nil, fail(3, "Asoview source not found: %s", path)
++		}
++		if resp.StatusCode == 401 || resp.StatusCode == 403 {
++			return nil, fail(4, "Asoview denied public access (HTTP %d); no credentials or challenge bypass is attempted", resp.StatusCode)
++		}
++		if resp.StatusCode != 200 {
++			return nil, fail(5, "Asoview GET %s returned HTTP %d", path, resp.StatusCode)
++		}
++		if !strings.Contains(resp.Header.Get("Content-Type"), "html") && !strings.Contains(resp.Header.Get("Content-Type"), "json") {
++			return nil, fail(5, "unexpected Asoview content type %q", resp.Header.Get("Content-Type"))
++		}
++		break
++	}
++	at := time.Now().UTC()
++	c.Sources = append(c.Sources, Source{u.String(), at.Format(time.RFC3339), false, int64(ttl.Seconds())})
++	if !c.NoCache && c.CacheDir != "" {
++		if e := c.saveCache(cacheFile, cacheEntry{u.String(), at, body}); e != nil {
++			return nil, fail(10, "cache write failed: %v; use --no-cache to bypass", e)
++		}
++	}
++	return body, nil
++}
++func waitContext(ctx context.Context, d time.Duration) error {
++	t := time.NewTimer(d)
++	defer t.Stop()
++	select {
++	case <-ctx.Done():
++		return ctx.Err()
++	case <-t.C:
++		return nil
++	}
++}
++func (c *Client) Metrics() Stats {
++	s := c.Stats
++	s.ElapsedMS = time.Since(c.started).Milliseconds()
++	return s
++}
++func (c *Client) saveCache(path string, entry cacheEntry) error {
++	if err := os.MkdirAll(c.CacheDir, 0700); err != nil {
++		return err
++	}
++	data, err := json.Marshal(entry)
++	if err != nil {
++		return err
++	}
++	f, err := os.CreateTemp(c.CacheDir, ".asoview-*")
++	if err != nil {
++		return err
++	}
++	tmp := f.Name()
++	defer os.Remove(tmp)
++	if _, err = f.Write(data); err != nil {
++		_ = f.Close()
++		return err
++	}
++	if err = f.Close(); err != nil {
++		return err
++	}
++	if err = os.Rename(tmp, path); err != nil {
++		return err
++	}
++	return pruneCache(c.CacheDir)
++}
++func pruneCache(dir string) error {
++	entries, err := os.ReadDir(dir)
++	if err != nil {
++		return err
++	}
++	type file struct {
++		name string
++		size int64
++		at   time.Time
++	}
++	files := []file{}
++	var size int64
++	for _, e := range entries {
++		if e.IsDir() {
++			continue
++		}
++		if e.Name() != "taxonomy-regions.json" && e.Name() != "taxonomy-categories.json" {
++			if len(e.Name()) != 69 || !strings.HasSuffix(e.Name(), ".json") {
++				continue
++			}
++			if _, err = hex.DecodeString(e.Name()[:64]); err != nil {
++				continue
++			}
++		}
++		info, e2 := e.Info()
++		if e2 != nil {
++			continue
++		}
++		files = append(files, file{e.Name(), info.Size(), info.ModTime()})
++		size += info.Size()
++	}
++	sort.Slice(files, func(i, j int) bool { return files[i].at.Before(files[j].at) })
++	for len(files) > cacheMaxEntries || size > cacheMaxBytes {
++		f := files[0]
++		if err = os.Remove(filepath.Join(dir, f.name)); err != nil && !errors.Is(err, os.ErrNotExist) {
++			return err
++		}
++		size -= f.size
++		files = files[1:]
++	}
++	return nil
++}
+--- generated/internal/asoview/model.go
++++ project/internal/asoview/model.go
+@@ -0,0 +1,201 @@
++package asoview
++
++import (
++	"encoding/json"
++	"net/url"
++	"regexp"
++	"strconv"
++	"strings"
++	"time"
++)
++
++type Object = map[string]any
++
++func object(v any) Object {
++	m, _ := v.(map[string]any)
++	if m == nil {
++		return Object{}
++	}
++	return m
++}
++func list(v any) []any {
++	a, _ := v.([]any)
++	if a == nil {
++		return []any{}
++	}
++	return a
++}
++func text(v any) string {
++	switch x := v.(type) {
++	case string:
++		return x
++	case json.Number:
++		return x.String()
++	case float64:
++		return strconv.FormatFloat(x, 'f', -1, 64)
++	case int:
++		return strconv.Itoa(x)
++	default:
++		return ""
++	}
++}
++func nullable(v any) any {
++	s := strings.TrimSpace(text(v))
++	if s == "" || s == "-" {
++		return nil
++	}
++	return s
++}
++func flag(v any) bool { b, _ := v.(bool); return b }
++func integer(v any) *int64 {
++	s := strings.ReplaceAll(strings.TrimSpace(text(v)), ",", "")
++	if s == "" {
++		return nil
++	}
++	n, err := strconv.ParseInt(s, 10, 64)
++	if err != nil {
++		return nil
++	}
++	return &n
++}
++func price(v any, unit any, basis string, date any) Object {
++	return Object{"amount": integer(v), "currency": "JPY", "unit": nullable(unit), "basis": basis, "date": date, "party_specific": false}
++}
++func strptr(s string) any {
++	if s == "" {
++		return nil
++	}
++	return s
++}
++func idString(v any) string { return text(v) }
++
++var idPattern = regexp.MustCompile(`^(ticket[0-9]{10}|pln[0-9]{10})$`)
++
++func ParseID(input string) (kind, id string, err error) {
++	id = input
++	if strings.Contains(input, "://") {
++		u, e := url.Parse(input)
++		if e != nil || u.Scheme != "https" || u.Host != "www.asoview.com" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
++			return "", "", fail(2, "use a source ID or canonical https://www.asoview.com/item/.../ URL")
++		}
++		parts := strings.Split(strings.Trim(u.Path, "/"), "/")
++		if len(parts) != 3 || parts[0] != "item" {
++			return "", "", fail(2, "expected canonical Asoview product URL")
++		}
++		id = parts[2]
++		kind = parts[1]
++	}
++	if !idPattern.MatchString(id) {
++		return "", "", fail(2, "invalid product ID %q; expected ticket0000049223 or pln3000044589", input)
++	}
++	expected := "ticket"
++	if strings.HasPrefix(id, "pln") {
++		expected = "activity"
++	}
++	if kind != "" && kind != expected {
++		return "", "", fail(2, "product URL kind and source ID disagree")
++	}
++	return expected, id, nil
++}
++func BookingURL(id string) string {
++	kind, code, err := ParseID(id)
++	if err != nil {
++		return ""
++	}
++	return Origin + "/item/" + kind + "/" + code + "/"
++}
++func ParseDate(s string) (time.Time, error) {
++	t, e := time.Parse("2006-01-02", s)
++	if e != nil || t.Format("2006-01-02") != s {
++		return t, fail(2, "invalid --date %q; use YYYY-MM-DD", s)
++	}
++	return t, nil
++}
++func ParseMonth(s string) (time.Time, error) {
++	t, e := time.Parse("2006-01", s)
++	if e != nil || t.Format("2006-01") != s {
++		return t, fail(2, "invalid --month %q; use YYYY-MM", s)
++	}
++	return t, nil
++}
++func NormalizeTime(s string) string {
++	t, e := time.Parse("15:04", s)
++	if e == nil {
++		return t.Format("15:04")
++	}
++	t, e = time.Parse("3:04", s)
++	if e == nil {
++		return t.Format("15:04")
++	}
++	return s
++}
++
++var ageRange = regexp.MustCompile(`([0-9]+)\s*歳?\s*[〜～~－-]\s*([0-9]+)\s*歳`)
++var ageMin = regexp.MustCompile(`([0-9]+)\s*歳\s*(?:以上|から|[〜～~])`)
++var ageMax = regexp.MustCompile(`([0-9]+)\s*歳\s*(?:以下|まで)`)
++
++func AgeBand(label string) Object {
++	out := Object{"text": strptr(label), "minimum_years": nil, "maximum_years": nil}
++	if m := ageRange.FindStringSubmatch(label); len(m) == 3 {
++		a, _ := strconv.Atoi(m[1])
++		b, _ := strconv.Atoi(m[2])
++		out["minimum_years"] = a
++		out["maximum_years"] = b
++		return out
++	}
++	if m := ageMin.FindStringSubmatch(label); len(m) == 2 {
++		a, _ := strconv.Atoi(m[1])
++		out["minimum_years"] = a
++	}
++	if m := ageMax.FindStringSubmatch(label); len(m) == 2 {
++		a, _ := strconv.Atoi(m[1])
++		out["maximum_years"] = a
++	}
++	return out
++}
++func decodeJSON(raw []byte, v any) error {
++	d := json.NewDecoder(strings.NewReader(string(raw)))
++	d.UseNumber()
++	if e := d.Decode(v); e != nil {
++		return fail(5, "Asoview response schema is invalid JSON: %v", e)
++	}
++	return nil
++}
++func optionsFrom(raw []any, dated bool, date any) []Object {
++	out := []Object{}
++	basis := "advertised_band"
++	if dated {
++		basis = "date_specific_band"
++	}
++	for _, v := range raw {
++		m := object(v)
++		label := text(m["categoryLabel"])
++		if label == "" {
++			label = text(m["feeLabel"])
++		}
++		id := text(m["id"])
++		if id == "" {
++			id = text(m["basicFeeNumber"])
++		}
++		amount := m["sellingPrice"]
++		regular := m["regularPrice"]
++		if dated {
++			amount = m["sellingFee"]
++			regular = m["regularFee"]
++		}
++		out = append(out, Object{"id": strptr(id), "code": nullable(m["basicFeeCode"]), "name_ja": strptr(label), "age_band": AgeBand(label), "price": price(amount, m["unit"], basis, date), "regular_amount": integer(regular), "variable_price": m["isFluctuating"], "allocation": integer(m["allocation"]), "label_type": nullable(m["feeLabelType"]), "dependency_type": nullable(m["feeLabelDependencyType"])})
++	}
++	return out
++}
++func validateQuantity(q int) error {
++	if q < 1 || q > 50 {
++		return fail(2, "--quantity must be 1..50")
++	}
++	return nil
++}
++func validLimit(n, max int) error {
++	if n < 1 || n > max {
++		return fail(2, "--limit must be 1..%d", max)
++	}
++	return nil
++}
+--- generated/internal/asoview/availability.go
++++ project/internal/asoview/availability.go
+@@ -0,0 +1,419 @@
++package asoview
++
++import (
++	"context"
++	"net/url"
++	"strconv"
++	"strings"
++	"time"
++)
++
++func calendarStatus(d Object) string {
++	switch {
++	case flag(d["isPast"]):
++		return "past"
++	case flag(d["isPassedDeadline"]):
++		return "deadline_passed"
++	case flag(d["isNotDoing"]):
++		return "not_operating"
++	case flag(d["isOutOfPeriod"]):
++		return "outside_sales_or_operation_period"
++	case flag(d["isRequest"]):
++		return "request_only"
++	case flag(d["isFull"]):
++		return "sold_out"
++	case flag(d["isNotReservable"]):
++		return "not_reservable"
++	case flag(d["isFewRemaining"]):
++		return "few_remaining"
++	case flag(d["isRemaining"]):
++		return "available"
++	default:
++		return "unknown"
++	}
++}
++func slotStatus(s Object, quantity int) string {
++	if flag(s["isClosed"]) {
++		return "closed"
++	}
++	if flag(s["isRequestDeadlinePassed"]) {
++		return "deadline_passed"
++	}
++	min, max := integer(s["minimumReservableQuantity"]), integer(s["maximumReservableQuantity"])
++	if (min != nil && int64(quantity) < *min) || (max != nil && *max >= 0 && int64(quantity) > *max) {
++		return "party_outside_limits"
++	}
++	if flag(s["isRequest"]) {
++		return "request_only"
++	}
++	remain := integer(s["remainReserveNumber"])
++	if remain != nil && *remain < int64(quantity) {
++		if flag(s["canRequestAfterFull"]) {
++			return "request_only"
++		}
++		if *remain == 0 {
++			return "sold_out"
++		}
++		return "insufficient_quantity"
++	}
++	if remain != nil && *remain >= int64(quantity) {
++		return "available"
++	}
++	switch text(s["stockStatus"]) {
++	case "STOCK_OUT":
++		return "sold_out"
++	case "NOT_OPEN":
++		return "not_operating"
++	case "ON_REQUEST", "REQUEST":
++		return "request_only"
++	}
++	return "unknown"
++}
++func timeMeaning(p Object) string {
++	if p["kind"] == "activity" {
++		return "experience_start"
++	}
++	title := text(p["name_ja"])
++	if strings.Contains(title, "日時指定") {
++		return "reserved_entry_window"
++	}
++	if strings.Contains(title, "日付指定") {
++		return "admission_window_on_selected_date"
++	}
++	return "source_time_window_unclassified"
++}
++func (c *Client) calendar(ctx context.Context, p Object, month string) ([]Object, error) {
++	path := "/stocks/calendars"
++	q := url.Values{"planCode": {text(p["id"])}, "yearMonth": {month}, "limit": {"1"}}
++	if p["kind"] == "ticket" {
++		path = "/stocks/ticket/calendars"
++		q.Set("channelCode", "asoview")
++	}
++	raw, err := c.Get(ctx, path, q, 30*time.Second)
++	if err != nil {
++		return nil, err
++	}
++	var ds Object
++	if err = decodeJSON(raw, &ds); err != nil {
++		return nil, err
++	}
++	if _, ok := ds["years"].([]any); !ok {
++		return nil, fail(5, "Asoview calendar unavailable or schema changed for %s", p["id"])
++	}
++	days := []Object{}
++	seen := map[string]bool{}
++	for _, year := range list(ds["years"]) {
++		for _, mon := range list(object(year)["months"]) {
++			for _, week := range list(object(mon)["weeks"]) {
++				for _, v := range list(object(week)["days"]) {
++					d := object(v)
++					date := text(d["date"])
++					if date == "" || !strings.HasPrefix(date, month+"-") || seen[date] {
++						continue
++					}
++					if _, err = ParseDate(date); err != nil {
++						return nil, fail(5, "source calendar date is invalid")
++					}
++					seen[date] = true
++					days = append(days, Object{"date": date, "status": calendarStatus(d), "price": price(d["fee"], nil, "date_specific_calendar_from", date), "source_stock_status": nullable(d["stockStatus"]), "signals": Object{"past": d["isPast"], "deadline_passed": d["isPassedDeadline"], "out_of_period": d["isOutOfPeriod"], "not_operating": d["isNotDoing"], "not_reservable": d["isNotReservable"], "full": d["isFull"], "remaining": d["isRemaining"], "few_remaining": d["isFewRemaining"], "request_only": d["isRequest"]}})
++				}
++			}
++		}
++	}
++	return days, nil
++}
++func (c *Client) courses(ctx context.Context, p Object, date string, quantity int) ([]Object, []Object, error) {
++	path := "/stocks/courses"
++	q := url.Values{"planCode": {text(p["id"])}, "date": {date}}
++	if p["kind"] == "ticket" {
++		path = "/stocks/ticket/courses"
++		q.Set("channelCode", "asoview")
++	}
++	raw, err := c.Get(ctx, path, q, 30*time.Second)
++	if err != nil {
++		return nil, nil, err
++	}
++	var rows []any
++	if err = decodeJSON(raw, &rows); err != nil {
++		return nil, nil, err
++	}
++	if rows == nil {
++		return nil, nil, fail(5, "Asoview slot response is null")
++	}
++	if len(rows) > 100 {
++		return nil, nil, fail(5, "source returned more than 100 slots; unsupported inventory breadth")
++	}
++	normalized := []Object{}
++	source := []Object{}
++	for _, v := range rows {
++		s := object(v)
++		id := idString(s["id"])
++		if id == "" {
++			return nil, nil, fail(5, "Asoview slot ID missing")
++		}
++		source = append(source, s)
++		normalized = append(normalized, Object{"id": id, "date": date, "status": slotStatus(s, quantity), "start_time": nullable(s["startTimeLabel"]), "end_time": nullable(s["endTimeLabel"]), "label": nullable(s["label"]), "time_meaning": timeMeaning(p), "price": price(s["sellingFee"], s["unit"], "date_specific_slot_from", date), "minimum_quantity": integer(s["minimumReservableQuantity"]), "maximum_quantity": integer(s["maximumReservableQuantity"]), "remaining_quantity": integer(s["remainReserveNumber"]), "source_stock_status": nullable(s["stockStatus"]), "source_stock_label": nullable(s["stockStatusLabel"]), "request_only": s["isRequest"], "can_request_after_full": s["canRequestAfterFull"], "quantity_checked": quantity, "reserved": false})
++	}
++	return normalized, source, nil
++}
++func dateEligibility(p Object, date string) string {
++	v := object(p["validity"])
++	for _, r := range list(v["unavailable_periods"]) {
++		m := object(r)
++		from, to := text(m["from"]), text(m["to"])
++		if from != "" && to != "" && date >= from && date <= to {
++			return "not_usable"
++		}
++	}
++	if end := text(v["end_date"]); end != "" && len(end) >= 10 && date > end[:10] {
++		return "validity_expired"
++	}
++	return "unknown"
++}
++func (c *Client) Availability(ctx context.Context, input, date, month string, quantity int) (Object, error) {
++	if err := validateQuantity(quantity); err != nil {
++		return nil, err
++	}
++	if date != "" && month != "" {
++		return nil, fail(2, "use exactly one of --date or --month")
++	}
++	if date == "" && month == "" {
++		return nil, fail(2, "--date YYYY-MM-DD or --month YYYY-MM is required")
++	}
++	if date != "" {
++		t, err := ParseDate(date)
++		if err != nil {
++			return nil, err
++		}
++		month = t.Format("2006-01")
++	} else {
++		if _, err := ParseMonth(month); err != nil {
++			return nil, err
++		}
++	}
++	p, err := c.Product(ctx, input, false)
++	if err != nil {
++		return nil, err
++	}
++	header := Object{"id": p["id"], "name_ja": p["name_ja"], "booking_url": p["booking_url"], "entry": p["entry"], "validity": p["validity"], "requested_date": strptr(date), "requested_month": month, "requested_quantity": quantity, "date_party_total": nil, "stock_is_snapshot": true, "reserved": false}
++	if p["kind"] == "ticket" && object(p["entry"])["selection"] == "no_reserved_slot_in_product" {
++		status := "unknown"
++		if date != "" {
++			status = dateEligibility(p, date)
++		}
++		header["days"] = []Object{}
++		header["slots"] = []Object{}
++		header["status"] = status
++		header["coverage"] = Object{"public_dated_stock": false, "reason": "general_admission_validity_has_no_reserved_slot_inventory", "date_eligibility": status}
++		return header, nil
++	}
++	days, err := c.calendar(ctx, p, month)
++	if err != nil {
++		return nil, err
++	}
++	header["days"] = days
++	header["slots"] = []Object{}
++	header["coverage"] = Object{"public_dated_stock": true, "party_eligibility_confirmed": false, "price_total_confirmed": false}
++	header["status"] = "calendar_only"
++	if date != "" {
++		day := Object{"date": date, "status": "unknown", "price": nil}
++		found := false
++		for _, d := range days {
++			if d["date"] == date {
++				day = d
++				found = true
++				break
++			}
++		}
++		header["days"] = []Object{day}
++		header["status"] = day["status"]
++		if !found {
++			header["coverage"] = Object{"public_dated_stock": false, "reason": "date_absent_from_source_calendar"}
++			return header, nil
++		}
++		slots, _, e := c.courses(ctx, p, date, quantity)
++		if e != nil {
++			return nil, e
++		}
++		header["slots"] = slots
++		if dateEligibility(p, date) == "not_usable" {
++			header["status"] = "not_usable"
++		} else if len(slots) > 0 {
++			status := "unavailable"
++			for _, slot := range slots {
++				st := text(slot["status"])
++				if st == "available" {
++					status = st
++					break
++				}
++				if st == "request_only" {
++					status = st
++				} else if st == "unknown" && status == "unavailable" {
++					status = "unknown"
++				}
++			}
++			header["status"] = status
++		}
++	}
++	return header, nil
++}
++func (c *Client) Options(ctx context.Context, input, date, slot string, quantity int, party string) (Object, error) {
++	if err := validateQuantity(quantity); err != nil {
++		return nil, err
++	}
++	if date != "" {
++		if _, err := ParseDate(date); err != nil {
++			return nil, err
++		}
++	}
++	if (slot != "" || party != "") && date == "" {
++		return nil, fail(2, "--slot and --party require --date")
++	}
++	p, err := c.Product(ctx, input, false)
++	if err != nil {
++		return nil, err
++	}
++	result := Object{"id": p["id"], "name_ja": p["name_ja"], "booking_url": p["booking_url"], "date": strptr(date), "selected_slot": nil, "options": p["options"], "slots": []Object{}, "product_age_band": p["age_band"], "party_subtotal": nil, "date_party_total": nil, "coverage": "advertised_bands_only"}
++	if date == "" {
++		return result, nil
++	}
++	var raw []any
++	if p["kind"] == "activity" {
++		if slot != "" {
++			slots, src, e := c.courses(ctx, p, date, quantity)
++			if e != nil {
++				return nil, e
++			}
++			_, selected, e := chooseSlot(slots, src, slot)
++			if e != nil {
++				return nil, e
++			}
++			result["selected_slot"] = selected
++			result["slots"] = slots
++		}
++		body, e := c.Get(ctx, "/reservations/plans/"+text(p["id"])+"/dates/"+date+"/basicfees", url.Values{}, 30*time.Second)
++		if e != nil {
++			return nil, e
++		}
++		if e = decodeJSON(body, &raw); e != nil {
++			return nil, e
++		}
++	} else {
++		if object(p["entry"])["selection"] == "no_reserved_slot_in_product" {
++			result["coverage"] = "general_admission_advertised_bands_no_dated_band_surface"
++			return result, nil
++		}
++		slots, src, e := c.courses(ctx, p, date, quantity)
++		if e != nil {
++			return nil, e
++		}
++		result["slots"] = slots
++		if slot == "" && len(slots) != 1 {
++			if party != "" {
++				return nil, fail(2, "--party requires a selected --slot when multiple or no source slots exist")
++			}
++			result["options"] = []Object{}
++			result["coverage"] = "select_slot_to_fetch_dated_bands"
++			return result, nil
++		}
++		chosen, selected, e := chooseSlot(slots, src, slot)
++		if e != nil {
++			return nil, e
++		}
++		result["selected_slot"] = selected
++		start := NormalizeTime(text(chosen["startTimeLabel"]))
++		if start == "" {
++			return nil, fail(5, "source slot has no time key for dated band retrieval")
++		}
++		q := url.Values{"ticketTypeCode": {text(p["id"])}, "channelCode": {"asoview"}, "date": {date}, "time": {start}}
++		body, e := c.Get(ctx, "/item/category-sales-situations/", q, 30*time.Second)
++		if e != nil {
++			return nil, e
++		}
++		var ds Object
++		if e = decodeJSON(body, &ds); e != nil {
++			return nil, e
++		}
++		a, ok := ds["categories"].([]any)
++		if !ok {
++			return nil, fail(5, "Asoview dated price bands unavailable or schema changed")
++		}
++		raw = a
++	}
++	if raw == nil {
++		return nil, fail(5, "Asoview returned null dated bands")
++	}
++	if len(raw) > 100 {
++		return nil, fail(5, "source returned more than 100 fee bands")
++	}
++	bands := optionsFrom(raw, true, date)
++	result["options"] = bands
++	result["coverage"] = "date_specific_bands_not_checkout_quote"
++	if party != "" {
++		sub, e := PartySubtotal(bands, party)
++		if e != nil {
++			return nil, e
++		}
++		result["party_subtotal"] = sub
++	}
++	return result, nil
++}
++func chooseSlot(slots, raw []Object, requested string) (Object, Object, error) {
++	for i, s := range slots {
++		if (requested == "" && len(slots) == 1) || text(s["id"]) == requested || NormalizeTime(text(s["start_time"])) == NormalizeTime(requested) || text(s["label"]) == requested {
++			return raw[i], s, nil
++		}
++	}
++	return nil, nil, fail(2, "--slot %q is not an available source slot ID/time; inspect availability --date first", requested)
++}
++func PartySubtotal(bands []Object, party string) (Object, error) {
++	values := strings.Split(party, ",")
++	if len(values) > 20 {
++		return nil, fail(2, "--party supports up to 20 bands")
++	}
++	seen := map[string]bool{}
++	parts := []Object{}
++	var sum int64
++	total := 0
++	for _, entry := range values {
++		x := strings.Split(entry, ":")
++		if len(x) != 2 || seen[x[0]] {
++			return nil, fail(2, "--party must be distinct option-id:quantity pairs separated by commas")
++		}
++		n, e := strconv.Atoi(x[1])
++		if e != nil || n < 1 || n > 50 {
++			return nil, fail(2, "--party band quantity must be 1..50")
++		}
++		total += n
++		if total > 50 {
++			return nil, fail(2, "--party total quantity exceeds 50")
++		}
++		seen[x[0]] = true
++		var band Object
++		for _, b := range bands {
++			if text(b["id"]) == x[0] || text(b["code"]) == x[0] {
++				band = b
++				break
++			}
++		}
++		if band == nil {
++			return nil, fail(2, "--party option %q is absent from source bands", x[0])
++		}
++		bp := object(band["price"])
++		amount, ok := bp["amount"].(*int64)
++		if !ok || amount == nil || bp["unit"] == nil {
++			return nil, fail(5, "source band amount/unit missing; party subtotal cannot be calculated")
++		}
++		if *amount < 0 || *amount > 100000000 {
++			return nil, fail(5, "source band amount outside bounded calculation range")
++		}
++		alloc, _ := band["allocation"].(*int64)
++		if alloc != nil && *alloc != 1 {
++			return nil, fail(5, "source allocation differs from one unit; party subtotal unsupported")
++		}
++		line := *amount * int64(n)
++		sum += line
++		parts = append(parts, Object{"option_id": band["id"], "quantity": n, "unit": bp["unit"], "amount": line})
++	}
++	return Object{"amount": sum, "currency": "JPY", "basis": "calculated_dated_band_subtotal", "quantity": total, "lines": parts, "quote_confirmed": false, "excludes": []string{"additional_charges", "group_or_coupon_discounts", "age_and_option_dependencies", "checkout_validation"}}, nil
++}
+--- generated/internal/cli/asoview_support.go
++++ project/internal/cli/asoview_support.go
+@@ -0,0 +1,211 @@
++package cli
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"net/http"
++	"os"
++	"path/filepath"
++	"strings"
++	"time"
++
++	"asoview-pp-cli/internal/asoview"
++	"asoview-pp-cli/internal/client"
++	"github.com/spf13/cobra"
++)
++
++func init() {
++	registerNovelCommand(func(root *cobra.Command, f *rootFlags) {
++		root.AddCommand(newProductCmd(f), newHandoffCmd(f))
++		root.PersistentFlags().BoolVar(&asoviewRefresh, "refresh", false, "Refresh only responses needed for this command")
++	})
++	registerClientHook(func(c *client.Client) error {
++		if c.BaseURL != asoview.Origin {
++			return usageErr(fmt.Errorf("Asoview source origin is fixed to %s", asoview.Origin))
++		}
++		base := c.HTTPClient.Transport
++		if base == nil {
++			base = http.DefaultTransport
++		}
++		c.HTTPClient.Transport = asoview.ReadOnlyTransport{Base: base}
++		c.HTTPClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
++			if len(via) >= 3 {
++				return fmt.Errorf("redirect limit exceeded")
++			}
++			if req.URL.Scheme != "https" || req.URL.Host != "www.asoview.com" {
++				return fmt.Errorf("redirect outside Asoview source")
++			}
++			return nil
++		}
++		return nil
++	})
++}
++
++var asoviewRefresh bool
++
++func sourceAnnotations(happy string) map[string]string {
++	return map[string]string{"mcp:read-only": "true", "mcp:idempotent": "true", "pp:data-source": "auto", "pp:happy-args": happy}
++}
++func sourceClient(cmd *cobra.Command, f *rootFlags) (*asoview.Client, context.Context, context.CancelFunc, error) {
++	if f.timeout <= 0 || f.timeout > 60*time.Second {
++		return nil, nil, nil, usageErr(fmt.Errorf("--timeout must be greater than 0 and at most 60s"))
++	}
++	dir := os.Getenv("ASOVIEW_CACHE_DIR")
++	if dir == "" {
++		if f.homePath != "" {
++			dir = filepath.Join(f.homePath, "cache", "asoview-public-v1")
++		} else {
++			base, err := os.UserCacheDir()
++			if err != nil {
++				return nil, nil, nil, configErr(err)
++			}
++			dir = filepath.Join(base, "asoview-pp-cli", "public-v1")
++		}
++	}
++	ctx, cancel := context.WithTimeout(cmd.Context(), f.timeout)
++	return asoview.NewClient(dir, f.timeout, f.noCache || f.dataSource == "live", asoviewRefresh, f.dataSource == "local"), ctx, cancel, nil
++}
++func sourceFailure(err error) error {
++	var e *asoview.Error
++	if errors.As(err, &e) {
++		return &cliError{code: e.Code, err: err}
++	}
++	return apiErr(err)
++}
++func sourceOutput(cmd *cobra.Command, f *rootFlags, c *asoview.Client, result any) error {
++	payload := asoview.Object{"meta": asoview.Object{"schema_version": 1, "provider": "asoview", "language": "ja", "timezone": "Asia/Tokyo", "source": "live", "sources": c.Sources, "metrics": c.Metrics(), "missing_values": "null means not supplied or not verified", "purchase_or_booking_performed": false}, "results": result}
++	if o, ok := result.(map[string]any); ok {
++		if rows, exists := o["results"]; exists {
++			payload["results"] = rows
++			for k, v := range o {
++				if k != "results" {
++					payload[k] = v
++				}
++			}
++		}
++	}
++	if len(c.Sources) == 0 {
++		payload["meta"].(asoview.Object)["source"] = "bundled_inventory"
++	} else {
++		allCached := true
++		for _, s := range c.Sources {
++			if !s.Cached {
++				allCached = false
++				break
++			}
++		}
++		if allCached {
++			payload["meta"].(asoview.Object)["source"] = "cache"
++		}
++	}
++	raw, err := json.Marshal(payload)
++	if err != nil {
++		return err
++	}
++	// Domain views are already compact. Preserve price/validity semantics under --agent.
++	if f.selectFields != "" {
++		raw, err = filterFieldsChecked(raw, f.selectFields)
++		if err != nil {
++			return usageErr(err)
++		}
++	}
++	if f.csv || f.plain || f.quiet {
++		copyFlags := *f
++		copyFlags.compact = false
++		copyFlags.agent = false
++		copyFlags.selectFields = ""
++		return printOutputWithFlags(cmd.OutOrStdout(), raw, &copyFlags)
++	}
++	_, err = fmt.Fprintln(cmd.OutOrStdout(), string(raw))
++	return err
++}
++func oneSourceID(args []string) (string, error) {
++	if len(args) != 1 {
++		return "", usageErr(fmt.Errorf("one product source ID is required; example ticket0000049223"))
++	}
++	if _, _, err := asoview.ParseID(args[0]); err != nil {
++		return "", sourceFailure(err)
++	}
++	return args[0], nil
++}
++func newProductCmd(f *rootFlags) *cobra.Command {
++	var full bool
++	cmd := &cobra.Command{Use: "product <id>", Short: "Read ticket terms, validity, ages and advertised bands", Example: "  asoview-pp-cli product ticket0000049223 --agent\n  asoview-pp-cli product pln3000044589 --full --agent", Annotations: sourceAnnotations("id=ticket0000049223;--dry-run"), RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "product")
++		}
++		id, err := oneSourceID(args)
++		if err != nil {
++			return err
++		}
++		c, ctx, cancel, err := sourceClient(cmd, f)
++		if err != nil {
++			return err
++		}
++		defer cancel()
++		p, err := c.Product(ctx, id, full)
++		if err != nil {
++			return sourceFailure(err)
++		}
++		return sourceOutput(cmd, f, c, p)
++	}}
++	cmd.Flags().BoolVar(&full, "full", false, "Include descriptions, user manual and extra fee prose")
++	return cmd
++}
++func newHandoffCmd(f *rootFlags) *cobra.Command {
++	cmd := &cobra.Command{Use: "handoff <id>", Short: "Return the canonical product URL for human booking", Example: "  asoview-pp-cli handoff ticket0000049223 --agent", Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "computed", "pp:happy-args": "id=ticket0000049223;--dry-run"}, RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "handoff")
++		}
++		id, err := oneSourceID(args)
++		if err != nil {
++			return err
++		}
++		kind, code, _ := asoview.ParseID(id)
++		// URL derivation is explicit; this command does not claim current product existence.
++		raw, err := json.Marshal(asoview.Object{"id": code, "kind": kind, "booking_url": asoview.BookingURL(code), "existence_verified": false, "booking_performed": false})
++		if err != nil {
++			return err
++		}
++		copyFlags := *f
++		copyFlags.compact = false
++		copyFlags.asJSON = true
++		return printOutputWithFlags(cmd.OutOrStdout(), raw, &copyFlags)
++	}}
++	return cmd
++}
++func joinedIDs(args []string) ([]string, error) {
++	if len(args) < 2 || len(args) > 5 {
++		return nil, usageErr(fmt.Errorf("compare requires 2..5 product IDs"))
++	}
++	seen := map[string]bool{}
++	for _, id := range args {
++		_, code, err := asoview.ParseID(id)
++		if err != nil {
++			return nil, sourceFailure(err)
++		}
++		if seen[code] {
++			return nil, usageErr(fmt.Errorf("duplicate comparison ID %s", code))
++		}
++		seen[code] = true
++	}
++	return args, nil
++}
++func validateDateMode(date, month string) error {
++	if date != "" {
++		if _, err := asoview.ParseDate(date); err != nil {
++			return sourceFailure(err)
++		}
++	}
++	if month != "" {
++		if _, err := asoview.ParseMonth(month); err != nil {
++			return sourceFailure(err)
++		}
++	}
++	if strings.TrimSpace(date) == "" && strings.TrimSpace(month) == "" {
++		return usageErr(fmt.Errorf("--date YYYY-MM-DD or --month YYYY-MM is required"))
++	}
++	return nil
++}
+--- generated/internal/cli/discover.go
++++ project/internal/cli/discover.go
+@@ -1,37 +1,42 @@
+-// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
+-// Novel command scaffold. Implement the RunE body before shipping.
+-// generate --force preserves implemented bodies; untouched TODO scaffolds may refresh.
+ // pp:data-source auto
+-// Supported strategies: auto, local, live, or computed. Change this default deliberately.
+-
+ package cli
+ 
+ import (
++	"asoview-pp-cli/internal/asoview"
+ 	"fmt"
+-
+ 	"github.com/spf13/cobra"
+ )
+ 
+-func newNovelDiscoverCmd(flags *rootFlags) *cobra.Command {
+-	var flagRegion string
+-	var flagCategory string
+-	var flagQuery string
+-
+-	cmd := &cobra.Command{
+-		Use:         "discover",
+-		Short:       "Filter Japanese names without claiming a global keyword index.",
+-		Example:     "  asoview-pp-cli discover --region prf130000 --category 192 --query 葛西 --agent",
+-		Annotations: map[string]string{"mcp:read-only": "false", "pp:data-source": "auto", "pp:novel-scaffold": "true"},
+-		RunE: func(cmd *cobra.Command, args []string) error {
+-			if dryRunOK(flags) {
+-				return writeDryRun(cmd.OutOrStdout(), flags, "discover")
+-			}
+-			// validate required flags here
+-			return fmt.Errorf("TODO: implement novel feature %q", "discover")
+-		},
+-	}
+-	cmd.Flags().StringVar(&flagRegion, "region", "", "TODO: describe --region")
+-	cmd.Flags().StringVar(&flagCategory, "category", "", "TODO: describe --category")
+-	cmd.Flags().StringVar(&flagQuery, "query", "", "TODO: describe --query")
++func newNovelDiscoverCmd(f *rootFlags) *cobra.Command {
++	p := asoview.SearchParams{}
++	cmd := &cobra.Command{Use: "discover", Aliases: []string{"search"}, Short: "Find leisure products by region, category, date and party", Long: "Native source filters narrow discovery. --query is a local substring over bounded scanned cards, not a global keyword search. A date/party filter does not confirm a booking or final price.", Example: "  asoview-pp-cli discover --region prf130000 --category 192 --limit 5 --agent\n  asoview-pp-cli discover --region 東京都 --category 水族館 --query 葛西 --agent", Annotations: sourceAnnotations("--region=prf130000;--category=192;--dry-run"), RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "discover")
++		}
++		if len(args) != 0 {
++			return usageErr(fmt.Errorf("use --query for local text filtering"))
++		}
++		c, ctx, cancel, err := sourceClient(cmd, f)
++		if err != nil {
++			return err
++		}
++		defer cancel()
++		out, err := c.Discover(ctx, p)
++		if err != nil {
++			return sourceFailure(err)
++		}
++		return sourceOutput(cmd, f, c, out)
++	}}
++	cmd.Flags().StringVar(&p.Region, "region", "", "Source region ID or exact Japanese name; resolve with inventory")
++	cmd.Flags().StringVar(&p.Category, "category", "", "Source category/genre ID or exact Japanese name")
++	cmd.Flags().StringVar(&p.Query, "query", "", "Local title/base/category substring over scanned source cards")
++	cmd.Flags().StringVar(&p.Kind, "kind", "", "Local product kind filter: ticket or activity")
++	cmd.Flags().StringVar(&p.Date, "date", "", "Native candidate date filter in YYYY-MM-DD, Japan time")
++	cmd.Flags().StringVar(&p.Cursor, "cursor", "", "Continue from the returned opaque page:offset cursor")
++	cmd.Flags().IntVar(&p.Page, "page", 1, "Source starting page, bounded to 1..200")
++	cmd.Flags().IntVar(&p.Pages, "pages", 1, "Maximum source pages to scan, bounded to 1..5")
++	cmd.Flags().IntVar(&p.Limit, "limit", 10, "Maximum matching products returned, bounded to 1..50")
++	cmd.Flags().IntVar(&p.Adults, "adults", 1, "Native search adult quantity; total party bounded to 50")
++	cmd.Flags().IntVar(&p.Children, "children", 0, "Native search child quantity; ages are verified in options")
+ 	return cmd
+ }
+--- generated/internal/cli/availability.go
++++ project/internal/cli/availability.go
+@@ -1,33 +1,35 @@
+-// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
+-// Novel command scaffold. Implement the RunE body before shipping.
+-// generate --force preserves implemented bodies; untouched TODO scaffolds may refresh.
+ // pp:data-source auto
+-// Supported strategies: auto, local, live, or computed. Change this default deliberately.
+-
+ package cli
+ 
+-import (
+-	"fmt"
++import "github.com/spf13/cobra"
+ 
+-	"github.com/spf13/cobra"
+-)
+-
+-func newNovelAvailabilityCmd(flags *rootFlags) *cobra.Command {
+-	var flagDate string
+-
+-	cmd := &cobra.Command{
+-		Use:         "availability",
+-		Short:       "Inspect public stock for a date and quantity.",
+-		Example:     "  asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --agent",
+-		Annotations: map[string]string{"mcp:read-only": "false", "pp:data-source": "auto", "pp:novel-scaffold": "true"},
+-		RunE: func(cmd *cobra.Command, args []string) error {
+-			if dryRunOK(flags) {
+-				return writeDryRun(cmd.OutOrStdout(), flags, "availability")
+-			}
+-			// validate required flags here
+-			return fmt.Errorf("TODO: implement novel feature %q", "availability")
+-		},
+-	}
+-	cmd.Flags().StringVar(&flagDate, "date", "", "TODO: describe --date")
++func newNovelAvailabilityCmd(f *rootFlags) *cobra.Command {
++	var date, month string
++	var quantity int
++	cmd := &cobra.Command{Use: "availability <id>", Short: "Inspect public dated stock and source entry windows", Long: "Read public stock without holding it. Date validity, admission windows and reserved time slots remain distinct; quantity checks do not verify age eligibility or a checkout quote.", Example: "  asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --quantity 2 --agent\n  asoview-pp-cli availability pln3000044589 --month 2026-10 --agent", Annotations: sourceAnnotations("id=ticket0000049223;--date=2026-10-02;--dry-run"), RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "availability")
++		}
++		id, err := oneSourceID(args)
++		if err != nil {
++			return err
++		}
++		if err = validateDateMode(date, month); err != nil {
++			return err
++		}
++		c, ctx, cancel, err := sourceClient(cmd, f)
++		if err != nil {
++			return err
++		}
++		defer cancel()
++		out, err := c.Availability(ctx, id, date, month, quantity)
++		if err != nil {
++			return sourceFailure(err)
++		}
++		return sourceOutput(cmd, f, c, out)
++	}}
++	cmd.Flags().StringVar(&date, "date", "", "Source date in YYYY-MM-DD; requests one day's slots")
++	cmd.Flags().StringVar(&month, "month", "", "Calendar month YYYY-MM; requests one month's days only")
++	cmd.Flags().IntVar(&quantity, "quantity", 1, "Units requested for slot quantity check, bounded to 1..50")
+ 	return cmd
+ }
+--- generated/internal/cli/options.go
++++ project/internal/cli/options.go
+@@ -1,33 +1,33 @@
+-// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
+-// Novel command scaffold. Implement the RunE body before shipping.
+-// generate --force preserves implemented bodies; untouched TODO scaffolds may refresh.
+ // pp:data-source auto
+-// Supported strategies: auto, local, live, or computed. Change this default deliberately.
+-
+ package cli
+ 
+-import (
+-	"fmt"
++import "github.com/spf13/cobra"
+ 
+-	"github.com/spf13/cobra"
+-)
+-
+-func newNovelOptionsCmd(flags *rootFlags) *cobra.Command {
+-	var flagDate string
+-
+-	cmd := &cobra.Command{
+-		Use:         "options",
+-		Short:       "Read exact date-specific price units and age labels.",
+-		Example:     "  asoview-pp-cli options pln3000044589 --date 2026-10-03 --agent",
+-		Annotations: map[string]string{"mcp:read-only": "false", "pp:data-source": "auto", "pp:novel-scaffold": "true"},
+-		RunE: func(cmd *cobra.Command, args []string) error {
+-			if dryRunOK(flags) {
+-				return writeDryRun(cmd.OutOrStdout(), flags, "options")
+-			}
+-			// validate required flags here
+-			return fmt.Errorf("TODO: implement novel feature %q", "options")
+-		},
+-	}
+-	cmd.Flags().StringVar(&flagDate, "date", "", "TODO: describe --date")
++func newNovelOptionsCmd(f *rootFlags) *cobra.Command {
++	var date, slot, party string
++	var quantity int
++	cmd := &cobra.Command{Use: "options <id>", Short: "Read advertised or dated fee bands with exact source units", Long: "Dated ticket bands require a slot; a single slot is selected automatically. Multiple slots return an explicit selection requirement. --party computes a labeled band subtotal, never a confirmed checkout total.", Example: "  asoview-pp-cli options ticket0000049223 --date 2026-10-02 --agent\n  asoview-pp-cli options pln3000044589 --date 2026-10-03 --agent", Annotations: sourceAnnotations("id=ticket0000049223;--date=2026-10-02;--dry-run"), RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "options")
++		}
++		id, err := oneSourceID(args)
++		if err != nil {
++			return err
++		}
++		c, ctx, cancel, err := sourceClient(cmd, f)
++		if err != nil {
++			return err
++		}
++		defer cancel()
++		out, err := c.Options(ctx, id, date, slot, quantity, party)
++		if err != nil {
++			return sourceFailure(err)
++		}
++		return sourceOutput(cmd, f, c, out)
++	}}
++	cmd.Flags().StringVar(&date, "date", "", "Fetch date-specific bands in YYYY-MM-DD instead of advertised bands")
++	cmd.Flags().StringVar(&slot, "slot", "", "Select the source slot ID or its start time")
++	cmd.Flags().StringVar(&party, "party", "", "Dated option-id:quantity pairs for a labeled unconfirmed subtotal")
++	cmd.Flags().IntVar(&quantity, "quantity", 1, "Units for selected slot stock check, bounded to 1..50")
+ 	return cmd
+ }
+--- generated/internal/cli/compare.go
++++ project/internal/cli/compare.go
+@@ -1,31 +1,36 @@
+-// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
+-// Novel command scaffold. Implement the RunE body before shipping.
+-// generate --force preserves implemented bodies; untouched TODO scaffolds may refresh.
+ // pp:data-source auto
+-// Supported strategies: auto, local, live, or computed. Change this default deliberately.
+-
+ package cli
+ 
+ import (
+-	"fmt"
+-
++	"asoview-pp-cli/internal/asoview"
+ 	"github.com/spf13/cobra"
+ )
+ 
+-func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
+-
+-	cmd := &cobra.Command{
+-		Use:         "compare",
+-		Short:       "Compare a bounded shortlist and preserve missing values.",
+-		Example:     "  asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent",
+-		Annotations: map[string]string{"mcp:read-only": "false", "pp:data-source": "auto", "pp:novel-scaffold": "true"},
+-		RunE: func(cmd *cobra.Command, args []string) error {
+-			if dryRunOK(flags) {
+-				return writeDryRun(cmd.OutOrStdout(), flags, "compare")
++func newNovelCompareCmd(f *rootFlags) *cobra.Command {
++	cmd := &cobra.Command{Use: "compare <id> <id> [id...]", Short: "Compare terms and advertised bands for two to five products", Example: "  asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent", Annotations: sourceAnnotations("id=ticket0000049223;id=ticket0000012233;--dry-run"), RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "compare")
++		}
++		ids, err := joinedIDs(args)
++		if err != nil {
++			return err
++		}
++		c, ctx, cancel, err := sourceClient(cmd, f)
++		if err != nil {
++			return err
++		}
++		defer cancel()
++		results := []asoview.Object{}
++		for _, id := range ids {
++			p, e := c.Product(ctx, id, false)
++			if e != nil {
++				return sourceFailure(e)
+ 			}
+-			// validate required flags here
+-			return fmt.Errorf("TODO: implement novel feature %q", "compare")
+-		},
+-	}
++			delete(p, "related_products")
++			delete(p, "location")
++			results = append(results, p)
++		}
++		return sourceOutput(cmd, f, c, asoview.Object{"results": results, "comparison": asoview.Object{"price_basis": "advertised_bands_only", "date_party_total": nil, "terms_may_differ": true, "complete": true}})
++	}}
+ 	return cmd
+ }
+--- generated/internal/cli/inventory.go
++++ project/internal/cli/inventory.go
+@@ -1,35 +1,36 @@
+-// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
+-// Novel command scaffold. Implement the RunE body before shipping.
+-// generate --force preserves implemented bodies; untouched TODO scaffolds may refresh.
+ // pp:data-source auto
+-// Supported strategies: auto, local, live, or computed. Change this default deliberately.
+-
+ package cli
+ 
+ import (
+ 	"fmt"
+-
+ 	"github.com/spf13/cobra"
+ )
+ 
+-func newNovelInventoryCmd(flags *rootFlags) *cobra.Command {
+-	var flagKind string
+-	var flagQuery string
+-
+-	cmd := &cobra.Command{
+-		Use:         "inventory",
+-		Short:       "Resolve region/category IDs with explicit refresh control.",
+-		Example:     "  asoview-pp-cli inventory --kind categories --query 水族館 --agent",
+-		Annotations: map[string]string{"mcp:read-only": "false", "pp:data-source": "auto", "pp:novel-scaffold": "true"},
+-		RunE: func(cmd *cobra.Command, args []string) error {
+-			if dryRunOK(flags) {
+-				return writeDryRun(cmd.OutOrStdout(), flags, "inventory")
+-			}
+-			// validate required flags here
+-			return fmt.Errorf("TODO: implement novel feature %q", "inventory")
+-		},
+-	}
+-	cmd.Flags().StringVar(&flagKind, "kind", "", "TODO: describe --kind")
+-	cmd.Flags().StringVar(&flagQuery, "query", "", "TODO: describe --query")
++func newNovelInventoryCmd(f *rootFlags) *cobra.Command {
++	var kind, query string
++	var limit int
++	var refresh bool
++	cmd := &cobra.Command{Use: "inventory", Short: "Resolve first-party Japanese region and category source IDs", Example: "  asoview-pp-cli inventory --kind categories --query 水族館 --agent\n  asoview-pp-cli inventory --kind regions --query 東京 --refresh-inventory --agent", Annotations: sourceAnnotations("--kind=categories;--query=水族館;--dry-run"), RunE: func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(f) {
++			return writeDryRun(cmd.OutOrStdout(), f, "inventory")
++		}
++		if len(args) != 0 {
++			return usageErr(fmt.Errorf("inventory uses --kind and --query"))
++		}
++		c, ctx, cancel, err := sourceClient(cmd, f)
++		if err != nil {
++			return err
++		}
++		defer cancel()
++		out, err := c.Inventory(ctx, kind, query, limit, refresh)
++		if err != nil {
++			return sourceFailure(err)
++		}
++		return sourceOutput(cmd, f, c, out)
++	}}
++	cmd.Flags().StringVar(&kind, "kind", "categories", "Taxonomy kind: regions or categories (Japanese source IDs)")
++	cmd.Flags().StringVar(&query, "query", "", "Local Japanese name or source-ID substring filter")
++	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum matching inventory rows returned, bounded to 1..100")
++	cmd.Flags().BoolVar(&refresh, "refresh-inventory", false, "Explicitly retrieve current first-party taxonomy page instead of bundle")
+ 	return cmd
+ }
+--- generated/README.md
++++ project/README.md
+@@ -1,326 +1,90 @@
+ # Asoview CLI
+ 
+-**Discover and compare Japan leisure tickets with explicit price units, terms and public dated availability.**
+-
+-Bounded first-party discovery, lazy detail and honest date/party coverage. Human handoff only.
+-
+-Learn more at [Asoview](https://www.asoview.com).
+-
+-Created by [@zjsng-trav](https://github.com/zjsng-trav) (zjsng).
+-
+-## Install
+-
+-The recommended path installs both the `asoview-pp-cli` binary and the `pp-asoview` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+-
+-```bash
+-npx -y @mvanhorn/printing-press-library install asoview
+-```
+-
+-For CLI only (no skill):
+-
+-```bash
+-npx -y @mvanhorn/printing-press-library install asoview --cli-only
+-```
+-
+-For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+-
+-```bash
+-npx -y @mvanhorn/printing-press-library install asoview --skill-only
+-```
+-
+-To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+-
+-```bash
+-npx -y @mvanhorn/printing-press-library install asoview --agent claude-code
+-npx -y @mvanhorn/printing-press-library install asoview --agent claude-code --agent codex
+-```
+-
+-### Without Node (Go fallback)
+-
+-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
+-
+-```bash
+-go install github.com/mvanhorn/printing-press-library/library/travel/asoview/cmd/asoview-pp-cli@latest
+-```
+-
+-This installs the CLI only — no skill.
+-
+-### Pre-built binary
+-
+-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/asoview-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+-
+-<!-- pp-hermes-install-anchor -->
+-## Install for Hermes
+-
+-Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
+-
+-```bash
+-npx -y @mvanhorn/printing-press-library install asoview --cli-only
+-```
+-
+-Then install the focused Hermes skill.
+-
+-From the Hermes CLI:
+-
+-```bash
+-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-asoview --force
+-```
+-
+-Inside a Hermes chat session:
+-
+-```bash
+-/skills install mvanhorn/printing-press-library/cli-skills/pp-asoview --force
+-```
+-
+-Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
+-
+-## Install for OpenClaw
+-Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
+-
+-```bash
+-npx -y @mvanhorn/printing-press-library install asoview --agent openclaw
+-```
+-
+-Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+-
+-## Use with Claude Desktop
+-
+-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+-
+-To install:
+-
+-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/asoview-current).
+-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+-
+-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+-
+-<details>
+-<summary>Manual JSON config (advanced)</summary>
+-
+-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+-
+-
+-```bash
+-go install github.com/mvanhorn/printing-press-library/library/travel/asoview/cmd/asoview-pp-mcp@latest
+-```
+-
+-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+-
+-```json
+-{
+-  "mcpServers": {
+-    "asoview": {
+-      "command": "asoview-pp-mcp"
+-    }
+-  }
+-}
+-```
+-
+-</details>
+-
+-## Authentication
+-
+-Selected public GETs need no credentials or paid account.
++Discover and compare Japan leisure attraction tickets and experiences from **www.asoview.com**. Anonymous public GETs only; no account, paid key, purchases, reservations or ticket holds.
+ 
+ ## Quick Start
+ 
++Requires Go 1.26.6 or newer. This build is local and has not been published to a package registry.
++
+ ```bash
+-# Inspect runtime capabilities.
+-asoview-pp-cli doctor --dry-run
+-
+-
+-# Find Tokyo aquarium candidates.
+-asoview-pp-cli discover --region prf130000 --category 192 --agent
+-
+-
+-# Read age bands, terms and validity.
+-asoview-pp-cli product ticket0000049223 --agent
+-
++go build -o asoview-pp-cli ./cmd/asoview-pp-cli
++./asoview-pp-cli inventory --kind categories --query 水族館
++./asoview-pp-cli discover --region prf130000 --category 192 --limit 5
++./asoview-pp-cli product ticket0000049223
++./asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --quantity 2
+ ```
+ 
+-## Unique Features
+-
+-These capabilities aren't available in any other tool for this API.
+-
+-### Japan leisure planning
+-
+-- **`compare`** — Compare a bounded shortlist and preserve missing values.
+-
+-  _Compare a bounded shortlist and preserve missing values._
+-
+-  ```bash
+-  asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent
+-  ```
+-- **`discover`** — Filter Japanese names without claiming a global keyword index.
+-
+-  _Filter Japanese names without claiming a global keyword index._
+-
+-  ```bash
+-  asoview-pp-cli discover --region prf130000 --category 192 --query 葛西 --agent
+-  ```
+-- **`availability`** — Inspect public stock for a date and quantity.
+-
+-  _Inspect public stock for a date and quantity._
+-
+-  ```bash
+-  asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --agent
+-  ```
+-- **`options`** — Read exact date-specific price units and age labels.
+-
+-  _Read exact date-specific price units and age labels._
+-
+-  ```bash
+-  asoview-pp-cli options pln3000044589 --date 2026-10-03 --agent
+-  ```
+-- **`inventory`** — Resolve region/category IDs with explicit refresh control.
+-
+-  _Resolve region/category IDs with explicit refresh control._
+-
+-  ```bash
+-  asoview-pp-cli inventory --kind categories --query 水族館 --agent
+-  ```
+-
+-## Recipes
+-
+-
+-### Small shortlist
+-
+-```bash
+-asoview-pp-cli discover --region prf130000 --category 192 --agent --select results.id,results.name_ja,results.booking_url
+-```
+-
+-Project only handoff fields.
+-
+-### Dated stock
+-
+-```bash
+-asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --agent
+-```
+-
+-Stock is a snapshot, no booking.
+-
+-### Terms comparison
+-
+-```bash
+-asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent
+-```
+-
+-Compare advertised bands and ticket terms.
+-
+-## Usage
+-
+-Run `asoview-pp-cli --help` for the full command reference and flag list.
+-
+-## Paths & environment variables
+-
+-This CLI separates local files into four path kinds:
+-
+-| Kind | Contents |
+-|------|----------|
+-| `config` | User-editable settings such as `config.toml` and saved profiles |
+-| `data` | Durable local data such as `data.db` |
+-| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+-| `cache` | Regenerable HTTP/cache files |
+-
+-Each kind resolves independently. The ladder is:
+-
+-1. Per-kind env var: `ASOVIEW_CONFIG_DIR`, `ASOVIEW_DATA_DIR`, `ASOVIEW_STATE_DIR`, or `ASOVIEW_CACHE_DIR`
+-2. `--home <dir>` for this invocation
+-3. `ASOVIEW_HOME` for a flat relocated root
+-4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+-5. Platform defaults matching existing installs
+-
+-For containers and agent sandboxes, prefer a single relocated root:
+-
+-```bash
+-export ASOVIEW_HOME=/srv/asoview
+-asoview-pp-cli doctor
+-```
+-
+-Under `ASOVIEW_HOME=/srv/asoview`, the four dirs resolve to `/srv/asoview/config`, `/srv/asoview/data`, `/srv/asoview/state`, and `/srv/asoview/cache`.
+-
+-MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+-
+-```json
+-{
+-  "mcpServers": {
+-    "asoview": {
+-      "command": "asoview-pp-mcp",
+-      "env": {
+-        "ASOVIEW_HOME": "/srv/asoview"
+-      }
+-    }
+-  }
+-}
+-```
+-
+-Precedence matters in fleets: an ambient per-kind variable such as `ASOVIEW_DATA_DIR` overrides an explicit `--home` for that kind. Use `ASOVIEW_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+-
+-Relocation is one-way. Unsetting `ASOVIEW_HOME` does not move files back to platform defaults, and `doctor` cannot find files left under a former root. Move the files manually before unsetting relocation variables.
+-
+-Existing installs keep working because the platform-default rung matches the legacy layout. Run `asoview-pp-cli doctor --fail-on warn` to check path warnings in automation.
+-
+-## Commands
+-
+-### source
+-
+-First-party read-only source pages; prefer discover/product for normalized output.
+-
+-- **`asoview-pp-cli source detail`** - Inspect first-party public product page metadata.
+-- **`asoview-pp-cli source index`** - Inspect first-party public discovery page metadata.
+-
+-
+-## Output Formats
+-
+-```bash
+-# Human-readable table (default in terminal, JSON when piped)
+-asoview-pp-cli source detail mock-value mock-value
+-
+-# JSON for scripting and agents
+-asoview-pp-cli source detail mock-value mock-value --json
+-# Filter to specific fields by name
+-asoview-pp-cli source detail mock-value mock-value --json --select <field>[,<field>...]
+-
+-# Dry run — show the request without sending
+-asoview-pp-cli source detail mock-value mock-value --dry-run
+-
+-# Agent mode — JSON + compact + no prompts in one flag
+-asoview-pp-cli source detail mock-value mock-value --agent
+-```
++Replace example dates with your intended Japan local date. Source IDs and Japanese names are preserved. `search` aliases `discover`.
+ 
+ ## Agent Usage
+ 
+-This CLI is designed for AI agent consumption:
++Business commands emit compact JSON by default. `--agent` enables the framework's non-interactive defaults. Inspect `agent-context --pretty`, `which "dated stock" --json` or command help for runtime vocabulary.
+ 
+-- **Non-interactive** - never prompts, every input is a flag
+-- **Pipeable** - `--json` output to stdout, errors to stderr
+-- **Filterable** - `--select <field>[,<field>...]` returns only fields you need
+-- **Previewable** - `--dry-run` shows the request without sending
+-- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
+-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+-- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
++```bash
++./asoview-pp-cli discover --region prf130000 --category 192 --agent --select results.id,results.name_ja,results.booking_url
++./asoview-pp-cli product ticket0000049223 --agent --select results.id,results.options,results.validity,results.cancellation
++```
+ 
+-Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
++Every business response includes `meta.sources` with source URLs, fetch times, cache status and TTL, plus request counts, bytes and latency. Missing/unsupported values are `null`, empty arrays or an explicit coverage reason. JSON stdout contains data; diagnostics use stderr. Explicit projection can omit metadata, so retain `meta` when freshness matters. Currency is JPY; units are the source's Japanese units (`枚`, `名`, etc.) or `null` when absent.
++
++## Commands and coverage
++
++| Command | Behavior |
++|---|---|
++| `discover` | Native region/category/date/adult/child filters; local `--query` and `--kind`; bounded pagination |
++| `product ID` | Advertised bands, source age labels, inclusions, conditions, validity, cancellations, related product summaries; `--full` adds prose |
++| `availability ID` | One date's calendar and slots, or one month of calendar days; requested quantity check |
++| `options ID` | Advertised bands; `--date` retrieves public dated bands; timed tickets may require `--slot` |
++| `compare ID ID` | Two to five products in a common terms/price schema; fails if any source fetch fails |
++| `inventory` | Bundled or previously explicitly refreshed Japanese regions/categories; `--refresh-inventory` retrieves and saves the current source page |
++| `handoff ID` | Derives a canonical product URL without checking existence or taking any booking action |
++| `doctor` | Framework health and source reachability; `--dry-run` performs no network work |
++
++`--region` and `--category` accept source IDs or exact Japanese names. Resolve names with `inventory --kind regions|categories --query TEXT`. This focused inventory contains Japanese region/prefecture filters and the provider's category/genre hierarchy. It does not provide an exhaustive municipal location index. Japanese pages are the verified language surface; other first-party language variants are unverified.
++
++`--query` is a local substring over scanned title/base/category cards. It is **not a global keyword index**: an empty bounded result does not mean Asoview has no matching product. Native date/party search filters narrow candidates and do not prove stock or final prices. Returned totals count source venues, while results contain visible product cards.
++
++Pagination defaults: ten matches from at most one source page. `--pages` allows 1–5; `--limit` allows 1–50; `--page` allows 1–200. Use returned `coverage.next_cursor` with `--cursor` to continue from an unreturned card on the same page. Inventory output defaults to twenty matches, at most one hundred. Slots and dated fee bands are capped at one hundred.
++
++## Price and entry semantics
++
++- `advertised_price` and undated option prices are advertised amounts. A ticket's minimum can be a child or senior band. It is not the adult price or a party total.
++- Calendar and slot prices carry a date and distinct `basis`. Dated option bands expose source IDs, exact units and age-label text. Numeric ages are parsed only when stated; school-age labels retain unknown numeric boundaries.
++- `options --date ... --party ID:COUNT,ID:COUNT` calculates a **band subtotal**, excluding extra fees, discounts, dependencies and checkout validation. `quote_confirmed` is false and `date_party_total` remains null.
++- General admission validity is separate from a reserved date/time. A date-only ticket's opening window is labeled `admission_window_on_selected_date`; titles explicitly indicating timed entry are labeled `reserved_entry_window`. Ambiguous source windows stay unclassified. No slot is reserved by this tool.
++- General tickets with no public reserved-slot inventory return unknown dated stock with a coverage reason. Published excluded dates and expiry remain usable as negative eligibility evidence.
++- Request-only, sold-out, closed, deadline-passed and unknown states are distinct. Remaining quantities are public snapshots; age/dependency eligibility remains unverified. Activity product age limits can disagree with dated fee labels; both are preserved.
++- Cancellation rules and Japanese conditions are source text/structured data, including purchase-type-specific variants. Sales periods are labeled separately from ticket validity.
++
++## Cookbook
++
++```bash
++./asoview-pp-cli discover --region prf130000 --category 192 --query 葛西 --pages 2
++./asoview-pp-cli options ticket0000049223 --date 2026-10-02 --party 2411665:2,2411667:1
++./asoview-pp-cli availability pln3000044589 --month 2026-10
++./asoview-pp-cli compare ticket0000049223 ticket0000012233
++./asoview-pp-cli handoff ticket0000049223 --agent
++```
++
++## Cache and runtime limits
++
++Business commands use a task-specific public response cache under the OS cache directory `asoview-pp-cli/public-v1`. Override with `ASOVIEW_CACHE_DIR` or use `--home DIR`. Freshness: product HTML 24 hours, discovery five minutes, stock/dated fees thirty seconds. `--refresh` refreshes only requested responses; `--no-cache` bypasses all cache reads/writes. `--data-source live` bypasses business-response caching; `local` uses only fresh cache and never calls the source. Reference inventory refresh is explicit and saved for later commands; there is no automatic full catalog crawl.
++
++The dedicated cache is bounded to 128 managed files / 32 MiB, pruned oldest first. Response bodies are capped at 4 MiB. Calls are sequential, paced at least 300 ms apart, and allow one retry for 429/502/503/504 within a five-second retry delay cap. Business command deadlines default to sixty seconds and `--timeout` may reduce them. At most twenty network attempts per business invocation. No browser is needed at runtime; the CLI is a Go executable with the generated Press framework. MCP stdio is also buildable with `go build ./cmd/asoview-pp-mcp`.
+ 
+ ## Health Check
+ 
+ ```bash
+-asoview-pp-cli doctor
++./asoview-pp-cli doctor --json
++./asoview-pp-cli product ticket0000049223 --refresh --select meta
+ ```
+ 
+-Verifies configuration and connectivity to the API.
++## Troubleshooting
+ 
+-## Configuration
++Exit codes: 0 success, 2 input/projection error, 3 missing source, 4 access denied, 5 network/schema/cache-miss failure, 7 rate limit, 10 cache/config error. Errors never become a successful empty result. Upstream denial or layout changes require rechecking public access; the CLI does not import account cookies or bypass challenges. For cache write problems, use `--no-cache` or a writable `ASOVIEW_CACHE_DIR`. A calendar/fee schema failure is reported, not inferred as sold out.
+ 
+-Run `asoview-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is ``; `--home`, `ASOVIEW_HOME`, and per-kind env vars can relocate it.
++Asoview's crawler rules disallow API/stock routes. This CLI performs explicit bounded read-only public requests and no crawler traversal. Public website contracts are unofficial and may change; `evidence/research.md` records access and coverage observations.
+ 
+-Static request headers can be configured under `headers`; per-command header overrides take precedence.
++## Local artifacts and validation
+ 
+-## Troubleshooting
+-**Not found errors (exit code 3)**
+-- Check the resource ID is correct
+-- Run the `list` command to see available items
+-
+----
+-
+-Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)
++The project is the editable source. `evidence/FINAL.md` records exact canonical staging/library/manuscript paths, independent review, Press acceptance, live source checks and cached/uncached output/request/latency/peak-memory measurements. `scripts/live_check.py` is a live public-source assertion runner; deterministic tests use clearly labeled synthetic responses.
+--- generated/SKILL.md
++++ project/SKILL.md
+@@ -1,287 +1,64 @@
+ ---
+ name: pp-asoview
+-description: "Discover and compare Japan leisure tickets with explicit price units, terms and public dated availability. Trigger phrases: `find Asoview tickets`, `compare Japan attraction tickets`, `check Asoview dates`, `use asoview`, `run asoview`."
+-author: "zjsng"
+-license: "Apache-2.0"
+-argument-hint: "<command> [args] | install cli|mcp"
+-allowed-tools: "Read Bash"
+-metadata:
+-  openclaw:
+-    requires:
+-      bins:
+-        - asoview-pp-cli
+-    install:
+-      - kind: go
+-        bins: [asoview-pp-cli]
+-        module: github.com/mvanhorn/printing-press-library/library/travel/asoview/cmd/asoview-pp-cli
++description: Discover and compare Asoview Japan leisure tickets, inspect public dates and price bands, or return booking handoff URLs. Use for Asoview tickets, Asoview availability, or Japan attraction comparisons anchored to Asoview.
++license: Apache-2.0
+ ---
+ 
+-# Asoview — Printing Press CLI
++# Asoview
+ 
+ ## Prerequisites: Install the CLI
+ 
+-This skill drives the `asoview-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+-
+-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+-   ```bash
+-   npx -y @mvanhorn/printing-press-library install asoview --cli-only
+-   ```
+-2. Verify: `asoview-pp-cli --version`
+-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+-
+-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
++Use the local build from this project or its promoted local library copy. It has not been published to a registry. From the project:
+ 
+ ```bash
+-go install github.com/mvanhorn/printing-press-library/library/travel/asoview/cmd/asoview-pp-cli@latest
++go build -o asoview-pp-cli ./cmd/asoview-pp-cli
++./asoview-pp-cli --version
+ ```
+ 
+-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+-
+-Bounded first-party discovery, lazy detail and honest date/party coverage. Human handoff only.
++Resolve `asoview-pp-cli` from the local build path before running examples below. Requires Go 1.26.6 or newer to build; no credentials or paid account for the verified public surface.
+ 
+ ## When to Use This CLI
+ 
+-Japan leisure ticket and experience discovery, dated public stock and source terms comparison.
++Find Asoview leisure tickets and experiences in Japan, compare terms, inspect dated public stock and fee bands, and hand off a canonical booking URL. Japanese content is the verified first-party language surface.
+ 
+ ## Anti-triggers
+ 
+-Do not use this CLI for:
+-- Purchases, bookings or ticket holds.
+-- Other providers.
++Purchases, reservations, ticket holds, account/history access, other providers and guaranteed checkout quotes belong to other workflows.
++
++## Operating steps
++
++1. Resolve source IDs with `inventory --kind regions` or `inventory --kind categories`. Exact Japanese names or IDs work in filters.
++2. Run `discover` with native region/category/date/party filters. Use `--query` only as a local substring over bounded scanned cards. Inspect `coverage.partial` and `coverage.next_cursor` before interpreting an empty result.
++3. Fetch only shortlisted `product` details. Undated prices are advertised bands; lowest ticket price may be a child band. Use `--full` only when descriptions/manuals are needed.
++4. Use `availability` for one date or calendar month. Preserve unknown/request-only/closed/sold-out distinctions, source units and timestamps. Date validity and opening hours do not create a reserved slot.
++5. Use dated `options` when exact bands matter; select `--slot` from returned source slots when required. `--party` calculates an unconfirmed subtotal with exclusions, not a checkout quote. Preserve product and dated band age labels when they differ.
++6. Finish with `handoff`. It derives the canonical URL; current existence is verified by `product`, not handoff alone.
+ 
+ ## Unique Capabilities
+ 
+-These capabilities aren't available in any other tool for this API.
++- `compare`: source terms and advertised bands for two to five products.
++- `discover`: native filters plus bounded local text relevance and continuation.
++- `availability`: dated public calendars/slots with quantity-aware stock status.
++- `options`: lazy dated fee bands with exact source units and age labels.
++- `inventory`: first-party taxonomy with explicit refresh and locally saved snapshots.
+ 
+-### Japan leisure planning
+-
+-- **`compare`** — Compare a bounded shortlist and preserve missing values.
+-
+-  _Compare a bounded shortlist and preserve missing values._
+-
+-  ```bash
+-  asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent
+-  ```
+-- **`discover`** — Filter Japanese names without claiming a global keyword index.
+-
+-  _Filter Japanese names without claiming a global keyword index._
+-
+-  ```bash
+-  asoview-pp-cli discover --region prf130000 --category 192 --query 葛西 --agent
+-  ```
+-- **`availability`** — Inspect public stock for a date and quantity.
+-
+-  _Inspect public stock for a date and quantity._
+-
+-  ```bash
+-  asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --agent
+-  ```
+-- **`options`** — Read exact date-specific price units and age labels.
+-
+-  _Read exact date-specific price units and age labels._
+-
+-  ```bash
+-  asoview-pp-cli options pln3000044589 --date 2026-10-03 --agent
+-  ```
+-- **`inventory`** — Resolve region/category IDs with explicit refresh control.
+-
+-  _Resolve region/category IDs with explicit refresh control._
+-
+-  ```bash
+-  asoview-pp-cli inventory --kind categories --query 水族館 --agent
+-  ```
+-
+-## Command Reference
+-
+-**source** — First-party read-only source pages; prefer discover/product for normalized output.
+-
+-- `asoview-pp-cli source detail` — Inspect first-party public product page metadata.
+-- `asoview-pp-cli source index` — Inspect first-party public discovery page metadata.
+-
+-
+-### Finding the right command
+-
+-When you know what you want to do but not which command does it, ask the CLI directly:
++## Worked examples
+ 
+ ```bash
+-asoview-pp-cli which "<capability in your own words>"
++asoview-pp-cli discover --region prf130000 --category 192 --agent --select meta,results.id,results.name_ja,results.booking_url
++asoview-pp-cli product ticket0000049223 --agent
++asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --quantity 2 --agent
++asoview-pp-cli options ticket0000049223 --date 2026-10-02 --party 2411665:2,2411667:1 --agent
++asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent
++asoview-pp-cli inventory --kind categories --query 水族館 --refresh-inventory --agent
+ ```
+ 
+-`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query. `--json` (and other machine formats) keep that exit-2 contract and write `{"matches":[]}` on stdout so agents can inspect the envelope without treating a miss as success.
++Replace dates with the intended Japan local date. Units, fees, cancellation conditions and limits come from source data; missing facts remain null. `meta.sources` carries freshness and `meta.metrics` carries actual network/cache work. Explicit projection can omit metadata.
+ 
+-## Recipes
++## Health and failures
+ 
++Use `doctor --json`, command help or `agent-context --pretty` for runtime truth. Business stdout is compact JSON and diagnostics are stderr. Input/schema/source failures exit nonzero; empty discovery is a successful bounded scan, not a network failure.
+ 
+-### Small shortlist
++Use `--refresh` for a fresh requested response, `--no-cache` to bypass cache, or `--data-source local` for fresh cache only. `--data-source live` bypasses business caching. Inventory refresh requires `--refresh-inventory`; default inventory reads never fetch the complete taxonomy.
+ 
+-```bash
+-asoview-pp-cli discover --region prf130000 --category 192 --agent --select results.id,results.name_ja,results.booking_url
+-```
+-
+-Project only handoff fields.
+-
+-### Dated stock
+-
+-```bash
+-asoview-pp-cli availability ticket0000049223 --date 2026-10-02 --agent
+-```
+-
+-Stock is a snapshot, no booking.
+-
+-### Terms comparison
+-
+-```bash
+-asoview-pp-cli compare ticket0000049223 ticket0000012233 --agent
+-```
+-
+-Compare advertised bands and ticket terms.
+-
+-## Auth Setup
+-
+-Selected public GETs need no credentials or paid account.
+-
+-Run `asoview-pp-cli doctor` to verify setup.
+-
+-## Agent Mode
+-
+-Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color`.
+-
+-Global format flags share one contract on promoted, novel, sync, and `--deliver` paths:
+-
+-- `--json` — one JSON document on stdout (sync progress events go to stderr)
+-- `--compact` — keep identity/status/timestamp fields; does not change the document vs stream shape
+-- `--csv` / `--plain` — tabular rows (collection envelopes unwrap to the row array)
+-- `--quiet` — one identity value per row, no envelope
+-
+-- **Pipeable** — JSON on stdout, errors on stderr
+-- **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
+-
+-  ```bash
+-  asoview-pp-cli source detail mock-value mock-value --agent
+-  ```
+-- **Previewable** — `--dry-run` shows the request without sending
+-- **Offline-friendly** — sync/search commands can use the local SQLite store when available
+-- **Non-interactive** — never prompts, every input is a flag
+-- **Read-only** — do not use this CLI for create, update, delete, publish, comment, upvote, invite, order, send, or other mutating requests
+-
+-### Response envelope
+-
+-Commands that read from the local store or the API wrap output in a provenance envelope:
+-
+-```json
+-{
+-  "meta": {"source": "live" | "local", "synced_at": "...", "reason": "..."},
+-  "results": <data>
+-}
+-```
+-
+-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
+-
+-## Paths and state
+-
+-Agents should treat the CLI's path resolver as part of the runtime contract:
+-
+-- Use `--home <dir>` for one invocation, or set `ASOVIEW_HOME=<dir>` to relocate all four path kinds under one root.
+-- Use per-kind env vars only when a specific kind must diverge: `ASOVIEW_CONFIG_DIR`, `ASOVIEW_DATA_DIR`, `ASOVIEW_STATE_DIR`, `ASOVIEW_CACHE_DIR`.
+-- Resolution order is per-kind env var, `--home`, `ASOVIEW_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
+-- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
+-- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
+-- Run `asoview-pp-cli doctor --fail-on warn` to surface path warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
+-- For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
+-
+-  ```json
+-  {
+-    "mcpServers": {
+-      "asoview": {
+-        "command": "asoview-pp-mcp",
+-        "env": {
+-          "ASOVIEW_HOME": "/srv/asoview"
+-        }
+-      }
+-    }
+-  }
+-  ```
+-
+-Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `ASOVIEW_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `ASOVIEW_HOME`, or `doctor` will not find credentials left under the former root.
+-
+-## Agent Feedback
+-
+-When you (or the agent) notice something off about this CLI, record it:
+-
+-```
+-asoview-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
+-asoview-pp-cli feedback --stdin < notes.txt
+-asoview-pp-cli feedback list --json --limit 10
+-```
+-
+-Entries are stored locally as `feedback.jsonl` under the resolved data dir. They are never POSTed unless `ASOVIEW_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `ASOVIEW_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+-
+-Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+-
+-## Output Delivery
+-
+-Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
+-
+-| Sink | Effect |
+-|------|--------|
+-| `stdout` | Default; write to stdout only |
+-| `file:<path>` | Atomically write output to `<path>` (tmp + rename). Binary-response commands write decoded payload bytes (not the base64 JSON envelope) and print a small JSON receipt on stdout; `--json`/`--csv` do not refuse when this sink is set. |
+-| `webhook:<url>` | POST the output body to the URL (`application/json`) |
+-
+-Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
+-
+-## Named Profiles
+-
+-A profile is a saved set of flag values, reused across invocations. Use it when a scheduled or recurring agent reuses the same saved flags while providing different input each run.
+-
+-```
+-asoview-pp-cli profile save briefing --json
+-asoview-pp-cli --profile briefing source detail mock-value mock-value
+-asoview-pp-cli profile list --json
+-asoview-pp-cli profile show briefing
+-asoview-pp-cli profile delete briefing --yes
+-```
+-
+-Explicit flags always win over profile values; profile values win over defaults. `agent-context` lists all available profiles under `available_profiles` so introspecting agents discover them at runtime.
+-
+-## Exit Codes
+-
+-| Code | Meaning |
+-|------|---------|
+-| 0 | Success |
+-| 2 | Usage error (wrong arguments) |
+-| 3 | Resource not found |
+-| 5 | API error (upstream issue) |
+-| 7 | Rate limited (wait and retry) |
+-| 10 | Config error |
+-
+-## Argument Parsing
+-
+-Parse `$ARGUMENTS`:
+-
+-1. **Empty, `help`, or `--help`** → show `asoview-pp-cli --help` output
+-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
+-3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
+-
+-## MCP Server Installation
+-
+-1. Install the MCP server:
+-   ```bash
+-   go install github.com/mvanhorn/printing-press-library/library/travel/asoview/cmd/asoview-pp-mcp@latest
+-   ```
+-2. Register with Claude Code:
+-   ```bash
+-   claude mcp add asoview-pp-mcp -- asoview-pp-mcp
+-   ```
+-3. Verify: `claude mcp list`
+-
+-## Direct Use
+-
+-1. Check if installed: `which asoview-pp-cli`
+-   If not found, offer to install (see Prerequisites at the top of this skill).
+-2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
+-3. Execute with the `--agent` flag:
+-   ```bash
+-   asoview-pp-cli <command> [subcommand] [args] --agent
+-   ```
+-4. If ambiguous, drill into subcommand help: `asoview-pp-cli <command> --help`.
++Read README.md for exact limits, price/entry semantics and canonical evidence paths. Completion requires a relevant shortlist, verified requested public facts or explicit unknown coverage, and a canonical URL; no booking action is performed.
+--- generated/AGENTS.md
++++ project/AGENTS.md
+@@ -1,70 +1,11 @@
+-# Asoview Printed CLI Agent Guide
++# Asoview agent guide
+ 
+-This directory is a generated `asoview-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
++This is a focused read-only Asoview CLI built from public first-party HTML/GET contracts. Keep business behavior in `internal/asoview` and command adaptation in `internal/cli`. The Press framework is generator-owned; record essential generated-tree customizations under `.printing-press-patches/` so reprints retain their invariants.
+ 
+-## Local Operating Contract
++Before changing source contracts, read `evidence/research.md` and `evidence/scope.md`. For live verification, use `scripts/live_check.py`; recorded output and synthetic tests are separate evidence categories. Read `evidence/FINAL.md` for the canonical staging/library paths and acceptance/review receipts.
+ 
+-Start by asking the generated CLI for current runtime truth:
++Preserve source IDs/Japanese labels, canonical first-party URLs, nulls, exact units and fetch times. Advertised prices, dated bands, computed subtotals and confirmed quotes are distinct. General ticket validity, admission windows and reserved entry slots are distinct. Public stock is a snapshot; request-only and unknown are never sold out by inference.
+ 
+-```bash
+-asoview-pp-cli doctor --json
+-asoview-pp-cli agent-context --pretty
+-```
++Every business command uses a total bounded context through `sourceClient`, anonymous allowlisted GETs, bounded cache and compact JSON. `--data-source auto` uses fresh public cache then network, `live` bypasses cache, and `local` fails on a fresh-cache miss. Reference inventory refresh remains explicit. Declare `// pp:data-source auto` on network/cache commands and `computed` on derivations; output metadata records actual provenance.
+ 
+-Use runtime discovery instead of relying on a copied command list:
+-
+-```bash
+-asoview-pp-cli which "<capability>" --json
+-asoview-pp-cli <command> --help
+-```
+-
+-Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, and no color:
+-
+-```bash
+-asoview-pp-cli <command> --agent
+-```
+-
+-Before running an unfamiliar command that may mutate remote state, inspect its help and prefer a dry run:
+-
+-```bash
+-asoview-pp-cli <command> --help
+-asoview-pp-cli <command> --dry-run --agent
+-```
+-
+-When a command requires confirmation, pass `--yes` explicitly only after the target, arguments, and side effects are clear. `--agent` does not imply `--yes`.
+-
+-## Novel Command Data Sources
+-
+-Every hand-written novel command must declare its strategy in a Go line comment:
+-
+-```go
+-// pp:data-source auto
+-```
+-
+-Use exactly one of `auto`, `local`, `live`, or `computed`. Keep `auto` when the command honors `--data-source auto|local|live` by preferring live data with a local fallback; use `local` for local-only reads, `live` for remote-only reads, and `computed` for pure computation from embedded rules. Change a generated scaffold's `auto` default deliberately when its implementation has a narrower source, and keep `cmd.Annotations["pp:data-source"]` on the same command in sync; `--agent` envelopes read that annotation for `meta.source`. Reject incompatible `--data-source` requests with a clear error. TODO stubs still fail dogfood even when annotated.
+-
+-## Platform Credential References
+-
+-Normal API authentication is separate from optional platform-source credential
+-resolution. If this CLI uses indirect references for a tenant-gated platform
+-source, add the downstream registration in a preserved hand-authored file
+-under `internal/cli/` and provide both `CredentialResolverFactory` and
+-`ValidateSourceProfile` on `platformSourceRegistration` for any selected source
+-that has references. A source with no references may omit both hooks and receives
+-an empty credential map. Keep reference values opaque to shared profile code,
+-validate only the selected source in the downstream hook, and never persist
+-resolved credential bytes. Do not edit generator-owned `internal/platform`
+-packages; a reprint refreshes those files while retaining the downstream
+-registration file.
+-
+-For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
+-
+-## Release Ledger
+-
+-`CHANGELOG.md` and `.printing-press-release.json` are the public library's per-CLI release ledger. Fresh prints carry an unstamped runtime version such as `0.0.0-dev`; the final `YYYY.M.N` CLI release version is assigned only after a publish PR merges in `mvanhorn/printing-press-library`. Do not hand-bump those files or edit `var version = ...` for release bookkeeping; preserve existing ledger files on reprint and let the library workflow stamp the next release.
+-
+-## Local Customizations
+-
+-This directory is **generated output** -- a fresh print can overwrite the whole tree, so ad-hoc hand-edits don't survive on their own. If you modify the generated code, record each change under `.printing-press-patches/` (parallel to `.printing-press.json`). Regen and publish-validate read those records and fail closed when a recorded file or call site is gone, so a dropped customization cannot ship as if it were still applied.
+-
+-The entry shape, and the altitude to write it at -- a durable reprint-guard, not a changelog -- live in the public library's `AGENTS.md`, which is the single source of truth; this guide intentionally doesn't duplicate them.
++After source changes, run targeted deterministic domain tests and meaningful live read-only assertions. Full checks are `go test -count=1 ./...`, `go vet ./...`, build, Press shipcheck and live dogfood. Source schemas changing is a typed failure, never a fixture fallback. Build verification caches and evidence stay project/run scoped. The build is local; publishing and registry installs require a separate authorized task.

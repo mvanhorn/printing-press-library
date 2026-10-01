@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "asoview-pp-mcp",
+  "display_name": "Asoview",
+  "version": "0.1.0",
+  "description": "Discover and compare Japan leisure tickets with explicit price units, terms and public dated availability.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/asoview-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/asoview-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

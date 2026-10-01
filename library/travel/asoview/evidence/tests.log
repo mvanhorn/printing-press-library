@@ -1,0 +1,15 @@
+?   	asoview-pp-cli/cmd/asoview-pp-cli	[no test files]
+?   	asoview-pp-cli/cmd/asoview-pp-mcp	[no test files]
+ok  	asoview-pp-cli/internal/asoview	0.507s
+?   	asoview-pp-cli/internal/cache	[no test files]
+ok  	asoview-pp-cli/internal/cli	0.593s
+ok  	asoview-pp-cli/internal/client	2.393s
+ok  	asoview-pp-cli/internal/cliutil	12.828s
+?   	asoview-pp-cli/internal/cliutil/testenv	[no test files]
+?   	asoview-pp-cli/internal/config	[no test files]
+ok  	asoview-pp-cli/internal/mcp	2.788s
+ok  	asoview-pp-cli/internal/mcp/bound	3.127s
+ok  	asoview-pp-cli/internal/mcp/cobratree	6.718s
+ok  	asoview-pp-cli/internal/platform	2.382s
+ok  	asoview-pp-cli/internal/store	2.382s
+?   	asoview-pp-cli/internal/types	[no test files]

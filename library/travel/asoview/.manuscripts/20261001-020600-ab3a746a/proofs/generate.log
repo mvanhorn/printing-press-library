@@ -1,0 +1,15 @@
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS asoview-pp-cli --help
+PASS asoview-pp-cli version
+PASS asoview-pp-cli doctor
+agentcookie: skipping asoview (cookie-only or no env-var auth)
+Generated asoview at <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli
+Bundled <local-home>/printing-press/.runstate/asoview-cli-89a1800b/runs/20261001-020600-ab3a746a/working/asoview-pp-cli/build/asoview-pp-mcp-darwin-arm64.mcpb

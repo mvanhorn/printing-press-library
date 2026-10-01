@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-09-30T19:51:36.978984Z",
+  "cli_dir": "\u003ccli-dir\u003e/asoview-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT framework profile listing. List client profiles accurately describes local saved-profile enumeration; no provider workflow or required arguments are omitted."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-09-30T19:42:34.950304Z"
+  }
+}

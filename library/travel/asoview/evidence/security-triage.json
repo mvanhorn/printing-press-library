@@ -1,0 +1,129 @@
+{
+  "scanner": "gosec v2.26.1",
+  "custom_before": 2,
+  "custom_after": 0,
+  "custom_fixes": "Replaced variable-path cache reads with rooted bounded readers; no suppression.",
+  "generated_retro_candidates": [
+    {
+      "rule_id": "G119",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/client/client.go",
+      "line": "454",
+      "details": "Sensitive headers should not be re-added in redirect policy callbacks"
+    },
+    {
+      "rule_id": "G101",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/platform/gate.go",
+      "line": "22",
+      "details": "Potential hardcoded credentials"
+    },
+    {
+      "rule_id": "G201",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "3296-3299",
+      "details": "SQL string formatting"
+    },
+    {
+      "rule_id": "G201",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "2993-2996",
+      "details": "SQL string formatting"
+    },
+    {
+      "rule_id": "G201",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "1037",
+      "details": "SQL string formatting"
+    },
+    {
+      "rule_id": "G201",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "1013",
+      "details": "SQL string formatting"
+    },
+    {
+      "rule_id": "G202",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/platform/migration.go",
+      "line": "156",
+      "details": "SQL string concatenation"
+    },
+    {
+      "rule_id": "G304",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "249",
+      "details": "Potential file inclusion via variable"
+    },
+    {
+      "rule_id": "G304",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/platform/ratelimit.go",
+      "line": "148",
+      "details": "Potential file inclusion via variable"
+    },
+    {
+      "rule_id": "G304",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/platform/profile.go",
+      "line": "510",
+      "details": "Potential file inclusion via variable"
+    },
+    {
+      "rule_id": "G304",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/config/config.go",
+      "line": "104",
+      "details": "Potential file inclusion via variable"
+    },
+    {
+      "rule_id": "G304",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/cli/feedback.go",
+      "line": "204",
+      "details": "Potential file inclusion via variable"
+    },
+    {
+      "rule_id": "G304",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/cli/feedback.go",
+      "line": "66",
+      "details": "Potential file inclusion via variable"
+    },
+    {
+      "rule_id": "G302",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/platform/profile.go",
+      "line": "302",
+      "details": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "rule_id": "G302",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "details": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "rule_id": "G302",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "details": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "rule_id": "G302",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/client/client.go",
+      "line": "800",
+      "details": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "rule_id": "G104",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "3084",
+      "details": "Errors unhandled"
+    },
+    {
+      "rule_id": "G104",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/store/store.go",
+      "line": "2827",
+      "details": "Errors unhandled"
+    },
+    {
+      "rule_id": "G104",
+      "file": "<local-home>/Projects/Personal/Coding/asoview-cli/internal/client/client.go",
+      "line": "1504",
+      "details": "Errors unhandled"
+    }
+  ],
+  "context": "These are generator-owned framework signals, not unreviewed provider implementation findings. Business commands are anonymous, allowlisted and typed-MCP uses the same bounded transport. No upstream issue/PR or unrelated generator edit was made."
+}

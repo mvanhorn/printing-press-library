@@ -1,0 +1,1 @@
+Six findings autofixed across two review rounds, including the decoded-size subcase. Final independent verification PASS. See independent-review.md, source diffs and regression tests. Generator-owned gosec signals are documented in evidence/security-triage.json; no unrelated upstream edits, issues or PRs.

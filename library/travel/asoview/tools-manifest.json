@@ -1,0 +1,71 @@
+{
+  "api_name": "asoview",
+  "base_url": "https://www.asoview.com",
+  "description": "Discover and compare Japan leisure tickets with explicit price units, terms and public dated availability.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_detail",
+      "description": "Inspect first-party public product page metadata. Required: kind, id.",
+      "method": "GET",
+      "path": "/item/{kind}/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "path",
+          "description": "Source product kind ticket or activity.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Canonical source product code for detail.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_index",
+      "description": "Inspect first-party public discovery page metadata.",
+      "method": "GET",
+      "path": "/search/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Compare terms",
+      "command": "compare",
+      "description": "Compare a bounded shortlist and preserve missing values."
+    },
+    {
+      "name": "Bounded relevance",
+      "command": "discover",
+      "description": "Filter Japanese names without claiming a global keyword index."
+    },
+    {
+      "name": "Dated stock",
+      "command": "availability",
+      "description": "Inspect public stock for a date and quantity."
+    },
+    {
+      "name": "Dated bands",
+      "command": "options",
+      "description": "Read exact date-specific price units and age labels."
+    },
+    {
+      "name": "Reference inventory",
+      "command": "inventory",
+      "description": "Resolve region/category IDs with explicit refresh control."
+    }
+  ]
+}
