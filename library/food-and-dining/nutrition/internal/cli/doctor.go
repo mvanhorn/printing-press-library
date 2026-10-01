@@ -177,9 +177,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Check auth
 			authConfigured := false
 			if cfg != nil {
-				header := cfg.AuthHeader()
-				if header == "" {
-					report["auth"] = "not configured"
+				if !cfg.HasConfiguredAPIKey() {
+					report["auth"] = "not configured (using public DEMO_KEY)"
 					report["auth_hint"] = "Set credentials with: export FDC_API_KEY=\"your-token-here\" USDA_API_KEY=\"your-token-here\""
 					report["auth_docs_url"] = "https://nal.altarama.com/reft100.aspx?key=FoodData"
 				} else {
@@ -219,6 +218,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				authEnvRequiredMissing = append(authEnvRequiredMissing, "USDA_API_KEY")
 			}
 			switch {
+			case len(authEnvRequiredMissing) > 0 && cfg != nil && !cfg.HasConfiguredAPIKey():
+				report["env_vars"] = "INFO no personal key configured; requests use the public rate-limited DEMO_KEY"
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
 			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
@@ -278,9 +279,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					}
 
 					// Step 2: Validate credentials with an authenticated probe.
-					authHeader := cfg.AuthHeader()
-					if authHeader == "" {
-						// No auth configured — skip credential validation
+					if !cfg.HasConfiguredAPIKey() {
+						report["credentials"] = "public DEMO_KEY fallback (not a configured credential)"
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {

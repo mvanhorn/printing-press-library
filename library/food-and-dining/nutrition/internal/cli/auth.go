@@ -92,8 +92,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			w := cmd.OutOrStdout()
-			header := cfg.AuthHeader()
-			authed := header != ""
+			authed := cfg.HasConfiguredAPIKey()
 			// JSON envelope: {authenticated, verified, source, config}. When not
 			// authenticated, write the envelope first then return authErr
 			// so exit code carries the auth-failure signal.

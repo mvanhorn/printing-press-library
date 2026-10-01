@@ -237,6 +237,18 @@ func (c *Config) AuthHeader() string {
 	return "DEMO_KEY"
 }
 
+// HasConfiguredAPIKey distinguishes a user-provided credential from the
+// public DEMO_KEY fallback returned by AuthHeader. Status and doctor commands
+// must not claim the public fallback is a configured personal credential.
+func (c *Config) HasConfiguredAPIKey() bool {
+	if c == nil {
+		return false
+	}
+	return strings.TrimSpace(c.AuthHeaderVal) != "" ||
+		strings.TrimSpace(c.FdcApiKey) != "" ||
+		strings.TrimSpace(c.UsdaApiKey) != ""
+}
+
 func applyAuthFormat(format string, replacements map[string]string) string {
 	if format == "" {
 		return ""

@@ -852,6 +852,8 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 
 func resourceSupportsPagination(resource string) bool {
 	switch resource {
+	case "foods":
+		return true
 	}
 	return false
 }

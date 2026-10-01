@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "open-pr-review-hardening",
+  "applied_at": "2026-07-19",
+  "base_run_id": "20260702-105700",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Nutrition sync paginates the foods collection and authentication diagnostics distinguish a configured personal API key from the public DEMO_KEY fallback.",
+  "reason": "The foods endpoint declared pageNumber and pageSize but was marked non-paginated, truncating sync after its first page; AuthHeader's intentional DEMO_KEY fallback also made status and doctor misreport a personal credential as configured.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_review_test.go",
+    "internal/config/config.go",
+    "internal/config/config_review_test.go"
+  ],
+  "validated_outcome": "Regression tests assert foods uses page pagination and DEMO_KEY remains usable without being reported as a configured credential."
+}
