@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -415,6 +416,56 @@ func TestHeartbeatCollectionKeepsBurstLargerThanIdleStash(t *testing.T) {
 	}
 	if len(payloads) != count {
 		t.Fatalf("collected %d heartbeats, want %d", len(payloads), count)
+	}
+}
+
+func TestHeartbeatCollectionEnforcesDeadlineDuringSustainedBurst(t *testing.T) {
+	c := New(Config{})
+	stream, err := c.beginEventStream("heartbeatList")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for i := 0; ctx.Err() == nil; i++ {
+			c.routeEvent(ctx, []byte(fmt.Sprintf(`["heartbeatList",{"%d":[{"status":1}]}]`, i)))
+		}
+	}()
+	started := time.Now()
+	_, err = c.collectStashedEvents(ctx, "heartbeatList", 40*time.Millisecond, stream)
+	c.endEventStream(stream)
+	cancel()
+	<-done
+	if err == nil || !strings.Contains(err.Error(), "timed out collecting") {
+		t.Fatalf("sustained burst error = %v, want deadline error", err)
+	}
+	if elapsed := time.Since(started); elapsed > time.Second {
+		t.Fatalf("collection exceeded deadline by too much: %v", elapsed)
+	}
+}
+
+func TestEventStreamFinishDrainsPendingEventBeforeClosing(t *testing.T) {
+	c := New(Config{})
+	stream, err := c.beginEventStream("heartbeatList")
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.routeEvent(context.Background(), []byte(`["heartbeatList",{"25":[{"status":1}]}]`))
+	late, finished := c.finishEventStream(stream)
+	if finished || len(late) != 1 {
+		t.Fatalf("finished=%v, pending events=%d; want one event before teardown", finished, len(late))
+	}
+	late, finished = c.finishEventStream(stream)
+	if !finished || len(late) != 0 {
+		t.Fatalf("finished=%v, pending events=%d; want closed empty stream", finished, len(late))
+	}
+	// A reader arriving after teardown goes to the ordinary stash, not an
+	// abandoned stream queue.
+	c.routeEvent(context.Background(), []byte(`["heartbeatList",{"43":[{"status":0}]}]`))
+	if got := c.takeStashedEvent("heartbeatList"); !bytes.Contains(got, []byte(`"43"`)) {
+		t.Fatalf("event after teardown was lost: %s", got)
 	}
 }
 

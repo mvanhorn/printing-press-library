@@ -74,9 +74,11 @@ type Client struct {
 const maxStashedEvents = 256
 
 type eventStream struct {
-	name   string
-	events chan json.RawMessage
-	done   chan struct{}
+	name        string
+	queue       [][]byte
+	queuedBytes int
+	space       chan struct{}
+	done        chan struct{}
 }
 
 // appendStashedEventLocked retains a bounded tail of server-pushed events.
@@ -143,7 +145,7 @@ func (c *Client) beginEventStream(name string) (*eventStream, error) {
 	if c.stream != nil {
 		return nil, &ProtocolError{Msg: "another heartbeat collection is active"}
 	}
-	stream := &eventStream{name: name, events: make(chan json.RawMessage, maxStashedEvents), done: make(chan struct{})}
+	stream := &eventStream{name: name, queue: make([][]byte, 0, maxStashedEvents), space: make(chan struct{}, 1), done: make(chan struct{})}
 	c.stream = stream
 	return stream, nil
 }
@@ -154,7 +156,49 @@ func (c *Client) endEventStream(stream *eventStream) {
 	if c.stream == stream {
 		c.stream = nil
 		close(stream.done)
+		for _, p := range stream.queue {
+			c.appendStashedEventLocked(p)
+		}
+		stream.queue = nil
+		stream.queuedBytes = 0
 	}
+}
+
+// drainEventStream frees queue space while preserving the batch for the
+// collector. A waiting reader resumes after the collector takes this batch.
+func (c *Client) drainEventStream(stream *eventStream) [][]byte {
+	c.stashMu.Lock()
+	defer c.stashMu.Unlock()
+	batch := stream.queue
+	stream.queue = nil
+	stream.queuedBytes = 0
+	select {
+	case stream.space <- struct{}{}:
+	default:
+	}
+	return batch
+}
+
+// finishEventStream closes the active stream only when its queue is empty.
+// Sends and teardown use the same mutex, so no event enters an abandoned queue.
+func (c *Client) finishEventStream(stream *eventStream) ([][]byte, bool) {
+	c.stashMu.Lock()
+	defer c.stashMu.Unlock()
+	if len(stream.queue) > 0 {
+		batch := stream.queue
+		stream.queue = nil
+		stream.queuedBytes = 0
+		select {
+		case stream.space <- struct{}{}:
+		default:
+		}
+		return batch, false
+	}
+	if c.stream == stream {
+		c.stream = nil
+		close(stream.done)
+	}
+	return nil, true
 }
 
 func payloadForEvent(p []byte, name string) json.RawMessage {
@@ -172,30 +216,30 @@ func payloadForEvent(p []byte, name string) json.RawMessage {
 	return pair[1]
 }
 
-// routeEvent sends active stream events through a bounded channel. A full
-// channel pauses the reader until the collector drains it, preserving bursts.
+// routeEvent appends to a bounded active queue. A full queue pauses the reader
+// until the collector drains it, preserving bursts without an unbounded stash.
 func (c *Client) routeEvent(ctx context.Context, p []byte) {
-	c.stashMu.Lock()
-	stream := c.stream
-	if stream == nil {
-		c.appendStashedEventLocked(p)
-		c.stashMu.Unlock()
-		return
-	}
-	payload := payloadForEvent(p, stream.name)
-	if payload == nil {
-		c.appendStashedEventLocked(p)
-		c.stashMu.Unlock()
-		return
-	}
-	c.stashMu.Unlock()
-	select {
-	case stream.events <- payload:
-	case <-stream.done:
+	for {
 		c.stashMu.Lock()
-		c.appendStashedEventLocked(p)
+		stream := c.stream
+		if stream == nil || payloadForEvent(p, stream.name) == nil {
+			c.appendStashedEventLocked(p)
+			c.stashMu.Unlock()
+			return
+		}
+		if len(stream.queue) < maxStashedEvents && len(p) <= maxCollectedHeartbeatBytes-stream.queuedBytes {
+			stream.queue = append(stream.queue, append([]byte(nil), p...))
+			stream.queuedBytes += len(p)
+			c.stashMu.Unlock()
+			return
+		}
 		c.stashMu.Unlock()
-	case <-ctx.Done():
+		select {
+		case <-stream.space:
+		case <-stream.done:
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
@@ -876,40 +920,71 @@ func (c *Client) CallWithPushFallback(ctx context.Context, event string, data an
 // pay the worst case. Returning once the burst goes quiet does neither.
 const streamIdleGap = 500 * time.Millisecond
 
+// A sustained stream fails explicitly instead of growing a result without
+// limit or returning a partial heartbeat report as if it were complete.
+const maxCollectedHeartbeatBytes = 20 << 20
+
 func (c *Client) collectStashedEvents(ctx context.Context, name string, wait time.Duration, stream *eventStream) (json.RawMessage, error) {
 	deadline := time.Now().Add(wait)
 	var payloads []json.RawMessage
 	var lastEvent time.Time
+	collectedBytes := 0
+	appendPayload := func(raw json.RawMessage) error {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if time.Now().After(deadline) {
+			return &ProtocolError{Msg: fmt.Sprintf("timed out collecting %q heartbeat stream", name)}
+		}
+		if len(raw) > maxCollectedHeartbeatBytes-collectedBytes {
+			return &ProtocolError{Msg: fmt.Sprintf("%q heartbeat stream exceeds %d bytes", name, maxCollectedHeartbeatBytes)}
+		}
+		payloads = append(payloads, raw)
+		collectedBytes += len(raw)
+		lastEvent = time.Now()
+		return nil
+	}
+	appendBatch := func(batch [][]byte) error {
+		for _, p := range batch {
+			if err := appendPayload(payloadForEvent(p, name)); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 	for {
 		for {
 			raw := c.takeStashedEvent(name)
 			if raw == nil {
 				break
 			}
-			payloads = append(payloads, raw)
-			lastEvent = time.Now()
-		}
-		// Drain the bounded stream before considering the idle gap or deadline.
-		// The reader may be blocked on a full channel until this loop runs.
-		for draining := true; draining; {
-			select {
-			case raw := <-stream.events:
-				payloads = append(payloads, raw)
-				lastEvent = time.Now()
-			default:
-				draining = false
+			if err := appendPayload(raw); err != nil {
+				return nil, err
 			}
 		}
+		if err := appendBatch(c.drainEventStream(stream)); err != nil {
+			return nil, err
+		}
 		settled := len(payloads) > 0 && time.Since(lastEvent) >= streamIdleGap
-		if settled || time.Now().After(deadline) {
-			return joinStreamPayloads(name, payloads)
+		if settled {
+			late, finished := c.finishEventStream(stream)
+			if err := appendBatch(late); err != nil {
+				return nil, err
+			}
+			if finished {
+				return joinStreamPayloads(name, payloads)
+			}
+			continue
+		}
+		if time.Now().After(deadline) {
+			if len(payloads) == 0 {
+				return joinStreamPayloads(name, payloads)
+			}
+			return nil, &ProtocolError{Msg: fmt.Sprintf("timed out collecting %q heartbeat stream", name)}
 		}
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
-		case raw := <-stream.events:
-			payloads = append(payloads, raw)
-			lastEvent = time.Now()
 		case <-time.After(10 * time.Millisecond):
 		}
 	}
