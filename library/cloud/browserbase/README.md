@@ -4,6 +4,8 @@
 
 Manage the full Browserbase surface — sessions, projects, downloads, contexts, agents, functions — from one agent-native CLI. Track orphaned sessions, batch-fetch with rate-limit pacing, diff agent runs, and watch usage trends from a local SQLite store that compounds across syncs.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `browserbase-pp-cli` binary and the `pp-browserbase` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

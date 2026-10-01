@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "fetch-batch-resume-and-cancellation",
+  "applied_at": "2026-08-21",
+  "base_run_id": "20260813-205859-c0b56b36",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Scope fetch-batch checkpoints per job and client, persist completions atomically, deduplicate repeated URLs, reject damaged state, and stop deterministically on cancellation.",
+  "reason": "A global URL-only checkpoint suppressed unrelated requests across jobs and tenants, duplicate requests made URL-keyed resume state ambiguous, delayed writes lost work, malformed state was ignored, and ready scheduler slots could win a race with cancellation.",
+  "files": ["internal/cli/fetch_batch.go", "internal/cli/fetch_batch_test.go"],
+  "validated_outcome": "Focused tests prove client- and job-scoped atomic checkpoints survive each unique completion without exposing credentials, duplicate inputs fan out one request result, malformed state is rejected, and cancellation wins against ready ticks and workers in 1,000 trials."
+}

@@ -6,14 +6,19 @@ package cli
 
 import (
 	"bufio"
+	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/cloud/browserbase/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/cloud/browserbase/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -33,6 +38,119 @@ type batchFetchView struct {
 	SkippedCount int                `json:"skipped_count"`
 	Checkpoint   string             `json:"checkpoint,omitempty"`
 	Note         string             `json:"note,omitempty"`
+}
+
+func fetchBatchClientScope(c *client.Client, flags *rootFlags) string {
+	hash := sha256.New()
+	if c != nil {
+		_, _ = fmt.Fprintf(hash, "base_url=%s\n", strings.TrimRight(c.RequestBaseURL(), "/"))
+	}
+	if flags != nil && flags.platformSession != nil {
+		session := flags.platformSession
+		_, _ = fmt.Fprintf(hash, "profile=%s\nsource=%s\ncredential_fingerprint=%s\n",
+			session.ProfileName, session.Source, session.CredentialFingerprint)
+	} else if c != nil && c.Config != nil {
+		_, _ = fmt.Fprintf(hash, "config_path=%s\nauth_source=%s\n", c.Config.Path, c.Config.AuthSource)
+		if authHeader := c.Config.AuthHeader(); authHeader != "" {
+			credentialHash := sha256.Sum256([]byte(authHeader))
+			_, _ = fmt.Fprintf(hash, "credential_fingerprint=%x\n", credentialHash)
+		}
+	}
+	return fmt.Sprintf("%x", hash.Sum(nil))
+}
+
+func fetchBatchCheckpointPath(dataPath, clientScope, format string, urls []string) string {
+	hash := sha256.New()
+	_, _ = fmt.Fprintf(hash, "client_scope=%s\n", clientScope)
+	_, _ = fmt.Fprintf(hash, "format=%s\n", format)
+	for _, url := range urls {
+		_, _ = fmt.Fprintf(hash, "url=%s\n", url)
+	}
+	digest := hash.Sum(nil)
+	return filepath.Join(filepath.Dir(dataPath), fmt.Sprintf("fetch-batch-checkpoint-%x.json", digest[:8]))
+}
+
+func loadFetchBatchCheckpoint(path string) (map[string]bool, error) {
+	done := map[string]bool{}
+	data, err := os.ReadFile(filepath.Clean(path)) // #nosec G304 -- app-derived data path.
+	if os.IsNotExist(err) {
+		return done, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("reading checkpoint: %w", err)
+	}
+	var completed []string
+	if err := json.Unmarshal(data, &completed); err != nil {
+		return nil, fmt.Errorf("checkpoint is malformed: %w", err)
+	}
+	for _, url := range completed {
+		if url != "" {
+			done[url] = true
+		}
+	}
+	return done, nil
+}
+
+func saveFetchBatchCheckpoint(path string, done map[string]bool) error {
+	completed := make([]string, 0, len(done))
+	for url := range done {
+		completed = append(completed, url)
+	}
+	sort.Strings(completed)
+	data, err := json.Marshal(completed)
+	if err != nil {
+		return fmt.Errorf("encoding checkpoint: %w", err)
+	}
+	if err := cliutil.AtomicWritePrivateFile(path, data, 0o600, 0o700); err != nil {
+		return fmt.Errorf("writing checkpoint: %w", err)
+	}
+	return nil
+}
+
+func indexBatchURLs(urls []string) ([]string, map[string][]int) {
+	unique := make([]string, 0, len(urls))
+	indexes := make(map[string][]int, len(urls))
+	for idx, url := range urls {
+		if _, exists := indexes[url]; !exists {
+			unique = append(unique, url)
+		}
+		indexes[url] = append(indexes[url], idx)
+	}
+	return unique, indexes
+}
+
+func applyBatchResult(results []batchFetchResult, indexes map[string][]int, result batchFetchResult) {
+	for _, idx := range indexes[result.URL] {
+		results[idx] = result
+	}
+}
+
+func waitForBatchSlot(ctx context.Context, ticks <-chan time.Time) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-ticks:
+		return ctx.Err()
+	}
+}
+
+func acquireBatchWorker(ctx context.Context, sem chan struct{}) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case sem <- struct{}{}:
+		if err := ctx.Err(); err != nil {
+			<-sem
+			return err
+		}
+		return nil
+	}
 }
 
 func newNovelFetchBatchCmd(flags *rootFlags) *cobra.Command {
@@ -109,33 +227,35 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 			if len(urls) == 0 {
 				return usageErr(fmt.Errorf("--file %q contains no URLs", flagFile))
 			}
-
-			// Resumable checkpoint: a JSON file of completed URLs next to the
-			// CLI data dir.
-			checkpoint := ""
-			if flagResume {
-				checkpoint = filepath.Join(filepath.Dir(defaultDBPath("browserbase-pp-cli")), "fetch-batch-checkpoint.json")
-			}
-
-			done := map[string]bool{}
-			if flagResume {
-				if cp, err := os.ReadFile(checkpoint); err == nil {
-					var prev []string
-					if json.Unmarshal(cp, &prev) == nil {
-						for _, u := range prev {
-							done[u] = true
-						}
-					}
-				}
-			}
+			workURLs, indexesByURL := indexBatchURLs(urls)
 
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
+			// Resumable checkpoint: a JSON file of completed URLs next to the
+			// CLI data dir, scoped to the non-secret client identity so work for
+			// one endpoint or tenant cannot suppress requests for another.
+			checkpoint := ""
+			if flagResume {
+				checkpoint = fetchBatchCheckpointPath(
+					defaultDBPath("browserbase-pp-cli"),
+					fetchBatchClientScope(c, flags),
+					format,
+					urls,
+				)
+			}
+
+			done := map[string]bool{}
+			if flagResume {
+				done, err = loadFetchBatchCheckpoint(checkpoint)
+				if err != nil {
+					return fmt.Errorf("loading resume checkpoint: %w", err)
+				}
+			}
+
 			results := make([]batchFetchResult, len(urls))
-			completed := make([]string, 0, len(urls))
 			var mu sync.Mutex
 			var wg sync.WaitGroup
 			var sem = make(chan struct{}, 3) // bounded concurrency
@@ -147,16 +267,38 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 			ticker := time.NewTicker(pace)
 			defer ticker.Stop()
 
-			for idx, u := range urls {
+			markRemaining := func(start int, cause error) {
+				mu.Lock()
+				defer mu.Unlock()
+				for _, u := range workURLs[start:] {
+					if done[u] {
+						applyBatchResult(results, indexesByURL, batchFetchResult{URL: u, Fetched: true, Skipped: true})
+						continue
+					}
+					applyBatchResult(results, indexesByURL, batchFetchResult{URL: u, Error: cause.Error()})
+				}
+			}
+
+		scheduleLoop:
+			for workIdx, u := range workURLs {
 				u := u
-				idx := idx
-				if done[u] {
-					results[idx] = batchFetchResult{URL: u, Fetched: true, Skipped: true}
+				mu.Lock()
+				alreadyDone := done[u]
+				if alreadyDone {
+					applyBatchResult(results, indexesByURL, batchFetchResult{URL: u, Fetched: true, Skipped: true})
+					mu.Unlock()
 					continue
 				}
-				<-ticker.C // one request per pace interval globally
+				mu.Unlock()
+				if err := waitForBatchSlot(ctx, ticker.C); err != nil {
+					markRemaining(workIdx, err)
+					break scheduleLoop
+				}
+				if err := acquireBatchWorker(ctx, sem); err != nil {
+					markRemaining(workIdx, err)
+					break scheduleLoop
+				}
 				wg.Add(1)
-				sem <- struct{}{}
 				go func() {
 					defer wg.Done()
 					defer func() { <-sem }()
@@ -173,27 +315,20 @@ Do NOT use it to look back at what was already fetched; use 'web history' instea
 						}
 					}
 					mu.Lock()
-					results[idx] = res
 					if res.Fetched && res.Error == "" {
-						completed = append(completed, u)
+						done[u] = true
+						if flagResume {
+							if err := saveFetchBatchCheckpoint(checkpoint, done); err != nil {
+								delete(done, u)
+								res.Error = err.Error()
+							}
+						}
 					}
+					applyBatchResult(results, indexesByURL, res)
 					mu.Unlock()
 				}()
 			}
 			wg.Wait()
-
-			// Persist checkpoint for resume.
-			if flagResume && len(completed) > 0 {
-				prev := make([]string, 0, len(done)+len(completed))
-				for u := range done {
-					prev = append(prev, u)
-				}
-				prev = append(prev, completed...)
-				if b, err := json.Marshal(prev); err == nil {
-					_ = os.MkdirAll(filepath.Dir(checkpoint), 0o700)
-					_ = os.WriteFile(checkpoint, b, 0o600)
-				}
-			}
 
 			view := batchFetchView{
 				Items:      results,
