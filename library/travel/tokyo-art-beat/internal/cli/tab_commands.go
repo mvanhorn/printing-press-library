@@ -86,9 +86,7 @@ func registerTAB(rootCmd *cobra.Command, f *rootFlags) {
 
 // pp:data-source auto
 func tabRun(cmd *cobra.Command, f *rootFlags, t *tabFlags, fn func(context.Context, *tab.Client) (tab.Result, error)) error {
-	if dryRunOK(f) {
-		return writeDryRun(cmd.OutOrStdout(), f, cmd.CommandPath())
-	}
+	preview := dryRunOK(f)
 	if t.fresh && t.offline {
 		return tabError(cmd, tab.Fail("conflicting_options", "--fresh and --offline cannot be combined", 2))
 	}
@@ -103,14 +101,32 @@ func tabRun(cmd *cobra.Command, f *rootFlags, t *tabFlags, fn func(context.Conte
 	if offline && (fresh || f.noCache) {
 		return tabError(cmd, tab.Fail("conflicting_options", "Offline/local reads cannot combine with --fresh, --no-cache or --data-source live", 2))
 	}
+	if f.selectFields != "" && (f.csv || f.plain || f.quiet) {
+		return tabError(cmd, tab.Fail("invalid_select", "--select projects the JSON envelope; use --fields with CSV/plain/quiet output", 2))
+	}
 	cacheDir := t.cacheDir
 	if cacheDir == "" && f.homePath != "" {
 		cacheDir = filepath.Join(f.homePath, "cache", "tab")
 	}
 	ctx, cancel := boundCtx(cmd.Context(), f)
 	defer cancel()
-	c := tab.NewClient(tab.Options{CacheDir: cacheDir, Fresh: fresh, Offline: offline, NoCache: f.noCache, Timeout: min(f.timeout, 15*time.Second)})
+	c := tab.NewClient(tab.Options{ValidateOnly: preview, CacheDir: cacheDir, Fresh: fresh, Offline: offline, NoCache: f.noCache, Timeout: min(f.timeout, 15*time.Second)})
 	r, err := fn(ctx, c)
+	if preview {
+		if err != nil {
+			e := tab.Classify(err)
+			if e.Code == "compare_failed" {
+				for _, failure := range e.Failures {
+					if failure.Code != "dry_run" {
+						return tabError(cmd, failure)
+					}
+				}
+			} else if e.Code != "dry_run" {
+				return tabError(cmd, err)
+			}
+		}
+		return writeDryRun(cmd.OutOrStdout(), f, cmd.CommandPath())
+	}
 	if err != nil {
 		return tabError(cmd, err)
 	}
@@ -131,9 +147,6 @@ func tabRun(cmd *cobra.Command, f *rootFlags, t *tabFlags, fn func(context.Conte
 	// Domain cards are already bounded. Generic compact projection would drop dates/hours.
 	copy := *f
 	copy.compact = false
-	if copy.selectFields != "" && (copy.csv || copy.plain || copy.quiet) {
-		return tabError(cmd, tab.Fail("invalid_select", "--select projects the JSON envelope; use --fields with CSV/plain/quiet output", 2))
-	}
 	if copy.csv || copy.plain || copy.quiet {
 		return printJSONFiltered(cmd.OutOrStdout(), r.Results, &copy)
 	}

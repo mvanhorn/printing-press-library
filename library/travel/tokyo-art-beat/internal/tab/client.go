@@ -70,13 +70,18 @@ type Stats struct {
 	Bytes        int   `json:"response_bytes"`
 	ElapsedMS    int64 `json:"elapsed_ms"`
 }
+
+// ErrDryRun stops validation-only commands before any cache or source access.
+var ErrDryRun = &Error{Code: "dry_run", Message: "Source lookups are omitted during dry-run"}
+
 type Options struct {
-	CacheDir string
-	Fresh    bool
-	Offline  bool
-	NoCache  bool
-	TTL      time.Duration
-	Timeout  time.Duration
+	ValidateOnly bool
+	CacheDir     string
+	Fresh        bool
+	Offline      bool
+	NoCache      bool
+	TTL          time.Duration
+	Timeout      time.Duration
 }
 type Client struct {
 	base    string
@@ -137,6 +142,9 @@ func (c *Client) Summary() Stats {
 }
 func (c *Client) Query(ctx context.Context, q url.Values) (Feed, error) {
 	var out Feed
+	if c.opt.ValidateOnly {
+		return out, ErrDryRun
+	}
 	u := c.base + "/entries?" + q.Encode()
 	sum := sha256.Sum256([]byte(u))
 	path := filepath.Join(c.opt.CacheDir, cachePrefix+hex.EncodeToString(sum[:])+".json")

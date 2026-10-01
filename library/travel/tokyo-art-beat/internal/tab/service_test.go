@@ -149,6 +149,9 @@ func TestArtistFilteringDoesNotSkipUnreturnedMatches(t *testing.T) {
 		t.Fatal(e)
 	}
 	es := r.Results.([]Event)
+	if r.Meta.Scope.(map[string]any)["scanned_events"] != 52 {
+		t.Fatalf("candidate scan coverage understated: %+v", r.Meta.Scope)
+	}
 	if len(es) != 2 || r.Meta.Pagination.NextOffset == nil || *r.Meta.Pagination.NextOffset != 4 || !r.Meta.Partial {
 		t.Fatal(r)
 	}
@@ -196,5 +199,45 @@ func TestAllFailedComparePreservesClassification(t *testing.T) {
 		if err == nil || e.Exit != tt.exit || len(e.Failures) != 2 || e.Failures[0].Input != tt.inputs[0] {
 			t.Fatalf("%+v %+v", tt, e)
 		}
+	}
+}
+
+func TestEventDetailRetainsHiddenVenueClosures(t *testing.T) {
+	c := fixtureClient(t, func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		f := Feed{Limit: 2, Items: []Entry{}}
+		switch q.Get("content_type") {
+		case "event":
+			e := Entry{Fields: map[string]map[string]any{"eventName": {"en-US": "Event"}, "scheduleStartsOn": {"en-US": "2026-10-01"}, "scheduleEndsOn": {"en-US": "2026-10-10"}, "venue": {"en-US": map[string]any{"sys": map[string]any{"id": "v"}}}}}
+			e.Sys.ID = "e"
+			f.Items = []Entry{e}
+			f.Total = 1
+		case "venue":
+			v := Entry{Fields: map[string]map[string]any{"fullName": {"en-US": "Venue"}, "closedDays": {"en-US": []any{}}}}
+			v.Sys.ID = "v"
+			if strings.Contains(q.Get("select"), "fields.hideClosedDays") {
+				v.Fields["hideClosedDays"] = map[string]any{"en-US": true}
+			}
+			f.Items = []Entry{v}
+			f.Total = 1
+		}
+		json.NewEncoder(w).Encode(f)
+	}, Options{NoCache: true})
+	r, err := c.EventDetail(context.Background(), "e", "2026-10-05")
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := r.Results.(Event)
+	if e.Day.Status != "unknown" || e.Venue.Hours.HiddenClosedDays == nil || !*e.Venue.Hours.HiddenClosedDays {
+		t.Fatalf("venue uncertainty lost: %+v", e)
+	}
+}
+
+func TestValidationOnlyNeverReadsSourceOrCache(t *testing.T) {
+	calls := 0
+	c := fixtureClient(t, func(w http.ResponseWriter, r *http.Request) { calls++ }, Options{ValidateOnly: true, CacheDir: t.TempDir()})
+	_, err := c.Query(context.Background(), url.Values{"content_type": {"event"}})
+	if err != ErrDryRun || calls != 0 || c.Stats.Requests != 0 || c.Stats.CacheHits != 0 || len(c.Fetches) != 0 {
+		t.Fatal(err, calls, c.Stats, c.Fetches)
 	}
 }

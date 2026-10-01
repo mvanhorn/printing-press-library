@@ -43,13 +43,4 @@ archives:
         formats: [zip]
 checksum:
   name_template: checksums.txt
-brews:
-  - name: tokyo-art-beat-pp-cli
-    repository:
-      owner: 
-      name: homebrew-tap
-    homepage: "https://github.com//tokyo-art-beat-pp-cli"
-    description: "Discover Japanese exhibitions for trip dates with bilingual identities and explicit schedule uncertainty."
-    install: |
-      bin.install "tokyo-art-beat-pp-cli"
-      bin.install "tokyo-art-beat-pp-mcp"
+# No verified Homebrew tap is configured; use the library installer or Go install.

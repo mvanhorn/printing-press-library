@@ -12,7 +12,7 @@ import (
 const eventSelect = "sys.id,sys.updatedAt,fields.slug,fields.venue,fields.eventName,fields.artists,fields.scheduleStartsOn,fields.scheduleEndsOn,fields.scheduleEndDateUnfix,fields.permanentShow,fields.categories"
 const eventDetailSelect = eventSelect + ",fields.fee,fields.coupon,fields.reservation,fields.description,fields.showsWebpage,fields.openingHoursOpens,fields.openingHoursCloses,fields.closedDays,fields.hideClosedDays,fields.scheduleSpecialCases,fields.additionalInfoOnOpeningHoursdays,fields.hideScheduleSpecialCases"
 const venueSelect = "sys.id,sys.updatedAt,fields.slug,fields.fullName,fields.address,fields.geoInfo,fields.localArea,fields.venueType,fields.venueStatus"
-const venueDetailSelect = venueSelect + ",fields.homePage,fields.admissionFee,fields.howtoAccess,fields.description,fields.openingHoursOpens,fields.openingHoursCloses,fields.closedDays,fields.scheduleSpecialCases,fields.additionalInfoOnOpeningHoursdays,fields.hideScheduleSpecialCases"
+const venueDetailSelect = venueSelect + ",fields.homePage,fields.admissionFee,fields.howtoAccess,fields.description,fields.openingHoursOpens,fields.openingHoursCloses,fields.closedDays,fields.hideClosedDays,fields.scheduleSpecialCases,fields.additionalInfoOnOpeningHoursdays,fields.hideScheduleSpecialCases"
 
 type Search struct {
 	Query        string `json:"query,omitempty"`
@@ -439,7 +439,6 @@ func (c *Client) SearchEvents(ctx context.Context, s Search) (Result, error) {
 				f.Items = append(f.Items, e)
 				if len(f.Items) == s.Limit {
 					next = s.Offset + i + 1
-					scanned = i + 1
 					capped = next < f.Total
 					break
 				}

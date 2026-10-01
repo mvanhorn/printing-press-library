@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "aaacfccd5f92b3471743e09ac50d71e631b8d50095d84bfbb9bfdb98f56ba7f0",
+  "source_fingerprint": "44bd10cf89cc39d87971f373b5733a4e585a6955de77df8e776e5ec9ce0b96e4",
   "source_files": {
     "cmd/tokyo-art-beat-pp-cli/main.go": "4312295f4d94c7e16327c32b8339c697bd42af8d26d223219c65883f9c828b59",
     "cmd/tokyo-art-beat-pp-mcp/main.go": "be5fcd51a385542130dbaadb2451224321f97c6cca72e9f65554fd4ac0d3bfe2",
@@ -42,8 +42,8 @@
     "internal/cli/sync_hint.go": "919ceb26952c2268d7c22047e3ee52b674facf77cd738e38fdda8ef217bf033c",
     "internal/cli/sync_hint_test.go": "76a877dde1ac3ba32d38fc3390736edd968ceda4d485f3cd82aa27475af6d5a1",
     "internal/cli/sync_numeric_id_test.go": "b3fa937be3276831507a6e07ed920f74c0b262e509fa6756aa4107e55e89636f",
-    "internal/cli/tab_commands.go": "c1efa3500d31a415aca8cf51ede43690d766c4d6c4973e6b709f3454152a6cce",
-    "internal/cli/tab_commands_test.go": "cab2465028c719a82ca98570fe45669c9d30bb2fbcb79be50014f970a0eab0f4",
+    "internal/cli/tab_commands.go": "ab8e12fec4f7bf60ebad6995657b3f417b84667619164064257ac0a174ebba3f",
+    "internal/cli/tab_commands_test.go": "8912b9eddb0112e88b2384b3c95d9faeb4c0d0f7ed6811c9b7685eb39840de22",
     "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
     "internal/cli/which.go": "64438eb60dd4b04cb22956a95063c7f176869f2cf22816f91604034576355a2d",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
@@ -104,12 +104,12 @@
     "internal/store/schema_version_test.go": "d131e7e886cd3f9404969c4ddbf0e07219c12495781d0d32c08987f6d581c45f",
     "internal/store/store.go": "123992d59a171c8922fdaf7739d997c29e78d51e32ae3f29e84aba8cf75c8d73",
     "internal/store/upsert_batch_test.go": "5929b9d6af5da1832ece232865850a591653e8a7922d116204efe961dc3c96bb",
-    "internal/tab/client.go": "183b595040b16e8eee7b25dd9b1c6444e83a38285b28cb5c259717136f425637",
+    "internal/tab/client.go": "fe2e309e5dc70927e29bad611e6904dee12c5f100bb303d82b4670807471ee1f",
     "internal/tab/client_test.go": "47705c2a1e8248b832647754fdd492d14b9d296c7f1f4ddafa226aef3015e022",
     "internal/tab/model.go": "628cb11946e2f1bf2be1f211be7a86acada8f445c5780855f7f0ffc9e25f5634",
     "internal/tab/model_test.go": "576e0ac55fc987f3321bcf97a56a2b8a21b2774c8675d39167a3be9595d0f85b",
-    "internal/tab/service.go": "0efe59f646c1df44d6f1a0775e054b5521cc3f6f0a7e9ea41478bc0ecaa063aa",
-    "internal/tab/service_test.go": "e40f5a861b2be4bf098def80c97aed15aa79ecec9b277c8c988e52715c180e2b",
+    "internal/tab/service.go": "9f90b9f8170a878d49a881fd535848d2a45bb1f6630677b30951745329d8047e",
+    "internal/tab/service_test.go": "6982f5d0ed1fc551e9a064eae393edad49be1513be740480c054db268d0639f9",
     "internal/types/types.go": "90929fd965cd12be81c457a734f8b0421223fbc016c71be8e21f7fc94a28d1b1"
   }
 }

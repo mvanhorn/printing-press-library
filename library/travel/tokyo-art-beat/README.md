@@ -146,3 +146,7 @@ Requests run sequentially at at most two per second, with one retry, 15-second p
 Errors emit structured JSON to stdout, diagnostics to stderr: 2 invalid input, 3 access denied, 4 missing identity, 5 network/schema/budget, 7 throttle. Partial joins/compares preserve successes and errors with meta.partial=true, exit 0. A cache miss requires the exact query online first. Unknown/ambiguous filter names include an actionable catalog hint. Correct the named flag or wait/retry the source failure.
 
 Run `go test -count=1 ./...` and `go vet ./...`. Live and fixture checks are documented separately in the archived manuscripts.
+
+## Distribution limits
+
+Homebrew tap publishing is not configured: no verified tap destination is available. Use the documented library installer or Go install after maintainer merge. Dry runs validate local input and cache/output modes without cache or network access; source identities and filter names require a live lookup to resolve.
