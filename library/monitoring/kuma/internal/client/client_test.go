@@ -3,9 +3,11 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"regexp"
 	"strings"
 	"sync"
@@ -299,6 +301,108 @@ func TestDoRejectsOversizedResponseBody(t *testing.T) {
 	}
 	if _, err := c.do(context.Background(), u, http.MethodGet, nil); err == nil {
 		t.Fatal("expected oversized response body to be rejected")
+	}
+}
+
+func TestSocketIOParseRequiresHTTPSOffLoopback(t *testing.T) {
+	for _, tc := range []struct {
+		url     string
+		wantErr bool
+	}{
+		{"https://kuma.example.com", false},
+		{"http://localhost:3001", false},
+		{"http://127.0.0.1:3001", false},
+		{"http://[::1]:3001", false},
+		{"http://kuma.example.com", true},
+		{"ftp://kuma.example.com", true},
+	} {
+		if _, err := socketIOParse(tc.url); (err != nil) != tc.wantErr {
+			t.Errorf("socketIOParse(%q) error = %v, wantErr %v", tc.url, err, tc.wantErr)
+		}
+	}
+}
+
+func TestHTTPClientRejectsCredentialRedirectsOffOrigin(t *testing.T) {
+	safe := withSafeRedirects(&http.Client{})
+	from := &http.Request{URL: &url.URL{Scheme: "https", Host: "kuma.example.com"}}
+
+	for _, target := range []string{
+		"http://attacker.example.com/socket.io/",
+		"http://192.0.2.10/socket.io/",
+		"https://kuma-backup.example.com/socket.io/",
+		"http://127.0.0.1:3001/socket.io/",
+		"https://kuma.example.com:8443/socket.io/",
+	} {
+		to, err := http.NewRequest(http.MethodPost, target, strings.NewReader(`credential-frame`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := safe.CheckRedirect(to, []*http.Request{from}); err == nil {
+			t.Fatalf("redirect to %s was allowed, want cross-origin or TLS downgrade rejection", target)
+		}
+	}
+
+	for _, target := range []string{
+		"https://kuma.example.com/socket.io/",
+		"https://kuma.example.com/other",
+	} {
+		to, err := http.NewRequest(http.MethodPost, target, strings.NewReader(`credential-frame`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := safe.CheckRedirect(to, []*http.Request{from}); err != nil {
+			t.Fatalf("redirect to %s rejected: %v", target, err)
+		}
+	}
+}
+
+func TestHTTPClientPreservesCallerRedirectPolicy(t *testing.T) {
+	want := fmt.Errorf("caller policy")
+	safe := withSafeRedirects(&http.Client{CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+		return want
+	}})
+	to, err := http.NewRequest(http.MethodGet, "https://kuma.example.com/other", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := safe.CheckRedirect(to, []*http.Request{{URL: &url.URL{Scheme: "https", Host: "kuma.example.com"}}}); got != want {
+		t.Fatalf("redirect policy error = %v, want caller policy error", got)
+	}
+}
+
+func TestParseEngineIORejectsMalformedLengthWithoutResync(t *testing.T) {
+	if got := parseEngineIO([]byte("3:abc2:40")); len(got) != 2 || got[0] != "abc" || got[1] != "40" {
+		t.Fatalf("valid frames parsed as %#v", got)
+	}
+	if got := parseEngineIO([]byte("99:40")); len(got) != 0 {
+		t.Fatalf("malformed length resynchronized into attacker suffix: %#v", got)
+	}
+	if got := parseEngineIO([]byte(strings.Repeat("9", 4096) + ":40")); len(got) != 0 {
+		t.Fatalf("overflowing length accepted: %#v", got)
+	}
+}
+
+func TestStashedEventsRemainBounded(t *testing.T) {
+	c := New(Config{})
+	for i := 0; i < maxStashedEvents+50; i++ {
+		c.stashEvents([]string{`42["event",` + itoa(i) + `]`})
+	}
+	if len(c.stash) != maxStashedEvents {
+		t.Fatalf("stash length = %d, want %d", len(c.stash), maxStashedEvents)
+	}
+	if strings.Contains(string(c.stash[0]), `,0]`) {
+		t.Fatal("bounded stash retained the oldest event instead of the newest tail")
+	}
+}
+
+func TestDebugURLRedactionDropsQueryAndFragment(t *testing.T) {
+	u, err := url.Parse("https://alice:secret@example.test/socket.io/?sid=session-secret&token=query-secret#fragment-secret")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := redactURL(u)
+	if strings.Contains(got, "alice") || strings.Contains(got, "secret") || strings.ContainsAny(got, "?#") {
+		t.Fatalf("redactURL leaked URL secrets: %q", got)
 	}
 }
 

@@ -370,6 +370,23 @@ func TestNormalizeBaseURLReducesToOrigin(t *testing.T) {
 	}
 }
 
+func TestRunRejectsInsecureRemoteTransportBeforeLogin(t *testing.T) {
+	var out, errout bytes.Buffer
+	code := Run([]string{"health"}, &out, &errout, func(name string) string {
+		switch name {
+		case "UPTIME_KUMA_URL":
+			return "http://kuma.example.com"
+		case "UPTIME_KUMA_USERNAME", "UPTIME_KUMA_PASSWORD":
+			return "credential"
+		default:
+			return ""
+		}
+	})
+	if code == ExitOK || !strings.Contains(errout.String(), "use HTTPS") {
+		t.Fatalf("exit=%d stderr=%q, want HTTPS rejection", code, errout.String())
+	}
+}
+
 // TestAgentContextIsSelfDescribing verifies the contract the Phase 5
 // live-dogfood harness relies on to discover the command surface.
 func TestAgentContextIsSelfDescribing(t *testing.T) {
@@ -450,10 +467,30 @@ func TestSetRetriesDocumentedAliases(t *testing.T) {
 }
 
 func TestTargetRedactsURLCredentials(t *testing.T) {
-	m := &Monitor{URL: "https://alice:secret@example.test/health"}
+	m := &Monitor{URL: "https://alice:secret@example.test/health?token=query-secret#fragment-secret"}
 	got := target(m)
-	if strings.Contains(got, "alice") || strings.Contains(got, "secret") || !strings.Contains(got, "REDACTED") {
+	if strings.Contains(got, "alice") || strings.Contains(got, "secret") || strings.ContainsAny(got, "?#") || !strings.Contains(got, "REDACTED") {
 		t.Fatalf("target leaked URL credentials: %q", got)
+	}
+}
+
+func TestTargetDoesNotEchoMalformedURL(t *testing.T) {
+	m := &Monitor{URL: "https://%zz/path?token=synthetic-secret"}
+	if got := target(m); strings.Contains(got, "synthetic-secret") || strings.Contains(got, "%zz") {
+		t.Fatalf("malformed URL leaked input: %q", got)
+	}
+}
+
+func TestMatchMonitorRejectsAmbiguousSubstring(t *testing.T) {
+	monitors := []*Monitor{
+		{ID: 1, Name: "api-primary"},
+		{ID: 2, Name: "api-secondary"},
+	}
+	if got, err := matchMonitor(monitors, "api"); got != nil || err == nil || !strings.Contains(err.Error(), "ambiguous") {
+		t.Fatalf("matchMonitor = (%v, %v), want ambiguity", got, err)
+	}
+	if got, err := matchMonitor(monitors, "api-primary"); err != nil || got == nil || got.ID != 1 {
+		t.Fatalf("exact match = (%v, %v), want monitor 1", got, err)
 	}
 }
 

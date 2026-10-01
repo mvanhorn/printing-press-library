@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -69,6 +70,19 @@ type Client struct {
 	ackCh         map[int]chan []byte
 }
 
+const maxStashedEvents = 256
+
+// appendStashedEventLocked retains a bounded tail of server-pushed events.
+// Callers must hold stashMu.
+func (c *Client) appendStashedEventLocked(payload []byte) {
+	payload = append([]byte(nil), payload...)
+	if len(c.stash) >= maxStashedEvents {
+		copy(c.stash, c.stash[len(c.stash)-maxStashedEvents+1:])
+		c.stash = c.stash[:maxStashedEvents-1]
+	}
+	c.stash = append(c.stash, payload)
+}
+
 // noteAck remembers an ACK record seen before its emit was even made (the
 // server can bundle several responses into one poll payload).
 func (c *Client) noteAcks(recs []string) {
@@ -109,7 +123,7 @@ func (c *Client) stashEvents(recs []string) {
 	defer c.stashMu.Unlock()
 	for _, r := range recs {
 		if len(r) > 2 && r[0] == '4' && r[1] == '2' {
-			c.stash = append(c.stash, []byte(r[2:]))
+			c.appendStashedEventLocked([]byte(r[2:]))
 		}
 	}
 }
@@ -160,13 +174,51 @@ func (c *Client) DrainStashedEvents(name string) []json.RawMessage {
 func New(cfg Config) *Client {
 	hc := cfg.HTTPClient
 	if hc == nil {
-		hc = &http.Client{Timeout: 35 * time.Second}
+		// Kuma long polls may remain open for pingInterval+pingTimeout.
+		hc = &http.Client{Timeout: 90 * time.Second}
 	}
+	cfg.HTTPClient = withSafeRedirects(hc)
 	return &Client{
 		cfg:         cfg,
 		nsConnected: make(chan struct{}),
 		ackCh:       map[int]chan []byte{},
 	}
+}
+
+// withSafeRedirects preserves the caller's transport, timeout, and redirect
+// policy while refusing to resend credential-bearing Socket.IO POST bodies
+// to another host or port, or across a TLS downgrade.
+func withSafeRedirects(client *http.Client) *http.Client {
+	safe := *client
+	previous := safe.CheckRedirect
+	safe.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) > 0 {
+			from := via[0].URL
+			if !strings.EqualFold(from.Hostname(), req.URL.Hostname()) || from.Port() != req.URL.Port() {
+				return fmt.Errorf("refusing Socket.IO redirect to a different host or port")
+			}
+			if from.Scheme == "https" && req.URL.Scheme != "https" {
+				return fmt.Errorf("refusing HTTPS-to-HTTP Socket.IO redirect")
+			}
+		}
+		if previous != nil {
+			return previous(req, via)
+		}
+		if len(via) >= 10 {
+			return fmt.Errorf("stopped after 10 redirects")
+		}
+		return nil
+	}
+	return &safe
+}
+
+func isLoopbackHost(host string) bool {
+	host = strings.TrimSuffix(strings.ToLower(host), ".")
+	if host == "localhost" || strings.HasSuffix(host, ".localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // signalAck wakes anything waiting on ack id (payload is read from c.acks).
@@ -189,6 +241,9 @@ func socketIOParse(base string) (*url.URL, error) {
 	}
 	if u.Scheme != "http" && u.Scheme != "https" {
 		return nil, fmt.Errorf("base URL must be http(s)")
+	}
+	if u.Scheme != "https" && !isLoopbackHost(u.Hostname()) {
+		return nil, fmt.Errorf("refusing to send Uptime Kuma credentials over non-loopback %s transport; use HTTPS", u.Scheme)
 	}
 	q := u.Query()
 	q.Set("EIO", "4")
@@ -274,10 +329,11 @@ func parseEngineIO(payload []byte) []string {
 			break
 		}
 		n, err := strconv.ParseInt(string(payload[:colon]), 10, 64)
-		if err != nil || n < 0 || int(colon)+1+int(n) > len(payload) {
-			// Malformed length; skip one byte to try to resync.
-			payload = payload[1:]
-			continue
+		if err != nil || n < 0 || n > int64(len(payload)-colon-1) {
+			// A numeric prefix claims framing but is invalid. Reject the
+			// remaining payload instead of repeatedly rescanning it or
+			// accepting an attacker-selected suffix as a new record.
+			break
 		}
 		end := int(colon) + 1 + int(n)
 		out = append(out, string(payload[colon+1:end]))
@@ -430,7 +486,7 @@ func (c *Client) startReader(ctx context.Context) {
 				default:
 					if len(rec) > 1 && rec[0] == '4' && rec[1] == '2' {
 						c.stashMu.Lock()
-						c.stash = append(c.stash, []byte(rec[2:]))
+						c.appendStashedEventLocked([]byte(rec[2:]))
 						c.stashMu.Unlock()
 					}
 				}
@@ -444,6 +500,9 @@ func redactURL(u *url.URL) string {
 	if copy.User != nil {
 		copy.User = url.User("REDACTED")
 	}
+	copy.RawQuery = ""
+	copy.ForceQuery = false
+	copy.Fragment = ""
 	return copy.String()
 }
 

@@ -47,6 +47,12 @@
     }
   ],
   "printer_name": "Keith",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "catalog_entry": "library/monitoring/kuma",
   "catalog_description": "Inspect Uptime Kuma v2 monitors, heartbeats, and incident context; retry changes are explicitly gated.",
   "novel_features": [

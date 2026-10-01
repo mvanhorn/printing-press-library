@@ -44,10 +44,15 @@ func target(m *Monitor) string {
 
 func redactURLCredentials(raw string) string {
 	u, err := url.Parse(raw)
-	if err != nil || u.User == nil {
-		return raw
+	if err != nil {
+		return "<invalid monitor URL>"
 	}
-	u.User = url.UserPassword("REDACTED", "REDACTED")
+	if u.User != nil {
+		u.User = url.UserPassword("REDACTED", "REDACTED")
+	}
+	u.RawQuery = ""
+	u.ForceQuery = false
+	u.Fragment = ""
 	return u.String()
 }
 
@@ -236,6 +241,7 @@ func runMonitors(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, arg
 	return emit(stdout, rows)
 }
 
+// pp:data-source live -- reads heartbeat history from the connected Kuma server.
 func runHeartbeats(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, args []string, stdout, stderr io.Writer) error {
 	hours := fs.Int("hours", 3, "lookback window in hours")
 	monitorID := fs.Int64("monitor-id", 0, "filter to one monitor id")
@@ -288,6 +294,7 @@ func runHeartbeats(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, a
 	return emit(stdout, beats)
 }
 
+// pp:data-source live -- combines live monitor metadata and heartbeat history.
 func runIncident(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, args []string, stdout, stderr io.Writer) error {
 	monitorArg := fs.String("monitor", "", "monitor id or name (required)")
 	lookback := fs.Int("lookback-minutes", 60, "timeline window in minutes")
@@ -304,7 +311,10 @@ func runIncident(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, arg
 	if err != nil {
 		return err
 	}
-	chosen := matchMonitor(monitors, *monitorArg)
+	chosen, matchErr := matchMonitor(monitors, *monitorArg)
+	if matchErr != nil {
+		return matchErr
+	}
 	if chosen == nil {
 		return fmt.Errorf("no monitor matches %q", *monitorArg)
 	}
@@ -379,30 +389,38 @@ func runIncident(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, arg
 	})
 }
 
-func matchMonitor(monitors []*Monitor, arg string) *Monitor {
+func matchMonitor(monitors []*Monitor, arg string) (*Monitor, error) {
 	arg = strings.TrimSpace(arg)
 	if id, err := strconv.ParseInt(arg, 10, 64); err == nil {
 		for _, m := range monitors {
 			if m.ID == id {
-				return m
+				return m, nil
 			}
 		}
-		return nil
+		return nil, nil
 	}
 	for _, m := range monitors {
 		if strings.EqualFold(m.Name, arg) {
-			return m
+			return m, nil
 		}
 	}
 	lower := strings.ToLower(arg)
+	var matches []*Monitor
 	for _, m := range monitors {
 		if strings.Contains(strings.ToLower(m.Name), lower) {
-			return m
+			matches = append(matches, m)
 		}
 	}
-	return nil
+	if len(matches) > 1 {
+		return nil, fmt.Errorf("monitor name %q is ambiguous (%d matches); use an exact name or numeric id", arg, len(matches))
+	}
+	if len(matches) == 1 {
+		return matches[0], nil
+	}
+	return nil, nil
 }
 
+// pp:data-source live -- reads the full monitor before previewing or applying an edit.
 func runSetRetries(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, args []string, stdout, stderr io.Writer) error {
 	monitorF := fs.Int64("monitor", 0, "monitor id to edit (required)")
 	idAlias := fs.Int64("id", 0, "alias for --monitor")
@@ -501,6 +519,9 @@ func runSetRetries(ctx context.Context, client *kuma.Client, fs *flag.FlagSet, a
 				return ctx.Err()
 			}
 		}
+	}
+	if !applied {
+		return fmt.Errorf("edit was acknowledged but readback did not confirm maxretries=%d for monitor %d", *valueF, chosen.ID)
 	}
 	return emit(stdout, map[string]any{
 		"ok":                   applied,

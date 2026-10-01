@@ -2,6 +2,8 @@
 
 `kuma-pp-cli` is a small operator CLI for Uptime Kuma v2. It uses Kuma's Socket.IO protocol rather than pretending the dashboard is a REST API.
 
+Contributor: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 This catalog package is intentionally separate from the native `kumactl` HTTP MCP service. The package currently contains the generated Go CLI and its Socket.IO client; it does not install or embed a Python `kumactl` dependency, and it does not provide an MCP transport.
 
 ## Configuration
@@ -23,6 +25,8 @@ kuma-pp-cli --version
 ```
 
 `UPTIME_KUMA_URL` must be the server origin (for example `https://kuma.example.com`). A dashboard page URL is reduced to its origin automatically.
+
+Use HTTPS for a remote server. Plain HTTP is accepted only for a local loopback server. Redirects to another host or port are refused because login credentials travel in Socket.IO requests. An incident lookup with an ambiguous monitor name asks for an exact name or ID, and an edit reports an error unless the readback confirms the change.
 
 `agent-context` emits machine-readable JSON describing every command, flag, and auth variable, so agents can introspect the CLI without parsing `--help`.
 
