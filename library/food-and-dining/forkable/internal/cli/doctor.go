@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/forkable/internal/client"
@@ -425,7 +426,9 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	if len(locations) > 0 {
 		report["credentials_locations"] = locations
 	}
-	if credsPresent && len(locations) > 1 {
+	if legacySecretsElsewhere != "" && cfg.CredentialSource != "legacy config path" {
+		report["credentials_location_warning"] = "WARN legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
+	} else if credsPresent && len(locations) > 1 {
 		if legacySecretsElsewhere != "" {
 			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
 		} else {
@@ -445,12 +448,18 @@ func legacyCredentialProbePaths(cfg *config.Config) []string {
 		paths = append(paths, path)
 	}
 	if cfg != nil && cfg.Path != "" {
-		// Probe only the active config; a same-dir standard-named file may
-		// belong to an unrelated CLI sharing that directory.
+		// The sibling JSON file is app-owned only when the active file uses
+		// the standard config.toml name. Explicit paths may share a folder.
 		add(cfg.Path)
+		if filepath.Base(cfg.Path) == "config.toml" {
+			add(filepath.Join(filepath.Dir(cfg.Path), "config.json"))
+		}
 	}
 	if legacyPath, err := config.LegacyConfigPath(); err == nil {
 		add(legacyPath)
+	}
+	if legacyJSONPath, err := config.LegacyJSONConfigPath(); err == nil {
+		add(legacyJSONPath)
 	}
 	return paths
 }
