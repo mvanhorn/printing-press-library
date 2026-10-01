@@ -5,16 +5,17 @@
   "base_run_id": "20260623-093040-ed91772a",
   "base_printing_press_version": "4.17.0",
   "summary": "Full-text avvisi search --all follows ANAC continuation tokens through the existing data-source resolver instead of pretending to paginate offsets.",
-  "reason": "ANAC requires direzionePaginazione=AVANTI and tokenPaginazione; the generic offset path returned a successful first page for --all. Continuation failures or non-advancing tokens must fail rather than report partial results as complete.",
+  "reason": "ANAC requires direzionePaginazione=AVANTI and tokenPaginazione; the generic offset path returned a successful first page for --all. Continuation failures, malformed notices, or non-advancing tokens must fail rather than report partial results as complete. Broad searches need a configurable page safety limit.",
   "files": [
     ".printing-press.json",
     "NOTICE",
     "README.md",
     "SKILL.md",
     "internal/cli/avvisi_search.go",
+    "internal/cli/data_source.go",
     "internal/cli/helpers.go",
     "internal/cli/cerca.go",
     "internal/cli/avvisi_search_pagination_test.go"
   ],
-  "validated_outcome": "Mock endpoint tests prove multiple pages including short and duplicate-only middle pages, query/header preservation, malformed and repeated-token failures, a valid empty page, and unchanged single-page output."
+  "validated_outcome": "Mock endpoint and command tests prove multiple pages including short and duplicate-only middle pages, query/header preservation, malformed entries and repeated-token failures, a valid empty page, configurable page limits, and unchanged single-page output."
 }

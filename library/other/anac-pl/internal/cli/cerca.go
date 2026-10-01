@@ -22,11 +22,11 @@ type fullTextGetter interface {
 }
 
 func fetchFullText(ctx context.Context, c fullTextGetter, base map[string]string, pages int) ([]json.RawMessage, int64, int, error) {
-	return fetchFullTextWithHeaders(ctx, c, base, pages, nil)
+	return fetchFullTextWithHeaders(ctx, c, base, pages, nil, paginatedGetMaxPages)
 }
 
 // pages == 0 follows all continuation tokens for avvisi search --all.
-func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[string]string, pages int, headers map[string]string) ([]json.RawMessage, int64, int, error) {
+func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[string]string, pages int, headers map[string]string, maxPages int) ([]json.RawMessage, int64, int, error) {
 	size, _ := strconv.Atoi(base["size"])
 	var out []json.RawMessage
 	var total int64
@@ -35,8 +35,8 @@ func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[st
 	token := ""
 	seenTokens := map[string]bool{}
 	for p := 0; pages == 0 || p < pages; p++ {
-		if pages == 0 && p >= paginatedGetMaxPages {
-			return out, total, fetched, fmt.Errorf("ricerca incompleta: raggiunto il limite di %d pagine", paginatedGetMaxPages)
+		if pages == 0 && p >= maxPages {
+			return out, total, fetched, fmt.Errorf("ricerca incompleta: raggiunto il limite di %d pagine; riprova con --max-pages maggiore", maxPages)
 		}
 		params := map[string]string{}
 		for k, v := range base {
@@ -76,7 +76,10 @@ func fetchFullTextWithHeaders(ctx context.Context, c fullTextGetter, base map[st
 			var idOnly struct {
 				IDAvviso string `json:"idAvviso"`
 			}
-			_ = json.Unmarshal(raw, &idOnly)
+			decodeErr := json.Unmarshal(raw, &idOnly)
+			if pages == 0 && (decodeErr != nil || idOnly.IDAvviso == "") {
+				return out, total, fetched, fmt.Errorf("ricerca incompleta: avviso senza idAvviso valido nella pagina %d", p+1)
+			}
 			if idOnly.IDAvviso == "" || seen[idOnly.IDAvviso] {
 				continue
 			}

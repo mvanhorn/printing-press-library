@@ -204,7 +204,7 @@ La conseguenza pratica è che le scansioni lunghe sono lente per costruzione: `s
 
 ## Quattro avvertenze sui dati
 
-Il servizio pagina a token, non per numero di pagina: `page` veniva accettato e ignorato, restituendo sempre la prima pagina. `cerca --pages N` e `affidamenti --pages N` scorrono le pagine seguendo il token e uniscono i risultati, deduplicati per `idAvviso`. Su `avvisi search`, `--all` segue tutti i token di continuazione; senza `--all`, `--size` regola la prima pagina.
+Il servizio pagina a token, non per numero di pagina: `page` veniva accettato e ignorato, restituendo sempre la prima pagina. `cerca --pages N` e `affidamenti --pages N` scorrono le pagine seguendo il token e uniscono i risultati, deduplicati per `idAvviso`. Su `avvisi search`, `--all` segue i token di continuazione; il limite di sicurezza è 100 pagine e si può aumentare con `--max-pages N`. Se il limite viene raggiunto, il comando restituisce un errore senza presentare risultati parziali come completi. Senza `--all`, `--size` regola la prima pagina.
 
 Il campo CPV di `cerca` non è un filtro sul codice ma un match testuale: restituisce anche avvisi con CPV estranei. Per selezionare davvero per codice serve `cerca-avanzata`, che usa l'endpoint della ricerca avanzata rilasciata in beta a luglio 2026. La CLI lo segnala su stderr quando usi `cerca --cpv`.
 

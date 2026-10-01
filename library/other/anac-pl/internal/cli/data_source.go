@@ -182,7 +182,7 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, hintWriter)
 }
 
-func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer, maxPages ...int) (json.RawMessage, DataProvenance, error) {
 	if err := validateDataSourceStrategy(flags, strategy); err != nil {
 		return nil, DataProvenance{}, err
 	}
@@ -191,7 +191,7 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 		return data, attachFreshness(prov, flags), err
 	}
 	if strategy == "live" {
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, maxPages...)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
@@ -203,14 +203,14 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, maxPages...)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, maxPages...)
 		if err == nil {
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
