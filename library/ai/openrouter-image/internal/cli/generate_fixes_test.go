@@ -213,3 +213,19 @@ func TestNovelGenerateLedgerFailureFailsRun(t *testing.T) {
 		t.Fatalf("ExitCode(%v) = 0, want non-zero", err)
 	}
 }
+
+func TestGenerateReferenceFlagPreservesDataURLCommas(t *testing.T) {
+	cmd := newGenerateCmd(&rootFlags{})
+	first := "data:image/png;base64,AAAA"
+	second := "data:image/jpeg;base64,BBBB"
+	if err := cmd.ParseFlags([]string{"--reference", first, "--reference", second}); err != nil {
+		t.Fatalf("parse reference flags: %v", err)
+	}
+	got, err := cmd.Flags().GetStringArray("reference")
+	if err != nil {
+		t.Fatalf("read reference flags: %v", err)
+	}
+	if len(got) != 2 || got[0] != first || got[1] != second {
+		t.Fatalf("reference values = %#v, want intact data URLs", got)
+	}
+}

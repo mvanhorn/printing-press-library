@@ -494,7 +494,7 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 	cmd.Flags().Int64Var(&flagSeed, "seed", 0, "Deterministic seed for reproducible generation")
 	cmd.Flags().StringVar(&flagOutput, "output", "", "Output file path, or directory (trailing /) for multiple images")
 	cmd.Flags().StringVar(&flagProvider, "provider", "", "Comma-separated provider slugs to restrict routing to")
-	cmd.Flags().StringSliceVar(&flagReference, "reference", nil, "Reference image for image-to-image (local path, URL, or data URL); repeatable")
+	cmd.Flags().StringArrayVar(&flagReference, "reference", nil, "Reference image for image-to-image (local path, URL, or data URL); repeatable")
 	cmd.Flags().BoolVar(&flagStream, "stream", false, "Request SSE streaming of partial images (model must support it)")
 	return cmd
 }

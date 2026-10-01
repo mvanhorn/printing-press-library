@@ -63,6 +63,26 @@ func TestGenerationLedgerRoundTrip(t *testing.T) {
 	}
 }
 
+func TestGenerationLedgerZeroTimestampUsesCurrentTime(t *testing.T) {
+	db := openTestStore(t)
+	ctx := context.Background()
+	before := time.Now().UTC().Add(-time.Second)
+
+	if err := db.LedgerGeneration(ctx, GenerationEntry{ID: "gen-zero-time", Model: "model"}); err != nil {
+		t.Fatalf("LedgerGeneration: %v", err)
+	}
+	entries, err := db.ListGenerations(ctx, before, 10)
+	if err != nil {
+		t.Fatalf("ListGenerations: %v", err)
+	}
+	if len(entries) != 1 || entries[0].ID != "gen-zero-time" {
+		t.Fatalf("recent entries = %+v, want gen-zero-time", entries)
+	}
+	if entries[0].CreatedAt.IsZero() || entries[0].CreatedAt.Year() == 1 {
+		t.Fatalf("stored timestamp = %v, want current database timestamp", entries[0].CreatedAt)
+	}
+}
+
 func TestListGenerationsNewestFirst(t *testing.T) {
 	db := openTestStore(t)
 	ctx := context.Background()

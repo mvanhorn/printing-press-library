@@ -64,10 +64,14 @@ type GenerationEntry struct {
 
 // LedgerGeneration records a completed generation in the ledger.
 func (s *Store) LedgerGeneration(ctx context.Context, e GenerationEntry) error {
+	var createdAt any
+	if !e.CreatedAt.IsZero() {
+		createdAt = e.CreatedAt.Format(time.RFC3339)
+	}
 	if _, err := s.db.ExecContext(ctx,
 		`INSERT OR REPLACE INTO generation_ledger (id, model, prompt, params, cost_usd, tokens, output_path, created_at)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`,
-		e.ID, e.Model, e.Prompt, e.Params, e.CostUSD, e.Tokens, e.OutputPath, e.CreatedAt.Format(time.RFC3339),
+		e.ID, e.Model, e.Prompt, e.Params, e.CostUSD, e.Tokens, e.OutputPath, createdAt,
 	); err != nil {
 		return fmt.Errorf("inserting generation ledger row: %w", err)
 	}
