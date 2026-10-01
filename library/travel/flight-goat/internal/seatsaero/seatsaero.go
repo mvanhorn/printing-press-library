@@ -103,8 +103,10 @@ type SearchParams struct {
 	// StartDate / EndDate bound the departure window in YYYY-MM-DD (inclusive).
 	StartDate string
 	EndDate   string
-	// Cabin filters availability by cabin: economy, premium, business, first.
-	Cabin string
+	// Cabin filters one cabin; Cabins filters a comma-delimited list. The API
+	// forbids sending both query parameters.
+	Cabin  string
+	Cabins string
 	// OrderBy: empty (default: by date, premium-first) or "lowest_mileage".
 	OrderBy string
 	// OnlyDirectFlights restricts to non-stop availability when true.
@@ -169,6 +171,9 @@ type SearchResult struct {
 // API key is configured (callers may pre-check via HasAPIKey to emit a clearer
 // message; a call without a key is an error, never a silent empty result).
 func (c *Client) Search(ctx context.Context, p SearchParams) (*SearchResult, error) {
+	if p.Cabin != "" && p.Cabins != "" {
+		return nil, fmt.Errorf("seats.aero: cabin and cabins filters are mutually exclusive")
+	}
 	if c.APIKey == "" {
 		return nil, ErrNoAPIKey{}
 	}
@@ -187,6 +192,9 @@ func (c *Client) Search(ctx context.Context, p SearchParams) (*SearchResult, err
 	}
 	if p.Cabin != "" {
 		q.Set("cabin", p.Cabin)
+	}
+	if p.Cabins != "" {
+		q.Set("cabins", p.Cabins)
 	}
 	if p.OrderBy != "" {
 		q.Set("order_by", p.OrderBy)

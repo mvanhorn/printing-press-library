@@ -121,6 +121,41 @@ func TestSearch_SendsEnvelopeParams(t *testing.T) {
 	}
 }
 
+func TestSearch_SendsPluralCabinsWithoutSingularCabin(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		if got := q.Get("cabins"); got != "economy,business" {
+			t.Errorf("cabins = %q, want economy,business", got)
+		}
+		if _, present := q["cabin"]; present {
+			t.Errorf("singular cabin must be absent when cabins is set: %s", r.URL.RawQuery)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":[],"count":0,"hasMore":false,"cursor":0}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient("test-key")
+	c.BaseURL = srv.URL
+	c.HTTP = srv.Client()
+	if _, err := c.Search(context.Background(), SearchParams{
+		OriginAirport: "SFO", DestinationAirport: "HND", Cabins: "economy,business",
+	}); err != nil {
+		t.Fatalf("Search: %v", err)
+	}
+}
+
+func TestSearch_RejectsSingularAndPluralCabinTogether(t *testing.T) {
+	c := NewClient("test-key")
+	_, err := c.Search(context.Background(), SearchParams{
+		OriginAirport: "SFO", DestinationAirport: "HND",
+		Cabin: "economy", Cabins: "economy,business",
+	})
+	if err == nil || !strings.Contains(err.Error(), "mutually exclusive") {
+		t.Fatalf("error = %v, want mutually exclusive cabin filters", err)
+	}
+}
+
 func TestSearch_HTTPError(t *testing.T) {
 	srv, hc := newTestServer(t, "SFO", "HND", 401, `{"error":"unauthorized"}`)
 	defer srv.Close()
@@ -134,6 +169,9 @@ func TestSearch_HTTPError(t *testing.T) {
 }
 
 func TestSearch_NoAPIKey(t *testing.T) {
+	t.Setenv("SEATS_AERO_API_KEY", "")
+	t.Setenv("SEATS_AERO_PARTNER_PARTNER_AUTHORIZATION", "")
+	t.Setenv("SEATS_AERO_CONFIG", t.TempDir()+"/missing-config.toml")
 	c := NewClient("")
 	if c.HasAPIKey() {
 		t.Fatal("HasAPIKey should be false with no key")
