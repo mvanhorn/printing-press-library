@@ -257,9 +257,9 @@ Order history, detail, validation, and tracking - the core ordering data path
 - **`ordertogo-pp-cli orders track`** - HTML order tracking page (received → preparing → ready → picked up). Parsed for status by `order track`.
 - **`ordertogo-pp-cli orders validate`** - Pre-validate a cart - returns an order token plus tax computation, used by `order plan` before any payment surface opens
 - **`ordertogo-pp-cli orders plan`** - Reuse a previous order or item list, validate tax and tip, and save the active cart behind a budget gate
-- **`ordertogo-pp-cli orders place`** - Drive Chrome through checkout for the active cart after explicit confirmation and max-budget validation
+- **`ordertogo-pp-cli orders place`** - Submit the saved-card checkout after explicit confirmation and max-budget validation
 
-If checkout loses its response, inspect your recent orders. The CLI blocks further checkout, including a changed cart or payment details, because the server may not recognize an old request ID forever. Once you confirm whether an order was placed, you can delete the reservation file named in the error and start a new checkout. A confirmed order clears the reservation automatically. If the CLI cannot save or lock the reservation, it refuses to submit the order. Checkout is disabled on Windows until its reservation can be made crash safe; use the web checkout there.
+If checkout loses its response, inspect your recent orders. The CLI blocks further checkout, including a changed cart or payment details, because the server may not recognize an old request ID forever. Once you confirm whether an order was placed, clear the reservation named in the error and start a new checkout. On macOS and Linux, this is the `pending-place.json` file in the CLI config directory. On Windows, it is the `PendingPlace` value under `HKEY_CURRENT_USER\Software\PrintingPress\OrderToGo\Checkout`; remove that value only after checking the order outcome. A confirmed order clears the reservation automatically. If the CLI cannot save, flush, or lock the reservation, it refuses to submit the order.
 
 ### payment
 

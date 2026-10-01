@@ -1,0 +1,27 @@
+name: Verify OrderToGo Windows checkout safety
+
+on:
+  pull_request:
+    paths:
+      - 'library/food-and-dining/ordertogo/**'
+      - '.github/workflows/verify-ordertogo-windows.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  checkout-safety:
+    name: OrderToGo Windows checkout safety
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: library/food-and-dining/ordertogo/go.mod
+          cache-dependency-path: library/food-and-dining/ordertogo/go.sum
+      - name: Exercise registry reservations without provider calls
+        working-directory: library/food-and-dining/ordertogo
+        run: go test ./internal/cli -run '^TestWindowsCheckout' -count=1
+      - name: Build Windows CLI
+        working-directory: library/food-and-dining/ordertogo
+        run: go build ./...

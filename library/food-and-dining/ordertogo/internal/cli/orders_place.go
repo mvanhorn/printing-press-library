@@ -106,6 +106,10 @@ type localStorageCart struct {
 	Subtotal float64 `json:"subtotal"`
 }
 
+// Kept replaceable for command tests so checkout safety can be exercised
+// without contacting Firebase or the order provider.
+var refreshCheckoutToken = firebaseAuthToken
+
 func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 	var reuseLast bool
 	var cartFile string
@@ -133,15 +137,6 @@ strings. Payment uses the Stripe customer + saved card configured via
 			if maxBudget <= 0 {
 				return usageErr(fmt.Errorf("--max is required (budget cap in dollars)"))
 			}
-			// Rate cap: rapid-fire order POSTs trip ordertogo's abuse/velocity
-			// detection (which then 400s even a valid request). Refuse a second
-			// attempt within the cool-down window unless --force.
-			if !force && !verifyMode() {
-				if wait := placeCooldownRemaining(); wait > 0 {
-					return usageErr(fmt.Errorf("last order attempt was %s ago; wait %s before retrying (rapid retries trip abuse detection). Use --force to override", placeCooldownWindow-wait, wait.Round(time.Second)))
-				}
-			}
-
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -185,6 +180,20 @@ strings. Payment uses the Stripe customer + saved card configured via
 				}, flags)
 			}
 
+			fingerprint, err := cartFingerprint(body)
+			if err != nil {
+				return &cliError{code: 10, err: err}
+			}
+			if err := checkPendingPlacement(fingerprint); err != nil {
+				return &cliError{code: 10, err: err}
+			}
+			// Report an unknown checkout before a cooldown or token failure can
+			// hide the instruction to inspect recent orders.
+			if !force {
+				if wait := placeCooldownRemaining(); wait > 0 {
+					return usageErr(fmt.Errorf("last order attempt was %s ago; wait %s before retrying (rapid retries trip abuse detection). Use --force to override", placeCooldownWindow-wait, wait.Round(time.Second)))
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -204,7 +213,7 @@ strings. Payment uses the Stripe customer + saved card configured via
 			// tell). cfg.BaseURL + the restaurant path mirrors the browser.
 			// Resolve authentication before reserving checkout. A token refresh
 			// failure cannot have submitted an order and must not strand one.
-			token, err := firebaseAuthToken(cfg)
+			token, err := refreshCheckoutToken(cfg)
 			if err != nil {
 				return usageErr(err)
 			}
@@ -213,10 +222,6 @@ strings. Payment uses the Stripe customer + saved card configured via
 			// inspects recent orders. Provider deduplication may expire, so the
 			// CLI cannot automatically retry an unknown outcome. The lock and
 			// durable record prevent parallel or changed-cart bypasses.
-			fingerprint, err := cartFingerprint(body)
-			if err != nil {
-				return &cliError{code: 10, err: err}
-			}
 			reservation, err := reservePlacement(fingerprint)
 			if err != nil {
 				return &cliError{code: 10, err: err}

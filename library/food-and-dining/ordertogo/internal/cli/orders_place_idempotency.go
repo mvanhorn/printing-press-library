@@ -55,6 +55,31 @@ func reservePlacement(fingerprint string) (*placementReservation, error) {
 	return reservePlacementWithWriter(fingerprint, writeFileDurable)
 }
 
+// checkPendingPlacement reports an earlier unknown outcome before token
+// refresh. This is read-only: a new reservation is created only after auth
+// succeeds. reservePlacement repeats the check under the checkout lock.
+func checkPendingPlacement(fingerprint string) error {
+	return pendingPlacementError(pendingPlaceRecordPath(), fingerprint)
+}
+
+func pendingPlacementError(recordPath, fingerprint string) error {
+	data, err := readPendingPlacement(recordPath)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("cannot read checkout idempotency record: %w", err)
+	}
+	var p pendingPlace
+	if json.Unmarshal(data, &p) != nil || p.RequestID == "" || p.CartFingerprint == "" {
+		return fmt.Errorf("checkout idempotency record %s is corrupt; inspect your recent orders, then clear the reservation to explicitly start a new attempt", pendingPlacementLocation(recordPath))
+	}
+	if p.CartFingerprint != fingerprint {
+		return fmt.Errorf("a previous checkout with different details has an unknown outcome; inspect recent orders before starting another checkout, then clear the reservation at %s only after confirming the outcome", pendingPlacementLocation(recordPath))
+	}
+	return fmt.Errorf("a previous checkout has an unknown outcome; inspect recent orders before starting another checkout, then clear the reservation at %s only after confirming the outcome", pendingPlacementLocation(recordPath))
+}
+
 func reservePlacementWithWriter(fingerprint string, writeRecord func(string, pendingPlace) error) (*placementReservation, error) {
 	if err := checkPlacementDurability(); err != nil {
 		return nil, err
@@ -75,21 +100,9 @@ func reservePlacementWithWriter(fingerprint string, writeRecord func(string, pen
 	}
 	res := &placementReservation{recordPath: recordPath, lockFile: lockFile}
 
-	if data, err := os.ReadFile(recordPath); err == nil {
-		var p pendingPlace
-		if json.Unmarshal(data, &p) != nil || p.RequestID == "" || p.CartFingerprint == "" {
-			res.Release()
-			return nil, fmt.Errorf("checkout idempotency record %s is corrupt; inspect your recent orders, then delete the file to explicitly start a new attempt", recordPath)
-		}
-		if p.CartFingerprint != fingerprint {
-			res.Release()
-			return nil, fmt.Errorf("a previous checkout with different details has an unknown outcome; inspect recent orders before starting another checkout, then delete %s only after confirming the outcome", recordPath)
-		}
+	if err := pendingPlacementError(recordPath, fingerprint); err != nil {
 		res.Release()
-		return nil, fmt.Errorf("a previous checkout has an unknown outcome; inspect recent orders before starting another checkout, then delete %s only after confirming the outcome", recordPath)
-	} else if !os.IsNotExist(err) {
-		res.Release()
-		return nil, fmt.Errorf("cannot read checkout idempotency record: %w", err)
+		return nil, err
 	}
 
 	id := newRequestID()
@@ -101,51 +114,10 @@ func reservePlacementWithWriter(fingerprint string, writeRecord func(string, pen
 	return res, nil
 }
 
-// writeFileDurable writes JSON via same-directory temp file + fsync + atomic
-// rename + directory fsync, then reads the result back. Any failure means the
-// record cannot be trusted to survive, so the caller must not POST.
+// writeFileDurable persists a reservation using the platform's crash-safe
+// store, then verifies it can be read back. Any failure prevents the POST.
 func writeFileDurable(path string, record pendingPlace) error {
-	data, err := json.Marshal(record)
-	if err != nil {
-		return err
-	}
-	tmp, err := os.CreateTemp(filepath.Dir(path), ".pending-place-*")
-	if err != nil {
-		return err
-	}
-	tmpName := tmp.Name()
-	defer os.Remove(tmpName)
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Chmod(tmpName, 0o600); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpName, path); err != nil {
-		return err
-	}
-	// The rename itself must survive a crash: sync the directory and treat
-	// any failure as not-durable (the caller then refuses to POST).
-	if err := syncDir(filepath.Dir(path)); err != nil {
-		return fmt.Errorf("syncing record directory: %w", err)
-	}
-	readBack, err := os.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("verifying written record: %w", err)
-	}
-	var verify pendingPlace
-	if json.Unmarshal(readBack, &verify) != nil || verify.RequestID != record.RequestID {
-		return fmt.Errorf("written record did not read back intact")
-	}
-	return nil
+	return writePendingPlacement(path, record)
 }
 
 // ConfirmSuccess removes the record after a confirmed order response so the
@@ -156,12 +128,9 @@ func writeFileDurable(path string, record pendingPlace) error {
 // a warning string instead of hiding the confirmed order from the caller.
 func (r *placementReservation) ConfirmSuccess() string {
 	warnf := func(err error) string {
-		return fmt.Sprintf("order placed, but durably clearing the checkout idempotency record failed (%v); inspect recent orders, then delete %s before placing another order", err, r.recordPath)
+		return fmt.Sprintf("order placed, but durably clearing the checkout idempotency record failed (%v); inspect recent orders, then clear the reservation at %s before placing another order", err, pendingPlacementLocation(r.recordPath))
 	}
-	if err := os.Remove(r.recordPath); err != nil && !os.IsNotExist(err) {
-		return warnf(err)
-	}
-	if err := syncDir(filepath.Dir(r.recordPath)); err != nil {
+	if err := clearPendingPlacement(r.recordPath); err != nil {
 		return warnf(err)
 	}
 	return ""

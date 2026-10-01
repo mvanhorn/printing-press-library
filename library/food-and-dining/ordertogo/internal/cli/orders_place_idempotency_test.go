@@ -3,12 +3,16 @@
 package cli
 
 import (
+	"bytes"
 	"errors"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
 )
 
 func checkoutTestHome(t *testing.T) {
@@ -173,5 +177,62 @@ func TestReservationFailsClosedOnCorruptRecord(t *testing.T) {
 	}
 	if _, err := reservePlacement(fp); err == nil || !strings.Contains(err.Error(), "corrupt") {
 		t.Fatalf("corrupt record got err %v, want fail-closed corruption error", err)
+	}
+}
+
+func TestPendingCheckoutPrecedesTokenRefresh(t *testing.T) {
+	checkoutTestHome(t)
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("ORDERTOGO_CONFIG", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	configText := "stripe_customer_id = \"cus_test\"\nstripe_default_card = \"card_test\"\ncustomer_firstname = \"Test\"\ncustomer_lastname = \"User\"\ncustomer_phone = \"2025550147\"\n"
+	if err := os.WriteFile(configPath, []byte(configText), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cartPath := filepath.Join(t.TempDir(), "cart.json")
+	if err := os.WriteFile(cartPath, []byte(`{"items":[{"id":7,"price":12.5}],"subtotal":12.5}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	called := false
+	previous := refreshCheckoutToken
+	refreshCheckoutToken = func(_ *config.Config) (string, error) {
+		called = true
+		return "", errors.New("synthetic token refresh failure")
+	}
+	t.Cleanup(func() { refreshCheckoutToken = previous })
+
+	run := func() error {
+		cmd := newOrdersPlaceCmd(&rootFlags{configPath: configPath})
+		cmd.SetOut(&bytes.Buffer{})
+		cmd.SetErr(&bytes.Buffer{})
+		cmd.SetArgs([]string{"--cart-file", cartPath, "--restaurant", "test-restaurant", "--restid", "42", "--confirm", "--max", "100", "--force"})
+		return cmd.Execute()
+	}
+
+	// Authentication fails before a new record is created.
+	if err := run(); err == nil || !strings.Contains(err.Error(), "synthetic token refresh failure") {
+		t.Fatalf("first checkout error = %v, want token failure", err)
+	}
+	if !called {
+		t.Fatal("token refresh was not reached for a new checkout")
+	}
+	if _, err := os.Stat(pendingPlaceRecordPath()); !os.IsNotExist(err) {
+		t.Fatalf("token failure created a pending checkout record: %v", err)
+	}
+
+	// A previous unknown outcome must take priority over a later token failure.
+	if err := os.MkdirAll(filepath.Dir(pendingPlaceRecordPath()), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeFileDurable(pendingPlaceRecordPath(), pendingPlace{RequestID: "test-request", CartFingerprint: "different-details", At: time.Now()}); err != nil {
+		t.Fatal(err)
+	}
+	called = false
+	if err := run(); err == nil || !strings.Contains(err.Error(), "unknown outcome") || !strings.Contains(err.Error(), "inspect recent orders") {
+		t.Fatalf("pending checkout error = %v, want recent-orders instruction", err)
+	}
+	if called {
+		t.Fatal("token refresh ran despite an unknown checkout outcome")
 	}
 }

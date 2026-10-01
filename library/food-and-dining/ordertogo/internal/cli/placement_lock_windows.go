@@ -5,15 +5,12 @@
 package cli
 
 import (
-	"errors"
 	"os"
 
 	"golang.org/x/sys/windows"
 )
 
-var errPlacementDurabilityUnsupported = errors.New("checkout is disabled on Windows because crash-safe idempotency records cannot be confirmed; use the web checkout or a Unix CLI")
-
-func checkPlacementDurability() error { return errPlacementDurabilityUnsupported }
+func checkPlacementDurability() error { return nil }
 
 // lockPlacementFile takes the exclusive, non-blocking lock that serializes
 // one checkout attempt per installation. LockFileEx is Windows' analogue
@@ -29,6 +26,3 @@ func unlockPlacementFile(f *os.File) {
 	overlapped := new(windows.Overlapped)
 	_ = windows.UnlockFileEx(windows.Handle(f.Fd()), 0, 1, 0, overlapped)
 }
-
-// A successful no-op would claim a reservation was durable before payment.
-func syncDir(string) error { return errPlacementDurabilityUnsupported }
