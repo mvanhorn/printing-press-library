@@ -41,6 +41,8 @@ Mirrors the official X v2 API and adds what no other X tool has: a local SQLite 
 
 ## When to Use This CLI
 
+For a ranked readout of recent posts, run `x-twitter-pp-cli top-posts --metric engagement --limit 10 --max-fetch 100 --json`. It reads the live X timeline, so each page may use paid API credits. `--user-id` selects a numeric account ID; without it, the command uses the authenticated user. `--dry-run` makes no request.
+
 Reach for this CLI when a task involves reading, searching, or archiving X (Twitter) data and you want the results queryable offline rather than re-fetched each time — building a searchable corpus of posts, reconstructing a conversation thread, snapshotting a user's recent posts with engagement, or monitoring mentions incrementally. It is also the right choice when an AI agent needs an X surface with read-only/destructive safety hints and named multi-step intents rather than a pile of raw endpoint calls. Prefer it over raw API calls whenever the same data will be queried more than once, since the local store avoids re-spending per-read credits.
 
 ## Unique Capabilities

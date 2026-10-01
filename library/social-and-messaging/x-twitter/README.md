@@ -164,6 +164,9 @@ x-twitter-pp-cli search "launch" --type tweets --limit 20
 # Aggregate your synced posts locally — e.g. top authors by post count — entirely offline, no API call.
 x-twitter-pp-cli analytics --type tweets --group-by author_id --limit 10
 
+# Rank recent posts with a live timeline read. X may charge for each page fetched.
+x-twitter-pp-cli top-posts --metric engagement --limit 10 --max-fetch 100 --json
+
 # Resolve a pasted X URL into a canonical, agent-friendly record.
 x-twitter-pp-cli post resolve https://x.com/user/status/123 --agent
 

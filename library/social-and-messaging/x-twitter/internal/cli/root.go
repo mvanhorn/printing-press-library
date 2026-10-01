@@ -301,6 +301,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTrendsPromotedCmd(flags))
 	rootCmd.AddCommand(newUsagePromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	rootCmd.AddCommand(newTopPostsCmd(flags))
 
 	return rootCmd
 }
