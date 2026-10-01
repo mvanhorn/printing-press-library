@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "verified_at": "2026-10-01T01:56:15.991921+00:00",
+  "verified_at": "2026-10-01T02:10:47.104642+00:00",
   "provider": "Pocket Concierge",
   "fixture_substitution": false,
   "rows": [
@@ -11,8 +11,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 3497,
-      "elapsed_ms": 980,
+      "bytes": 3495,
+      "elapsed_ms": 1034,
       "requests": 2
     },
     {
@@ -27,8 +27,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 1664,
-      "elapsed_ms": 796,
+      "bytes": 1662,
+      "elapsed_ms": 786,
       "requests": 2
     },
     {
@@ -44,7 +44,7 @@
       ],
       "exit": 0,
       "bytes": 990,
-      "elapsed_ms": 366,
+      "elapsed_ms": 356,
       "requests": 1
     },
     {
@@ -65,8 +65,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 3145,
-      "elapsed_ms": 803,
+      "bytes": 3144,
+      "elapsed_ms": 849,
       "requests": 2
     },
     {
@@ -82,7 +82,7 @@
       ],
       "exit": 0,
       "bytes": 2391,
-      "elapsed_ms": 798,
+      "elapsed_ms": 817,
       "requests": 2
     },
     {
@@ -97,8 +97,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 2519,
-      "elapsed_ms": 1300,
+      "bytes": 2520,
+      "elapsed_ms": 829,
       "requests": 2
     },
     {
@@ -111,8 +111,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 8337,
-      "elapsed_ms": 1051,
+      "bytes": 8336,
+      "elapsed_ms": 871,
       "requests": 2
     },
     {
@@ -125,8 +125,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 5933,
-      "elapsed_ms": 1046,
+      "bytes": 5932,
+      "elapsed_ms": 798,
       "requests": 2
     },
     {
@@ -141,8 +141,8 @@
         "--refresh"
       ],
       "exit": 0,
-      "bytes": 10475,
-      "elapsed_ms": 527,
+      "bytes": 10476,
+      "elapsed_ms": 353,
       "requests": 1
     },
     {
@@ -157,8 +157,8 @@
         "--no-cache"
       ],
       "exit": 0,
-      "bytes": 2543,
-      "elapsed_ms": 900,
+      "bytes": 2542,
+      "elapsed_ms": 795,
       "requests": 2
     },
     {
@@ -175,8 +175,8 @@
         "--no-cache"
       ],
       "exit": 0,
-      "bytes": 4026,
-      "elapsed_ms": 1226,
+      "bytes": 4025,
+      "elapsed_ms": 791,
       "requests": 2
     },
     {
@@ -194,7 +194,7 @@
       ],
       "exit": 0,
       "bytes": 4005,
-      "elapsed_ms": 799,
+      "elapsed_ms": 797,
       "requests": 2
     },
     {
@@ -209,8 +209,8 @@
         "--no-cache"
       ],
       "exit": 0,
-      "bytes": 1851,
-      "elapsed_ms": 822,
+      "bytes": 1852,
+      "elapsed_ms": 818,
       "requests": 2
     },
     {
@@ -227,8 +227,8 @@
         "--no-cache"
       ],
       "exit": 0,
-      "bytes": 1516,
-      "elapsed_ms": 857,
+      "bytes": 1514,
+      "elapsed_ms": 790,
       "requests": 2
     },
     {
@@ -246,8 +246,8 @@
         "--no-cache"
       ],
       "exit": 0,
-      "bytes": 3028,
-      "elapsed_ms": 1197,
+      "bytes": 3030,
+      "elapsed_ms": 1091,
       "requests": 2
     },
     {
@@ -268,8 +268,8 @@
         "--no-cache"
       ],
       "exit": 0,
-      "bytes": 8623,
-      "elapsed_ms": 1837,
+      "bytes": 8626,
+      "elapsed_ms": 1800,
       "requests": 4
     },
     {
@@ -285,7 +285,7 @@
       ],
       "exit": 3,
       "bytes": 0,
-      "elapsed_ms": 846,
+      "elapsed_ms": 772,
       "requests": 0
     },
     {
@@ -301,7 +301,7 @@
       ],
       "exit": 2,
       "bytes": 0,
-      "elapsed_ms": 6,
+      "elapsed_ms": 12,
       "requests": 0
     },
     {
@@ -313,7 +313,7 @@
       ],
       "exit": 2,
       "bytes": 0,
-      "elapsed_ms": 6,
+      "elapsed_ms": 7,
       "requests": 0
     },
     {

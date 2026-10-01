@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -82,7 +83,7 @@ func (c *Client) ReadQuery(ctx context.Context, lang, query string, variables an
 			b, readErr := io.ReadAll(io.LimitReader(f, maxBody+1024))
 			closeErr := f.Close()
 			var e cacheEntry
-			if readErr == nil && closeErr == nil && json.Unmarshal(b, &e) == nil && !e.FetchedAt.IsZero() && time.Since(e.FetchedAt) >= 0 && time.Since(e.FetchedAt) < ttl && json.Unmarshal(e.Data, out) == nil {
+			if readErr == nil && closeErr == nil && json.Unmarshal(b, &e) == nil && !e.FetchedAt.IsZero() && time.Since(e.FetchedAt) >= 0 && time.Since(e.FetchedAt) < ttl && unmarshalFresh(e.Data, out) == nil {
 				c.Metrics.CacheHits++
 				c.Metrics.Observations = append(c.Metrics.Observations, Observation{lang, e.FetchedAt, true, int(ttl.Seconds())})
 				return nil
@@ -164,7 +165,7 @@ func (c *Client) ReadQuery(ctx context.Context, lang, query string, variables an
 		if len(env.Errors) > 0 {
 			return Fail("source_graphql", "source returned GraphQL errors; partial data withheld")
 		}
-		if err = json.Unmarshal(env.Data, out); err != nil {
+		if err = unmarshalFresh(env.Data, out); err != nil {
 			return Fail("source_schema", "source data has unexpected types")
 		}
 		now := time.Now().UTC()
@@ -176,6 +177,21 @@ func (c *Client) ReadQuery(ctx context.Context, lang, query string, variables an
 		return nil
 	}
 	return Fail("source_http", "source retry exhausted")
+}
+
+// Decode into a new value so partial failures cannot contaminate a live fallback,
+// and fields omitted by a successful response do not retain earlier values.
+func unmarshalFresh(data []byte, out any) error {
+	dest := reflect.ValueOf(out)
+	if !dest.IsValid() || dest.Kind() != reflect.Pointer || dest.IsNil() {
+		return &json.InvalidUnmarshalError{Type: reflect.TypeOf(out)}
+	}
+	fresh := reflect.New(dest.Elem().Type())
+	if err := json.Unmarshal(data, fresh.Interface()); err != nil {
+		return err
+	}
+	dest.Elem().Set(fresh.Elem())
+	return nil
 }
 func (c *Client) writeCache(path string, e cacheEntry) {
 	b, err := json.Marshal(e)

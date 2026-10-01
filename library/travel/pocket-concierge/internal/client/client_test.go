@@ -126,3 +126,41 @@ func TestCachePruningNeverDeletesOtherFiles(t *testing.T) {
 		}
 	}
 }
+
+func TestMalformedCacheCannotContaminateLiveFallback(t *testing.T) {
+	c := New(t.TempDir(), false, false)
+	calls := 0
+	c.HTTP.Transport = roundTripFunc(func(*http.Request) (*http.Response, error) {
+		calls++
+		if calls == 1 {
+			return response(200, `{"data":{"name":"cached name","count":1}}`), nil
+		}
+		return response(200, `{"data":{"count":2}}`), nil
+	})
+	var out struct {
+		Name  string `json:"name"`
+		Count int    `json:"count"`
+	}
+	query := `query Filters { areas { id name } cuisines { id name } }`
+	if err := c.ReadQuery(context.Background(), "en", query, nil, time.Hour, &out); err != nil {
+		t.Fatal(err)
+	}
+	files, err := filepath.Glob(filepath.Join(c.CacheDir, "pocket-v1-*.json"))
+	if err != nil || len(files) != 1 {
+		t.Fatalf("cache files: %v, error: %v", files, err)
+	}
+	b, err := json.Marshal(cacheEntry{time.Now(), json.RawMessage(`{"name":"stale cached name","count":"wrong type"}`)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(files[0], b, 0600); err != nil {
+		t.Fatal(err)
+	}
+	out.Name, out.Count = "", 0
+	if err := c.ReadQuery(context.Background(), "en", query, nil, time.Hour, &out); err != nil {
+		t.Fatal(err)
+	}
+	if out.Name != "" || out.Count != 2 || calls != 2 || c.Metrics.CacheHits != 0 {
+		t.Fatalf("live fallback contaminated: %+v, calls=%d, hits=%d", out, calls, c.Metrics.CacheHits)
+	}
+}

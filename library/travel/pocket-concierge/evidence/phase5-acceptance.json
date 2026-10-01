@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "df91f6630b21505463971b48cb222a49203b2724334a1f21124d69a222e522a9",
+  "source_fingerprint": "84c5b13be14beca15cbfc761797a4de2f9ca337cf0cc3eca3b61aec4785bbb7e",
   "source_files": {
     "cmd/pocket-concierge-pp-cli/main.go": "f4999c50c1c4631cead872c494335fd7f371f2a8db45683abec7cfdf23fcd6c0",
     "go.mod": "095caf818d106a60a7010e3de9d7d4a49134677698dfac7fedfa6107998c8858",
@@ -21,9 +21,9 @@
     "internal/cli/handoff_test.go": "b7947a2df90dec4ecb2a22d13d3c30359ab9e261abb72efa11a9df08f69e8603",
     "internal/cli/projection.go": "5d98ab52e76f46d0c406ebbfb99606a62a9e7d5352ebf81c7d170e63f3e68a7f",
     "internal/cli/projection_test.go": "79e3447ef61c151f4b6624ca9291a893c47ad5c014d77d124fc76edf9b7186b4",
-    "internal/cli/root.go": "b113879df70418ab9d45f869356dab6ef30fa429201d42ccfada5f13ada3d5f4",
-    "internal/client/client.go": "7ba74ffd3f1280d90318bb2b9ad51059af7efa5389da5f0ca99fea8a8fb5e9c1",
-    "internal/client/client_test.go": "0d5410bf51a53b4b560224069312efe05464a4aecdee6ad368bad412f4b158bc",
+    "internal/cli/root.go": "0028fe1f4bbe33d81c985461ef8b8c12faa5cfdb3826925aa18aff6e6c8eb13b",
+    "internal/client/client.go": "40c8128714fd181cc69853e181cc1348d1eaca45a694a61db71e4b8f661fa50c",
+    "internal/client/client_test.go": "26b201f62718efda401ef36c643102575182609216ba63bf8ede5eddcecabe27",
     "internal/cliutil/ratelimit.go": "2683e59dfa446b0b0eba44109f9b5d33d9b5179924e8b7d052220f1af0bad0a7",
     "internal/cliutil/ratelimit_test.go": "e038b8051577e778c9066fb6b07df605ae1fa9c1ad0f80b5ef9dd83ce49cd2fe",
     "internal/pocket/client.go": "67cbc33fbe689b382ba078c673472f61379d3af7f5f54606f9fe0d941a963605",
