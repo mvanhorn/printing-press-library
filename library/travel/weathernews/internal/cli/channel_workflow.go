@@ -211,7 +211,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 				}
 				if schemaVersion < store.StoreSchemaVersion {
 
-					return fmt.Errorf("local store schema version %d requires migration to %d; run 'weathernews-pp-cli sync' to upgrade the schema in place and keep existing learnings and playbooks", schemaVersion, store.StoreSchemaVersion)
+					return fmt.Errorf("local store schema version %d requires migration to %d; run weathernews-pp-cli sync --db %q to upgrade the schema in place and keep existing learnings and playbooks", schemaVersion, store.StoreSchemaVersion, dbPath)
 
 				}
 				if schemaVersion > store.StoreSchemaVersion {

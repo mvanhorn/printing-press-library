@@ -68,8 +68,9 @@ func TestWorkflowStatusMigrationKeepsLearnings(t *testing.T) {
 	if strings.Contains(strings.ToLower(msg), "delete") {
 		t.Fatalf("migration advice suggests deleting the store: %s", msg)
 	}
-	if !strings.Contains(msg, "weathernews-pp-cli sync") || !strings.Contains(msg, "in place") {
-		t.Fatalf("migration advice = %s", msg)
+	wantCmd := fmt.Sprintf("weathernews-pp-cli sync --db %q", dbPath)
+	if !strings.Contains(msg, wantCmd) || !strings.Contains(msg, "in place") {
+		t.Fatalf("migration advice = %s, want command %s", msg, wantCmd)
 	}
 
 	kept, err := store.OpenReadOnly(dbPath)
