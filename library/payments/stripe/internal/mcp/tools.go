@@ -83,6 +83,9 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := checkMCPLiveModeGuard(c, method, args); err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
@@ -93,6 +96,9 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
 		for _, binding := range bindings {
+			if binding.PublicName == "confirm_live" {
+				continue
+			}
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
 			if !ok {
@@ -121,7 +127,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		}
 
 		for k, v := range args {
-			if pathParams[k] || knownArgs[k] {
+			if k == "confirm_live" || pathParams[k] || knownArgs[k] {
 				continue
 			}
 			switch method {

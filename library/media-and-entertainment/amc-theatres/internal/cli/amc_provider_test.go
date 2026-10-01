@@ -13,7 +13,7 @@ func TestConfigureAMCClientSandboxAndAuthToken(t *testing.T) {
 	t.Setenv("AMC_THEATRES_ENV", "sandbox")
 	t.Setenv("AMC_THEATRES_AUTH_TOKEN", "viewer-token")
 	c := client.New(&config.Config{BaseURL: amcProductionURL}, 0, 0)
-	if err := configureAMCClient(c); err != nil {
+	if err := ConfigureAMCClient(c); err != nil {
 		t.Fatalf("configureAMCClient() error = %v", err)
 	}
 	if c.BaseURL != amcSandboxURL {
@@ -27,7 +27,7 @@ func TestConfigureAMCClientSandboxAndAuthToken(t *testing.T) {
 func TestConfigureAMCClientPreservesExplicitBaseURL(t *testing.T) {
 	t.Setenv("AMC_THEATRES_ENV", "sandbox")
 	c := client.New(&config.Config{BaseURL: "http://127.0.0.1:1234"}, 0, 0)
-	if err := configureAMCClient(c); err != nil {
+	if err := ConfigureAMCClient(c); err != nil {
 		t.Fatalf("configureAMCClient() error = %v", err)
 	}
 	if c.BaseURL != "http://127.0.0.1:1234" {
@@ -38,7 +38,7 @@ func TestConfigureAMCClientPreservesExplicitBaseURL(t *testing.T) {
 func TestConfigureAMCClientRejectsUnknownEnvironment(t *testing.T) {
 	t.Setenv("AMC_THEATRES_ENV", "staging")
 	c := client.New(&config.Config{BaseURL: amcProductionURL}, 0, 0)
-	if err := configureAMCClient(c); err == nil {
+	if err := ConfigureAMCClient(c); err == nil {
 		t.Fatal("configureAMCClient() error = nil, want invalid environment")
 	}
 }

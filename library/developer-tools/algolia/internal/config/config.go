@@ -213,10 +213,23 @@ func Load(configPath string) (*Config, error) {
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
-	if v := strings.TrimSpace(os.Getenv("ALGOLIA_APPLICATION_ID")); v != "" {
-		cfg.TemplateVars["appId"] = normalizeEndpointTemplateValue(v)
+	applicationID := strings.TrimSpace(cfg.AlgoliaApplicationId)
+	if !usableApplicationID(applicationID) {
+		applicationID = strings.TrimSpace(cfg.TemplateVars["appId"])
+	}
+	// Older saves could persist this literal placeholder as if it were an ID.
+	if !usableApplicationID(applicationID) {
+		applicationID = ""
+	}
+	if applicationID != "" {
+		// The endpoint and authentication header must identify the same app.
+		cfg.AlgoliaApplicationId = normalizeEndpointTemplateValue(applicationID)
+		cfg.TemplateVars["appId"] = cfg.AlgoliaApplicationId
 	} else {
-		cfg.TemplateVars["appId"] = "ALGOLIA_APPLICATION_ID"
+		cfg.TemplateVars["appId"] = ""
+		if os.Getenv("PRINTING_PRESS_VERIFY") == "1" {
+			cfg.TemplateVars["appId"] = "appId_placeholder"
+		}
 	}
 	return cfg, nil
 }
@@ -359,16 +372,14 @@ func (c *Config) hasCredentialFields() bool {
 }
 
 func (c *Config) hasCompleteCredentialFields() bool {
-	if c.AuthHeaderVal != "" {
-		return true
-	}
-	if c.AlgoliaApiKey == "" {
-		return false
-	}
-	if c.AlgoliaApiKey == "" {
-		return false
-	}
-	return true
+	hasAPIKey := c.AuthHeaderVal != "" || c.AlgoliaApiKey != ""
+	hasApplicationID := usableApplicationID(c.AlgoliaApplicationId) || usableApplicationID(c.TemplateVars["appId"])
+	return hasAPIKey && hasApplicationID
+}
+
+func usableApplicationID(value string) bool {
+	value = strings.TrimSpace(value)
+	return value != "" && value != "ALGOLIA_APPLICATION_ID"
 }
 
 func (c *Config) clearCredentialFields() {
@@ -420,7 +431,7 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	if c.AlgoliaApiKey == "" {
 		c.AlgoliaApiKey = creds.AlgoliaApiKey
 	}
-	if c.AlgoliaApplicationId == "" {
+	if !usableApplicationID(c.AlgoliaApplicationId) {
 		c.AlgoliaApplicationId = creds.AlgoliaApplicationId
 	}
 }

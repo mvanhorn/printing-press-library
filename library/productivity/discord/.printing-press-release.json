@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "discord",
   "cli_name": "discord-pp-cli",
-  "version": "2026.10.2",
-  "released_at": "2026-10-01T20:26:20Z",
-  "source_commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9",
+  "version": "2026.10.3",
+  "released_at": "2026-10-01T21:32:35Z",
+  "source_commit": "7f8f9f367dd51773f29312495b0519ea6d419da6",
   "printing_press_version": "4.30.1",
   "run_id": "20260810-204427",
   "changes": [
     {
-      "title": "fix(library): reject explicitly blank scalar flags",
-      "pr": 2115,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2115",
-      "commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9"
+      "title": "Bind Discord HTTP MCP to loopback only",
+      "pr": 2136,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2136",
+      "commit": "7f8f9f367dd51773f29312495b0519ea6d419da6"
     }
   ]
 }

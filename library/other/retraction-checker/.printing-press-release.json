@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "retraction-checker",
   "cli_name": "retraction-checker-pp-cli",
-  "version": "2026.9.2",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.10.2",
+  "released_at": "2026-10-01T22:05:26Z",
+  "source_commit": "5bc491139a7940c81cd4d564f048d5e58d1ae836",
   "printing_press_version": "4.25.0",
   "run_id": "20260702-090842-5bac53b7",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(retraction-checker): read Crossref message items and DOI",
+      "pr": 2150,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2150",
+      "commit": "5bc491139a7940c81cd4d564f048d5e58d1ae836"
     }
   ]
 }

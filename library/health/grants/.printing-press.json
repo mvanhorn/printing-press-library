@@ -13,6 +13,12 @@
   },
   "printer": "laci141",
   "printer_name": "laci141",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "spec_format": "internal",
   "spec_source": "docs/SPEC.md",
   "run_id": "20260705-183000",

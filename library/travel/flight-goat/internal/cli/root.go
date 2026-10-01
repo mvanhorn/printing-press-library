@@ -23,7 +23,7 @@ import (
 )
 
 // version preserved from published library on reprint.
-var version = "2026.9.4"
+var version = "2026.10.1"
 
 type rootFlags struct {
 	asJSON        bool

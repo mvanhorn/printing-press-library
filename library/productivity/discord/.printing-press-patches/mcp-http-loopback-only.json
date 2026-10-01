@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-http-loopback-only",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260810-204427",
+  "base_printing_press_version": "4.30.1",
+  "summary": "MCP HTTP without built-in authentication and TLS must only listen on loopback addresses.",
+  "reason": "Wildcard or LAN listeners expose configured provider credentials to unauthenticated remote tool callers; remote access requires an authenticated TLS proxy.",
+  "files": [
+    "cmd/discord-pp-mcp/main.go",
+    "cmd/discord-pp-mcp/http_addr.go",
+    "cmd/discord-pp-mcp/http_addr_test.go",
+    "README.md"
+  ]
+}

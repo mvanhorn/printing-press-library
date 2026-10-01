@@ -1057,12 +1057,18 @@
       "path": "library/developer-tools/algolia",
       "release": {
         "cli_name": "algolia-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:34:10Z",
+        "source_commit": "eaefbf921018ca69d09a8176edb2c53a45b01ca2"
       },
       "printer": "SomSamantray",
-      "printer_name": "Som Samantray"
+      "printer_name": "Som Samantray",
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ]
     },
     {
       "name": "allrecipes",
@@ -1435,9 +1441,9 @@
       "path": "library/media-and-entertainment/amc-theatres",
       "release": {
         "cli_name": "amc-theatres-pp-cli",
-        "version": "2026.9.2",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:45:18Z",
+        "source_commit": "516a497291e5340505f44677e08556ec6545f569"
       },
       "printer": "Avanderheyde",
       "printer_name": "Alderik",
@@ -1445,6 +1451,12 @@
         "handle": "Avanderheyde",
         "name": "Alderik"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "amc-theatres-pp-mcp",
         "transports": [
@@ -6637,9 +6649,9 @@
       "path": "library/productivity/discord",
       "release": {
         "cli_name": "discord-pp-cli",
-        "version": "2026.10.2",
-        "released_at": "2026-10-01T20:26:20Z",
-        "source_commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9"
+        "version": "2026.10.3",
+        "released_at": "2026-10-01T21:32:35Z",
+        "source_commit": "7f8f9f367dd51773f29312495b0519ea6d419da6"
       },
       "printer": "mvanhorn",
       "printer_name": "Hunter Veltri",
@@ -7041,9 +7053,9 @@
       "path": "library/education/dreaming",
       "release": {
         "cli_name": "dreaming-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:43:26Z",
+        "source_commit": "93b95a19b21cea7ea30276f92a829ffe88a882f4"
       },
       "printer": "paulbockewitz",
       "printer_name": "Paul Bockewitz",
@@ -7051,6 +7063,12 @@
         "handle": "paulbockewitz",
         "name": "Paul Bockewitz"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "dreaming-pp-mcp",
         "transports": [
@@ -8254,9 +8272,9 @@
       "path": "library/ai/exa",
       "release": {
         "cli_name": "exa-pp-cli",
-        "version": "2026.10.2",
-        "released_at": "2026-10-01T20:26:20Z",
-        "source_commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9"
+        "version": "2026.10.3",
+        "released_at": "2026-10-01T21:21:13Z",
+        "source_commit": "61783d26b5690321e9ca910060c66788041d378c"
       },
       "printer": "SomSamantray",
       "printer_name": "Som Samantray",
@@ -9107,9 +9125,9 @@
       "path": "library/ai/fish-audio",
       "release": {
         "cli_name": "fish-audio-pp-cli",
-        "version": "2026.10.2",
-        "released_at": "2026-10-01T20:26:20Z",
-        "source_commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9"
+        "version": "2026.10.5",
+        "released_at": "2026-10-01T21:50:39Z",
+        "source_commit": "33f732fef8aff4b50856a7dcb0cf3b30c90b3e48"
       },
       "printer": "jongouveia",
       "printer_name": "Jon Gouveia",
@@ -9168,9 +9186,9 @@
       "path": "library/travel/flight-goat",
       "release": {
         "cli_name": "flight-goat-pp-cli",
-        "version": "2026.9.4",
-        "released_at": "2026-09-30T08:53:43Z",
-        "source_commit": "314c143ac10b850ba6dd13d3b5492ffc44ef1368"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:49:09Z",
+        "source_commit": "653e24fa44b47dea577b74d0a29d913036ce6707"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -9198,6 +9216,10 @@
         {
           "handle": "patricksrail",
           "name": "Patrick Srail"
+        },
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
         }
       ],
       "mcp": {
@@ -11598,6 +11620,10 @@
         {
           "handle": "giuseppebisemi",
           "name": "Giuseppe Bisemi"
+        },
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
         }
       ],
       "mcp": {
@@ -11643,16 +11669,22 @@
       "path": "library/health/grants",
       "release": {
         "cli_name": "grants-pp-cli",
-        "version": "2026.9.2",
-        "released_at": "2026-09-05T09:20:11Z",
-        "source_commit": "586c652e455e90e5819ca354e6fb15af5935bd9f"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:26:00Z",
+        "source_commit": "519e12f88e997a8b5d9c0218d7c1dd042e739504"
       },
       "printer": "laci141",
       "printer_name": "laci141",
       "creator": {
         "handle": "laci141",
         "name": "laci141"
-      }
+      },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ]
     },
     {
       "name": "gravitus",
@@ -12470,9 +12502,9 @@
       "path": "library/travel/hotel-goat",
       "release": {
         "cli_name": "hotel-goat-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:34:10Z",
+        "source_commit": "8ac68945d8f74e9a6cacbf4217ef85059b908fae"
       },
       "printer": "kothari-nikunj",
       "printer_name": "kothari-nikunj",
@@ -12480,6 +12512,12 @@
         "handle": "kothari-nikunj",
         "name": "kothari-nikunj"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "hotel-goat-pp-mcp",
         "transports": [
@@ -12700,9 +12738,9 @@
       "path": "library/productivity/human-goat",
       "release": {
         "cli_name": "human-goat-pp-cli",
-        "version": "2026.9.2",
-        "released_at": "2026-09-19T15:59:49Z",
-        "source_commit": "047a77b5a56a1b1e65189f16b1a2542d62b42628"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:44:18Z",
+        "source_commit": "8b87fada6bf7787c4f017070278d17ffb65c56b5"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -12710,6 +12748,12 @@
         "handle": "mvanhorn",
         "name": "Matt Van Horn"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "human-goat-pp-mcp",
         "transports": [
@@ -18746,9 +18790,9 @@
       "path": "library/ai/openrouter-image",
       "release": {
         "cli_name": "openrouter-image-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:34:10Z",
+        "source_commit": "d7da5a1775ef8589f3090f2b8770df894aa12d79"
       },
       "printer": "neal-kyle",
       "printer_name": "Kyle Neal",
@@ -18756,6 +18800,12 @@
         "handle": "neal-kyle",
         "name": "Kyle Neal"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "openrouter-image-pp-mcp",
         "transports": [
@@ -19467,9 +19517,9 @@
         "Index to tracking funds",
         "index funds <index>",
         "See every ETF and index fund that tracks a given NSE index in one call.",
-        "Tracking fidelity report",
+        "Tracking cost and metrics report",
         "index tracking <index>",
-        "Rank every fund tracking an index by cost and NAV fidelity against the index level.",
+        "Rank trackers by disclosed expense ratio and show provider-reported tracking metrics.",
         "Cheapest tracker finder",
         "index cheapest-tracker <index>",
         "Find the lowest-cost fund tracking a given index.",
@@ -19487,14 +19537,14 @@
         "See a fund's raw API response with cryptic field codes resolved to human-readable names.",
         "Fund vs index compare",
         "compare <schemeId> <index>",
-        "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side."
+        "See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status."
       ],
       "path": "library/other/passive-indices",
       "release": {
         "cli_name": "passive-indices-pp-cli",
-        "version": "2026.9.2",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:42:14Z",
+        "source_commit": "fa36401f7d7ac64380b977ee407e20140f7f82e5"
       },
       "printer": "lavs9",
       "printer_name": "Mayank Lavania",
@@ -19502,6 +19552,12 @@
         "handle": "lavs9",
         "name": "Mayank Lavania"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "passive-indices-pp-mcp",
         "transports": [
@@ -22636,9 +22692,9 @@
       "path": "library/other/retraction-checker",
       "release": {
         "cli_name": "retraction-checker-pp-cli",
-        "version": "2026.9.2",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:37:53Z",
+        "source_commit": "21a2eb5e6935267857fcba73f243c7abb0a8b58a"
       },
       "printer": "laci141",
       "printer_name": "laci141",
@@ -22646,6 +22702,12 @@
         "handle": "laci141",
         "name": "laci141"
       },
+      "contributors": [
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
+        }
+      ],
       "mcp": {
         "binary": "retraction-checker-pp-mcp",
         "transports": [
@@ -24456,9 +24518,9 @@
       "path": "library/other/shelters",
       "release": {
         "cli_name": "shelters-pp-cli",
-        "version": "2026.9.2",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:16:39Z",
+        "source_commit": "c88b573aa45137fd599700ccbb225abc6d1add50"
       },
       "printer": "abe238",
       "printer_name": "Abe Diaz (@abe238)",
@@ -24946,9 +25008,9 @@
       "path": "library/media-and-entertainment/skool",
       "release": {
         "cli_name": "skool-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-11T09:22:21Z",
-        "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+        "version": "2026.10.1",
+        "released_at": "2026-10-01T21:56:03Z",
+        "source_commit": "42929c8eb99b103a83acfb74078c53ad71316e35"
       },
       "printer": "quoxientzero",
       "printer_name": "Zain Haseeb",
@@ -24960,6 +25022,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "cathrynlavery",
+          "name": "Cathryn Lavery"
         }
       ],
       "mcp": {

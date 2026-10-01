@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "passive-indices-benchmark-and-ranking-accuracy",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260709-233621-d673b83a",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Validate a fund's declared benchmark before comparing it with an index, let the MCP comparison recipe use that benchmark or an explicit index, mark missing benchmarks, distinguish price and total-return quotes, use the base-index constituent list for TRI quotes, report failed constituent fetches, and describe tracking as an expense-ratio ranking.",
+  "reason": "A mismatched fund and index could be displayed as related, alternate quote spellings could fetch the wrong constituent CSV, missing benchmark or constituent data was unclear, and some command descriptions claimed NAV fidelity that the CLI does not calculate. The generated root help and which index must stay aligned with the corrected novel feature descriptions on reprint.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/compare.go",
+    "internal/cli/compare_test.go",
+    "internal/cli/index_funds.go",
+    "internal/cli/index_tracking.go",
+    "internal/cli/index_tracking_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/mcp/intents.go",
+    "internal/mcp/recipe_intents_test.go",
+    "README.md",
+    "SKILL.md",
+    "NOTICE",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Synthetic provider command tests cover matched, missing, and mismatched benchmarks, constituent failures in user-facing JSON, exact quote preference and TRI quotes using the base-index constituent CSV; unit tests cover expense-ratio ordering with undisclosed costs last."
+}

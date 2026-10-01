@@ -46,6 +46,7 @@ func (e *liveModeBlockedErr) Error() string {
 // PersistentPreRunE before any command executes.
 //
 // Returns nil (allows command) when:
+//   - Dry-run is enabled (the client previews without sending a request)
 //   - Command has no `pp:method` annotation (framework command like doctor, sql, sync)
 //   - Annotated method is GET (read)
 //   - Auth key is not sk_live_*
@@ -55,6 +56,10 @@ func (e *liveModeBlockedErr) Error() string {
 //
 // Returns liveModeBlockedErr when guard fires.
 func checkLiveModeGuard(cmd *cobra.Command, flags *rootFlags) error {
+	if flags.dryRun {
+		return nil
+	}
+
 	// Explicit confirmation overrides everything
 	if flags.confirmLive {
 		return nil
@@ -87,45 +92,22 @@ func checkLiveModeGuard(cmd *cobra.Command, flags *rootFlags) error {
 	}
 }
 
-// isLiveModeKey returns true if the active Stripe credential is a live-mode key.
-// Checks env vars first (highest precedence), then the persisted config file.
-// Both surfaces matter — users alternate between `export STRIPE_SECRET_KEY=...`
-// and `stripe-pp-cli auth set-token ...` depending on context.
+// isLiveModeKey resolves the same effective authorization as the HTTP client.
+// config.Load applies environment overrides; AuthHeader selects the credential
+// actually sent, so unused credentials cannot change the request's mode.
 //
-// configPath is the optional --config override; empty falls back to the
-// default location (~/.config/stripe-pp-cli/config.toml).
+// configPath is the optional --config override; empty uses config.Load's default.
 func isLiveModeKey(configPath string) bool {
-	for _, name := range []string{"STRIPE_SECRET_KEY", "STRIPE_BASIC_AUTH"} {
-		if v := os.Getenv(name); v != "" {
-			if hasLivePrefix(v) {
-				return true
-			}
-		}
-	}
-	// Fall back to the persisted config. Load is cheap (single TOML read);
-	// fail-open on error — a missing/corrupt config means no persisted key,
-	// which is functionally equivalent to "no live key".
 	cfg, err := config.Load(configPath)
 	if err != nil || cfg == nil {
+		// The command's normal config validation reports load errors before sending.
 		return false
 	}
-	if hasLivePrefix(cfg.StripeSecretKey) {
-		return true
-	}
-	if hasLivePrefix(cfg.AccessToken) {
-		return true
-	}
-	if hasLivePrefix(cfg.AuthHeaderVal) {
-		return true
-	}
-	return false
+	return hasLivePrefix(cfg.AuthHeader())
 }
 
 // hasLivePrefix returns true when v looks like a Stripe live-mode credential
 // (sk_live_..., rk_live_..., or those values wrapped in a "Bearer ..." header).
 func hasLivePrefix(v string) bool {
-	v = strings.TrimSpace(v)
-	v = strings.TrimPrefix(v, "Bearer ")
-	v = strings.TrimPrefix(v, "Basic ")
-	return strings.HasPrefix(v, "sk_live_") || strings.HasPrefix(v, "rk_live_")
+	return config.IsLiveModeCredential(v)
 }

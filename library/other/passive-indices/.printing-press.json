@@ -9,6 +9,9 @@
     "handle": "lavs9",
     "name": "Mayank Lavania"
   },
+  "contributors": [
+    {"handle": "cathrynlavery", "name": "Cathryn Lavery"}
+  ],
   "owner": "lavs9",
   "printer": "lavs9",
   "printer_name": "Mayank Lavania",
@@ -30,9 +33,9 @@
       "description": "See every ETF and index fund that tracks a given NSE index in one call."
     },
     {
-      "name": "Tracking fidelity report",
+      "name": "Tracking cost and metrics report",
       "command": "index tracking <index>",
-      "description": "Rank every fund tracking an index by cost and NAV fidelity against the index level."
+      "description": "Rank trackers by disclosed expense ratio and show provider-reported tracking metrics."
     },
     {
       "name": "Cheapest tracker finder",
@@ -62,7 +65,7 @@
     {
       "name": "Fund vs index compare",
       "command": "compare <schemeId> <index>",
-      "description": "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side."
+      "description": "See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status."
     }
   ]
 }

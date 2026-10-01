@@ -39,7 +39,8 @@ func RegisterIntents(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("dispatch_a_remote_errand",
 			mcplib.WithDescription("Sends a phone-call task to Magic and returns a request id to track; the answer comes back in the conversation."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Override the recipe's positional id value.")),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Phone number to call.")),
+			mcplib.WithString("ask", mcplib.Required(), mcplib.Description("Question or errand instructions for the call.")),
 		),
 		handleDispatchARemoteErrand,
 	)
@@ -74,21 +75,31 @@ func handleDispatchARemoteErrand(ctx context.Context, req mcplib.CallToolRequest
 		return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v", recipeCLIPathErr)), nil
 	}
 
-	input := req.GetArguments()
-	args := []string{}
-	args = append(args, "call")
-	var missingId bool
-	args, missingId = appendRecipePositional(args, input["id"], true)
-	if missingId {
-		return mcplib.NewToolResultError("id is required"), nil
+	args, err := dispatchRemoteErrandArgs(req.GetArguments())
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	args = append(args, "when does the jewelry store open")
 
 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(bound.Text(out)), nil
+}
+
+func dispatchRemoteErrandArgs(input map[string]any) ([]string, error) {
+	args := []string{"call"}
+	var missingId bool
+	args, missingId = appendRecipePositional(args, input["id"], true)
+	if missingId {
+		return nil, fmt.Errorf("id is required")
+	}
+	var missingAsk bool
+	args, missingAsk = appendRecipeStringFlag(args, "ask", input["ask"], "", true, true)
+	if missingAsk {
+		return nil, fmt.Errorf("ask is required")
+	}
+	return args, nil
 }
 
 var (

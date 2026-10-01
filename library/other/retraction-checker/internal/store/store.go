@@ -1040,13 +1040,15 @@ func ResourceIDString(v any) string {
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
 // from x-resource-id or response-schema fallback) into a runtime lookup map.
 // UpsertBatch consults this first so the templated path wins over the
-// generic fallback list. Empty when no resource declared an override; the
-// runtime fallback list still applies.
+// generic fallback list. The runtime fallback list still applies when an
+// item lacks its declared identity field.
 //
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	"works": "DOI",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

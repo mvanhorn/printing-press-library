@@ -11,6 +11,12 @@
   },
   "printer": "paulbockewitz",
   "printer_name": "Paul Bockewitz",
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "run_id": "20260618T050021Z-649b15eb",
   "category": "education",
   "mcp_binary": "dreaming-pp-mcp",

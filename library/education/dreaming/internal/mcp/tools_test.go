@@ -6,13 +6,16 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/store"
 )
@@ -33,6 +36,20 @@ func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	if want := filepath.Join(cliConfigDir, "config.toml"); cfg.Path != want {
 		t.Fatalf("MCP config path = %q, want CLI resolver path %q", cfg.Path, want)
 	}
+	cliCfg, err := config.Load("")
+	if err != nil {
+		t.Fatalf("CLI config load: %v", err)
+	}
+	if cliCfg.Path != cfg.Path {
+		t.Fatalf("CLI saved path = %q, MCP read path = %q", cliCfg.Path, cfg.Path)
+	}
+	if err := cliCfg.SaveTokens("", "", "synthetic-test-token", "", time.Time{}); err != nil {
+		t.Fatalf("CLI token save: %v", err)
+	}
+	cfg, err = newMCPConfig()
+	if err != nil || cfg.AuthHeader() != "Bearer synthetic-test-token" {
+		t.Fatalf("MCP did not read the token saved by the CLI: %v", err)
+	}
 
 	gotDB, err := mcpDBPath()
 	if err != nil {
@@ -44,6 +61,89 @@ func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	}
 	if want := filepath.Join(cliDataDir, "data.db"); gotDB != want {
 		t.Fatalf("MCP db path = %q, want CLI resolver path %q", gotDB, want)
+	}
+}
+
+func TestMCPEnvironmentTokenWorksWithoutHomeDirectory(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("HOME", "")
+	t.Setenv("DREAMING_TOKEN", "synthetic-test-token")
+	cfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatalf("environment token should work without home directory: %v", err)
+	}
+	if cfg.AuthHeader() != "Bearer synthetic-test-token" {
+		t.Fatal("environment token was not applied")
+	}
+}
+
+func TestMCPConfigMatchesCLIWithXDGConfigHome(t *testing.T) {
+	resetMCPPathEnv(t)
+	xdgHome := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdgHome)
+	cliCfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	mcpCfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(xdgHome, "dreaming-pp-cli", "config.toml")
+	if cliCfg.Path != want || mcpCfg.Path != want {
+		t.Fatalf("CLI path = %q, MCP path = %q; want %q", cliCfg.Path, mcpCfg.Path, want)
+	}
+}
+
+func TestMCPReadsLegacyTokenBeforeCLIConfigMigration(t *testing.T) {
+	home := resetMCPPathEnv(t)
+	t.Setenv("DREAMING_HOME", filepath.Join(t.TempDir(), "new-home"))
+	legacyPath := filepath.Join(home, ".config", "dreaming-pp-cli", "config.toml")
+	if err := os.MkdirAll(filepath.Dir(legacyPath), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(legacyPath, []byte("access_token = 'synthetic-old-token'\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	legacyMarker := filepath.Join(filepath.Dir(legacyPath), ".agentcookie-managed")
+	if err := os.WriteFile(legacyMarker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	mcpCfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mcpCfg.AuthHeader() != "Bearer synthetic-old-token" {
+		t.Fatal("MCP skipped the existing CLI token")
+	}
+	if mcpCfg.AuthSource != "agentcookie" {
+		t.Fatalf("legacy marker was ignored: source = %q", mcpCfg.AuthSource)
+	}
+	if mcpCfg.Path == legacyPath {
+		t.Fatal("new saves must use the resolved config path")
+	}
+	if err := os.Remove(legacyMarker); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(mcpCfg.Path), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(filepath.Dir(mcpCfg.Path), ".agentcookie-managed"), nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	withoutLegacyMarker, err := newMCPConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if withoutLegacyMarker.AuthSource != "config" {
+		t.Fatalf("empty new-path marker must not claim legacy credentials: source = %q", withoutLegacyMarker.AuthSource)
+	}
+	if err := mcpCfg.SaveTokens("", "", "synthetic-new-token", "", time.Time{}); err != nil {
+		t.Fatal(err)
+	}
+	newCfg, err := config.Load("")
+	if err != nil || newCfg.AuthHeader() != "Bearer synthetic-new-token" {
+		t.Fatalf("new config was not used after migration: %v", err)
 	}
 }
 
@@ -67,12 +167,28 @@ func TestMCPPathResolutionMatchesCLIResolverWithPlatformDefaults(t *testing.T) {
 	}
 }
 
+func TestMCPExplicitConfigPathTakesPrecedence(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("DREAMING_HOME", filepath.Join(t.TempDir(), "shared-home"))
+	want := filepath.Join(t.TempDir(), "explicit-config.toml")
+	t.Setenv("DREAMING_CONFIG", want)
+
+	cfg, err := newMCPConfig()
+	if err != nil {
+		t.Fatalf("newMCPConfig() error = %v", err)
+	}
+	if cfg.Path != want {
+		t.Fatalf("MCP config path = %q, want explicit path %q", cfg.Path, want)
+	}
+}
+
 func resetMCPPathEnv(t *testing.T) string {
 	t.Helper()
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	for _, name := range []string{
 		"DREAMING_CONFIG",
+		"DREAMING_TOKEN",
 		"DREAMING_CONFIG_DIR",
 		"DREAMING_DATA_DIR",
 		"DREAMING_STATE_DIR",

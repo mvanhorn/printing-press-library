@@ -2,15 +2,17 @@
   "schema_version": 1,
   "slug": "human-goat",
   "cli_name": "human-goat-pp-cli",
-  "version": "2026.9.2",
-  "released_at": "2026-09-19T15:59:49Z",
-  "source_commit": "047a77b5a56a1b1e65189f16b1a2542d62b42628",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T21:44:18Z",
+  "source_commit": "8b87fada6bf7787c4f017070278d17ffb65c56b5",
   "printing_press_version": "4.27.1",
   "run_id": "20260703-152050-dff84056",
   "changes": [
     {
-      "title": "docs(library): standardize sample inputs in CLI examples",
-      "commit": "047a77b5a56a1b1e65189f16b1a2542d62b42628"
+      "title": "Harden Human GOAT MCP intents and verifier writes",
+      "pr": 2154,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2154",
+      "commit": "8b87fada6bf7787c4f017070278d17ffb65c56b5"
     }
   ]
 }

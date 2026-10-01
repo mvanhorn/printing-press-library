@@ -46,7 +46,7 @@ Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
 provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi), [@patricksrail](https://github.com/patricksrail) (Patrick Srail).
+Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi), [@patricksrail](https://github.com/patricksrail) (Patrick Srail), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -192,7 +192,7 @@ The `award` command uses a separate Seats.aero Partner API key, not `FLIGHT_GOAT
 export SEATS_AERO_API_KEY="<your-seats-aero-pro-key>"
 ```
 
-Seats.aero Pro users can generate one under their Settings → API tab; cached search (the endpoint `award` uses) is Pro-eligible, while live search requires a commercial agreement and is intentionally not exposed.
+Eligible Seats.aero Pro users can generate a key under Settings → API. The `award` command uses cached search and makes no live search calls. Seats.aero requires written permission for commercial API use, including cached search.
 
 To persist credentials, use `flight-goat-pp-cli auth set-token <token>`. Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
 
@@ -273,7 +273,7 @@ The headline commands query consumer fare sources directly — no `FLIGHT_GOAT_A
 - **`flight-goat-pp-cli dates <origin> <destination>`** - Cheapest-date scan for a route across a travel window. One-way by default; `--round --duration N` scans round-trip totals instead — see below.
 - **`flight-goat-pp-cli explore <airport>`** / **`flight-goat-pp-cli longhaul <airport>`** - Kayak nonstop and long-haul route discovery.
 - **`flight-goat-pp-cli soar <origin> <destination> <date>`** - FlySoar (Duffel NDC/GDS) second price opinion with a booking handoff.
-- **`flight-goat-pp-cli award <origin> <destination> [--from YYYY-MM-DD --to YYYY-MM-DD]`** - Seats.aero award (mileage) availability across cabin classes (economy/premium/business/first). Requires `SEATS_AERO_API_KEY` (Seats.aero Partner API key; cached search is Pro-eligible). Read-only — miles + taxes, no booking deeplinks.
+- **`flight-goat-pp-cli award <origin> <destination> [--from YYYY-MM-DD --to YYYY-MM-DD]`** - Seats.aero award (mileage) availability across cabin classes (economy/premium/business/first). Comma-separated airport codes and `--cabin` lists are accepted; dates and `--take` limits are checked before a request. Requires `SEATS_AERO_API_KEY` (Seats.aero Partner API key; cached search is Pro-eligible for personal use). Read-only; miles + taxes, no booking deeplinks.
 - **`flight-goat-pp-cli wifi flight <flightNumber>`** / **`wifi airline <IATA>`** / **`wifi airlines`** / **`wifi rollouts [IATA]`** / **`wifi speed <flight>`** / **`wifi airline-speed <IATA>`** / **`wifi search <query>`** - SeatWifi in-flight WiFi predictions, Starlink rollout status, and crowdsourced speed reports. No API key. Read-only.
 - **`flight-goat-pp-cli assess`** - Delayed-flight/rebooking decision support.
 

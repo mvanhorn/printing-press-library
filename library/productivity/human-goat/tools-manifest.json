@@ -14,5 +14,66 @@
     ]
   },
   "required_headers": [],
-  "tools": []
+  "tools": [
+    {
+      "name": "account_get",
+      "description": "Get the authenticated account profile. Returns the Account.",
+      "method": "GET",
+      "path": "/api/v3/account.json",
+      "params": []
+    },
+    {
+      "name": "categories_list",
+      "description": "List task templates for the account metro. Returns array of Category.",
+      "method": "GET",
+      "path": "/api/v3/web-client/metro_task_template.json",
+      "params": []
+    },
+    {
+      "name": "invoices_has_submitted",
+      "description": "Whether the account has submitted invoices.",
+      "method": "GET",
+      "path": "/api/v3/decline_invoice/has_submitted_invoices",
+      "params": []
+    },
+    {
+      "name": "system_bootstrap",
+      "description": "Get the account bootstrap data. Returns the Bootstrap.",
+      "method": "GET",
+      "path": "/api/v3/web-client/bootstrap.json",
+      "params": []
+    },
+    {
+      "name": "system_dashboard_counts",
+      "description": "Get dashboard tab counts.",
+      "method": "GET",
+      "path": "/api/v3/web-client/dashboard/counts",
+      "params": []
+    },
+    {
+      "name": "taskers_favorites",
+      "description": "List favorited Taskers.",
+      "method": "GET",
+      "path": "/api/v3/poster_rabbit_relationships/favorite",
+      "params": [
+        {"name": "page", "type": "int", "location": "query", "description": "Page number for pagination"}
+      ]
+    },
+    {
+      "name": "taskers_past",
+      "description": "List Taskers hired before.",
+      "method": "GET",
+      "path": "/api/v3/poster_rabbit_relationships/past",
+      "params": [
+        {"name": "page", "type": "int", "location": "query", "description": "Page number for pagination"}
+      ]
+    },
+    {
+      "name": "taskers_suggestions",
+      "description": "List Tasker suggestions for the account metro.",
+      "method": "GET",
+      "path": "/api/v3/web-client/dashboard/tasker_suggestions",
+      "params": []
+    }
+  ]
 }

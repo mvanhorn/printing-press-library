@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.10.3 - 2026-10-01
+
+- fix(exa): validate websearch contents before request (#2137).
+
 ## 2026.10.2 - 2026-10-01
 
 - fix(library): reject explicitly blank scalar flags (#2115).

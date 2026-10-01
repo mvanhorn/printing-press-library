@@ -129,6 +129,8 @@ exa-pp-cli doctor --dry-run
 # Run a semantic web search with key excerpts for agent context.
 exa-pp-cli websearch --query "latest developments in LLMs" --num-results 5 --contents '{"highlights":true}'
 
+# --contents accepts a JSON object or null; other values fail before an API request.
+
 # Extract clean markdown text from a known URL.
 exa-pp-cli contents --urls "https://example.com" --highlights true
 

@@ -6,6 +6,8 @@ Query every documented AMC Showtime API v2 read operation or get a ranked movie 
 
 Created by [@Avanderheyde](https://github.com/Avanderheyde) (Alderik).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `amc-theatres-pp-cli` binary and the `pp-amc-theatres` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

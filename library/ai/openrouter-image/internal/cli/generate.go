@@ -343,9 +343,10 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 			if flagStream {
 				body["stream"] = true
 			}
-			if len(flagReference) > 0 {
-				refs := make([]map[string]any, 0, len(flagReference))
-				for _, r := range flagReference {
+			referenceInputs := expandReferenceInputs(flagReference)
+			if len(referenceInputs) > 0 {
+				refs := make([]map[string]any, 0, len(referenceInputs))
+				for _, r := range referenceInputs {
 					url := r
 					if _, err := os.Stat(r); err == nil {
 						// #nosec G304 -- user-named reference image path, explicit CLI input
@@ -494,9 +495,37 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 	cmd.Flags().Int64Var(&flagSeed, "seed", 0, "Deterministic seed for reproducible generation")
 	cmd.Flags().StringVar(&flagOutput, "output", "", "Output file path, or directory (trailing /) for multiple images")
 	cmd.Flags().StringVar(&flagProvider, "provider", "", "Comma-separated provider slugs to restrict routing to")
-	cmd.Flags().StringSliceVar(&flagReference, "reference", nil, "Reference image for image-to-image (local path, URL, or data URL); repeatable")
+	cmd.Flags().StringArrayVar(&flagReference, "reference", nil, "Reference image for image-to-image (local path, URL, or data URL); repeatable, or comma-separate local paths")
 	cmd.Flags().BoolVar(&flagStream, "stream", false, "Request SSE streaming of partial images (model must support it)")
 	return cmd
+}
+
+// Keep the former comma-separated path syntax while leaving data URLs, HTTP
+// URLs, and existing comma-bearing file names intact. StringArrayVar preserves
+// each repeated flag value, unlike StringSliceVar which splits data URLs.
+func expandReferenceInputs(values []string) []string {
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		lower := strings.ToLower(value)
+		if strings.HasPrefix(lower, "data:") || strings.HasPrefix(lower, "https://") || strings.HasPrefix(lower, "http://") {
+			out = append(out, value)
+			continue
+		}
+		if _, err := os.Stat(value); err == nil {
+			out = append(out, value)
+			continue
+		}
+		for _, part := range strings.Split(value, ",") {
+			if part = strings.TrimSpace(part); part != "" {
+				out = append(out, part)
+			}
+		}
+	}
+	return out
 }
 
 func maxInt(a, b int) int {

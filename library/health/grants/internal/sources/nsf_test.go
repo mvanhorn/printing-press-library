@@ -2,9 +2,19 @@ package sources
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
+
+type nsfRoundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f nsfRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
 
 func TestNSFStem(t *testing.T) {
 	cases := []struct{ in, want string }{
@@ -38,7 +48,11 @@ func TestNSFTerms(t *testing.T) {
 	}{
 		{"climate resilience", []string{"climate", "resil"}},
 		{"gene therapy", []string{"gene", "therap"}},
-		{"the use of AI for imaging", []string{"imag"}},
+		{"the use of AI for imaging", []string{"ai", "imag"}},
+		{"AI", []string{"ai"}},
+		{"OR", []string{"OR"}},
+		{"or no as", nil},
+		{"of in to", nil},
 		{"cancer", []string{"cancer"}},
 		{"", nil},
 	}
@@ -46,6 +60,53 @@ func TestNSFTerms(t *testing.T) {
 		if got := nsfTerms(c.in); !reflect.DeepEqual(got, c.want) {
 			t.Errorf("nsfTerms(%q) = %v, want %v", c.in, got, c.want)
 		}
+	}
+}
+
+func TestSearchNSFRejectsStopWordOnlyQueryBeforeRequest(t *testing.T) {
+	previousClient := client
+	t.Cleanup(func() { client = previousClient })
+	called := false
+	client = &http.Client{Transport: nsfRoundTripFunc(func(*http.Request) (*http.Response, error) {
+		called = true
+		return nil, errors.New("unexpected request")
+	})}
+	awards, _, err := SearchNSF("the use of", 10)
+	if !errors.Is(err, ErrNoSearchTerms) || len(awards) != 0 || called {
+		t.Fatalf("stop-word-only query: awards=%d err=%v request=%v", len(awards), err, called)
+	}
+}
+
+func TestSearchNSFUppercaseAcronymReachesAPI(t *testing.T) {
+	previousClient := client
+	t.Cleanup(func() { client = previousClient })
+	requests := 0
+	client = &http.Client{Transport: nsfRoundTripFunc(func(req *http.Request) (*http.Response, error) {
+		requests++
+		if got := req.URL.Query().Get("keyword"); got != "OR" {
+			t.Errorf("keyword = %q, want OR", got)
+		}
+		body := `{"response":{"award":[{"id":"or-1","title":"OR Methods for Cancer Research","abstractText":"Operations research methods"}]}}`
+		return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(body)), Request: req}, nil
+	})}
+	awards, stats, err := SearchNSF("OR", 1)
+	if err != nil || requests != 1 || len(awards) != 1 || awards[0].ID != "or-1" || stats.Matched != 1 {
+		t.Fatalf("acronym search: awards=%#v stats=%+v requests=%d err=%v", awards, stats, requests, err)
+	}
+}
+
+func TestNSFScoreMatchesShortAcronymsAsWholeTokens(t *testing.T) {
+	matching := nsfAwardRaw{NSFAward: NSFAward{Title: "AI for Scientific Discovery"}}
+	if _, _, ok := nsfScore(matching, nsfTerms("AI")); !ok {
+		t.Fatal("standalone AI token did not match")
+	}
+	nonMatching := nsfAwardRaw{NSFAward: NSFAward{Title: "Training Systems"}, Abstract: "Detailed methods"}
+	if _, _, ok := nsfScore(nonMatching, nsfTerms("AI")); ok {
+		t.Fatal("AI incorrectly matched inside another word")
+	}
+	ordinaryWord := nsfAwardRaw{NSFAward: NSFAward{Title: "Cancer Research or Treatment"}}
+	if _, _, ok := nsfScore(ordinaryWord, nsfTerms("OR cancer")); ok {
+		t.Fatal("uppercase OR matched an ordinary lowercase conjunction")
 	}
 }
 
@@ -101,10 +162,10 @@ func TestNSFScore(t *testing.T) {
 			wantHit: false,
 		},
 		{
-			name:     "empty query keeps everything",
+			name:     "empty query matches nothing",
 			award:    nsfAwardRaw{NSFAward: NSFAward{Title: "Anything", ID: "4"}, Abstract: ""},
 			query:    "",
-			wantOK:   true,
+			wantOK:   false,
 			wantHit:  false,
 			wantScrE: 0,
 		},

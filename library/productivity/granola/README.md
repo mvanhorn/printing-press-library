@@ -5,7 +5,7 @@
 granola-pp-cli hydrates a local SQLite store from Granola — via the public REST API on current desktop builds, or via the desktop's own cache on pre-migration builds — and adds the queries Granola.ai’s web app and existing community CLIs cannot answer. Reads serve from the local store first, so memo run, memo queue, attendee timeline, recipes coverage, calendar overlay, and talktime are offline local-data joins no per-meeting tool produces. Agent-native JSON by default.
 
 Created by [@dstevens](https://github.com/dstevens) (Damien Stevens).
-Contributors: [@jeffreydebolt](https://github.com/jeffreydebolt) (Jeff DeBolt), [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
+Contributors: [@jeffreydebolt](https://github.com/jeffreydebolt) (Jeff DeBolt), [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

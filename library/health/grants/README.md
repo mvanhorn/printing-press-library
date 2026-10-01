@@ -4,6 +4,8 @@
 
 Created by [@laci141](https://github.com/laci141) (laci141).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 | Source | What it gives |
 |---|---|
 | **Grants.gov** | open federal opportunities (NIH, NSF, all) — deadline, award ceiling, eligibility |
@@ -22,6 +24,8 @@ go build -o grants.exe ./cmd/grants-pp-cli
 ./grants.exe nih "alzheimer" --year 2025 --min-amount 1000000
 ./grants.exe nsf "quantum computing" --min-amount 500000
 ```
+NSF searches need at least one searchable term. Two-letter acronyms such as AI are supported; uppercase OR, NO, and AS are treated as acronyms rather than ordinary words.
+
 Every command accepts `--json` for raw output. Full flag list: `./grants.exe help`.
 
 ## Design rules (retraction-checker pattern)

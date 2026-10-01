@@ -269,19 +269,14 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
-			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
-				req.Header.Set("X-AMC-Vendor-Key", h)
-			}
-		} else {
-			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
-			req.Header.Del("X-AMC-Vendor-Key")
+		// User-configured AMC headers may contain credentials. Refuse a
+		// different host or scheme before Go sends a redirected request;
+		// stripping only the vendor key would leave the user auth token.
+		if req.URL.Scheme != via[0].URL.Scheme || req.URL.Host != via[0].URL.Host {
+			return errors.New("refusing AMC API redirect to a different origin")
+		}
+		if h, err := c.authHeader(req.Context()); err == nil && h != "" {
+			req.Header.Set("X-AMC-Vendor-Key", h)
 		}
 		return nil
 	}

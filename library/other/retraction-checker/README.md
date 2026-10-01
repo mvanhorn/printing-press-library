@@ -119,6 +119,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+For local HTTP MCP, use `retraction-checker-pp-mcp --transport http`. It binds to `127.0.0.1:7777` by default. You can select another literal loopback address such as `[::1]:7777`. Hostnames, including `localhost`, and remote or wildcard addresses are refused because this server has no remote HTTP authentication.
+
 ## Quick Start
 
 ```bash

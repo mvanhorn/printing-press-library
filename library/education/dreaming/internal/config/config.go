@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -34,6 +35,10 @@ type Config struct {
 }
 
 func Load(configPath string) (*Config, error) {
+	return load(configPath, cliutil.ConfigDir, os.UserHomeDir)
+}
+
+func load(configPath string, resolveConfigDir, resolveHome func() (string, error)) (*Config, error) {
 	cfg := &Config{
 		BaseURL:  "https://app.dreaming.com/.netlify/functions",
 		Language: "es",
@@ -44,17 +49,27 @@ func Load(configPath string) (*Config, error) {
 	if path == "" {
 		path = os.Getenv("DREAMING_CONFIG")
 	}
+	legacyPath := ""
 	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "dreaming-pp-cli", "config.toml")
+		if home, err := resolveHome(); err == nil {
+			legacyPath = filepath.Join(home, ".config", "dreaming-pp-cli", "config.toml")
+		}
+		if dir, err := resolveConfigDir(); err == nil {
+			path = filepath.Join(dir, "config.toml")
+		} else {
+			// Keep environment-only credentials usable when no home directory
+			// can be resolved. A later save still reports its own path error.
+			path = legacyPath
+		}
 	}
 	cfg.Path = path
 
-	// Try to load config file
-	data, err := os.ReadFile(path)
+	// A token saved by an older CLI remains readable when a custom config
+	// directory is introduced. New saves use cfg.Path and migrate the values.
+	data, readPath, err := cliutil.ReadFileWithLegacyFallback(path, legacyPath)
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
-			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+			return nil, fmt.Errorf("parsing config %s: %w", readPath, err)
 		}
 	}
 
@@ -91,7 +106,7 @@ func Load(configPath string) (*Config, error) {
 	// import, no network, no error. agentcookie itself is never imported
 	// here — the contract is purely on-disk.
 	if cfg.AuthSource == "config" {
-		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		marker := filepath.Join(filepath.Dir(readPath), ".agentcookie-managed")
 		if _, err := os.Stat(marker); err == nil {
 			cfg.AuthSource = "agentcookie"
 		}

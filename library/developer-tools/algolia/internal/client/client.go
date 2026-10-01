@@ -960,17 +960,6 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if authHeader != "" {
 			req.Header.Set("x-algolia-api-key", authHeader)
 		}
-		// Composed-scheme per-call credentials carried by sibling apiKey schemes.
-		// Sent independently of authHeader: the API requires both the primary
-		// auth credential and each sibling credential on every request.
-		if c.Config != nil {
-			if v := c.Config.AlgoliaApplicationId; v != "" {
-				if authHeaderLooksLikePlaceholderCredential(v) {
-					return nil, 0, authPlaceholderCredentialErrorWithSetup(c.Config, "export ALGOLIA_APPLICATION_ID=<your-token>")
-				}
-				req.Header.Set("x-algolia-application-id", v)
-			}
-		}
 		if c.Config != nil {
 			for k, v := range c.Config.Headers {
 				req.Header.Set(k, v)
@@ -979,6 +968,16 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
+		}
+		// The selected app ID controls both the endpoint and this header,
+		// even when another saved or endpoint header names a different app.
+		if c.Config != nil {
+			if v := c.Config.AlgoliaApplicationId; v != "" {
+				if authHeaderLooksLikePlaceholderCredential(v) {
+					return nil, 0, authPlaceholderCredentialErrorWithSetup(c.Config, "export ALGOLIA_APPLICATION_ID=<your-token>")
+				}
+				req.Header.Set("x-algolia-application-id", v)
+			}
 		}
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
 		if binaryResponse {

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "exa",
   "cli_name": "exa-pp-cli",
-  "version": "2026.10.2",
-  "released_at": "2026-10-01T20:26:20Z",
-  "source_commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9",
+  "version": "2026.10.3",
+  "released_at": "2026-10-01T21:21:13Z",
+  "source_commit": "61783d26b5690321e9ca910060c66788041d378c",
   "printing_press_version": "4.30.1",
   "run_id": "20260809-202528-0d1b9f8c",
   "changes": [
     {
-      "title": "fix(library): reject explicitly blank scalar flags",
-      "pr": 2115,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2115",
-      "commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9"
+      "title": "fix(exa): validate websearch contents before request",
+      "pr": 2137,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2137",
+      "commit": "61783d26b5690321e9ca910060c66788041d378c"
     }
   ]
 }

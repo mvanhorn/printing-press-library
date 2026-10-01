@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "flight-goat",
   "cli_name": "flight-goat-pp-cli",
-  "version": "2026.9.4",
-  "released_at": "2026-09-30T08:53:43Z",
-  "source_commit": "314c143ac10b850ba6dd13d3b5492ffc44ef1368",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T21:49:09Z",
+  "source_commit": "653e24fa44b47dea577b74d0a29d913036ce6707",
   "printing_press_version": "4.28.0",
   "run_id": "20260712-220852",
   "changes": [
     {
-      "title": "fix(flight-goat): expose flights MCP positionals separately; document companion CLI for MCP install",
-      "pr": 2083,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2083",
-      "commit": "314c143ac10b850ba6dd13d3b5492ffc44ef1368"
+      "title": "Validate Flight GOAT award search inputs and cabins",
+      "pr": 2153,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2153",
+      "commit": "653e24fa44b47dea577b74d0a29d913036ce6707"
     }
   ]
 }

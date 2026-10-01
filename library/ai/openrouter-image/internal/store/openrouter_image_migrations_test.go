@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -61,6 +62,103 @@ func TestGenerationLedgerRoundTrip(t *testing.T) {
 	if missing != nil {
 		t.Errorf("expected nil for missing id, got %+v", missing)
 	}
+}
+
+func TestGenerationLedgerZeroTimestampUsesCurrentTime(t *testing.T) {
+	db := openTestStore(t)
+	ctx := context.Background()
+	before := time.Now().UTC().Add(-time.Second)
+
+	if err := db.LedgerGeneration(ctx, GenerationEntry{ID: "gen-zero-time", Model: "model"}); err != nil {
+		t.Fatalf("LedgerGeneration: %v", err)
+	}
+	entries, err := db.ListGenerations(ctx, before, 10)
+	if err != nil {
+		t.Fatalf("ListGenerations: %v", err)
+	}
+	if len(entries) != 1 || entries[0].ID != "gen-zero-time" {
+		t.Fatalf("recent entries = %+v, want gen-zero-time", entries)
+	}
+	if entries[0].CreatedAt.IsZero() || entries[0].CreatedAt.Year() == 1 {
+		t.Fatalf("stored timestamp = %v, want current database timestamp", entries[0].CreatedAt)
+	}
+}
+
+func TestListGenerationsOrdersMixedTimestampFormatsByTime(t *testing.T) {
+	db := openTestStore(t)
+	ctx := context.Background()
+	for _, row := range []struct{ id, createdAt string }{
+		{"legacy-early", "2026-10-01T09:00:00Z"},
+		{"database-late", "2026-10-01 13:00:00"},
+		{"database-fraction", "2026-10-01 13:00:00.100"},
+		{"legacy-fraction", "2026-10-01T13:00:00.900Z"},
+	} {
+		if _, err := db.db.ExecContext(ctx,
+			"INSERT INTO generation_ledger (id, model, created_at) VALUES (?, ?, ?)",
+			row.id, "model", row.createdAt); err != nil {
+			t.Fatalf("seed %s: %v", row.id, err)
+		}
+	}
+	sameDayNoon := time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)
+	recent, err := db.ListGenerations(ctx, sameDayNoon, 10)
+	if err != nil {
+		t.Fatalf("ListGenerations recent: %v", err)
+	}
+	if len(recent) != 3 || recent[0].ID != "legacy-fraction" || recent[1].ID != "database-fraction" || recent[2].ID != "database-late" {
+		t.Fatalf("recent generations = %+v, want fractional timestamps newest first", recent)
+	}
+	if recent[0].CreatedAt.Nanosecond() != 900000000 {
+		t.Fatalf("fractional timestamp lost: %v", recent[0].CreatedAt)
+	}
+	latest, err := db.ListGenerations(ctx, sameDayNoon, 1)
+	if err != nil {
+		t.Fatalf("ListGenerations latest: %v", err)
+	}
+	if len(latest) != 1 || latest[0].ID != "legacy-fraction" {
+		t.Fatalf("limited latest generation = %+v, want legacy-fraction", latest)
+	}
+	afterHalfSecond := time.Date(2026, 10, 1, 13, 0, 0, 500000000, time.UTC)
+	filtered, err := db.ListGenerations(ctx, afterHalfSecond, 10)
+	if err != nil {
+		t.Fatalf("ListGenerations fractional filter: %v", err)
+	}
+	if len(filtered) != 1 || filtered[0].ID != "legacy-fraction" {
+		t.Fatalf("fractional filter = %+v, want only legacy-fraction", filtered)
+	}
+	all, err := db.ListGenerations(ctx, sameDayNoon.Add(-4*time.Hour), 10)
+	if err != nil {
+		t.Fatalf("ListGenerations all: %v", err)
+	}
+	if len(all) != 4 || all[0].ID != "legacy-fraction" || all[1].ID != "database-fraction" || all[2].ID != "database-late" || all[3].ID != "legacy-early" {
+		t.Fatalf("generation order = %+v, want timestamp order across both formats", all)
+	}
+}
+
+func TestListGenerationsUsesNormalizedTimestampIndex(t *testing.T) {
+	db := openTestStore(t)
+	rows, err := db.db.QueryContext(context.Background(),
+		`EXPLAIN QUERY PLAN SELECT id FROM generation_ledger
+		 WHERE replace(replace(created_at, 'T', ' '), 'Z', '') >= ?
+		 ORDER BY replace(replace(created_at, 'T', ' '), 'Z', '') DESC LIMIT ?`,
+		"2026-10-01 00:00:00", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id, parent, unused int
+		var detail string
+		if err := rows.Scan(&id, &parent, &unused, &detail); err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(detail, "idx_generation_ledger_created_normalized") {
+			return
+		}
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatal(err)
+	}
+	t.Fatal("ledger query plan did not use the normalized timestamp index")
 }
 
 func TestListGenerationsNewestFirst(t *testing.T) {

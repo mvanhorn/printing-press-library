@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "granola",
   "cli_name": "granola-pp-cli",
-  "version": "2026.9.3",
-  "released_at": "2026-09-21T00:23:16Z",
-  "source_commit": "7f8548e7329a9a1732fcd075b64e5e0d1d14c799",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T21:59:12Z",
+  "source_commit": "ca3ca3412fe6c03df3513dc66adacf20e8f8f4c6",
   "printing_press_version": "4.4.0",
   "run_id": "20260511-211333",
   "changes": [
     {
-      "title": "fix(granola): resolve sync and read-path follow-ups",
-      "pr": 2037,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2037",
-      "commit": "7f8548e7329a9a1732fcd075b64e5e0d1d14c799"
+      "title": "Harden Granola pacing and API note reconciliation",
+      "pr": 2155,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2155",
+      "commit": "ca3ca3412fe6c03df3513dc66adacf20e8f8f4c6"
     }
   ]
 }

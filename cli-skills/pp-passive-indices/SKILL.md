@@ -23,6 +23,9 @@ metadata:
 
 # Passive Indices — Printing Press CLI
 
+Created by [@lavs9](https://github.com/lavs9) (Mayank Lavania).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `passive-indices-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
@@ -46,14 +49,14 @@ niftyindices.com publishes index levels and constituents; indiapassivefunds.com 
 
 ## When to Use This CLI
 
-Use this CLI for anything that requires knowing both an NSE index's current or historical state (level, TRI, valuation, constituents) and the ETFs/index funds that track it — fund selection, cost comparison, tracking-fidelity checks, or sector concentration analysis for passive Indian equity investing.
+Use this CLI for anything that requires knowing both an NSE index's current or historical state (level, TRI, valuation, constituents) and the ETFs/index funds that track it — fund selection, cost comparison, reviewing provider-reported tracking metrics, or sector concentration analysis for passive Indian equity investing.
 
 ## Anti-triggers
 
 Do not use this CLI for:
 - Do not use this CLI for live trading, order placement, or brokerage account actions — it is a read-only data/research tool.
 - Do not use this CLI for BSE indices — bseindices.com was deprioritized this run and is not covered.
-- Do not use this CLI for subjective 'which fund should I buy for my risk profile' recommendations — it surfaces mechanical rankings (cost, fidelity, tracking error) only, not personalized advice.
+- Do not use this CLI for subjective 'which fund should I buy for my risk profile' recommendations — it surfaces mechanical cost rankings and provider-reported tracking metrics only, not personalized advice.
 
 ## Unique Capabilities
 
@@ -67,9 +70,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli index funds "NIFTY 50" --json
   ```
-- **`index tracking <index>`** — Rank every fund tracking an index by cost and NAV fidelity against the index level.
+- **`index tracking <index>`** — Rank trackers by disclosed expense ratio and show provider-reported tracking error and difference.
 
-  _Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list._
+  _Use for a transparent cost ranking. Tracking error and difference are displayed as provider-reported context and do not affect ordering; this command does not calculate NAV-to-index fidelity._
 
   ```bash
   passive-indices-pp-cli index tracking "NIFTY 50" --json
@@ -88,9 +91,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli fund nfo tracking "NIFTY Next 50" --json
   ```
-- **`compare <schemeId> <index>`** — See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.
+- **`compare <schemeId> <index>`** — See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status.
 
-  _Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index._
+  _When the fund reports a benchmark, it must match the requested index. A missing benchmark is marked `not_reported`; use index tracking for ranking multiple funds by disclosed expense ratio._
 
   ```bash
   passive-indices-pp-cli compare 12345 "NIFTY 50" --json
@@ -173,13 +176,13 @@ passive-indices-pp-cli index sectors "NIFTY 50" --json
 
 Aggregates constituent counts by sector to flag concentration risk.
 
-### Compare a held fund against its benchmark
+### Compare a held fund with a requested index
 
 ```bash
 passive-indices-pp-cli compare 12345 "NIFTY 50"
 ```
 
-Side-by-side view of a fund's NAV/AUM/expense against its underlying index's level and top constituents.
+Side-by-side view of a fund's NAV/AUM/expense and the requested index's level and top constituents. Check `benchmark_validation` before treating the two as linked.
 
 ## Auth Setup
 

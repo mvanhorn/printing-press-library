@@ -15,7 +15,7 @@ func newNovelIndexFundsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "funds <index>",
 		Short:       "See every ETF and index fund that tracks a given NSE index in one call.",
-		Long:        "Use for \"what tracks index X\" lookups. For cost/fidelity comparison of those funds, use 'index tracking' instead; for a single fund-vs-single-index side-by-side, use 'compare'.",
+		Long:        "Use for \"what tracks index X\" lookups. For an expense-ratio ranking with provider-reported tracking metrics, use 'index tracking' instead; for a single fund-vs-single-index side-by-side, use 'compare'.",
 		Example:     "  passive-indices-pp-cli index funds \"NIFTY 50\" --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

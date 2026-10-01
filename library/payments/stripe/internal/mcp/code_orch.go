@@ -43,6 +43,7 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 			mcplib.WithDescription("Execute one stripe API endpoint by its endpoint_id (from stripe_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by stripe_search (e.g., \"users.list\").")),
 			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			mcplib.WithBoolean("confirm_live", mcplib.Description("Explicitly confirm a real live-mode write. Required for live credentials unless STRIPE_CONFIRM_LIVE=1; not required for reads or test-mode credentials.")),
 		),
 		handleCodeOrchExecute,
 	)
@@ -4457,6 +4458,11 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
+	if err := checkMCPLiveModeGuard(c, ep.Method, args); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	// Confirmation is a tool control, never a Stripe endpoint parameter.
+	delete(params, "confirm_live")
 
 	path := ep.Path
 	for _, p := range ep.Positional {

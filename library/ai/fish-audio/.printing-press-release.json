@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "fish-audio",
   "cli_name": "fish-audio-pp-cli",
-  "version": "2026.10.2",
-  "released_at": "2026-10-01T20:26:20Z",
-  "source_commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9",
+  "version": "2026.10.5",
+  "released_at": "2026-10-01T21:50:39Z",
+  "source_commit": "33f732fef8aff4b50856a7dcb0cf3b30c90b3e48",
   "printing_press_version": "4.31.1",
   "run_id": "20260828-094138-3dcac761",
   "changes": [
     {
-      "title": "fix(library): reject explicitly blank scalar flags",
-      "pr": 2115,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2115",
-      "commit": "2ac68f80ae94c0663b3b35be1d430f5fe5876bc9"
+      "title": "fix(fish-audio): retain partial batch recovery details",
+      "pr": 2140,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2140",
+      "commit": "33f732fef8aff4b50856a7dcb0cf3b30c90b3e48"
     }
   ]
 }

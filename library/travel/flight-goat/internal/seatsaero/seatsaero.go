@@ -35,6 +35,9 @@ import (
 // joined onto it.
 const DefaultBaseURL = "https://seats.aero/partnerapi"
 
+// SourceURL accompanies displayed award data as required by the API terms.
+const SourceURL = "https://seats.aero"
+
 func defaultAPIKey() string {
 	if v := strings.TrimSpace(os.Getenv("SEATS_AERO_API_KEY")); v != "" {
 		return v
@@ -103,8 +106,10 @@ type SearchParams struct {
 	// StartDate / EndDate bound the departure window in YYYY-MM-DD (inclusive).
 	StartDate string
 	EndDate   string
-	// Cabin filters availability by cabin: economy, premium, business, first.
-	Cabin string
+	// Cabin filters one cabin; Cabins filters a comma-delimited list. The API
+	// forbids sending both query parameters.
+	Cabin  string
+	Cabins string
 	// OrderBy: empty (default: by date, premium-first) or "lowest_mileage".
 	OrderBy string
 	// OnlyDirectFlights restricts to non-stop availability when true.
@@ -161,14 +166,18 @@ type SearchResult struct {
 	// endpoint, so Cached is always true on success — it is NOT a live
 	// redemption search (those are commercial-only) and callers must not
 	// present the data as freshly computed.
-	APIKeyUsed bool `json:"api_key_used,omitempty"`
-	Cached     bool `json:"cached"`
+	APIKeyUsed bool   `json:"api_key_used,omitempty"`
+	Cached     bool   `json:"cached"`
+	SourceURL  string `json:"source_url"`
 }
 
 // Search runs a cached award-availability search. Returns ErrNoAPIKey when no
 // API key is configured (callers may pre-check via HasAPIKey to emit a clearer
 // message; a call without a key is an error, never a silent empty result).
 func (c *Client) Search(ctx context.Context, p SearchParams) (*SearchResult, error) {
+	if p.Cabin != "" && p.Cabins != "" {
+		return nil, fmt.Errorf("seats.aero: cabin and cabins filters are mutually exclusive")
+	}
 	if c.APIKey == "" {
 		return nil, ErrNoAPIKey{}
 	}
@@ -187,6 +196,9 @@ func (c *Client) Search(ctx context.Context, p SearchParams) (*SearchResult, err
 	}
 	if p.Cabin != "" {
 		q.Set("cabin", p.Cabin)
+	}
+	if p.Cabins != "" {
+		q.Set("cabins", p.Cabins)
 	}
 	if p.OrderBy != "" {
 		q.Set("order_by", p.OrderBy)
@@ -224,6 +236,7 @@ func (c *Client) Search(ctx context.Context, p SearchParams) (*SearchResult, err
 		return nil, fmt.Errorf("seats.aero search: decode: %w (body=%s)", err, truncate(body))
 	}
 	result.Cached = true
+	result.SourceURL = SourceURL
 	return &result, nil
 }
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "seats-aero-award-input-validation",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Validate award search airports, dates, cabins, and effective result limits before a request; support the cached-search API's plural cabin filter without combining it with the singular filter; visibly link Seats.aero where award data is displayed.",
+  "reason": "Invalid award inputs previously reached the API or appeared valid in dry-run output. Profile-provided result limits bypassed validation, and the API supports comma-separated airports and cabins when the correct parameter is used. Seats.aero terms require a visible attribution link when API data is displayed.",
+  "files": [
+    "internal/cli/award.go",
+    "internal/cli/award_test.go",
+    "internal/seatsaero/seatsaero.go",
+    "internal/seatsaero/seatsaero_test.go"
+  ],
+  "validated_outcome": "Synthetic CLI and client tests cover invalid input, profile result limits including explicit zero, plural cabin encoding and dry-run summaries, rejecting simultaneous singular and plural cabin filters, and a source URL included in successful results."
+}

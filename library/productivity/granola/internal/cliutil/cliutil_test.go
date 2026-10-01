@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -684,6 +685,72 @@ func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	elapsed := time.Since(start)
 	if elapsed < 80*time.Millisecond {
 		t.Errorf("second Wait() took %v, want >= 80ms", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_WaitContextHonorsDeadline(t *testing.T) {
+	l := NewAdaptiveLimiter(0.5)
+	if err := l.WaitContext(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	start := time.Now()
+	err := l.WaitContext(ctx)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("WaitContext error = %v, want context deadline exceeded", err)
+	}
+	if elapsed := time.Since(start); elapsed > 500*time.Millisecond {
+		t.Fatalf("WaitContext returned after %v, want cancellation before the 2s pacing delay", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_WaitContextReservesConcurrentSlots(t *testing.T) {
+	l := NewAdaptiveLimiter(10)
+	if err := l.WaitContext(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	start := make(chan struct{})
+	completed := make(chan time.Time, 4)
+	for i := 0; i < 4; i++ {
+		go func() {
+			<-start
+			if err := l.WaitContext(context.Background()); err != nil {
+				return
+			}
+			completed <- time.Now()
+		}()
+	}
+	close(start)
+	times := make([]time.Time, 0, 4)
+	for i := 0; i < 4; i++ {
+		select {
+		case completedAt := <-completed:
+			times = append(times, completedAt)
+		case <-time.After(2 * time.Second):
+			t.Fatal("timed out waiting for paced callers")
+		}
+	}
+	sort.Slice(times, func(i, j int) bool { return times[i].Before(times[j]) })
+	if spread := times[len(times)-1].Sub(times[0]); spread < 250*time.Millisecond {
+		t.Fatalf("concurrent callers released in a %v burst, want at least 250ms of pacing", spread)
+	}
+}
+
+func TestAdaptiveLimiter_WaitContextReclaimsCanceledTurn(t *testing.T) {
+	l := NewAdaptiveLimiter(10)
+	if err := l.WaitContext(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Millisecond)
+	defer cancel()
+	if err := l.WaitContext(ctx); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("canceled WaitContext error = %v, want context deadline exceeded", err)
+	}
+	healthyCtx, healthyCancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer healthyCancel()
+	if err := l.WaitContext(healthyCtx); err != nil {
+		t.Fatal(err)
 	}
 }
 

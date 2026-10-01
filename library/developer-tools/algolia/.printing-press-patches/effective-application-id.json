@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "effective-application-id",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260813-224253-d4da62ef",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Resolve one effective Algolia application ID from all saved sources into the endpoint and required request header.",
+  "reason": "A separately saved ID must still load when the config holds an API key, whether it is in a sibling or global credentials file. A legacy placeholder must not hide a valid saved ID, generic headers must not override it, and missing settings need a useful bootstrap error.",
+  "files": ["internal/config/config.go", "internal/client/client.go", "internal/client/url.go", "internal/cli/auth.go", "internal/config/application_id_test.go", "internal/cliutil/credentials_test.go", "internal/client/application_id_test.go", ".printing-press.json", "README.md", "NOTICE"],
+  "validated_outcome": "Local tests verify IDs from sibling and global credentials, saved templates, and the environment, including placeholder recovery and matching request endpoint/header, plus an actionable missing-ID error."
+}

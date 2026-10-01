@@ -4,6 +4,10 @@
 
 The Algolia CLI manages indices, records, search, rules, synonyms, API keys, and settings from the terminal — with a local SQLite mirror, cross-index search, settings diffing, and relevance regression checks that the official CLI cannot offer.
 
+Created by [@SomSamantray](https://github.com/SomSamantray) (Som Samantray).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `algolia-pp-cli` binary and the `pp-algolia` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -504,7 +508,7 @@ Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API
 This CLI resolves endpoint placeholders at runtime, so one installed binary can target different tenants or API versions without regeneration.
 
 Endpoint environment variables:
-- `ALGOLIA_APP_ID` resolves `{appId}`
+- `ALGOLIA_APPLICATION_ID` resolves `{appId}` and supplies the required application ID header.
 
 Base URL: `https://{appId}.algolia.net`
 

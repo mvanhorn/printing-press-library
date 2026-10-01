@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -40,6 +41,7 @@ func RegisterIntents(s *server.MCPServer) {
 		mcplib.NewTool("compare_a_held_fund_against_its_benchmark",
 			mcplib.WithDescription("Side-by-side view of a fund's NAV/AUM/expense against its underlying index's level and top constituents."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Override the recipe's positional id value.")),
+			mcplib.WithString("index", mcplib.Description("Index to compare. If omitted, use the fund's reported benchmark.")),
 		),
 		handleCompareAHeldFundAgainstItsBenchmark,
 	)
@@ -83,7 +85,24 @@ func handleCompareAHeldFundAgainstItsBenchmark(ctx context.Context, req mcplib.C
 	if missingId {
 		return mcplib.NewToolResultError("id is required"), nil
 	}
-	args = append(args, "NIFTY 50")
+	index := recipeValueString(input["index"])
+	if index == "" {
+		fundJSON, err := cobratree.RunCLICommand(ctx, recipeCLIPath, []string{"fund", "get", recipeValueString(input["id"]), "--json"})
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("fetching fund benchmark: %v", err)), nil
+		}
+		var fund struct {
+			Benchmark string `json:"benchmark_index"`
+		}
+		if err := json.Unmarshal([]byte(fundJSON), &fund); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("reading fund benchmark: %v", err)), nil
+		}
+		index = strings.TrimSpace(fund.Benchmark)
+		if index == "" {
+			return mcplib.NewToolResultError("fund does not report a benchmark; provide index explicitly"), nil
+		}
+	}
+	args = append(args, index, "--json")
 
 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
 	if err != nil {

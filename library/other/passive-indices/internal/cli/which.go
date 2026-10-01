@@ -28,13 +28,13 @@ type whichEntry struct {
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
 	{Command: "index funds <index>", Description: "See every ETF and index fund that tracks a given NSE index in one call.", Group: "Cross-source joins", WhyItMatters: "Use when an agent needs to enumerate the passive products tracking an index without visiting two unrelated websites."},
-	{Command: "index tracking <index>", Description: "Rank every fund tracking an index by cost and NAV fidelity against the index level.", Group: "Cross-source joins", WhyItMatters: "Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list."},
+	{Command: "index tracking <index>", Description: "Rank trackers by disclosed expense ratio and show provider-reported tracking metrics.", Group: "Cross-source joins", WhyItMatters: "Use for a cost ranking with reported tracking metrics, not a calculated NAV fidelity score."},
 	{Command: "index cheapest-tracker <index>", Description: "Find the lowest-cost fund tracking a given index.", Group: "Cross-source joins", WhyItMatters: "Use when a user asks which fund to buy to track a specific index at the lowest cost."},
 	{Command: "index constituents-diff <index> --since <date>", Description: "See what changed in an index's constituent list (additions/removals) between two sync snapshots.", Group: "Local history", WhyItMatters: "Use to detect index rebalancing changes (additions, removals) over time."},
 	{Command: "index sectors <index>", Description: "See an index's constituents grouped by sector, with real per-constituent and per-sector weights (niftyindices' live sector-weight feed — also covers strategy indices with no published constituent CSV).", Group: "Local history", WhyItMatters: "Use to assess sector concentration risk in an index before recommending a tracker."},
 	{Command: "fund nfo tracking <index>", Description: "See upcoming New Fund Offers that track a specific index.", Group: "Cross-source joins", WhyItMatters: "Use to spot genuinely novel fund launches for an index versus yet another me-too NIFTY 50 fund."},
 	{Command: "fund raw <schemeId>", Description: "See a fund's raw API response with cryptic field codes resolved to human-readable names.", Group: "Agent-native plumbing", WhyItMatters: "Use when debugging or when an agent needs the full raw field set beyond the flattened default view."},
-	{Command: "compare <schemeId> <index>", Description: "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.", Group: "Cross-source joins", WhyItMatters: "Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index."},
+	{Command: "compare <schemeId> <index>", Description: "See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status.", Group: "Cross-source joins", WhyItMatters: "Use for a single fund versus an index; check whether the fund reported a benchmark before treating them as linked."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

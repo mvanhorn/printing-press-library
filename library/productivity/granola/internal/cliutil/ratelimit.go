@@ -4,6 +4,7 @@
 package cliutil
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"net/http"
@@ -25,6 +26,7 @@ type AdaptiveLimiter struct {
 	successes   int
 	rampAfter   int
 	lastRequest time.Time // zero-value: first Wait() returns immediately
+	turn        chan struct{}
 }
 
 // NewAdaptiveLimiter returns a limiter starting at ratePerSec, or nil when
@@ -33,27 +35,63 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	if ratePerSec <= 0 {
 		return nil
 	}
-	return &AdaptiveLimiter{
+	l := &AdaptiveLimiter{
 		rate:      ratePerSec,
 		floor:     ratePerSec,
 		rampAfter: 10,
+		turn:      make(chan struct{}, 1),
 	}
+	l.turn <- struct{}{}
+	return l
 }
 
 func (l *AdaptiveLimiter) Wait() {
+	_ = l.WaitContext(context.Background())
+}
+
+// WaitContext paces the next request while allowing callers to abandon the
+// wait when their request deadline or cancellation fires.
+func (l *AdaptiveLimiter) WaitContext(ctx context.Context) error {
 	if l == nil {
-		return
+		return nil
 	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-l.turn:
+	}
+	defer func() { l.turn <- struct{}{} }()
+
+	now := time.Now()
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
+	scheduled := now
+	if !l.lastRequest.IsZero() {
+		scheduled = l.lastRequest.Add(delay)
+		if scheduled.Before(now) {
+			scheduled = now
+		}
+	}
 	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+	if wait := time.Until(scheduled); wait > 0 {
+		timer := time.NewTimer(wait)
+		defer timer.Stop()
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-timer.C:
+		}
 	}
 	l.mu.Lock()
 	l.lastRequest = time.Now()
 	l.mu.Unlock()
+	return nil
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

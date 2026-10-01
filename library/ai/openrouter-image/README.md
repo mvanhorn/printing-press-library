@@ -8,6 +8,8 @@ Learn more at [OpenRouter](https://openrouter.ai/docs).
 
 Created by [@neal-kyle](https://github.com/neal-kyle).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 ### Prerequisites

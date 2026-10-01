@@ -30,6 +30,10 @@ func (s *Store) EnsureOpenRouterImageTables(ctx context.Context) error {
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_generation_ledger_created ON generation_ledger(created_at)`,
+		// Historical UTC RFC3339 rows use T and Z, while database defaults use
+		// a space. A normalized expression keeps fractional seconds sortable
+		// and lets the recent-window query use an index.
+		`CREATE INDEX IF NOT EXISTS idx_generation_ledger_created_normalized ON generation_ledger(replace(replace(created_at, 'T', ' '), 'Z', '') DESC)`,
 		`CREATE INDEX IF NOT EXISTS idx_generation_ledger_model ON generation_ledger(model)`,
 		`CREATE TABLE IF NOT EXISTS image_endpoint_cache (
 			model_id TEXT PRIMARY KEY,
@@ -64,10 +68,14 @@ type GenerationEntry struct {
 
 // LedgerGeneration records a completed generation in the ledger.
 func (s *Store) LedgerGeneration(ctx context.Context, e GenerationEntry) error {
+	var createdAt any
+	if !e.CreatedAt.IsZero() {
+		createdAt = e.CreatedAt.UTC().Format("2006-01-02 15:04:05.999999999")
+	}
 	if _, err := s.db.ExecContext(ctx,
 		`INSERT OR REPLACE INTO generation_ledger (id, model, prompt, params, cost_usd, tokens, output_path, created_at)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`,
-		e.ID, e.Model, e.Prompt, e.Params, e.CostUSD, e.Tokens, e.OutputPath, e.CreatedAt.Format(time.RFC3339),
+		e.ID, e.Model, e.Prompt, e.Params, e.CostUSD, e.Tokens, e.OutputPath, createdAt,
 	); err != nil {
 		return fmt.Errorf("inserting generation ledger row: %w", err)
 	}
@@ -87,11 +95,7 @@ func (s *Store) GetGeneration(ctx context.Context, id string) (*GenerationEntry,
 		}
 		return nil, fmt.Errorf("reading generation %s: %w", id, err)
 	}
-	if t, err := time.Parse("2006-01-02 15:04:05", createdAt); err == nil {
-		e.CreatedAt = t
-	} else if t, err := time.Parse(time.RFC3339, createdAt); err == nil {
-		e.CreatedAt = t
-	}
+	e.CreatedAt = parseGenerationTime(createdAt)
 	return &e, nil
 }
 
@@ -101,10 +105,15 @@ func (s *Store) ListGenerations(ctx context.Context, since time.Time, limit int)
 	if limit <= 0 {
 		limit = 100
 	}
+	// Historical UTC RFC3339 rows and SQLite defaults differ at the separator
+	// and suffix. The indexed expression normalizes both while preserving
+	// fractional seconds, which datetime() would discard.
 	rows, err := s.db.QueryContext(ctx,
 		`SELECT id, model, COALESCE(prompt,''), COALESCE(params,''), COALESCE(cost_usd,0), COALESCE(tokens,''), COALESCE(output_path,''), COALESCE(created_at, CURRENT_TIMESTAMP)
-		 FROM generation_ledger WHERE created_at >= ? ORDER BY created_at DESC LIMIT ?`,
-		since.Format("2006-01-02 15:04:05"), limit)
+		 FROM generation_ledger
+		 WHERE replace(replace(created_at, 'T', ' '), 'Z', '') >= ?
+		 ORDER BY replace(replace(created_at, 'T', ' '), 'Z', '') DESC LIMIT ?`,
+		since.UTC().Format("2006-01-02 15:04:05.999999999"), limit)
 	if err != nil {
 		return nil, fmt.Errorf("listing generations: %w", err)
 	}
@@ -116,14 +125,19 @@ func (s *Store) ListGenerations(ctx context.Context, since time.Time, limit int)
 		if err := rows.Scan(&e.ID, &e.Model, &e.Prompt, &e.Params, &e.CostUSD, &e.Tokens, &e.OutputPath, &createdAt); err != nil {
 			return nil, fmt.Errorf("scanning generation row: %w", err)
 		}
-		if t, err := time.Parse("2006-01-02 15:04:05", createdAt); err == nil {
-			e.CreatedAt = t
-		} else if t, err := time.Parse(time.RFC3339, createdAt); err == nil {
-			e.CreatedAt = t
-		}
+		e.CreatedAt = parseGenerationTime(createdAt)
 		out = append(out, e)
 	}
 	return out, rows.Err()
+}
+
+func parseGenerationTime(value string) time.Time {
+	for _, layout := range []string{"2006-01-02 15:04:05.999999999", "2006-01-02 15:04:05", time.RFC3339Nano} {
+		if parsed, err := time.Parse(layout, value); err == nil {
+			return parsed
+		}
+	}
+	return time.Time{}
 }
 
 // EndpointCacheEntry is one model's cached per-endpoint records.

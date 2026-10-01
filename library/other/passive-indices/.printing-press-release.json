@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "passive-indices",
   "cli_name": "passive-indices-pp-cli",
-  "version": "2026.9.2",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T21:42:14Z",
+  "source_commit": "fa36401f7d7ac64380b977ee407e20140f7f82e5",
   "printing_press_version": "4.28.0",
   "run_id": "20260709-233621-d673b83a",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(passive-indices): validate benchmarks and clarify tracking rankings",
+      "pr": 2146,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2146",
+      "commit": "fa36401f7d7ac64380b977ee407e20140f7f82e5"
     }
   ]
 }

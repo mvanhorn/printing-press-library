@@ -234,6 +234,12 @@ func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {
 				out = append(out, "--"+k, tv)
 			}
 		case []any:
+			if k == "reference" {
+				for _, item := range tv {
+					out = append(out, "--"+k, fmt.Sprintf("%v", item))
+				}
+				continue
+			}
 			if len(tv) > 0 {
 				parts := make([]string, 0, len(tv))
 				for _, item := range tv {

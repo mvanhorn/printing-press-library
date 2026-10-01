@@ -124,6 +124,18 @@ func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {
 	}
 }
 
+func TestCLIArgsFromMCPPreservesCommaBearingReferences(t *testing.T) {
+	first := "data:image/png;base64,AAAA"
+	second := "data:image/jpeg;base64,BBBB"
+	got := cliArgsFromMCP(map[string]any{
+		"reference": []any{first, second},
+	}, map[string]bool{})
+	want := []string{"--reference", first, "--reference", second}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("cliArgsFromMCP references = %#v, want %#v", got, want)
+	}
+}
+
 func TestValidateMCPArgumentNamesRejectsArgsWhenNoParamsAllowed(t *testing.T) {
 	err := validateMCPArgumentNames(map[string]any{"query": "alpha"}, nil)
 	if err == nil {

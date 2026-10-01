@@ -431,6 +431,10 @@ These capabilities aren't available in any other tool for this API.
 - `elevenlabs-pp-cli workspace usage-by-product-over-time` — Returns credit usage broken down by product type over time. The response is a tabular structure with columns,...
 
 
+### Voice budget
+
+Run `elevenlabs-pp-cli voice-budget --json` to see remaining character credits, the next reset, and voice-slot headroom before planning a large render. Each run fetches a fresh subscription response and uses the provider's `voice_slots_used` counter. The terminal view includes the exact UTC reset time and remaining voice slots.
+
 ### Finding the right command
 
 When you know what you want to do but not which command does it, ask the CLI directly:

@@ -2,7 +2,10 @@
 
 **Unifies NSE's index data with the ETFs and index funds that track them — a join neither source site offers.**
 
-niftyindices.com publishes index levels and constituents; indiapassivefunds.com publishes the ETFs and index funds that track those indices. Nothing links the two. This CLI joins them locally so you can ask "what tracks NIFTY 50, and how well" in one command — plus offline search, agent-native JSON, and a local SQLite layer for historical constituent diffs.
+niftyindices.com publishes index levels and constituents; indiapassivefunds.com publishes the ETFs and index funds that track those indices. Nothing links the two. This CLI joins them locally so you can ask "what tracks NIFTY 50, and at what disclosed cost" in one command — plus offline search, agent-native JSON, and a local SQLite layer for historical constituent diffs.
+
+Created by [@lavs9](https://github.com/lavs9) (Mayank Lavania).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -126,7 +129,7 @@ passive-indices-pp-cli sync --resources index
 # See every fund tracking NIFTY 50
 passive-indices-pp-cli index funds "NIFTY 50"
 
-# Rank those funds by cost and fidelity
+# Rank those funds by disclosed expense ratio and inspect provider tracking metrics
 passive-indices-pp-cli index tracking "NIFTY 50" --json
 
 # Narrow a fund-vs-index comparison to just the fields that matter
@@ -168,13 +171,13 @@ passive-indices-pp-cli index sectors "NIFTY 50" --json
 
 Aggregates constituent counts by sector to flag concentration risk.
 
-### Compare a held fund against its benchmark
+### Compare a held fund with a requested index
 
 ```bash
 passive-indices-pp-cli compare 12345 "NIFTY 50"
 ```
 
-Side-by-side view of a fund's NAV/AUM/expense against its underlying index's level and top constituents.
+Side-by-side view of a fund's NAV/AUM/expense and the requested index's level and top constituents. The `benchmark_validation` field is `matched` when the fund reports a matching benchmark, `not_reported` when it reports none, or `fund_unavailable` when its details could not be fetched.
 
 ## Unique Features
 
@@ -188,9 +191,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli index funds "NIFTY 50" --json
   ```
-- **`index tracking <index>`** — Rank every fund tracking an index by cost and NAV fidelity against the index level.
+- **`index tracking <index>`** — Rank trackers by disclosed expense ratio and show provider-reported tracking error and difference.
 
-  _Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list._
+  _Use for a transparent cost ranking. Tracking error and difference are displayed as provider-reported context and do not affect ordering; this command does not calculate NAV-to-index fidelity._
 
   ```bash
   passive-indices-pp-cli index tracking "NIFTY 50" --json
@@ -209,9 +212,9 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   passive-indices-pp-cli fund nfo tracking "NIFTY Next 50" --json
   ```
-- **`compare <schemeId> <index>`** — See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.
+- **`compare <schemeId> <index>`** — See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status.
 
-  _Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index._
+  _When the fund reports a benchmark, it must match the requested index. A missing benchmark is marked `not_reported`; use index tracking for ranking multiple funds by disclosed expense ratio._
 
   ```bash
   passive-indices-pp-cli compare 12345 "NIFTY 50" --json

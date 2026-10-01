@@ -11,11 +11,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/fish-audio/internal/client"
@@ -143,18 +146,123 @@ func synthesize(ctx context.Context, c *client.Client, req fishaudio.RenderReque
 // returns its SHA-256. The digest is what makes a render log row verifiable
 // after the fact: a file that was replaced no longer matches its row.
 func writeAudioFile(path string, audio []byte) (string, error) {
-	if dir := filepath.Dir(path); dir != "" && dir != "." {
+	return writeAudioFileWith(path, audio, func(file *os.File, data []byte) (int, error) {
+		return file.Write(data)
+	})
+}
+
+func writeAudioFileWith(path string, audio []byte, write func(*os.File, []byte) (int, error)) (string, error) {
+	// Keep the old write-through behavior when --out names a symlink. The
+	// temporary file and rename must live beside its target, not the link.
+	outputPath, err := resolveAudioOutputPath(path)
+	if err != nil {
+		return "", fmt.Errorf("resolving output %s: %w", path, err)
+	}
+	dir := filepath.Dir(outputPath)
+	if dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return "", fmt.Errorf("creating output directory %s: %w", dir, err)
 		}
 	}
-	// #nosec G703 -- path is the operator's own --out value; writing the rendered
-	// audio where the caller asked is the purpose of the command.
-	if err := os.WriteFile(path, audio, 0o600); err != nil {
-		return "", fmt.Errorf("writing %s: %w", path, err)
+	if dir == "" {
+		dir = "."
 	}
+	outputMode := os.FileMode(0o600)
+	if info, err := os.Stat(outputPath); err == nil {
+		if !info.Mode().IsRegular() {
+			return "", fmt.Errorf("output %s is not a regular file", path)
+		}
+		outputMode = info.Mode().Perm()
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return "", fmt.Errorf("checking output %s: %w", path, err)
+	}
+	// Stage beside the destination so a failed write never truncates an
+	// existing successful render.
+	tmp, err := os.CreateTemp(dir, "."+filepath.Base(outputPath)+".tmp-*")
+	if err != nil {
+		return "", fmt.Errorf("creating temporary output for %s: %w", path, err)
+	}
+	tmpPath := tmp.Name()
+	committed := false
+	defer func() {
+		_ = tmp.Close()
+		if !committed {
+			_ = os.Remove(tmpPath)
+		}
+	}()
+	if err := tmp.Chmod(0o600); err != nil {
+		return "", fmt.Errorf("setting temporary output permissions for %s: %w", path, err)
+	}
+	if n, err := write(tmp, audio); err != nil {
+		return "", fmt.Errorf("writing temporary output for %s: %w", path, err)
+	} else if n != len(audio) {
+		return "", fmt.Errorf("writing temporary output for %s: wrote %d of %d bytes", path, n, len(audio))
+	}
+	if err := tmp.Chmod(outputMode); err != nil {
+		return "", fmt.Errorf("setting output permissions for %s: %w", path, err)
+	}
+	if err := tmp.Sync(); err != nil {
+		return "", fmt.Errorf("syncing temporary output for %s: %w", path, err)
+	}
+	if err := tmp.Close(); err != nil {
+		return "", fmt.Errorf("closing temporary output for %s: %w", path, err)
+	}
+	// #nosec G703 -- path is the operator's own --out value; publishing the
+	// rendered audio where requested is the purpose of the command.
+	if err := renameAudioFileWithRetry(tmpPath, outputPath); err != nil {
+		return "", fmt.Errorf("publishing %s atomically: %w", path, err)
+	}
+	committed = true
 	sum := sha256.Sum256(audio)
 	return hex.EncodeToString(sum[:]), nil
+}
+
+func resolveAudioOutputPath(path string) (string, error) {
+	current := path
+	for i := 0; i < 40; i++ {
+		info, err := os.Lstat(current)
+		if errors.Is(err, os.ErrNotExist) {
+			return current, nil
+		}
+		if err != nil {
+			return "", err
+		}
+		if info.Mode()&os.ModeSymlink == 0 {
+			return current, nil
+		}
+		target, err := os.Readlink(current)
+		if err != nil {
+			return "", err
+		}
+		if !filepath.IsAbs(target) {
+			target = filepath.Join(filepath.Dir(current), target)
+		}
+		current = filepath.Clean(target)
+	}
+	return "", fmt.Errorf("too many output symlinks")
+}
+
+func renameAudioFileWithRetry(tmpPath, outputPath string) error {
+	return renameAudioFileWithRetryFunc(os.Rename, tmpPath, outputPath, runtime.GOOS)
+}
+
+func renameAudioFileWithRetryFunc(rename func(string, string) error, tmpPath, outputPath, goos string) error {
+	delay := 2 * time.Millisecond
+	var err error
+	for attempt := 0; attempt < 12; attempt++ {
+		err = rename(tmpPath, outputPath)
+		if err == nil {
+			return nil
+		}
+		if goos != "windows" || !(errors.Is(err, os.ErrPermission) || errors.Is(err, syscall.Errno(32))) || attempt == 11 {
+			return err
+		}
+		time.Sleep(delay)
+		if delay < 64*time.Millisecond {
+			delay *= 2
+		}
+	}
+	return err
 }
 
 // openRenderStore opens the local store and makes sure render_log exists.

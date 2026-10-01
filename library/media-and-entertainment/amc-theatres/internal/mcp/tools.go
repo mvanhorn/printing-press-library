@@ -435,7 +435,10 @@ func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error
 	if err != nil {
 		return nil, nil, err
 	}
-	c := newMCPClientFromConfig(cfg)
+	c, err := newMCPClientFromConfig(cfg)
+	if err != nil {
+		return nil, nil, err
+	}
 	session, err := cli.BindMCPClient(ctx, c)
 	if err != nil {
 		return nil, nil, err
@@ -451,7 +454,7 @@ func newMCPConfig() (*config.Config, error) {
 	return cfg, nil
 }
 
-func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+func newMCPClientFromConfig(cfg *config.Config) (*client.Client, error) {
 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
@@ -459,7 +462,10 @@ func newMCPClientFromConfig(cfg *config.Config) *client.Client {
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c
+	if err := cli.ConfigureAMCClient(c); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func mcpDBPath() (string, error) {

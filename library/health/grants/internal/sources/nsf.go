@@ -14,6 +14,9 @@ import (
 // result as a completed search. Test for it with errors.Is.
 var ErrPartialPool = errors.New("NSF candidate pool is incomplete")
 
+// ErrNoSearchTerms indicates that normalization removed every search term.
+var ErrNoSearchTerms = errors.New("NSF search query has no searchable terms")
+
 // NSF Awards API — awarded NSF grants. Keyless.
 const nsfAwardsURL = "https://api.nsf.gov/services/v1/awards.json"
 
@@ -125,6 +128,11 @@ func (s NSFStats) Partial() bool {
 // nsfStopWords are dropped from the query before matching; requiring them would
 // reject good awards for no reason.
 var nsfStopWords = map[string]bool{
+	"a": true, "an": true, "as": true, "at": true, "be": true,
+	"by": true, "do": true, "he": true, "if": true, "in": true,
+	"is": true, "it": true, "me": true, "my": true, "no": true,
+	"of": true, "on": true, "or": true, "so": true, "to": true,
+	"up": true, "us": true, "we": true,
 	"and": true, "the": true, "for": true, "with": true, "from": true,
 	"into": true, "onto": true, "over": true, "under": true, "about": true,
 	"that": true, "this": true, "these": true, "those": true, "are": true,
@@ -153,19 +161,49 @@ func nsfStem(word string) string {
 	return w
 }
 
+func nsfWords(value string) []string {
+	return strings.FieldsFunc(value, func(r rune) bool {
+		return !(r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9')
+	})
+}
+
 // nsfTerms splits a query into the stems every award must contain.
 func nsfTerms(keyword string) []string {
 	var terms []string
-	for _, word := range strings.FieldsFunc(keyword, func(r rune) bool {
-		return !(r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9')
-	}) {
+	for _, word := range nsfWords(keyword) {
 		lower := strings.ToLower(word)
-		if len(lower) <= 2 || nsfStopWords[lower] {
+		uppercaseAcronym := len(word) == 2 && word == strings.ToUpper(word) && word != lower
+		if len(lower) == 1 || (nsfStopWords[lower] && !uppercaseAcronym) {
+			continue
+		}
+		if uppercaseAcronym && nsfStopWords[lower] {
+			terms = append(terms, word)
 			continue
 		}
 		terms = append(terms, nsfStem(lower))
 	}
 	return terms
+}
+
+func nsfContains(text, term string) bool {
+	if len(term) == 2 && term == strings.ToUpper(term) && nsfStopWords[strings.ToLower(term)] {
+		for _, word := range nsfWords(text) {
+			if word == term {
+				return true
+			}
+		}
+		return false
+	}
+	text = strings.ToLower(text)
+	if len(term) > 2 {
+		return strings.Contains(text, term)
+	}
+	for _, word := range nsfWords(text) {
+		if word == term {
+			return true
+		}
+	}
+	return false
 }
 
 // nsfNormalizeTitle is the dedup key. "Collaborative Research" awards are
@@ -182,13 +220,13 @@ func nsfNormalizeTitle(title string) string {
 // awards on top.
 func nsfScore(a nsfAwardRaw, terms []string) (score int, titleHit, ok bool) {
 	if len(terms) == 0 {
-		return 0, false, true
+		return 0, false, false
 	}
-	title := strings.ToLower(a.Title)
-	abstract := strings.ToLower(a.Abstract)
+	title := a.Title
+	abstract := a.Abstract
 	for _, t := range terms {
-		inTitle := strings.Contains(title, t)
-		inAbstract := strings.Contains(abstract, t)
+		inTitle := nsfContains(title, t)
+		inAbstract := nsfContains(abstract, t)
 		if !inTitle && !inAbstract {
 			return 0, false, false
 		}
@@ -269,6 +307,9 @@ func nsfRank(pool []nsfAwardRaw, terms []string, rows int) ([]NSFAward, NSFStats
 // "nothing came back" from "some pages came back" by the returned slice.
 func SearchNSF(keyword string, rows int) ([]NSFAward, NSFStats, error) {
 	terms := nsfTerms(keyword)
+	if len(terms) == 0 {
+		return nil, NSFStats{}, fmt.Errorf("%w: %q", ErrNoSearchTerms, keyword)
+	}
 
 	var pool []nsfAwardRaw
 	var poolErr error

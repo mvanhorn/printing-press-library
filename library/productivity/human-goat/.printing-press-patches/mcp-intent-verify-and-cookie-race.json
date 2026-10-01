@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "mcp-intent-verify-and-cookie-race",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260703-152050-dff84056",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Publish the eight advertised MCP endpoint tools, pass caller-supplied Magic prompts, suppress Magic writes in verify mode, and serialize private cookie persistence across clients.",
+  "reason": "The public tools manifest was empty despite eight advertised endpoint tools. The MCP remote-errand intent used a fixed prompt, Magic writes bypassed verify mode, and concurrent MCP clients could overwrite one another's rotated cookies.",
+  "files": [
+    "tools-manifest.json",
+    "internal/client/cookiejar.go",
+    "internal/client/cookiejar_review_test.go",
+    "internal/mcp/intents.go",
+    "internal/mcp/intents_review_test.go",
+    "internal/source/magic/magic.go",
+    "internal/source/magic/magic_test.go"
+  ],
+  "validated_outcome": "Synthetic tests cover caller prompts that begin with a dash, verifier suppression without a network request, and every concurrent cookie update by name and value. The public version's narrower cookie selection and correct transaction rollback count remain intact."
+}

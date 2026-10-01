@@ -170,13 +170,13 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 
 Highlights (not in the official API docs):
   • index funds <index>   See every ETF and index fund that tracks a given NSE index in one call.
-  • index tracking <index>   Rank every fund tracking an index by cost and NAV fidelity against the index level.
+  • index tracking <index>   Rank trackers by disclosed expense ratio and show provider-reported tracking metrics.
   • index cheapest-tracker <index>   Find the lowest-cost fund tracking a given index.
   • index constituents-diff <index> --since <date>   See what changed in an index's constituent list (additions/removals) between two sync snapshots.
   • index sectors <index>   See an index's constituents grouped by sector, with real per-constituent and per-sector weights (niftyindices' live sector-weight feed — also covers strategy indices with no published constituent CSV).
   • fund nfo tracking <index>   See upcoming New Fund Offers that track a specific index.
   • fund raw <schemeId>   See a fund's raw API response with cryptic field codes resolved to human-readable names.
-  • compare <schemeId> <index>   See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.
+  • compare <schemeId> <index>   See a fund's NAV/AUM/expense next to a requested index, with benchmark validation status.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'passive-indices-pp-cli doctor' to verify auth and connectivity.

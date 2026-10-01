@@ -213,3 +213,40 @@ func TestNovelGenerateLedgerFailureFailsRun(t *testing.T) {
 		t.Fatalf("ExitCode(%v) = 0, want non-zero", err)
 	}
 }
+
+func TestGenerateReferenceFlagPreservesDataURLCommas(t *testing.T) {
+	cmd := newGenerateCmd(&rootFlags{})
+	first := "data:image/png;base64,AAAA"
+	second := "data:image/jpeg;base64,BBBB"
+	if err := cmd.ParseFlags([]string{"--reference", first, "--reference", second}); err != nil {
+		t.Fatalf("parse reference flags: %v", err)
+	}
+	got, err := cmd.Flags().GetStringArray("reference")
+	if err != nil {
+		t.Fatalf("read reference flags: %v", err)
+	}
+	if len(got) != 2 || got[0] != first || got[1] != second {
+		t.Fatalf("reference values = %#v, want intact data URLs", got)
+	}
+	expanded := expandReferenceInputs(got)
+	if len(expanded) != 2 || expanded[0] != first || expanded[1] != second {
+		t.Fatalf("expanded references = %#v, want intact data URLs", expanded)
+	}
+}
+
+func TestGenerateReferenceFlagKeepsLegacyCommaSeparatedPaths(t *testing.T) {
+	commaPath := filepath.Join(t.TempDir(), "a,b.jpg")
+	if err := os.WriteFile(commaPath, []byte("synthetic image"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	got := expandReferenceInputs([]string{"a.jpg,b.jpg", "https://example.test/a,b.jpg", commaPath})
+	want := []string{"a.jpg", "b.jpg", "https://example.test/a,b.jpg", commaPath}
+	if len(got) != len(want) {
+		t.Fatalf("references = %#v, want %#v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("reference %d = %q, want %q", i, got[i], want[i])
+		}
+	}
+}

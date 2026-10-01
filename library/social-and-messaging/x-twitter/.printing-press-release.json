@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "x-twitter",
   "cli_name": "x-twitter-pp-cli",
-  "version": "2026.9.1",
-  "released_at": "2026-09-11T09:22:21Z",
-  "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e",
+  "version": "2026.10.1",
+  "released_at": "2026-10-01T22:03:40Z",
+  "source_commit": "e1a6190c03782765f4a03cf2b436eb1cf096077e",
   "printing_press_version": "4.20.1",
   "run_id": "20260603-230951",
   "changes": [
     {
-      "title": "fix: fail closed on ambiguous fleet write retries",
-      "pr": 1978,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1978",
-      "commit": "81f5764eda401077520268afe74913c0f21f5b7e"
+      "title": "fix(x-twitter): explain unsupported article image uploads",
+      "pr": 2159,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2159",
+      "commit": "e1a6190c03782765f4a03cf2b436eb1cf096077e"
     }
   ]
 }

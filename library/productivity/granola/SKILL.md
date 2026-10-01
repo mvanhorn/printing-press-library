@@ -20,6 +20,9 @@ metadata:
 
 # Granola — Printing Press CLI
 
+Created by [@dstevens](https://github.com/dstevens) (Damien Stevens).
+Contributors: [@jeffreydebolt](https://github.com/jeffreydebolt) (Jeff DeBolt), [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `granola-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:

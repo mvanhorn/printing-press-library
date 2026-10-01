@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "import-jsonl-contract",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260828-094138-3dcac761",
+  "base_printing_press_version": "4.31.1",
+  "summary": "JSONL decoding preserves exact numeric values, and import rejects every current Fish Audio write resource before any API request.",
+  "reason": "The generic JSONL POST path can round large identifiers and cannot safely handle multipart uploads, paid audio, or special response and header contracts.",
+  "files": ["internal/cli/import.go", "internal/cli/import_contract_test.go"],
+  "validated_outcome": "Local tests keep a 9007199254740993 identifier exact and reject ASR, model, TTS, voice design, null, arrays, and trailing JSON records."
+}

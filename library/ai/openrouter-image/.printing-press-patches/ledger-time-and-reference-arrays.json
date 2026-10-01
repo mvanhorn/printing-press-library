@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ledger-time-and-reference-arrays",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260803-205427-851f4b39",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Default zero-valued ledger timestamps to the database clock, index and sort mixed timestamp formats with fractional precision, and accept both comma-separated local paths and comma-bearing reference values.",
+  "reason": "Formatting a zero time bypasses the SQL default, datetime() loses fractional ordering and bypasses the timestamp index, while splitting every reference comma corrupts data URLs and splitting none breaks older comma-separated path commands.",
+  "files": ["internal/store/openrouter_image_migrations.go", "internal/store/openrouter_image_migrations_test.go", "internal/mcp/cobratree/shellout.go", "internal/mcp/cobratree/shellout_test.go", "internal/cli/generate.go", "internal/cli/generate_fixes_test.go"],
+  "validated_outcome": "Local tests keep zero-time and historical fractional RFC3339 generations in correct time order, confirm the query uses its expression index, and preserve data URLs, HTTP URLs, comma-bearing filenames, and legacy comma-separated paths."
+}

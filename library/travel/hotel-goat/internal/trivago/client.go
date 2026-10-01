@@ -42,11 +42,12 @@ type Client struct {
 	// NewClient seeds a DefaultRatePerSec AdaptiveLimiter.
 	Limiter *cliutil.AdaptiveLimiter
 
-	initOnce  sync.Once
-	initErr   error
-	sessionID string
-	reqID     int64
-	reqIDMu   sync.Mutex
+	initGateOnce sync.Once
+	initGate     chan struct{}
+	initialized  bool
+	sessionID    string
+	reqID        int64
+	reqIDMu      sync.Mutex
 }
 
 func NewClient() *Client {
@@ -101,6 +102,28 @@ type rpcError struct {
 	Message string `json:"message"`
 }
 
+type initializeResult struct {
+	ProtocolVersion string          `json:"protocolVersion"`
+	Capabilities    json.RawMessage `json:"capabilities"`
+	ServerInfo      struct {
+		Name    string `json:"name"`
+		Version string `json:"version"`
+	} `json:"serverInfo"`
+}
+
+func readHandshakeBody(body io.ReadCloser) ([]byte, error) {
+	defer body.Close()
+	const maxBytes = 1 << 20
+	raw, err := io.ReadAll(io.LimitReader(body, maxBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(raw) > maxBytes {
+		return nil, fmt.Errorf("handshake response exceeds 1 MiB")
+	}
+	return raw, nil
+}
+
 func (c *Client) nextID() int64 {
 	c.reqIDMu.Lock()
 	defer c.reqIDMu.Unlock()
@@ -109,58 +132,151 @@ func (c *Client) nextID() int64 {
 }
 
 func (c *Client) ensureInit(ctx context.Context) error {
-	c.initOnce.Do(func() {
-		body, _ := json.Marshal(rpcRequest{
-			JSONRPC: "2.0", ID: c.nextID(), Method: "initialize",
-			Params: map[string]any{
-				"protocolVersion": "2024-11-05",
-				"capabilities":    map[string]any{},
-				"clientInfo":      map[string]any{"name": "hotel-goat-pp-cli", "version": "1"},
-			},
-		})
-		req, err := http.NewRequestWithContext(ctx, "POST", c.Endpoint, bytes.NewReader(body))
-		if err != nil {
-			c.initErr = err
-			return
-		}
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Accept", "application/json, text/event-stream")
-		if err := c.waitForSlot(ctx); err != nil {
-			c.initErr = err
-			return
-		}
-		resp, err := c.HTTPClient.Do(req)
-		if err != nil {
-			c.initErr = err
-			return
-		}
-		defer resp.Body.Close()
-		c.sessionID = resp.Header.Get("Mcp-Session-Id")
-		if c.sessionID == "" {
-			c.initErr = fmt.Errorf("trivago: no mcp-session-id in initialize response")
-			return
-		}
-		io.Copy(io.Discard, resp.Body)
+	// A channel serializes first use while allowing waiting callers to cancel.
+	// Only the gate itself is initialized once; a failed handshake is retryable.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	c.initGateOnce.Do(func() { c.initGate = make(chan struct{}, 1) })
+	select {
+	case c.initGate <- struct{}{}:
+		defer func() { <-c.initGate }()
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+	if c.initialized {
+		return nil
+	}
+	c.sessionID = ""
 
-		// Per spec, send the initialized notification before any tools/call.
-		nb, _ := json.Marshal(rpcRequest{JSONRPC: "2.0", Method: "notifications/initialized"})
-		nReq, _ := http.NewRequestWithContext(ctx, "POST", c.Endpoint, bytes.NewReader(nb))
-		nReq.Header.Set("Content-Type", "application/json")
-		nReq.Header.Set("Accept", "application/json, text/event-stream")
-		nReq.Header.Set("Mcp-Session-Id", c.sessionID)
-		if err := c.waitForSlot(ctx); err != nil {
-			c.initErr = err
-			return
-		}
-		nResp, err := c.HTTPClient.Do(nReq)
-		if err != nil {
-			c.initErr = err
-			return
-		}
-		io.Copy(io.Discard, nResp.Body)
-		nResp.Body.Close()
+	initID := c.nextID()
+	body, _ := json.Marshal(rpcRequest{
+		JSONRPC: "2.0", ID: initID, Method: "initialize",
+		Params: map[string]any{
+			"protocolVersion": "2024-11-05",
+			"capabilities":    map[string]any{},
+			"clientInfo":      map[string]any{"name": "hotel-goat-pp-cli", "version": "1"},
+		},
 	})
-	return c.initErr
+	req, err := http.NewRequestWithContext(ctx, "POST", c.Endpoint, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	if err := c.waitForSlot(ctx); err != nil {
+		return err
+	}
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	raw, readErr := readHandshakeBody(resp.Body)
+	if readErr != nil {
+		return fmt.Errorf("trivago: read initialize response: %w", readErr)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("trivago: initialize HTTP %d", resp.StatusCode)
+	}
+	var initialized rpcResponse
+	if err := json.Unmarshal(parseMaybeSSE(raw), &initialized); err != nil {
+		return fmt.Errorf("trivago: decode initialize response: %w", err)
+	}
+	if initialized.JSONRPC != "2.0" || initialized.ID != initID {
+		return fmt.Errorf("trivago: invalid initialize response envelope")
+	}
+	if initialized.Error != nil {
+		return fmt.Errorf("trivago initialize: %s", truncate([]byte(initialized.Error.Message)))
+	}
+	if result := bytes.TrimSpace(initialized.Result); len(result) == 0 || bytes.Equal(result, []byte("null")) {
+		return fmt.Errorf("trivago: initialize response has no result")
+	}
+	var initResult initializeResult
+	if err := json.Unmarshal(initialized.Result, &initResult); err != nil {
+		return fmt.Errorf("trivago: invalid initialize result: %w", err)
+	}
+	if strings.TrimSpace(initResult.ProtocolVersion) == "" ||
+		strings.TrimSpace(initResult.ServerInfo.Name) == "" ||
+		strings.TrimSpace(initResult.ServerInfo.Version) == "" {
+		return fmt.Errorf("trivago: invalid initialize result: missing protocolVersion or serverInfo")
+	}
+	var capabilities map[string]json.RawMessage
+	if len(initResult.Capabilities) == 0 || bytes.Equal(bytes.TrimSpace(initResult.Capabilities), []byte("null")) ||
+		json.Unmarshal(initResult.Capabilities, &capabilities) != nil || capabilities == nil {
+		return fmt.Errorf("trivago: invalid initialize result: capabilities must be an object")
+	}
+	sessionID := strings.TrimSpace(resp.Header.Get("Mcp-Session-Id"))
+	if sessionID == "" {
+		return fmt.Errorf("trivago: no mcp-session-id in initialize response")
+	}
+	sessionReady := false
+	defer func() {
+		if !sessionReady {
+			// Attempt cleanup before a short-lived CLI exits. Bound the wait so
+			// a slow DELETE cannot hold a canceled lookup for long.
+			c.closeFailedSession(sessionID)
+		}
+	}()
+
+	// Per spec, send the initialized notification before any tools/call.
+	nb, _ := json.Marshal(rpcRequest{JSONRPC: "2.0", Method: "notifications/initialized"})
+	nReq, err := http.NewRequestWithContext(ctx, "POST", c.Endpoint, bytes.NewReader(nb))
+	if err != nil {
+		return err
+	}
+	nReq.Header.Set("Content-Type", "application/json")
+	nReq.Header.Set("Accept", "application/json, text/event-stream")
+	nReq.Header.Set("Mcp-Session-Id", sessionID)
+	if err := c.waitForSlot(ctx); err != nil {
+		return err
+	}
+	nResp, err := c.HTTPClient.Do(nReq)
+	if err != nil {
+		return err
+	}
+	notificationBody, readErr := readHandshakeBody(nResp.Body)
+	if readErr != nil {
+		return fmt.Errorf("trivago: read initialized notification response: %w", readErr)
+	}
+	if nResp.StatusCode < 200 || nResp.StatusCode >= 300 {
+		return fmt.Errorf("trivago: initialized notification HTTP %d", nResp.StatusCode)
+	}
+	if len(bytes.TrimSpace(notificationBody)) > 0 {
+		var notification rpcResponse
+		if err := json.Unmarshal(parseMaybeSSE(notificationBody), &notification); err != nil {
+			return fmt.Errorf("trivago: invalid initialized notification response: %w", err)
+		}
+		if notification.Error != nil {
+			return fmt.Errorf("trivago initialized notification: %s", truncate([]byte(notification.Error.Message)))
+		}
+		return fmt.Errorf("trivago: unexpected initialized notification response body")
+	}
+
+	c.sessionID = sessionID
+	c.initialized = true
+	sessionReady = true
+	return nil
+}
+
+// closeFailedSession releases a session created by initialize but rejected by
+// the notification step. Cleanup is best effort and has its own short timeout
+// so a canceled caller can return promptly after the DELETE attempt.
+func (c *Client) closeFailedSession(sessionID string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, c.Endpoint, nil)
+	if err != nil {
+		return
+	}
+	req.Header.Set("Mcp-Session-Id", sessionID)
+	// This is an exceptional cleanup request; waiting for the normal pacing
+	// slot could consume the whole deadline before DELETE reaches the server.
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return
+	}
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1024))
+	_ = resp.Body.Close()
 }
 
 func (c *Client) callTool(ctx context.Context, name string, args any) (json.RawMessage, error) {

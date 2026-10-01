@@ -45,7 +45,7 @@ The headline commands hit consumer fare sources directly and need no credentials
 - `flight-goat-pp-cli dates <origin> <destination>` — cheapest-date scan across a travel window.
 - `flight-goat-pp-cli explore <airport>` / `flight-goat-pp-cli longhaul <airport>` — Kayak nonstop and long-haul route discovery.
 - `flight-goat-pp-cli soar <origin> <destination> <date>` — FlySoar (Duffel NDC/GDS) second price opinion with booking handoff.
-- `flight-goat-pp-cli award <origin> <destination>` — Seats.aero award (mileage) availability: miles + taxes redemption options across cabins. **Requires** `SEATS_AERO_API_KEY` (a Seats.aero Partner API key; cached search is Pro-eligible). Read-only.
+- `flight-goat-pp-cli award <origin> <destination>` — Seats.aero award (mileage) availability: miles + taxes redemption options across cabins. Comma-separated airport and `--cabin` lists are accepted. **Requires** `SEATS_AERO_API_KEY` (an eligible Seats.aero Partner API key); commercial API use needs written permission from Seats.aero. Read-only.
 - `flight-goat-pp-cli wifi flight <flightNumber>` / `wifi airline <IATA>` / `wifi airlines` / `wifi rollouts [IATA]` / `wifi speed <flight>` / `wifi airline-speed <IATA>` / `wifi search <query>` — SeatWifi in-flight WiFi predictions, Starlink rollout status, and crowdsourced speed reports. **No API key.** Public JSON at https://seatwifi.com. Read-only.
 - `flight-goat-pp-cli assess` — delayed-flight/rebooking decision support.
 

@@ -22,22 +22,19 @@ func newImportCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "import <resource>",
-		Short: "Import data from JSONL file via API create/upsert calls",
-		Long: `Import data from a JSONL file by issuing POST requests for each record.
-Each line must be a valid JSON object. Failed records are logged to stderr
-but do not stop the import.`,
-		Example: `  # Import from a JSONL file
-  fish-audio-pp-cli import <resource> --input data.jsonl
-
-  # Dry-run to preview without sending
-  fish-audio-pp-cli import <resource> --input data.jsonl --dry-run
-
-  # Import from stdin
-  cat data.jsonl | fish-audio-pp-cli import <resource> --input -`,
+		Short: "JSONL importer (no verified Fish Audio write resources yet)",
+		Long: `The generic JSONL importer accepts only resources with a verified
+JSON request and response contract. Fish Audio's current write resources use
+multipart uploads, return paid audio or candidates, or need special headers.
+They are rejected before any request. Use their named commands instead.`,
+		Example: `  fish-audio-pp-cli asr transcribe --audio sample.wav
+  fish-audio-pp-cli voice clone --title "Sample" --audio sample.wav
+  fish-audio-pp-cli tts render --text "Hello" --voice <model_id> --out hello.mp3
+  fish-audio-pp-cli voice design --instruction "Warm narrator"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			resource := args[0]
-			path, err := resourceWritePath(resource)
+			path, err := jsonlImportPath(resource)
 			if err != nil {
 				return usageErr(err)
 			}
@@ -75,8 +72,8 @@ but do not stop the import.`,
 					continue
 				}
 
-				var body map[string]any
-				if err := json.Unmarshal([]byte(line), &body); err != nil {
+				body, err := decodeImportRecord(line)
+				if err != nil {
 					fmt.Fprintf(os.Stderr, "warning: skipping invalid JSON line: %v\n", err)
 					failed++
 					continue
@@ -127,4 +124,43 @@ but do not stop the import.`,
 	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
 
 	return cmd
+}
+
+// jsonlImportPath is an explicit safety gate. No current Fish Audio write
+// resource has a verified JSONL import contract, so none may reach c.Post.
+func jsonlImportPath(resource string) (string, error) {
+	switch resource {
+	case "asr":
+		return "", fmt.Errorf("resource %q requires a multipart audio upload; use 'fish-audio-pp-cli asr transcribe --audio <file>'", resource)
+	case "model":
+		return "", fmt.Errorf("resource %q requires a multipart voice upload; use 'fish-audio-pp-cli voice clone --title <name> --audio <file>'", resource)
+	case "tts":
+		return "", fmt.Errorf("resource %q returns paid audio that the JSONL importer cannot save; use 'fish-audio-pp-cli tts render --text <text> --voice <model_id> --out <file>'", resource)
+	case "voice-design":
+		return "", fmt.Errorf("resource %q returns paid voice candidates and needs a model header; use 'fish-audio-pp-cli voice design --instruction <text>'", resource)
+	}
+	if _, err := resourceWritePath(resource); err != nil {
+		return "", err
+	}
+	return "", fmt.Errorf("resource %q has no verified JSONL import contract; use its named command", resource)
+}
+
+func decodeImportRecord(line string) (map[string]any, error) {
+	decoder := json.NewDecoder(strings.NewReader(line))
+	decoder.UseNumber()
+	var body map[string]any
+	if err := decoder.Decode(&body); err != nil {
+		return nil, err
+	}
+	if body == nil {
+		return nil, fmt.Errorf("record must be a JSON object")
+	}
+	var trailing any
+	if err := decoder.Decode(&trailing); err != io.EOF {
+		if err == nil {
+			return nil, fmt.Errorf("record must contain only one JSON object")
+		}
+		return nil, err
+	}
+	return body, nil
 }

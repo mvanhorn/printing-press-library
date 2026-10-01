@@ -23,9 +23,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// batchFailure records one line the batch could not render. Failed lines stay
-// out of the cost and byte totals so a partial run never reports a number that
-// includes work that did not happen.
+// batchFailure records one line whose output was not fully persisted. Provider
+// calls that completed before a local failure remain in call and cost totals;
+// file totals include only outputs with a render-log row.
 type batchFailure struct {
 	LineNo int    `json:"line_no"`
 	Text   string `json:"text"`
@@ -34,11 +34,11 @@ type batchFailure struct {
 
 // batchSummary is the JSON contract `tts batch` prints.
 //
-// Count and the cost fields report the API calls actually made, not the number
+// Count and the cost fields report provider-completed synthesis calls, not the number
 // of input lines: identical lines are rendered once and the audio is copied to
 // each output file. Deduped is how many lines reused another line's render, and
-// Files is how many audio files were written. Billing a duplicate line twice
-// would overstate spend by exactly the amount that was never charged.
+// Files is how many audio outputs have render-log rows. Billing a duplicate
+// line twice would overstate spend by the amount never charged.
 type batchSummary struct {
 	Count            int              `json:"count"`
 	Deduped          int              `json:"deduped"`
@@ -114,8 +114,13 @@ s2-family capability; --model s1 is rejected before any call is made.
 --budget-guard totals the estimated cost, reads GET /wallet/self/api-credit,
 and exits 5 without rendering anything when the estimate exceeds the balance.
 
-Failed lines are reported in "failed" and excluded from the byte and cost
-totals, so a partial run never overstates what it produced.`,
+Batch execution preserves successful lines when another line fails. The command
+exits 6 (or 7 when a line is rate limited), but its summary remains the recovery
+manifest: "renders" includes every
+successful file and render-log row ID, while "failed" identifies the input lines
+to retry. Failed lines are excluded from persisted-file and output-byte totals.
+A synthesis that completes before local persistence fails remains in API-call
+and cost totals so the summary does not hide potentially billed work.`,
 		Example: strings.Trim(`
   fish-audio-pp-cli tts batch --line "Your table is ready." --line "Thanks for calling." --voice 7f92f8afb8ec43bf81429cc1c9199cb1 --model s2.1-pro-free --out-dir ./out
   fish-audio-pp-cli tts batch --input script.jsonl --voice 7f92f8afb8ec43bf81429cc1c9199cb1 --out-dir ./out --concurrency 5 --budget-guard --json
@@ -274,24 +279,18 @@ totals, so a partial run never overstates what it produced.`,
 
 			var sawRateLimit bool
 			for _, r := range results {
+				completedPaths := accumulateBatchResult(&summary, r)
 				if r.err != nil {
 					if ExitCode(r.err) == 7 {
 						sawRateLimit = true
 					}
 					for _, unit := range r.job.units {
+						if completedPaths[unit.path] {
+							continue
+						}
 						summary.Failed = append(summary.Failed, batchFailure{LineNo: unit.lineNo, Text: truncate(unit.req.Text, 120), Error: r.err.Error()})
 					}
 					continue
-				}
-				// One API call, one billed render, however many files it wrote.
-				summary.Count++
-				summary.BytesIn += r.job.units[0].req.BytesIn64()
-				summary.CostUSD += r.costUSD
-				summary.CostUSDPaidEquiv += r.paidEquivUSD
-				for _, manifest := range r.manifests {
-					summary.BytesOut += manifest.BytesOut
-					summary.Files++
-					summary.Renders = append(summary.Renders, manifest)
 				}
 			}
 			if summary.Deduped > 0 {
@@ -299,8 +298,8 @@ totals, so a partial run never overstates what it produced.`,
 					summary.Deduped, summary.Count, summary.Files)
 			}
 			if len(summary.Failed) > 0 {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d lines failed; totals cover the %d render(s) that succeeded\n",
-					len(summary.Failed), len(units), summary.Count)
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d lines failed; %d API call(s) completed and %d file(s) were persisted\n",
+					len(summary.Failed), len(units), summary.Count, summary.Files)
 			}
 
 			if outErr := emitBatchSummary(cmd, flags, summary); outErr != nil {
@@ -348,11 +347,12 @@ type batchJob struct {
 // job rather than aborting the pool, so one bad line cannot discard the renders
 // that already succeeded.
 type batchResult struct {
-	job          batchJob
-	manifests    []renderManifest
-	costUSD      float64
-	paidEquivUSD float64
-	err          error
+	job                batchJob
+	manifests          []renderManifest
+	synthesisCompleted bool
+	costUSD            float64
+	paidEquivUSD       float64
+	err                error
 }
 
 // dedupeBatchUnits groups units by request hash, preserving input order.
@@ -430,6 +430,7 @@ func renderBatchJob(ctx context.Context, c *client.Client, db *store.Store, job 
 		return res
 	}
 	cost, paidEquiv := fishaudio.TTSCost(primary.req.BytesIn(), model)
+	res.synthesisCompleted = true
 	res.costUSD = cost
 	res.paidEquivUSD = paidEquiv
 
@@ -482,6 +483,25 @@ func renderBatchJob(ctx context.Context, c *client.Client, db *store.Store, job 
 	return res
 }
 
+// accumulateBatchResult retains successful units even when a later unit in
+// the same deduplicated job fails. The path set identifies unfinished lines.
+func accumulateBatchResult(summary *batchSummary, result batchResult) map[string]bool {
+	completedPaths := make(map[string]bool, len(result.manifests))
+	if result.synthesisCompleted {
+		summary.Count++
+		summary.BytesIn += result.job.units[0].req.BytesIn64()
+		summary.CostUSD += result.costUSD
+		summary.CostUSDPaidEquiv += result.paidEquivUSD
+	}
+	for _, manifest := range result.manifests {
+		completedPaths[manifest.File] = true
+		summary.BytesOut += manifest.BytesOut
+		summary.Files++
+		summary.Renders = append(summary.Renders, manifest)
+	}
+	return completedPaths
+}
+
 // enforceBudgetGuard totals the estimate and refuses to start when the API
 // credit ledger cannot cover it. The check reads the dev-API credit ledger,
 // not the subscription package: they are separate balances and a full package
@@ -528,6 +548,9 @@ func emitBatchSummary(cmd *cobra.Command, flags *rootFlags, summary batchSummary
 		summary.BytesIn, summary.BytesOut, summary.CostUSD, summary.CostUSDPaidEquiv)
 	for _, f := range summary.Failed {
 		fmt.Fprintf(out, "  failed line %d: %s\n", f.LineNo, f.Error)
+	}
+	for _, render := range summary.Renders {
+		fmt.Fprintf(out, "  render %d: %s\n", render.ID, render.File)
 	}
 	if summary.Note != "" {
 		fmt.Fprintf(out, "  note: %s\n", summary.Note)

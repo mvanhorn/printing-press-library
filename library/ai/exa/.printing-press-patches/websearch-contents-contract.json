@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "websearch-contents-contract",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260809-202528-0d1b9f8c",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Validates that websearch --contents is a JSON object or null before constructing the Exa request.",
+  "reason": "The bundled /search schema rejects scalar and array contents values, but the promoted command previously sent them to the API instead of failing locally.",
+  "files": [
+    "internal/cli/promoted_websearch.go",
+    "internal/cli/promoted_websearch_test.go"
+  ],
+  "validated_outcome": "Unit and fake-server command tests verify object/null request bodies and reject invalid values before request dispatch."
+}
