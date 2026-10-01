@@ -1,13 +1,13 @@
 {
   "status": "pass",
-  "text_files": 187,
+  "text_files": 193,
   "vendor_secret_findings": 0,
   "private_email_or_bearer_findings": 0,
-  "name_pattern_unique": 2190,
-  "name_review": "JMA public geographic catalog, API/help vocabulary, legal text, public Printing Press attribution, and test-only synthetic search queries. No customer/workspace personal data.",
+  "name_pattern_unique": 2191,
+  "name_review": "Public JMA geography, API/help vocabulary, legal text, public attribution and explicitly synthetic tests; no confidential workspace identities.",
+  "credential_files": "absent",
   "raw_transcripts": "excluded",
   "private_host_paths": "scrubbed",
-  "credential_files": "absent",
   "external_scanners": "gitleaks and trufflehog unavailable",
   "findings": []
 }

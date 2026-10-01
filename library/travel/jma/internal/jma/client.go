@@ -67,6 +67,7 @@ type Client struct {
 	started                   time.Time
 	requests                  int
 	sources                   []Source
+	cacheNotes                []string
 }
 
 func New(cache string, noCache, refresh, offline bool, timeout time.Duration) *Client {
@@ -84,7 +85,7 @@ func New(cache string, noCache, refresh, offline bool, timeout time.Duration) *C
 	return c
 }
 func (c *Client) Envelope(results any, coverage string, notes ...string) Envelope {
-	return Envelope{Meta: Meta{Provider: "Japan Meteorological Agency", Source: "first-party website JSON (normalized by jma-cli)", Timezone: "JST (UTC+09:00)", RetrievedAt: c.now().In(JST).Format(time.RFC3339), Requests: c.requests, ElapsedMS: time.Since(c.started).Milliseconds(), Coverage: coverage, Sources: c.sources, Notes: notes}, Results: results}
+	return Envelope{Meta: Meta{Provider: "Japan Meteorological Agency", Source: "first-party website JSON (normalized by jma-cli)", Timezone: "JST (UTC+09:00)", RetrievedAt: c.now().In(JST).Format(time.RFC3339), Requests: c.requests, ElapsedMS: time.Since(c.started).Milliseconds(), Coverage: coverage, Sources: c.sources, Notes: append(append([]string(nil), notes...), c.cacheNotes...)}, Results: results}
 }
 
 type cacheEntry struct {
@@ -196,9 +197,16 @@ func (c *Client) Get(ctx context.Context, path string, ttl time.Duration, out an
 			b, _ := json.Marshal(cacheEntry{now, body})
 			if e = atomicWrite(key, b); e == nil {
 				e = trimHTTPCache(filepath.Dir(key), key)
+				if e != nil {
+					// Do not grow an unusable cache after a failed bounded cleanup.
+					if removeErr := os.Remove(key); removeErr != nil && !os.IsNotExist(removeErr) {
+						c.cacheNotes = append(c.cacheNotes, "HTTP cache cleanup could not remove the newest entry; choose a fresh --cache-dir")
+					}
+				}
 			}
 			if e != nil {
-				return failure(4, "cache", "write JMA cache: %v; use --no-cache", e)
+				c.NoCache = true
+				c.cacheNotes = append(c.cacheNotes, "HTTP cache persistence unavailable; returning live source data without caching; use --no-cache or a writable --cache-dir")
 			}
 		}
 		return nil

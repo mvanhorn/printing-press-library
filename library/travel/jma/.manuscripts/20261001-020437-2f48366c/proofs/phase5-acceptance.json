@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "2763c8436b7d498e8b86be295d07957fc1a31ab402198ec96b36c2c415fb4dc9",
+  "source_fingerprint": "27660ead1b0b4e9bddc4877a62df5d47545939e9dc570d79da71e5fbffd25ad2",
   "source_files": {
     "cmd/jma-pp-cli/main.go": "58a1d2b6c6a8fc715c85ae7290c5c469b09a7fd73c7b19aa7c2aeeeb930f0979",
     "cmd/jma-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -88,7 +88,8 @@
     "internal/cliutil/text.go": "684b994811cab732d76da4a1e22f3c880108b465b4feacb36accc3f33eef9e54",
     "internal/cliutil/verifyenv.go": "5b7d3b4c92ff277883b8676f5c4f1db6e92af5b195b906944f0311f4265baa76",
     "internal/config/config.go": "e69bfafa4d7280fc7322d27e44cf655b7e2fd0eb399f8560b8cf3a9cb39117a6",
-    "internal/jma/client.go": "821870e9d9fcbf50483f9a90303c4a1c6ca192e086cad12ec0b3c9c5cff38b7e",
+    "internal/jma/cache_failure_test.go": "482068be0be49e27f7b8214e49d49d9689b4a2ced9814789eb58f5f66ebbb22b",
+    "internal/jma/client.go": "901604060cfd7c6849e618461c8fa2fa1bb8c56c1d2eb3ae8efbeefe2d84bf41",
     "internal/jma/domain_test.go": "dc3b70926bc916ba6687d214a3ed40e151714a87c62a6c1acb41c9b587b8d204",
     "internal/jma/forecast.go": "b7b72589aa8de34532cd20098fb2f81e27915050063e4c93db721c9a3cd952d3",
     "internal/jma/inventory.go": "c7ab65746d82d4cd070fbe4a450fc3c05833b5632829bfe2085a0fb82b61f329",

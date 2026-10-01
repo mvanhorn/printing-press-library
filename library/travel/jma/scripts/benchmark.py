@@ -6,7 +6,7 @@ cases={'forecast':['forecast','get','--area','130010'],'warnings':['warnings','g
 base=['--cache-dir',str(root/'evidence/cache'),'--home',str(root/'evidence/home')]
 for name,args in cases.items():
  for mode in ['uncached-forced-refresh','cached']:
-  cmd=[str(root/'jma-pp-cli'),*args,*base]+(['--refresh'] if mode.startswith('uncached') else [])
+  cmd=[str(root/'bin/jma-pp-cli'),*args,*base]+(['--refresh'] if mode.startswith('uncached') else [])
   v=subprocess.run(['/usr/bin/time','-l',*cmd],capture_output=True,timeout=65)
   (p/(name+'-'+mode+'.json')).write_bytes(v.stdout);(p/(name+'-'+mode+'.time')).write_bytes(v.stderr)
   try:

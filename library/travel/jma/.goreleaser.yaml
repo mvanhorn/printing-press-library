@@ -11,7 +11,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - -s -w -X jma-pp-cli/internal/cli.version={{ .Version }}
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/jma/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
