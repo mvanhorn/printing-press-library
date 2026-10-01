@@ -6,7 +6,7 @@ Gives agents and people the most comprehensive, credible open-shelter picture av
 
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Live occupancy is attached only when both ZIP codes match. If either ZIP is missing, the street addresses must match instead. A name and state alone are not enough to attach operational population or incident details.
+Live occupancy is attached only when both ZIP codes match and the cities do not conflict. If either ZIP is missing, both street addresses and cities must match instead. A name and state alone are not enough to attach operational population or incident details.
 
 ## Install from source
 

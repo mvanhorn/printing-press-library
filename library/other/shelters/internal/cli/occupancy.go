@@ -7,7 +7,7 @@
 // reports total_population, the general/medical/other/pet breakdown, the
 // evacuation/post-impact capacity, and the driving incident. This file fetches
 // that layer best-effort and overlays it onto the public union, matched on
-// physical identity (normalized name + state + compatible ZIP) because its
+// physical identity (normalized name + state + ZIP, or street and city) because its
 // SHELTER_ID is an ARC-internal id, NOT FEMA's stable shelter_id.
 //
 // IMPORTANT (visibility): Open_Shelters is the Red Cross OPERATIONAL roster and
@@ -136,8 +136,9 @@ func cleanCity(s string) string {
 // FEMA-union-Red-Cross) PUBLIC feed as a FILL-ONLY pass. An occupancy row is the
 // same physical shelter as a unioned row when their alphanumeric-normalized names
 // and states match AND their 5-digit ZIPs are equal. When either ZIP is absent,
-// both rows must also carry the same normalized street address; a missing ZIP is
-// never treated as a wildcard for this privacy-sensitive operational overlay.
+// both rows must also carry the same normalized street address and city. Where
+// both cities are known, they must agree even if the ZIPs match. A missing ZIP
+// is never treated as a wildcard for this privacy-sensitive operational overlay.
 // Open_Shelters has no FEMA shelter_id to join on. On a match the live occupancy
 // (and any still-empty descriptive gaps) are filled in via fillOccupancy and
 // "+occupancy" is appended to the row's provenance.
@@ -164,12 +165,10 @@ func overlayOccupancy(base, occ []Shelter) (out []Shelter, filled, withheld, amb
 		}
 		k := normName(r.Name) + "|" + r.State
 		candidates := make([]int, 0, len(idx[k]))
-		unmergedKeyMatches := 0
 		for _, ci := range idx[k] {
 			if merged[ci] {
 				continue
 			}
-			unmergedKeyMatches++
 			if occupancyIdentityCompatible(out[ci], r) {
 				candidates = append(candidates, ci)
 			}
@@ -177,11 +176,7 @@ func overlayOccupancy(base, occ []Shelter) (out []Shelter, filled, withheld, amb
 		matched := -1
 		switch len(candidates) {
 		case 0:
-			if unmergedKeyMatches > 1 {
-				ambiguous++
-			} else {
-				withheld++
-			}
+			withheld++
 			continue
 		case 1:
 			matched = candidates[0]
@@ -218,14 +213,19 @@ func overlayOccupancy(base, occ []Shelter) (out []Shelter, filled, withheld, amb
 // ZIP. Name and state are already equal at the call site, but those fields are
 // not unique enough to attach population and incident data from the operational
 // roster. In that case, an exact normalized street-address match supplies the
-// independent corroboration required to merge the records safely.
+// independent corroboration required to merge the records safely. Different
+// known cities reject a match even if the names, states and ZIPs are equal.
 func occupancyIdentityCompatible(public, operational Shelter) bool {
+	publicCity, operationalCity := normName(cleanCity(public.City)), normName(cleanCity(operational.City))
+	if publicCity != "" && operationalCity != "" && publicCity != operationalCity {
+		return false
+	}
 	publicZIP, operationalZIP := zip5(public.Zip), zip5(operational.Zip)
 	if publicZIP != "" && operationalZIP != "" {
 		return publicZIP == operationalZIP
 	}
 	publicStreet, operationalStreet := streetKey(public.Address), streetKey(operational.Address)
-	return publicStreet != "" && operationalStreet != "" && publicStreet == operationalStreet
+	return publicCity != "" && operationalCity != "" && publicStreet != "" && operationalStreet != "" && publicStreet == operationalStreet
 }
 
 // fillOccupancy folds an Open_Shelters record onto a unioned shelter. The
@@ -339,7 +339,7 @@ func applyOccupancyOverlay(ctx context.Context, flags *rootFlags, feed *shelterF
 	feed.Shelters, filled, withheld, ambiguous = overlayOccupancy(feed.Shelters, occ)
 	note := fmt.Sprintf("Merged live occupancy onto %d publicly listed shelter(s).", filled)
 	if withheld > 0 {
-		note += fmt.Sprintf(" Withheld %d shelter(s) listed only in the Red Cross operational roster and not in either public feed; the CLI shows only publicly listed shelters.", withheld)
+		note += fmt.Sprintf(" Withheld occupancy for %d operational shelter row(s) that could not be confidently matched to a public shelter; the CLI shows only publicly listed shelters.", withheld)
 	}
 	if ambiguous > 0 {
 		note += fmt.Sprintf(" Withheld occupancy for %d shelter row(s) because more than one public shelter matched; no population was assigned ambiguously.", ambiguous)
