@@ -8,7 +8,12 @@
     "handle": "Rowdy",
     "name": "Johns"
   },
-  "contributors": [],
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "printer": "Rowdy",
   "printer_name": "Johns",
   "spec_url": "https://www.devontechnologies.com/blog/20260526-devonthink-mcp-server",

@@ -22,7 +22,7 @@ func newInventoryPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Export databases, groups, tags, and selected document metadata for downstream tools",
 		Long:        "Export databases, groups, tags, and selected document metadata for downstream tools",
 		Example:     "  devonthink-pp-cli inventory",
-		Annotations: map[string]string{"pp:endpoint": "inventory.export", "pp:method": "GET", "pp:path": "/inventory/export", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "inventory.export", "pp:method": "GET", "pp:path": "/inventory/export"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

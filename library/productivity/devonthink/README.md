@@ -4,6 +4,8 @@
 
 Use DEVONthink as the local source of truth while giving agents and scripts stable, compact CLI output. The CLI wraps the official local MCP surface, adds search scopes, inventory export, context packing, local mirrors, and safety-oriented workflow primitives.
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `devonthink-pp-cli` binary and the `pp-devonthink` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

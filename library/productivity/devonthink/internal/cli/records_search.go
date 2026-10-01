@@ -58,7 +58,8 @@ func newRecordsSearchCmd(flags *rootFlags) *cobra.Command {
 			if flagLimit != 0 {
 				params["limit"] = formatCLIParamValue(flagLimit)
 			}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "records", true, path, params, nil, cmd.ErrOrStderr())
+			strategy := recordsSearchStrategy(flagSmartGroup)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, strategy, "records", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -117,4 +118,14 @@ func newRecordsSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "Maximum records to return")
 
 	return cmd
+}
+
+func recordsSearchStrategy(smartGroup string) string {
+	if smartGroup != "" {
+		// Smart Groups are dynamic DEVONthink scopes. Cached resource rows
+		// cannot reproduce membership, so never silently fall back to the
+		// unscoped mirror after resolving one successfully.
+		return "live"
+	}
+	return "auto"
 }

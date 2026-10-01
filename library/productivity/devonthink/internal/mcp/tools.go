@@ -168,7 +168,6 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("format", mcplib.Description("Export format: maintenance, llm-wiki, raw")),
 			mcplib.WithBoolean("include-text", mcplib.Description("Include extracted text where safe")),
 			mcplib.WithString("output", mcplib.Description("Output JSON path")),
-			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),

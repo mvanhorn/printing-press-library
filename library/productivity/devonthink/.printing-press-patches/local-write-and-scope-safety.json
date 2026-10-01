@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "local-write-and-scope-safety",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260629T175310Z-b4705e85",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Blocked local writes must fail visibly, Smart Group searches must retain their live scope, and inventory exports with output paths must not be marked read-only.",
+  "reason": "A blocked batch apply could look successful, a failed scoped search could fall back to unrelated cached records, and an export that writes a local file was advertised as read-only to MCP callers.",
+  "files": [
+    ".printing-press.json",
+    "NOTICE",
+    "README.md",
+    "internal/client/local_devonthink.go",
+    "internal/client/local_devonthink_test.go",
+    "internal/cli/records_search.go",
+    "internal/cli/records_search_test.go",
+    "internal/cli/inventory_export.go",
+    "internal/cli/inventory_export_test.go",
+    "internal/cli/promoted_inventory.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Synthetic tests verify blocked writes return an API error, Smart Group searches select live reads, and inventory export commands are not annotated read-only."
+}

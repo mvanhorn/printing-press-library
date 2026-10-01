@@ -7,6 +7,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
 
 func executeNovelDryRun(t *testing.T, args ...string) map[string]any {
@@ -38,5 +40,17 @@ func TestNovelInventoryExportCommandDryRun(t *testing.T) {
 	}
 	if params["format"] != "maintenance" || params["query"] != "kind:pdf" || params["limit"] != "3" {
 		t.Fatalf("params = %#v", params)
+	}
+}
+
+func TestInventoryExportCommandsAreNotMarkedReadOnly(t *testing.T) {
+	var flags rootFlags
+	for name, cmd := range map[string]*cobra.Command{
+		"inventory export": newNovelInventoryExportCmd(&flags),
+		"inventory":        newInventoryPromotedCmd(&flags),
+	} {
+		if cmd.Annotations["mcp:read-only"] != "" {
+			t.Fatalf("%s is marked read-only despite accepting an output path", name)
+		}
 	}
 }

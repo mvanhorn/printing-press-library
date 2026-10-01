@@ -48,12 +48,22 @@ func (c *Client) doLocalDEVONthink(ctx context.Context, method, path string, par
 	}
 
 	if isMutatingVerb(method) && !(path == "/mcp/call" && localMCPToolLooksReadOnly(params["tool"])) {
-		return localJSON(map[string]any{
+		blocked := map[string]any{
 			"status":  "blocked",
 			"method":  method,
 			"path":    path,
 			"message": "Local write support is intentionally gated in this build. Re-run with --dry-run to preview, or use batch plan/apply after reviewing the generated plan.",
-		})
+		}
+		data, _, err := localJSON(blocked)
+		if err != nil {
+			return nil, 0, err
+		}
+		return data, http.StatusForbidden, &APIError{
+			Method:     method,
+			Path:       path,
+			StatusCode: http.StatusForbidden,
+			Body:       strings.TrimSpace(string(data)),
+		}
 	}
 
 	switch {
