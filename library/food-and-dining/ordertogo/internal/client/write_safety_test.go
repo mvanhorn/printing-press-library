@@ -4,7 +4,9 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -28,6 +30,9 @@ func TestAmbiguousWritesNeverReplay(t *testing.T) {
 					calls := 0
 					c.HTTPClient.Transport = writeSafetyTransport(func(req *http.Request) (*http.Response, error) {
 						calls++
+						if req.GetBody != nil {
+							t.Error("write request permits net/http to replay its body")
+						}
 						if status == 0 {
 							return nil, errors.New("synthetic reset after possible commit")
 						}
@@ -65,6 +70,57 @@ func TestWriteRedirectNeverReplaysPaymentBody(t *testing.T) {
 				t.Fatalf("redirect error=%v calls=%d; want error and exactly one POST", err, calls)
 			}
 		})
+	}
+}
+
+func TestCheckoutPostDoesNotReplayAfterReusedConnectionDrop(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+	var mu sync.Mutex
+	var warmupAddress string
+	postCount := 0
+	reusedConnection := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/warmup" {
+			mu.Lock()
+			warmupAddress = r.RemoteAddr
+			mu.Unlock()
+			_, _ = io.WriteString(w, "ready")
+			return
+		}
+		if r.Method != http.MethodPost || r.URL.Path != "/m/api/postmicmeshorder" {
+			t.Errorf("unexpected mock request %s %s", r.Method, r.URL.Path)
+			return
+		}
+		_, _ = io.Copy(io.Discard, r.Body)
+		mu.Lock()
+		postCount++
+		reusedConnection = reusedConnection || r.RemoteAddr == warmupAddress
+		mu.Unlock()
+		connection, _, err := w.(http.Hijacker).Hijack()
+		if err != nil {
+			t.Errorf("hijack mock checkout connection: %v", err)
+			return
+		}
+		_ = connection.Close() // Simulate a lost response after possible commit.
+	}))
+	defer server.Close()
+	c := New(&config.Config{
+		BaseURL: server.URL, AuthHeaderVal: "fixture-token",
+		Headers: map[string]string{"Idempotency-Key": "fixture-key"},
+	}, time.Second, 0)
+	c.cacheDir = t.TempDir()
+	response, err := c.HTTPClient.Get(server.URL + "/warmup")
+	if err != nil {
+		t.Fatalf("warm reusable connection: %v", err)
+	}
+	_, _ = io.Copy(io.Discard, response.Body)
+	_ = response.Body.Close()
+	_, _, err = c.do(http.MethodPost, "/m/api/postmicmeshorder", nil, map[string]any{"value": "once"}, nil)
+	mu.Lock()
+	defer mu.Unlock()
+	if err == nil || postCount != 1 || !reusedConnection {
+		t.Fatalf("checkout error=%v posts=%d reused_connection=%t; want error after one POST on the warmed connection", err, postCount, reusedConnection)
 	}
 }
 

@@ -33,6 +33,7 @@ func TestWindowsCheckoutRegistryReservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reserve checkout: %v", err)
 	}
+	defer first.Release()
 	data, err := readPendingPlacement(pendingPlaceRecordPath())
 	if err != nil || !strings.Contains(string(data), first.RequestID) {
 		t.Fatalf("durable registry reservation missing: %v", err)
@@ -65,6 +66,7 @@ func TestWindowsCheckoutRegistryReservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reserve after explicit clear: %v", err)
 	}
+	defer second.Release()
 	if second.RequestID == first.RequestID {
 		t.Fatal("new checkout reused the old request ID")
 	}
@@ -79,6 +81,7 @@ func TestWindowsCheckoutRegistryReservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("acknowledge confirmed order: %v", err)
 	}
+	defer third.Release()
 	third.Release()
 	if _, err := readPendingPlacement(confirmedPlaceRecordPath()); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("acknowledged checkout retained registry receipt: %v", err)

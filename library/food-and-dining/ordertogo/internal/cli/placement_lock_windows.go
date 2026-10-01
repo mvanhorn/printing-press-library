@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"sync/atomic"
@@ -34,8 +35,17 @@ func acquirePlacementLock(string) (func(), error) {
 		return nil, err
 	}
 	handle, err := windows.CreateMutex(nil, false, name)
-	if err != nil {
+	// x/sys/windows returns ERROR_ALREADY_EXISTS together with a valid
+	// handle when another process created the mutex first. Waiting on that
+	// same handle is what gives us the cross-process exclusion.
+	if handle == 0 || (err != nil && !errors.Is(err, windows.ERROR_ALREADY_EXISTS)) {
+		if handle != 0 {
+			_ = windows.CloseHandle(handle)
+		}
 		placementInProcess.Store(false)
+		if err == nil {
+			return nil, fmt.Errorf("Windows checkout mutex returned an invalid handle")
+		}
 		return nil, err
 	}
 	// A Windows mutex is owned by an OS thread. Keep this goroutine on that

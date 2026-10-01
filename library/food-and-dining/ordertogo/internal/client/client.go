@@ -294,6 +294,12 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if requestID != "" && req.Header.Get("__requestid") == "" {
 			req.Header.Set("__requestid", requestID)
 		}
+		if !canRetryAmbiguousFailure {
+			// net/http.Transport can replay a write on a reused connection when
+			// an Idempotency-Key header and GetBody are both present. The CLI
+			// cannot assume the provider actually deduplicates that header.
+			req.GetBody = nil
+		}
 
 		resp, err := httpClient.Do(req)
 		if err != nil {
