@@ -186,6 +186,25 @@ func isDSMAuthCall(path, method string) bool {
 	return strings.Contains(path, "api=SYNO.API.Auth") && strings.Contains(path, "method="+method)
 }
 
+// DSM uses GET for these state-changing RPCs. Treat the API and method as
+// the operation identity rather than relying on the HTTP verb.
+func isDSMMutatingGet(path string) bool {
+	u, err := url.Parse(path)
+	if err != nil || u.Path != "/webapi/entry.cgi" {
+		return false
+	}
+	q := u.Query()
+	switch q.Get("api") + ":" + q.Get("method") {
+	case "SYNO.FileStation.CopyMove:start", "SYNO.FileStation.CopyMove:stop",
+		"SYNO.FileStation.Delete:start", "SYNO.FileStation.Delete:stop",
+		"SYNO.FileStation.CreateFolder:create", "SYNO.FileStation.Rename:rename",
+		"SYNO.FileStation.Search:start", "SYNO.FileStation.Search:stop",
+		"SYNO.API.Auth:login", "SYNO.API.Auth:logout":
+		return true
+	}
+	return false
+}
+
 // dsmCredentials carries what a login needs. Credentials come from flags (via
 // `session login`) or from the environment, never from a file this CLI writes:
 // the session record on disk holds the sid and the SynoToken, never a password.

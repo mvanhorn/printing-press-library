@@ -1,6 +1,7 @@
 package mcp
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -11,6 +12,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/devices/synology/internal/mcp/bound"
 )
 
 func TestDSMRemoteMutationsAreNotReadOnly(t *testing.T) {
@@ -75,5 +77,53 @@ func TestDSMDownloadReturnsOriginalBinary(t *testing.T) {
 	decoded, err := base64.StdEncoding.DecodeString(output.Data)
 	if err != nil || string(decoded) != string(payload) || output.Count != len(payload) {
 		t.Fatalf("download bytes changed: %q count=%d err=%v", decoded, output.Count, err)
+	}
+}
+
+func TestDSMDownloadDoesNotInterpretJSONFileAsTransportEnvelope(t *testing.T) {
+	resetMCPPathEnv(t)
+	payload := []byte(`{"_pp_binary":true,"encoding":"base64","bytes":3,"data":"Zm9v"}`)
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(payload)
+	}))
+	defer fixture.Close()
+	t.Setenv("SYNOLOGY_BASE_URL", fixture.URL)
+	s := server.NewMCPServer("test", "test")
+	RegisterTools(s)
+	result, err := s.GetTool("files_download").Handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "files_download", Arguments: map[string]any{"path": `["/fixture.json"]`}}})
+	if err != nil || result.IsError {
+		t.Fatalf("download JSON file: %#v %v", result, err)
+	}
+	var output struct {
+		Data string `json:"data_base64"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &output); err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := base64.StdEncoding.DecodeString(output.Data)
+	if err != nil || !bytes.Equal(decoded, payload) {
+		t.Fatalf("download changed JSON file bytes: error=%v", err)
+	}
+}
+
+func TestDSMDownloadOverLimitReturnsErrorWithoutTruncation(t *testing.T) {
+	resetMCPPathEnv(t)
+	payload := bytes.Repeat([]byte("x"), bound.MaxBytes)
+	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/octet-stream")
+		_, _ = w.Write(payload)
+	}))
+	defer fixture.Close()
+	t.Setenv("SYNOLOGY_BASE_URL", fixture.URL)
+	s := server.NewMCPServer("test", "test")
+	RegisterTools(s)
+	result, err := s.GetTool("files_download").Handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Name: "files_download", Arguments: map[string]any{"path": `["/large.bin"]`}}})
+	if err != nil || !result.IsError {
+		t.Fatalf("oversized download should fail explicitly: result=%#v err=%v", result, err)
+	}
+	message := mcpTextContent(t, result)
+	if !strings.Contains(message, "too large") || !strings.Contains(message, "companion CLI download") {
+		t.Fatalf("oversized download needs clear CLI fallback: %q", message)
 	}
 }

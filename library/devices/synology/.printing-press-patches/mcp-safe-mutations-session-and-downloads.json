@@ -4,13 +4,16 @@
   "applied_at": "2026-09-20",
   "base_run_id": "20260824-135140",
   "base_printing_press_version": "4.29.0",
-  "summary": "MCP must disclose DSM mutations, redact login credentials, and return complete decoded downloads or explicit size errors.",
-  "reason": "DSM uses GET for state-changing operations and embeds live credentials and binary transport envelopes in responses; generic read-only and text handling are unsafe.",
+  "summary": "DSM GET-shaped writes must bypass cache and ambiguous retries; MCP must disclose their effects, redact login credentials, and return complete decoded downloads or explicit size errors.",
+  "reason": "DSM uses GET for state-changing operations and embeds live credentials and binary transport envelopes in responses; generic GET retry/cache, read-only annotations and text handling are unsafe.",
   "files": [
     "internal/mcp/tools.go",
     "internal/mcp/security_regression_test.go",
     "internal/cli/session_redact.go",
     "internal/client/binary_decode.go",
+    "internal/client/client.go",
+    "internal/client/synology.go",
+    "internal/client/synology_mutating_get_test.go",
     "internal/cliutil/credentials_test.go"
   ],
   "validated_outcome": "Credential precedence tests verify stored credentials while preserving DSM session authentication without an Authorization header."
