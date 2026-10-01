@@ -80,3 +80,36 @@ func TestDoctorDoesNotClaimUnrelatedSiblingJSONForExplicitConfig(t *testing.T) {
 		t.Fatalf("doctor suggested scrubbing unrelated config: %q", warning)
 	}
 }
+
+func TestDoctorWarnsWhenLegacyJSONCannotBeInspected(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("FORKABLE_HOME", "")
+	t.Setenv("FORKABLE_CONFIG", "")
+	t.Setenv("XDG_CONFIG_HOME", "")
+	configDir := filepath.Join(home, ".config", "forkable-pp-cli")
+	if err := os.MkdirAll(configDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(configDir, "config.toml"), []byte("base_url = \"https://current.example\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	malformedPath := filepath.Join(configDir, "config.json")
+	if err := os.WriteFile(malformedPath, []byte(`{"access_token":`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	report := map[string]any{}
+	collectCredentialsLocationReport(report, cfg)
+	paths, ok := report["credentials_uninspected_locations"].([]string)
+	if !ok || len(paths) != 1 || paths[0] != malformedPath {
+		t.Fatalf("doctor did not identify unreadable legacy file: %v", report)
+	}
+	warning, _ := report["credentials_location_warning"].(string)
+	if !strings.Contains(warning, malformedPath) || !strings.Contains(warning, "WARN") {
+		t.Fatalf("doctor did not warn about unreadable legacy file: %q", warning)
+	}
+}

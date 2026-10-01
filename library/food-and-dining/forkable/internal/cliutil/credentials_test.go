@@ -322,7 +322,7 @@ func TestMalformedLegacyJSONFailsRatherThanUsingDefaults(t *testing.T) {
 	}
 }
 
-func TestMalformedCoexistingJSONFailsBeforeAuthStateChanges(t *testing.T) {
+func TestMalformedCoexistingJSONPreservesSetTokenAndWarnsOnLogout(t *testing.T) {
 	for _, action := range []string{"set-token", "logout"} {
 		t.Run(action, func(t *testing.T) {
 			_, configPath := resetCredentialEnv(t)
@@ -351,22 +351,31 @@ func TestMalformedCoexistingJSONFailsBeforeAuthStateChanges(t *testing.T) {
 			} else {
 				err = cfg.ClearTokens()
 			}
-			if err == nil || !strings.Contains(err.Error(), legacyJSONPath) {
-				t.Fatalf("%s should reject malformed legacy JSON before changing auth state: %v", action, err)
+			if action == "set-token" && (err == nil || !strings.Contains(err.Error(), legacyJSONPath)) {
+				t.Fatalf("set-token should reject malformed legacy JSON before changing auth state: %v", err)
+			}
+			if action == "logout" && (err != nil || cfg.LegacyScrubWarning == "") {
+				t.Fatalf("logout should clear active credentials with a cleanup warning: %v", err)
 			}
 			gotActive, err := os.ReadFile(configPath)
-			if err != nil || !bytes.Equal(gotActive, activeData) {
-				t.Fatalf("%s changed active config after preflight failed: %v", action, err)
+			if err != nil {
+				t.Fatal(err)
 			}
-			creds, ok, err := cliutil.LoadCredentials()
+			if action == "set-token" && !bytes.Equal(gotActive, activeData) {
+				t.Fatal("set-token changed active config after preflight failed")
+			}
+			if action == "logout" && (strings.Contains(string(gotActive), "old-synthetic-token") || !strings.Contains(string(gotActive), "https://current.example")) {
+				t.Fatal("logout did not preserve active non-secret settings")
+			}
+			_, ok, err := cliutil.LoadCredentials()
 			if err != nil {
 				t.Fatal(err)
 			}
 			if action == "set-token" && ok {
 				t.Fatal("set-token changed credentials after preflight failed")
 			}
-			if action == "logout" && (!ok || credentialValue(creds) != "old-synthetic-token" || cfg.AccessToken != "old-synthetic-token") {
-				t.Fatal("logout cleared credentials after preflight failed")
+			if action == "logout" && (ok || cfg.AccessToken != "") {
+				t.Fatal("logout left active credentials in place")
 			}
 		})
 	}

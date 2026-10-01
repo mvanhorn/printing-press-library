@@ -4,14 +4,15 @@
   "applied_at": "2026-08-10",
   "base_run_id": "20260717-100008-2c197495",
   "base_printing_press_version": "4.28.0",
-  "summary": "Keep Forkable settings in config.toml, preflight old settings before auth writes, and scrub only app-owned legacy credential locations.",
-  "reason": "Malformed coexisting JSON must fail before credentials change; explicit settings paths may share a folder with unrelated files, while app-managed relocated homes need their own legacy JSON scrubbed and reported honestly.",
+  "summary": "Keep Forkable settings in config.toml, preflight legacy files before adding credentials, and clear active credentials on logout while warning about unreadable old files.",
+  "reason": "Malformed coexisting JSON must not cause set-token to change auth state before reporting failure, and must not prevent logout from clearing active credentials. Explicit settings paths may share a folder with unrelated files, while app-managed homes need their own legacy JSON scrubbed or flagged honestly.",
   "files": [
     "internal/config/config.go",
     "internal/cliutil/credentials_test.go",
     "internal/cli/doctor.go",
     "internal/cli/doctor_legacy_json_test.go",
+    "internal/cli/auth.go",
     "internal/mcp/tools_test.go"
   ],
-  "validated_outcome": "The full Forkable test, vet, and build suites pass, including failed preflight preserving auth state and doctor ignoring unrelated sibling JSON."
+  "validated_outcome": "Synthetic tests prove failed set-token preflight preserves auth state, logout clears active credentials with a warning for malformed legacy JSON, and doctor identifies the unreadable path without claiming unrelated sibling files."
 }

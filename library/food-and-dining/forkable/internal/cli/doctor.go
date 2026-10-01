@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -413,8 +414,13 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 		locations = append(locations, "credentials file")
 	}
 	legacySecretsElsewhere := ""
+	var uninspected []string
 	for _, path := range legacyCredentialProbePaths(cfg) {
 		ok, err := config.FileHasCredentialFields(path)
+		if err != nil && !os.IsNotExist(err) {
+			uninspected = append(uninspected, path)
+			continue
+		}
 		if err == nil && ok {
 			locations = append(locations, path)
 			if path != cfg.Path {
@@ -433,6 +439,14 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 		} else {
 			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth set-token or auth logout to consolidate"
 		}
+	}
+	if len(uninspected) > 0 {
+		report["credentials_uninspected_locations"] = uninspected
+		warning := "WARN could not inspect legacy settings at " + strings.Join(uninspected, ", ") + "; they may still contain credentials"
+		if existing, ok := report["credentials_location_warning"].(string); ok && existing != "" {
+			warning = existing + "; " + warning
+		}
+		report["credentials_location_warning"] = warning
 	}
 }
 

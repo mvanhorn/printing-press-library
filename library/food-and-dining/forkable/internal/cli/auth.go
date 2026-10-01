@@ -386,7 +386,17 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err := cfg.ClearTokens(); err != nil {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
+			if flags.asJSON {
+				out := map[string]any{"logged_out": true, "active_credentials_cleared": true}
+				if cfg.LegacyScrubWarning != "" {
+					out["legacy_cleanup_warning"] = cfg.LegacyScrubWarning
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Active credentials cleared.")
+			if cfg.LegacyScrubWarning != "" {
+				fmt.Fprintln(cmd.ErrOrStderr(), "WARN "+cfg.LegacyScrubWarning)
+			}
 			return nil
 		},
 	}

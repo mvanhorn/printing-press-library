@@ -17,12 +17,15 @@ import (
 )
 
 type Config struct {
-	BaseURL            string            `json:"base_url" toml:"base_url"`
-	AuthHeaderVal      string            `json:"auth_header" toml:"auth_header"`
-	Headers            map[string]string `json:"headers,omitempty" toml:"headers,omitempty"`
-	AuthSource         string            `json:"-" toml:"-"`
-	CredentialSource   string            `json:"-" toml:"-"`
-	AgentcookieManaged bool              `json:"-" toml:"-"`
+	BaseURL          string            `json:"base_url" toml:"base_url"`
+	AuthHeaderVal    string            `json:"auth_header" toml:"auth_header"`
+	Headers          map[string]string `json:"headers,omitempty" toml:"headers,omitempty"`
+	AuthSource       string            `json:"-" toml:"-"`
+	CredentialSource string            `json:"-" toml:"-"`
+	// LegacyScrubWarning reports cleanup that logout could not complete after
+	// clearing active credentials. It never includes file contents.
+	LegacyScrubWarning string `json:"-" toml:"-"`
+	AgentcookieManaged bool   `json:"-" toml:"-"`
 	// configOwner records which on-disk file parseConfigData populated this
 	// config from ("config-kind path" or "legacy config path") so the
 	// credential-source fallback below reports where config-stored
@@ -362,9 +365,7 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
-	if err := c.preflightLegacyCredentialScrub(); err != nil {
-		return err
-	}
+	c.LegacyScrubWarning = ""
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
 	// zeroing every emitted credential field, not just the OAuth trio.
@@ -396,10 +397,12 @@ func (c *Config) ClearTokens() error {
 		// back; returning early would leave the secrets on disk.
 		return c.save()
 	}
-	if err := cliutil.RemoveCredentials(); err != nil {
+	// A malformed old JSON file must not block logout. The active config is
+	// cleared first; legacy cleanup is best effort and reported separately.
+	if err := c.saveWithLegacyScrubWarning(); err != nil {
 		return err
 	}
-	return c.save()
+	return cliutil.RemoveCredentials()
 }
 
 func (c *Config) markEnvOverride(field string) {
@@ -464,6 +467,14 @@ func (c *Config) updateFileConfigField(field string) {
 }
 
 func (c *Config) save() error {
+	return c.saveWithLegacyScrub(false)
+}
+
+func (c *Config) saveWithLegacyScrubWarning() error {
+	return c.saveWithLegacyScrub(true)
+}
+
+func (c *Config) saveWithLegacyScrub(allowLegacyWarning bool) error {
 	persisted := c.configForSave()
 	var persist any = persisted
 	if !c.AgentcookieManagedByExternalStore() {
@@ -477,7 +488,10 @@ func (c *Config) save() error {
 		return err
 	}
 	if err := c.scrubLegacyCredentials(); err != nil {
-		return err
+		if !allowLegacyWarning {
+			return err
+		}
+		c.LegacyScrubWarning = "A legacy settings file could not be checked or scrubbed. Run doctor to identify the file; it may still contain credentials."
 	}
 	if !c.AgentcookieManagedByExternalStore() {
 		persisted.clearCredentialFields()
