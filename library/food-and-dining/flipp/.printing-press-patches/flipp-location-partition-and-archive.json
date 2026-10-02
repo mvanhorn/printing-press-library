@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260627-124259-5ec5d802",
   "base_printing_press_version": "4.27.0",
-  "summary": "Partition Flipp flyer, merchant, and cached item storage, sync checkpoints, local reads, searches, MCP search, and archive by explicit postal code and locale; keep no-market clipping reads live-only.",
-  "reason": "The same API ID can describe different markets; a default postal code or unscoped database key can overwrite one market with another, and an archive that requests no resources falsely reports success.",
+  "summary": "Partition Flipp flyer, merchant, and cached item storage, sync checkpoints, local reads, searches, MCP search, and archive by explicit postal code and locale; keep no-market clipping reads live-only and reject any advertised extra page.",
+  "reason": "The same API ID can describe different markets; a default postal code or unscoped database key can overwrite one market with another, and an archive that requests no resources or misses nested pagination metadata falsely reports success.",
   "files": [
     "internal/cli/auto_refresh.go",
     "internal/cli/channel_workflow.go",

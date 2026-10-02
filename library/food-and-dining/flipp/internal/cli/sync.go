@@ -1014,6 +1014,17 @@ func extractPageItems(data json.RawMessage, cursorParam string, responsePaths ..
 	// Preserve that metadata so archive does not mistake it for a complete
 	// empty response.
 	nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+	for _, key := range dataEnvelopeKeys {
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(envelope[key], &inner) != nil || inner == nil {
+			continue
+		}
+		innerCursor, innerHasMore := extractPaginationFromEnvelope(inner, cursorParam)
+		if nextCursor == "" {
+			nextCursor = innerCursor
+		}
+		hasMore = hasMore || innerHasMore
+	}
 	return nil, nextCursor, hasMore
 }
 
