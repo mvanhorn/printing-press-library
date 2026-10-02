@@ -46,8 +46,9 @@ type rootFlags struct {
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
-	deliverBuf  *bytes.Buffer
-	deliverSink DeliverSink
+	deliverBuf              *bytes.Buffer
+	deliverSink             DeliverSink
+	afterSuccessfulDelivery func() error
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -80,17 +81,8 @@ func Execute() error {
 			}
 		}
 	}
-	if err == nil && flags.deliverBuf != nil {
-		// Fresh context: the command's own ctx was cancelled when Execute
-		// returned, so inheriting it would abort every delivery. boundCtx
-		// applies --timeout (and leaves it unbounded at --timeout 0).
-		dctx, dcancel := boundCtx(context.Background(), &flags)
-		derr := Deliver(dctx, flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact)
-		dcancel()
-		if derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
+	if err == nil {
+		err = finishSuccessfulCommand(&flags)
 	}
 	if err != nil && isCobraUsageError(err) {
 		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
@@ -102,6 +94,28 @@ func Execute() error {
 		return usageErr(err)
 	}
 	return err
+}
+
+// finishSuccessfulCommand delivers captured output before committing any
+// command state that would acknowledge that output. This ordering gives
+// tracking commands at-least-once delivery semantics.
+func finishSuccessfulCommand(flags *rootFlags) error {
+	if flags.deliverBuf != nil {
+		// Fresh context: the command's own ctx was cancelled when Execute
+		// returned, so inheriting it would abort every delivery. boundCtx
+		// applies --timeout (and leaves it unbounded at --timeout 0).
+		dctx, dcancel := boundCtx(context.Background(), flags)
+		derr := Deliver(dctx, flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact)
+		dcancel()
+		if derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	if flags.afterSuccessfulDelivery != nil {
+		return flags.afterSuccessfulDelivery()
+	}
+	return nil
 }
 
 // isCobraUsageError reports whether err matches one of Cobra/pflag's

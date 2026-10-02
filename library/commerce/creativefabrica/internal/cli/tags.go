@@ -28,6 +28,12 @@ styles.`,
 		Example:     strings.Trim("\n  creativefabrica-pp-cli tags \"christmas\" --agent\n  creativefabrica-pp-cli tags \"svg\" --limit 25 --categories", "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit <= 0 {
+				return usageErr(fmt.Errorf("--limit must be greater than zero"))
+			}
+			if sample < 1 || sample > 100 {
+				return usageErr(fmt.Errorf("--sample must be between 1 and 100"))
+			}
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}
@@ -41,9 +47,6 @@ styles.`,
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := newAlgoliaClient(flags)
-			if sample > 100 {
-				sample = 100
-			}
 			req := algolia.SearchRequest{IndexName: algolia.IndexRelevance, Query: args[0], HitsPerPage: sample}
 			if categoriesToo {
 				req.Facets = []string{"category"}

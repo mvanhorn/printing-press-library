@@ -55,8 +55,26 @@ type catalogQuery struct {
 	limit          int
 }
 
+func (q catalogQuery) validate() error {
+	if q.page < 0 {
+		return fmt.Errorf("--page must be zero or greater")
+	}
+	if q.limit < 1 || q.limit > 100 {
+		return fmt.Errorf("--limit must be between 1 and 100")
+	}
+	if q.maxPrice < 0 {
+		return fmt.Errorf("--max-price must be zero or greater")
+	}
+	switch strings.ToLower(strings.TrimSpace(q.sortBy)) {
+	case "relevance", "newest":
+		return nil
+	default:
+		return fmt.Errorf("--sort must be relevance or newest")
+	}
+}
+
 func (q catalogQuery) index() string {
-	if strings.EqualFold(q.sortBy, "newest") {
+	if strings.EqualFold(strings.TrimSpace(q.sortBy), "newest") {
 		return algolia.IndexNewest
 	}
 	return algolia.IndexRelevance
@@ -339,6 +357,9 @@ func printProducts(cmd *cobra.Command, flags *rootFlags, views []productView) er
 // runCatalogSearch executes a query (server filters + local post-filters) and
 // prints the results. Shared by find/free/pod.
 func runCatalogSearch(cmd *cobra.Command, flags *rootFlags, q catalogQuery) error {
+	if err := q.validate(); err != nil {
+		return usageErr(err)
+	}
 	if dryRunOK(flags) {
 		fmt.Fprintf(cmd.OutOrStdout(), "would search index %s query %q filters %q\n", q.index(), q.query, q.serverFilters())
 		return nil

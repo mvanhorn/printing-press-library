@@ -78,9 +78,6 @@ func newDesignerCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
 			if len(args) == 0 {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("designer id or name is required"))
@@ -146,6 +143,9 @@ func newFacetCmd(flags *rootFlags, facet, use, short string) *cobra.Command {
 		Short:       short,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit < 0 {
+				return usageErr(fmt.Errorf("--limit must be zero or greater"))
+			}
 			if dryRunOK(flags) {
 				return nil
 			}

@@ -153,6 +153,9 @@ Exit codes:
 			if len(whichIndex) == 0 {
 				return usageErr(fmt.Errorf("this CLI has no curated capability index; run '--help' to see every command"))
 			}
+			if limit <= 0 {
+				return usageErr(fmt.Errorf("--limit must be greater than zero"))
+			}
 			query := strings.Join(args, " ")
 			matches := rankWhich(whichIndex, query, limit)
 
@@ -193,6 +196,22 @@ func rankWhichAll(index []whichEntry) []whichMatch {
 
 func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) error {
 	w := cmd.OutOrStdout()
+	if flags.quiet {
+		for _, m := range matches {
+			if _, err := fmt.Fprintln(w, m.Entry.Command); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if flags.plain {
+		for _, m := range matches {
+			if _, err := fmt.Fprintf(w, "%s\t%d\t%s\n", m.Entry.Command, m.Score, m.Entry.Description); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 	// Output shape follows the same rule as every other generated
 	// command: JSON when the caller asked for it OR when stdout is not
 	// a terminal; table when a human is looking.

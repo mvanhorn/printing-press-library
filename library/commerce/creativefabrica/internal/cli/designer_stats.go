@@ -161,6 +161,9 @@ For the raw product list use 'designer'; to compare two designers use
 		Example:     strings.Trim("\n  creativefabrica-pp-cli designer-stats \"DigiArt\" --agent\n  creativefabrica-pp-cli designer-stats 2880714", "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if maxScanPages <= 0 {
+				return usageErr(fmt.Errorf("--max-scan-pages must be greater than zero"))
+			}
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}

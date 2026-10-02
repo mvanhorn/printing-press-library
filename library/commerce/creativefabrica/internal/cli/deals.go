@@ -34,6 +34,12 @@ Use this for the deepest real discounts. To simply filter on-sale items use
 		Example:     strings.Trim("\n  creativefabrica-pp-cli deals \"font bundle\" --agent\n  creativefabrica-pp-cli deals --type Graphics --limit 15 --select name,price,regular_price,discount_pct", "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if limit <= 0 {
+				return usageErr(fmt.Errorf("--limit must be greater than zero"))
+			}
+			if maxScanPages <= 0 {
+				return usageErr(fmt.Errorf("--max-scan-pages must be greater than zero"))
+			}
 			if dryRunOK(flags) {
 				return nil
 			}

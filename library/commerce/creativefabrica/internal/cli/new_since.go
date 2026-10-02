@@ -37,16 +37,19 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("provide a query or --designer to track"))
 			}
+			key := "q:" + query + "|d:" + designer + "|t:" + itemType
+			store := snapshot.Open("")
+			q := catalogQuery{query: query, designer: designer, itemType: itemType, sortBy: "newest", limit: limit}
+			if err := q.validate(); err != nil {
+				return usageErr(err)
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
-			key := "q:" + query + "|d:" + designer + "|t:" + itemType
-			store := snapshot.Open("")
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := newAlgoliaClient(flags)
-			q := catalogQuery{query: query, designer: designer, itemType: itemType, sortBy: "newest", limit: limit}
 			req := q.request()
 			req.HitsPerPage = clampInt(limit, 20, 100)
 			results, err := c.Search(ctx, req)
@@ -65,12 +68,18 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 			}
 
 			prior, seeded := store.Get(key)
-			// Fail loud: a tracker that cannot persist its baseline has no
-			// product. Silently dropping this error makes the first run claim
-			// "seeded" forever, and later runs re-report the same stale set as
-			// new on every invocation.
-			if perr := store.Put(key, ids); perr != nil {
-				return fmt.Errorf("saving snapshot for this tracker: %w", perr)
+			commitSnapshot := func() error {
+				if err := store.Put(key, ids); err != nil {
+					return fmt.Errorf("saving snapshot for this tracker: %w", err)
+				}
+				return nil
+			}
+			commitAfterOutput := func() error {
+				if flags.deliverBuf != nil {
+					flags.afterSuccessfulDelivery = commitSnapshot
+					return nil
+				}
+				return commitSnapshot()
 			}
 
 			// --reset re-seeds the baseline rather than diffing against the old
@@ -82,10 +91,15 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 				}
 				msg := fmt.Sprintf("%s snapshot for this tracker (%d items); re-run later to see what's new", verb, len(ids))
 				if flags.asJSON || flags.agent {
-					return flags.printJSON(cmd, map[string]any{"seeded": true, "reset": reset, "tracked": len(ids), "new": []productView{}, "note": msg})
+					if err := flags.printJSON(cmd, map[string]any{"seeded": true, "reset": reset, "tracked": len(ids), "new": []productView{}, "note": msg}); err != nil {
+						return err
+					}
+					return commitAfterOutput()
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), msg)
-				return nil
+				if _, err := fmt.Fprintln(cmd.OutOrStdout(), msg); err != nil {
+					return err
+				}
+				return commitAfterOutput()
 			}
 
 			added := snapshot.Diff(prior.ObjectIDs, ids)
@@ -96,7 +110,10 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 				}
 			}
 			sortHitsByDate(newHits)
-			return printProducts(cmd, flags, toViews(newHits))
+			if err := printProducts(cmd, flags, toViews(newHits)); err != nil {
+				return err
+			}
+			return commitAfterOutput()
 		},
 	}
 	cmd.Flags().StringVar(&designer, "designer", "", "Track a designer's catalog (id or name) instead of a query")

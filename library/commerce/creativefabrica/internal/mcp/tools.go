@@ -411,7 +411,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "creativefabrica",
 		"description": "Search Creative Fabrica's 20-million-plus fonts, graphics, crafts",
 		"archetype":   "generic",
-		"tool_count":  1,
+		"tool_count":  14,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion creativefabrica-pp-cli binary.",
 		"resources": []map[string]any{
@@ -423,28 +423,28 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 		},
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
-			"Control page size with the limit parameter (default 100).",
+			"The find command uses zero-based page pagination; increment page for subsequent result pages.",
+			"Control page size with the limit parameter (default 20, maximum 100).",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "File-format filter", "command": "find", "description": "Narrow craft results to a specific cut/print file format (SVG, DXF, PNG, EPS, PES) that Creative Fabrica has no facet for.", "rationale": "File format is not an Algolia facet; it only exists inside tags and titles, so it requires local full-text filtering over the synced catalog.", "via": "mcp-command-mirror"},
+			{"name": "File-format filter", "command": "find", "description": "Narrow craft results to a specific cut/print file format (SVG, DXF, PNG, EPS, PES) that Creative Fabrica has no facet for.", "rationale": "File format is not an Algolia facet; the command filters tags and titles across bounded live result pages.", "via": "mcp-command-mirror"},
 			{"name": "Real-discount ranking", "command": "deals", "description": "Rank on-sale items by their actual regular-to-sale price drop, not just whether they are flagged on sale.", "rationale": "The API only filters on a promotions flag; ranking by true discount depth requires computing the delta per item locally.", "via": "mcp-command-mirror"},
-			{"name": "Designer profile stats", "command": "designer-stats", "description": "Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release.", "rationale": "Requires aggregating across a designer's full synced catalog, which no single Creative Fabrica API call returns.", "via": "mcp-command-mirror"},
-			{"name": "Designer comparison", "command": "designer-compare", "description": "Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity.", "rationale": "Requires a cross-designer SQLite join over two synced catalogs that has no API or web equivalent.", "via": "mcp-command-mirror"},
-			{"name": "New-since-snapshot diff", "command": "new-since", "description": "Show only catalog items added since your last sync for a tracked query or designer.", "rationale": "There is no 'what's new' API; it requires diffing object IDs against a prior local SQLite snapshot.", "via": "mcp-command-mirror"},
+			{"name": "Designer profile stats", "command": "designer-stats", "description": "Profile a designer's catalog: product-type mix, price band, free count, POD count, and newest release.", "rationale": "Requires aggregating facets and bounded live catalog pages, which no single Creative Fabrica response summarizes.", "via": "mcp-command-mirror"},
+			{"name": "Designer comparison", "command": "designer-compare", "description": "Compare two designers head-to-head: catalog size, type mix, price band, free/POD share, and popularity.", "rationale": "Compares two live designer profiles; the catalog has no cross-designer comparison endpoint.", "via": "mcp-command-mirror"},
+			{"name": "New-since-snapshot diff", "command": "new-since", "description": "Show only catalog items added since your last sync for a tracked query or designer.", "rationale": "There is no 'what's new' API; the command diffs current live result IDs against a small local per-tracker snapshot.", "via": "mcp-command-mirror"},
 			{"name": "Subscription-free filter", "command": "find", "description": "Keep only assets usable outside an active subscription.", "rationale": "The outsideSubscription attribute is returned per item but is not a server-side facet, so filtering on it requires a local post-filter.", "via": "mcp-command-mirror"},
-			{"name": "Tag and facet explorer", "command": "tags", "description": "Show the top tags and categories that co-occur with a query, to refine the next search.", "rationale": "Requires rolling up tag and category frequency across the result set in the local store.", "via": "mcp-command-mirror"},
+			{"name": "Tag and facet explorer", "command": "tags", "description": "Show the top tags and categories that co-occur with a query, to refine the next search.", "rationale": "Rolls up tags and category facets from a bounded live catalog query.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "File-format filter", "insight": "File format is not an Algolia facet; it only exists inside tags and titles, so it requires local full-text filtering over the synced catalog."},
+			{"topic": "File-format filter", "insight": "File format is not an Algolia facet; the command filters tags and titles across bounded live result pages."},
 			{"topic": "Real-discount ranking", "insight": "The API only filters on a promotions flag; ranking by true discount depth requires computing the delta per item locally."},
-			{"topic": "Designer profile stats", "insight": "Requires aggregating across a designer's full synced catalog, which no single Creative Fabrica API call returns."},
-			{"topic": "Designer comparison", "insight": "Requires a cross-designer SQLite join over two synced catalogs that has no API or web equivalent."},
-			{"topic": "New-since-snapshot diff", "insight": "There is no 'what's new' API; it requires diffing object IDs against a prior local SQLite snapshot."},
+			{"topic": "Designer profile stats", "insight": "Requires aggregating facets and bounded live catalog pages, which no single Creative Fabrica response summarizes."},
+			{"topic": "Designer comparison", "insight": "Compares two live designer profiles; the catalog has no cross-designer comparison endpoint."},
+			{"topic": "New-since-snapshot diff", "insight": "There is no 'what's new' API; the command diffs current live result IDs against a small local per-tracker snapshot."},
 			{"topic": "Subscription-free filter", "insight": "The outsideSubscription attribute is returned per item but is not a server-side facet, so filtering on it requires a local post-filter."},
-			{"topic": "Tag and facet explorer", "insight": "Requires rolling up tag and category frequency across the result set in the local store."},
+			{"topic": "Tag and facet explorer", "insight": "Rolls up tags and category facets from a bounded live catalog query."},
 		},
 	}
 	return toolResultJSON(ctx)

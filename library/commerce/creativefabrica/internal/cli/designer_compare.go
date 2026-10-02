@@ -24,6 +24,9 @@ For a single designer profile use 'designer-stats'.`,
 		Example:     strings.Trim("\n  creativefabrica-pp-cli designer-compare \"DigiArt\" \"CraftLab\" --agent\n  creativefabrica-pp-cli designer-compare 2880714 123456", "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if maxScanPages <= 0 {
+				return usageErr(fmt.Errorf("--max-scan-pages must be greater than zero"))
+			}
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}

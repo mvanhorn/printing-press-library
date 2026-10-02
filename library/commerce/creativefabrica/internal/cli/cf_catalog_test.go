@@ -49,6 +49,30 @@ func TestIndexSelection(t *testing.T) {
 	}
 }
 
+func TestCatalogQueryValidateRejectsInvalidOptions(t *testing.T) {
+	valid := catalogQuery{sortBy: "relevance", limit: 20}
+	cases := []struct {
+		name string
+		q    catalogQuery
+	}{
+		{name: "negative page", q: catalogQuery{sortBy: "relevance", limit: 20, page: -1}},
+		{name: "zero limit", q: catalogQuery{sortBy: "relevance", limit: 0}},
+		{name: "oversize limit", q: catalogQuery{sortBy: "relevance", limit: 101}},
+		{name: "negative max price", q: catalogQuery{sortBy: "relevance", limit: 20, maxPrice: -1}},
+		{name: "unknown sort", q: catalogQuery{sortBy: "popular", limit: 20}},
+	}
+	if err := valid.validate(); err != nil {
+		t.Fatalf("valid query rejected: %v", err)
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := tc.q.validate(); err == nil {
+				t.Fatal("expected validation error")
+			}
+		})
+	}
+}
+
 func TestHitMatchesFormat(t *testing.T) {
 	hit := algolia.Hit{
 		NameEN: "Mandala SVG cut file",
