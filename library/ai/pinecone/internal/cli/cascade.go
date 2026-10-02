@@ -37,28 +37,57 @@ func ensureCascadeCompatible(baseName string, base pineconeIndexShape, indexName
 	return nil
 }
 
-func selectCascadeIndexes(names []string, describe func(string) (pineconeIndexShape, error)) ([]string, pineconeIndexShape, []textQueryFailure) {
-	valid := make([]string, 0, len(names))
-	var base pineconeIndexShape
+func selectCascadeIndexes(names []string, describe func(string) (pineconeIndexShape, error)) ([]string, pineconeIndexShape, []textQueryFailure, error) {
+	type shapeGroup struct {
+		shape pineconeIndexShape
+		names []string
+	}
+	groups := make(map[string]*shapeGroup)
+	ordered := make([]*shapeGroup, 0)
 	var failures []textQueryFailure
 	for _, name := range names {
 		shape, err := describe(name)
 		if err == nil && (shape.Dimension <= 0 || shape.Metric == "") {
 			err = fmt.Errorf("index %q did not report a comparable dimension and scoring metric", name)
 		}
-		if err == nil && len(valid) > 0 {
-			err = ensureCascadeCompatible(valid[0], base, name, shape)
-		}
 		if err != nil {
 			failures = append(failures, textQueryFailure{Index: name, Error: err.Error()})
 			continue
 		}
-		if len(valid) == 0 {
-			base = shape
+		key := fmt.Sprintf("%d:%s", shape.Dimension, strings.ToLower(shape.Metric))
+		group := groups[key]
+		if group == nil {
+			group = &shapeGroup{shape: shape}
+			groups[key] = group
+			ordered = append(ordered, group)
 		}
-		valid = append(valid, name)
+		group.names = append(group.names, name)
 	}
-	return valid, base, failures
+	if len(ordered) == 0 {
+		return nil, pineconeIndexShape{}, failures, nil
+	}
+	best := ordered[0]
+	tied := false
+	for _, group := range ordered[1:] {
+		if len(group.names) > len(best.names) {
+			best, tied = group, false
+		} else if len(group.names) == len(best.names) {
+			tied = true
+		}
+	}
+	if tied {
+		return nil, pineconeIndexShape{}, failures, fmt.Errorf("indexes have incompatible dimensions or scoring metrics with no unique largest compatible group")
+	}
+	for _, group := range ordered {
+		if group == best {
+			continue
+		}
+		for _, name := range group.names {
+			err := ensureCascadeCompatible(best.names[0], best.shape, name, group.shape)
+			failures = append(failures, textQueryFailure{Index: name, Error: err.Error()})
+		}
+	}
+	return best.names, best.shape, failures, nil
 }
 
 func newNovelCascadeCmd(flags *rootFlags) *cobra.Command {
@@ -116,9 +145,12 @@ Do NOT use this command for a single index; use 'text-query'.`,
 			}
 			// Keep reachable, compatible indexes. A stale name is a per-index
 			// failure, not a reason to discard results from healthy indexes.
-			validNames, baseShape, failures := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) {
+			validNames, baseShape, failures, err := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) {
 				return describeIndexShape(ctx, c, name)
 			})
+			if err != nil {
+				return err
+			}
 			if len(validNames) == 0 {
 				return fmt.Errorf("no compatible indexes available for cascade: %s", failures[0].Error)
 			}

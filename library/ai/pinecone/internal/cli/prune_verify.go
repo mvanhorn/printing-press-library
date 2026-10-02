@@ -27,8 +27,9 @@ func pruneTimestamp(metadata map[string]any) (time.Time, bool) {
 
 // verifyPruneCandidates re-reads every proposed deletion from the verified
 // index host and namespace. No delete is sent unless all pages were checked.
-func verifyPruneCandidates(ctx context.Context, c pruneVerificationClient, fetchPath, indexName, namespace string, ids []string, cutoff time.Time) ([]string, error) {
+func verifyPruneCandidates(ctx context.Context, c pruneVerificationClient, fetchPath, indexName, namespace string, ids []string, cutoff time.Time) ([]string, []string, error) {
 	verified := make([]string, 0, len(ids))
+	var missing []string
 	for start := 0; start < len(ids); start += 100 {
 		end := start + 100
 		if end > len(ids) {
@@ -37,23 +38,29 @@ func verifyPruneCandidates(ctx context.Context, c pruneVerificationClient, fetch
 		batch := ids[start:end]
 		encodedIDs, err := json.Marshal(batch)
 		if err != nil {
-			return nil, fmt.Errorf("encoding prune candidate IDs: %w", err)
+			return nil, nil, fmt.Errorf("encoding prune candidate IDs: %w", err)
 		}
 		path := appendArrayQueryParam(fetchPath, "ids", string(encodedIDs), "form", true)
 		data, err := c.GetWithHeadersNoCache(ctx, path, map[string]string{"namespace": namespace}, apiVersionHeaders())
 		if err != nil {
-			return nil, fmt.Errorf("rechecking vectors before delete: %w", err)
+			return nil, nil, fmt.Errorf("rechecking vectors before delete: %w", err)
 		}
 		var response struct {
 			Vectors map[string]json.RawMessage `json:"vectors"`
 		}
 		if err := json.Unmarshal(data, &response); err != nil || response.Vectors == nil {
-			return nil, fmt.Errorf("rechecking vectors before delete: invalid fetch response")
+			return nil, nil, fmt.Errorf("rechecking vectors before delete: invalid fetch response")
 		}
 		for _, id := range batch {
 			raw, ok := response.Vectors[id]
-			if !ok || string(raw) == "null" {
-				return nil, fmt.Errorf("rechecking vectors before delete: missing vector %q", id)
+			if !ok {
+				// Pinecone omits IDs that no longer exist. Every returned ID
+				// still receives its own live scope and timestamp check.
+				missing = append(missing, id)
+				continue
+			}
+			if string(raw) == "null" {
+				return nil, nil, fmt.Errorf("rechecking vectors before delete: invalid vector %q", id)
 			}
 			var vector struct {
 				ID        string         `json:"id"`
@@ -62,16 +69,16 @@ func verifyPruneCandidates(ctx context.Context, c pruneVerificationClient, fetch
 				Metadata  map[string]any `json:"metadata"`
 			}
 			if err := json.Unmarshal(raw, &vector); err != nil || (vector.ID != "" && vector.ID != id) || (vector.IndexName != "" && vector.IndexName != indexName) || (vector.Namespace != "" && vector.Namespace != namespace) {
-				return nil, fmt.Errorf("rechecking vectors before delete: vector %q has invalid identity or scope", id)
+				return nil, nil, fmt.Errorf("rechecking vectors before delete: vector %q has invalid identity or scope", id)
 			}
 			stamp, ok := pruneTimestamp(vector.Metadata)
 			if !ok {
-				return nil, fmt.Errorf("rechecking vectors before delete: vector %q has no valid timestamp", id)
+				return nil, nil, fmt.Errorf("rechecking vectors before delete: vector %q has no valid timestamp", id)
 			}
 			if stamp.Before(cutoff) {
 				verified = append(verified, id)
 			}
 		}
 	}
-	return verified, nil
+	return verified, missing, nil
 }

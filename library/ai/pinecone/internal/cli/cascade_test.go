@@ -13,7 +13,7 @@ import (
 
 func TestSelectCascadeIndexesKeepsReachableCompatibleIndexes(t *testing.T) {
 	names := []string{"stale", "cosine-a", "euclidean", "cosine-b"}
-	valid, base, failures := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) {
+	valid, base, failures, err := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) {
 		if name == "stale" {
 			return pineconeIndexShape{}, fmt.Errorf("index unavailable")
 		}
@@ -22,11 +22,37 @@ func TestSelectCascadeIndexesKeepsReachableCompatibleIndexes(t *testing.T) {
 		}
 		return pineconeIndexShape{Dimension: 1024, Metric: "cosine"}, nil
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	if strings.Join(valid, ",") != "cosine-a,cosine-b" || base.Metric != "cosine" {
 		t.Fatalf("valid indexes=%v base=%#v", valid, base)
 	}
 	if len(failures) != 2 || failures[0].Index != "stale" || failures[1].Index != "euclidean" {
 		t.Fatalf("failures=%#v, want stale and incompatible", failures)
+	}
+}
+
+func TestSelectCascadeIndexesChoosesUniqueLargestGroupRegardlessOfOrder(t *testing.T) {
+	shapes := map[string]pineconeIndexShape{
+		"different": {Dimension: 512, Metric: "dotproduct"},
+		"first":     {Dimension: 1024, Metric: "cosine"},
+		"second":    {Dimension: 1024, Metric: "COSINE"},
+	}
+	for _, names := range [][]string{{"different", "first", "second"}, {"second", "different", "first"}} {
+		valid, shape, failures, err := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) { return shapes[name], nil })
+		if err != nil || shape.Dimension != 1024 || len(valid) != 2 || len(failures) != 1 || failures[0].Index != "different" {
+			t.Fatalf("order=%v selected=%v shape=%#v failures=%#v error=%v", names, valid, shape, failures, err)
+		}
+	}
+}
+
+func TestSelectCascadeIndexesRejectsTiedIncompatibleGroups(t *testing.T) {
+	_, _, _, err := selectCascadeIndexes([]string{"cosine", "euclidean"}, func(name string) (pineconeIndexShape, error) {
+		return pineconeIndexShape{Dimension: 1024, Metric: name}, nil
+	})
+	if err == nil || !strings.Contains(err.Error(), "no unique largest") {
+		t.Fatalf("tied group error = %v", err)
 	}
 }
 

@@ -21,6 +21,7 @@ type prunePlan struct {
 	OlderThan string   `json:"older_than"`
 	Count     int      `json:"count"`
 	IDs       []string `json:"ids"`
+	Missing   []string `json:"already_absent,omitempty"`
 	DryRun    bool     `json:"dry_run"`
 	Applied   bool     `json:"applied,omitempty"`
 	Deleted   int      `json:"deleted,omitempty"`
@@ -173,12 +174,14 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 					return err
 				}
 				base := "https://" + host
-				stale, err = verifyPruneCandidates(ctx, c, base+"/vectors/fetch", indexName, namespace, stale, cutoffTime)
+				var missing []string
+				stale, missing, err = verifyPruneCandidates(ctx, c, base+"/vectors/fetch", indexName, namespace, stale, cutoffTime)
 				if err != nil {
 					return err
 				}
 				plan.IDs = stale
 				plan.Count = len(stale)
+				plan.Missing = missing
 				path := base + "/vectors/delete"
 				// batch in chunks of 100
 				deleted := 0
@@ -213,6 +216,9 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 				return printJSONFiltered(cmd.OutOrStdout(), plan, flags)
 			}
 			if len(stale) == 0 {
+				if len(plan.Missing) > 0 {
+					fmt.Fprintf(cmd.OutOrStdout(), "Skipped %d vector(s) already absent from the index.\n", len(plan.Missing))
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No stale vectors found.")
 				return nil
 			}
@@ -223,6 +229,9 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 			fmt.Fprintf(cmd.OutOrStdout(), "%s %d stale vector(s) in %s\n", verb, len(stale), indexName)
 			for _, id := range stale {
 				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", id)
+			}
+			if len(plan.Missing) > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "Skipped %d vector(s) already absent from the index.\n", len(plan.Missing))
 			}
 			if !apply {
 				fmt.Fprintln(cmd.OutOrStdout(), "Re-run with --apply to delete.")
