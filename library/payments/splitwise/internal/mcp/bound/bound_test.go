@@ -369,6 +369,15 @@ func TestEndpointPageResponseReservesPlatformMetadataBudget(t *testing.T) {
 	}
 }
 
+func TestEndpointCursorRejectsNegativeItemByteOffset(t *testing.T) {
+	cursor := encodeEndpointCursor(endpointCursor{Version: 1, ItemByteOffset: -1})
+	if _, err := UpstreamCursor(cursor); err == nil {
+		t.Fatal("negative item-byte offset was accepted")
+	}
+	data := json.RawMessage(`[{"id":1}]`)
+	_ = EndpointPageResponse("GET", data, PageOptions{CursorParam: "cursor", Cursor: cursor})
+}
+
 func TestEndpointPageResponseMultiArrayObjectUsesNonResumablePreview(t *testing.T) {
 	items := make([]map[string]string, 0, MaxItems+25)
 	users := make([]map[string]string, 0, MaxItems+25)

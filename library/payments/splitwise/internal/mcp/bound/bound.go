@@ -548,6 +548,9 @@ func decodeEndpointCursor(cursor string) (endpointCursor, error) {
 	if state.Offset < 0 {
 		return endpointCursor{}, fmt.Errorf("invalid MCP cursor offset")
 	}
+	if state.ItemByteOffset < 0 {
+		return endpointCursor{}, fmt.Errorf("invalid MCP cursor item offset")
+	}
 	return state, nil
 }
 
