@@ -8,7 +8,8 @@
   "reason": "Predictable temporary names follow planted symlinks and collide across concurrent deliveries; permissions must be fixed before rename.",
   "files": [
     "internal/cli/deliver.go",
-    "internal/cli/deliver_atomic_test.go"
+    "internal/cli/deliver_atomic_test.go",
+    "internal/cli/deliver_umask_unix_test.go"
   ],
-  "validated_outcome": "A planted legacy temporary symlink leaves its target unchanged; 24 concurrent writers succeed and leave one complete private delivery."
+  "validated_outcome": "Symlink targets remain unchanged; 24 concurrent writers leave one complete delivery; a 250-byte destination succeeds and an isolated owner-read-masking umask still yields 0600."
 }

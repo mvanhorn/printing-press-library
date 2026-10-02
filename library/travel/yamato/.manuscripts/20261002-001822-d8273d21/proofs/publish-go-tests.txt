@@ -1,17 +1,17 @@
 ?   	github.com/mvanhorn/printing-press-library/library/travel/yamato/cmd/yamato-pp-cli	[no test files]
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/cmd/yamato-pp-mcp	(cached)
 ?   	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cache	[no test files]
-ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cli	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cli	1.398s
 ?   	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cli/playbooks	[no test files]
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/client	(cached)
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cliutil	(cached)
 ?   	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cliutil/testenv	[no test files]
 ?   	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/config	[no test files]
-ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/learn	0.736s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/learn	0.991s
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/learn/entities	(cached)
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/learn/lookups	(cached)
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/learn/patterns	(cached)
-ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/mcp	0.991s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/mcp	(cached)
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/mcp/bound	(cached)
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/mcp/cobratree	(cached)
 ok  	github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/platform	(cached)

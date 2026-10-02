@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -55,5 +56,17 @@ func TestConcurrentDownloadsReplaceOneCompletePrivateFile(t *testing.T) {
 	entries, err := os.ReadDir(dir)
 	if err != nil || len(entries) != 1 || entries[0].Name() != "report.txt" {
 		t.Fatalf("temporary deliveries were not cleaned up: %v, %v", entries, err)
+	}
+}
+
+func TestWriteDownloadUnderAcceptsLongValidDestinationName(t *testing.T) {
+	dir := t.TempDir()
+	name := strings.Repeat("r", 250)
+	if err := writeDownloadUnder(dir, name, []byte("delivered")); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(dir, name))
+	if err != nil || string(got) != "delivered" {
+		t.Fatalf("long destination contents = %q, %v", got, err)
 	}
 }

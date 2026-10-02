@@ -144,12 +144,16 @@ func writeDownloadUnder(dir, name string, body []byte) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating download dir: %w", err)
 	}
-	f, err := os.CreateTemp(dir, "."+name+"-*.tmp")
+	f, err := os.CreateTemp(dir, ".yamato-*.tmp")
 	if err != nil {
 		return fmt.Errorf("creating private download: %w", err)
 	}
 	tmp := f.Name()
 	defer os.Remove(tmp)
+	if err := f.Chmod(0o600); err != nil {
+		_ = f.Close()
+		return fmt.Errorf("setting private download permissions: %w", err)
+	}
 	if _, err := f.Write(body); err != nil {
 		_ = f.Close()
 		return fmt.Errorf("writing download: %w", err)
@@ -160,7 +164,7 @@ func writeDownloadUnder(dir, name string, body []byte) error {
 	if err := os.Rename(tmp, path); err != nil {
 		return fmt.Errorf("replacing download: %w", err)
 	}
-	// CreateTemp sets 0600 before writing; rename preserves those permissions.
+	// Descriptor permissions are fixed before writing; rename preserves them.
 	return nil
 }
 
