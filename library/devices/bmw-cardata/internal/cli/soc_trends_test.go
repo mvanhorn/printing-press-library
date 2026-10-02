@@ -3,8 +3,21 @@
 
 package cli
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestNovelSocTrendsCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for soc-trends")
+func TestNovelSocTrendsReturnsTimeSeries(t *testing.T) {
+	dbPath, db := newTestCardataStore(t)
+	now := time.Now().UTC()
+	insertTestSnapshot(t, db, cardataSocDescriptors[0], "50", "%", now.Add(-time.Hour).Format(time.RFC3339), now.Add(-time.Hour).Format(time.RFC3339))
+	insertTestSnapshot(t, db, cardataSocDescriptors[0], "65", "%", now.Format(time.RFC3339), now.Format(time.RFC3339))
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	result := resultObject(t, executeTestJSON(t, "soc-trends", testCardataVIN, "--db", dbPath, "--window", "7d"))
+	if result["soc_samples"] != float64(2) {
+		t.Fatalf("unexpected SoC series: %#v", result)
+	}
 }

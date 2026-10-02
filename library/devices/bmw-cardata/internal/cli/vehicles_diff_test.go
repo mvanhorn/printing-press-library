@@ -3,8 +3,21 @@
 
 package cli
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestNovelVehiclesDiffCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for vehicles diff")
+func TestNovelVehiclesDiffComparesHistoricalSnapshot(t *testing.T) {
+	dbPath, db := newTestCardataStore(t)
+	now := time.Now().UTC()
+	insertTestSnapshot(t, db, cardataChargingStatus, "INACTIVE", "", now.Add(-48*time.Hour).Format(time.RFC3339), now.Add(-48*time.Hour).Format(time.RFC3339))
+	insertTestSnapshot(t, db, cardataChargingStatus, "CHARGING", "", now.Format(time.RFC3339), now.Format(time.RFC3339))
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	result := resultObject(t, executeTestJSON(t, "vehicles", "diff", testCardataVIN, "--db", dbPath, "--since", "24h"))
+	if result["change_count"] != float64(1) {
+		t.Fatalf("unexpected vehicle diff: %#v", result)
+	}
 }

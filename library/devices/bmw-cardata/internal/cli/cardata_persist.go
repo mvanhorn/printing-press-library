@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -108,9 +109,18 @@ func persistCardataBasicData(dbPath, vin string, raw json.RawMessage) {
 // response to the append-only time-series table. The response shape is
 // {"telematicData": {<descriptor>: {"value","unit","timestamp"}}}.
 func persistCardataTelematicData(dbPath, vin string, raw json.RawMessage) {
+	if err := persistCardataTelematicDataStrict(dbPath, vin, raw); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not persist telematic data: %v\n", err)
+	}
+}
+
+func persistCardataTelematicDataStrict(dbPath, vin string, raw json.RawMessage) error {
 	db, err := openCardataStoreRW(dbPath)
-	if err != nil || db == nil {
-		return
+	if err != nil {
+		return fmt.Errorf("opening local store: %w", err)
+	}
+	if db == nil {
+		return fmt.Errorf("opening local store returned no database")
 	}
 	defer db.Close()
 	var outer struct {
@@ -120,20 +130,23 @@ func persistCardataTelematicData(dbPath, vin string, raw json.RawMessage) {
 			Timestamp string `json:"timestamp"`
 		} `json:"telematicData"`
 	}
-	if err := json.Unmarshal(raw, &outer); err != nil || outer.TelematicData == nil {
-		return
+	if err := json.Unmarshal(raw, &outer); err != nil {
+		return fmt.Errorf("decoding telematic data: %w", err)
+	}
+	if outer.TelematicData == nil {
+		return fmt.Errorf("telematic data response is missing telematicData")
 	}
 	now := time.Now().UTC().Format(time.RFC3339)
 	tx, err := db.DB().BeginTx(context.Background(), nil)
 	if err != nil {
-		return
+		return fmt.Errorf("starting telematic transaction: %w", err)
 	}
 	defer tx.Rollback()
 	stmt, err := tx.PrepareContext(context.Background(),
 		`INSERT OR IGNORE INTO cardata_telematic_snapshots(vin, descriptor, value, unit, ts, fetched_at)
 		 VALUES(?,?,?,?,?,?)`)
 	if err != nil {
-		return
+		return fmt.Errorf("preparing telematic insert: %w", err)
 	}
 	defer stmt.Close()
 	for desc, e := range outer.TelematicData {
@@ -142,29 +155,41 @@ func persistCardataTelematicData(dbPath, vin string, raw json.RawMessage) {
 			timestamp = e.Timestamp
 		}
 		if _, err := stmt.ExecContext(context.Background(), vin, desc, e.Value, e.Unit, timestamp, now); err != nil {
-			return
+			return fmt.Errorf("inserting telematic descriptor %q: %w", desc, err)
 		}
 	}
-	_ = tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("committing telematic data: %w", err)
+	}
+	return nil
 }
 
 // persistCardataChargingHistory upserts charging sessions keyed by (vin, start_time).
 func persistCardataChargingHistory(dbPath, vin string, raw json.RawMessage) {
+	if err := persistCardataChargingHistoryStrict(dbPath, vin, raw); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not persist charging history: %v\n", err)
+	}
+}
+
+func persistCardataChargingHistoryStrict(dbPath, vin string, raw json.RawMessage) error {
 	db, err := openCardataStoreRW(dbPath)
-	if err != nil || db == nil {
-		return
+	if err != nil {
+		return fmt.Errorf("opening local store: %w", err)
+	}
+	if db == nil {
+		return fmt.Errorf("opening local store returned no database")
 	}
 	defer db.Close()
 	var resp struct {
 		Data []json.RawMessage `json:"data"`
 	}
 	if err := json.Unmarshal(raw, &resp); err != nil {
-		return
+		return fmt.Errorf("decoding charging history: %w", err)
 	}
 	now := time.Now().UTC().Format(time.RFC3339)
 	tx, err := db.DB().BeginTx(context.Background(), nil)
 	if err != nil {
-		return
+		return fmt.Errorf("starting charging-history transaction: %w", err)
 	}
 	defer tx.Rollback()
 	stmt, err := tx.PrepareContext(context.Background(),
@@ -172,7 +197,7 @@ func persistCardataChargingHistory(dbPath, vin string, raw json.RawMessage) {
 		 VALUES(?,?,?,?)
 		 ON CONFLICT(vin, start_time) DO UPDATE SET data=excluded.data, fetched_at=excluded.fetched_at`)
 	if err != nil {
-		return
+		return fmt.Errorf("preparing charging-history insert: %w", err)
 	}
 	defer stmt.Close()
 	for _, s := range resp.Data {
@@ -186,10 +211,13 @@ func persistCardataChargingHistory(dbPath, vin string, raw json.RawMessage) {
 			}
 		}
 		if _, err := stmt.ExecContext(context.Background(), vin, start, string(s), now); err != nil {
-			return
+			return fmt.Errorf("inserting charging session: %w", err)
 		}
 	}
-	_ = tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("committing charging history: %w", err)
+	}
+	return nil
 }
 
 // persistCardataMappings records each mapped VIN as a minimal vehicle row so
@@ -385,11 +413,44 @@ func listCardataChargingSessions(db *store.Store, vin string, since time.Time) (
 		}
 		var s chargingSession
 		s.StartTime = start
-		_ = json.Unmarshal([]byte(data), &s)
+		var raw map[string]any
+		if json.Unmarshal([]byte(data), &raw) == nil {
+			s.EndTime = int64(numberValue(raw, "endTime", "end_time"))
+			s.EnergyFromGridKwh = numberValue(raw, "energyConsumedFromPowerGridKwh", "energy_consumed_from_power_grid_kwh")
+			s.TotalChargingDurationSec = int64(numberValue(raw, "totalChargingDurationSec", "total_charging_duration_sec"))
+			s.DisplayedSoc = int(numberValue(raw, "displayedSoc", "displayed_soc"))
+			s.DisplayedStartSoc = int(numberValue(raw, "displayedStartSoc", "displayed_start_soc"))
+			s.IsPreconditioning = boolValue(raw, "isPreconditioningActivated", "is_preconditioning_activated")
+		}
 		s.Raw = data
 		out = append(out, s)
 	}
 	return out, rows.Err()
+}
+
+func boolValue(value map[string]any, keys ...string) bool {
+	for _, key := range keys {
+		if result, ok := value[key].(bool); ok {
+			return result
+		}
+	}
+	return false
+}
+
+func numberValue(value map[string]any, keys ...string) float64 {
+	for _, key := range keys {
+		switch typed := value[key].(type) {
+		case float64:
+			return typed
+		case json.Number:
+			result, _ := typed.Float64()
+			return result
+		case string:
+			result, _ := strconv.ParseFloat(typed, 64)
+			return result
+		}
+	}
+	return 0
 }
 
 // cardataQuota returns today's recorded API-call count (UTC day).

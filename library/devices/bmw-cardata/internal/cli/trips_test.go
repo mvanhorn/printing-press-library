@@ -3,8 +3,21 @@
 
 package cli
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestNovelTripsCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for trips")
+func TestNovelTripsSegmentsParkedGapAndComputesDistance(t *testing.T) {
+	start := time.Date(2026, 9, 6, 8, 0, 0, 0, time.UTC)
+	point := func(offset time.Duration, lat, lng float64) breadcrumb {
+		return breadcrumb{ts: start.Add(offset).Format(time.RFC3339), lat: lat, lng: lng}
+	}
+	trips := segmentTrips([]breadcrumb{
+		point(0, 51.0, 7.0), point(5*time.Minute, 51.01, 7.01),
+		point(30*time.Minute, 51.02, 7.02), point(35*time.Minute, 51.03, 7.03),
+	})
+	if len(trips) != 2 || trips[0]["duration"] != "5m0s" || trips[0]["distance_km"].(float64) <= 0 {
+		t.Fatalf("unexpected trip segmentation: %#v", trips)
+	}
 }

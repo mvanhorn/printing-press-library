@@ -5,6 +5,13 @@ package cli
 
 import "testing"
 
-func TestNovelDescriptorsSearchCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for descriptors search")
+func TestNovelDescriptorsSearchUsesBundledCatalogue(t *testing.T) {
+	dbPath, db := newTestCardataStore(t)
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	result, ok := executeTestJSON(t, "descriptors", "search", "batteryManagement", "--db", dbPath).([]any)
+	if !ok || len(result) == 0 {
+		t.Fatalf("descriptor search returned %#v", result)
+	}
 }

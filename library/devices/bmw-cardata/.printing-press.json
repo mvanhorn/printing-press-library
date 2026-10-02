@@ -9,6 +9,12 @@
     "handle": "jvm",
     "name": "jvm"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "jvm",
   "printer": "jvm",
   "printer_name": "jvm",

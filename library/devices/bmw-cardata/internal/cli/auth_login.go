@@ -30,8 +30,10 @@ import (
 // api-cardata.bmwgroup.com) is not used here.
 const (
 	cardataDeviceCodeURL = "https://customer.bmwgroup.com/gcdm/oauth/device/code"
-	cardataTokenURL      = "https://customer.bmwgroup.com/gcdm/oauth/token"
-	cardataDefaultScope  = "authenticate_user openid cardata:api:read cardata:streaming:read"
+	// CardataTokenURL is shared with typed MCP handlers so every API surface
+	// refreshes the same file-backed OAuth credentials before use.
+	CardataTokenURL     = "https://customer.bmwgroup.com/gcdm/oauth/token"
+	cardataDefaultScope = "authenticate_user openid cardata:api:read cardata:streaming:read"
 )
 
 // newAuthLoginCmd implements the OAuth2 Device Authorization Grant with PKCE
@@ -260,7 +262,7 @@ func cardataPollToken(ctx context.Context, clientID, deviceCode, verifier string
 		"device_code":   {deviceCode},
 		"code_verifier": {verifier},
 	}
-	body, status, err := cardataPostForm(ctx, cardataTokenURL, vals)
+	body, status, err := cardataPostForm(ctx, CardataTokenURL, vals)
 	if err != nil {
 		return nil, err
 	}
@@ -281,6 +283,82 @@ func cardataPollToken(ctx context.Context, clientID, deviceCode, verifier string
 	}
 	if tok.AccessToken == "" {
 		return nil, fmt.Errorf("token response missing access_token: %s", truncateBody(body))
+	}
+	if tok.GCID == "" {
+		tok.GCID = gcidFromJWT(tok.IDToken)
+		if tok.GCID == "" {
+			tok.GCID = gcidFromJWT(tok.AccessToken)
+		}
+	}
+	return &tok, nil
+}
+
+// RefreshCardataAccessTokenIfNeeded refreshes file-backed OAuth credentials
+// shortly before expiry. Direct access-token credentials never participate in
+// this flow: the CLI must not silently replace a credential supplied through
+// BMW_CARDATA_ACCESS_TOKEN or the legacy cardata_access_token config field.
+func RefreshCardataAccessTokenIfNeeded(ctx context.Context, cfg *config.Config, now time.Time, target string) error {
+	if cfg.BmwCardataAccessToken != "" || strings.HasPrefix(cfg.AuthSource, "env:") {
+		return nil
+	}
+	if cfg.TokenExpiry.IsZero() || cfg.TokenExpiry.After(now.Add(time.Minute)) {
+		return nil
+	}
+	if cfg.ClientID == "" || cfg.RefreshToken == "" {
+		return fmt.Errorf("BMW CarData OAuth token expired and cannot be refreshed; run 'auth login' again")
+	}
+
+	tok, err := cardataRefreshToken(ctx, target, cfg.ClientID, cfg.ClientSecret, cfg.RefreshToken)
+	if err != nil {
+		return fmt.Errorf("refreshing BMW CarData OAuth token: %w", err)
+	}
+	if tok.RefreshToken == "" {
+		tok.RefreshToken = cfg.RefreshToken
+	}
+	expiry := now.Add(time.Duration(tok.ExpiresIn) * time.Second)
+	if err := cfg.SaveTokens(cfg.ClientID, cfg.ClientSecret, tok.AccessToken, tok.RefreshToken, expiry); err != nil {
+		return fmt.Errorf("saving refreshed BMW CarData OAuth token: %w", err)
+	}
+
+	// Refresh responses need not repeat the streaming identity fields. Preserve
+	// them from the existing sidecar while updating the shared access/refresh
+	// credentials and expiry used by later MQTT sessions.
+	if session, sessionErr := loadCardataSession(cfg); sessionErr == nil {
+		if tok.IDToken == "" {
+			tok.IDToken = session["id_token"]
+		}
+		if tok.GCID == "" {
+			tok.GCID = session["gcid"]
+		}
+	}
+	if err := writeCardataSession(cfg, cfg.ClientID, tok, expiry); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not update streaming session after token refresh: %v\n", err)
+	}
+	return nil
+}
+
+func cardataRefreshToken(ctx context.Context, target, clientID, clientSecret, refreshToken string) (*cardataToken, error) {
+	values := url.Values{
+		"client_id":     {clientID},
+		"grant_type":    {"refresh_token"},
+		"refresh_token": {refreshToken},
+	}
+	if clientSecret != "" {
+		values.Set("client_secret", clientSecret)
+	}
+	body, status, err := cardataPostForm(ctx, target, values)
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("token endpoint returned HTTP %d", status)
+	}
+	var tok cardataToken
+	if err := json.Unmarshal(body, &tok); err != nil {
+		return nil, fmt.Errorf("parsing token response: %w", err)
+	}
+	if tok.AccessToken == "" || tok.ExpiresIn <= 0 {
+		return nil, fmt.Errorf("token response missing access_token or expires_in")
 	}
 	if tok.GCID == "" {
 		tok.GCID = gcidFromJWT(tok.IDToken)

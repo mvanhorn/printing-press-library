@@ -1,5 +1,8 @@
 # BMW CarData CLI
 
+Created by [@jvm](https://github.com/jvm) (jvm).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 **Your BMW's telemetry, on the command line — live snapshots, charging history, and a local SQLite store for trends and fleet insight no other tool offers.**
 
 BMW CarData is the official, free-for-personal-use API for your own vehicle data. This CLI handles the OAuth device-code onboarding, fetches live telematic snapshots, charging history and tyre diagnosis, then keeps it all in SQLite so you can chart SoC trends (soc-trends), reconcile charging cost against your tariff (charging-cost), and see every vehicle at once (fleet status).

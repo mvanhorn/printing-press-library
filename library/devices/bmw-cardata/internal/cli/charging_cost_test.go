@@ -3,8 +3,21 @@
 
 package cli
 
-import "testing"
+import (
+	"encoding/json"
+	"path/filepath"
+	"testing"
+)
 
-func TestNovelChargingCostCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for charging-cost")
+func TestNovelChargingCostReadsBMWCamelCaseFields(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "cardata.db")
+	raw := json.RawMessage(`{"data":[{"startTime":1,"endTime":2,"energyConsumedFromPowerGridKwh":20,"totalChargingDurationSec":7200}]}`)
+	if err := persistCardataChargingHistoryStrict(dbPath, testCardataVIN, raw); err != nil {
+		t.Fatalf("persist charging history: %v", err)
+	}
+	result := resultObject(t, executeTestJSON(t, "charging-cost", testCardataVIN,
+		"--db", dbPath, "--tariff", "0.25", "--since", "30d"))
+	if result["total_kwh"] != float64(20) || result["estimated_cost"] != float64(5) || result["avg_charge_kw"] != float64(10) {
+		t.Fatalf("unexpected charging-cost result: %#v", result)
+	}
 }

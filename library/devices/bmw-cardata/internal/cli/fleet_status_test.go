@@ -3,8 +3,28 @@
 
 package cli
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestNovelFleetStatusCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for fleet status")
+func TestNovelFleetStatusJoinsLatestVehicleSnapshot(t *testing.T) {
+	dbPath, db := newTestCardataStore(t)
+	if _, err := db.DB().Exec(`INSERT INTO cardata_vehicles(vin, brand, model_name) VALUES(?,?,?)`, testCardataVIN, "BMW", "i4"); err != nil {
+		t.Fatalf("insert vehicle: %v", err)
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	insertTestSnapshot(t, db, cardataSocDescriptors[0], "64", "%", now, now)
+	insertTestSnapshot(t, db, cardataRangeDescriptor, "250", "km", now, now)
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	rows, ok := executeTestJSON(t, "fleet", "status", "--db", dbPath).([]any)
+	if !ok || len(rows) != 1 {
+		t.Fatalf("fleet status returned %#v", rows)
+	}
+	row := resultObject(t, rows[0])
+	if row["soc"] != float64(64) || row["range_km"] != float64(250) || row["model"] != "i4" {
+		t.Fatalf("unexpected fleet status: %#v", row)
+	}
 }

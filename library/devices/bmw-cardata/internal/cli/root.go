@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -280,6 +281,11 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	cfg, err := config.Load(f.configPath)
 	if err != nil {
 		return nil, configErr(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), f.timeout)
+	defer cancel()
+	if err := RefreshCardataAccessTokenIfNeeded(ctx, cfg, time.Now(), CardataTokenURL); err != nil {
+		return nil, authErr(err)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun

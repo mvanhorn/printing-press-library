@@ -3,8 +3,23 @@
 
 package cli
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestNovelBatteryHealthCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for battery-health")
+func TestNovelBatteryHealthComputesObservedDegradation(t *testing.T) {
+	dbPath, db := newTestCardataStore(t)
+	if _, err := db.DB().Exec(`INSERT INTO cardata_vehicles(vin, hvs_max_energy_absolute) VALUES(?,?)`, testCardataVIN, "80"); err != nil {
+		t.Fatalf("insert vehicle: %v", err)
+	}
+	now := time.Now().UTC().Format(time.RFC3339)
+	insertTestSnapshot(t, db, cardataMaxEnergyDescriptor, "72", "kWh", now, now)
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	result := resultObject(t, executeTestJSON(t, "battery-health", testCardataVIN, "--db", dbPath))
+	if result["health_pct"] != float64(90) || result["degradation_pct"] != float64(10) {
+		t.Fatalf("unexpected battery-health result: %#v", result)
+	}
 }

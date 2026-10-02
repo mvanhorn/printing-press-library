@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
@@ -33,6 +34,8 @@ const (
 	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
 	defaultMCPRateLimit = 2
 )
+
+var mcpOAuthRefreshMu sync.Mutex
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
@@ -494,11 +497,30 @@ func mcpOversizedPreviewEnvelope(data json.RawMessage) []byte {
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	return newMCPClientWithTokenURL(cli.CardataTokenURL)
+}
+
+func newMCPClientWithTokenURL(tokenURL string) (*client.Client, error) {
+	// Refresh tokens may be single-use. Serialize load/refresh/save so
+	// concurrent MCP tool calls do not race with the same persisted token;
+	// followers reload the credential saved by the first caller.
+	mcpOAuthRefreshMu.Lock()
+	defer mcpOAuthRefreshMu.Unlock()
+
+	// Let config.Load resolve BMW_CARDATA_CONFIG before falling back to the
+	// default path. Typed MCP tools must use the same selected account as the
+	// CLI instead of silently refreshing credentials from the default file.
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := cli.RefreshCardataAccessTokenIfNeeded(ctx, cfg, time.Now(), tokenURL); err != nil {
+		// OAuth responses can include provider-controlled details. Keep MCP
+		// errors actionable without reflecting response bodies or credentials
+		// into an agent transcript.
+		return nil, fmt.Errorf("BMW CarData OAuth credential refresh failed; run 'bmw-cardata-pp-cli auth login' again")
 	}
 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk

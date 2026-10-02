@@ -29,9 +29,9 @@ func newArchiveCmd(flags *rootFlags) *cobra.Command {
 
 func newArchiveReadCmd(flags *rootFlags) *cobra.Command {
 	var (
-		flagDB        string
-		flagVIN       string
-		flagInspect   bool
+		flagDB      string
+		flagVIN     string
+		flagInspect bool
 	)
 	cmd := &cobra.Command{
 		Use:   "read <zip>",
@@ -42,7 +42,7 @@ SQLite store so transcendence commands can reason over historical data.
 
 The archive is per-vehicle, so --vin is required.`,
 		Example:     "  bmw-cardata-pp-cli archive read ~/Downloads/cardata-archive.zip --vin WBAJB3105JUV12345",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -75,7 +75,7 @@ The archive is per-vehicle, so --vin is required.`,
 			defer r.Close()
 
 			dbPath := resolveDBPath(flagDB)
-			var files, telematicFiles, chargingFiles, descriptors, sessions int
+			var files, telematicFiles, chargingFiles, descriptors, sessions, failedFiles int
 			var fileSummary []map[string]any
 
 			for _, f := range r.File {
@@ -87,6 +87,7 @@ The archive is per-vehicle, so --vin is required.`,
 				content, err := readZipFile(f)
 				if err != nil {
 					summary["error"] = err.Error()
+					failedFiles++
 					fileSummary = append(fileSummary, summary)
 					continue
 				}
@@ -102,8 +103,14 @@ The archive is per-vehicle, so --vin is required.`,
 					continue
 				}
 
-				kind, count := classifyAndImport(dbPath, vin, trimmed, flagInspect)
+				kind, count, importErr := classifyAndImport(dbPath, vin, trimmed, flagInspect)
 				summary["kind"] = kind
+				if importErr != nil {
+					summary["error"] = importErr.Error()
+					failedFiles++
+					fileSummary = append(fileSummary, summary)
+					continue
+				}
 				switch kind {
 				case "telematic":
 					telematicFiles++
@@ -124,6 +131,7 @@ The archive is per-vehicle, so --vin is required.`,
 				"descriptors":     descriptors,
 				"sessions":        sessions,
 				"inspect_only":    flagInspect,
+				"failed_files":    failedFiles,
 			}
 			if !flagInspect {
 				view["db"] = dbPath
@@ -132,14 +140,24 @@ The archive is per-vehicle, so --vin is required.`,
 				view["file_summary"] = fileSummary
 			}
 			if wantsMachine(cmd, flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+				if err := printJSONFiltered(cmd.OutOrStdout(), view, flags); err != nil {
+					return err
+				}
+				if failedFiles > 0 {
+					return configErr(fmt.Errorf("archive import failed for %d file(s)", failedFiles))
+				}
+				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Imported archive %s for %s\n", filepath.Base(zipPath), vin)
 			fmt.Fprintf(cmd.OutOrStdout(), "  files:           %d\n", files)
 			fmt.Fprintf(cmd.OutOrStdout(), "  telematic files: %d (%d descriptors)\n", telematicFiles, descriptors)
 			fmt.Fprintf(cmd.OutOrStdout(), "  charging files:  %d (%d sessions)\n", chargingFiles, sessions)
+			fmt.Fprintf(cmd.OutOrStdout(), "  failed files:    %d\n", failedFiles)
 			if flagInspect {
 				fmt.Fprintln(cmd.OutOrStdout(), "  (inspect-only; nothing written)")
+			}
+			if failedFiles > 0 {
+				return configErr(fmt.Errorf("archive import failed for %d file(s)", failedFiles))
 			}
 			return nil
 		},
@@ -151,27 +169,31 @@ The archive is per-vehicle, so --vin is required.`,
 }
 
 // classifyAndImport recognizes telematic-data and charging-session JSON
-// shapes and imports them (unless inspectOnly). Returns (kind, count).
-func classifyAndImport(dbPath, vin string, raw []byte, inspectOnly bool) (string, int) {
+// shapes and imports them (unless inspectOnly). Returns (kind, count, error).
+func classifyAndImport(dbPath, vin string, raw []byte, inspectOnly bool) (string, int, error) {
 	var tele struct {
 		TelematicData map[string]json.RawMessage `json:"telematicData"`
 	}
 	if json.Unmarshal(raw, &tele) == nil && len(tele.TelematicData) > 0 {
 		if !inspectOnly {
-			persistCardataTelematicData(dbPath, vin, raw)
+			if err := persistCardataTelematicDataStrict(dbPath, vin, raw); err != nil {
+				return "telematic", 0, err
+			}
 		}
-		return "telematic", len(tele.TelematicData)
+		return "telematic", len(tele.TelematicData), nil
 	}
 	// Charging: single session or array of sessions.
 	sessions := collectChargingSessions(raw)
 	if len(sessions) > 0 {
 		if !inspectOnly {
 			wrapped, _ := json.Marshal(map[string]any{"data": sessions})
-			persistCardataChargingHistory(dbPath, vin, wrapped)
+			if err := persistCardataChargingHistoryStrict(dbPath, vin, wrapped); err != nil {
+				return "charging", 0, err
+			}
 		}
-		return "charging", len(sessions)
+		return "charging", len(sessions), nil
 	}
-	return "other", 0
+	return "other", 0, nil
 }
 
 // collectChargingSessions returns charging-session objects found in raw: a

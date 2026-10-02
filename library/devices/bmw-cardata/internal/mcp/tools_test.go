@@ -5,11 +5,128 @@ package mcp
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mvanhorn/printing-press-library/library/devices/bmw-cardata/internal/config"
 )
+
+func TestNewMCPClientRefreshesExpiredPersistedOAuth(t *testing.T) {
+	var refreshRequests int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		refreshRequests++
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "invalid refresh form", http.StatusBadRequest)
+			return
+		}
+		if r.Form.Get("grant_type") != "refresh_token" || r.Form.Get("refresh_token") != "old-refresh" {
+			http.Error(w, "unexpected refresh request", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"fresh-access","refresh_token":"rotated-refresh","expires_in":3600}`))
+	}))
+	t.Cleanup(server.Close)
+
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client-id", "", "expired-access", "old-refresh", time.Now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+
+	c, err := newMCPClientWithTokenURL(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if refreshRequests != 1 {
+		t.Fatalf("refresh requests = %d, want 1", refreshRequests)
+	}
+	if c.Config.AccessToken != "fresh-access" || c.Config.RefreshToken != "rotated-refresh" {
+		t.Fatalf("MCP client did not receive refreshed credentials")
+	}
+}
+
+func TestNewMCPClientHonorsCustomConfigPath(t *testing.T) {
+	var refreshedToken string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "invalid refresh form", http.StatusBadRequest)
+			return
+		}
+		refreshedToken = r.Form.Get("refresh_token")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"fresh-custom","refresh_token":"rotated-custom","expires_in":3600}`))
+	}))
+	t.Cleanup(server.Close)
+
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	defaultCfg, err := config.Load(filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := defaultCfg.SaveTokens("client-id", "", "expired-default", "default-refresh", time.Now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+
+	customPath := filepath.Join(t.TempDir(), "selected-config.toml")
+	customCfg, err := config.Load(customPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := customCfg.SaveTokens("client-id", "", "expired-custom", "custom-refresh", time.Now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("BMW_CARDATA_CONFIG", customPath)
+
+	c, err := newMCPClientWithTokenURL(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if refreshedToken != "custom-refresh" {
+		t.Fatalf("refreshed token = %q, want custom-refresh", refreshedToken)
+	}
+	if c.Config.Path != customPath || c.Config.AccessToken != "fresh-custom" {
+		t.Fatalf("MCP client loaded the wrong config: path=%q access_token=%q", c.Config.Path, c.Config.AccessToken)
+	}
+}
+
+func TestNewMCPClientSanitizesRefreshErrors(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "sensitive-provider-details", http.StatusBadRequest)
+	}))
+	t.Cleanup(server.Close)
+
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client-id", "", "expired-access", "old-refresh", time.Now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = newMCPClientWithTokenURL(server.URL)
+	if err == nil {
+		t.Fatal("expected refresh failure")
+	}
+	if strings.Contains(err.Error(), "sensitive-provider-details") || strings.Contains(err.Error(), "old-refresh") {
+		t.Fatalf("MCP refresh error exposed provider or credential details: %v", err)
+	}
+	if !strings.Contains(err.Error(), "auth login") {
+		t.Fatalf("MCP refresh error is not actionable: %v", err)
+	}
+}
 
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
 // sql tool's allowlist accepts SELECT and WITH-prefix queries, including

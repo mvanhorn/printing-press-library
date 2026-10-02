@@ -5,6 +5,16 @@ package cli
 
 import "testing"
 
-func TestNovelQuotaCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for quota")
+func TestNovelQuotaReportsTodayAndRemainingCalls(t *testing.T) {
+	dbPath, db := newTestCardataStore(t)
+	if _, err := db.DB().Exec(`INSERT INTO cardata_api_calls(day, count) VALUES(?,?)`, nowUTCDay(), 17); err != nil {
+		t.Fatalf("insert quota: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	result := resultObject(t, executeTestJSON(t, "quota", "--db", dbPath))
+	if result["used"] != float64(17) || result["remaining"] != float64(33) {
+		t.Fatalf("unexpected quota result: %#v", result)
+	}
 }
