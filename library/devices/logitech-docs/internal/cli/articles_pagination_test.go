@@ -346,6 +346,110 @@ func TestDependentParentFetchFailureIsNotSuccess(t *testing.T) {
 	}
 }
 
+// TestFlatReconcileFailureIsReturnedAndNotCheckpointed proves a failed
+// mark-and-sweep cannot be reduced to an event while the resource is reported
+// as complete. The trigger makes the typed delete fail after a complete page
+// has been fetched and stored.
+func TestFlatReconcileFailureIsReturnedAndNotCheckpointed(t *testing.T) {
+	db := openTestStore(t)
+	if _, _, err := db.UpsertBatch("categories", []json.RawMessage{
+		json.RawMessage(`{"id":99,"name":"stale","tenant_id":"tenant-1"}`),
+	}); err != nil {
+		t.Fatalf("seed stale category: %v", err)
+	}
+	if _, err := db.DB().Exec(`CREATE TRIGGER fail_category_reconcile BEFORE DELETE ON categories BEGIN SELECT RAISE(ABORT, 'forced reconcile failure'); END`); err != nil {
+		t.Fatalf("create failing reconcile trigger: %v", err)
+	}
+
+	oldMode, hadMode := flatReconcileModes["categories"]
+	oldDef, hadDef := flatReconcileDefs["categories"]
+	oldTenantResolver := resolveTenantID
+	flatReconcileModes["categories"] = "flat"
+	flatReconcileDefs["categories"] = flatReconcileDefT{BodyField: "tenant_id"}
+	resolveTenantID = func() string { return "tenant-1" }
+	t.Cleanup(func() {
+		if hadMode {
+			flatReconcileModes["categories"] = oldMode
+		} else {
+			delete(flatReconcileModes, "categories")
+		}
+		if hadDef {
+			flatReconcileDefs["categories"] = oldDef
+		} else {
+			delete(flatReconcileDefs, "categories")
+		}
+		resolveTenantID = oldTenantResolver
+	})
+
+	c := &recordingClient{pages: []json.RawMessage{
+		json.RawMessage(`{"categories":[{"id":1,"name":"current","tenant_id":"tenant-1"}],"next_page":null}`),
+	}}
+	var events bytes.Buffer
+	res := syncResource(context.Background(), c, db, "categories", "", true, 0, false, true, &syncUserParams{}, &events)
+	if res.Err == nil || !strings.Contains(res.Err.Error(), "reconciling categories partition tenant-1") {
+		t.Fatalf("reconcile failure result = %#v, want propagated reconcile error", res)
+	}
+	if !strings.Contains(events.String(), `"event":"reconcile_error"`) {
+		t.Fatalf("missing reconcile_error event: %q", events.String())
+	}
+	assertNoSyncCheckpoint(t, db, "categories")
+}
+
+// TestDependentReconcileFailureIsReturnedAndNotCheckpointed covers the same
+// invariant for one parent partition in the dependent worker path.
+func TestDependentReconcileFailureIsReturnedAndNotCheckpointed(t *testing.T) {
+	deps := dependentResourceDefs()
+	if len(deps) == 0 {
+		t.Fatal("no dependent resources declared")
+	}
+	dep := deps[0]
+	dep.ReconcileMode = "per_parent"
+	dep.GenericScopeJSONPath = "$.parent_id"
+
+	db := openTestStore(t)
+	if _, _, err := db.UpsertBatch(dep.ParentTable, []json.RawMessage{
+		json.RawMessage(`{"id":777,"name":"Test Section"}`),
+	}); err != nil {
+		t.Fatalf("seed parent table: %v", err)
+	}
+	if _, _, err := db.UpsertBatch(dep.Name, []json.RawMessage{
+		json.RawMessage(`{"id":99,"title":"stale","section_id":777,"parent_id":"777"}`),
+	}); err != nil {
+		t.Fatalf("seed stale dependent: %v", err)
+	}
+	if _, err := db.DB().Exec(`CREATE TRIGGER fail_article_reconcile BEFORE DELETE ON articles BEGIN SELECT RAISE(ABORT, 'forced reconcile failure'); END`); err != nil {
+		t.Fatalf("create failing reconcile trigger: %v", err)
+	}
+
+	c := &recordingClient{pages: []json.RawMessage{
+		json.RawMessage(`{"articles":[{"id":11,"title":"current","section_id":777}],"meta":{"has_more":false,"after_cursor":""}}`),
+	}}
+	var events bytes.Buffer
+	res := syncDependentResource(context.Background(), c, db, dep, "", true, 0, false, true, &syncUserParams{}, &events, 1)
+	if res.Err == nil && res.Warn == nil {
+		t.Fatalf("reconcile failure was reported as clean success: %#v", res)
+	}
+	resultText := fmt.Sprint(res.Err, res.Warn)
+	if !strings.Contains(resultText, "reconciling articles partition 777") {
+		t.Fatalf("reconcile failure result = %#v, want partition context", res)
+	}
+	if !strings.Contains(events.String(), `"event":"reconcile_error"`) {
+		t.Fatalf("missing reconcile_error event: %q", events.String())
+	}
+	assertNoSyncCheckpoint(t, db, dep.Name)
+}
+
+func assertNoSyncCheckpoint(t *testing.T, db *store.Store, resource string) {
+	t.Helper()
+	var checkpoints int
+	if err := db.DB().QueryRow(`SELECT COUNT(*) FROM sync_state WHERE resource_type = ?`, resource).Scan(&checkpoints); err != nil {
+		t.Fatalf("count %s checkpoints: %v", resource, err)
+	}
+	if checkpoints != 0 {
+		t.Fatalf("%s reconcile failure persisted %d checkpoint(s), want 0", resource, checkpoints)
+	}
+}
+
 // failingClient fails every request, standing in for a transient upstream
 // error on one section.
 type failingClient struct{}

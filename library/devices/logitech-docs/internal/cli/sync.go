@@ -899,6 +899,7 @@ func syncResource(ctx context.Context, c interface {
 			)
 			if rerr != nil {
 				fmt.Fprintf(syncEvents, `{"event":"reconcile_error","resource":"%s","scope":"%s","error":%q}`+"\n", resource, tenantUUID, rerr.Error())
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("reconciling %s partition %s: %w", resource, tenantUUID, rerr), Duration: time.Since(started)}
 			} else {
 				fmt.Fprintf(syncEvents, `{"event":"reconcile","resource":"%s","scope":"%s","deleted":%d}`+"\n", resource, tenantUUID, deleted)
 			}
@@ -2490,6 +2491,7 @@ func syncOneParent(
 		)
 		if rerr != nil {
 			fmt.Fprintf(syncEvents, `{"event":"reconcile_error","resource":"%s","scope":"%s","error":%q}`+"\n", dep.Name, outcome.scopeVal, rerr.Error())
+			rep.failure = fmt.Errorf("reconciling %s partition %s: %w", dep.Name, outcome.scopeVal, rerr)
 		} else {
 			// Always emit on a proven-complete sweep, even when deleted==0, so a
 			// clean run is observable (distinguishable from "reconcile never ran").

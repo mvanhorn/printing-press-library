@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,6 +23,31 @@ import (
 // logiDownloadRe matches Logitech's download01.logi.com file URLs found inside
 // article bodies (firmware, software, PDF manuals).
 var logiDownloadRe = regexp.MustCompile(`https://download[0-9]*\.logi\.com/[^\s"'<>\\]+`)
+
+// logiDownloadHostRe is deliberately narrower than a general *.logi.com
+// allowlist. Article links are sourced from Logitech's dedicated download
+// hosts, so redirects must remain on that same host family and on HTTPS.
+var logiDownloadHostRe = regexp.MustCompile(`(?i)^download[0-9]*\.logi\.com$`)
+
+func validateLogitechDownloadURL(u *url.URL) error {
+	if u == nil || !strings.EqualFold(u.Scheme, "https") || !logiDownloadHostRe.MatchString(u.Hostname()) {
+		return fmt.Errorf("refusing download redirect outside HTTPS Logitech download hosts: %v", u)
+	}
+	return nil
+}
+
+func newLogitechDownloadClient() *http.Client {
+	return &http.Client{CheckRedirect: func(req *http.Request, _ []*http.Request) error {
+		return validateLogitechDownloadURL(req.URL)
+	}}
+}
+
+// createNewDownloadFile atomically claims a previously unused destination.
+// O_EXCL prevents both overwriting an existing file and following a symlink
+// that appeared between filename validation and the open.
+func createNewDownloadFile(dest string) (*os.File, error) {
+	return os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) // #nosec G304 -- dest is a validated basename joined under the caller-selected --save directory
+}
 
 type downloadLink struct {
 	ArticleID string `json:"article_id"`
@@ -117,7 +143,7 @@ func newNovelDownloadCmd(flags *rootFlags) *cobra.Command {
 			if err := os.MkdirAll(saveDir, 0o750); err != nil {
 				return fmt.Errorf("creating directory %s: %w", saveDir, err)
 			}
-			client := &http.Client{}
+			client := newLogitechDownloadClient()
 			for i := range links {
 				req, err := http.NewRequestWithContext(ctx, http.MethodGet, links[i].URL, nil)
 				if err != nil {
@@ -140,18 +166,23 @@ func newNovelDownloadCmd(flags *rootFlags) *cobra.Command {
 					return apiErr(fmt.Errorf("refusing unsafe download filename %q from %s", name, links[i].URL))
 				}
 				dest := filepath.Join(saveDir, name)
-				out, err := os.Create(dest) // #nosec G304 -- name is validated above as a plain file name and joined under the user-supplied --save dir
+				out, err := createNewDownloadFile(dest)
 				if err != nil {
 					_ = resp.Body.Close()
-					return fmt.Errorf("creating %s: %w", dest, err)
+					if os.IsExist(err) {
+						return fmt.Errorf("refusing to overwrite existing download %s", dest)
+					}
+					return fmt.Errorf("creating new download %s: %w", dest, err)
 				}
 				_, copyErr := io.Copy(out, resp.Body)
 				closeErr := out.Close()
 				_ = resp.Body.Close()
 				if copyErr != nil {
+					_ = os.Remove(dest)
 					return fmt.Errorf("writing %s: %w", dest, copyErr)
 				}
 				if closeErr != nil {
+					_ = os.Remove(dest)
 					return fmt.Errorf("closing %s: %w", dest, closeErr)
 				}
 				links[i].SavedTo = dest

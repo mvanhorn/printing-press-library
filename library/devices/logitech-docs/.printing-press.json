@@ -9,6 +9,12 @@
     "handle": "Drummerms",
     "name": "drummerms"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "drummerms",
   "printer": "Drummerms",
   "printer_name": "drummerms",

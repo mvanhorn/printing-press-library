@@ -4,6 +4,12 @@
 
 support.logi.com is a Zendesk portal with a clean JSON API hiding behind it. logitech-docs turns 33k+ reference documents into a greppable local index: find specs by product, pull install guides, and full-text search inside manuals without touching a browser.
 
+Created by [@Drummerms](https://github.com/Drummerms) (drummerms).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Downloads stay on HTTPS Logitech download hosts and will not overwrite an existing file. A failed sync cleanup now reports an error instead of appearing complete.
+
 ## Install
 
 The recommended path installs both the `logitech-docs-pp-cli` binary and the `pp-logitech-docs` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
