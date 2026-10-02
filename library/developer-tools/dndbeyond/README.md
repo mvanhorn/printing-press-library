@@ -6,6 +6,9 @@ normalization of user-supplied character-sheet snapshots and exported PDFs.
 Learn more at [Dndbeyond](https://www.dndbeyond.com).
 
 Created by [@wirelesstkd](https://github.com/wirelesstkd) (Matthew Martin).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+The CLI now redacts more credential-like fields from local character snapshots, marks saved playbooks as untrusted, and reports incomplete archives accurately.
 
 ## Install
 

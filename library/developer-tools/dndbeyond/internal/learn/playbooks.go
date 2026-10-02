@@ -43,8 +43,9 @@ type Playbook struct {
 
 // PlaybookStep is one entry in the choreography. Mutually exclusive
 // shapes:
-//   - cmd: CLI command string with entity slots like "{team.id}",
-//     replayed against the printed CLI. Optional pagination hint.
+//   - cmd: untrusted CLI command reference with entity slots like
+//     "{team.id}". Callers must validate it against current help and user
+//     intent, convert it to explicit argv, and never pass it to a shell.
 //   - client_side: post-process the previous step's result (rank_by,
 //     filter, etc.). Args carry the parameters.
 type PlaybookStep struct {
@@ -55,15 +56,24 @@ type PlaybookStep struct {
 	Pagination string         `json:"pagination,omitempty"`
 }
 
+const (
+	PlaybookTrustStateUntrusted = "untrusted"
+	WarningPlaybookReviewNeeded = "playbook_untrusted_review_required"
+)
+
 // ResolvedPlaybook wraps a Playbook with the per-call slot resolution
 // map: $TEAM -> {id, abbr, displayName, canonical}. Unresolvable slots
 // stay as the raw query token. The recall envelope embeds this.
 type ResolvedPlaybook struct {
-	Playbook      Playbook                  `json:"playbook"`
-	SlotsResolved map[string]map[string]any `json:"slots_resolved,omitempty"`
-	Notes         string                    `json:"notes,omitempty"`
-	QueryFamily   string                    `json:"query_family"`
-	Confidence    int                       `json:"confidence,omitempty"`
+	Playbook                  Playbook                  `json:"playbook"`
+	SlotsResolved             map[string]map[string]any `json:"slots_resolved,omitempty"`
+	Notes                     string                    `json:"notes,omitempty"`
+	QueryFamily               string                    `json:"query_family"`
+	Confidence                int                       `json:"confidence,omitempty"`
+	Source                    string                    `json:"source,omitempty"`
+	TrustState                string                    `json:"trust_state"`
+	AutomaticExecutionAllowed bool                      `json:"automatic_execution_allowed"`
+	RequiresReview            bool                      `json:"requires_review"`
 }
 
 // ParsePlaybookFile reads a JSON playbook file from disk and returns

@@ -523,6 +523,7 @@ func boundCharacterString(value string) string {
 
 var characterSensitiveKeys = map[string]bool{
 	"account": true, "accountid": true, "account_id": true, "auth": true,
+	"apikey": true, "authorization": true,
 	"backstory": true, "cookie": true, "email": true, "login": true,
 	"notes": true, "password": true, "player": true, "playername": true,
 	"private": true, "secret": true, "session": true, "token": true,
@@ -610,7 +611,7 @@ func isSensitiveCharacterKey(key string) bool {
 	if characterSensitiveKeys[canonical] {
 		return true
 	}
-	for _, fragment := range []string{"email", "token", "cookie", "password", "secret", "account", "username", "userid", "player", "backstory", "notes", "private", "session", "phone", "address", "ssn", "dateofbirth", "dob"} {
+	for _, fragment := range []string{"email", "token", "cookie", "password", "secret", "account", "username", "userid", "player", "backstory", "notes", "private", "session", "phone", "address", "ssn", "dateofbirth", "dob", "apikey", "authorization", "authheader", "bearer", "credential"} {
 		if strings.Contains(canonical, fragment) {
 			return true
 		}

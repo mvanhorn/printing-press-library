@@ -9,6 +9,12 @@
     "handle": "wirelesstkd",
     "name": "Matthew Martin"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "printer": "wirelesstkd",
   "printer_name": "Matthew Martin",
   "spec_format": "internal",

@@ -66,6 +66,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				}
 			}
 			totalSynced := 0
+			successfulResources := 0
+			type archiveFailure struct {
+				Resource string `json:"resource"`
+				Error    string `json:"error"`
+			}
+			failedResources := make([]archiveFailure, 0)
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
 				syncEventWriter = cmd.ErrOrStderr()
@@ -89,28 +95,43 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						return fmt.Errorf("archiving %s: %w", resource, res.Err)
 					}
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
+					failedResources = append(failedResources, archiveFailure{Resource: resource, Error: res.Err.Error()})
 					continue
 				}
 				if res.Warn != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
+					failedResources = append(failedResources, archiveFailure{Resource: resource, Error: res.Warn.Error()})
 					continue
 				}
 				totalSynced += res.Count
+				successfulResources++
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
 			if flags.asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
+				if err := enc.Encode(map[string]any{
+					"resources_total":  len(resources),
+					"resources_synced": successfulResources,
+					"resources_failed": len(failedResources),
+					"failed_resources": failedResources,
 					"total_items":      totalSynced,
 					"store_path":       dbPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
-				})
+				}); err != nil {
+					return err
+				}
+				if len(failedResources) > 0 {
+					return fmt.Errorf("archive incomplete: %d of %d resources failed", len(failedResources), len(resources))
+				}
+				return nil
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d successful resources (%d failed) to %s\n", totalSynced, successfulResources, len(failedResources), dbPath)
+			if len(failedResources) > 0 {
+				return fmt.Errorf("archive incomplete: %d of %d resources failed", len(failedResources), len(resources))
+			}
 			return nil
 		},
 	}

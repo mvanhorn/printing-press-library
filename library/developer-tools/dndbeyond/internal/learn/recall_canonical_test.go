@@ -680,6 +680,22 @@ func TestRecall_PlaybookSurfaces_OnFamilyMatch(t *testing.T) {
 	if got.Playbook.SlotsResolved["$ENTITY"] == nil {
 		t.Errorf("want $ENTITY slot resolved; got SlotsResolved=%v", got.Playbook.SlotsResolved)
 	}
+	if got.Playbook.TrustState != PlaybookTrustStateUntrusted || got.Playbook.AutomaticExecutionAllowed || !got.Playbook.RequiresReview {
+		t.Fatalf("stored playbook execution policy is unsafe: %+v", got.Playbook)
+	}
+	if got.Playbook.Source != "taught" {
+		t.Errorf("playbook source = %q, want taught", got.Playbook.Source)
+	}
+	foundTrustWarning := false
+	for _, warning := range got.Warnings {
+		if warning == WarningPlaybookReviewNeeded {
+			foundTrustWarning = true
+			break
+		}
+	}
+	if !foundTrustWarning {
+		t.Errorf("stored playbook must surface an untrusted-data warning; got %v", got.Warnings)
+	}
 }
 
 // TestRecall_PlaybookSurfaces_DifferentEntitySameFamily is the killer-

@@ -601,17 +601,22 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			playbookJSON sql.NullString
 			notesText    sql.NullString
 			pbConfidence int
+			pbSource     string
 		)
 		lookupErr := db.QueryRowContext(ctx,
-			`SELECT COALESCE(playbook_json, ''), COALESCE(notes_text, ''), confidence
+			`SELECT COALESCE(playbook_json, ''), COALESCE(notes_text, ''), confidence, COALESCE(source, '')
 			 FROM learning_playbooks WHERE query_family = ?`,
 			family,
-		).Scan(&playbookJSON, &notesText, &pbConfidence)
+		).Scan(&playbookJSON, &notesText, &pbConfidence, &pbSource)
 		if lookupErr == nil {
 			rp := &ResolvedPlaybook{
-				QueryFamily: family,
-				Confidence:  pbConfidence,
-				Notes:       notesText.String,
+				QueryFamily:               family,
+				Confidence:                pbConfidence,
+				Notes:                     notesText.String,
+				Source:                    pbSource,
+				TrustState:                PlaybookTrustStateUntrusted,
+				AutomaticExecutionAllowed: false,
+				RequiresReview:            true,
 			}
 			if playbookJSON.String != "" {
 				if pb, perr := ParsePlaybook([]byte(playbookJSON.String), "learning_playbooks:"+family); perr == nil {
@@ -629,6 +634,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			if rp.Notes != "" || len(rp.Playbook.Steps) > 0 {
 				result.Playbook = rp
 				result.Notes = notesText.String
+				result.Warnings = append(result.Warnings, WarningPlaybookReviewNeeded)
 			}
 		}
 	}
