@@ -17,6 +17,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -547,7 +548,7 @@ func currentCardataStreamSession(ctx context.Context, cfg *config.Config, now ti
 	}
 	session, err = loadCardataSession(cfg)
 	if err != nil || session["gcid"] == "" || !validCardataIDToken(session["id_token"], now) {
-		return nil, fmt.Errorf("%w: streaming session needs a current ID token; run 'auth login' with streaming scope", ErrCardataLoginRequired)
+		return nil, fmt.Errorf("%w: streaming session needs a current ID token; run 'stream --config <original-alias> <vin>' once to migrate an older symlink-side session, or run 'auth login' with streaming scope", ErrCardataLoginRequired)
 	}
 	return session, nil
 }
@@ -568,13 +569,107 @@ func cardataSharedSessionPath(cfg *config.Config) (string, error) {
 	return filepath.Join(filepath.Dir(target), "cardata_session.json"), nil
 }
 
-func removeCardataSession(cfg *config.Config) error {
+func removeCardataSession(cfg *config.Config, previousClientID string) error {
 	shared, err := cardataSharedSessionPath(cfg)
 	if err != nil {
 		return err
 	}
-	for _, path := range []string{shared, cardataSessionPath(cfg)} {
-		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+	if err := os.Remove(shared); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	aliases, err := knownCardataLegacySessions(cfg)
+	if err != nil {
+		return err
+	}
+	selectedLegacy, err := filepath.Abs(cardataSessionPath(cfg))
+	if err != nil {
+		return err
+	}
+	for _, legacy := range aliases {
+		// A known alias directory can also hold another config's sidecar.
+		// Remove it only when it belongs to the account being cleared.
+		data, err := os.ReadFile(legacy)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		if legacy != selectedLegacy && (previousClientID == "" || cardataSessionClientID(data) != previousClientID) {
+			continue
+		}
+		if err := os.Remove(legacy); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	}
+	return nil
+}
+
+// Only aliases the user selected or configured can be discovered from a
+// target path. Never scan the home directory for arbitrary config symlinks.
+func knownCardataLegacySessions(cfg *config.Config) ([]string, error) {
+	target, err := config.CanonicalPath(cfg.Path)
+	if err != nil {
+		return nil, err
+	}
+	shared := filepath.Join(filepath.Dir(target), "cardata_session.json")
+	home, _ := os.UserHomeDir()
+	paths := []string{cfg.Path, os.Getenv("BMW_CARDATA_CONFIG")}
+	if home != "" {
+		paths = append(paths, filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml"))
+	}
+	seen := map[string]bool{}
+	var sessions []string
+	for _, configPath := range paths {
+		if configPath == "" {
+			continue
+		}
+		resolved, err := config.CanonicalPath(configPath)
+		if err != nil || resolved != target {
+			continue
+		}
+		legacy, err := filepath.Abs(filepath.Join(filepath.Dir(configPath), "cardata_session.json"))
+		if err != nil {
+			return nil, err
+		}
+		if legacy == shared || seen[legacy] {
+			continue
+		}
+		if canonicalLegacy, err := config.CanonicalPath(legacy); err == nil && canonicalLegacy == shared {
+			continue
+		}
+		seen[legacy] = true
+		sessions = append(sessions, legacy)
+	}
+	sort.Strings(sessions)
+	return sessions, nil
+}
+
+func cardataSessionClientID(data []byte) string {
+	var session map[string]string
+	if json.Unmarshal(data, &session) != nil {
+		return ""
+	}
+	return session["client_id"]
+}
+
+func retireKnownCardataSessions(cfg *config.Config) error {
+	aliases, err := knownCardataLegacySessions(cfg)
+	if err != nil {
+		return err
+	}
+	for _, legacy := range aliases {
+		data, err := os.ReadFile(legacy)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		if cardataSessionClientID(data) != cfg.ClientID {
+			continue
+		}
+		if err := os.Remove(legacy); err != nil && !os.IsNotExist(err) {
 			return err
 		}
 	}
@@ -584,21 +679,23 @@ func removeCardataSession(cfg *config.Config) error {
 // migrateLegacyCardataSession first checks without a lock, then rechecks and
 // copies the legacy sidecar while holding the same lock as token refresh.
 func migrateLegacyCardataSession(ctx context.Context, cfg *config.Config, now time.Time) error {
-	shared, err := cardataSharedSessionPath(cfg)
+	aliases, err := knownCardataLegacySessions(cfg)
 	if err != nil {
 		return err
 	}
-	legacy := cardataSessionPath(cfg)
-	if shared == legacy {
+	if len(aliases) == 0 {
 		return nil
 	}
-	if canonicalLegacy, err := config.CanonicalPath(legacy); err == nil && canonicalLegacy == shared {
-		return nil
+	found := false
+	for _, legacy := range aliases {
+		if _, err := os.Stat(legacy); err == nil {
+			found = true
+		} else if !os.IsNotExist(err) {
+			return err
+		}
 	}
-	if _, err := os.Stat(legacy); os.IsNotExist(err) {
+	if !found {
 		return nil
-	} else if err != nil {
-		return err
 	}
 	return withCardataRefreshLock(ctx, cfg.Path, func() error {
 		fresh, err := config.Load(cfg.Path)
@@ -622,57 +719,57 @@ func migrateLegacyCardataSessionLocked(cfg *config.Config, now time.Time) error 
 	if err != nil {
 		return err
 	}
-	legacy := cardataSessionPath(cfg)
-	if shared == legacy {
-		return nil
+	aliases, err := knownCardataLegacySessions(cfg)
+	if err != nil {
+		return err
 	}
-	if canonicalLegacy, err := config.CanonicalPath(legacy); err == nil && canonicalLegacy == shared {
-		return nil
+	selectedLegacy, err := filepath.Abs(cardataSessionPath(cfg))
+	if err != nil {
+		return err
 	}
-	if data, err := os.ReadFile(shared); err == nil {
-		// Keep a current shared session. An old alias may replace it only when
-		// the shared copy is unusable and the alias is usable for this client.
-		if usableCardataSession(data, cfg, now) {
-			if err := os.Remove(legacy); err != nil && !os.IsNotExist(err) {
-				return err
-			}
-			return nil
-		}
-		legacyData, err := os.ReadFile(legacy)
+	sharedData, err := os.ReadFile(shared)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	if usableCardataSession(sharedData, cfg, now) {
+		return retireKnownCardataSessions(cfg)
+	}
+	var selected []byte
+	var selectedIDToken, selectedGCID string
+	for _, legacy := range aliases {
+		data, err := os.ReadFile(legacy)
 		if os.IsNotExist(err) {
-			return nil
+			continue
 		}
 		if err != nil {
 			return err
 		}
-		if !usableCardataSession(legacyData, cfg, now) {
-			return nil
+		if !usableCardataSession(data, cfg, now) {
+			if legacy == selectedLegacy {
+				return fmt.Errorf("streaming session beside the selected config alias is invalid or belongs to another client")
+			}
+			continue
 		}
-		if err := config.WritePrivateFile(shared, legacyData); err != nil {
+		var session map[string]string
+		if err := json.Unmarshal(data, &session); err != nil {
 			return err
 		}
-		return os.Remove(legacy)
-	} else if !os.IsNotExist(err) {
-		return err
+		if selected != nil && (session["id_token"] != selectedIDToken || session["gcid"] != selectedGCID) {
+			return fmt.Errorf("conflicting valid streaming sessions beside config aliases; run 'auth login' again to create one shared session")
+		}
+		if selected == nil {
+			selected = data
+			selectedIDToken = session["id_token"]
+			selectedGCID = session["gcid"]
+		}
 	}
-	data, err := os.ReadFile(legacy)
-	if os.IsNotExist(err) {
+	if selected == nil {
 		return nil
 	}
-	if err != nil {
+	if err := config.WritePrivateFile(shared, selected); err != nil {
 		return err
 	}
-	var session map[string]any
-	if err := json.Unmarshal(data, &session); err != nil {
-		return fmt.Errorf("parsing existing streaming session: %w", err)
-	}
-	if clientID, _ := session["client_id"].(string); cfg.ClientID != "" && clientID != cfg.ClientID {
-		return fmt.Errorf("existing streaming session belongs to another client")
-	}
-	if err := config.WritePrivateFile(shared, data); err != nil {
-		return err
-	}
-	return os.Remove(legacy)
+	return retireKnownCardataSessions(cfg)
 }
 
 func usableCardataSession(data []byte, cfg *config.Config, now time.Time) bool {
@@ -709,27 +806,7 @@ func writeCardataSession(cfg *config.Config, clientID string, tok *cardataToken,
 	if err := config.WritePrivateFile(shared, buf); err != nil {
 		return err
 	}
-	legacy := cardataSessionPath(cfg)
-	if legacy == shared {
-		return nil
-	}
-	// A lexical alias such as /var may still name this same file. Compare
-	// identities before removing the old alias-side location.
-	sharedInfo, err := os.Stat(shared)
-	if err != nil {
-		return err
-	}
-	legacyInfo, err := os.Stat(legacy)
-	if os.IsNotExist(err) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-	if os.SameFile(sharedInfo, legacyInfo) {
-		return nil
-	}
-	return os.Remove(legacy)
+	return retireKnownCardataSessions(cfg)
 }
 
 // loadCardataSession reads only the shared sidecar. Legacy alias data must be

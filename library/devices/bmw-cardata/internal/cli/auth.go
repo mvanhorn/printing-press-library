@@ -123,13 +123,14 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
+				previousClientID := fresh.ClientID
 				// A legacy auth_header must not shadow the newly saved token.
 				fresh.AuthHeaderVal = ""
 				if err := fresh.SaveTokens("", "", args[0], "", time.Time{}); err != nil {
 					return err
 				}
 				// A direct API token cannot authenticate a prior OAuth stream.
-				if err := removeCardataSession(fresh); err != nil {
+				if err := removeCardataSession(fresh, previousClientID); err != nil {
 					return err
 				}
 				cfg = fresh
@@ -169,11 +170,12 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
+				previousClientID := fresh.ClientID
 				if err := fresh.ClearTokens(); err != nil {
 					return err
 				}
 				// Device-code login also writes a usable streaming sidecar.
-				if err := removeCardataSession(fresh); err != nil {
+				if err := removeCardataSession(fresh, previousClientID); err != nil {
 					return err
 				}
 				cfg = fresh

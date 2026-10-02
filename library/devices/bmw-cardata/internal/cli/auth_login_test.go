@@ -570,6 +570,164 @@ func TestLegacyAliasSessionMigratesForTargetStream(t *testing.T) {
 	}
 }
 
+func TestTargetFirstStreamMigratesKnownConfigAlias(t *testing.T) {
+	for _, source := range []string{"default", "env"} {
+		t.Run(source, func(t *testing.T) {
+			home := t.TempDir()
+			t.Setenv("HOME", home)
+			t.Setenv("USERPROFILE", home)
+			t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+			t.Setenv("BMW_CARDATA_CONFIG", "")
+			now := time.Now().UTC()
+			target := filepath.Join(home, "target", "config.toml")
+			cfg, err := config.Load(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := cfg.SaveTokens("client", "", "access", "refresh", now.Add(time.Hour)); err != nil {
+				t.Fatal(err)
+			}
+			alias := filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
+			if source == "env" {
+				alias = filepath.Join(home, "configured-alias", "config.toml")
+				t.Setenv("BMW_CARDATA_CONFIG", alias)
+			}
+			if err := os.MkdirAll(filepath.Dir(alias), 0o700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(target, alias); err != nil {
+				t.Skipf("symlinks unavailable: %v", err)
+			}
+			idToken := testIDToken(now.Add(time.Hour))
+			legacyData, err := json.Marshal(map[string]string{"client_id": "client", "id_token": idToken, "gcid": "gcid"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			legacy := filepath.Join(filepath.Dir(alias), "cardata_session.json")
+			if err := config.WritePrivateFile(legacy, legacyData); err != nil {
+				t.Fatal(err)
+			}
+			var calls atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				calls.Add(1)
+				w.WriteHeader(http.StatusInternalServerError)
+			}))
+			defer server.Close()
+			// The target path is selected first. Migration must find only the
+			// known matching alias, before an OAuth refresh can be attempted.
+			session, err := currentCardataStreamSession(context.Background(), cfg, now, server.URL)
+			if err != nil || session["id_token"] != idToken || calls.Load() != 0 {
+				t.Fatalf("target-first stream lost known alias session: err=%v refresh_calls=%d", err, calls.Load())
+			}
+			if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+				t.Fatalf("old alias session remained after migration: %v", err)
+			}
+			shared, err := cardataSharedSessionPath(cfg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if info, err := os.Stat(shared); err != nil || info.Mode().Perm() != 0o600 {
+				t.Fatalf("shared session missing or not private: info=%v err=%v", info, err)
+			}
+		})
+	}
+}
+
+func TestTargetFirstStreamRejectsConflictingKnownAliases(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	target := filepath.Join(home, "target", "config.toml")
+	cfg, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client", "", "access", "refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	envAlias := filepath.Join(home, "env-alias", "config.toml")
+	t.Setenv("BMW_CARDATA_CONFIG", envAlias)
+	defaultAlias := filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
+	for i, alias := range []string{defaultAlias, envAlias} {
+		if err := os.MkdirAll(filepath.Dir(alias), 0o700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Symlink(target, alias); err != nil {
+			t.Skipf("symlinks unavailable: %v", err)
+		}
+		data, err := json.Marshal(map[string]string{
+			"client_id": "client", "id_token": testIDToken(now.Add(time.Duration(i+1) * time.Hour)), "gcid": "gcid",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := config.WritePrivateFile(filepath.Join(filepath.Dir(alias), "cardata_session.json"), data); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer server.Close()
+	if _, err := currentCardataStreamSession(context.Background(), cfg, now, server.URL); err == nil || !strings.Contains(err.Error(), "conflicting valid streaming sessions") {
+		t.Fatalf("conflicting aliases did not fail closed: %v", err)
+	}
+	if calls.Load() != 0 {
+		t.Fatalf("conflicting aliases triggered %d OAuth refresh calls", calls.Load())
+	}
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(shared); !os.IsNotExist(err) {
+		t.Fatalf("conflicting aliases wrote shared session: %v", err)
+	}
+}
+
+func TestLogoutThroughTargetRemovesKnownAliasSession(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	t.Setenv("BMW_CARDATA_CONFIG", "")
+	target := filepath.Join(home, "target", "config.toml")
+	cfg, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client", "", "access", "refresh", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
+	if err := os.MkdirAll(filepath.Dir(alias), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	legacy := filepath.Join(filepath.Dir(alias), "cardata_session.json")
+	data, err := json.Marshal(map[string]string{"client_id": "client", "id_token": testIDToken(time.Now().Add(time.Hour)), "gcid": "gcid"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(legacy, data); err != nil {
+		t.Fatal(err)
+	}
+	cmd := newAuthLogoutCmd(&rootFlags{configPath: target})
+	cmd.SetOut(io.Discard)
+	cmd.SetContext(context.Background())
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+		t.Fatalf("logout through target left known alias-side credentials: %v", err)
+	}
+}
+
 func TestSidecarMigrationSelectsUsableSession(t *testing.T) {
 	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
 	now := time.Now().UTC()
