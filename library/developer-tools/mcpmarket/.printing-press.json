@@ -72,5 +72,50 @@
   "creator": {
     "handle": "SomSamantray",
     "name": "Som Samantray"
-  }
+  },
+  "display_name": "MCP Market",
+  "owner": "SomSamantray",
+  "owner_name": "Som Samantray",
+  "spec_path": ".manuscripts/20260827-211137-37906ad0/research/mcpmarket-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "internal-yaml",
+  "spec_checksum": "sha256:bdc704175aaedb5750120ad3990da7bd437f9b8ef10b953b6c53922d00549195",
+  "description": "Search and browse MCP Market. Compare snapshots, track trends, and view author portfolios.",
+  "novel_features_built": [
+    {
+      "name": "Trending Delta",
+      "command": "trending",
+      "description": "See which MCP servers/skills are rising fastest vs. holding steady, computed from your own browse history."
+    },
+    {
+      "name": "Sync Diff",
+      "command": "diff",
+      "description": "See exactly which servers, clients, or skills were added, removed, or changed between two snapshots."
+    },
+    {
+      "name": "Author Portfolio",
+      "command": "author",
+      "description": "See everything one GitHub org has published across servers, skills, and clients in one view."
+    },
+    {
+      "name": "Time-Travel Leaderboard",
+      "command": "leaderboard",
+      "description": "See what the top-100 leaderboard looked like on a past date, not just right now."
+    },
+    {
+      "name": "Stack Recommendation",
+      "command": "stack",
+      "description": "Chain the similar-tools recommendation graph multiple hops to build a ranked shortlist around a server you already use."
+    },
+    {
+      "name": "Category Watch",
+      "command": "watch category",
+      "description": "Flag newly-appeared listings in a category since your last check."
+    },
+    {
+      "name": "Duplicate Detector",
+      "command": "dedupe",
+      "description": "Surface near-identical listings from different authors within a category."
+    }
+  ]
 }
