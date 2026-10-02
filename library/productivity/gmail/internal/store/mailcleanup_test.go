@@ -95,6 +95,26 @@ func TestMailApplyChunksAndLedgerLifecycle(t *testing.T) {
 	if len(got) != 2 || got[0].State != MailChunkStatePending || got[1].Add[0] != "L1" {
 		t.Fatalf("chunks round-trip mismatch: %+v", got)
 	}
+	itemStates, err := s.ListMailApplyItemStates(applyID, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if itemStates["m1"] != MailApplyItemStatePending || itemStates["m2"] != MailApplyItemStatePending {
+		t.Fatalf("initial item states = %+v, want both pending", itemStates)
+	}
+	if err := s.SetMailApplyItemState(applyID, 0, "m1", MailApplyItemStateApplying); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SetMailApplyItemState(applyID, 0, "m1", MailApplyItemStateDone); err != nil {
+		t.Fatal(err)
+	}
+	itemStates, err = s.ListMailApplyItemStates(applyID, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if itemStates["m1"] != MailApplyItemStateDone || itemStates["m2"] != MailApplyItemStatePending {
+		t.Fatalf("updated item states = %+v, want m1 done and m2 pending", itemStates)
+	}
 	if err := s.SetMailApplyChunkState(applyID, 0, MailChunkStateDone); err != nil {
 		t.Fatal(err)
 	}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "20261001-durable-cleanup-recovery",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260818-095450",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Record per-message cleanup and undo progress so recovery preserves manual changes and avoids resending uncertain writes.",
+  "reason": "Chunk-only state cannot distinguish an untouched message from one manually changed after a crash; the independent cleanup retry loop could also replay a request after an ambiguous response.",
+  "files": [
+    ".printing-press.json",
+    "NOTICE",
+    "README.md",
+    "internal/cli/cleanup_apply.go",
+    "internal/cli/cleanup_engine_test.go",
+    "internal/cli/undo.go",
+    "internal/store/extras.go",
+    "internal/store/mailcleanup.go",
+    "internal/store/mailcleanup_test.go"
+  ],
+  "validated_outcome": "Offline fake-Gmail tests cover crash recovery, partial undo, later cleanups, and a post-commit error that must not send a second trash request. No live Gmail API call was made."
+}

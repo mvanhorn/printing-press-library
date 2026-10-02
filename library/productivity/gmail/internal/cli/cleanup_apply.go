@@ -17,9 +17,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // applyResult is the JSON envelope apply/recover print per apply.
@@ -84,24 +84,32 @@ type chunkOutcome struct {
 	appliedIDs       []string
 	failedIDs        []string
 	authAbort        error // non-nil: 401/403 hit; whole apply aborts recoverably
+	storeAbort       error // non-nil: durable per-message state could not be recorded
 }
 
-// executeTrashChunk trashes each id through the worker pool. recovery
-// re-checks current labelIds first (grill: per-id trash recovery) so an
-// id the crashed run already trashed is completed, not double-counted as
-// new work; a 404 (message gone) is a skip, never a forced mutation.
-func executeTrashChunk(ctx context.Context, c *client.Client, ch store.MailApplyChunk, recovery bool) chunkOutcome {
+// executeTrashChunk trashes each id through the worker pool. Per-message
+// states prove which recovery items never started; started/done items are
+// re-checked so a manual untrash becomes a conflict instead of being silently
+// reversed. A 404 (message gone) is a skip, never a forced mutation.
+func executeTrashChunk(ctx context.Context, c *client.Client, db *store.Store, ch store.MailApplyChunk, recovery bool) chunkOutcome {
 	out := chunkOutcome{}
 	pending := append([]string(nil), ch.IDs...)
 	succeeded := map[string]bool{}
 	skipped := map[string]bool{}
+	itemStates, err := db.ListMailApplyItemStates(ch.ApplyID, ch.ChunkNo)
+	if err != nil {
+		out.storeAbort = err
+		return out
+	}
 
-	for pass := 0; pass < cleanupChunkRetryCeiling && len(pending) > 0 && out.authAbort == nil; pass++ {
+	for pass := 0; pass < cleanupChunkRetryCeiling && len(pending) > 0 && out.authAbort == nil && out.storeAbort == nil; pass++ {
 		type res struct {
-			id   string
-			ok   bool
-			skip bool
-			err  error
+			id        string
+			ok        bool
+			skip      bool
+			err       error
+			storeErr  error
+			itemState string
 		}
 		work := make(chan string)
 		results := make(chan res, len(pending))
@@ -115,35 +123,81 @@ func executeTrashChunk(ctx context.Context, c *client.Client, ch store.MailApply
 			go func() {
 				defer wg.Done()
 				for id := range work {
-					if recovery {
+					itemState, recorded := itemStates[id]
+					if itemState == store.MailApplyItemStateConflict {
+						results <- res{id: id, skip: true, itemState: itemState}
+						continue
+					}
+					if (recovery || pass > 0) && (!recorded || itemState != store.MailApplyItemStatePending) {
 						labels, found, err := fetchMessageLabelIDs(ctx, c, id)
 						if err != nil {
-							results <- res{id: id, err: err}
+							results <- res{id: id, err: err, itemState: itemState}
 							continue
 						}
 						if !found {
-							results <- res{id: id, skip: true}
+							if err := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStateConflict); err != nil {
+								results <- res{id: id, storeErr: err, itemState: itemState}
+							} else {
+								results <- res{id: id, skip: true, itemState: store.MailApplyItemStateConflict}
+							}
 							continue
 						}
 						if hasLabel(labels, "TRASH") {
 							// The crashed run already applied this id.
-							results <- res{id: id, ok: true}
+							if err := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStateDone); err != nil {
+								results <- res{id: id, storeErr: err, itemState: itemState}
+							} else {
+								results <- res{id: id, ok: true, itemState: store.MailApplyItemStateDone}
+							}
 							continue
 						}
-					}
-					err := engineCall(ctx, func(cctx context.Context) error {
-						_, _, perr := c.Post(cctx, mailMetadataFetchPath+url.PathEscape(id)+"/trash", struct{}{})
-						return perr
-					})
-					if err != nil {
-						if apiStatus(err) == 404 {
-							results <- res{id: id, skip: true}
-							continue
+						// A request was started (or this is a legacy applying
+						// chunk) but TRASH is now absent. That can be a manual
+						// untrash, so recovery must not silently reverse it.
+						if err := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStateConflict); err != nil {
+							results <- res{id: id, storeErr: err, itemState: itemState}
+						} else {
+							results <- res{id: id, skip: true, itemState: store.MailApplyItemStateConflict}
 						}
-						results <- res{id: id, err: err}
 						continue
 					}
-					results <- res{id: id, ok: true}
+					if err := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStateApplying); err != nil {
+						results <- res{id: id, storeErr: err, itemState: itemState}
+						continue
+					}
+					// A transport or server error may arrive after Gmail applied
+					// the mutation. Send once, then inspect live labels on the
+					// next pass instead of replaying an ambiguous write.
+					callCtx, cancel := context.WithTimeout(ctx, cleanupCallTimeout)
+					_, _, err := c.Post(callCtx, mailMetadataFetchPath+url.PathEscape(id)+"/trash", struct{}{})
+					cancel()
+					if err != nil {
+						if isEngineAuthError(err) || apiStatus(err) == 429 {
+							// Authentication and rate-limit failures prove Gmail
+							// rejected the request, so a later attempt is safe.
+							if serr := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStatePending); serr != nil {
+								results <- res{id: id, storeErr: serr, itemState: store.MailApplyItemStateApplying}
+							} else {
+								results <- res{id: id, err: err, itemState: store.MailApplyItemStatePending}
+							}
+							continue
+						}
+						if apiStatus(err) == 404 {
+							if serr := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStateConflict); serr != nil {
+								results <- res{id: id, storeErr: serr, itemState: store.MailApplyItemStateApplying}
+							} else {
+								results <- res{id: id, skip: true, itemState: store.MailApplyItemStateConflict}
+							}
+							continue
+						}
+						results <- res{id: id, err: err, itemState: store.MailApplyItemStateApplying}
+						continue
+					}
+					if err := db.SetMailApplyItemState(ch.ApplyID, ch.ChunkNo, id, store.MailApplyItemStateDone); err != nil {
+						results <- res{id: id, storeErr: err, itemState: store.MailApplyItemStateApplying}
+						continue
+					}
+					results <- res{id: id, ok: true, itemState: store.MailApplyItemStateDone}
 				}
 			}()
 		}
@@ -156,11 +210,16 @@ func executeTrashChunk(ctx context.Context, c *client.Client, ch store.MailApply
 
 		var stillFailing []string
 		for r := range results {
+			if r.itemState != "" {
+				itemStates[r.id] = r.itemState
+			}
 			switch {
 			case r.ok:
 				succeeded[r.id] = true
 			case r.skip:
 				skipped[r.id] = true
+			case r.storeErr != nil:
+				out.storeAbort = r.storeErr
 			case isEngineAuthError(r.err):
 				out.authAbort = r.err
 			default:
@@ -241,7 +300,7 @@ func executeApplyChunks(ctx context.Context, c *client.Client, db *store.Store, 
 		var out chunkOutcome
 		if ch.Kind == "trash" {
 			// Re-check semantics only when this chunk may have partially run.
-			out = executeTrashChunk(ctx, c, ch, recovery && chunkWasApplying)
+			out = executeTrashChunk(ctx, c, db, ch, recovery && chunkWasApplying)
 		} else {
 			out = executeLabelChunk(ctx, c, ch)
 		}
@@ -277,6 +336,11 @@ func executeApplyChunks(ctx context.Context, c *client.Client, db *store.Store, 
 		res.Skipped += out.skipped
 		res.Failed += len(out.failedIDs)
 		res.FailedIDs = append(res.FailedIDs, out.failedIDs...)
+		if out.storeAbort != nil {
+			// Leave this chunk 'applying'. Per-message states make the
+			// external/store ambiguity safe for the next recovery run.
+			return res, out.storeAbort
+		}
 
 		if out.authAbort != nil {
 			// Leave this chunk 'applying' — recover completes it after
@@ -521,17 +585,17 @@ token, drift) / 5 auth or API failure / 7 lock busy.`,
 func newCleanupRecoverCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "recover",
-		Short: "Reconcile crashed applies: re-apply 'applying' label chunks idempotently, re-check 'applying' trash chunks per id, finish 'pending' chunks",
+		Short: "Reconcile crashed applies: re-apply label chunks idempotently, reconcile trash chunks from durable per-message states, finish pending work",
 		Long: `Finish whatever a crashed or deadline-cut apply left behind.
 
 Reads every apply record still in a non-terminal state and completes it
 from its durable chunk intents: label chunks are simply re-sent
-(batchModify is idempotent); trash chunks that were mid-flight re-check
-each id's live labelIds first, so already-trashed ids are completed, not
-double-counted; untouched pending chunks run normally. Ledger rows are
-re-inserted idempotently. An authorized apply that never wrote a chunk
-intent is marked 'abandoned' (its token is already burned; nothing was
-executed).
+(batchModify is idempotent); trash chunks use per-message intent states.
+Items still pending run normally, already-trashed started items complete,
+and a started/done item whose TRASH label disappeared is skipped as an
+external-change conflict rather than re-trashed. Ledger rows are re-inserted
+idempotently. An authorized apply that never wrote a chunk intent is marked
+'abandoned' (its token is already burned; nothing was executed).
 
 Runs automatically at the start of every 'cleanup apply' when leftovers
 exist; this command is the standalone form.

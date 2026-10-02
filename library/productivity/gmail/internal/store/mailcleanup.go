@@ -40,6 +40,15 @@ const (
 	MailChunkStateDone     = "done"
 )
 
+// Per-message lifecycle states for trash chunks. They make crash recovery
+// conservative without abandoning items whose requests provably never began.
+const (
+	MailApplyItemStatePending  = "pending"
+	MailApplyItemStateApplying = "applying"
+	MailApplyItemStateDone     = "done"
+	MailApplyItemStateConflict = "conflict"
+)
+
 func nowRFC3339() string { return time.Now().UTC().Format(time.RFC3339) }
 
 // CreateMailNonce records a freshly minted one-time apply token bound to
@@ -225,6 +234,13 @@ func (s *Store) InsertMailApplyChunks(chunks []MailApplyChunk) error {
 		return err
 	}
 	defer stmt.Close()
+	itemStmt, err := tx.Prepare(
+		`INSERT OR IGNORE INTO mail_apply_items (apply_id, chunk_no, id, state, updated_at)
+		 VALUES (?, ?, ?, ?, ?)`)
+	if err != nil {
+		return err
+	}
+	defer itemStmt.Close()
 	ts := nowRFC3339()
 	for _, ch := range chunks {
 		state := ch.State
@@ -235,6 +251,14 @@ func (s *Store) InsertMailApplyChunks(chunks []MailApplyChunk) error {
 			marshalLabelIDs(ch.IDs), marshalLabelIDs(ch.Add), marshalLabelIDs(ch.Remove),
 			state, ts); err != nil {
 			return fmt.Errorf("mail_apply_chunks insert %d/%d: %w", ch.ApplyID, ch.ChunkNo, err)
+		}
+		if ch.Kind != "trash" {
+			continue
+		}
+		for _, id := range ch.IDs {
+			if _, err := itemStmt.Exec(ch.ApplyID, ch.ChunkNo, id, MailApplyItemStatePending, ts); err != nil {
+				return fmt.Errorf("mail_apply_items insert %d/%d/%s: %w", ch.ApplyID, ch.ChunkNo, id, err)
+			}
 		}
 	}
 	return tx.Commit()
@@ -250,6 +274,45 @@ func (s *Store) SetMailApplyChunkState(applyID int64, chunkNo int, state string)
 		state, nowRFC3339(), applyID, chunkNo,
 	)
 	return err
+}
+
+// SetMailApplyItemState durably stamps one message before and after its
+// external mutation. An 'applying' item whose live state no longer carries
+// TRASH is ambiguous and must not be retried automatically.
+func (s *Store) SetMailApplyItemState(applyID int64, chunkNo int, id, state string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO mail_apply_items (apply_id, chunk_no, id, state, updated_at)
+		 VALUES (?, ?, ?, ?, ?)
+		 ON CONFLICT(apply_id, chunk_no, id) DO UPDATE SET
+		 state = excluded.state, updated_at = excluded.updated_at`,
+		applyID, chunkNo, id, state, nowRFC3339(),
+	)
+	return err
+}
+
+// ListMailApplyItemStates returns the durable per-message states for a chunk.
+// Missing rows identify legacy applying chunks and are treated as ambiguous by
+// recovery, never as proof that a request was not sent.
+func (s *Store) ListMailApplyItemStates(applyID int64, chunkNo int) (map[string]string, error) {
+	rows, err := s.db.Query(
+		`SELECT id, state FROM mail_apply_items
+		 WHERE apply_id = ? AND chunk_no = ?`, applyID, chunkNo,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[string]string{}
+	for rows.Next() {
+		var id, state string
+		if err := rows.Scan(&id, &state); err != nil {
+			return nil, err
+		}
+		out[id] = state
+	}
+	return out, rows.Err()
 }
 
 // ListMailApplyChunks returns an apply's chunks in chunk order.
@@ -297,7 +360,7 @@ type MailLedgerEntry struct {
 	PrePlacement []string `json:"pre_placement"`
 	OldName      string   `json:"old_name,omitempty"`
 	NewName      string   `json:"new_name,omitempty"`
-	Undone       string   `json:"undone,omitempty"` // '' | undone | conflict
+	Undone       string   `json:"undone,omitempty"` // '' | untrash_pending | untrash_done | undone | conflict
 }
 
 // CreateMailLedger inserts the ledger group row.
@@ -395,8 +458,27 @@ func (s *Store) ListMailLedgerEntries(ledgerID string) ([]MailLedgerEntry, error
 	return out, rows.Err()
 }
 
-// SetMailLedgerEntryUndone stamps one entry's undo outcome ("undone" or
-// "conflict") so a re-run of undo reports honestly instead of re-mutating.
+// HasLaterTrashLedgerEntry reports whether a subsequently created ledger
+// records another successful trash of the same message. Ledger rowid is the
+// durable insertion order, including ledgers created within the same second.
+func (s *Store) HasLaterTrashLedgerEntry(ledgerID, id string) (bool, error) {
+	var exists int
+	err := s.db.QueryRow(
+		`SELECT EXISTS (
+			SELECT 1
+			FROM mail_ledger current
+			JOIN mail_ledger newer ON newer.rowid > current.rowid
+			JOIN mail_ledger_entries entry ON entry.ledger_id = newer.ledger_id
+			WHERE current.ledger_id = ? AND entry.id = ? AND entry.kind = 'trash'
+		)`,
+		ledgerID, id,
+	).Scan(&exists)
+	return exists != 0, err
+}
+
+// SetMailLedgerEntryUndone stamps one entry's undo progress/outcome
+// ("untrash_pending", "untrash_done", "undone", or "conflict") so a re-run resumes safely
+// instead of re-mutating or abandoning placement-label restoration.
 func (s *Store) SetMailLedgerEntryUndone(ledgerID, id, status string) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()

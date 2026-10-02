@@ -9,6 +9,12 @@
     "handle": "dmarketingllm",
     "name": "Derik Parkinson"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "dmarketingllm",
   "printer": "dmarketingllm",
   "printer_name": "Derik Parkinson",
