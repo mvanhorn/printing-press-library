@@ -20,16 +20,12 @@ func privateOutputPath(dir, name string) (string, error) {
 func writePrivateOutputFile(path string, data []byte) error {
 	// Write beside the destination, then replace it. Opening path directly
 	// would follow an existing symlink and could write private data elsewhere.
-	f, err := os.CreateTemp(filepath.Dir(path), ".sarvam-private-*")
+	f, err := createPrivateOutputTempFile(path)
 	if err != nil {
 		return err
 	}
 	tempPath := f.Name()
 	defer os.Remove(tempPath)
-	if err := f.Chmod(0o600); err != nil {
-		_ = f.Close()
-		return err
-	}
 	if _, err := f.Write(data); err != nil {
 		_ = f.Close()
 		return err
@@ -38,4 +34,17 @@ func writePrivateOutputFile(path string, data []byte) error {
 		return err
 	}
 	return os.Rename(tempPath, path)
+}
+
+func createPrivateOutputTempFile(path string) (*os.File, error) {
+	f, err := os.CreateTemp(filepath.Dir(path), ".sarvam-private-*")
+	if err != nil {
+		return nil, err
+	}
+	if err := f.Chmod(0o600); err != nil {
+		_ = f.Close()
+		_ = os.Remove(f.Name())
+		return nil, err
+	}
+	return f, nil
 }

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-private-streaming-export",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Write streaming Sarvam exports to an owner-only temporary file and replace the destination only after a complete export.",
+  "reason": "The export command used os.Create, which could expose pronunciation dictionaries through broad file permissions, overwrite an existing export before a failed request, or follow a destination symlink.",
+  "files": [
+    "internal/cli/export.go",
+    "internal/cli/export_private_test.go",
+    "internal/cli/private_output.go"
+  ]
+}

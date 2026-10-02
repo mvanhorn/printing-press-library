@@ -72,12 +72,15 @@ large datasets as it has no memory pressure.`,
 
 			var writer *bufio.Writer
 			var outFile *os.File
+			var tempPath string
 			if outputFile != "" {
-				f, err := os.Create(outputFile)
+				f, err := createPrivateOutputTempFile(outputFile)
 				if err != nil {
 					return fmt.Errorf("creating output file: %w", err)
 				}
 				outFile = f
+				tempPath = f.Name()
+				defer os.Remove(tempPath)
 				writer = bufio.NewWriter(f)
 				defer func() {
 					if err != nil && outFile != nil {
@@ -96,6 +99,11 @@ large datasets as it has no memory pressure.`,
 						return fmt.Errorf("closing export file: %w", err)
 					}
 					outFile = nil
+				}
+				if tempPath != "" {
+					if err := os.Rename(tempPath, outputFile); err != nil {
+						return fmt.Errorf("replacing output file: %w", err)
+					}
 				}
 				return nil
 			}
