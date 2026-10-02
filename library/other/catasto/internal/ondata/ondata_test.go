@@ -3,8 +3,15 @@
 package ondata
 
 import (
+	"context"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestNormalizeNumericForms(t *testing.T) {
@@ -29,6 +36,94 @@ func TestNormalizeNumericForms(t *testing.T) {
 			if got[i] != c.want[i] {
 				t.Errorf("normalizeNumericForms(%q,%d)[%d] = %q; want %q", c.in, c.pad, i, got[i], c.want[i])
 			}
+		}
+	}
+}
+
+func TestFetchRefreshesStaleCacheAtomically(t *testing.T) {
+	dir := t.TempDir()
+	local := filepath.Join(dir, "index.parquet")
+	if err := os.WriteFile(local, []byte("stale"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().Add(-2 * time.Hour)
+	if err := os.Chtimes(local, old, old); err != nil {
+		t.Fatal(err)
+	}
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		_, _ = io.WriteString(w, "fresh")
+	}))
+	defer server.Close()
+	c := &Client{HTTP: server.Client(), CacheDir: dir, SourceURL: server.URL, CacheTTL: time.Hour}
+	path, err := c.fetch(context.Background(), "index.parquet")
+	if err != nil {
+		t.Fatalf("fetch: %v", err)
+	}
+	got, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != "fresh" || requests != 1 {
+		t.Fatalf("cache data=%q requests=%d, want fresh data after one refresh", got, requests)
+	}
+}
+
+func TestFetchKeepsStaleCacheWhenRefreshFails(t *testing.T) {
+	dir := t.TempDir()
+	local := filepath.Join(dir, "index.parquet")
+	if err := os.WriteFile(local, []byte("cached"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().Add(-2 * time.Hour)
+	if err := os.Chtimes(local, old, old); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer server.Close()
+	c := &Client{HTTP: server.Client(), CacheDir: dir, SourceURL: server.URL, CacheTTL: time.Hour}
+	gotPath, err := c.fetch(context.Background(), "index.parquet")
+	if err != nil || gotPath != local {
+		t.Fatalf("failed refresh lost cached file: path=%q err=%v", gotPath, err)
+	}
+	got, err := os.ReadFile(local)
+	if err != nil || string(got) != "cached" {
+		t.Fatalf("cached data changed after failed refresh: %q, %v", got, err)
+	}
+	if err := os.Remove(local); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.fetch(context.Background(), "index.parquet"); err == nil {
+		t.Fatal("refresh failure without a cache returned success")
+	}
+}
+
+func TestFetchRejectsEmptyRefreshAndUnsafeFilename(t *testing.T) {
+	dir := t.TempDir()
+	local := filepath.Join(dir, "index.parquet")
+	if err := os.WriteFile(local, []byte("cached"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().Add(-2 * time.Hour)
+	if err := os.Chtimes(local, old, old); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	defer server.Close()
+	c := &Client{HTTP: server.Client(), CacheDir: dir, SourceURL: server.URL, CacheTTL: time.Hour}
+	if _, err := c.fetch(context.Background(), "index.parquet"); err != nil {
+		t.Fatalf("empty refresh should keep stale cache: %v", err)
+	}
+	got, err := os.ReadFile(local)
+	if err != nil || string(got) != "cached" {
+		t.Fatalf("empty response replaced cached data: %q, %v", got, err)
+	}
+	for _, name := range []string{"../other.parquet", `..\other.parquet`, "subdir/other.parquet"} {
+		if _, err := c.fetch(context.Background(), name); err == nil {
+			t.Errorf("unsafe dataset filename %q accepted", name)
 		}
 	}
 }

@@ -6,6 +6,10 @@ Bridges Italian cadastral references (provincia / comune / foglio / particella) 
 
 Printed by [@robertobissanti](https://github.com/robertobissanti) (Roberto Bissanti).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Cached cadastral datasets refresh after 24 hours. If a refresh fails, the CLI warns and keeps using the last nonempty cached copy for offline lookups.
+
 ## Install
 
 The recommended path installs both the `catasto-pp-cli` binary and the `pp-catasto` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

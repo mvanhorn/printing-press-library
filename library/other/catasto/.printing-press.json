@@ -5,6 +5,16 @@
   "api_name": "catasto",
   "display_name": "Catasto",
   "cli_name": "catasto-pp-cli",
+  "creator": {
+    "handle": "robertobissanti",
+    "name": "Roberto Bissanti"
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "roberto-bissanti",
   "printer": "robertobissanti",
   "printer_name": "Roberto Bissanti",
