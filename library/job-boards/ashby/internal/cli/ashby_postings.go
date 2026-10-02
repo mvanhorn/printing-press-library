@@ -280,6 +280,24 @@ func decodeAshbyBoardJobs(raw json.RawMessage) ([]ashbyJobPosting, error) {
 	if jobsJSON == "" || jobsJSON == "null" {
 		return nil, errors.New("decode Ashby job board response: missing complete jobs array")
 	}
+	var rows []json.RawMessage
+	if err := json.Unmarshal(response.Jobs, &rows); err != nil {
+		return nil, fmt.Errorf("decode Ashby job board jobs: %w", err)
+	}
+	for i, row := range rows {
+		var fields map[string]json.RawMessage
+		if err := json.Unmarshal(row, &fields); err != nil || fields == nil {
+			return nil, fmt.Errorf("decode Ashby job board jobs: row %d is not a job object", i)
+		}
+		var id string
+		if err := json.Unmarshal(fields["id"], &id); err != nil || strings.TrimSpace(id) == "" {
+			return nil, fmt.Errorf("decode Ashby job board jobs: row %d has no id", i)
+		}
+		listed := strings.TrimSpace(string(fields["isListed"]))
+		if listed != "true" && listed != "false" {
+			return nil, fmt.Errorf("decode Ashby job board jobs: row %d has no listing state", i)
+		}
+	}
 	var jobs []ashbyJobPosting
 	if err := json.Unmarshal(response.Jobs, &jobs); err != nil {
 		return nil, fmt.Errorf("decode Ashby job board jobs: %w", err)
@@ -325,7 +343,17 @@ func filterAshbyJobs(jobs []ashbyJobPosting, filter ashbyPostingFilter) ([]ashby
 		}
 		result = append(result, job)
 	}
-	sort.SliceStable(result, func(i, j int) bool { return result[i].PublishedAt > result[j].PublishedAt })
+	sort.SliceStable(result, func(i, j int) bool {
+		iTime, iErr := time.Parse(time.RFC3339Nano, result[i].PublishedAt)
+		jTime, jErr := time.Parse(time.RFC3339Nano, result[j].PublishedAt)
+		if iErr == nil && jErr == nil {
+			return iTime.After(jTime)
+		}
+		if iErr == nil || jErr == nil {
+			return iErr == nil
+		}
+		return result[i].PublishedAt > result[j].PublishedAt
+	})
 	if filter.Limit > 0 && len(result) > filter.Limit {
 		result = result[:filter.Limit]
 	}

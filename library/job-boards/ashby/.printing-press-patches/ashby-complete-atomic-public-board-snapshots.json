@@ -4,12 +4,12 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260824-211633-3511b2d3",
   "base_printing_press_version": "4.31.1",
-  "summary": "Replace each public job-board snapshot atomically only after the response proves a complete jobs array and every listed posting has an ID; sort before applying a result limit.",
-  "reason": "A partial response, missing posting ID, or failed cleanup can otherwise erase or mix saved jobs, and limiting before sorting can hide the newest matching posting.",
+  "summary": "Replace each public job-board snapshot atomically only after the response proves a complete jobs array with IDs and explicit listing states; sort posting timestamps by instant before applying a result limit.",
+  "reason": "A partial response, missing posting ID or listing state, or failed cleanup can otherwise erase or mix saved jobs, and string sorting or limiting before sorting can hide the newest matching posting.",
   "files": [
     "internal/cli/ashby_postings.go",
     "internal/cli/ashby_postings_test.go",
     "internal/store/store.go"
   ],
-  "validated_outcome": "Synthetic tests cover missing and empty jobs arrays, newest-first limits, invalid posting IDs, and rollback when snapshot cleanup fails."
+  "validated_outcome": "Synthetic tests cover missing and empty jobs arrays, malformed rows, timezone-aware newest-first limits, invalid posting IDs, and rollback when snapshot cleanup fails."
 }

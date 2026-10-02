@@ -44,11 +44,32 @@ func TestFilterAshbyJobsSortsBeforeApplyingLimit(t *testing.T) {
 	}
 }
 
+func TestFilterAshbyJobsSortsTimezonesBeforeApplyingLimit(t *testing.T) {
+	jobs := []ashbyJobPosting{
+		{ID: "older", IsListed: true, PublishedAt: "2026-01-01T01:00:00+02:00"},
+		{ID: "newer", IsListed: true, PublishedAt: "2026-01-01T00:30:00Z"},
+		{ID: "invalid", IsListed: true, PublishedAt: "later-looking-but-invalid"},
+	}
+	got, err := filterAshbyJobs(jobs, ashbyPostingFilter{Limit: 1})
+	if err != nil || len(got) != 1 || got[0].ID != "newer" {
+		t.Fatalf("newest job across timezone offsets = %#v, %v", got, err)
+	}
+}
+
 func TestDecodeAshbyBoardJobsRejectsMissingSnapshot(t *testing.T) {
-	for _, raw := range []string{`{}`, `{"jobs":null}`, `{"jobs":{"id":"wrong-shape"}}`} {
+	for _, raw := range []string{
+		`{}`, `{"jobs":null}`, `{"jobs":{"id":"wrong-shape"}}`,
+		`{"jobs":[null]}`, `{"jobs":[{}]}`,
+		`{"jobs":[{"id":"x"}]}`, `{"jobs":[{"id":"x","isListed":null}]}`,
+		`{"jobs":[{"id":"x","isListed":"false"}]}`,
+		`{"jobs":[{"id":"","isListed":false}]}`,
+	} {
 		if _, err := decodeAshbyBoardJobs([]byte(raw)); err == nil {
 			t.Fatalf("accepted incomplete job board response %s", raw)
 		}
+	}
+	if _, err := decodeAshbyBoardJobs([]byte(`{"jobs":[{"id":"x","isListed":false}]}`)); err != nil {
+		t.Fatalf("rejected complete unlisted row: %v", err)
 	}
 	jobs, err := decodeAshbyBoardJobs([]byte(`{"jobs":[]}`))
 	if err != nil || len(jobs) != 0 {
