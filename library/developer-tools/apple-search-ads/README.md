@@ -110,6 +110,12 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+### Remote MCP over HTTP
+
+The MCP binary uses stdio by default. To serve it over HTTP, set a private bearer token in the server environment and start `apple-search-ads-pp-mcp --transport http`. It binds to `127.0.0.1:7777` by default. Connect to `http://127.0.0.1:7777/mcp` with `Authorization: Bearer <your token>`. Set `PP_MCP_HTTP_TOKEN` in the process environment; the binary does not accept a token flag. A non-loopback bind requires both `--tls-cert` and `--tls-key`.
+
+For the `apple-search-ads_execute` MCP tool, supply each path ID in `params` by placeholder name. If a path repeats a placeholder, such as `/apps/{id}/product-pages/{id}`, supply its distinct values as an ordered array, for example `{"id":["app-id","page-id"]}`.
+
 ## Authentication
 
 Apple Search Ads uses OAuth 2.0 with a private key JWT flow. You need a client ID, team ID, key ID, org ID, and a .p8 private key file. Run `apple-search-ads-pp-cli auth setup` to configure these, or set ASA_CLIENT_ID, ASA_TEAM_ID, ASA_KEY_ID, ASA_ORG_ID, and ASA_PRIVATE_KEY_PATH in your environment.

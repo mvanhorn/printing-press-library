@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "apple-search-ads-mcp-http-and-path-safety",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260529-060535",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Require environment bearer authentication for HTTP MCP, protect non-loopback binds with TLS, and encode each required code-orchestration path ID.",
+  "reason": "An unauthenticated MCP listener can execute advertising API operations, while raw or ambiguous path substitutions can target the wrong resource.",
+  "files": [
+    "cmd/apple-search-ads-pp-mcp/main.go",
+    "cmd/apple-search-ads-pp-mcp/main_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/code_orch_path_test.go",
+    "README.md"
+  ],
+  "validated_outcome": "HTTP MCP requires a bearer token and TLS outside loopback; path placeholders are required, independently encoded, and ordered when repeated."
+}

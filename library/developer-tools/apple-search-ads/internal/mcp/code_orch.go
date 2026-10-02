@@ -43,7 +43,7 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 		mcplib.NewTool("apple-search-ads_execute",
 			mcplib.WithDescription("Execute one apple-search-ads API endpoint by its endpoint_id (from apple-search-ads_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by apple-search-ads_search (e.g., \"users.list\").")),
-			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name. When a placeholder repeats in a path, provide its values as an ordered array, one per occurrence. Remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
 		),
 		handleCodeOrchExecute,
 	)
@@ -847,17 +847,13 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		params = map[string]any{}
 	}
 
-	c, err := newMCPClient()
+	path, err := codeOrchResolvePath(*ep, params)
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-
-	path := ep.Path
-	for _, p := range ep.Positional {
-		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
-			delete(params, p)
-		}
+	c, err := newMCPClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
 	// Route params to their runtime slots. GET/DELETE params are query
@@ -932,6 +928,60 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(string(data)), nil
+}
+
+func codeOrchResolvePath(ep codeOrchEndpoint, params map[string]any) (string, error) {
+	path := ep.Path
+	for _, name := range ep.Positional {
+		placeholder := "{" + name + "}"
+		count := strings.Count(path, placeholder)
+		if count == 0 {
+			return "", fmt.Errorf("endpoint %q has no path placeholder %q", ep.ID, name)
+		}
+		value, ok := params[name]
+		if !ok {
+			return "", fmt.Errorf("missing required path parameter %q", name)
+		}
+		values := []any{value}
+		if count > 1 {
+			array, ok := value.([]any)
+			if !ok {
+				return "", fmt.Errorf("path parameter %q occurs %d times and requires %d ordered values", name, count, count)
+			}
+			values = array
+		}
+		if len(values) != count {
+			return "", fmt.Errorf("path parameter %q requires %d ordered values", name, count)
+		}
+		for _, item := range values {
+			segment, err := codeOrchPathSegment(item)
+			if err != nil {
+				return "", fmt.Errorf("invalid path parameter %q: %w", name, err)
+			}
+			path = strings.Replace(path, placeholder, segment, 1)
+		}
+		delete(params, name)
+	}
+	if strings.Contains(path, "{") || strings.Contains(path, "}") {
+		return "", fmt.Errorf("endpoint %q has unresolved path placeholders", ep.ID)
+	}
+	return path, nil
+}
+
+func codeOrchPathSegment(value any) (string, error) {
+	switch value.(type) {
+	case string, float64, json.Number, int, int64, uint64:
+	default:
+		return "", fmt.Errorf("value must be a string or number")
+	}
+	raw := fmt.Sprint(value)
+	if strings.TrimSpace(raw) == "" {
+		return "", fmt.Errorf("value is empty")
+	}
+	if raw == "." || raw == ".." {
+		return strings.Repeat("%2E", len(raw)), nil
+	}
+	return neturl.PathEscape(raw), nil
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the
