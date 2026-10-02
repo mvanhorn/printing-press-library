@@ -208,6 +208,19 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			outputData := data
+			if bodyStream && !json.Valid(data) {
+				// The transport returns SSE bytes, while the shared CLI output
+				// pipeline requires JSON. Show a completed text reply in the
+				// usual chat shape; preserve other streams as readable event text.
+				if completed, streamErr := chatResponseForHistory(data); streamErr == nil {
+					outputData = completed
+				} else {
+					outputData, err = json.Marshal(map[string]any{"stream": string(data)})
+					if err != nil {
+						return fmt.Errorf("encoding streamed chat output: %w", err)
+					}
+				}
+			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -227,7 +240,7 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 			// opt out of the auto-JSON path so piped consumers that asked for a
 			// non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				filtered := data
+				filtered := outputData
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
@@ -255,11 +268,7 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			formatData := data
-			if flags.csv || flags.plain {
-				formatData = outputData
-			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), outputData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().Float64Var(&bodyFrequencyPenalty, "frequency-penalty", 0.000000, "Penalize repeated tokens (-2.0 to 2.0)")

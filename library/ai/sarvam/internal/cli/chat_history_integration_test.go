@@ -81,3 +81,84 @@ func TestChatResumeSendsSavedFullConversation(t *testing.T) {
 		t.Fatalf("resumed conversation was not saved: %v", err)
 	}
 }
+
+func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		if r.Method != http.MethodPost || r.URL.Path != "/v1/chat/completions" {
+			http.Error(w, "unexpected request", http.StatusNotFound)
+			return
+		}
+		var request struct {
+			Stream   bool `json:"stream"`
+			Messages []struct {
+				Role    string `json:"role"`
+				Content string `json:"content"`
+			} `json:"messages"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil || !request.Stream || len(request.Messages) != 1 || request.Messages[0].Content != "First question" {
+			http.Error(w, "unexpected streamed chat request", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = w.Write([]byte(": stream opened\n\n" +
+			"data: {\"id\":\"chat-stream\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"First\"}}]}\n\n" +
+			"data: {\"id\":\"chat-stream\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" answer\"}}]}\n\n" +
+			"data: [DONE]\n\n"))
+	}))
+	defer server.Close()
+
+	t.Setenv("SARVAM_BASE_URL", server.URL)
+	t.Setenv("SARVAM_API_KEY", "sk_test_fixture")
+	t.Setenv("XDG_DATA_HOME", t.TempDir())
+	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "")
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"chat", "--messages", `[{"role":"user","content":"First question"}]`, "--model", "sarvam-105b", "--stream", "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetErr(&output)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("chat --stream failed after a successful SSE response: %v", err)
+	}
+	if requests != 1 {
+		t.Fatalf("requests = %d, want one streamed chat request", requests)
+	}
+	var printed struct {
+		Results struct {
+			ID      string `json:"id"`
+			Choices []struct {
+				Message struct {
+					Content string `json:"content"`
+				} `json:"message"`
+			} `json:"choices"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(output.Bytes(), &printed); err != nil {
+		t.Fatalf("stream output is not a valid JSON envelope: %v", err)
+	}
+	if printed.Results.ID != "chat-stream" || len(printed.Results.Choices) != 1 || printed.Results.Choices[0].Message.Content != "First answer" {
+		t.Fatalf("streamed answer was not printed: %#v", printed.Results)
+	}
+
+	db, err := store.OpenReadOnly(defaultDBPath("sarvam-pp-cli"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	raw, err := db.Get("chat", "chat-stream")
+	if err != nil {
+		t.Fatalf("completed stream was not saved: %v", err)
+	}
+	record, err := decodeStoredChatConversation(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resumed, err := buildChatResumeMessages(record, "Follow up")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(resumed) != 3 || resumed[1].(map[string]any)["content"] != "First answer" {
+		t.Fatalf("saved stream cannot resume full context: %#v", resumed)
+	}
+}
