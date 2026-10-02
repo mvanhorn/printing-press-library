@@ -25,7 +25,7 @@ func newNovelPronCheckCmd(flags *rootFlags) *cobra.Command {
 		Use:         "pron-check [term]",
 		Short:       "Verify a term's TTS pronunciation via a speech round-trip (TTS then STT)",
 		Example:     "  sarvam-pp-cli pron-check SarvamPay --lang hi-IN",
-		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "term=SarvamPay;--lang=hi-IN", "pp:typed-exit-codes": "0,6"},
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:structured-error-output": "true", "pp:happy-args": "term=SarvamPay;--lang=hi-IN", "pp:typed-exit-codes": "0,6"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -140,7 +140,7 @@ func pronunciationMatches(expected, spoken string) bool {
 	tokens := func(s string) []string {
 		s = strings.ToLower(strings.TrimSpace(s))
 		return strings.FieldsFunc(s, func(r rune) bool {
-			return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+			return !unicode.IsLetter(r) && !unicode.IsNumber(r) && !unicode.IsMark(r)
 		})
 	}
 	expectedTokens := tokens(expected)

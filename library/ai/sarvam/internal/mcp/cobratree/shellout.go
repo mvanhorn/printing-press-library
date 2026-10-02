@@ -5,6 +5,7 @@ package cobratree
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"sort"
@@ -47,7 +48,7 @@ func (c *cappedCapture) String() string {
 	return string(c.data)
 }
 
-func shellOutToCLI(cliPath func() (string, error), commandPath []string, blockedStructuredArgs map[string]bool, allowedStructuredArgs map[string]bool, positionals []positionalArg, readOnly bool, positionalWriteSinks map[int]bool) server.ToolHandlerFunc {
+func shellOutToCLI(cliPath func() (string, error), commandPath []string, blockedStructuredArgs map[string]bool, allowedStructuredArgs map[string]bool, positionals []positionalArg, readOnly bool, positionalWriteSinks map[int]bool, preserveStructuredError bool) server.ToolHandlerFunc {
 	lookupPath, lookupErr := cliPath()
 	prefixArgs := append([]string{}, commandPath...)
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -74,6 +75,14 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
+			if preserveStructuredError && len(out) <= bound.MaxBytes {
+				var payload map[string]any
+				if json.Unmarshal([]byte(out), &payload) == nil && payload != nil {
+					result := boundedToolResultError(out)
+					result.StructuredContent = payload
+					return result, nil
+				}
+			}
 			return boundedToolResultError(err.Error()), nil
 		}
 		return mcplib.NewToolResultText(bound.Text(out)), nil

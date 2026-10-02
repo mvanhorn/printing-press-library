@@ -88,6 +88,9 @@ func subtitleCues(words []string, starts, ends []float64) ([]sttTimestampCue, er
 		if end <= start {
 			return nil, fmt.Errorf("malformed timestamps: cue %d must end after it starts", i+1)
 		}
+		if formatSRTTime(end) == formatSRTTime(start) {
+			return nil, fmt.Errorf("malformed timestamps: cue %d has no duration at millisecond precision", i+1)
+		}
 		cues = append(cues, sttTimestampCue{Start: start, End: end, Text: word})
 	}
 	return cues, nil

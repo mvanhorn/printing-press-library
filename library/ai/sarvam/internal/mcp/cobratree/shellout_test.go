@@ -552,6 +552,7 @@ func TestShellOutSinglePositionalArgsFieldPreservesWhitespace(t *testing.T) {
 		positionals,
 		false,
 		nil,
+		false,
 	)
 
 	result, err := handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
@@ -585,6 +586,7 @@ func TestShellOutStructuredPositionalPreservesWhitespace(t *testing.T) {
 		positionals,
 		false,
 		nil,
+		false,
 	)
 
 	result, err := handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
@@ -618,6 +620,7 @@ func TestShellOutRejectsUnknownStructuredParameters(t *testing.T) {
 		positionals,
 		false,
 		nil,
+		false,
 	)
 
 	result, err := handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
@@ -646,6 +649,7 @@ func TestShellOutBoundsFinalError(t *testing.T) {
 				nil,
 				false,
 				nil,
+				false,
 			)
 
 			result, err := handler(context.Background(), mcplib.CallToolRequest{})
@@ -659,6 +663,36 @@ func TestShellOutBoundsFinalError(t *testing.T) {
 				t.Fatalf("final MCP error was not bounded: %d bytes", got)
 			}
 		})
+	}
+}
+
+func TestAnnotatedCommandPreservesStructuredFailureResult(t *testing.T) {
+	bin := writeShelloutHelper(t, "fail-json-with-stderr")
+	root := &cobra.Command{Use: "sarvam"}
+	root.AddCommand(&cobra.Command{
+		Use:         "pron-check",
+		Annotations: map[string]string{StructuredErrorOutputAnnotation: "true"},
+		RunE:        func(*cobra.Command, []string) error { return nil },
+	})
+	s := server.NewMCPServer("test", "0.0.0")
+	RegisterAll(s, root, func() (string, error) { return bin, nil })
+	tool := s.GetTool("pron_check")
+	if tool == nil {
+		t.Fatal("pron_check MCP tool was not registered")
+	}
+	result, err := tool.Handler(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("tool transport error: %v", err)
+	}
+	if !result.IsError {
+		t.Fatal("pronunciation mismatch must remain an MCP tool error")
+	}
+	payload, ok := result.StructuredContent.(map[string]any)
+	if !ok || payload["pronunciation_ok"] != false || payload["term"] != "pay" {
+		t.Fatalf("structured mismatch result = %#v", result.StructuredContent)
+	}
+	if !strings.Contains(toolResultText(result), `"pronunciation_ok":false`) {
+		t.Fatalf("text fallback lost mismatch JSON: %s", toolResultText(result))
 	}
 }
 
@@ -750,6 +784,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 			body = "@echo off\r\necho boom from stderr 1>&2\r\nexit /b 7\r\n"
 		case "fail-stdout":
 			body = "@echo off\r\necho stdout failure\r\nexit /b 7\r\n"
+		case "fail-json-with-stderr":
+			body = "@echo off\r\necho {\"pronunciation_ok\":false,\"term\":\"pay\"}\r\necho pronunciation mismatch 1>&2\r\nexit /b 6\r\n"
 		case "fail-large-stderr":
 			body = "@echo off\r\nfor /L %%i in (1,1,70000) do <nul set /p =x 1>&2\r\nexit /b 7\r\n"
 		case "fail-large-stdout":
@@ -771,6 +807,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 		body = "#!/bin/sh\necho boom from stderr >&2\nexit 7\n"
 	case "fail-stdout":
 		body = "#!/bin/sh\necho stdout failure\nexit 7\n"
+	case "fail-json-with-stderr":
+		body = "#!/bin/sh\nprintf '{\"pronunciation_ok\":false,\"term\":\"pay\"}\\n'\necho pronunciation mismatch >&2\nexit 6\n"
 	case "fail-large-stderr":
 		body = "#!/bin/sh\nhead -c 70000 /dev/zero | tr '\\000' x >&2\nexit 7\n"
 	case "fail-large-stdout":

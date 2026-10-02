@@ -62,7 +62,7 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		// The companion CLI owns the one live tenant gate for mirrored
 		// commands. The parent MCP middleware must not probe a second time.
 		tool.Meta.AdditionalFields["pp:tenant-gate"] = "child-cli"
-		s.AddTool(tool, shellOutToCLI(cliPath, path, blockedCLIArgs, allowedStructuredArgs, positionals, readOnly, positionalWriteSinkIndexes(cmd)))
+		s.AddTool(tool, shellOutToCLI(cliPath, path, blockedCLIArgs, allowedStructuredArgs, positionals, readOnly, positionalWriteSinkIndexes(cmd), annotationIsTrue(cmd, StructuredErrorOutputAnnotation)))
 	})
 }
 

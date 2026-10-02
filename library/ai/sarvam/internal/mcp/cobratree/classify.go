@@ -30,6 +30,9 @@ const (
 	// delete user-visible data keep honest destructive semantics and must
 	// not carry this annotation.
 	LocalWriteAnnotation = "mcp:local-write"
+	// StructuredErrorOutputAnnotation preserves a command's JSON result in
+	// an MCP error when the companion CLI exits nonzero after printing it.
+	StructuredErrorOutputAnnotation = "mcp:structured-error-output"
 	// PositionalWriteSinksAnnotation lists zero-based positional argument
 	// indexes that write to user-visible files when populated. It is enforced
 	// only on commands that also carry ReadOnlyAnnotation.

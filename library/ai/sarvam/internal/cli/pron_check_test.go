@@ -42,6 +42,8 @@ func TestPronunciationMatchesNormalizedText(t *testing.T) {
 		{expected: "pay", spoken: "repayment", want: false},
 		{expected: "pay", spoken: "do not pay", want: true},
 		{expected: "SarvamPay", spoken: "something else", want: false},
+		{expected: "माला", spoken: "माला", want: true},
+		{expected: "माला", spoken: "माली", want: false},
 		{expected: "", spoken: "anything", want: false},
 	} {
 		if got := pronunciationMatches(tc.expected, tc.spoken); got != tc.want {

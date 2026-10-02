@@ -112,6 +112,7 @@ func TestSubtitleCuesValidatesProviderTimestamps(t *testing.T) {
 		{name: "negative start", words: []string{"hello"}, starts: []float64{-0.1}, ends: []float64{1}},
 		{name: "reversed", words: []string{"hello"}, starts: []float64{2}, ends: []float64{1}},
 		{name: "zero duration", words: []string{"hello"}, starts: []float64{1}, ends: []float64{1}},
+		{name: "sub-millisecond duration", words: []string{"hello"}, starts: []float64{1.0001}, ends: []float64{1.0009}},
 		{name: "nan", words: []string{"hello"}, starts: []float64{math.NaN()}, ends: []float64{1}},
 		{name: "infinite", words: []string{"hello"}, starts: []float64{0}, ends: []float64{math.Inf(1)}},
 	}
