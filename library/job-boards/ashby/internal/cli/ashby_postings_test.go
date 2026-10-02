@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"reflect"
 	"strings"
 	"testing"
@@ -30,6 +31,63 @@ func TestAshbyPostingsDryRunReturnsPreviewWithoutDecodingSentinel(t *testing.T) 
 			}
 			if !strings.Contains(output.String(), `"dry_run":true`) {
 				t.Fatalf("missing dry-run preview: %q", output.String())
+			}
+		})
+	}
+}
+
+func TestAshbyPostingsDryRunValidatesAndShowsRequest(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		cmd  *cobra.Command
+		args []string
+		want string
+	}{
+		{name: "list board", cmd: newAshbyPostingsListCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"bad/name"}, want: "invalid job board name"},
+		{name: "get board", cmd: newAshbyPostingsGetCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"bad/name", "job-1"}, want: "invalid job board name"},
+		{name: "list date", cmd: newAshbyPostingsListCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"example", "--published-since", "yesterday"}, want: "invalid --published-since"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.cmd.SetArgs(tc.args)
+			if err := tc.cmd.Execute(); err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("dry-run error = %v, want %q", err, tc.want)
+			}
+		})
+	}
+	for _, tc := range []struct {
+		name string
+		cmd  *cobra.Command
+		args []string
+		key  string
+		want any
+	}{
+		{name: "list", cmd: newAshbyPostingsListCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"example", "--include-compensation", "--published-since", "2026-01-01"}, key: "filters", want: "2026-01-01"},
+		{name: "get", cmd: newAshbyPostingsGetCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"example", "job-1", "--include-compensation"}, key: "posting_id", want: "job-1"},
+	} {
+		t.Run(tc.name+" preview", func(t *testing.T) {
+			var output bytes.Buffer
+			tc.cmd.SetOut(&output)
+			tc.cmd.SetArgs(tc.args)
+			if err := tc.cmd.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			var preview map[string]any
+			if err := json.Unmarshal(output.Bytes(), &preview); err != nil {
+				t.Fatal(err)
+			}
+			if preview["dry_run"] != true || preview["method"] != "GET" || preview["path"] != "/posting-api/job-board/example" {
+				t.Fatalf("incomplete request preview: %#v", preview)
+			}
+			if query, ok := preview["query"].(map[string]any); !ok || query["includeCompensation"] != "true" {
+				t.Fatalf("missing query parameter: %#v", preview)
+			}
+			if tc.key == "filters" {
+				filters, ok := preview["filters"].(map[string]any)
+				if !ok || filters["published_since"] != tc.want {
+					t.Fatalf("missing local filter: %#v", preview)
+				}
+			} else if preview[tc.key] != tc.want {
+				t.Fatalf("missing posting ID: %#v", preview)
 			}
 		})
 	}
