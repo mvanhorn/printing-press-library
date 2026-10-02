@@ -607,10 +607,6 @@ func removeCardataSession(cfg, previous *config.Config) error {
 	if err != nil {
 		return err
 	}
-	selectedLegacy, err := filepath.Abs(cardataSessionPath(cfg))
-	if err != nil {
-		return err
-	}
 	for _, legacy := range aliases {
 		// A known alias directory can also hold another config's sidecar.
 		// Remove it only when it belongs to the account being cleared.
@@ -623,8 +619,8 @@ func removeCardataSession(cfg, previous *config.Config) error {
 		}
 		legacySession, ok := parseCardataSession(data)
 		matchedShared := sharedOK && ok && sameCardataSessionAccount(sharedSession, legacySession)
-		matchedSelected := legacy == selectedLegacy && ok && savedCardataSessionProof(legacySession, previous)
-		if !matchedShared && !matchedSelected {
+		matchedSaved := ok && savedCardataSessionProof(legacySession, previous)
+		if !matchedShared && !matchedSaved {
 			fmt.Fprintln(os.Stderr, "warning: a legacy streaming session beside a config alias was left in place because its account could not be verified; review it manually")
 			continue
 		}

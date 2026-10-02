@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/devices/bmw-cardata/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func testIDToken(expiry time.Time) string {
@@ -733,6 +734,82 @@ func TestLogoutThroughTargetRemovesKnownAliasSession(t *testing.T) {
 	}
 	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
 		t.Fatalf("logout through target left known alias-side credentials: %v", err)
+	}
+}
+
+func TestTargetAuthCleanupWithoutSharedSessionUsesSavedTokenProof(t *testing.T) {
+	for _, tc := range []struct {
+		name, action, aliasAccount string
+		wantRemoved                bool
+	}{
+		{"logout-matching", "logout", "a", true},
+		{"set-token-matching", "set-token", "a", true},
+		{"logout-foreign", "logout", "b", false},
+		{"set-token-foreign", "set-token", "b", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			home := t.TempDir()
+			t.Setenv("HOME", home)
+			t.Setenv("USERPROFILE", home)
+			t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+			t.Setenv("BMW_CARDATA_CONFIG", "")
+			target := filepath.Join(home, "target", "config.toml")
+			cfg, err := config.Load(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := cfg.SaveTokens("shared-client", "", "account-a-access", "account-a-refresh", time.Now().Add(time.Hour)); err != nil {
+				t.Fatal(err)
+			}
+			alias := filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
+			if err := os.MkdirAll(filepath.Dir(alias), 0o700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink(target, alias); err != nil {
+				t.Skipf("symlinks unavailable: %v", err)
+			}
+			legacy := filepath.Join(filepath.Dir(alias), "cardata_session.json")
+			data, err := json.Marshal(map[string]string{
+				"client_id": "shared-client", "gcid": "account-" + tc.aliasAccount,
+				"id_token":      testIDToken(time.Now().Add(time.Hour)),
+				"access_token":  "account-" + tc.aliasAccount + "-access",
+				"refresh_token": "account-" + tc.aliasAccount + "-refresh",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := config.WritePrivateFile(legacy, data); err != nil {
+				t.Fatal(err)
+			}
+			shared, err := cardataSharedSessionPath(cfg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := os.Stat(shared); !os.IsNotExist(err) {
+				t.Fatalf("shared sidecar unexpectedly exists: %v", err)
+			}
+			var cmd *cobra.Command
+			var args []string
+			if tc.action == "logout" {
+				cmd = newAuthLogoutCmd(&rootFlags{configPath: target})
+			} else {
+				cmd = newAuthSetTokenCmd(&rootFlags{configPath: target})
+				args = []string{"direct-token"}
+			}
+			cmd.SetOut(io.Discard)
+			cmd.SetContext(context.Background())
+			if err := cmd.RunE(cmd, args); err != nil {
+				t.Fatal(err)
+			}
+			got, err := os.ReadFile(legacy)
+			if tc.wantRemoved {
+				if !os.IsNotExist(err) {
+					t.Fatalf("matching alias credentials remained after %s: %v", tc.action, err)
+				}
+			} else if err != nil || !bytes.Equal(got, data) {
+				t.Fatalf("foreign account alias changed after %s: %v", tc.action, err)
+			}
+		})
 	}
 }
 
