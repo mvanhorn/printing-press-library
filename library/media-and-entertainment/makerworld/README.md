@@ -117,7 +117,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
-For the HTTP MCP transport, set `PP_MCP_HTTP_TOKEN` or pass `--http-token`. It binds to `127.0.0.1:7777` by default. A non-loopback address also requires `--tls-cert` and `--tls-key`.
+For the HTTP MCP transport, set `PP_MCP_HTTP_TOKEN` in the server environment. It binds to `127.0.0.1:7777` by default. A non-loopback address also requires `--tls-cert` and `--tls-key`.
 
 ## Authentication
 

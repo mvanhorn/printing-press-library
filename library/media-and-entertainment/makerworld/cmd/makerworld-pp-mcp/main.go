@@ -41,7 +41,6 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
-	httpToken := flag.String("http-token", "", "bearer token required from HTTP transport callers (or set PP_MCP_HTTP_TOKEN)")
 	tlsCert := flag.String("tls-cert", "", "TLS certificate file for non-loopback HTTP transport")
 	tlsKey := flag.String("tls-key", "", "TLS private key file for non-loopback HTTP transport")
 	flag.Parse()
@@ -53,10 +52,7 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		token := strings.TrimSpace(*httpToken)
-		if token == "" {
-			token = strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
-		}
+		token := strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
 		useTLS, err := validateHTTPTransport(*addr, token, *tlsCert, *tlsKey)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
@@ -97,7 +93,7 @@ func main() {
 
 func validateHTTPTransport(addr, token, tlsCert, tlsKey string) (bool, error) {
 	if strings.TrimSpace(token) == "" {
-		return false, fmt.Errorf("set --http-token or PP_MCP_HTTP_TOKEN")
+		return false, fmt.Errorf("set PP_MCP_HTTP_TOKEN")
 	}
 	useTLS := tlsCert != "" || tlsKey != ""
 	if useTLS && (tlsCert == "" || tlsKey == "") {

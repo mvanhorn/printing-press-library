@@ -150,25 +150,36 @@ func RecentDesignSnapshotTimes(ctx context.Context, db snapshotQuerier) ([]strin
 		return nil, err
 	}
 	defer rows.Close()
-	var stamps []string
+	type snapshotTime struct {
+		stamp string
+		when  time.Time
+	}
+	var times []snapshotTime
 	for rows.Next() {
 		var stamp string
 		if err := rows.Scan(&stamp); err != nil {
 			return nil, err
 		}
-		stamps = append(stamps, stamp)
+		when, err := time.Parse(time.RFC3339Nano, stamp)
+		if err != nil {
+			// Unknown legacy data cannot be ordered or pruned safely.
+			return nil, fmt.Errorf("invalid local design snapshot timestamp; repair snapshot history before resync")
+		}
+		times = append(times, snapshotTime{stamp: stamp, when: when})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	sort.Slice(stamps, func(i, j int) bool {
-		left, leftErr := time.Parse(time.RFC3339Nano, stamps[i])
-		right, rightErr := time.Parse(time.RFC3339Nano, stamps[j])
-		if leftErr == nil && rightErr == nil && !left.Equal(right) {
-			return left.After(right)
+	sort.Slice(times, func(i, j int) bool {
+		if !times[i].when.Equal(times[j].when) {
+			return times[i].when.After(times[j].when)
 		}
-		return stamps[i] > stamps[j]
+		return times[i].stamp > times[j].stamp
 	})
+	stamps := make([]string, len(times))
+	for i, snapshot := range times {
+		stamps[i] = snapshot.stamp
+	}
 	return stamps, nil
 }
 

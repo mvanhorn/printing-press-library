@@ -5,6 +5,7 @@ package store
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -32,6 +33,41 @@ func TestDesignSnapshotRetentionUsesTimeOrder(t *testing.T) {
 	}
 	if len(stamps) != 2 || stamps[0] != "2026-10-01T00:00:00.91Z" || stamps[1] != "2026-10-01T00:00:00.901Z" {
 		t.Fatalf("retained timestamps = %v, want latest two in time order", stamps)
+	}
+}
+
+func TestMalformedLegacySnapshotBlocksPruningWithoutChangingState(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	ctx := context.Background()
+	if err := s.SaveCompletedDesignSync(ctx, 1, []SnapshotRow{{DesignID: "first"}}); err != nil {
+		t.Fatal(err)
+	}
+	baseline := s.GetLastSyncedAt("designs")
+	if _, err := s.DB().Exec(`INSERT INTO design_snapshots (sync_at, design_id) VALUES (?, ?)`, "legacy-unknown-time", "legacy"); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.SaveCompletedDesignSync(ctx, 2, []SnapshotRow{{DesignID: "second"}}); err == nil || !strings.Contains(err.Error(), "invalid local design snapshot timestamp") {
+		t.Fatalf("completed sync error = %v, want malformed timestamp refusal", err)
+	}
+	if got := s.GetLastSyncedAt("designs"); got != baseline {
+		t.Fatalf("failed sync changed watermark from %q to %q", baseline, got)
+	}
+	var first, legacy, second int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM design_snapshots WHERE design_id = 'first'`).Scan(&first); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM design_snapshots WHERE design_id = 'legacy'`).Scan(&legacy); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM design_snapshots WHERE design_id = 'second'`).Scan(&second); err != nil {
+		t.Fatal(err)
+	}
+	if first != 1 || legacy != 1 || second != 0 {
+		t.Fatalf("failed sync left snapshot counts first=%d legacy=%d second=%d", first, legacy, second)
 	}
 }
 
