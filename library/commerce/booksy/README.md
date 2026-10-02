@@ -8,7 +8,7 @@ Created by [@milloni](https://github.com/milloni) (Max Tomago).
 
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Stored playbook steps are checked against read-only Booksy commands and returned as argument arrays. Recall omits unsafe old playbooks instead of offering their command text for reuse.
+Stored playbook steps are checked against read-only Booksy commands and returned as argument arrays. Recall omits unsafe old playbooks instead of offering their command text for reuse. Synthesized `<str>` and `<int>` flag values are slots, not literal values: replace them with values verified for the current request before invoking the CLI with separate arguments.
 
 ## Install
 

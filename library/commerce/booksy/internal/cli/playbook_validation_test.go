@@ -38,6 +38,10 @@ func TestPlaybookPreservesSeparateArguments(t *testing.T) {
 	for _, body := range []string{
 		`{"steps":[{"cmd":"booksy-pp-cli businesses get {business.id} --json"}]}`,
 		`{"steps":[{"argv":["businesses","search","--query","hair salon","--page","2"]}]}`,
+		`{"steps":[{"argv":["businesses","search","--query","R&B"]}]}`,
+		`{"steps":[{"argv":["businesses","get","$(id)"]}]}`,
+		`{"steps":[{"cmd":"businesses search --query <str>"}]}`,
+		`{"steps":[{"cmd":"businesses search --page <int>"}]}`,
 	} {
 		stored, err := resolveInlinePlaybook(body)
 		if err != nil {
@@ -52,13 +56,46 @@ func TestPlaybookPreservesSeparateArguments(t *testing.T) {
 		}
 	}
 	for _, body := range []string{
-		`{"steps":[{"argv":["businesses","get","$(id)"]}]}`,
 		`{"steps":[{"argv":["businesses","get",""]}]}`,
+		`{"steps":[{"cmd":"businesses search --query <redacted>"}]}`,
 		`{"steps":[{"cmd":"businesses get 1","argv":["businesses","get","2"]}]}`,
 		`{"steps":[{"client_side":"eval","args":{"script":"anything"}}]}`,
 	} {
 		if _, err := resolveInlinePlaybook(body); err == nil {
 			t.Fatalf("accepted %s", body)
+		}
+	}
+}
+
+func TestPlaybookRequiresValidServiceVariant(t *testing.T) {
+	for _, command := range []string{
+		"availability 297360", "availability 297360 --service-variant 0",
+		"availability 297360 --service-variant nope", "earliest 297360",
+	} {
+		if _, err := resolveInlinePlaybook(`{"steps":[{"cmd":"` + command + `"}]}`); err == nil {
+			t.Errorf("accepted %q without a valid service variant", command)
+		}
+	}
+	for _, command := range []string{
+		"availability 297360 --service-variant 20193554",
+		"earliest 297360 --service-variant <int>",
+	} {
+		if _, err := resolveInlinePlaybook(`{"steps":[{"cmd":"` + command + `"}]}`); err != nil {
+			t.Errorf("rejected valid command %q: %v", command, err)
+		}
+	}
+}
+
+func TestPlaybookValidationDoesNotChangeColor(t *testing.T) {
+	previous := noColor
+	t.Cleanup(func() { noColor = previous })
+	for _, initial := range []bool{false, true} {
+		noColor = initial
+		if _, err := resolveInlinePlaybook(`{"steps":[{"cmd":"businesses get 1 --no-color"}]}`); err != nil {
+			t.Fatal(err)
+		}
+		if noColor != initial {
+			t.Fatalf("validation changed noColor from %v to %v", initial, noColor)
 		}
 	}
 }

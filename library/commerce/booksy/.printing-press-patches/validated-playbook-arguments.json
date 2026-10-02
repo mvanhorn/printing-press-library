@@ -20,5 +20,5 @@
     "README.md",
     "NOTICE"
   ],
-  "validated_outcome": "Offline tests reject shell syntax, unknown commands and flags, bad typed arguments, and unsafe legacy recall while preserving separate multiword arguments."
+  "validated_outcome": "Offline tests reject shell syntax in legacy command text, unknown commands and flags, bad typed arguments, missing service variants, and unsafe legacy recall while preserving separate multiword arguments and synthesized value slots without changing output color."
 }
