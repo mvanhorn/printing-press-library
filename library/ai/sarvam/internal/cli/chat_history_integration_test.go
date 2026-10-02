@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/store"
@@ -92,19 +93,21 @@ func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
 		}
 		var request struct {
 			Stream   bool `json:"stream"`
+			N        int  `json:"n"`
 			Messages []struct {
 				Role    string `json:"role"`
 				Content string `json:"content"`
 			} `json:"messages"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&request); err != nil || !request.Stream || len(request.Messages) != 1 || request.Messages[0].Content != "First question" {
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil || !request.Stream || request.N != 2 || len(request.Messages) != 1 || request.Messages[0].Content != "First question" {
 			http.Error(w, "unexpected streamed chat request", http.StatusBadRequest)
 			return
 		}
 		w.Header().Set("Content-Type", "text/event-stream")
 		_, _ = w.Write([]byte(": stream opened\n\n" +
 			"data: {\"id\":\"chat-stream\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"First\"}}]}\n\n" +
-			"data: {\"id\":\"chat-stream\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" answer\"}}]}\n\n" +
+			"data: {\"id\":\"chat-stream\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" answer\"}},{\"index\":1,\"delta\":{\"content\":\"Other answer\"}}]}\n\n" +
+			"data: {\"id\":\"chat-stream\",\"choices\":[{\"index\":0,\"finish_reason\":\"stop\"},{\"index\":1,\"finish_reason\":\"stop\"}],\"usage\":{\"total_tokens\":42}}\n\n" +
 			"data: [DONE]\n\n"))
 	}))
 	defer server.Close()
@@ -114,7 +117,7 @@ func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
 	t.Setenv("XDG_DATA_HOME", t.TempDir())
 	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "")
 	cmd := RootCmd()
-	cmd.SetArgs([]string{"chat", "--messages", `[{"role":"user","content":"First question"}]`, "--model", "sarvam-105b", "--stream", "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	cmd.SetArgs([]string{"chat", "--messages", `[{"role":"user","content":"First question"}]`, "--model", "sarvam-105b", "--stream", "--n", "2", "--config", filepath.Join(t.TempDir(), "missing.toml")})
 	var output bytes.Buffer
 	cmd.SetOut(&output)
 	cmd.SetErr(&output)
@@ -126,19 +129,16 @@ func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
 	}
 	var printed struct {
 		Results struct {
-			ID      string `json:"id"`
-			Choices []struct {
-				Message struct {
-					Content string `json:"content"`
-				} `json:"message"`
-			} `json:"choices"`
+			Stream string `json:"stream"`
 		} `json:"results"`
 	}
 	if err := json.Unmarshal(output.Bytes(), &printed); err != nil {
 		t.Fatalf("stream output is not a valid JSON envelope: %v", err)
 	}
-	if printed.Results.ID != "chat-stream" || len(printed.Results.Choices) != 1 || printed.Results.Choices[0].Message.Content != "First answer" {
-		t.Fatalf("streamed answer was not printed: %#v", printed.Results)
+	for _, want := range []string{"First", " answer", "Other answer", `"finish_reason":"stop"`, `"total_tokens":42`, "data: [DONE]"} {
+		if !strings.Contains(printed.Results.Stream, want) {
+			t.Fatalf("stream output omitted %q", want)
+		}
 	}
 
 	db, err := store.OpenReadOnly(defaultDBPath("sarvam-pp-cli"))

@@ -210,15 +210,11 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 			outputData := data
 			if bodyStream && !json.Valid(data) {
 				// The transport returns SSE bytes, while the shared CLI output
-				// pipeline requires JSON. Show a completed text reply in the
-				// usual chat shape; preserve other streams as readable event text.
-				if completed, streamErr := chatResponseForHistory(data); streamErr == nil {
-					outputData = completed
-				} else {
-					outputData, err = json.Marshal(map[string]any{"stream": string(data)})
-					if err != nil {
-						return fmt.Errorf("encoding streamed chat output: %w", err)
-					}
+				// pipeline requires JSON. Preserve the entire event stream so
+				// callers can inspect every choice and its response metadata.
+				outputData, err = json.Marshal(map[string]any{"stream": string(data)})
+				if err != nil {
+					return fmt.Errorf("encoding streamed chat output: %w", err)
 				}
 			}
 			// Print provenance to stderr for human-facing output only.
